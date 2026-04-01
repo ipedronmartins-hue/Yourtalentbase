@@ -728,8 +728,8 @@ footer{
 #scEirAlerta{border-radius:4px;padding:12px 14px;gap:10px;align-items:flex-start;flex-wrap:wrap;}
 
 /* ── REVEAL ANIMATION ── */
-.reveal{opacity:0;transform:translateY(16px);transition:opacity .55s ease,transform .55s ease;}
-.reveal.visible{opacity:1;transform:translateY(0);}
+.reveal{opacity:1;transform:none;transition:opacity .55s ease,transform .55s ease;}
+.reveal.animate{opacity:0;transform:translateY(16px);}
 </style>
 </head>
 <body>
@@ -1828,16 +1828,7 @@ footer{
     }
 
     // --- Scroll Reveal ---
-    var revealEls = document.querySelectorAll(".reveal");
-    var observer = new IntersectionObserver(function(entries) {
-      entries.forEach(function(entry) {
-        if(entry.isIntersecting) {
-          entry.target.classList.add("visible");
-          observer.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.1, rootMargin: "0px 0px -40px 0px" });
-    revealEls.forEach(function(el) { observer.observe(el); });
+    // Reveal animation disabled — content always visible
 
     // --- Menu hamburger mobile ---
     var btnMenu = document.getElementById("btnMenu");
@@ -2102,7 +2093,7 @@ footer{
     var prompt = "És um analista tático da YourTalentBase, especializado em futebol de formação em Portugal. Com base nas avaliações de um atleta, analisa o seu perfil de posicionamento.\n\nATLETA: "+nome+"\nCATEGORIA: "+(categoria||"Não indicada")+"\nPÉ DOMINANTE: "+(pe||"Não indicado")+"\n\nAVALIAÇÕES (1=Muito Fraco a 5=Muito Bom):\n"+notasSummary+"\n\nANÁLISE ALGORÍTMICA — Top 3 posições mais compatíveis:\n"+top3+"\n\nRedige uma análise tática em português europeu com:\n1. **Perfil dominante** — que tipo de jogador é este atleta\n2. **Posição principal recomendada** — com justificação baseada nas notas\n3. **Posição alternativa** — onde também pode render bem\n4. **Pontos a desenvolver** — para maximizar o potencial na posição recomendada\n5. **Nota final** — uma frase de síntese sobre o perfil tático\n\nMáximo 300 palavras. Linguagem técnica e objetiva.";
 
     try {
-      var res = await fetch("/functions/claude", {
+      var res = await fetch("/.netlify/functions/claude", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: [{ role: "user", content: prompt }] })
@@ -2465,7 +2456,7 @@ footer{
     var prompt = "És um scout sénior da agência desportiva YourTalentBase, especializada em futebol de formação em Portugal. Redige um Scout Report profissional, objetivo e credível em português europeu.\n\nDADOS DO ATLETA:\n- Nome: " + scDadosAtleta.nome + "\n- Categoria: " + scDadosAtleta.categoria + (scDadosAtleta.eirInfo || "") + "\n- Posição: " + scDadosAtleta.posicao + "\n- Clube: " + (scDadosAtleta.clube || "Não indicado") + "\n- Pé Dominante: " + (scDadosAtleta.pe || "Não indicado") + "\n- Sistema de Jogo Observado: " + (scDadosAtleta.tatica || "Não indicado") + "\n- Jogo/Local: " + (scDadosAtleta.jogo || "Não indicado") + "\n- Época: " + scDadosAtleta.epoca + "\n- Scout: " + (scDadosAtleta.scout || "YourTalentBase") + fisicoPerfil + compStats + decisaoInfo + "\n\nAVALIAÇÕES OBSERVADAS (1=Muito Fraco, 2=Mediocre, 3=Satisfatório, 4=Bom, 5=Muito Bom):\n" + areaSummary + "\n\nOBSERVAÇÕES DO SCOUT: " + (scDadosAtleta.obs || "Sem observações adicionais.") + "\n\nEstrutura obrigatória:\n1. **Perfil do Atleta** — síntese geral incluindo características físicas, contexto da observação" + (scDadosAtleta.eirInfo ? " e análise do Efeito Idade Relativa" : "") + "\n2. **Análise Técnica** — pontos fortes e áreas a melhorar\n3. **Análise Tática** — leitura e aplicação no sistema observado\n4. **Condição Física** — avaliação das capacidades físicas" + (scDadosAtleta.eirInfo ? " contextualizada com a posição no escalão etário" : "") + "\n5. **Perfil Mental e Comportamental** — atitudes, compromisso, liderança\n6. **Recomendação Final** — justifica a decisão de " + (scDadosAtleta.decisao || "a definir") + " com horizonte de " + (scDadosAtleta.prazo || "a definir") + "\n\nUsa linguagem técnica e construtiva. Máximo 420 palavras. Termina com: CLASSIFICAÇÃO GLOBAL: [Muito Fraco / Mediocre / Satisfatório / Bom / Muito Bom]";
 
     try {
-      var res = await fetch("/functions/claude", {
+      var res = await fetch("/.netlify/functions/claude", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
