@@ -1837,7 +1837,7 @@ footer{
           { num: "2", label: "Golos" }
         ],
         tags: ["MDC / MC", "Pé Direito", "🇵🇹", "2× Campeão", "⭐ Agenciado YTB"],
-        bio: "Médio de referência das camadas jovens do Gondomar SC, onde milita desde a época 2019/20. Duplo campeão distrital consecutivo pela Divisão Elite. Na época 2025/26 regista 18 jogos, 593 minutos e 2 golos na 2ª Divisão Sub-13. Perfil de médio com forte inteligência posicional e consistência acima da sua faixa etária.",
+        bio: "'6' construtor com inteligência tática e leitura de jogo raras para a idade. Simplifica o difícil, dita o ritmo, é o farol da equipa na saída de bola. Visão periférica, passe preciso, posicionamento exímio — compensa a estrutura física antes de qualquer adversário perceber. Calmo, autocrítico, líder natural. Bicampeão Distrital na Divisão Elite pelo Gondomar SC.",
         historial: [
           { epoca: "2025/26", clube: "Gondomar SC", escalao: "Sub-13", j: 18, g: 2, a: 0 },
           { epoca: "2024/25", clube: "Gondomar SC", escalao: "Sub-11", j: 31, g: 21, a: null },
@@ -2620,7 +2620,7 @@ footer{
     });
 
     var prompt = "És um scout sénior da agência desportiva YourTalentBase, especializada em futebol de formação em Portugal.\n" +
-    "O teu trabalho é escrever um relatório de observação que valha o dinheiro que o cliente pagou — não uma lista de médias, mas texto de scout real, com voz própria, observações concretas e juízos de valor fundamentados nas notas individuais.\n\n" +
+    "Redige um Scout Report profissional em português europeu. O relatório é pago e tem de justificar o seu valor — escreve como um scout experiente que observou o atleta em campo, com voz própria e juízos fundamentados.\n\n" +
     "ATLETA OBSERVADO:\n" +
     "- Nome: " + scDadosAtleta.nome + "\n" +
     "- Categoria: " + scDadosAtleta.categoria + (scDadosAtleta.eirInfo || "") + "\n" +
@@ -2632,24 +2632,23 @@ footer{
     "- Época: " + scDadosAtleta.epoca + "\n" +
     "- Scout: " + (scDadosAtleta.scout || "YourTalentBase") +
     fisicoPerfil + compStats + decisaoInfo + "\n\n" +
-    "AVALIAÇÕES COMPLETAS (escala 1-5):\n" + areaSummary + "\n\n" +
-    "RESUMO AUTOMÁTICO:\n" +
+    "AVALIAÇÕES (1=Muito Fraco, 2=Mediocre, 3=Satisfatório, 4=Bom, 5=Muito Bom):\n" + areaSummary + "\n\n" +
+    "DESTAQUES AUTOMÁTICOS:\n" +
     (destaques.length ? "- Pontos fortes: " + destaques.join(", ") + "\n" : "") +
-    (alertas.length ? "- Pontos fracos: " + alertas.join(", ") + "\n" : "") +
-    (medianos.length ? "- Razoáveis: " + medianos.join(", ") + "\n" : "") +
-    "\nOBSERVAÇÕES DO SCOUT: " + (scDadosAtleta.obs || "Sem observações adicionais.") + "\n\n" +
-    "INSTRUÇÕES DE ESCRITA — lê com atenção antes de escrever:\n" +
-    "1. NÃO escrevas listas de pontuações nem médias. O leitor já as vê no relatório.\n" +
-    "2. ESCREVE como um scout experiente a descrever o que VIU em campo — usa frases como 'o jogador demonstrou', 'notou-se clareza em', 'a tendência foi', 'em contexto de pressão', 'nas transições ofensivas'.\n" +
-    "3. Menciona critérios específicos mas dentro de frases narrativas — não como itens de lista.\n" +
-    "4. Se houver Efeito Idade Relativa, incorpora essa perspetiva naturalmente no texto.\n" +
-    "5. Se houver dados competitivos (jogos, golos), integra-os como contexto, não como estatística solta.\n" +
-    "6. A estrutura deve ser:\n" +
-    "   **1. Impressão Geral** — quem é este jogador? O que sobressaiu logo nos primeiros minutos?\n" +
-    "   **2. Capacidades Técnicas e Táticas** — o que faz bem, o que precisa de trabalho, como lê o jogo\n" +
-    "   **3. Perfil Físico e Mental** — presença em campo, intensidade, carácter sob pressão\n" +
-    "   **4. Recomendação** — fundamenta a decisão '" + (scDadosAtleta.decisao || "a definir") + "' com horizonte '" + (scDadosAtleta.prazo || "a definir") + "' em 2-3 frases directas\n\n" +
-    "Máximo 480 palavras. Português europeu. Linguagem técnica mas legível por uma família. Termina com: CLASSIFICAÇÃO GLOBAL: [Muito Fraco / Mediocre / Satisfatório / Bom / Muito Bom]";
+    (alertas.length ? "- Pontos a desenvolver: " + alertas.join(", ") + "\n" : "") + "\n" +
+    "OBSERVAÇÕES DO SCOUT: " + (scDadosAtleta.obs || "Sem observações adicionais.") + "\n\n" +
+    "ESTRUTURA OBRIGATÓRIA — usa exatamente estes títulos:\n\n" +
+    "**1. Estilo de Jogo**\n" +
+    "2-3 frases que descrevem quem é este jogador em campo — como funciona, o que o define, qual o seu papel natural na equipa. Usa linguagem de scout: 'atleta que...', 'tende a...', 'privilegia...'.\n\n" +
+    "**2. Pontos Fortes**\n" +
+    "3 pontos fortes reais baseados nas notas mais altas. Para cada um: título curto a negrito + 1-2 frases de justificação com observações concretas do jogo. Não repitas as notas numéricas — descreve o que viste.\n\n" +
+    "**3. Áreas a Desenvolver**\n" +
+    "2 pontos baseados nas notas mais baixas. Tom construtivo — não é uma crítica, é um caminho. Mesmo um jogador com notas altas tem margem de crescimento.\n\n" +
+    "**4. Recomendação Final**\n" +
+    "2-3 frases directas que justificam a decisão '" + (scDadosAtleta.decisao || "a definir") + "' com horizonte '" + (scDadosAtleta.prazo || "a definir") + "'. Termina com uma frase de síntese sobre o potencial do atleta." +
+    (scDadosAtleta.eirInfo ? "\n\nNota: integra a análise do Efeito Idade Relativa de forma natural no texto, não como secção separada." : "") + "\n\n" +
+    "Máximo 400 palavras. Português europeu. Linguagem técnica mas acessível a uma família.\n" +
+    "Termina SEMPRE com numa linha separada: CLASSIFICAÇÃO GLOBAL: [Muito Fraco / Mediocre / Satisfatório / Bom / Muito Bom]";
 
     try {
       var res = await fetch("/.netlify/functions/claude", {
