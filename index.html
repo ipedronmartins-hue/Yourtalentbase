@@ -850,7 +850,7 @@ footer{
         <div class="atleta-foto" style="background-image:url('/guilherme.jpg');background-position:center 20%;">
           <div class="atleta-foto-overlay"></div>
           <div class="atleta-clube-badge">Gondomar SC</div>
-          <div class="atleta-disponivel"><div class="atleta-disponivel-dot"></div><span>Disponível</span></div>
+          <div class="atleta-disponivel" style="background:rgba(212,175,55,.12);border-color:rgba(212,175,55,.35);"><div class="atleta-disponivel-dot" style="background:var(--gold);"></div><span style="color:var(--gold);">Agenciado</span></div>
         </div>
         <div class="atleta-info">
           <div class="atleta-escalao">Sub-19 · II Divisão · 2025/26</div>
@@ -865,6 +865,7 @@ footer{
             <span class="atleta-tag">Médio</span>
             <span class="atleta-tag">Pé Esquerdo</span>
             <span class="atleta-tag gold">🇧🇷 🇵🇹</span>
+            <span class="atleta-tag gold">⭐ Agenciado</span>
           </div>
         </div>
       </div>
@@ -874,7 +875,7 @@ footer{
         <div class="atleta-foto" style="background-image:url('/vasco.jpg');background-position:center 30%;">
           <div class="atleta-foto-overlay"></div>
           <div class="atleta-clube-badge">Gondomar SC</div>
-          <div class="atleta-disponivel"><div class="atleta-disponivel-dot"></div><span>Disponível</span></div>
+          <div class="atleta-disponivel" style="background:rgba(212,175,55,.12);border-color:rgba(212,175,55,.35);"><div class="atleta-disponivel-dot" style="background:var(--gold);"></div><span style="color:var(--gold);">Agenciado</span></div>
         </div>
         <div class="atleta-info">
           <div class="atleta-escalao">Sub-13 · 2ª Divisão · 2025/26</div>
@@ -889,6 +890,31 @@ footer{
             <span class="atleta-tag">MDC</span>
             <span class="atleta-tag">Pé Direito</span>
             <span class="atleta-tag gold">2× Campeão</span>
+            <span class="atleta-tag gold">⭐ Agenciado</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Duarte "Du" Almeida -->
+      <div class="atleta-card" onclick="abrirPerfilAtleta('duarte')" style="cursor:pointer;">
+        <div class="atleta-foto" style="background-image:url('/duarte.jpg');background-position:center top;">
+          <div class="atleta-foto-overlay"></div>
+          <div class="atleta-clube-badge">FC Famalicão</div>
+          <div class="atleta-disponivel" style="background:rgba(212,175,55,.12);border-color:rgba(212,175,55,.35);"><div class="atleta-disponivel-dot" style="background:var(--gold);"></div><span style="color:var(--gold);">Agenciado</span></div>
+        </div>
+        <div class="atleta-info">
+          <div class="atleta-escalao">Sub-12 · 2025/26</div>
+          <div class="atleta-nome">Du</div>
+          <div class="atleta-meta">11 anos · Pé Esquerdo · 🇵🇹</div>
+          <div class="atleta-stats">
+            <div class="atleta-stat"><span class="as-num">2</span><span class="as-label">Épocas</span></div>
+            <div class="atleta-stat"><span class="as-num">GR</span><span class="as-label">Posição</span></div>
+            <div class="atleta-stat"><span class="as-num">⚡</span><span class="as-label">Reflexos</span></div>
+          </div>
+          <div class="atleta-tags">
+            <span class="atleta-tag">Guarda-Redes</span>
+            <span class="atleta-tag">Pé Esquerdo</span>
+            <span class="atleta-tag gold">⭐ Agenciado</span>
           </div>
         </div>
       </div>
@@ -1786,9 +1812,16 @@ footer{
           { num: "1313", label: "Minutos" },
           { num: "1", label: "Golos" }
         ],
-        tags: ["Médio", "Pé Esquerdo", "🇧🇷 🇵🇹", "Capitão"],
-        bio: "Médio com dupla nacionalidade portuguesa e brasileira, capitão do Gondomar SC Sub-19 com braçadeira assumida desde o início da época. Registo de 1313 minutos em 16 jogos na II Divisão Sub-19 (2025/26). Percurso de formação pelo Boavista FC, Rio Ave e Leixões. Jogador no ativo acompanhado pela YourTalentBase.",
-        historial: "2025/26 Gondomar SC Sub-19 · 2024/25 Leixões Sub-17 (28j) · 2023/24 Rio Ave Sub-17 · 2022/23 Boavista FC Sub-15",
+        tags: ["Médio", "Pé Esquerdo", "🇧🇷 🇵🇹", "Capitão", "⭐ Agenciado YTB"],
+        bio: "Médio com dupla nacionalidade portuguesa e brasileira, capitão do Gondomar SC Sub-19 com braçadeira assumida desde o início da época. Registo de 1313 minutos em 16 jogos na II Divisão Sub-19 (2025/26). Percurso de formação no Boavista FC, Rio Ave FC e Leixões SC. Jogador no ativo acompanhado pela YourTalentBase.",
+        historial: [
+          { epoca: "2025/26", clube: "Gondomar SC", escalao: "Sub-19", j: 16, g: 1, a: 0 },
+          { epoca: "2024/25", clube: "Leixões SC",  escalao: "Sub-17", j: 31, g: 0, a: 2 },
+          { epoca: "2023/24", clube: "Rio Ave FC",   escalao: "Sub-17", j: 25, g: 1, a: 0 },
+          { epoca: "2022/23", clube: "Boavista FC",  escalao: "Sub-15", j: 14, g: 1, a: 0 },
+          { epoca: "2021/22", clube: "Boavista FC",  escalao: "Sub-15", j: null, g: null, a: null }
+        ],
+        palmares: [],
         zerozero: "https://www.zerozero.pt/jogador/guilherme-neto/916200"
       },
       vasco: {
@@ -1803,10 +1836,47 @@ footer{
           { num: "593", label: "Minutos" },
           { num: "2", label: "Golos" }
         ],
-        tags: ["MDC / MC", "Pé Direito", "🇵🇹", "2× Campeão"],
-        bio: "Médio de referência das camadas jovens do Gondomar SC, onde milita há 6 épocas consecutivas. Duplo campeão distrital — Sub-10 (2023/24) e Sub-11 (2024/25). Na época 2025/26 soma 18 jogos, 593 minutos e 2 golos na 2ª Divisão Sub-13. Perfil de médio com forte inteligência posicional e consistência acima da sua faixa etária.",
-        historial: "2025/26 Gondomar SC Sub-13 · 2024/25 Gondomar SC Sub-11 (campeão) · 2023/24 Gondomar SC Sub-10 (campeão) · 2022/23 Gondomar SC Sub-10 · 2021/22 Gondomar SC Sub-9",
+        tags: ["MDC / MC", "Pé Direito", "🇵🇹", "2× Campeão", "⭐ Agenciado YTB"],
+        bio: "Médio de referência das camadas jovens do Gondomar SC, onde milita desde a época 2019/20. Duplo campeão distrital consecutivo pela Divisão Elite. Na época 2025/26 regista 18 jogos, 593 minutos e 2 golos na 2ª Divisão Sub-13. Perfil de médio com forte inteligência posicional e consistência acima da sua faixa etária.",
+        historial: [
+          { epoca: "2025/26", clube: "Gondomar SC", escalao: "Sub-13", j: 18, g: 2, a: 0 },
+          { epoca: "2024/25", clube: "Gondomar SC", escalao: "Sub-11", j: 31, g: 21, a: null },
+          { epoca: "2023/24", clube: "Gondomar SC", escalao: "Sub-10", j: 30, g: 9, a: null },
+          { epoca: "2022/23", clube: "Gondomar SC", escalao: "Sub-10", j: 21, g: 5, a: null },
+          { epoca: "2021/22", clube: "Gondomar SC", escalao: "Sub-9",  j: null, g: null, a: null },
+          { epoca: "2019/20", clube: "Gondomar SC", escalao: "Sub-7",  j: null, g: null, a: null }
+        ],
+        palmares: [
+          { epoca: "2024/25", titulo: "Campeão Distrital · Divisão Elite", escalao: "Sub-11", clube: "Gondomar SC" },
+          { epoca: "2023/24", titulo: "Campeão Distrital · Divisão Elite", escalao: "Sub-10", clube: "Gondomar SC" }
+        ],
         zerozero: "https://www.zerozero.pt/jogador/vasco-coutinho/1100918?epoca_id=155"
+      },
+      duarte: {
+        nome: "Du",
+        nomeCompleto: "Duarte Filipe Simões Almeida",
+        nascimento: "14 de Agosto de 2013 · 11 anos",
+        escalao: "Sub-12 · FC Famalicão · 2025/26",
+        clube: "FC Famalicão",
+        foto: "/duarte.jpg",
+        stats: [
+          { num: "GR", label: "Posição" },
+          { num: "Esq.", label: "Pé" },
+          { num: "⚡", label: "Reflexos" }
+        ],
+        tags: ["Guarda-Redes", "Pé Esquerdo", "🇵🇹", "⭐ Agenciado YTB"],
+        bio: "Guarda-redes esquerdino com características fora do comum para a idade — leve, explosivo e com reflexos de outro nível. Seguro nas saídas, domina o espaço da baliza como um felino. A dedicação no treino é uma marca identificativa: trabalha mais do que qualquer colega, sem exceção. Passou pelo Gondomar SC e Dragon Force FC antes de rumar ao FC Famalicão, onde confirma sessão após sessão o potencial para chegar longe.",
+        historial: [
+          { epoca: "2025/26", clube: "FC Famalicão",    escalao: "Sub-12", j: null, g: null, a: null },
+          { epoca: "2024/25", clube: "FC Famalicão",    escalao: "Sub-12", j: null, g: null, a: null },
+          { epoca: "2023/24", clube: "Dragon Force FC", escalao: "Sub-11", j: null, g: null, a: null },
+          { epoca: "2022/23", clube: "Dragon Force FC", escalao: "Sub-11", j: null, g: null, a: null },
+          { epoca: "2021/22", clube: "Gondomar SC",     escalao: "Sub-11", j: null, g: null, a: null },
+          { epoca: "2019/20", clube: "Gondomar SC",     escalao: "Sub-7",  j: null, g: null, a: null },
+          { epoca: "2018/19", clube: "Gondomar SC",     escalao: "Sub-7",  j: null, g: null, a: null }
+        ],
+        palmares: [],
+        zerozero: "https://www.zerozero.pt/jogador/duarte-almeida/930968"
       }
     };
 
@@ -1818,12 +1888,48 @@ footer{
       document.getElementById("modalAtletaEscalao").textContent = a.escalao;
       document.getElementById("modalAtletaNome").textContent = a.nome;
       document.getElementById("modalAtletaNasc").textContent = a.nomeCompleto + " · " + a.nascimento;
-      document.getElementById("modalAtletaBio").innerHTML =
-        '<p style="margin-bottom:' + (a.historial ? '14px' : '0') + ';">' + a.bio + '</p>' +
-        (a.historial ? '<div style="border-top:1px solid var(--border);padding-top:12px;">' +
-          '<div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:7px;">Historial</div>' +
-          '<div style="font-size:12px;color:var(--slate);line-height:2.1;">' + a.historial.split(' · ').join('<br>') + '</div>' +
-        '</div>' : '');
+      var bioHTML = '<p style="margin-bottom:16px;">' + a.bio + '</p>';
+
+      // Palmarés
+      if (a.palmares && a.palmares.length) {
+        bioHTML += '<div style="border-top:1px solid var(--border);padding-top:14px;margin-bottom:14px;">';
+        bioHTML += '<div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:10px;">🏆 Palmarés</div>';
+        bioHTML += a.palmares.map(function(p) {
+          return '<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;background:rgba(212,175,55,.05);border:1px solid rgba(212,175,55,.15);border-radius:4px;margin-bottom:6px;">' +
+            '<div>' +
+              '<div style="font-size:12px;font-weight:600;color:#fff;">' + p.titulo + '</div>' +
+              '<div style="font-size:10px;color:var(--slate);margin-top:2px;">' + p.clube + ' · ' + p.escalao + '</div>' +
+            '</div>' +
+            '<div style="font-size:11px;font-weight:700;color:var(--gold);font-family:\'Barlow Condensed\',sans-serif;letter-spacing:1px;">' + p.epoca + '</div>' +
+          '</div>';
+        }).join('');
+        bioHTML += '</div>';
+      }
+
+      // Historial
+      if (a.historial && a.historial.length) {
+        bioHTML += '<div style="border-top:1px solid var(--border);padding-top:14px;">';
+        bioHTML += '<div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">Historial</div>';
+        bioHTML += '<table style="width:100%;border-collapse:collapse;">';
+        bioHTML += '<tr style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">' +
+          '<th style="text-align:left;padding:3px 6px;font-weight:600;">Época</th>' +
+          '<th style="text-align:left;padding:3px 6px;font-weight:600;">Clube</th>' +
+          '<th style="text-align:center;padding:3px 6px;font-weight:600;">J</th>' +
+          '<th style="text-align:center;padding:3px 6px;font-weight:600;">G</th>' +
+          '</tr>';
+        bioHTML += a.historial.map(function(h, i) {
+          var bg = i % 2 === 0 ? 'rgba(255,255,255,.02)' : 'transparent';
+          return '<tr style="background:' + bg + ';font-size:12px;">' +
+            '<td style="padding:6px;color:var(--muted);font-family:\'Barlow Condensed\',sans-serif;letter-spacing:1px;">' + h.epoca + '</td>' +
+            '<td style="padding:6px;color:var(--slate);">' + h.clube + ' <span style="color:var(--muted);font-size:10px;">' + h.escalao + '</span></td>' +
+            '<td style="padding:6px;text-align:center;color:#fff;font-weight:600;">' + (h.j !== null ? h.j : '—') + '</td>' +
+            '<td style="padding:6px;text-align:center;color:#fff;font-weight:600;">' + (h.g !== null ? h.g : '—') + '</td>' +
+          '</tr>';
+        }).join('');
+        bioHTML += '</table></div>';
+      }
+
+      document.getElementById("modalAtletaBio").innerHTML = bioHTML;
       document.getElementById("modalAtletaStats").innerHTML = a.stats.map(function(s, i) {
         return '<div style="text-align:center;padding:12px 8px;' + (i < a.stats.length-1 ? 'border-right:1px solid var(--border);' : '') + '">' +
           '<div style="font-family:\'Syne\',sans-serif;font-size:22px;font-weight:800;color:#fff;line-height:1;">' + s.num + '</div>' +
