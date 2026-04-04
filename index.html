@@ -847,14 +847,14 @@ footer{
 
       <!-- Guilherme Neto -->
       <div class="atleta-card" onclick="abrirPerfilAtleta('guilherme')" style="cursor:pointer;">
-        <div class="atleta-foto" style="background-image:url('/guilherme.jpg');">
+        <div class="atleta-foto" style="background-image:url('/guilherme.jpg');background-position:center 20%;">
           <div class="atleta-foto-overlay"></div>
           <div class="atleta-clube-badge">Gondomar SC</div>
           <div class="atleta-disponivel"><div class="atleta-disponivel-dot"></div><span>Disponível</span></div>
         </div>
         <div class="atleta-info">
           <div class="atleta-escalao">Sub-19 · II Divisão · 2025/26</div>
-          <div class="atleta-nome">Guilherme Neto</div>
+          <div class="atleta-nome">Neto</div>
           <div class="atleta-meta">17 anos · Pé Esquerdo · 🇧🇷 🇵🇹</div>
           <div class="atleta-stats">
             <div class="atleta-stat"><span class="as-num">16</span><span class="as-label">Jogos</span></div>
@@ -865,6 +865,30 @@ footer{
             <span class="atleta-tag">Médio</span>
             <span class="atleta-tag">Pé Esquerdo</span>
             <span class="atleta-tag gold">🇧🇷 🇵🇹</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vasco Martins -->
+      <div class="atleta-card" onclick="abrirPerfilAtleta('vasco')" style="cursor:pointer;">
+        <div class="atleta-foto" style="background-image:url('/vasco.jpg');background-position:center 30%;">
+          <div class="atleta-foto-overlay"></div>
+          <div class="atleta-clube-badge">Gondomar SC</div>
+          <div class="atleta-disponivel"><div class="atleta-disponivel-dot"></div><span>Disponível</span></div>
+        </div>
+        <div class="atleta-info">
+          <div class="atleta-escalao">Sub-13 · 2ª Divisão · 2025/26</div>
+          <div class="atleta-nome">Coutinho</div>
+          <div class="atleta-meta">11 anos · Pé Direito · 🇵🇹</div>
+          <div class="atleta-stats">
+            <div class="atleta-stat"><span class="as-num">18</span><span class="as-label">Jogos</span></div>
+            <div class="atleta-stat"><span class="as-num">593</span><span class="as-label">Min</span></div>
+            <div class="atleta-stat"><span class="as-num">2</span><span class="as-label">Golos</span></div>
+          </div>
+          <div class="atleta-tags">
+            <span class="atleta-tag">MDC</span>
+            <span class="atleta-tag">Pé Direito</span>
+            <span class="atleta-tag gold">2× Campeão</span>
           </div>
         </div>
       </div>
@@ -1106,7 +1130,7 @@ footer{
   <div class="contacto-inner wrap">
     <div class="contact-card reveal">
       <h3>Contacto</h3>
-      <div class="contact-item"><div class="ci-icon">✉</div><div><div class="ci-label">Email</div><div class="ci-val"><a href="mailto:yourtalentbase@gmail.com">yourtalentbase@gmail.com</a></div></div></div>
+      <div class="contact-item"><div class="ci-icon">✉</div><div><div class="ci-label">Email</div><div class="ci-val"><a href="/cdn-cgi/l/email-protection#f58c9a8087819499909b8197948690b59298949c99db969a98"><span class="__cf_email__" data-cfemail="ee97819b9c9a8f828b809a8c8f9d8bae89838f8782c08d8183">[email&#160;protected]</span></a></div></div></div>
       <div class="contact-item"><div class="ci-icon">📍</div><div><div class="ci-label">Sede</div><div class="ci-val">Rio Tinto, Gondomar · Portugal</div></div></div>
       <div class="contact-item"><div class="ci-icon">⚽</div><div><div class="ci-label">Área de Actuação</div><div class="ci-val">Norte de Portugal</div></div></div>
       <div class="contact-item"><div class="ci-icon">🕐</div><div><div class="ci-label">Resposta</div><div class="ci-val">Até 48 horas úteis</div></div></div>
@@ -1137,20 +1161,20 @@ footer{
 
 <!-- LOGIN SCOUTING -->
 <div id="loginScoutingOverlay" style="display:none;position:fixed;inset:0;z-index:999;background:rgba(8,9,12,0.97);backdrop-filter:blur(16px);align-items:center;justify-content:center;">
-  <div style="background:var(--card);border:1px solid var(--borda);border-top:3px solid var(--amarelo);border-radius:12px;padding:48px 40px;width:100%;max-width:400px;position:relative;">
-    <button onclick="fecharLoginScouting()" style="position:absolute;top:16px;right:16px;background:none;border:none;color:var(--cinza);font-size:22px;cursor:pointer;">×</button>
+  <div style="background:var(--card);border:1px solid var(--border);border-top:3px solid var(--gold);border-radius:12px;padding:48px 40px;width:100%;max-width:400px;position:relative;">
+    <button onclick="fecharLoginScouting()" style="position:absolute;top:16px;right:16px;background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;">×</button>
     <div style="text-align:center;margin-bottom:28px;">
-      <div style="width:48px;height:48px;background:var(--amarelo);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:var(--preto);margin:0 auto 14px;">⚡</div>
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--branco);">Scout Report</div>
-      <div style="font-size:12px;color:var(--cinza);margin-top:4px;">Scouts YTB · Clubes Parceiros</div>
+      <div style="width:48px;height:48px;background:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:var(--bg);margin:0 auto 14px;">⚡</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#fff;">Scout Report</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px;">Scouts YTB · Clubes Parceiros</div>
     </div>
     <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:16px;">
-      <label style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--cinza-cl);">Password</label>
-      <input id="scoutingInput" type="password" placeholder="••••••••••••" onkeydown="if(event.key==='Enter')fazerLoginScouting()" style="background:var(--card2);border:1px solid var(--borda2);border-radius:5px;padding:12px 14px;font-family:'Barlow',sans-serif;font-size:15px;color:var(--branco);outline:none;width:100%;">
+      <label style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--slate);">Password</label>
+      <input id="scoutingInput" type="password" placeholder="••••••••••••" onkeydown="if(event.key==='Enter')fazerLoginScouting()" style="background:var(--card2);border:1px solid var(--border2);border-radius:5px;padding:12px 14px;font-family:'Barlow',sans-serif;font-size:15px;color:#fff;outline:none;width:100%;">
     </div>
     <div id="scoutingErro" style="display:none;color:#F87171;font-size:12px;margin-bottom:12px;text-align:center;">Password incorrecta. Tenta novamente.</div>
-    <button onclick="fazerLoginScouting()" style="width:100%;background:var(--amarelo);color:var(--preto);font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:13px;border-radius:5px;border:none;cursor:pointer;">Entrar</button>
-    <div style="margin-top:16px;text-align:center;font-size:11px;color:var(--cinza);">Acesso reservado a scouts e clubes parceiros YTB</div>
+    <button onclick="fazerLoginScouting()" style="width:100%;background:var(--gold);color:var(--bg);font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:13px;border-radius:5px;border:none;cursor:pointer;">Entrar</button>
+    <div style="margin-top:16px;text-align:center;font-size:11px;color:var(--muted);">Acesso reservado a scouts e clubes parceiros YTB</div>
   </div>
 </div>
 
@@ -1158,13 +1182,13 @@ footer{
 <div id="areaScouting" style="display:none;position:fixed;inset:0;z-index:998;background:var(--bg);overflow-y:auto;">
   <div class="sc-nav">
     <div style="display:flex;align-items:center;gap:12px;">
-      <div style="width:32px;height:32px;background:var(--amarelo);border-radius:5px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;color:var(--preto);">TB</div>
-      <span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:3px;text-transform:uppercase;">Your<span style="color:var(--amarelo);">TalentBase</span> <span style="color:var(--cinza);font-size:12px;letter-spacing:2px;">· SCOUT REPORT</span></span>
+      <div style="width:32px;height:32px;background:var(--gold);border-radius:5px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;color:var(--bg);">TB</div>
+      <span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:3px;text-transform:uppercase;">Your<span style="color:var(--gold);">TalentBase</span> <span style="color:var(--muted);font-size:12px;letter-spacing:2px;">· SCOUT REPORT</span></span>
     </div>
     <div style="display:flex;align-items:center;gap:10px;">
-      <span id="scBadgeRole" style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:5px 12px;border-radius:3px;background:rgba(245,192,0,0.12);color:var(--amarelo);border:1px solid rgba(245,192,0,0.3);"></span>
-      <button id="scBtnNovaAval" onclick="scMostrarForm()" style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:var(--amarelo);color:var(--preto);border:none;padding:7px 16px;border-radius:3px;cursor:pointer;display:none;">+ Nova Avaliação</button>
-      <button onclick="sairScouting()" style="font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--cinza);background:none;border:1px solid var(--borda);padding:7px 16px;border-radius:3px;cursor:pointer;">Sair</button>
+      <span id="scBadgeRole" style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:5px 12px;border-radius:3px;background:rgba(245,192,0,0.12);color:var(--gold);border:1px solid rgba(245,192,0,0.3);"></span>
+      <button id="scBtnNovaAval" onclick="scMostrarForm()" style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:var(--gold);color:var(--bg);border:none;padding:7px 16px;border-radius:3px;cursor:pointer;display:none;">+ Nova Avaliação</button>
+      <button onclick="sairScouting()" style="font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);background:none;border:1px solid var(--border);padding:7px 16px;border-radius:3px;cursor:pointer;">Sair</button>
     </div>
   </div>
 
@@ -1173,12 +1197,12 @@ footer{
     <!-- FORM AVALIAÇÃO -->
     <div id="scForm">
       <div style="text-align:center;margin-bottom:36px;">
-        <div style="font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--amarelo);margin-bottom:8px;">Scout Report · YourTalentBase</div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:800;text-transform:uppercase;color:var(--branco);">AVALIAÇÃO INDIVIDUAL</div>
+        <div style="font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:8px;">Scout Report · YourTalentBase</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:800;text-transform:uppercase;color:#fff;">AVALIAÇÃO INDIVIDUAL</div>
       </div>
 
       <!-- Dados do Atleta -->
-      <div class="sc-section-head" style="border-left-color:var(--amarelo);color:var(--amarelo);background:rgba(245,192,0,0.05);">
+      <div class="sc-section-head" style="border-left-color:var(--gold);color:var(--gold);background:rgba(245,192,0,0.05);">
         <span>01 · Dados do Atleta</span>
       </div>
       <div class="sc-section-body" style="padding:20px;display:grid;grid-template-columns:1fr 1fr;gap:14px;border-radius:0 0 8px 8px;">
@@ -1228,7 +1252,7 @@ footer{
       </div>
 
       <!-- Dados Competitivos -->
-      <div class="sc-section-head" style="border-left-color:var(--amarelo);color:var(--amarelo);background:rgba(245,192,0,0.05);">03 · Dados Competitivos da Época <span style="font-size:9px;font-weight:400;letter-spacing:0;text-transform:none;opacity:0.6;">— fonte: ZeroZero</span></div>
+      <div class="sc-section-head" style="border-left-color:var(--gold);color:var(--gold);background:rgba(245,192,0,0.05);">03 · Dados Competitivos da Época <span style="font-size:9px;font-weight:400;letter-spacing:0;text-transform:none;opacity:0.6;">— fonte: ZeroZero</span></div>
       <div class="sc-section-body" style="padding:20px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;border-radius:0 0 8px 8px;">
         <div><label>Jogos Disputados</label><input id="sc-jogos" type="number" placeholder="0" min="0"></div>
         <div><label>Minutos Jogados</label><input id="sc-minutos" type="number" placeholder="0" min="0"></div>
@@ -1247,8 +1271,8 @@ footer{
       </div>
 
       <!-- Legenda -->
-      <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;padding:12px 16px;background:var(--card);border:1px solid var(--borda);border-radius:6px;margin-bottom:4px;">
-        <span style="font-family:'Syne Mono',monospace;font-size:9px;color:var(--cinza);letter-spacing:2px;text-transform:uppercase;">Escala:</span>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:6px;margin-bottom:4px;">
+        <span style="font-family:'Syne Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;">Escala:</span>
         <span style="font-size:11px;font-weight:700;color:#ef4444;background:rgba(239,68,68,0.1);padding:3px 8px;border-radius:3px;">1 — Muito Fraco</span>
         <span style="font-size:11px;font-weight:700;color:#f97316;background:rgba(249,115,22,0.1);padding:3px 8px;border-radius:3px;">2 — Mediocre</span>
         <span style="font-size:11px;font-weight:700;color:#eab308;background:rgba(234,179,8,0.1);padding:3px 8px;border-radius:3px;">3 — Satisfatório</span>
@@ -1277,16 +1301,16 @@ footer{
       <div class="sc-section-body" style="padding:18px;">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
           <div>
-            <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--cinza-cl);margin-bottom:10px;">Rendimento Observado</div>
+            <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--slate);margin-bottom:10px;">Rendimento Observado</div>
             <div style="display:flex;gap:8px;">
               <button class="sc-perspetiva-btn" id="scR1" onclick="scSetRendimento('R1')" style="color:#22c55e;border-color:rgba(34,197,94,0.2);" title="Rendimento acima do esperado para a categoria">R1</button>
               <button class="sc-perspetiva-btn" id="scR2" onclick="scSetRendimento('R2')" title="Rendimento dentro do esperado para a categoria">R2</button>
               <button class="sc-perspetiva-btn" id="scR3" onclick="scSetRendimento('R3')" style="color:#f97316;border-color:rgba(249,115,22,0.2);" title="Rendimento abaixo do esperado para a categoria">R3</button>
             </div>
-            <div style="font-size:10px;color:var(--cinza);margin-top:8px;">R1 Acima · R2 Dentro · R3 Abaixo da categoria</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:8px;">R1 Acima · R2 Dentro · R3 Abaixo da categoria</div>
           </div>
           <div>
-            <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--cinza-cl);margin-bottom:10px;">Prazo de Avaliação</div>
+            <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--slate);margin-bottom:10px;">Prazo de Avaliação</div>
             <div style="display:flex;gap:8px;">
               <button class="sc-perspetiva-btn" id="scPrazoI" onclick="scSetPrazo('Imediata')" style="font-size:11px;">Imediata</button>
               <button class="sc-perspetiva-btn" id="scPrazoM" onclick="scSetPrazo('Médio Prazo')" style="font-size:11px;">Médio Prazo</button>
@@ -1297,7 +1321,7 @@ footer{
       </div>
 
       <!-- DECISÃO -->
-      <div class="sc-section-head" style="border-left-color:var(--amarelo);">09 · Decisão Final</div>
+      <div class="sc-section-head" style="border-left-color:var(--gold);">09 · Decisão Final</div>
       <div class="sc-section-body" style="padding:16px 18px;">
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
           <button class="sc-perspetiva-btn" id="scD1" onclick="scSetDecisao('Contratar')" style="color:#22c55e;border-color:rgba(34,197,94,0.2);font-size:12px;">✓ Contratar</button>
@@ -1308,34 +1332,34 @@ footer{
       </div>
 
       <!-- OBSERVAÇÕES -->
-      <div class="sc-section-head" style="border-left-color:var(--cinza-cl);">10 · Observações do Avaliador</div>
+      <div class="sc-section-head" style="border-left-color:var(--slate);">10 · Observações do Avaliador</div>
       <div class="sc-section-body" style="padding:16px 18px;">
         <textarea id="sc-obs" style="min-height:80px;" placeholder="Contexto do jogo, condições, comportamentos específicos, notas adicionais..."></textarea>
       </div>
 
       <div id="scFormErro" style="display:none;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.3);border-radius:6px;padding:12px 16px;color:#F87171;font-size:13px;margin-bottom:16px;"></div>
 
-      <button id="scGerarBtn" onclick="scGerarRelatorio()" style="width:100%;background:var(--dourado);color:var(--preto);font-family:'Poppins',sans-serif;font-size:14px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:16px;border-radius:4px;border:none;cursor:pointer;transition:all 0.2s;">
+      <button id="scGerarBtn" onclick="scGerarRelatorio()" style="width:100%;background:var(--dourado);color:var(--bg);font-family:'Poppins',sans-serif;font-size:14px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:16px;border-radius:4px;border:none;cursor:pointer;transition:all 0.2s;">
       ⚡ GERAR SCOUT REPORT
       </button>
     </div>
 
     <!-- LOADING -->
     <div id="scLoading" style="display:none;text-align:center;padding:100px 0;">
-      <div style="width:52px;height:52px;border:3px solid var(--borda);border-top:3px solid var(--amarelo);border-radius:50%;animation:scSpin 0.9s linear infinite;margin:0 auto 20px;"></div>
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;letter-spacing:3px;color:var(--cinza);">A ANALISAR PERFIL DO ATLETA...</div>
+      <div style="width:52px;height:52px;border:3px solid var(--border);border-top:3px solid var(--gold);border-radius:50%;animation:scSpin 0.9s linear infinite;margin:0 auto 20px;"></div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;letter-spacing:3px;color:var(--muted);">A ANALISAR PERFIL DO ATLETA...</div>
     </div>
 
     <!-- RELATÓRIO -->
     <div id="scRelatorio" style="display:none;">
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:28px;">
         <div>
-          <div style="font-size:11px;color:var(--amarelo);font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:6px;">Scout Report · YourTalentBase</div>
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:800;color:var(--branco);" id="scRelNome">—</div>
+          <div style="font-size:11px;color:var(--gold);font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:6px;">Scout Report · YourTalentBase</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:800;color:#fff;" id="scRelNome">—</div>
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
-          <button onclick="scGerarPDF()" style="background:var(--dourado);color:var(--preto);font-family:'Poppins',sans-serif;font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:10px 20px;border-radius:4px;border:none;cursor:pointer;">📄 Download PDF</button>
-          <button onclick="scMostrarForm()" style="background:none;border:1px solid var(--borda2);color:var(--cinza-cl);font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:10px 20px;border-radius:4px;cursor:pointer;">+ Nova Avaliação</button>
+          <button onclick="scGerarPDF()" style="background:var(--dourado);color:var(--bg);font-family:'Poppins',sans-serif;font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:10px 20px;border-radius:4px;border:none;cursor:pointer;">📄 Download PDF</button>
+          <button onclick="scMostrarForm()" style="background:none;border:1px solid var(--border2);color:var(--slate);font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:10px 20px;border-radius:4px;cursor:pointer;">+ Nova Avaliação</button>
         </div>
       </div>
 
@@ -1352,10 +1376,10 @@ footer{
       <div id="scRelPerspetiva" style="display:none;margin-bottom:20px;padding:14px 20px;border-radius:8px;display:flex;align-items:center;justify-content:space-between;"></div>
 
       <!-- Texto IA -->
-      <div style="background:var(--card);border:1px solid var(--borda);border-radius:10px;overflow:hidden;margin-bottom:20px;">
-        <div style="background:var(--escuro);padding:12px 20px;border-bottom:1px solid var(--borda);display:flex;align-items:center;gap:10px;">
-          <div style="width:6px;height:6px;border-radius:50%;background:var(--amarelo);"></div>
-          <span style="font-size:10px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:2px;color:var(--cinza-cl);text-transform:uppercase;">Relatório de Observação · YourTalentBase</span>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:20px;">
+        <div style="background:var(--escuro);padding:12px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;">
+          <div style="width:6px;height:6px;border-radius:50%;background:var(--gold);"></div>
+          <span style="font-size:10px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:2px;color:var(--slate);text-transform:uppercase;">Relatório de Observação · YourTalentBase</span>
         </div>
         <div id="scRelTexto" style="padding:24px;font-size:14px;line-height:1.85;color:var(--slate);white-space:pre-wrap;"></div>
       </div>
@@ -1367,7 +1391,7 @@ footer{
       <div style="margin-top:20px;background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.2);border-radius:8px;padding:18px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
         <div>
           <div style="font-size:12px;font-weight:700;color:#3B82F6;margin-bottom:3px;">Qual a posição ideal para este atleta?</div>
-          <div style="font-size:12px;color:var(--cinza-cl);font-weight:300;">Usa os dados desta avaliação para calcular a compatibilidade por posição.</div>
+          <div style="font-size:12px;color:var(--slate);font-weight:300;">Usa os dados desta avaliação para calcular a compatibilidade por posição.</div>
         </div>
         <button onclick="abrirPerfilDePosicaoDoRelatorio()" style="background:#3B82F6;color:#fff;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:10px 20px;border-radius:3px;border:none;cursor:pointer;white-space:nowrap;">🎯 Analisar Perfil de Posição</button>
       </div>
@@ -1379,53 +1403,53 @@ footer{
 
 <!-- LOGIN PERFIL POSIÇÃO -->
 <div id="loginPosicaoOverlay" style="display:none;position:fixed;inset:0;z-index:999;background:rgba(8,9,12,0.97);backdrop-filter:blur(16px);align-items:center;justify-content:center;">
-  <div style="background:var(--card);border:1px solid var(--borda);border-top:3px solid #3B82F6;border-radius:12px;padding:48px 40px;width:100%;max-width:400px;position:relative;">
-    <button onclick="fecharLoginPosicao()" style="position:absolute;top:16px;right:16px;background:none;border:none;color:var(--cinza);font-size:22px;cursor:pointer;">×</button>
+  <div style="background:var(--card);border:1px solid var(--border);border-top:3px solid #3B82F6;border-radius:12px;padding:48px 40px;width:100%;max-width:400px;position:relative;">
+    <button onclick="fecharLoginPosicao()" style="position:absolute;top:16px;right:16px;background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;">×</button>
     <div style="text-align:center;margin-bottom:28px;">
       <div style="width:48px;height:48px;background:#3B82F6;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto 14px;">🎯</div>
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--branco);">Perfil de Posição</div>
-      <div style="font-size:12px;color:var(--cinza);margin-top:4px;">Scouts YTB · Clubes Parceiros</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#fff;">Perfil de Posição</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px;">Scouts YTB · Clubes Parceiros</div>
     </div>
     <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:16px;">
-      <label style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--cinza-cl);">Password</label>
-      <input id="posicaoInput" type="password" placeholder="••••••••••••" onkeydown="if(event.key==='Enter')fazerLoginPosicao()" style="background:var(--card2);border:1px solid var(--borda2);border-radius:5px;padding:12px 14px;font-family:'Barlow',sans-serif;font-size:15px;color:var(--branco);outline:none;width:100%;">
+      <label style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--slate);">Password</label>
+      <input id="posicaoInput" type="password" placeholder="••••••••••••" onkeydown="if(event.key==='Enter')fazerLoginPosicao()" style="background:var(--card2);border:1px solid var(--border2);border-radius:5px;padding:12px 14px;font-family:'Barlow',sans-serif;font-size:15px;color:#fff;outline:none;width:100%;">
     </div>
     <div id="posicaoErro" style="display:none;color:#F87171;font-size:12px;margin-bottom:12px;text-align:center;">Password incorrecta. Tenta novamente.</div>
     <button onclick="fazerLoginPosicao()" style="width:100%;background:#3B82F6;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:13px;border-radius:5px;border:none;cursor:pointer;">Entrar</button>
-    <div style="margin-top:16px;text-align:center;font-size:11px;color:var(--cinza);">Acesso reservado a scouts e clubes parceiros YTB</div>
+    <div style="margin-top:16px;text-align:center;font-size:11px;color:var(--muted);">Acesso reservado a scouts e clubes parceiros YTB</div>
   </div>
 </div>
 
 <!-- FERRAMENTA PERFIL DE POSIÇÃO -->
 <div id="areaPosicao" style="display:none;position:fixed;inset:0;z-index:998;background:var(--bg);overflow-y:auto;">
-  <div style="position:sticky;top:0;z-index:10;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 48px;background:rgba(8,9,12,0.97);border-bottom:1px solid var(--borda);backdrop-filter:blur(16px);">
+  <div style="position:sticky;top:0;z-index:10;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 48px;background:rgba(8,9,12,0.97);border-bottom:1px solid var(--border);backdrop-filter:blur(16px);">
     <div style="display:flex;align-items:center;gap:12px;">
       <div style="width:32px;height:32px;background:#3B82F6;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:16px;">🎯</div>
-      <span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:3px;text-transform:uppercase;">Your<span style="color:var(--amarelo);">TalentBase</span> <span style="color:var(--cinza);font-size:12px;letter-spacing:2px;">· PERFIL DE POSIÇÃO</span></span>
+      <span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:3px;text-transform:uppercase;">Your<span style="color:var(--gold);">TalentBase</span> <span style="color:var(--muted);font-size:12px;letter-spacing:2px;">· PERFIL DE POSIÇÃO</span></span>
     </div>
-    <button onclick="sairPosicao()" style="font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--cinza);background:none;border:1px solid var(--borda);padding:7px 16px;border-radius:3px;cursor:pointer;">Sair</button>
+    <button onclick="sairPosicao()" style="font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);background:none;border:1px solid var(--border);padding:7px 16px;border-radius:3px;cursor:pointer;">Sair</button>
   </div>
 
   <div style="max-width:900px;margin:0 auto;padding:40px 20px;">
     <div style="text-align:center;margin-bottom:36px;">
       <div style="font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#3B82F6;margin-bottom:8px;">YourTalentBase · Ferramenta Exclusiva</div>
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:800;text-transform:uppercase;color:var(--branco);margin-bottom:8px;">PERFIL DE POSIÇÃO</div>
-      <div style="font-size:14px;color:var(--cinza-cl);max-width:500px;margin:0 auto;">Avalia as capacidades do atleta e descobre as posições onde o seu perfil é mais forte — com análise algorítmica e confirmação profissional.</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:800;text-transform:uppercase;color:#fff;margin-bottom:8px;">PERFIL DE POSIÇÃO</div>
+      <div style="font-size:14px;color:var(--slate);max-width:500px;margin:0 auto;">Avalia as capacidades do atleta e descobre as posições onde o seu perfil é mais forte — com análise algorítmica e confirmação profissional.</div>
     </div>
 
     <!-- FORMULÁRIO -->
     <div id="posForm">
       <!-- Dados básicos -->
       <div style="border-left:3px solid #3B82F6;padding:8px 14px;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#3B82F6;background:rgba(59,130,246,0.06);margin-bottom:0;">Dados do Atleta</div>
-      <div style="background:var(--card);border:1px solid var(--borda);border-top:none;border-radius:0 0 8px 8px;padding:20px;display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;">
-        <div style="grid-column:1/-1;"><label style="display:block;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--cinza-cl);margin-bottom:5px;">Nome do Atleta</label><input id="pos-nome" type="text" placeholder="Nome do atleta" style="background:var(--card2);border:1px solid var(--borda2);border-radius:5px;padding:10px 13px;font-family:'Barlow',sans-serif;font-size:14px;color:var(--branco);outline:none;width:100%;"></div>
-        <div><label style="display:block;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--cinza-cl);margin-bottom:5px;">Categoria</label>
-          <select id="pos-categoria" style="background:var(--card2);border:1px solid var(--borda2);border-radius:5px;padding:10px 13px;font-family:'Barlow',sans-serif;font-size:14px;color:var(--branco);outline:none;width:100%;cursor:pointer;">
+      <div style="background:var(--card);border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;padding:20px;display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;">
+        <div style="grid-column:1/-1;"><label style="display:block;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--slate);margin-bottom:5px;">Nome do Atleta</label><input id="pos-nome" type="text" placeholder="Nome do atleta" style="background:var(--card2);border:1px solid var(--border2);border-radius:5px;padding:10px 13px;font-family:'Barlow',sans-serif;font-size:14px;color:#fff;outline:none;width:100%;"></div>
+        <div><label style="display:block;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--slate);margin-bottom:5px;">Categoria</label>
+          <select id="pos-categoria" style="background:var(--card2);border:1px solid var(--border2);border-radius:5px;padding:10px 13px;font-family:'Barlow',sans-serif;font-size:14px;color:#fff;outline:none;width:100%;cursor:pointer;">
             <option value="">Selecionar...</option><option>Sub-8</option><option>Sub-10</option><option>Sub-12</option><option>Sub-14</option><option>Sub-16</option><option>Sub-19</option>
           </select>
         </div>
-        <div><label style="display:block;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--cinza-cl);margin-bottom:5px;">Pé Dominante</label>
-          <select id="pos-pe" style="background:var(--card2);border:1px solid var(--borda2);border-radius:5px;padding:10px 13px;font-family:'Barlow',sans-serif;font-size:14px;color:var(--branco);outline:none;width:100%;cursor:pointer;">
+        <div><label style="display:block;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--slate);margin-bottom:5px;">Pé Dominante</label>
+          <select id="pos-pe" style="background:var(--card2);border:1px solid var(--border2);border-radius:5px;padding:10px 13px;font-family:'Barlow',sans-serif;font-size:14px;color:#fff;outline:none;width:100%;cursor:pointer;">
             <option value="">Selecionar...</option><option>Direito</option><option>Esquerdo</option><option>Ambidestro</option>
           </select>
         </div>
@@ -1433,7 +1457,7 @@ footer{
 
       <!-- Legenda -->
       <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;padding:10px 16px;background:rgba(245,192,0,0.04);border:1px solid rgba(245,192,0,0.1);border-radius:6px;margin-bottom:20px;">
-        <span style="font-size:10px;color:var(--cinza);font-weight:700;letter-spacing:1px;text-transform:uppercase;">Legenda:</span>
+        <span style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:1px;text-transform:uppercase;">Legenda:</span>
         <span style="font-size:11px;font-weight:700;color:#ef4444;">1 — Muito Fraco</span>
         <span style="font-size:11px;font-weight:700;color:#f97316;">2 — Mediocre</span>
         <span style="font-size:11px;font-weight:700;color:#eab308;">3 — Satisfatório</span>
@@ -1449,8 +1473,8 @@ footer{
 
     <!-- LOADING -->
     <div id="posLoading" style="display:none;text-align:center;padding:80px 0;">
-      <div style="width:52px;height:52px;border:3px solid var(--borda);border-top:3px solid #3B82F6;border-radius:50%;animation:scSpin 0.9s linear infinite;margin:0 auto 20px;"></div>
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;letter-spacing:3px;color:var(--cinza);">A ANALISAR PERFIL...</div>
+      <div style="width:52px;height:52px;border:3px solid var(--border);border-top:3px solid #3B82F6;border-radius:50%;animation:scSpin 0.9s linear infinite;margin:0 auto 20px;"></div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;letter-spacing:3px;color:var(--muted);">A ANALISAR PERFIL...</div>
     </div>
 
     <!-- RESULTADO -->
@@ -1458,22 +1482,22 @@ footer{
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:28px;">
         <div>
           <div style="font-size:11px;color:#3B82F6;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:6px;">Perfil de Posição · YourTalentBase</div>
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:800;color:var(--branco);" id="posRelNome">—</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:800;color:#fff;" id="posRelNome">—</div>
         </div>
-        <button onclick="resetPosicao()" style="background:none;border:1px solid var(--borda2);color:var(--cinza-cl);font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:10px 20px;border-radius:4px;cursor:pointer;">+ Nova Análise</button>
+        <button onclick="resetPosicao()" style="background:none;border:1px solid var(--border2);color:var(--slate);font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:10px 20px;border-radius:4px;cursor:pointer;">+ Nova Análise</button>
       </div>
 
       <!-- Top 3 posições algorítmicas -->
       <div style="margin-bottom:24px;">
-        <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--cinza-cl);margin-bottom:12px;">COMPATIBILIDADE POR POSIÇÃO</div>
+        <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--slate);margin-bottom:12px;">COMPATIBILIDADE POR POSIÇÃO</div>
         <div id="posBarras" style="display:flex;flex-direction:column;gap:10px;"></div>
       </div>
 
       <!-- Análise IA -->
-      <div style="background:var(--card);border:1px solid var(--borda);border-radius:10px;overflow:hidden;margin-bottom:20px;">
-        <div style="background:var(--escuro);padding:12px 20px;border-bottom:1px solid var(--borda);display:flex;align-items:center;gap:10px;">
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:20px;">
+        <div style="background:var(--escuro);padding:12px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;">
           <div style="width:6px;height:6px;border-radius:50%;background:#3B82F6;"></div>
-          <span style="font-size:10px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:2px;color:var(--cinza-cl);text-transform:uppercase;">Análise de Posicionamento · YourTalentBase</span>
+          <span style="font-size:10px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:2px;color:var(--slate);text-transform:uppercase;">Análise de Posicionamento · YourTalentBase</span>
         </div>
         <div id="posTextoIA" style="padding:24px;font-size:14px;line-height:1.85;color:var(--slate);white-space:pre-wrap;"></div>
       </div>
@@ -1483,31 +1507,31 @@ footer{
 
 
 <!-- MODAL PERFIL ATLETA -->
-<div id="modalAtleta" onclick="if(event.target===this)fecharPerfilAtleta()" style="display:none;position:fixed;inset:0;z-index:998;background:rgba(6,7,9,0.92);backdrop-filter:blur(16px);align-items:center;justify-content:center;padding:20px;">
-  <div style="background:var(--card);border:1px solid var(--borda);border-radius:8px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;position:relative;scrollbar-width:none;">
+<div id="modalAtleta" onclick="if(event.target===this)fecharPerfilAtleta()" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(6,7,9,0.92);backdrop-filter:blur(16px);align-items:center;justify-content:center;padding:20px;">
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;position:relative;scrollbar-width:none;">
     <!-- Fechar -->
-    <button onclick="fecharPerfilAtleta()" style="position:absolute;top:14px;right:14px;background:rgba(255,255,255,0.06);border:1px solid var(--borda2);border-radius:50%;width:32px;height:32px;color:var(--cinza-cl);font-size:18px;cursor:pointer;z-index:2;display:flex;align-items:center;justify-content:center;line-height:1;">×</button>
+    <button onclick="fecharPerfilAtleta()" style="position:absolute;top:14px;right:14px;background:rgba(255,255,255,0.06);border:1px solid var(--border2);border-radius:50%;width:32px;height:32px;color:var(--slate);font-size:18px;cursor:pointer;z-index:2;display:flex;align-items:center;justify-content:center;line-height:1;">×</button>
 
     <!-- Foto hero -->
     <div id="modalAtletaFoto" style="height:260px;background-size:cover;background-position:center top;position:relative;">
       <div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent 30%,var(--card) 100%);"></div>
-      <div id="modalAtletaClube" style="position:absolute;top:14px;left:14px;background:rgba(6,7,9,0.7);backdrop-filter:blur(8px);border:1px solid var(--borda2);border-radius:3px;font-family:'Syne Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--cinza-cl);padding:4px 10px;"></div>
+      <div id="modalAtletaClube" style="position:absolute;top:14px;left:14px;background:rgba(6,7,9,0.7);backdrop-filter:blur(8px);border:1px solid var(--border2);border-radius:3px;font-family:'Syne Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--slate);padding:4px 10px;"></div>
     </div>
 
     <!-- Conteúdo -->
     <div style="padding:0 24px 28px;margin-top:-40px;position:relative;">
-      <div id="modalAtletaEscalao" style="font-family:'Syne Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--amarelo);margin-bottom:6px;"></div>
-      <div id="modalAtletaNome" style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--branco);letter-spacing:-0.5px;margin-bottom:4px;"></div>
-      <div id="modalAtletaNasc" style="font-size:12px;color:var(--cinza-cl);margin-bottom:20px;"></div>
+      <div id="modalAtletaEscalao" style="font-family:'Syne Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:6px;"></div>
+      <div id="modalAtletaNome" style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:#fff;letter-spacing:-0.5px;margin-bottom:4px;"></div>
+      <div id="modalAtletaNasc" style="font-size:12px;color:var(--slate);margin-bottom:20px;"></div>
 
       <!-- Stats principais -->
-      <div id="modalAtletaStats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--borda);border-radius:4px;overflow:hidden;margin-bottom:20px;"></div>
+      <div id="modalAtletaStats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-bottom:20px;"></div>
 
       <!-- Tags -->
       <div id="modalAtletaTags" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;"></div>
 
       <!-- Bio / descrição -->
-      <div id="modalAtletaBio" style="font-size:13px;color:var(--cinza-cl);line-height:1.8;font-weight:300;border-top:1px solid var(--borda);padding-top:16px;margin-bottom:20px;"></div>
+      <div id="modalAtletaBio" style="font-size:13px;color:var(--slate);line-height:1.8;font-weight:300;border-top:1px solid var(--border);padding-top:16px;margin-bottom:20px;"></div>
 
       <!-- Links -->
       <div id="modalAtletaLinks" style="display:flex;gap:10px;flex-wrap:wrap;"></div>
@@ -1521,7 +1545,7 @@ footer{
   <div class="footer-logo">Your<span>Talent</span>Base</div>
   <div class="footer-copy">© 2026 YourTalentBase · Rio Tinto, Gondomar · Ivo Pedro Martins</div>
   <div class="footer-links">
-    <a href="mailto:yourtalentbase@gmail.com">yourtalentbase@gmail.com</a>
+    <a href="/cdn-cgi/l/email-protection#acd5c3d9ded8cdc0c9c2d8cecddfc9eccbc1cdc5c082cfc3c1"><span class="__cf_email__" data-cfemail="275e48525553464b4249534546544267404a464e4b0944484a">[email&#160;protected]</span></a>
     <a href="#sobre">Sobre</a>
     <a href="#contacto">Contacto</a>
   </div>
@@ -1668,7 +1692,7 @@ footer{
         <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:#F0F2F7;margin-bottom:4px;">Queres formalizar a parceria?</div>
         <div style="font-size:13px;color:#8892A4;">Contacta-nos para assinar o acordo e ativar a parceria para o teu clube.</div>
       </div>
-      <a href="mailto:yourtalentbase@gmail.com" style="background:#0047AB;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:12px 24px;border-radius:5px;text-decoration:none;white-space:nowrap;">✉ yourtalentbase@gmail.com</a>
+      <a href="/cdn-cgi/l/email-protection#750c1a0007011419101b0117140610351218141c195b161a18" style="background:#0047AB;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:12px 24px;border-radius:5px;text-decoration:none;white-space:nowrap;">✉ <span class="__cf_email__" data-cfemail="4e37213b3c3a2f222b203a2c2f3d2b0e29232f2722602d2123">[email&#160;protected]</span></a>
     </div>
 
     <!-- Atletas do clube -->
@@ -1681,7 +1705,7 @@ footer{
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (function() {
   // ── CONFIG ──
@@ -1751,7 +1775,7 @@ footer{
     // --- Modal Perfil Atleta ---
     var ATLETAS_DB = {
       guilherme: {
-        nome: "Guilherme Neto",
+        nome: "Neto",
         nomeCompleto: "Guilherme Branco Gaspar Neto",
         nascimento: "24 de Junho de 2008 · 17 anos",
         escalao: "Sub-19 · II Divisão · 2025/26",
@@ -1762,9 +1786,27 @@ footer{
           { num: "1313", label: "Minutos" },
           { num: "1", label: "Golos" }
         ],
-        tags: ["Médio", "Pé Esquerdo", "🇧🇷 🇵🇹"],
-        bio: "Médio de origem brasileira com dupla nacionalidade portuguesa. Capitão de equipa no Gondomar SC Sub-19, com 1313 minutos em 16 jogos na II Divisão Sub-19 na época 2025/26. Jogador no ativo acompanhado pela YourTalentBase.",
+        tags: ["Médio", "Pé Esquerdo", "🇧🇷 🇵🇹", "Capitão"],
+        bio: "Médio com dupla nacionalidade portuguesa e brasileira, capitão do Gondomar SC Sub-19 com braçadeira assumida desde o início da época. Registo de 1313 minutos em 16 jogos na II Divisão Sub-19 (2025/26). Percurso de formação pelo Boavista FC, Rio Ave e Leixões. Jogador no ativo acompanhado pela YourTalentBase.",
+        historial: "2025/26 Gondomar SC Sub-19 · 2024/25 Leixões Sub-17 (28j) · 2023/24 Rio Ave Sub-17 · 2022/23 Boavista FC Sub-15",
         zerozero: "https://www.zerozero.pt/jogador/guilherme-neto/916200"
+      },
+      vasco: {
+        nome: "Coutinho",
+        nomeCompleto: "Vasco Coutinho Martins",
+        nascimento: "10 de Julho de 2014 · 11 anos",
+        escalao: "Sub-13 · 2ª Divisão · 2025/26",
+        clube: "Gondomar SC",
+        foto: "/vasco.jpg",
+        stats: [
+          { num: "18", label: "Jogos" },
+          { num: "593", label: "Minutos" },
+          { num: "2", label: "Golos" }
+        ],
+        tags: ["MDC / MC", "Pé Direito", "🇵🇹", "2× Campeão"],
+        bio: "Médio de referência das camadas jovens do Gondomar SC, onde milita há 6 épocas consecutivas. Duplo campeão distrital — Sub-10 (2023/24) e Sub-11 (2024/25). Na época 2025/26 soma 18 jogos, 593 minutos e 2 golos na 2ª Divisão Sub-13. Perfil de médio com forte inteligência posicional e consistência acima da sua faixa etária.",
+        historial: "2025/26 Gondomar SC Sub-13 · 2024/25 Gondomar SC Sub-11 (campeão) · 2023/24 Gondomar SC Sub-10 (campeão) · 2022/23 Gondomar SC Sub-10 · 2021/22 Gondomar SC Sub-9",
+        zerozero: "https://www.zerozero.pt/jogador/vasco-coutinho/1100918?epoca_id=155"
       }
     };
 
@@ -1776,20 +1818,25 @@ footer{
       document.getElementById("modalAtletaEscalao").textContent = a.escalao;
       document.getElementById("modalAtletaNome").textContent = a.nome;
       document.getElementById("modalAtletaNasc").textContent = a.nomeCompleto + " · " + a.nascimento;
-      document.getElementById("modalAtletaBio").textContent = a.bio;
+      document.getElementById("modalAtletaBio").innerHTML =
+        '<p style="margin-bottom:' + (a.historial ? '14px' : '0') + ';">' + a.bio + '</p>' +
+        (a.historial ? '<div style="border-top:1px solid var(--border);padding-top:12px;">' +
+          '<div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:7px;">Historial</div>' +
+          '<div style="font-size:12px;color:var(--slate);line-height:2.1;">' + a.historial.split(' · ').join('<br>') + '</div>' +
+        '</div>' : '');
       document.getElementById("modalAtletaStats").innerHTML = a.stats.map(function(s, i) {
-        return '<div style="text-align:center;padding:12px 8px;' + (i < a.stats.length-1 ? 'border-right:1px solid var(--borda);' : '') + '">' +
-          '<div style="font-family:\'Syne\',sans-serif;font-size:22px;font-weight:800;color:var(--branco);line-height:1;">' + s.num + '</div>' +
-          '<div style="font-family:\'Syne Mono\',monospace;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--cinza);margin-top:3px;">' + s.label + '</div>' +
+        return '<div style="text-align:center;padding:12px 8px;' + (i < a.stats.length-1 ? 'border-right:1px solid var(--border);' : '') + '">' +
+          '<div style="font-family:\'Syne\',sans-serif;font-size:22px;font-weight:800;color:#fff;line-height:1;">' + s.num + '</div>' +
+          '<div style="font-family:\'Syne Mono\',monospace;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-top:3px;">' + s.label + '</div>' +
           '</div>';
       }).join('');
       document.getElementById("modalAtletaTags").innerHTML = a.tags.map(function(t) {
         var isFlag = /🇧🇷|🇵🇹/.test(t);
-        return '<span style="font-family:\'Syne Mono\',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border-radius:2px;background:' + (isFlag ? 'rgba(245,192,0,0.08)' : 'var(--card2)') + ';border:1px solid ' + (isFlag ? 'rgba(245,192,0,0.2)' : 'var(--borda2)') + ';color:' + (isFlag ? 'var(--amarelo)' : 'var(--cinza-cl)') + ';">' + t + '</span>';
+        return '<span style="font-family:\'Syne Mono\',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border-radius:2px;background:' + (isFlag ? 'rgba(245,192,0,0.08)' : 'var(--card2)') + ';border:1px solid ' + (isFlag ? 'rgba(245,192,0,0.2)' : 'var(--border2)') + ';color:' + (isFlag ? 'var(--gold)' : 'var(--slate)') + ';">' + t + '</span>';
       }).join('');
       var links = '';
-      if (a.zerozero) links += '<a href="' + a.zerozero + '" target="_blank" style="display:inline-flex;align-items:center;gap:6px;font-family:\'Syne\',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:10px 16px;border-radius:3px;background:var(--azul);color:#fff;text-decoration:none;">🔗 ZeroZero</a>';
-      links += '<a href="#scout" onclick="fecharPerfilAtleta()" style="display:inline-flex;align-items:center;gap:6px;font-family:\'Syne\',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:10px 16px;border-radius:3px;background:var(--amarelo);color:var(--preto);text-decoration:none;">Inscrever Atleta →</a>';
+      if (a.zerozero) links += '<a href="' + a.zerozero + '" target="_blank" style="display:inline-flex;align-items:center;gap:6px;font-family:\'Syne\',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:10px 16px;border-radius:3px;background:var(--dark);color:#fff;text-decoration:none;">🔗 ZeroZero</a>';
+      links += '<a href="#scout" onclick="fecharPerfilAtleta()" style="display:inline-flex;align-items:center;gap:6px;font-family:\'Syne\',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:10px 16px;border-radius:3px;background:var(--gold);color:var(--bg);text-decoration:none;">Inscrever Atleta →</a>';
       document.getElementById("modalAtletaLinks").innerHTML = links;
       document.getElementById("modalAtleta").style.display = "flex";
       document.body.style.overflow = "hidden";
@@ -1953,15 +2000,15 @@ footer{
     var metade = Math.ceil(POS_CRITERIOS.length / 2);
     var cols = [POS_CRITERIOS.slice(0,metade), POS_CRITERIOS.slice(metade)];
     container.innerHTML = cols.map(function(col) {
-      return '<div style="background:var(--card);border:1px solid var(--borda);border-radius:8px;overflow:hidden;">' +
+      return '<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;">' +
         col.map(function(item) {
           var btns = [1,2,3,4,5].map(function(n) {
             return '<button class="sc-btn s'+n+'" data-pos-id="'+item.id+'" data-pos-val="'+n+'" onclick="posSetScore(\''+item.id+'\','+n+')" title="'+n+'">' + n + '</button>';
           }).join("");
           return '<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-bottom:1px solid rgba(30,33,40,0.8);gap:8px;flex-wrap:wrap;">' +
-            '<span style="font-size:12px;color:var(--cinza-cl);flex:1;min-width:100px;">'+item.label+'</span>' +
+            '<span style="font-size:12px;color:var(--slate);flex:1;min-width:100px;">'+item.label+'</span>' +
             '<div style="display:flex;gap:4px;">'+btns+'</div>' +
-            '<span id="posl-'+item.id+'" style="font-size:10px;color:var(--cinza);font-family:Barlow Condensed,sans-serif;font-weight:700;min-width:60px;text-align:right;">—</span>' +
+            '<span id="posl-'+item.id+'" style="font-size:10px;color:var(--muted);font-family:Barlow Condensed,sans-serif;font-weight:700;min-width:60px;text-align:right;">—</span>' +
             '</div>';
         }).join("") +
         '</div>';
@@ -2037,7 +2084,7 @@ footer{
     document.getElementById("pos-categoria").selectedIndex = 0;
     document.getElementById("pos-pe").selectedIndex = 0;
     document.querySelectorAll("[data-pos-id]").forEach(function(btn) { btn.classList.remove("active"); });
-    document.querySelectorAll("[id^='posl-']").forEach(function(el) { el.textContent="—"; el.style.color="var(--cinza)"; });
+    document.querySelectorAll("[id^='posl-']").forEach(function(el) { el.textContent="—"; el.style.color="var(--muted)"; });
     document.getElementById("areaPosicao").scrollTop = 0;
   };
 
@@ -2068,14 +2115,14 @@ footer{
     var barrasHtml = ranking.map(function(item, i) {
       var pos = item[0], pct = item[1];
       var cor = corPct(pct);
-      var destaque = i === 0 ? "border:1px solid "+cor+"44;background:"+cor+"08;" : "border:1px solid var(--borda);";
+      var destaque = i === 0 ? "border:1px solid "+cor+"44;background:"+cor+"08;" : "border:1px solid var(--border);";
       return '<div style="'+destaque+'border-radius:8px;padding:12px 16px;">' +
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">' +
-        '<span style="font-size:13px;color:'+(i===0?"#fff":"var(--cinza-cl)")+';font-weight:'+(i===0?700:400)+';">' +
+        '<span style="font-size:13px;color:'+(i===0?"#fff":"var(--slate)")+';font-weight:'+(i===0?700:400)+';">' +
         (i===0?'🥇 ':i===1?'🥈 ':i===2?'🥉 ':'')+pos+'</span>' +
         '<span style="font-family:Barlow Condensed,sans-serif;font-size:16px;font-weight:800;color:'+cor+';">'+pct+'%</span>' +
         '</div>' +
-        '<div style="background:var(--borda);border-radius:3px;height:6px;overflow:hidden;">' +
+        '<div style="background:var(--border);border-radius:3px;height:6px;overflow:hidden;">' +
         '<div style="width:'+pct+'%;height:100%;background:'+cor+';border-radius:3px;transition:width 0.8s ease;"></div>' +
         '</div></div>';
     }).join("");
@@ -2283,7 +2330,7 @@ footer{
 
     // Reset botões de critérios
     document.querySelectorAll(".sc-btn").forEach(function(btn) { btn.classList.remove("active"); });
-    document.querySelectorAll("[id^='scl-']").forEach(function(el) { el.textContent="—"; el.style.color="var(--cinza)"; });
+    document.querySelectorAll("[id^='scl-']").forEach(function(el) { el.textContent="—"; el.style.color="var(--muted)"; });
 
     // Reset classificação / decisão / rendimento
     ["scR1","scR2","scR3","scPrazoI","scPrazoM","scPrazoL","scD1","scD2","scD3","scD4"].forEach(function(id) {
@@ -2308,7 +2355,7 @@ footer{
         var btns = [1,2,3,4,5].map(function(n) {
           return '<button class="sc-btn s' + n + '" data-id="' + item.id + '" data-val="' + n + '" onclick="scSetScore(\'' + item.id + '\',' + n + ')" title="' + SC_LEGENDA[n] + '">' + n + '</button>';
         }).join("");
-        return '<div class="sc-row"><span class="sc-row-label">' + item.label + '</span><div class="sc-btns">' + btns + '</div><span class="sc-score-label" id="scl-' + item.id + '" style="color:var(--cinza);">—</span></div>';
+        return '<div class="sc-row"><span class="sc-row-label">' + item.label + '</span><div class="sc-btns">' + btns + '</div><span class="sc-score-label" id="scl-' + item.id + '" style="color:var(--muted);">—</span></div>';
       }).join("");
     });
   }
@@ -2453,7 +2500,49 @@ footer{
       if(scDadosAtleta.decisao) decisaoInfo += "\n- Decisão: " + scDadosAtleta.decisao;
     }
 
-    var prompt = "És um scout sénior da agência desportiva YourTalentBase, especializada em futebol de formação em Portugal. Redige um Scout Report profissional, objetivo e credível em português europeu.\n\nDADOS DO ATLETA:\n- Nome: " + scDadosAtleta.nome + "\n- Categoria: " + scDadosAtleta.categoria + (scDadosAtleta.eirInfo || "") + "\n- Posição: " + scDadosAtleta.posicao + "\n- Clube: " + (scDadosAtleta.clube || "Não indicado") + "\n- Pé Dominante: " + (scDadosAtleta.pe || "Não indicado") + "\n- Sistema de Jogo Observado: " + (scDadosAtleta.tatica || "Não indicado") + "\n- Jogo/Local: " + (scDadosAtleta.jogo || "Não indicado") + "\n- Época: " + scDadosAtleta.epoca + "\n- Scout: " + (scDadosAtleta.scout || "YourTalentBase") + fisicoPerfil + compStats + decisaoInfo + "\n\nAVALIAÇÕES OBSERVADAS (1=Muito Fraco, 2=Mediocre, 3=Satisfatório, 4=Bom, 5=Muito Bom):\n" + areaSummary + "\n\nOBSERVAÇÕES DO SCOUT: " + (scDadosAtleta.obs || "Sem observações adicionais.") + "\n\nEstrutura obrigatória:\n1. **Perfil do Atleta** — síntese geral incluindo características físicas, contexto da observação" + (scDadosAtleta.eirInfo ? " e análise do Efeito Idade Relativa" : "") + "\n2. **Análise Técnica** — pontos fortes e áreas a melhorar\n3. **Análise Tática** — leitura e aplicação no sistema observado\n4. **Condição Física** — avaliação das capacidades físicas" + (scDadosAtleta.eirInfo ? " contextualizada com a posição no escalão etário" : "") + "\n5. **Perfil Mental e Comportamental** — atitudes, compromisso, liderança\n6. **Recomendação Final** — justifica a decisão de " + (scDadosAtleta.decisao || "a definir") + " com horizonte de " + (scDadosAtleta.prazo || "a definir") + "\n\nUsa linguagem técnica e construtiva. Máximo 420 palavras. Termina com: CLASSIFICAÇÃO GLOBAL: [Muito Fraco / Mediocre / Satisfatório / Bom / Muito Bom]";
+    // Identificar pontos fortes e fracos reais por critério individual
+    var destaques = [], alertas = [], medianos = [];
+    Object.keys(SC_CRITERIOS).forEach(function(key) {
+      SC_CRITERIOS[key].items.forEach(function(item) {
+        var v = scScores[item.id];
+        if (!v) return;
+        if (v >= 4) destaques.push(item.label + " (" + SC_LEGENDA[v] + ")");
+        else if (v <= 2) alertas.push(item.label + " (" + SC_LEGENDA[v] + ")");
+        else medianos.push(item.label);
+      });
+    });
+
+    var prompt = "És um scout sénior da agência desportiva YourTalentBase, especializada em futebol de formação em Portugal.\n" +
+    "O teu trabalho é escrever um relatório de observação que valha o dinheiro que o cliente pagou — não uma lista de médias, mas texto de scout real, com voz própria, observações concretas e juízos de valor fundamentados nas notas individuais.\n\n" +
+    "ATLETA OBSERVADO:\n" +
+    "- Nome: " + scDadosAtleta.nome + "\n" +
+    "- Categoria: " + scDadosAtleta.categoria + (scDadosAtleta.eirInfo || "") + "\n" +
+    "- Posição: " + scDadosAtleta.posicao + "\n" +
+    "- Clube: " + (scDadosAtleta.clube || "Não indicado") + "\n" +
+    "- Pé Dominante: " + (scDadosAtleta.pe || "Não indicado") + "\n" +
+    "- Sistema observado: " + (scDadosAtleta.tatica || "Não indicado") + "\n" +
+    "- Jogo/Local: " + (scDadosAtleta.jogo || "Não indicado") + "\n" +
+    "- Época: " + scDadosAtleta.epoca + "\n" +
+    "- Scout: " + (scDadosAtleta.scout || "YourTalentBase") +
+    fisicoPerfil + compStats + decisaoInfo + "\n\n" +
+    "AVALIAÇÕES COMPLETAS (escala 1-5):\n" + areaSummary + "\n\n" +
+    "RESUMO AUTOMÁTICO:\n" +
+    (destaques.length ? "- Pontos fortes: " + destaques.join(", ") + "\n" : "") +
+    (alertas.length ? "- Pontos fracos: " + alertas.join(", ") + "\n" : "") +
+    (medianos.length ? "- Razoáveis: " + medianos.join(", ") + "\n" : "") +
+    "\nOBSERVAÇÕES DO SCOUT: " + (scDadosAtleta.obs || "Sem observações adicionais.") + "\n\n" +
+    "INSTRUÇÕES DE ESCRITA — lê com atenção antes de escrever:\n" +
+    "1. NÃO escrevas listas de pontuações nem médias. O leitor já as vê no relatório.\n" +
+    "2. ESCREVE como um scout experiente a descrever o que VIU em campo — usa frases como 'o jogador demonstrou', 'notou-se clareza em', 'a tendência foi', 'em contexto de pressão', 'nas transições ofensivas'.\n" +
+    "3. Menciona critérios específicos mas dentro de frases narrativas — não como itens de lista.\n" +
+    "4. Se houver Efeito Idade Relativa, incorpora essa perspetiva naturalmente no texto.\n" +
+    "5. Se houver dados competitivos (jogos, golos), integra-os como contexto, não como estatística solta.\n" +
+    "6. A estrutura deve ser:\n" +
+    "   **1. Impressão Geral** — quem é este jogador? O que sobressaiu logo nos primeiros minutos?\n" +
+    "   **2. Capacidades Técnicas e Táticas** — o que faz bem, o que precisa de trabalho, como lê o jogo\n" +
+    "   **3. Perfil Físico e Mental** — presença em campo, intensidade, carácter sob pressão\n" +
+    "   **4. Recomendação** — fundamenta a decisão '" + (scDadosAtleta.decisao || "a definir") + "' com horizonte '" + (scDadosAtleta.prazo || "a definir") + "' em 2-3 frases directas\n\n" +
+    "Máximo 480 palavras. Português europeu. Linguagem técnica mas legível por uma família. Termina com: CLASSIFICAÇÃO GLOBAL: [Muito Fraco / Mediocre / Satisfatório / Bom / Muito Bom]";
 
     try {
       var res = await fetch("/.netlify/functions/claude", {
@@ -2500,12 +2589,12 @@ footer{
         ["Classificação equipa",scDadosAtleta.classificacao||"—"]
       ];
       compDiv.innerHTML = compItems.map(function(c){
-        return '<div style="background:var(--card);border:1px solid var(--borda);border-radius:8px;padding:12px 16px;text-align:center;">' +
-          '<div style="font-family:Barlow Condensed,sans-serif;font-size:20px;font-weight:800;color:var(--amarelo);">'+c[1]+'</div>' +
-          '<div style="font-size:10px;color:var(--cinza);margin-top:4px;font-weight:600;letter-spacing:1px;text-transform:uppercase;">'+c[0]+'</div>' +
+        return '<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px 16px;text-align:center;">' +
+          '<div style="font-family:Barlow Condensed,sans-serif;font-size:20px;font-weight:800;color:var(--gold);">'+c[1]+'</div>' +
+          '<div style="font-size:10px;color:var(--muted);margin-top:4px;font-weight:600;letter-spacing:1px;text-transform:uppercase;">'+c[0]+'</div>' +
           '</div>';
       }).join("") +
-      (scDadosAtleta.zerozero ? '<div style="grid-column:1/-1;padding:10px 16px;background:var(--card);border:1px solid var(--borda);border-radius:8px;display:flex;align-items:center;gap:10px;"><span style="font-size:11px;color:var(--cinza);">Perfil ZeroZero:</span><a href="'+scDadosAtleta.zerozero+'" target="_blank" style="font-size:12px;color:var(--amarelo);text-decoration:none;font-weight:600;">'+scDadosAtleta.zerozero+'</a></div>' : "");
+      (scDadosAtleta.zerozero ? '<div style="grid-column:1/-1;padding:10px 16px;background:var(--card);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;gap:10px;"><span style="font-size:11px;color:var(--muted);">Perfil ZeroZero:</span><a href="'+scDadosAtleta.zerozero+'" target="_blank" style="font-size:12px;color:var(--gold);text-decoration:none;font-weight:600;">'+scDadosAtleta.zerozero+'</a></div>' : "");
     } else if(compDiv) { compDiv.style.display = "none"; }
 
     // Médias
@@ -2530,9 +2619,9 @@ footer{
       pDiv.style.borderRadius = "6px";
       pDiv.innerHTML =
         '<div style="display:flex;gap:20px;flex-wrap:wrap;align-items:center;">' +
-        (scRendimento ? '<div><div style="font-size:9px;color:var(--cinza-cl);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px;">Rendimento</div><div style="font-family:Syne,sans-serif;font-size:18px;font-weight:800;color:' + rCor + ';">' + scRendimento + '</div></div>' : '') +
-        (scPrazo ? '<div><div style="font-size:9px;color:var(--cinza-cl);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px;">Horizonte</div><div style="font-family:Syne,sans-serif;font-size:14px;font-weight:700;color:var(--branco);">' + scPrazo + '</div></div>' : '') +
-        (scDecisao ? '<div><div style="font-size:9px;color:var(--cinza-cl);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px;">Decisão</div><div style="font-family:Syne,sans-serif;font-size:18px;font-weight:800;color:' + dCor + ';">' + scDecisao.toUpperCase() + '</div></div>' : '') +
+        (scRendimento ? '<div><div style="font-size:9px;color:var(--slate);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px;">Rendimento</div><div style="font-family:Syne,sans-serif;font-size:18px;font-weight:800;color:' + rCor + ';">' + scRendimento + '</div></div>' : '') +
+        (scPrazo ? '<div><div style="font-size:9px;color:var(--slate);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px;">Horizonte</div><div style="font-family:Syne,sans-serif;font-size:14px;font-weight:700;color:#fff;">' + scPrazo + '</div></div>' : '') +
+        (scDecisao ? '<div><div style="font-size:9px;color:var(--slate);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px;">Decisão</div><div style="font-family:Syne,sans-serif;font-size:18px;font-weight:800;color:' + dCor + ';">' + scDecisao.toUpperCase() + '</div></div>' : '') +
         '</div>';
     } else { pDiv.style.display = "none"; }
 
@@ -2582,7 +2671,7 @@ footer{
           var classeVal = classeMatch ? classeMatch[1].replace(/\*\*/g,'').trim() : '';
           var classeCor = classeVal.match(/Muito Bom/i) ? '#3b82f6' : classeVal.match(/Bom/i) ? '#22c55e' : classeVal.match(/Satisf/i) ? '#eab308' : classeVal.match(/Mediocre/i) ? '#f97316' : '#ef4444';
           html += '<div class="rel-classificacao-global">';
-          html += '<span style="font-size:10px;color:var(--cinza-cl);letter-spacing:2px;text-transform:uppercase;">Classificação Global</span>';
+          html += '<span style="font-size:10px;color:var(--slate);letter-spacing:2px;text-transform:uppercase;">Classificação Global</span>';
           html += '<span style="font-family:\'Syne\',sans-serif;font-size:24px;font-weight:800;color:' + classeCor + ';">' + classeVal + '</span>';
           html += '</div>';
           return;
@@ -2590,7 +2679,7 @@ footer{
 
         // Parágrafo normal dentro de secção
         var paragrafo = linha
-          .replace(/\*\*(.+?)\*\*/g, '<strong style="color:var(--branco);font-weight:600;">$1</strong>')
+          .replace(/\*\*(.+?)\*\*/g, '<strong style="color:#fff;font-weight:600;">$1</strong>')
           .replace(/\*(.+?)\*/g, '<em>$1</em>');
 
         if (emSecao) {
@@ -2820,13 +2909,210 @@ footer{
     // ── FOOTER ──
     html+='<tr><td style="background:#08090C;padding:14px 28px;">';
     html+='<table style="width:100%;border-collapse:collapse;"><tr>';
-    html+='<td style="font-size:9px;color:#52576A;">YourTalentBase · yourtalentbase.netlify.app · Porto, Portugal</td>';
-    html+='<td style="text-align:center;font-family:Barlow Condensed,sans-serif;font-size:11px;font-weight:700;color:#F5C000;">SCOUT REPORT</td>';
-    html+='<td style="text-align:right;font-size:9px;color:#52576A;">Documento confidencial · '+(d.scout||"YourTalentBase")+'</td>';
-    html+='</tr></table></td></tr>';
+    html+='<td style="vertical-align:middle;">';
+    html+='<div style="font-family:Barlow Condensed,sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#52576A;">YourTalentBase · Documento Confidencial</div>';
+    html+='<div style="font-size:9px;color:#272B35;margin-top:3px;">Rio Tinto, Gondomar · Portugal · yourtalentbase@gmail.com</div>';
+    html+='</td>';
+    html+='<td style="text-align:right;vertical-align:middle;">';
+    html+='<div style="font-size:9px;color:#272B35;">Gerado em '+new Date().toLocaleDateString("pt-PT",{day:"2-digit",month:"long",year:"numeric"})+'</div>';
+    html+='</td></tr></table>';
+    html+='</td></tr>';
+    html+='</table></body></html>';
 
-    html+='</table>
-</body>
-</html>
+    var w = window.open("","_blank","width=900,height=700");
+    if(w) { w.document.write(html); w.document.close(); }
+    else { alert("Activa popups para este site para gerar o PDF."); }
+  };
+
+  // ── ÁREA RESERVADA: LOGIN ──
+  window.abrirLogin = function(modo) {
+    modoLogin = modo || "scout";
+    var overlay = document.getElementById("loginOverlay");
+    var loginErro = document.getElementById("loginErro");
+    var loginInput = document.getElementById("loginInput");
+    if(overlay) overlay.style.display = "flex";
+    if(loginErro) loginErro.style.display = "none";
+    if(loginInput) { loginInput.value = ""; setTimeout(function(){ loginInput.focus(); }, 100); }
+  };
+
+  window.fecharLogin = function() {
+    var overlay = document.getElementById("loginOverlay");
+    if(overlay) overlay.style.display = "none";
+  };
+
+  window.fazerLogin = function() {
+    var pass = document.getElementById("loginInput").value.trim();
+    var loginErro = document.getElementById("loginErro");
+
+    if(pass === SUPER || pass === VIEWER) {
+      fecharLogin();
+      roleActual = (pass === SUPER) ? "super" : "admin";
+      var badge = document.getElementById("badgeRole");
+      if(badge) {
+        badge.textContent = pass === SUPER ? "Superuser" : "Admin";
+        badge.style.background = "rgba(212,175,55,0.12)";
+        badge.style.color = "#D4AF37";
+        badge.style.border = "1px solid rgba(212,175,55,0.3)";
+      }
+      var adminFiltros = document.getElementById("adminFiltros");
+      if(adminFiltros) adminFiltros.style.display = "flex";
+      var area = document.getElementById("areaReservada");
+      if(area) { area.style.display = "block"; document.body.style.overflow = "hidden"; }
+      carregarAtletas();
+    } else if(pass === PARTNER && modoLogin === "clube") {
+      fecharLogin();
+      roleActual = "clube";
+      var areaClube = document.getElementById("areaClube");
+      if(areaClube) { areaClube.style.display = "block"; document.body.style.overflow = "hidden"; }
+      carregarAtletasClube();
+    } else if(pass === SCOUT_PASS && modoLogin === "scout") {
+      fecharLogin();
+      roleActual = "scout";
+      var badge = document.getElementById("badgeRole");
+      if(badge) {
+        badge.textContent = "Scout YTB";
+        badge.style.background = "rgba(34,197,94,0.08)";
+        badge.style.color = "#22C55E";
+        badge.style.border = "1px solid rgba(34,197,94,0.25)";
+      }
+      var area = document.getElementById("areaReservada");
+      if(area) { area.style.display = "block"; document.body.style.overflow = "hidden"; }
+      carregarAtletas();
+    } else {
+      if(loginErro) loginErro.style.display = "block";
+      document.getElementById("loginInput").value = "";
+    }
+  };
+
+  window.sair = function() {
+    var area = document.getElementById("areaReservada");
+    if(area) area.style.display = "none";
+    document.body.style.overflow = "";
+    roleActual = null; atletasCache = [];
+  };
+
+  window.sairClube = function() {
+    var area = document.getElementById("areaClube");
+    if(area) area.style.display = "none";
+    document.body.style.overflow = "";
+    roleActual = null;
+  };
+
+  // ── ÁREA RESERVADA: CARREGAR ATLETAS ──
+  async function carregarAtletas() {
+    var lista = document.getElementById("listaAtletas");
+    if(!lista) return;
+    lista.innerHTML = '<div style="color:#52576A;font-size:14px;padding:32px 0;">A carregar atletas...</div>';
+    try {
+      var result = await db.from("sugestoes").select("*").order("created_at", { ascending: false });
+      atletasCache = result.data || [];
+      renderAtletas();
+    } catch(e) {
+      lista.innerHTML = '<div style="color:#ef4444;font-size:13px;padding:32px 0;">Erro ao carregar atletas. Tenta novamente.</div>';
+    }
+  }
+
+  window.renderAtletas = function() {
+    var lista = document.getElementById("listaAtletas");
+    if(!lista) return;
+    var filtroPlano = (document.getElementById("filtroPlano") || {}).value || "";
+    var filtroEstado = (document.getElementById("filtroEstado") || {}).value || "";
+    var dados = atletasCache.filter(function(a) {
+      if(filtroPlano && a.plano !== filtroPlano) return false;
+      if(filtroEstado && a.estado !== filtroEstado) return false;
+      return true;
+    });
+    if(!dados.length) {
+      lista.innerHTML = '<div style="color:#52576A;font-size:14px;padding:32px 0;text-align:center;">Nenhum atleta encontrado.</div>';
+      return;
+    }
+    lista.innerHTML = dados.map(function(a) {
+      var dataFmt = a.created_at ? new Date(a.created_at).toLocaleDateString("pt-PT") : "—";
+      var estadoCor = {"Novo":"#F5C000","Em análise":"#3b82f6","Aceite":"#22c55e","Recusado":"#ef4444"}[a.estado] || "#52576A";
+      return '<div style="background:#111318;border:1px solid #1E2128;border-radius:8px;padding:20px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">' +
+        '<div>' +
+          '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:18px;font-weight:800;color:#F0F2F7;">' + (a.nome || '—') + '</div>' +
+          '<div style="font-size:12px;color:#52576A;margin-top:3px;">' + [a.escalao, a.posicao, a.clube].filter(Boolean).join(' · ') + '</div>' +
+          '<div style="font-size:11px;color:#8892A4;margin-top:6px;">' + (a.contacto || '') + '</div>' +
+        '</div>' +
+        '<div style="display:flex;align-items:center;gap:12px;">' +
+          '<span style="font-size:10px;color:#52576A;">' + dataFmt + '</span>' +
+          '<span style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border-radius:3px;background:' + estadoCor + '18;color:' + estadoCor + ';border:1px solid ' + estadoCor + '44;">' + (a.estado || 'Novo') + '</span>' +
+          (a.plano ? '<span style="font-size:10px;color:#52576A;background:#1E2128;padding:4px 10px;border-radius:3px;">' + a.plano + '</span>' : '') +
+        '</div>' +
+      '</div>';
+    }).join("");
+  };
+
+  // ── ÁREA CLUBE: CARREGAR ATLETAS ──
+  async function carregarAtletasClube() {
+    var cont = document.getElementById("atletasClube");
+    if(!cont) return;
+    cont.innerHTML = '<div style="background:#111318;border:1px solid #1E2128;border-radius:8px;padding:28px;text-align:center;color:#52576A;font-size:14px;">A carregar atletas...</div>';
+    try {
+      var result = await db.from("sugestoes").select("nome,escalao,posicao,clube,plano,estado,created_at").order("created_at", { ascending: false });
+      var dados = result.data || [];
+      if(!dados.length) {
+        cont.innerHTML = '<div style="background:#111318;border:1px solid #1E2128;border-radius:8px;padding:28px;text-align:center;color:#52576A;font-size:14px;">Sem atletas inscritos ainda.</div>';
+        return;
+      }
+      cont.innerHTML = dados.map(function(a) {
+        return '<div style="background:#111318;border:1px solid #1E2128;border-radius:8px;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">' +
+          '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:16px;font-weight:800;color:#F0F2F7;">' + (a.nome||'—') + '</div>' +
+          '<div style="font-size:11px;color:#52576A;">' + [a.escalao,a.posicao,a.clube].filter(Boolean).join(' · ') + '</div>' +
+          '</div>';
+      }).join("");
+    } catch(e) {
+      cont.innerHTML = '<div style="background:#111318;border:1px solid #1E2128;border-radius:8px;padding:28px;text-align:center;color:#ef4444;font-size:13px;">Erro ao carregar. Tenta novamente.</div>';
+    }
+  }
+
+  // ── FORMULÁRIO INSCRIÇÃO ──
+  window.enviarFormulario = async function() {
+    var nome = (document.getElementById("f-nome") || {}).value || "";
+    var contacto = (document.getElementById("f-contacto") || {}).value || "";
+    if(!nome.trim() || !contacto.trim()) {
+      alert("Preenche o nome do atleta e o contacto do responsável.");
+      return;
+    }
+    var auth = document.getElementById("f-auth");
+    if(!auth || !auth.checked) {
+      alert("É necessário aceitar a autorização de imagem e dados.");
+      return;
+    }
+    var btn = document.getElementById("submitBtn");
+    if(btn) { btn.textContent = "A enviar..."; btn.disabled = true; }
+    try {
+      var payload = {
+        nome: nome.trim(),
+        idade: (document.getElementById("f-idade") || {}).value || null,
+        clube: (document.getElementById("f-clube") || {}).value || "",
+        escalao: (document.getElementById("f-escalao") || {}).value || "",
+        posicao: (document.getElementById("f-posicao") || {}).value || "",
+        plano: (document.getElementById("f-plano") || {}).value || "",
+        contacto: contacto.trim(),
+        zerozero: (document.getElementById("f-zerozero") || {}).value || "",
+        descricao: (document.getElementById("f-descricao") || {}).value || "",
+        estado: "Novo"
+      };
+      var result = await db.from("sugestoes").insert([payload]);
+      if(result.error) throw result.error;
+      if(btn) { btn.textContent = "✓ Inscrição enviada!"; btn.style.background = "#22C55E"; btn.style.color = "#fff"; }
+      ["f-nome","f-idade","f-clube","f-contacto","f-zerozero","f-descricao"].forEach(function(id){
+        var el = document.getElementById(id); if(el) el.value = "";
+      });
+      ["f-escalao","f-posicao","f-plano"].forEach(function(id){
+        var el = document.getElementById(id); if(el) el.selectedIndex = 0;
+      });
+      if(auth) auth.checked = false;
+      setTimeout(function(){ if(btn){ btn.textContent = "➤  Enviar Inscrição"; btn.disabled = false; btn.style.background = ""; btn.style.color = ""; } }, 4000);
+    } catch(e) {
+      if(btn) { btn.textContent = "Erro — tenta novamente"; btn.disabled = false; btn.style.background = "#ef4444"; }
+      setTimeout(function(){ if(btn){ btn.textContent = "➤  Enviar Inscrição"; btn.style.background = ""; } }, 3000);
+    }
+  };
+
+})();
+</script>
 </body>
 </html>
