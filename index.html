@@ -2267,7 +2267,7 @@ footer{
   window.fazerLoginPosicao = function() {
     var pass = document.getElementById("posicaoInput").value.trim();
     var scoutMatchP = SCOUTS.find(function(s) { return s.pass === pass; });
-    if(scoutMatchP || pass === SUPER || pass === PARTNER) {
+    if(scoutMatchP || pass === SUPER || pass === VIEWER || pass === PARTNER) {
       fecharLoginPosicao();
       document.getElementById("areaPosicao").style.display = "block";
       document.body.style.overflow = "hidden";
@@ -2507,12 +2507,13 @@ footer{
     var pass = document.getElementById("scoutingInput").value.trim();
     // verificar scouts individuais
     var scoutMatch = SCOUTS.find(function(s) { return s.pass === pass; });
-    var isAuthorized = scoutMatch || pass === SUPER || pass === PARTNER;
+    var isAuthorized = scoutMatch || pass === SUPER || pass === VIEWER || pass === PARTNER;
     if (isAuthorized) {
       fecharLoginScouting();
       var badge = document.getElementById("scBadgeRole");
       var btnNova = document.getElementById("scBtnNovaAval");
       if (pass === SUPER) { badge.textContent = "Admin YTB"; }
+      else if (pass === VIEWER) { badge.textContent = "Admin YTB"; }
       else if (pass === PARTNER) { badge.textContent = "Clube Parceiro"; }
       else { badge.textContent = "Scout · " + scoutMatch.nome; }
       btnNova.style.display = "inline-flex";
@@ -3158,6 +3159,11 @@ footer{
 
     if(pass === SUPER || pass === VIEWER) {
       fecharLogin();
+      // Se tentou entrar via botão scout, redirecionar para Scout Report
+      if(modoLogin === "scout" && pass === VIEWER) {
+        abrirLoginScouting();
+        return;
+      }
       roleActual = (pass === SUPER) ? "super" : "admin";
       var badge = document.getElementById("badgeRole");
       if(badge) {
