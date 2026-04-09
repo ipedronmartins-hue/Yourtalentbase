@@ -1204,7 +1204,7 @@ footer{
   <div class="contacto-inner wrap">
     <div class="contact-card reveal">
       <h3>Contacto</h3>
-      <div class="contact-item"><div class="ci-icon">✉</div><div><div class="ci-label">Email</div><div class="ci-val"><a href="/cdn-cgi/l/email-protection#3841574d4a4c59545d564c5a594b5d785f55595154165b5755" style="color:inherit;text-decoration:none;"><span class="__cf_email__" data-cfemail="dda4b2a8afa9bcb1b8b3a9bfbcaeb89dbab0bcb4b1f3beb2b0">[email&#160;protected]</span></a></div></div></div>
+      <div class="contact-item"><div class="ci-icon">✉</div><div><div class="ci-label">Email</div><div class="ci-val"><a href="/cdn-cgi/l/email-protection#31485e444345505d545f455350425471565c50585d1f525e5c" style="color:inherit;text-decoration:none;"><span class="__cf_email__" data-cfemail="770e18020503161b1219031516041237101a161e1b5914181a">[email&#160;protected]</span></a></div></div></div>
       <div class="contact-item"><div class="ci-icon">📍</div><div><div class="ci-label">Sede</div><div class="ci-val">Porto, Portugal</div></div></div>
       <div class="contact-item"><div class="ci-icon">⚽</div><div><div class="ci-label">Área de Actuação</div><div class="ci-val">Portugal</div></div></div>
       <div class="contact-item"><div class="ci-icon">🕐</div><div><div class="ci-label">Resposta</div><div class="ci-val">Até 48 horas úteis</div></div></div>
@@ -1627,7 +1627,7 @@ footer{
   <div class="footer-logo">Your<span>Talent</span>Base</div>
   <div class="footer-copy">© 2026 YourTalentBase · Porto, Portugal</div>
   <div class="footer-links">
-    <a href="/cdn-cgi/l/email-protection#5a23352f282e3b363f342e383b293f1a3d373b333674393537" style="color:inherit;text-decoration:none;"><span class="__cf_email__" data-cfemail="0d7462787f796c616863796f6c7e684d6a606c6461236e6260">[email&#160;protected]</span></a>
+    <a href="/cdn-cgi/l/email-protection#b8c1d7cdcaccd9d4ddd6ccdad9cbddf8dfd5d9d1d496dbd7d5" style="color:inherit;text-decoration:none;"><span class="__cf_email__" data-cfemail="354c5a4047415459505b4157544650755258545c591b565a58">[email&#160;protected]</span></a>
     <a href="#sobre">Sobre</a>
     <a href="#contacto">Contacto</a>
   </div>
@@ -1778,7 +1778,7 @@ footer{
         <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:#F0F2F7;margin-bottom:4px;">Queres formalizar a parceria?</div>
         <div style="font-size:13px;color:#8892A4;">Contacta-nos para assinar o acordo e ativar a parceria para o teu clube.</div>
       </div>
-      <a href="/cdn-cgi/l/email-protection#9de4f2e8efe9fcf1f8f3e9fffceef8ddfaf0fcf4f1b3fef2f0" style="background:#0047AB;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:12px 24px;border-radius:5px;text-decoration:none;white-space:nowrap;">✉ <span class="__cf_email__" data-cfemail="8ff6e0fafdfbeee3eae1fbedeefceacfe8e2eee6e3a1ece0e2">[email&#160;protected]</span></a>
+      <a href="/cdn-cgi/l/email-protection#f881978d8a8c99949d968c9a998b9db89f95999194d69b9795" style="background:#0047AB;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:12px 24px;border-radius:5px;text-decoration:none;white-space:nowrap;">✉ <span class="__cf_email__" data-cfemail="1e67716b6c6a7f727b706a7c7f6d7b5e79737f7772307d7173">[email&#160;protected]</span></a>
     </div>
 
     <!-- Atletas do clube -->
@@ -2558,6 +2558,7 @@ footer{
   window.sairScouting = async function() {
     await db.auth.signOut();
     utilizadorActual = null; roleActual = null;
+    document.getElementById("areaScouting").style.display = "none";
     document.body.style.overflow = "";
 
     // Reset de estado
@@ -3220,7 +3221,6 @@ footer{
         if(modoLogin === "scout") {
           _abrirScoutComNome(nome, role);
         } else if(modoLogin === "clube") {
-          roleActual = "clube";
           var areaClube = document.getElementById("areaClube");
           if(areaClube) { areaClube.style.display = "block"; document.body.style.overflow = "hidden"; }
           carregarAtletasClube();
@@ -3395,4 +3395,21 @@ footer{
         var el = document.getElementById(id); if(el) el.value = "";
       });
       ["f-escalao","f-posicao","f-plano"].forEach(function(id){
-        var el = document.getElementById(id); if
+        var el = document.getElementById(id); if(el) el.selectedIndex = 0;
+      });
+      var authEl = document.getElementById("f-auth"); if(authEl) authEl.checked = false;
+      setTimeout(function() {
+        if(btn) { btn.textContent = "➤ \u00a0Enviar Inscrição"; btn.disabled = false; btn.style.background = ""; btn.style.color = ""; }
+      }, 3000);
+    } catch(e) {
+      if(btn) { btn.textContent = "Erro — tenta novamente"; btn.disabled = false; btn.style.background = "#ef4444"; btn.style.color = "#fff"; }
+      setTimeout(function() {
+        if(btn) { btn.textContent = "➤ \u00a0Enviar Inscrição"; btn.style.background = ""; btn.style.color = ""; }
+      }, 3000);
+    }
+  };
+
+})();
+</script>
+</body>
+</html>
