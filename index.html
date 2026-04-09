@@ -1204,7 +1204,7 @@ footer{
   <div class="contacto-inner wrap">
     <div class="contact-card reveal">
       <h3>Contacto</h3>
-      <div class="contact-item"><div class="ci-icon">✉</div><div><div class="ci-label">Email</div><div class="ci-val"><a href="mailto:yourtalentbase@gmail.com" style="color:inherit;text-decoration:none;">yourtalentbase@gmail.com</a></div></div></div>
+      <div class="contact-item"><div class="ci-icon">✉</div><div><div class="ci-label">Email</div><div class="ci-val"><a href="/cdn-cgi/l/email-protection#3841574d4a4c59545d564c5a594b5d785f55595154165b5755" style="color:inherit;text-decoration:none;"><span class="__cf_email__" data-cfemail="dda4b2a8afa9bcb1b8b3a9bfbcaeb89dbab0bcb4b1f3beb2b0">[email&#160;protected]</span></a></div></div></div>
       <div class="contact-item"><div class="ci-icon">📍</div><div><div class="ci-label">Sede</div><div class="ci-val">Porto, Portugal</div></div></div>
       <div class="contact-item"><div class="ci-icon">⚽</div><div><div class="ci-label">Área de Actuação</div><div class="ci-val">Portugal</div></div></div>
       <div class="contact-item"><div class="ci-icon">🕐</div><div><div class="ci-label">Resposta</div><div class="ci-val">Até 48 horas úteis</div></div></div>
@@ -1242,12 +1242,16 @@ footer{
       <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#fff;">Scout Report</div>
       <div style="font-size:12px;color:var(--muted);margin-top:4px;">Scouts YTB · Clubes Parceiros</div>
     </div>
+    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px;">
+      <label style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--slate);">Email</label>
+      <input id="scoutingEmail" type="email" placeholder="email@exemplo.com" style="background:var(--card2);border:1px solid var(--border2);border-radius:5px;padding:12px 14px;font-family:'Barlow',sans-serif;font-size:15px;color:#fff;outline:none;width:100%;">
+    </div>
     <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:16px;">
       <label style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--slate);">Password</label>
       <input id="scoutingInput" type="password" placeholder="••••••••••••" onkeydown="if(event.key==='Enter')fazerLoginScouting()" style="background:var(--card2);border:1px solid var(--border2);border-radius:5px;padding:12px 14px;font-family:'Barlow',sans-serif;font-size:15px;color:#fff;outline:none;width:100%;">
     </div>
-    <div id="scoutingErro" style="display:none;color:#F87171;font-size:12px;margin-bottom:12px;text-align:center;">Password incorrecta. Tenta novamente.</div>
-    <button onclick="fazerLoginScouting()" style="width:100%;background:var(--gold);color:var(--bg);font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:13px;border-radius:5px;border:none;cursor:pointer;">Entrar</button>
+    <div id="scoutingErro" style="display:none;color:#F87171;font-size:12px;margin-bottom:12px;text-align:center;">Credenciais inválidas.</div>
+    <button id="btnEnterScouting" onclick="fazerLoginScouting()" style="width:100%;background:var(--gold);color:var(--bg);font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:13px;border-radius:5px;border:none;cursor:pointer;">Entrar</button>
     <div style="margin-top:16px;text-align:center;font-size:11px;color:var(--muted);">Acesso reservado a scouts e clubes parceiros YTB</div>
   </div>
 </div>
@@ -1484,11 +1488,15 @@ footer{
       <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#fff;">Perfil de Posição</div>
       <div style="font-size:12px;color:var(--muted);margin-top:4px;">Scouts YTB · Clubes Parceiros</div>
     </div>
+    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px;">
+      <label style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--slate);">Email</label>
+      <input id="posicaoEmail" type="email" placeholder="email@exemplo.com" style="background:var(--card2);border:1px solid var(--border2);border-radius:5px;padding:12px 14px;font-family:'Barlow',sans-serif;font-size:15px;color:#fff;outline:none;width:100%;">
+    </div>
     <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:16px;">
       <label style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--slate);">Password</label>
       <input id="posicaoInput" type="password" placeholder="••••••••••••" onkeydown="if(event.key==='Enter')fazerLoginPosicao()" style="background:var(--card2);border:1px solid var(--border2);border-radius:5px;padding:12px 14px;font-family:'Barlow',sans-serif;font-size:15px;color:#fff;outline:none;width:100%;">
     </div>
-    <div id="posicaoErro" style="display:none;color:#F87171;font-size:12px;margin-bottom:12px;text-align:center;">Password incorrecta. Tenta novamente.</div>
+    <div id="posicaoErro" style="display:none;color:#F87171;font-size:12px;margin-bottom:12px;text-align:center;">Credenciais inválidas.</div>
     <button onclick="fazerLoginPosicao()" style="width:100%;background:#3B82F6;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:13px;border-radius:5px;border:none;cursor:pointer;">Entrar</button>
     <div style="margin-top:16px;text-align:center;font-size:11px;color:var(--muted);">Acesso reservado a scouts e clubes parceiros YTB</div>
   </div>
@@ -1619,7 +1627,7 @@ footer{
   <div class="footer-logo">Your<span>Talent</span>Base</div>
   <div class="footer-copy">© 2026 YourTalentBase · Porto, Portugal</div>
   <div class="footer-links">
-    <a href="mailto:yourtalentbase@gmail.com" style="color:inherit;text-decoration:none;">yourtalentbase@gmail.com</a>
+    <a href="/cdn-cgi/l/email-protection#5a23352f282e3b363f342e383b293f1a3d373b333674393537" style="color:inherit;text-decoration:none;"><span class="__cf_email__" data-cfemail="0d7462787f796c616863796f6c7e684d6a606c6461236e6260">[email&#160;protected]</span></a>
     <a href="#sobre">Sobre</a>
     <a href="#contacto">Contacto</a>
   </div>
@@ -1635,11 +1643,15 @@ footer{
       <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#F0F2F7;" id="loginTitulo">Área Reservada</div>
       <div style="font-size:12px;color:#52576A;margin-top:4px;letter-spacing:1px;" id="loginSubtitulo">Introduz a tua password</div>
     </div>
+    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px;">
+      <label style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#8892A4;">Email</label>
+      <input id="loginEmail" type="email" placeholder="email@exemplo.com" style="background:#16181E;border:1px solid #272B35;border-radius:5px;padding:12px 14px;font-family:'Barlow',sans-serif;font-size:15px;color:#F0F2F7;outline:none;width:100%;">
+    </div>
     <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:16px;">
       <label style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#8892A4;">Password</label>
       <input id="loginInput" type="password" placeholder="••••••••••••" style="background:#16181E;border:1px solid #272B35;border-radius:5px;padding:12px 14px;font-family:'Barlow',sans-serif;font-size:15px;color:#F0F2F7;outline:none;width:100%;">
     </div>
-    <div id="loginErro" style="display:none;color:#F87171;font-size:12px;margin-bottom:12px;text-align:center;">Password incorrecta. Tenta novamente.</div>
+    <div id="loginErro" style="display:none;color:#F87171;font-size:12px;margin-bottom:12px;text-align:center;">Credenciais inválidas.</div>
     <button id="btnEnter" style="width:100%;background:#F5C000;color:#08090C;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:13px;border-radius:5px;border:none;cursor:pointer;">Entrar</button>
   </div>
 </div>
@@ -1766,7 +1778,7 @@ footer{
         <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:#F0F2F7;margin-bottom:4px;">Queres formalizar a parceria?</div>
         <div style="font-size:13px;color:#8892A4;">Contacta-nos para assinar o acordo e ativar a parceria para o teu clube.</div>
       </div>
-      <a href="mailto:yourtalentbase@gmail.com" style="background:#0047AB;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:12px 24px;border-radius:5px;text-decoration:none;white-space:nowrap;">✉ yourtalentbase@gmail.com</a>
+      <a href="/cdn-cgi/l/email-protection#9de4f2e8efe9fcf1f8f3e9fffceef8ddfaf0fcf4f1b3fef2f0" style="background:#0047AB;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:12px 24px;border-radius:5px;text-decoration:none;white-space:nowrap;">✉ <span class="__cf_email__" data-cfemail="8ff6e0fafdfbeee3eae1fbedeefceacfe8e2eee6e3a1ece0e2">[email&#160;protected]</span></a>
     </div>
 
     <!-- Atletas do clube -->
@@ -1779,7 +1791,7 @@ footer{
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (function() {
   // ── CONFIG ──
@@ -1787,16 +1799,9 @@ footer{
   var SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oc2hucGxhaW9seHdjZnVpamZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NDQxNTAsImV4cCI6MjA4OTQyMDE1MH0.uyZiDun8495sjnHA6Wsk-Hou-3lubbNJfQqSYbMLSek";
   var db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  var SUPER   = "YTB#Super2026";    // Superuser — acesso total
-  var VIEWER  = "YTB#Admin2026";    // Admin — leitura área reservada
-  var PARTNER = "YTB#Clube2026";    // Clube parceiro
-  // Scouts registados — nome + password
-  var SCOUTS = [
-    { nome: "Miro",  pass: "YTB#Miro#3ozkUuLO6D" },
-    { nome: "Jonas", pass: "YTB#Jonas#gLWjfiu6LG" }
-  ];
-  var SCOUT_PASS = null; // desativada — usar SCOUTS
+  // ── AUTH — sem passwords hardcoded ──
   var roleActual = null, atletasCache = [], modoLogin = "scout";
+  var utilizadorActual = null, nomeScoutActual = "";
 
   // ── SCOUTING: CRITÉRIOS ──
   var SC_CRITERIOS = {
@@ -2264,18 +2269,33 @@ footer{
     document.getElementById("loginPosicaoOverlay").style.display = "none";
   };
 
-  window.fazerLoginPosicao = function() {
-    var pass = document.getElementById("posicaoInput").value.trim();
-    var scoutMatchP = SCOUTS.find(function(s) { return s.pass === pass; });
-    if(scoutMatchP || pass === SUPER || pass === VIEWER || pass === PARTNER) {
+  window.fazerLoginPosicao = async function() {
+    var email = (document.getElementById("posicaoEmail") || {}).value || "";
+    var pass  = (document.getElementById("posicaoInput") || {}).value || "";
+    var posicaoErro = document.getElementById("posicaoErro");
+    email = email.trim(); pass = pass.trim();
+    if(!email || !pass) {
+      if(posicaoErro) { posicaoErro.textContent = "Preenche o email e a password."; posicaoErro.style.display = "block"; }
+      return;
+    }
+    if(posicaoErro) posicaoErro.style.display = "none";
+    try {
+      var authResult = await db.auth.signInWithPassword({ email: email, password: pass });
+      if(authResult.error) throw new Error("Credenciais inválidas.");
+      utilizadorActual = authResult.data.user;
+      var profileResult = await db.from("profiles").select("role, nome").eq("user_id", utilizadorActual.id).single();
+      if(profileResult.error || !profileResult.data) throw new Error("Sem permissões.");
+      var role = profileResult.data.role;
+      if(role === "clube") throw new Error("Sem acesso ao Perfil de Posição.");
+      roleActual = role;
+      nomeScoutActual = profileResult.data.nome || "";
       fecharLoginPosicao();
       document.getElementById("areaPosicao").style.display = "block";
       document.body.style.overflow = "hidden";
       construirCriteriosPosicao();
       resetPosicao();
-    } else {
-      document.getElementById("posicaoErro").style.display = "block";
-      document.getElementById("posicaoInput").value = "";
+    } catch(err) {
+      if(posicaoErro) { posicaoErro.textContent = err.message || "Erro ao autenticar."; posicaoErro.style.display = "block"; }
     }
   };
 
@@ -2503,32 +2523,41 @@ footer{
     document.getElementById("loginScoutingOverlay").style.display = "none";
   };
 
-  window.fazerLoginScouting = function() {
-    var pass = document.getElementById("scoutingInput").value.trim();
-    // verificar scouts individuais
-    var scoutMatch = SCOUTS.find(function(s) { return s.pass === pass; });
-    var isAuthorized = scoutMatch || pass === SUPER || pass === VIEWER || pass === PARTNER;
-    if (isAuthorized) {
+  window.fazerLoginScouting = async function() {
+    var email = (document.getElementById("scoutingEmail") || {}).value || "";
+    var pass  = (document.getElementById("scoutingInput") || {}).value || "";
+    var scoutingErro = document.getElementById("scoutingErro");
+    var btnSc = document.getElementById("btnEnterScouting");
+    email = email.trim(); pass = pass.trim();
+    if(!email || !pass) {
+      if(scoutingErro) { scoutingErro.textContent = "Preenche o email e a password."; scoutingErro.style.display = "block"; }
+      return;
+    }
+    if(btnSc) { btnSc.textContent = "A entrar..."; btnSc.disabled = true; }
+    if(scoutingErro) scoutingErro.style.display = "none";
+    try {
+      var authResult = await db.auth.signInWithPassword({ email: email, password: pass });
+      if(authResult.error) throw new Error("Credenciais inválidas.");
+      utilizadorActual = authResult.data.user;
+      var profileResult = await db.from("profiles").select("role, nome").eq("user_id", utilizadorActual.id).single();
+      if(profileResult.error || !profileResult.data) throw new Error("Sem permissões. Contacta o administrador.");
+      var role = profileResult.data.role;
+      var nome = profileResult.data.nome || "";
+      if(role === "clube") throw new Error("Sem acesso ao Scout Report.");
+      roleActual = role;
+      nomeScoutActual = nome;
       fecharLoginScouting();
-      var badge = document.getElementById("scBadgeRole");
-      var btnNova = document.getElementById("scBtnNovaAval");
-      if (pass === SUPER) { badge.textContent = "Admin YTB"; }
-      else if (pass === VIEWER) { badge.textContent = "Admin YTB"; }
-      else if (pass === PARTNER) { badge.textContent = "Clube Parceiro"; }
-      else { badge.textContent = "Scout · " + scoutMatch.nome; }
-      btnNova.style.display = "inline-flex";
-      document.getElementById("areaScouting").style.display = "block";
-      document.body.style.overflow = "hidden";
-      scMostrarForm();
-    } else {
-      document.getElementById("scoutingErro").style.display = "block";
-      document.getElementById("scoutingInput").value = "";
+      _abrirScoutComNome(nome, role);
+    } catch(err) {
+      if(scoutingErro) { scoutingErro.textContent = err.message || "Erro ao autenticar."; scoutingErro.style.display = "block"; }
+    } finally {
+      if(btnSc) { btnSc.textContent = "Entrar"; btnSc.disabled = false; }
     }
   };
 
-  window.sairScouting = function() {
-    // Fechar área
-    document.getElementById("areaScouting").style.display = "none";
+  window.sairScouting = async function() {
+    await db.auth.signOut();
+    utilizadorActual = null; roleActual = null;
     document.body.style.overflow = "";
 
     // Reset de estado
@@ -3137,15 +3166,26 @@ footer{
     else { alert("Activa popups para este site para gerar o PDF."); }
   };
 
-  // ── ÁREA RESERVADA: LOGIN ──
+  // ── LOGIN VIA SUPABASE AUTH ──
   window.abrirLogin = function(modo) {
     modoLogin = modo || "scout";
     var overlay = document.getElementById("loginOverlay");
     var loginErro = document.getElementById("loginErro");
+    var loginEmail = document.getElementById("loginEmail");
     var loginInput = document.getElementById("loginInput");
     if(overlay) overlay.style.display = "flex";
     if(loginErro) loginErro.style.display = "none";
-    if(loginInput) { loginInput.value = ""; setTimeout(function(){ loginInput.focus(); }, 100); }
+    if(loginEmail) { loginEmail.value = ""; setTimeout(function(){ loginEmail.focus(); }, 100); }
+    if(loginInput) loginInput.value = "";
+    var titulo = document.getElementById("loginTitulo");
+    var subtitulo = document.getElementById("loginSubtitulo");
+    if(modo === "clube") {
+      if(titulo) titulo.textContent = "Área de Clubes";
+      if(subtitulo) subtitulo.textContent = "Acesso Clube Parceiro";
+    } else {
+      if(titulo) titulo.textContent = "Área Reservada";
+      if(subtitulo) subtitulo.textContent = "Introduz as tuas credenciais";
+    }
   };
 
   window.fecharLogin = function() {
@@ -3153,57 +3193,102 @@ footer{
     if(overlay) overlay.style.display = "none";
   };
 
-  window.fazerLogin = function() {
-    var pass = document.getElementById("loginInput").value.trim();
+  window.fazerLogin = async function() {
+    var email = (document.getElementById("loginEmail") || {}).value || "";
+    var pass  = (document.getElementById("loginInput") || {}).value || "";
     var loginErro = document.getElementById("loginErro");
-
-    if(pass === SUPER || pass === VIEWER) {
+    var btnEnter = document.getElementById("btnEnter");
+    email = email.trim(); pass = pass.trim();
+    if(!email || !pass) {
+      if(loginErro) { loginErro.textContent = "Preenche o email e a password."; loginErro.style.display = "block"; }
+      return;
+    }
+    if(btnEnter) { btnEnter.textContent = "A entrar..."; btnEnter.disabled = true; }
+    if(loginErro) loginErro.style.display = "none";
+    try {
+      var authResult = await db.auth.signInWithPassword({ email: email, password: pass });
+      if(authResult.error) throw new Error("Credenciais inválidas.");
+      utilizadorActual = authResult.data.user;
+      var profileResult = await db.from("profiles").select("role, nome").eq("user_id", utilizadorActual.id).single();
+      if(profileResult.error || !profileResult.data) throw new Error("Sem permissões definidas. Contacta o administrador.");
+      var role = profileResult.data.role;
+      var nome = profileResult.data.nome || "";
+      roleActual = role;
+      nomeScoutActual = nome;
       fecharLogin();
-      // Se tentou entrar via botão scout, redirecionar para Scout Report
-      if(modoLogin === "scout" && pass === VIEWER) {
-        abrirLoginScouting();
-        return;
+      if(role === "superuser" || role === "admin") {
+        if(modoLogin === "scout") {
+          _abrirScoutComNome(nome, role);
+        } else if(modoLogin === "clube") {
+          roleActual = "clube";
+          var areaClube = document.getElementById("areaClube");
+          if(areaClube) { areaClube.style.display = "block"; document.body.style.overflow = "hidden"; }
+          carregarAtletasClube();
+        } else {
+          var badge = document.getElementById("badgeRole");
+          if(badge) {
+            badge.textContent = role === "superuser" ? "Superuser" : "Admin";
+            badge.style.background = "rgba(212,175,55,0.12)";
+            badge.style.color = "#D4AF37";
+            badge.style.border = "1px solid rgba(212,175,55,0.3)";
+          }
+          var adminFiltros = document.getElementById("adminFiltros");
+          if(adminFiltros) adminFiltros.style.display = "flex";
+          var area = document.getElementById("areaReservada");
+          if(area) { area.style.display = "block"; document.body.style.overflow = "hidden"; }
+          carregarAtletas();
+        }
+      } else if(role === "scout") {
+        if(modoLogin === "clube") {
+          if(loginErro) { loginErro.textContent = "Não tens acesso à Área de Clubes."; loginErro.style.display = "block"; }
+          var ov = document.getElementById("loginOverlay"); if(ov) ov.style.display = "flex";
+          return;
+        }
+        _abrirScoutComNome(nome, role);
+      } else if(role === "clube") {
+        if(modoLogin !== "clube") {
+          if(loginErro) { loginErro.textContent = "Usa o botão 'Clube Parceiro' para aceder."; loginErro.style.display = "block"; }
+          var ov2 = document.getElementById("loginOverlay"); if(ov2) ov2.style.display = "flex";
+          return;
+        }
+        var areaClube2 = document.getElementById("areaClube");
+        if(areaClube2) { areaClube2.style.display = "block"; document.body.style.overflow = "hidden"; }
+        carregarAtletasClube();
+      } else {
+        throw new Error("Role desconhecido.");
       }
-      roleActual = (pass === SUPER) ? "super" : "admin";
-      var badge = document.getElementById("badgeRole");
-      if(badge) {
-        badge.textContent = pass === SUPER ? "Superuser" : "Admin";
-        badge.style.background = "rgba(212,175,55,0.12)";
-        badge.style.color = "#D4AF37";
-        badge.style.border = "1px solid rgba(212,175,55,0.3)";
-      }
-      var adminFiltros = document.getElementById("adminFiltros");
-      if(adminFiltros) adminFiltros.style.display = "flex";
-      var area = document.getElementById("areaReservada");
-      if(area) { area.style.display = "block"; document.body.style.overflow = "hidden"; }
-      carregarAtletas();
-    } else if(pass === PARTNER && modoLogin === "clube") {
-      fecharLogin();
-      roleActual = "clube";
-      var areaClube = document.getElementById("areaClube");
-      if(areaClube) { areaClube.style.display = "block"; document.body.style.overflow = "hidden"; }
-      carregarAtletasClube();
-    } else if(pass === SCOUT_PASS && modoLogin === "scout") {
-      fecharLogin();
-      abrirLoginScouting();
-    } else {
-      if(loginErro) loginErro.style.display = "block";
-      document.getElementById("loginInput").value = "";
+    } catch(err) {
+      if(loginErro) { loginErro.textContent = err.message || "Erro ao autenticar."; loginErro.style.display = "block"; }
+    } finally {
+      if(btnEnter) { btnEnter.textContent = "Entrar"; btnEnter.disabled = false; }
     }
   };
 
-  window.sair = function() {
+  function _abrirScoutComNome(nome, role) {
+    fecharLoginScouting();
+    var badge = document.getElementById("scBadgeRole");
+    if(badge) badge.textContent = (role === "superuser" || role === "admin") ? "Admin YTB" : "Scout · " + nome;
+    var btnNova = document.getElementById("scBtnNovaAval");
+    if(btnNova) btnNova.style.display = "inline-flex";
+    var areaScouting = document.getElementById("areaScouting");
+    if(areaScouting) { areaScouting.style.display = "block"; document.body.style.overflow = "hidden"; }
+    scMostrarForm();
+  }
+
+  window.sair = async function() {
+    await db.auth.signOut();
+    utilizadorActual = null; roleActual = null; atletasCache = [];
     var area = document.getElementById("areaReservada");
     if(area) area.style.display = "none";
     document.body.style.overflow = "";
-    roleActual = null; atletasCache = [];
   };
 
-  window.sairClube = function() {
+  window.sairClube = async function() {
+    await db.auth.signOut();
+    utilizadorActual = null; roleActual = null;
     var area = document.getElementById("areaClube");
     if(area) area.style.display = "none";
     document.body.style.overflow = "";
-    roleActual = null;
   };
 
   // ── ÁREA RESERVADA: CARREGAR ATLETAS ──
@@ -3310,17 +3395,4 @@ footer{
         var el = document.getElementById(id); if(el) el.value = "";
       });
       ["f-escalao","f-posicao","f-plano"].forEach(function(id){
-        var el = document.getElementById(id); if(el) el.selectedIndex = 0;
-      });
-      if(auth) auth.checked = false;
-      setTimeout(function(){ if(btn){ btn.textContent = "➤  Enviar Inscrição"; btn.disabled = false; btn.style.background = ""; btn.style.color = ""; } }, 4000);
-    } catch(e) {
-      if(btn) { btn.textContent = "Erro — tenta novamente"; btn.disabled = false; btn.style.background = "#ef4444"; }
-      setTimeout(function(){ if(btn){ btn.textContent = "➤  Enviar Inscrição"; btn.style.background = ""; } }, 3000);
-    }
-  };
-
-})();
-</script>
-</body>
-</html>
+        var el = document.getElementById(id); if
