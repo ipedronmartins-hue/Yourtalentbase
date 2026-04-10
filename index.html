@@ -1822,7 +1822,7 @@ footer{
   var SC_LEGENDA = {1:"Muito Fraco",2:"Mediocre",3:"Satisfatório",4:"Bom",5:"Muito Bom"};
   var SC_CORES = {1:"#ef4444",2:"#f97316",3:"#eab308",4:"#22c55e",5:"#3b82f6"};
   var scScores = {}, scPerspetiva = "", scRelatorioTexto = "", scDadosAtleta = {};
-  var scRendimento = "", scPrazo = "", scDecisao = "", scRankingPosicao = [];
+  var scRendimento = "", scPrazo = "", scDecisao = "", scRankingPosicao = [], scTextoPosicionamento = "";
 
   // Cores para decisão/rendimento
   var SC_DECISAO_COR = {"Contratar":"#22c55e","Acompanhar":"#eab308","Nova Observação":"#3b82f6","Sem Interesse":"#ef4444"};
@@ -2510,7 +2510,7 @@ footer{
 
     // Reset de estado
     scScores = {}; scPerspetiva = ""; scRelatorioTexto = ""; scDadosAtleta = {};
-    scRendimento = ""; scPrazo = ""; scDecisao = ""; scRankingPosicao = [];
+    scRendimento = ""; scPrazo = ""; scDecisao = ""; scRankingPosicao = []; scTextoPosicionamento = "";
 
     // Reset campos de texto e selects
     var camposTexto = ["sc-nome","sc-clube","sc-tatica","sc-camisola","sc-scout","sc-jogos","sc-minutos","sc-golos-comp","sc-assistencias","sc-zerozero","sc-obs","sc-jogo","sc-altura","sc-nascimento"];
@@ -2777,27 +2777,49 @@ footer{
     "**4. Recomendação Final**\n" +
     "2-3 frases directas que justificam a decisão '" + (scDadosAtleta.decisao || "a definir") + "' com horizonte '" + (scDadosAtleta.prazo || "a definir") + "'." +
     (scDadosAtleta.eirInfo ? " Integra o Efeito Idade Relativa de forma natural." : "") + "\n\n" +
-    "**5. Perfil de Posicionamento**\n" +
-    "Com base nos 25 critérios avaliados, escreve 3-4 parágrafos sobre o posicionamento ideal deste atleta:\n" +
-    "- Começa pela posição principal (" + (rankingPos[0]||["—"])[0] + ") — justifica com os critérios técnicos e táticos observados\n" +
-    "- Refere a posição alternativa (" + (rankingPos[1]||["—"])[0] + ") e em que contexto pode actuar aí\n" +
-    "- Analisa como o perfil físico (velocidade, morfologia, maturação) condiciona o posicionamento\n" +
-    "- Analisa como o perfil mental (liderança, ambição, espírito colectivo) se adequa às exigências da posição\n" +
-    "- Termina com: o que precisa desenvolver para aceder à posição " + (rankingPos[2]||["—"])[0] + " — cita critérios específicos por nome\n" +
-    "Linguagem de scout, não de estatístico. Sem percentagens no texto.\n\n" +
-    "Máximo 550 palavras no total. Português europeu.\n" +
+    "Máximo 400 palavras. Português europeu. Linguagem técnica mas acessível a uma família.\n" +
     "Termina SEMPRE com numa linha separada: CLASSIFICAÇÃO GLOBAL: [Muito Fraco / Mediocre / Satisfatório / Bom / Muito Bom]";
 
+    // Prompt separado para o Perfil de Posicionamento
+    var pos1 = (rankingPos[0]||["—","—"]);
+    var pos2 = (rankingPos[1]||["—","—"]);
+    var pos3 = (rankingPos[2]||["—","—"]);
+
+    var promptPosicionamento = "És um scout sénior da YourTalentBase. Com base na avaliação de " + scDadosAtleta.nome + " (" + (scDadosAtleta.categoria||"") + ", " + (scDadosAtleta.posicao||"") + "), escreve um texto de posicionamento em português europeu.\n\n" +
+    "AVALIAÇÕES DO ATLETA:\n" + areaSummary + "\n" +
+    fisicoPerfil + "\n\n" +
+    "ANÁLISE ALGORÍTMICA — as 3 posições onde este atleta tem maior adequação:\n" +
+    "1ª: " + pos1[0] + "\n" +
+    "2ª: " + pos2[0] + "\n" +
+    "3ª: " + pos3[0] + "\n\n" +
+    "Escreve um texto corrido de 3 parágrafos, SEM percentagens, SEM títulos, SEM bullet points — texto fluido de scout:\n\n" +
+    "PARÁGRAFO 1 — Posição principal (" + pos1[0] + "):\n" +
+    "Explica porque neste momento o atleta rende mais nesta posição. Menciona os critérios técnicos e táticos onde se destaca que justificam esta adequação. Usa linguagem directa: 'rende mais como...', 'o perfil encaixa em...'.\n\n" +
+    "PARÁGRAFO 2 — Posição alternativa (" + pos2[0] + "):\n" +
+    "Explica porque também pode render bem aqui. Que características do perfil físico e mental favorecem esta opção. Usa: 'no entanto, reúne também condições para...', 'o seu perfil físico/mental favorece...'.\n\n" +
+    "PARÁGRAFO 3 — Desenvolvimento para " + pos3[0] + ":\n" +
+    "Diz o que precisa de desenvolver (cita 2-3 critérios específicos por nome) para aceder a esta posição. Termina com uma frase de perspectiva sobre o potencial de evolução do atleta.\n\n" +
+    "Máximo 200 palavras. Português europeu. Sem percentagens. Sem títulos. Só texto corrido.";
+
     try {
+      // Chamada 1 — Relatório principal
       var res = await fetch("/api/claude", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: [{ role: "user", content: prompt }]
-        })
+        body: JSON.stringify({ messages: [{ role: "user", content: prompt }] })
       });
       var data = await res.json();
       scRelatorioTexto = (data.content || []).map(function(b) { return b.text || ""; }).join("\n");
+
+      // Chamada 2 — Perfil de Posicionamento (em paralelo não é possível sem Promise.all, fazemos sequencial)
+      var resPosicao = await fetch("/api/claude", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: [{ role: "user", content: promptPosicionamento }] })
+      });
+      var dataPosicao = await resPosicao.json();
+      scTextoPosicionamento = (dataPosicao.content || []).map(function(b) { return b.text || ""; }).join("\n");
+
       scMostrarRelatorio();
     } catch(e) {
       document.getElementById("scLoading").style.display = "none";
@@ -2981,28 +3003,16 @@ footer{
       }).join("");
     }
 
-    // Texto de posicionamento (secção 5) — extrair do texto completo da IA
+    // Texto de posicionamento — chamada separada à API
     var posTextoDiv = document.getElementById("scRelPosTexto");
-    if(posTextoDiv) {
-      var textoCompleto = scRelatorioTexto;
-      var posStart = textoCompleto.search(/\*\*5\.\s*Perfil de Posicionamento\*\*/i);
-      var classeStart = textoCompleto.search(/CLASSIFICAÇÃO GLOBAL/i);
-      var posTexto = "";
-      if(posStart !== -1) {
-        var posEnd = classeStart !== -1 ? classeStart : textoCompleto.length;
-        posTexto = textoCompleto.slice(posStart, posEnd).trim();
-        // Remover o título da secção
-        posTexto = posTexto.replace(/^\*\*5\.\s*Perfil de Posicionamento\*\*/i, "").trim();
-      }
-      if(posTexto) {
-        posTextoDiv.innerHTML = posTexto
-          .replace(/\*\*(.+?)\*\*/g, '<strong style="color:#fff;font-weight:600;">$1</strong>')
-          .split('\n').filter(function(l){ return l.trim(); })
-          .map(function(l){ return '<p style="margin-bottom:8px;">' + l.trim() + '</p>'; })
-          .join('');
-      } else {
-        posTextoDiv.style.display = "none";
-      }
+    if(posTextoDiv && scTextoPosicionamento) {
+      posTextoDiv.innerHTML = scTextoPosicionamento
+        .replace(/\*\*(.+?)\*\*/g, '<strong style="color:#fff;font-weight:600;">$1</strong>')
+        .split('\n').filter(function(l){ return l.trim(); })
+        .map(function(l){ return '<p style="margin-bottom:10px;">' + l.trim() + '</p>'; })
+        .join('');
+    } else if(posTextoDiv) {
+      posTextoDiv.style.display = "none";
     }
 
     // Nota do scout — limpar campo
