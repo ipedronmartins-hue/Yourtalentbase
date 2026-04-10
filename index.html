@@ -679,15 +679,19 @@ footer{
 }
 .sc-section-body{background:var(--card);border:1px solid var(--border);border-top:none;overflow-x:hidden;}
 .sc-row{
-  display:flex;align-items:center;
-  gap:8px;padding:10px 12px;border-bottom:1px solid var(--border);
+  display:flex;flex-direction:column;
+  gap:6px;padding:10px 12px;border-bottom:1px solid var(--border);
+}
+@media(min-width:500px){
+  .sc-row{flex-direction:row;align-items:center;gap:8px;}
 }
 .sc-row:last-child{border-bottom:none;}
-.sc-label{font-size:12px;color:var(--slate);font-weight:300;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.sc-btns{display:flex;gap:3px;flex-shrink:0;}
+.sc-label{font-size:12px;color:var(--slate);font-weight:400;flex:1;min-width:0;line-height:1.3;}
+.sc-row-bottom{display:flex;align-items:center;gap:6px;}
+.sc-btns{display:flex;gap:4px;flex-shrink:0;}
 .sc-btn{
-  width:28px;height:28px;border-radius:4px;border:1px solid var(--border2);
-  background:var(--card2);font-size:11px;font-weight:700;color:var(--slate);
+  width:32px;height:32px;border-radius:4px;border:1px solid var(--border2);
+  background:var(--card2);font-size:12px;font-weight:700;color:var(--slate);
   cursor:pointer;transition:all .12s;display:flex;align-items:center;justify-content:center;
   flex-shrink:0;
 }
@@ -696,7 +700,7 @@ footer{
 .sc-btn.s3.active{border-color:#eab308;background:rgba(234,179,8,.12);color:#eab308;}
 .sc-btn.s4.active{border-color:#22c55e;background:rgba(34,197,94,.12);color:#22c55e;}
 .sc-btn.s5.active{border-color:#3b82f6;background:rgba(59,130,246,.12);color:#3b82f6;}
-.sc-score-label{font-size:10px;font-weight:600;width:68px;text-align:right;color:var(--slate);flex-shrink:0;}
+.sc-score-label{font-size:10px;font-weight:600;min-width:72px;text-align:right;color:var(--slate);flex-shrink:0;}
 .sc-legenda{
   display:flex;gap:10px;flex-wrap:wrap;align-items:center;
   padding:10px 14px;background:rgba(212,175,55,.03);
@@ -727,6 +731,22 @@ footer{
   padding:14px 18px;background:rgba(212,175,55,.04);border-top:1px solid var(--border);
 }
 #scEirAlerta{border-radius:4px;padding:12px 14px;gap:10px;align-items:flex-start;flex-wrap:wrap;}
+
+/* ── SCOUT REPORT GRELHAS RESPONSIVAS ── */
+.sc-grid-2{display:grid;grid-template-columns:1fr;gap:12px;padding:16px;}
+@media(min-width:480px){.sc-grid-2{grid-template-columns:1fr 1fr;gap:14px;padding:20px;}}
+.sc-grid-3{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px;}
+@media(min-width:700px){.sc-grid-3{grid-template-columns:1fr 1fr 1fr;gap:14px;padding:20px;}}
+.sc-grid-full{grid-column:1/-1!important;}
+.sc-grid-2 label,.sc-grid-3 label{display:block;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--slate);margin-bottom:5px;}
+.sc-grid-2 input,.sc-grid-2 select,
+.sc-grid-3 input,.sc-grid-3 select,.sc-grid-3 textarea{
+  background:var(--card2);border:1px solid var(--border2);border-radius:4px;
+  padding:10px 12px;font-size:14px;color:#fff;outline:none;width:100%;
+  transition:border-color .2s;-webkit-appearance:none;
+}
+.sc-grid-2 input:focus,.sc-grid-2 select:focus,
+.sc-grid-3 input:focus,.sc-grid-3 select:focus{border-color:var(--gold);}
 
 /* ── REVEAL ANIMATION ── */
 .reveal{opacity:1;transform:none;transition:opacity .55s ease,transform .55s ease;}
@@ -1266,8 +1286,8 @@ footer{
       <div class="sc-section-head" style="border-left-color:var(--gold);color:var(--gold);background:rgba(245,192,0,0.05);">
         <span>01 · Dados do Atleta</span>
       </div>
-      <div class="sc-section-body" style="padding:20px;display:grid;grid-template-columns:1fr 1fr;gap:14px;border-radius:0 0 8px 8px;">
-        <div style="grid-column:1/-1;"><label>Nome do Atleta *</label><input id="sc-nome" type="text" placeholder="Nome ou apelido do atleta"></div>
+      <div class="sc-section-body sc-grid-2">
+        <div class="sc-grid-full"><label>Nome do Atleta *</label><input id="sc-nome" type="text" placeholder="Nome ou apelido do atleta"></div>
         <div><label>Data de Nascimento</label><input id="sc-nascimento" type="date" onchange="scCalcularEIR()"></div>
         <div><label>Categoria</label>
           <select id="sc-categoria"><option value="">Selecionar...</option><option>Sub-9</option><option>Sub-10</option><option>Sub-11</option><option>Sub-12</option><option>Sub-13</option><option>Sub-14</option><option>Sub-15</option><option>Sub-16</option><option>Sub-17</option><option>Sub-18</option><option>Sub-19</option></select>
@@ -1285,15 +1305,13 @@ footer{
         <div><label>Época</label>
           <select id="sc-epoca"><option>2024/2025</option><option selected>2025/2026</option><option>2026/2027</option></select>
         </div>
-        <div style="grid-column:1/-1;"><label>Local / Jogo</label><input id="sc-jogo" type="text" placeholder="Ex: Gondomar SC vs Leixões, 15/03/2026"></div>
-
-        <!-- Alerta EIR dinâmico -->
-        <div id="scEirAlerta" style="display:none;grid-column:1/-1;border-radius:6px;padding:12px 16px;display:none;gap:10px;align-items:flex-start;flex-wrap:wrap;"></div>
+        <div class="sc-grid-full"><label>Local / Jogo</label><input id="sc-jogo" type="text" placeholder="Ex: Gondomar SC vs Leixões, 15/03/2026"></div>
+        <div id="scEirAlerta" style="display:none;grid-column:1/-1;border-radius:6px;padding:12px 16px;gap:10px;align-items:flex-start;flex-wrap:wrap;"></div>
       </div>
 
       <!-- Perfil Físico -->
       <div class="sc-section-head" style="border-left-color:#f97316;color:#f97316;background:rgba(249,115,22,0.05);">02 · Perfil Físico</div>
-      <div class="sc-section-body" style="padding:20px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;border-radius:0 0 8px 8px;">
+      <div class="sc-section-body sc-grid-3">
         <div><label>Altura (cm)</label><input id="sc-altura" type="number" placeholder="Ex: 165" min="100" max="220"></div>
         <div><label>Morfologia</label>
           <select id="sc-morfologia"><option value="">Selecionar...</option><option>Endomorfo — Robusto/Poderoso</option><option>Mesomorfo — Atlético/Equilibrado</option><option>Ectomorfo — Alto/Esbelto</option><option>Franzino</option></select>
@@ -1314,7 +1332,7 @@ footer{
 
       <!-- Dados Competitivos -->
       <div class="sc-section-head" style="border-left-color:var(--gold);color:var(--gold);background:rgba(245,192,0,0.05);">03 · Dados Competitivos da Época <span style="font-size:9px;font-weight:400;letter-spacing:0;text-transform:none;opacity:0.6;">— fonte: ZeroZero</span></div>
-      <div class="sc-section-body" style="padding:20px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;border-radius:0 0 8px 8px;">
+      <div class="sc-section-body sc-grid-3">
         <div><label>Jogos Disputados</label><input id="sc-jogos" type="number" placeholder="0" min="0"></div>
         <div><label>Minutos Jogados</label><input id="sc-minutos" type="number" placeholder="0" min="0"></div>
         <div><label>Golos Marcados</label><input id="sc-golos-comp" type="number" placeholder="0" min="0"></div>
@@ -2827,7 +2845,11 @@ footer{
       var data = await res.json();
 
       if(!res.ok || !data.content) {
-        throw new Error(data.error ? JSON.stringify(data.error).slice(0,200) : "Erro na API (status " + res.status + ")");
+        var errMsg = "Erro na API";
+        if(data.error) {
+          try { errMsg = JSON.parse(data.error).error.message || data.error; } catch(e) { errMsg = String(data.error).slice(0,150); }
+        }
+        throw new Error(errMsg + " (status " + res.status + ")");
       }
 
       scRelatorioTexto = data.content.map(function(b) { return b.text || ""; }).join("\n");
@@ -2866,7 +2888,7 @@ footer{
     } catch(e) {
       document.getElementById("scLoading").style.display = "none";
       document.getElementById("scForm").style.display = "block";
-      document.getElementById("scFormErro").textContent = "Erro ao gerar relatório. Tenta novamente.";
+      document.getElementById("scFormErro").textContent = e.message || "Erro ao gerar relatório. Tenta novamente.";
       document.getElementById("scFormErro").style.display = "block";
     }
   };
