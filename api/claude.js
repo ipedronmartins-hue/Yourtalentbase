@@ -11,7 +11,7 @@ export default async function handler(req, res) {
     }
 
     const body = {
-      model: 'claude-4-5-sonnet-20250219',
+      model: 'claude-sonnet-4-5',
       max_tokens: 4096,
       messages: messages
     };
