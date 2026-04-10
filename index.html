@@ -1444,13 +1444,28 @@ footer{
       <!-- Detalhe critérios -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;" id="scRelDetalhe"></div>
 
-      <!-- Link para Perfil de Posição -->
-      <div style="margin-top:20px;background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.2);border-radius:8px;padding:18px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
-        <div>
-          <div style="font-size:12px;font-weight:700;color:#3B82F6;margin-bottom:3px;">Qual a posição ideal para este atleta?</div>
-          <div style="font-size:12px;color:var(--slate);font-weight:300;">Usa os dados desta avaliação para calcular a compatibilidade por posição.</div>
+      <!-- POSICIONAMENTO INTEGRADO -->
+      <div style="margin-top:20px;">
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 16px;background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.2);border-radius:6px 6px 0 0;border-bottom:none;">
+          <div style="width:6px;height:6px;border-radius:50%;background:#3B82F6;flex-shrink:0;"></div>
+          <span style="font-size:10px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:2px;color:#3B82F6;text-transform:uppercase;">Perfil de Posicionamento · YourTalentBase</span>
         </div>
-        <button onclick="abrirPerfilDePosicaoDoRelatorio()" style="background:#3B82F6;color:#fff;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:10px 20px;border-radius:3px;border:none;cursor:pointer;white-space:nowrap;">🎯 Analisar Perfil de Posição</button>
+        <div style="background:var(--card);border:1px solid rgba(59,130,246,0.2);border-radius:0 0 8px 8px;padding:20px;">
+          <!-- Barras de adequação -->
+          <div id="scRelPosBarras" style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px;"></div>
+          <!-- Texto IA posicionamento (secção 5 do relatório) -->
+          <div id="scRelPosTexto" style="font-size:13px;color:var(--slate);line-height:1.85;font-weight:300;"></div>
+        </div>
+      </div>
+
+      <!-- Campo de observações do scout -->
+      <div style="margin-top:20px;background:var(--card2);border:1px solid var(--border2);border-radius:8px;overflow:hidden;">
+        <div style="padding:10px 16px;background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;">
+          <span style="font-size:10px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:2px;color:var(--gold);text-transform:uppercase;">✍ Nota do Scout</span>
+          <span style="font-size:10px;color:var(--muted);">— complemento pessoal ao relatório</span>
+        </div>
+        <div id="scNotaScoutDisplay" style="display:none;padding:16px 18px;font-size:13px;color:var(--slate);line-height:1.8;font-style:italic;"></div>
+        <textarea id="scNotaScout" placeholder="Acrescenta aqui as tuas impressões pessoais — contexto do jogo, comportamentos específicos, algo que só tu viste e que completa este relatório..." style="width:100%;min-height:100px;background:transparent;border:none;padding:16px 18px;font-size:13px;color:var(--slate);line-height:1.8;resize:vertical;outline:none;font-family:'Inter',sans-serif;"></textarea>
       </div>
     </div>
 
@@ -1807,7 +1822,7 @@ footer{
   var SC_LEGENDA = {1:"Muito Fraco",2:"Mediocre",3:"Satisfatório",4:"Bom",5:"Muito Bom"};
   var SC_CORES = {1:"#ef4444",2:"#f97316",3:"#eab308",4:"#22c55e",5:"#3b82f6"};
   var scScores = {}, scPerspetiva = "", scRelatorioTexto = "", scDadosAtleta = {};
-  var scRendimento = "", scPrazo = "", scDecisao = "";
+  var scRendimento = "", scPrazo = "", scDecisao = "", scRankingPosicao = [];
 
   // Cores para decisão/rendimento
   var SC_DECISAO_COR = {"Contratar":"#22c55e","Acompanhar":"#eab308","Nova Observação":"#3b82f6","Sem Interesse":"#ef4444"};
@@ -2495,7 +2510,7 @@ footer{
 
     // Reset de estado
     scScores = {}; scPerspetiva = ""; scRelatorioTexto = ""; scDadosAtleta = {};
-    scRendimento = ""; scPrazo = ""; scDecisao = "";
+    scRendimento = ""; scPrazo = ""; scDecisao = ""; scRankingPosicao = [];
 
     // Reset campos de texto e selects
     var camposTexto = ["sc-nome","sc-clube","sc-tatica","sc-camisola","sc-scout","sc-jogos","sc-minutos","sc-golos-comp","sc-assistencias","sc-zerozero","sc-obs","sc-jogo","sc-altura","sc-nascimento"];
@@ -2688,6 +2703,50 @@ footer{
       });
     });
 
+    // Calcular compatibilidade de posição com base nos scores actuais
+    var posMapping = {
+      "t1":"p_t1","t2":"p_t2","t3":"p_t3","t4":"p_t4",
+      "t5":"p_t5","t6":"p_t6","t7":"p_t7","t8":"p_t8",
+      "ta1":"p_ta1","ta2":"p_ta2","ta3":"p_ta3","ta4":"p_ta4","ta5":"p_ta5",
+      "f1":"p_f1","f2":"p_f2","f3":"p_f3","f4":"p_f4",
+      "m1":"p_m1","m2":"p_m2","m3":"p_m3","m4":"p_m4",
+      "m5":"p_m5","m6":"p_m6","m7":"p_m7","m8":"p_m8"
+    };
+    var posScoresParaCalc = {};
+    Object.keys(posMapping).forEach(function(scKey) {
+      if(scScores[scKey]) posScoresParaCalc[posMapping[scKey]] = scScores[scKey];
+    });
+
+    var POS_PERFIS_LOCAL = {
+      "Guarda-Redes":    {p_t1:3,p_t7:3,p_f2:2,p_f4:2,p_ta1:2,p_ta2:2,p_m2:3,p_m3:2,p_m1:2},
+      "Defesa Central":  {p_t1:3,p_t7:3,p_f2:3,p_f3:2,p_ta1:2,p_ta3:3,p_ta5:3,p_m5:2,p_m2:2,p_t4:2},
+      "Defesa Lateral":  {p_t1:2,p_t2:2,p_f1:3,p_f3:2,p_ta4:2,p_ta5:2,p_t4:2,p_t5:2,p_m6:2,p_m7:2},
+      "Médio Defensivo": {p_t1:3,p_t4:3,p_ta1:3,p_ta2:3,p_ta3:3,p_ta5:3,p_f3:2,p_f4:2,p_m6:2,p_m7:2},
+      "Médio Central":   {p_t4:3,p_t3:3,p_ta1:3,p_ta2:3,p_ta4:2,p_ta5:2,p_t8:2,p_f3:2,p_m6:3,p_m4:2},
+      "Médio Ala":       {p_t5:3,p_t2:3,p_f1:3,p_f3:2,p_ta4:3,p_t4:2,p_t8:3,p_m4:2,p_ta1:2,p_t6:2},
+      "Extremo":         {p_t5:3,p_t2:3,p_f1:3,p_t6:2,p_t8:3,p_ta4:3,p_m4:2,p_m2:2,p_t3:1},
+      "Avançado Centro": {p_t6:3,p_t7:2,p_f2:2,p_t2:2,p_ta2:3,p_ta4:3,p_m4:3,p_m2:2,p_t8:2,p_f1:2}
+    };
+
+    var rankingPos = Object.entries(POS_PERFIS_LOCAL).map(function(entry) {
+      var pos = entry[0], perfil = entry[1];
+      var totalPeso = 0, totalScore = 0;
+      Object.keys(perfil).forEach(function(crit) {
+        var peso = perfil[crit];
+        var nota = posScoresParaCalc[crit] || 0;
+        totalPeso += peso * 5;
+        totalScore += nota * peso;
+      });
+      var pct = totalPeso > 0 ? Math.round((totalScore / totalPeso) * 100) : 0;
+      return [pos, pct];
+    }).sort(function(a,b){ return b[1]-a[1]; });
+
+    // Guardar ranking para mostrar no relatório
+    scRankingPosicao = rankingPos;
+
+    var top3Pos = rankingPos.slice(0,3).map(function(r){ return r[0] + " (" + r[1] + "% adequação)"; }).join(", ");
+    var posDesenvolver = rankingPos.slice(0,3).map(function(r){ return r[0]; }).join(" / ");
+
     var prompt = "És um scout sénior da agência desportiva YourTalentBase, especializada em futebol de formação em Portugal.\n" +
     "Redige um Scout Report profissional em português europeu. O relatório é pago e tem de justificar o seu valor — escreve como um scout experiente que observou o atleta em campo, com voz própria e juízos fundamentados.\n\n" +
     "ATLETA OBSERVADO:\n" +
@@ -2705,18 +2764,28 @@ footer{
     "DESTAQUES AUTOMÁTICOS:\n" +
     (destaques.length ? "- Pontos fortes: " + destaques.join(", ") + "\n" : "") +
     (alertas.length ? "- Pontos a desenvolver: " + alertas.join(", ") + "\n" : "") + "\n" +
+    "ANÁLISE DE POSICIONAMENTO (calculado algoritmicamente):\n" +
+    "- Top 3 posições mais adequadas: " + top3Pos + "\n\n" +
     "OBSERVAÇÕES DO SCOUT: " + (scDadosAtleta.obs || "Sem observações adicionais.") + "\n\n" +
     "ESTRUTURA OBRIGATÓRIA — usa exatamente estes títulos:\n\n" +
     "**1. Estilo de Jogo**\n" +
-    "2-3 frases que descrevem quem é este jogador em campo — como funciona, o que o define, qual o seu papel natural na equipa. Usa linguagem de scout: 'atleta que...', 'tende a...', 'privilegia...'.\n\n" +
+    "2-3 frases que descrevem quem é este jogador em campo — como funciona, o que o define, qual o seu papel natural na equipa.\n\n" +
     "**2. Pontos Fortes**\n" +
-    "3 pontos fortes reais baseados nas notas mais altas. Para cada um: título curto a negrito + 1-2 frases de justificação com observações concretas do jogo. Não repitas as notas numéricas — descreve o que viste.\n\n" +
+    "3 pontos fortes reais baseados nas notas mais altas. Para cada um: título curto a negrito + 1-2 frases de justificação. Não repitas os números.\n\n" +
     "**3. Áreas a Desenvolver**\n" +
-    "2 pontos baseados nas notas mais baixas. Tom construtivo — não é uma crítica, é um caminho. Mesmo um jogador com notas altas tem margem de crescimento.\n\n" +
+    "2 pontos baseados nas notas mais baixas. Tom construtivo.\n\n" +
     "**4. Recomendação Final**\n" +
-    "2-3 frases directas que justificam a decisão '" + (scDadosAtleta.decisao || "a definir") + "' com horizonte '" + (scDadosAtleta.prazo || "a definir") + "'. Termina com uma frase de síntese sobre o potencial do atleta." +
-    (scDadosAtleta.eirInfo ? "\n\nNota: integra a análise do Efeito Idade Relativa de forma natural no texto, não como secção separada." : "") + "\n\n" +
-    "Máximo 400 palavras. Português europeu. Linguagem técnica mas acessível a uma família.\n" +
+    "2-3 frases directas que justificam a decisão '" + (scDadosAtleta.decisao || "a definir") + "' com horizonte '" + (scDadosAtleta.prazo || "a definir") + "'." +
+    (scDadosAtleta.eirInfo ? " Integra o Efeito Idade Relativa de forma natural." : "") + "\n\n" +
+    "**5. Perfil de Posicionamento**\n" +
+    "Com base nos 25 critérios avaliados, escreve 3-4 parágrafos sobre o posicionamento ideal deste atleta:\n" +
+    "- Começa pela posição principal (" + (rankingPos[0]||["—"])[0] + ") — justifica com os critérios técnicos e táticos observados\n" +
+    "- Refere a posição alternativa (" + (rankingPos[1]||["—"])[0] + ") e em que contexto pode actuar aí\n" +
+    "- Analisa como o perfil físico (velocidade, morfologia, maturação) condiciona o posicionamento\n" +
+    "- Analisa como o perfil mental (liderança, ambição, espírito colectivo) se adequa às exigências da posição\n" +
+    "- Termina com: o que precisa desenvolver para aceder à posição " + (rankingPos[2]||["—"])[0] + " — cita critérios específicos por nome\n" +
+    "Linguagem de scout, não de estatístico. Sem percentagens no texto.\n\n" +
+    "Máximo 550 palavras no total. Português europeu.\n" +
     "Termina SEMPRE com numa linha separada: CLASSIFICAÇÃO GLOBAL: [Muito Fraco / Mediocre / Satisfatório / Bom / Muito Bom]";
 
     try {
@@ -2883,6 +2952,64 @@ footer{
         '<div style="background:' + area.cor + '10;padding:9px 14px;border-bottom:1px solid ' + area.cor + '22;font-size:10px;font-weight:800;color:' + area.cor + ';font-family:Barlow Condensed,sans-serif;letter-spacing:1px;text-transform:uppercase;">' + area.label.toUpperCase() + "</div>" +
         rows + "</div>";
     }).join("");
+
+    // Barras de posicionamento
+    var posBarrasDiv = document.getElementById("scRelPosBarras");
+    if(posBarrasDiv && scRankingPosicao.length) {
+      function corAdequacao(pct) {
+        if(pct >= 70) return "#22c55e";
+        if(pct >= 50) return "#eab308";
+        if(pct >= 35) return "#f97316";
+        return "#ef4444";
+      }
+      var labels = ["Posição Principal","Posição Alternativa","Com Desenvolvimento"];
+      posBarrasDiv.innerHTML = scRankingPosicao.slice(0,3).map(function(item, i) {
+        var pos = item[0], pct = item[1];
+        var cor = corAdequacao(pct);
+        var destaque = i === 0;
+        return '<div style="' + (destaque ? 'background:' + cor + '08;border:1px solid ' + cor + '30;border-radius:6px;padding:10px 14px;' : 'padding:6px 2px;') + '">' +
+          '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">' +
+          '<div>' +
+          '<span style="font-size:9px;color:' + cor + ';font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-right:8px;">' + labels[i] + '</span>' +
+          '<span style="font-size:' + (destaque?'15':'13') + 'px;color:' + (destaque?'#fff':'var(--slate)') + ';font-weight:' + (destaque?800:500) + ';font-family:Barlow Condensed,sans-serif;">' + pos + '</span>' +
+          '</div>' +
+          '<span style="font-family:Barlow Condensed,sans-serif;font-size:' + (destaque?'18':'14') + 'px;font-weight:800;color:' + cor + ';">' + pct + '%</span>' +
+          '</div>' +
+          '<div style="background:var(--border);border-radius:3px;height:' + (destaque?'6':'4') + 'px;overflow:hidden;">' +
+          '<div style="width:' + pct + '%;height:100%;background:' + cor + ';border-radius:3px;"></div>' +
+          '</div></div>';
+      }).join("");
+    }
+
+    // Texto de posicionamento (secção 5) — extrair do texto completo da IA
+    var posTextoDiv = document.getElementById("scRelPosTexto");
+    if(posTextoDiv) {
+      var textoCompleto = scRelatorioTexto;
+      var posStart = textoCompleto.search(/\*\*5\.\s*Perfil de Posicionamento\*\*/i);
+      var classeStart = textoCompleto.search(/CLASSIFICAÇÃO GLOBAL/i);
+      var posTexto = "";
+      if(posStart !== -1) {
+        var posEnd = classeStart !== -1 ? classeStart : textoCompleto.length;
+        posTexto = textoCompleto.slice(posStart, posEnd).trim();
+        // Remover o título da secção
+        posTexto = posTexto.replace(/^\*\*5\.\s*Perfil de Posicionamento\*\*/i, "").trim();
+      }
+      if(posTexto) {
+        posTextoDiv.innerHTML = posTexto
+          .replace(/\*\*(.+?)\*\*/g, '<strong style="color:#fff;font-weight:600;">$1</strong>')
+          .split('\n').filter(function(l){ return l.trim(); })
+          .map(function(l){ return '<p style="margin-bottom:8px;">' + l.trim() + '</p>'; })
+          .join('');
+      } else {
+        posTextoDiv.style.display = "none";
+      }
+    }
+
+    // Nota do scout — limpar campo
+    var notaScout = document.getElementById("scNotaScout");
+    if(notaScout) notaScout.value = "";
+    var notaDisplay = document.getElementById("scNotaScoutDisplay");
+    if(notaDisplay) notaDisplay.style.display = "none";
   }
 
   // ── SCOUTING: GERAR PDF via Print Window ──
