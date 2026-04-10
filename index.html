@@ -646,7 +646,7 @@ footer{
   flex-wrap:nowrap;
 }
 @media(min-width:768px){.sc-nav{padding:0 24px;}}
-.sc-content{padding:20px 14px;max-width:800px;margin:0 auto;}
+.sc-content{padding:16px 12px;max-width:800px;margin:0 auto;overflow-x:hidden;}
 @media(min-width:768px){.sc-content{padding:28px 20px;}}
 #scFormErro{
   display:none;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);
@@ -677,25 +677,26 @@ footer{
   background:rgba(212,175,55,.03);color:var(--gold);
   display:flex;align-items:center;gap:8px;
 }
-.sc-section-body{background:var(--card);border:1px solid var(--border);border-top:none;}
+.sc-section-body{background:var(--card);border:1px solid var(--border);border-top:none;overflow-x:hidden;}
 .sc-row{
-  display:flex;align-items:center;justify-content:space-between;
-  gap:10px;padding:11px 14px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;
+  gap:8px;padding:10px 12px;border-bottom:1px solid var(--border);
 }
 .sc-row:last-child{border-bottom:none;}
-.sc-label{font-size:13px;color:var(--slate);font-weight:300;flex:1;}
-.sc-btns{display:flex;gap:4px;}
+.sc-label{font-size:12px;color:var(--slate);font-weight:300;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sc-btns{display:flex;gap:3px;flex-shrink:0;}
 .sc-btn{
-  width:30px;height:30px;border-radius:4px;border:1px solid var(--border2);
-  background:var(--card2);font-size:12px;font-weight:700;color:var(--slate);
+  width:28px;height:28px;border-radius:4px;border:1px solid var(--border2);
+  background:var(--card2);font-size:11px;font-weight:700;color:var(--slate);
   cursor:pointer;transition:all .12s;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
 }
 .sc-btn.s1.active{border-color:#ef4444;background:rgba(239,68,68,.12);color:#ef4444;}
 .sc-btn.s2.active{border-color:#f97316;background:rgba(249,115,22,.12);color:#f97316;}
 .sc-btn.s3.active{border-color:#eab308;background:rgba(234,179,8,.12);color:#eab308;}
 .sc-btn.s4.active{border-color:#22c55e;background:rgba(34,197,94,.12);color:#22c55e;}
 .sc-btn.s5.active{border-color:#3b82f6;background:rgba(59,130,246,.12);color:#3b82f6;}
-.sc-score-label{font-size:10px;font-weight:400;min-width:72px;text-align:right;color:var(--slate);}
+.sc-score-label{font-size:10px;font-weight:600;width:68px;text-align:right;color:var(--slate);flex-shrink:0;}
 .sc-legenda{
   display:flex;gap:10px;flex-wrap:wrap;align-items:center;
   padding:10px 14px;background:rgba(212,175,55,.03);
@@ -737,7 +738,12 @@ footer{
 <!-- NAV -->
 <nav>
   <a href="#" class="nav-logo">
-    <div class="logo-badge">TB</div>
+    <div class="logo-badge">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="32" height="32" rx="5" fill="#D4AF37"/>
+        <text x="16" y="22" font-family="'Barlow Condensed',sans-serif" font-size="11" font-weight="900" text-anchor="middle" fill="#0B0B0B">YTB</text>
+      </svg>
+    </div>
     <span class="logo-text">Your<span>TalentBase</span></span>
   </a>
   <ul class="nav-links">
@@ -2743,10 +2749,11 @@ footer{
     scRankingPosicao = rankingPos;
 
     var top3Pos = rankingPos.slice(0,3).map(function(r){ return r[0] + " (" + r[1] + "% adequação)"; }).join(", ");
-    var posDesenvolver = rankingPos.slice(0,3).map(function(r){ return r[0]; }).join(" / ");
 
-    var prompt = "És um scout sénior da agência desportiva YourTalentBase, especializada em futebol de formação em Portugal.\n" +
-    "Redige um Scout Report profissional em português europeu. O relatório é pago e tem de justificar o seu valor — escreve como um scout experiente que observou o atleta em campo, com voz própria e juízos fundamentados.\n\n" +
+    var prompt = "És um scout sénior da YourTalentBase, agência de scouting de futebol jovem em Portugal. " +
+    "Este relatório é um produto pago — tem de ser a peça mais valiosa que um pai, treinador ou clube pode receber sobre este atleta. " +
+    "Escreve com autoridade, com voz de scout experiente, com observações concretas baseadas nas notas. " +
+    "Não és um algoritmo — és um profissional que viu este atleta jogar e tem uma opinião fundamentada.\n\n" +
     "ATLETA OBSERVADO:\n" +
     "- Nome: " + scDadosAtleta.nome + "\n" +
     "- Categoria: " + scDadosAtleta.categoria + (scDadosAtleta.eirInfo || "") + "\n" +
@@ -2759,45 +2766,56 @@ footer{
     "- Scout: " + (scDadosAtleta.scout || "YourTalentBase") +
     fisicoPerfil + compStats + decisaoInfo + "\n\n" +
     "AVALIAÇÕES (1=Muito Fraco, 2=Mediocre, 3=Satisfatório, 4=Bom, 5=Muito Bom):\n" + areaSummary + "\n\n" +
-    "DESTAQUES AUTOMÁTICOS:\n" +
-    (destaques.length ? "- Pontos fortes: " + destaques.join(", ") + "\n" : "") +
-    (alertas.length ? "- Pontos a desenvolver: " + alertas.join(", ") + "\n" : "") + "\n" +
-    "ANÁLISE DE POSICIONAMENTO (calculado algoritmicamente):\n" +
-    "- Top 3 posições mais adequadas: " + top3Pos + "\n\n" +
+    "DESTAQUES:\n" +
+    (destaques.length ? "- Pontos fortes (notas 4-5): " + destaques.join(", ") + "\n" : "") +
+    (alertas.length ? "- A desenvolver (notas 1-2): " + alertas.join(", ") + "\n" : "") + "\n" +
+    "POSICIONAMENTO ALGORÍTMICO: " + top3Pos + "\n\n" +
     "OBSERVAÇÕES DO SCOUT: " + (scDadosAtleta.obs || "Sem observações adicionais.") + "\n\n" +
-    "ESTRUTURA OBRIGATÓRIA — usa exatamente estes títulos:\n\n" +
+    "ESTRUTURA OBRIGATÓRIA — usa exactamente estes títulos em negrito:\n\n" +
     "**1. Estilo de Jogo**\n" +
-    "2-3 frases que descrevem quem é este jogador em campo — como funciona, o que o define, qual o seu papel natural na equipa.\n\n" +
+    "3-4 frases que pintam um quadro deste jogador — quem ele é em campo, como pensa o jogo, o que o distingue dos outros da sua idade. " +
+    "Vai além dos critérios: fala do carácter, da presença, do que só um scout que o viu pode dizer. " +
+    "Usa linguagem viva: 'atleta que domina...', 'raramente vemos em Sub-X um...', 'a sua forma de...'.\n\n" +
     "**2. Pontos Fortes**\n" +
-    "3 pontos fortes reais baseados nas notas mais altas. Para cada um: título curto a negrito + 1-2 frases de justificação. Não repitas os números.\n\n" +
+    "3 pontos fortes, cada um com título a negrito + 2-3 frases que explicam o que aquela nota significa em termos práticos — " +
+    "não 'passe: 5' mas 'tem um passe que quebra linhas, encontra o colega onde outros não vêem, dita o ritmo da equipa'. " +
+    "O pai deve perceber. O clube deve ficar curioso.\n\n" +
     "**3. Áreas a Desenvolver**\n" +
-    "2 pontos baseados nas notas mais baixas. Tom construtivo.\n\n" +
+    "2 pontos com título a negrito + 2 frases cada. Tom de investimento, não de crítica: " +
+    "'a evolução neste critério vai abrir-lhe portas que hoje ainda estão fechadas'. " +
+    "Liga sempre ao potencial futuro.\n\n" +
     "**4. Recomendação Final**\n" +
-    "2-3 frases directas que justificam a decisão '" + (scDadosAtleta.decisao || "a definir") + "' com horizonte '" + (scDadosAtleta.prazo || "a definir") + "'." +
-    (scDadosAtleta.eirInfo ? " Integra o Efeito Idade Relativa de forma natural." : "") + "\n\n" +
-    "Máximo 400 palavras. Português europeu. Linguagem técnica mas acessível a uma família.\n" +
-    "Termina SEMPRE com numa linha separada: CLASSIFICAÇÃO GLOBAL: [Muito Fraco / Mediocre / Satisfatório / Bom / Muito Bom]";
+    "3-4 frases de autoridade. Justifica a decisão '" + (scDadosAtleta.decisao || "a definir") + "' com horizonte '" + (scDadosAtleta.prazo || "a definir") + "'. " +
+    "Termina com uma frase que resume o potencial deste atleta de forma memorável — a frase que o pai vai guardar para sempre." +
+    (scDadosAtleta.eirInfo ? " Integra o Efeito Idade Relativa de forma natural, como argumento de potencial." : "") + "\n\n" +
+    "Máximo 500 palavras. Português europeu correcto. Sem clichês. Sem repetição dos números das notas.\n" +
+    "Termina SEMPRE com uma linha separada: CLASSIFICAÇÃO GLOBAL: [Muito Fraco / Mediocre / Satisfatório / Bom / Muito Bom]";
 
     // Prompt separado para o Perfil de Posicionamento
     var pos1 = (rankingPos[0]||["—","—"]);
     var pos2 = (rankingPos[1]||["—","—"]);
     var pos3 = (rankingPos[2]||["—","—"]);
 
-    var promptPosicionamento = "És um scout sénior da YourTalentBase. Com base na avaliação de " + scDadosAtleta.nome + " (" + (scDadosAtleta.categoria||"") + ", " + (scDadosAtleta.posicao||"") + "), escreve um texto de posicionamento em português europeu.\n\n" +
+    var promptPosicionamento = "És um scout sénior da YourTalentBase. " +
+    "Com base na avaliação completa de " + scDadosAtleta.nome + " (" + (scDadosAtleta.categoria||"") + ", " + (scDadosAtleta.posicao||"posição não definida") + "), " +
+    "escreve um texto de posicionamento em português europeu que vai aparecer num relatório pago.\n\n" +
     "AVALIAÇÕES DO ATLETA:\n" + areaSummary + "\n" +
     fisicoPerfil + "\n\n" +
-    "ANÁLISE ALGORÍTMICA — as 3 posições onde este atleta tem maior adequação:\n" +
-    "1ª: " + pos1[0] + "\n" +
-    "2ª: " + pos2[0] + "\n" +
-    "3ª: " + pos3[0] + "\n\n" +
-    "Escreve um texto corrido de 3 parágrafos, SEM percentagens, SEM títulos, SEM bullet points — texto fluido de scout:\n\n" +
+    "ANÁLISE ALGORÍTMICA — posições onde o perfil do atleta tem maior adequação:\n" +
+    "1ª opção: " + pos1[0] + "\n" +
+    "2ª opção: " + pos2[0] + "\n" +
+    "3ª opção: " + pos3[0] + "\n\n" +
+    "Escreve exactamente 3 parágrafos corridos. SEM percentagens. SEM títulos. SEM bullet points. Só texto fluido de scout experiente.\n\n" +
     "PARÁGRAFO 1 — Posição principal (" + pos1[0] + "):\n" +
-    "Explica porque neste momento o atleta rende mais nesta posição. Menciona os critérios técnicos e táticos onde se destaca que justificam esta adequação. Usa linguagem directa: 'rende mais como...', 'o perfil encaixa em...'.\n\n" +
+    "Explica com convicção porque este atleta rende mais aqui. Vai buscar os critérios técnicos e táticos onde se destacou. " +
+    "Fala de como o seu estilo de jogo serve as exigências desta posição. Usa: 'neste momento, o perfil de X aponta claramente para...', 'a forma como...'. Mínimo 4 frases.\n\n" +
     "PARÁGRAFO 2 — Posição alternativa (" + pos2[0] + "):\n" +
-    "Explica porque também pode render bem aqui. Que características do perfil físico e mental favorecem esta opção. Usa: 'no entanto, reúne também condições para...', 'o seu perfil físico/mental favorece...'.\n\n" +
-    "PARÁGRAFO 3 — Desenvolvimento para " + pos3[0] + ":\n" +
-    "Diz o que precisa de desenvolver (cita 2-3 critérios específicos por nome) para aceder a esta posição. Termina com uma frase de perspectiva sobre o potencial de evolução do atleta.\n\n" +
-    "Máximo 200 palavras. Português europeu. Sem percentagens. Sem títulos. Só texto corrido.";
+    "Explica porque também pode render bem aqui — que características físicas, mentais ou táticas favorecem esta opção. " +
+    "Contextualiza: em que tipo de equipa, em que sistema, com que papel. Usa: 'o seu perfil físico/mental também o habilita a...'. Mínimo 3 frases.\n\n" +
+    "PARÁGRAFO 3 — Caminho de desenvolvimento para " + pos3[0] + ":\n" +
+    "Diz o que precisa de evoluir (cita 2-3 critérios específicos pelo nome exacto) para aceder a esta posição. " +
+    "Termina com uma frase de perspectiva sobre o potencial de evolução — algo que inspire confiança no atleta e na família. Mínimo 3 frases.\n\n" +
+    "Máximo 250 palavras. Português europeu. Sem percentagens. Linguagem de scout, não de estatístico.";
 
     try {
       // Chamada 1 — Relatório principal
@@ -2807,8 +2825,12 @@ footer{
         body: JSON.stringify({ messages: [{ role: "user", content: prompt }] })
       });
       var data = await res.json();
-      console.log('API resposta status:', res.status, '| erro:', data.error || 'nenhum');
-      scRelatorioTexto = (data.content || []).map(function(b) { return b.text || ""; }).join("\n");
+
+      if(!res.ok || !data.content) {
+        throw new Error(data.error ? JSON.stringify(data.error).slice(0,200) : "Erro na API (status " + res.status + ")");
+      }
+
+      scRelatorioTexto = data.content.map(function(b) { return b.text || ""; }).join("\n");
 
       // Mostrar relatório imediatamente com posicionamento a carregar
       scTextoPosicionamento = "";
@@ -3015,7 +3037,6 @@ footer{
           '<span style="font-size:9px;color:' + cor + ';font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-right:8px;">' + labels[i] + '</span>' +
           '<span style="font-size:' + (destaque?'15':'13') + 'px;color:' + (destaque?'#fff':'var(--slate)') + ';font-weight:' + (destaque?800:500) + ';font-family:Barlow Condensed,sans-serif;">' + pos + '</span>' +
           '</div>' +
-          '<span style="font-family:Barlow Condensed,sans-serif;font-size:' + (destaque?'18':'14') + 'px;font-weight:800;color:' + cor + ';">' + pct + '%</span>' +
           '</div>' +
           '<div style="background:var(--border);border-radius:3px;height:' + (destaque?'6':'4') + 'px;overflow:hidden;">' +
           '<div style="width:' + pct + '%;height:100%;background:' + cor + ';border-radius:3px;"></div>' +
@@ -3079,17 +3100,20 @@ footer{
     }
 
     var html='<!DOCTYPE html><html lang="pt"><head><meta charset="UTF-8">';
-    html+='<title>Relatório Scouting · '+(d.nome||'Atleta')+'</title>';
+    html+='<title>Scout Report YTB · '+(d.nome||'Atleta')+'</title>';
     html+='<style>';
-    html+='@import url("https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap");';
+    html+='@import url("https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@300;400;500;600&display=swap");';
     html+='*{margin:0;padding:0;box-sizing:border-box;}';
     html+='body{font-family:Barlow,sans-serif;background:#fff;color:#111;font-size:11px;-webkit-print-color-adjust:exact;print-color-adjust:exact;}';
     html+='@page{size:A4;margin:0;}';
     html+='@media print{body{margin:0;}#printBtn{display:none!important;}}';
-    html+='#printBtn{position:fixed;bottom:24px;right:24px;background:#F5C000;color:#111;font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:12px 28px;border:none;border-radius:4px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.15);z-index:999;}';
+    html+='#printBtn{position:fixed;bottom:24px;right:24px;background:#D4AF37;color:#111;font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:12px 28px;border:none;border-radius:4px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.15);z-index:999;}';
     html+='</style></head><body>';
 
     html+='<button id="printBtn" onclick="window.print()">🖨 Imprimir / Guardar PDF</button>';
+
+    // Gerar número de relatório único
+    var numRelatorio = "YTB-" + new Date().getFullYear() + "-" + String(Date.now()).slice(-5);
 
     html+='<table style="width:100%;border-collapse:collapse;max-width:210mm;margin:0 auto;">';
 
@@ -3097,38 +3121,42 @@ footer{
     html+='<tr><td style="background:#08090C;padding:0;">';
     html+='<table style="width:100%;border-collapse:collapse;">';
     html+='<tr>';
-    // Logo lado esquerdo
-    html+='<td style="padding:22px 28px;vertical-align:middle;width:60%;">';
-    html+='<div style="display:flex;align-items:center;gap:12px;margin-bottom:4px;">';
-    html+='<div style="width:36px;height:36px;background:#F5C000;border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:Barlow Condensed,sans-serif;font-size:14px;font-weight:800;color:#08090C;flex-shrink:0;">TB</div>';
+    // Logo YTB lado esquerdo
+    html+='<td style="padding:20px 28px;vertical-align:middle;width:55%;">';
+    html+='<div style="display:flex;align-items:center;gap:14px;">';
+    // Badge YTB
+    html+='<div style="width:44px;height:44px;background:#D4AF37;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;">';
+    html+='<div style="font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:900;color:#08090C;letter-spacing:1px;line-height:1;">YTB</div>';
+    html+='</div>';
     html+='<div>';
-    html+='<div style="font-family:Barlow Condensed,sans-serif;font-size:20px;font-weight:800;letter-spacing:3px;color:#F0F2F7;text-transform:uppercase;line-height:1;">Your<span style="color:#F5C000;">TalentBase</span></div>';
-    html+='<div style="font-size:9px;font-weight:600;letter-spacing:2px;color:#52576A;text-transform:uppercase;margin-top:2px;">Agência de Jovens Talentos · Porto, Portugal</div>';
+    html+='<div style="font-family:Barlow Condensed,sans-serif;font-size:22px;font-weight:900;letter-spacing:3px;color:#F0F2F7;text-transform:uppercase;line-height:1;">Your<span style="color:#D4AF37;">Talent</span>Base</div>';
+    html+='<div style="font-size:8px;font-weight:500;letter-spacing:2.5px;color:#52576A;text-transform:uppercase;margin-top:3px;">Scouting · Porto · Portugal</div>';
+    html+='<div style="width:100%;height:1px;background:linear-gradient(to right,#D4AF3740,transparent);margin-top:6px;"></div>';
     html+='</div></div></td>';
     // Info lado direito
-    html+='<td style="padding:22px 28px;text-align:right;vertical-align:middle;">';
-    html+='<div style="font-family:Barlow Condensed,sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;color:#F5C000;text-transform:uppercase;">Scout Report</div>';
-    html+='<div style="font-size:10px;color:#52576A;margin-top:6px;">Época <strong style="color:#8892A4;">'+d.epoca+'</strong></div>';
-    html+='<div style="font-size:10px;color:#52576A;margin-top:2px;">Data: <strong style="color:#8892A4;">'+new Date().toLocaleDateString("pt-PT",{day:"2-digit",month:"long",year:"numeric"})+'</strong></div>';
-    if(d.scout) html+='<div style="font-size:10px;color:#52576A;margin-top:2px;">Scout: <strong style="color:#8892A4;">'+d.scout+'</strong></div>';
+    html+='<td style="padding:20px 28px;text-align:right;vertical-align:middle;">';
+    html+='<div style="font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:800;letter-spacing:3px;color:#D4AF37;text-transform:uppercase;margin-bottom:6px;">Scout Report</div>';
+    html+='<div style="font-size:9px;color:#52576A;margin-bottom:2px;">Nº <strong style="color:#8892A4;font-family:monospace;letter-spacing:1px;">'+numRelatorio+'</strong></div>';
+    html+='<div style="font-size:9px;color:#52576A;margin-bottom:2px;">Época <strong style="color:#8892A4;">'+d.epoca+'</strong></div>';
+    html+='<div style="font-size:9px;color:#52576A;margin-bottom:2px;">'+new Date().toLocaleDateString("pt-PT",{day:"2-digit",month:"long",year:"numeric"})+'</div>';
+    if(d.scout) html+='<div style="margin-top:6px;display:inline-block;background:#D4AF3715;border:1px solid #D4AF3740;border-radius:3px;padding:3px 10px;font-size:9px;font-weight:700;color:#D4AF37;letter-spacing:1px;text-transform:uppercase;">Scout: '+d.scout+'</div>';
     html+='</td></tr>';
-    // Barra amarela
-    html+='<tr><td colspan="2" style="height:4px;background:#F5C000;padding:0;"></td></tr>';
+    // Barra dourada
+    html+='<tr><td colspan="2" style="height:3px;background:linear-gradient(to right,#D4AF37,#A88A20);padding:0;"></td></tr>';
     html+='</table></td></tr>';
 
     // ── NOME E DADOS DO ATLETA ──
     html+='<tr><td style="background:#f8f9fa;border-bottom:1px solid #e5e7eb;padding:20px 28px;">';
     html+='<table style="width:100%;border-collapse:collapse;"><tr>';
     html+='<td style="vertical-align:top;width:65%;">';
-    html+='<div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#9ca3af;margin-bottom:4px;">Atleta</div>';
-    html+='<div style="font-family:Barlow Condensed,sans-serif;font-size:30px;font-weight:800;color:#111;line-height:1;text-transform:uppercase;">'+(d.nome||'—')+'</div>';
+    html+='<div style="font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#9ca3af;margin-bottom:4px;">Atleta Observado</div>';
+    html+='<div style="font-family:Barlow Condensed,sans-serif;font-size:32px;font-weight:900;color:#111;line-height:1;text-transform:uppercase;">'+(d.nome||'—')+'</div>';
     var infoArr=[d.categoria,d.posicao,d.clube,d.pe&&"Pé "+d.pe].filter(Boolean);
     if(infoArr.length) html+='<div style="font-size:10px;color:#6b7280;margin-top:6px;font-weight:500;">'+infoArr.join(' · ')+'</div>';
     html+='</td>';
     html+='<td style="vertical-align:top;text-align:right;">';
-    // Grid de dados rápidos
     var quickData=[[d.tatica||'—','Estrutura'],[d.camisola?'Nº'+d.camisola:'—','Camisola'],[d.golos||'0','Golos']];
-    html+='<div style="display:inline-flex;gap:12px;">';
+    html+='<div style="display:inline-flex;gap:10px;">';
     quickData.forEach(function(qd){
       html+='<div style="text-align:center;background:#fff;border:1px solid #e5e7eb;border-radius:4px;padding:8px 12px;">';
       html+='<div style="font-family:Barlow Condensed,sans-serif;font-size:16px;font-weight:800;color:#111;">'+qd[0]+'</div>';
@@ -3218,22 +3246,60 @@ footer{
     // ── OBSERVAÇÕES ──
     if(d.obs){
       html+='<tr><td style="padding:14px 28px;background:#fff;border-bottom:1px solid #e5e7eb;">';
-      html+='<div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#6b7280;margin-bottom:6px;">Observações do Avaliador</div>';
-      html+='<div style="font-size:10px;color:#374151;line-height:1.7;font-style:italic;background:#f8f9fa;border-left:3px solid #F5C000;padding:10px 14px;border-radius:0 4px 4px 0;">'+d.obs+'</div>';
+      html+='<div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#6b7280;margin-bottom:6px;">Nota do Scout</div>';
+      html+='<div style="font-size:10px;color:#374151;line-height:1.7;font-style:italic;background:#f8f9fa;border-left:3px solid #D4AF37;padding:10px 14px;border-radius:0 4px 4px 0;">'+d.obs+'</div>';
+      html+='</td></tr>';
+    }
+
+    // ── POSICIONAMENTO ──
+    if(scTextoPosicionamento) {
+      html+='<tr><td style="padding:18px 28px;background:#fff;border-bottom:1px solid #e5e7eb;">';
+      html+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">';
+      html+='<div style="width:4px;height:16px;background:#3B82F6;border-radius:2px;"></div>';
+      html+='<div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#3B82F6;">Perfil de Posicionamento · YourTalentBase</div>';
+      html+='</div>';
+      // Barras de posicionamento no PDF
+      if(scRankingPosicao && scRankingPosicao.length) {
+        html+='<div style="display:flex;gap:8px;margin-bottom:12px;">';
+        var pdfLabels = ["Posição Principal","Posição Alternativa","Com Desenvolvimento"];
+        var pdfCores = {0:"#22c55e",1:"#eab308",2:"#3b82f6"};
+        scRankingPosicao.slice(0,3).forEach(function(item,i){
+          var cor = pdfCores[i]||"#6b7280";
+          html+='<div style="flex:1;background:#f8f9fa;border:1px solid #e5e7eb;border-top:2px solid '+cor+';border-radius:0 0 4px 4px;padding:8px 10px;text-align:center;">';
+          html+='<div style="font-size:7px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:'+cor+';margin-bottom:3px;">'+pdfLabels[i]+'</div>';
+          html+='<div style="font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:800;color:#111;">'+item[0]+'</div>';
+          html+='</div>';
+        });
+        html+='</div>';
+      }
+      // Texto de posicionamento
+      var posHtml = scTextoPosicionamento
+        .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+        .split('\n').filter(function(l){return l.trim();})
+        .map(function(l){return '<p style="margin-bottom:6px;line-height:1.7;font-size:10px;color:#374151;">'+l.trim()+'</p>';})
+        .join('');
+      html+='<div>'+posHtml+'</div>';
       html+='</td></tr>';
     }
 
     // ── FOOTER ──
-    html+='<tr><td style="background:#08090C;padding:14px 28px;">';
+    html+='<tr><td style="background:#08090C;padding:16px 28px;">';
     html+='<table style="width:100%;border-collapse:collapse;"><tr>';
     html+='<td style="vertical-align:middle;">';
-    html+='<div style="font-family:Barlow Condensed,sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#52576A;">YourTalentBase · Documento Confidencial</div>';
-    html+='<div style="font-size:9px;color:#272B35;margin-top:3px;">Porto, Portugal · yourtalentbase@gmail.com</div>';
+    html+='<div style="font-family:Barlow Condensed,sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#D4AF37;">YourTalentBase</div>';
+    html+='<div style="font-size:8px;color:#52576A;margin-top:2px;">yourtalentbase.pt · yourtalentbase@gmail.com · Porto, Portugal</div>';
     html+='</td>';
     html+='<td style="text-align:right;vertical-align:middle;">';
-    html+='<div style="font-size:9px;color:#272B35;">Gerado em '+new Date().toLocaleDateString("pt-PT",{day:"2-digit",month:"long",year:"numeric"})+'</div>';
-    html+='</td></tr></table>';
+    html+='<div style="font-size:8px;color:#272B35;margin-bottom:3px;">Nº '+numRelatorio+' · '+new Date().toLocaleDateString("pt-PT",{day:"2-digit",month:"long",year:"numeric"})+'</div>';
+    html+='<div style="font-size:8px;color:#3a3a3a;font-style:italic;">Este relatório foi validado pela YourTalentBase e é de uso exclusivo do destinatário.</div>';
     html+='</td></tr>';
+    // Linha de validação
+    html+='<tr><td colspan="2" style="padding-top:10px;">';
+    html+='<div style="border-top:1px solid #1E2128;padding-top:8px;display:flex;align-items:center;justify-content:space-between;">';
+    html+='<div style="font-size:7px;color:#272B35;letter-spacing:1px;text-transform:uppercase;">Documento Confidencial · Não reproduzir sem autorização</div>';
+    html+='<div style="font-size:7px;color:#272B35;letter-spacing:1px;">' + (d.scout ? 'Avaliado por ' + d.scout + ' · YTB Scout' : 'YourTalentBase Scout Network') + '</div>';
+    html+='</div></td></tr>';
+    html+='</table></td></tr>';
     html+='</table></body></html>';
 
     var w = window.open("","_blank","width=900,height=700");
