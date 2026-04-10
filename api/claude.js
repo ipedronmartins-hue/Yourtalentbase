@@ -28,13 +28,14 @@ export default async function handler(req, res) {
       body: JSON.stringify(body)
     });
 
+    const responseText = await response.text();
+
     if (!response.ok) {
-      const err = await response.text();
-      console.error('Anthropic API error:', response.status, err);
-      return res.status(response.status).json({ error: err });
+      console.error('Anthropic error:', response.status, responseText);
+      return res.status(response.status).json({ error: responseText, status: response.status });
     }
 
-    const data = await response.json();
+    const data = JSON.parse(responseText);
     return res.status(200).json(data);
 
   } catch (error) {

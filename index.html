@@ -2807,6 +2807,7 @@ footer{
         body: JSON.stringify({ messages: [{ role: "user", content: prompt }] })
       });
       var data = await res.json();
+      console.log('API resposta status:', res.status, '| erro:', data.error || 'nenhum');
       scRelatorioTexto = (data.content || []).map(function(b) { return b.text || ""; }).join("\n");
 
       // Mostrar relatório imediatamente com posicionamento a carregar
