@@ -749,7 +749,6 @@ footer{
   </ul>
   <div class="nav-actions">
     <button class="nav-btn gold" id="navScouting">⚡ Scout Report</button>
-    <button class="nav-btn" id="navPosicao" style="color:var(--blue);border-color:rgba(59,130,246,.3);">🎯 Perfil</button>
     <button class="nav-btn" id="navReservada">🔒 Área</button>
     <button id="btnMenu" aria-label="Menu" style="background:none;border:none;color:#fff;font-size:22px;padding:6px;cursor:pointer;flex-shrink:0;">☰</button>
   </div>
@@ -764,8 +763,7 @@ footer{
   <a href="#contacto" onclick="fecharMenu()">Contacto</a>
   <div class="mm-sep"></div>
   <button onclick="fecharMenu();abrirLoginScouting();" class="mm-gold">⚡ Scout Report</button>
-  <button onclick="fecharMenu();abrirLoginPosicao();" class="mm-blue">🎯 Perfil de Posição</button>
-  <button onclick="fecharMenu();abrirLogin('scout');">🔒 Área Reservada</button>
+  <button onclick="fecharMenu();abrirLogin('reservada');">🔒 Área Reservada</button>
 </div>
 
 <!-- HERO -->
@@ -1898,8 +1896,8 @@ footer{
           { num: "434", label: "Minutos" },
           { num: "9", label: "Golos Sofridos" }
         ],
-        tags: ["Guarda-Redes", "Pé Esquerdo", "157cm · 45kg", "🇵🇹", "⭐ Agenciado YTB"],
-        bio: "Guarda-redes esquerdino natural de Gondomar, com 12 anos a titular no Sub-15 do FC Famalicão — dois escalões acima da sua idade real. Com 157cm e apenas 45kg, é leve e explosivo como poucos: domina o espaço da baliza com segurança e timing de saída fora do comum. Reflexos rápidos, colocação instintiva e uma dedicação no treino que o distingue de qualquer colega. Iniciou o percurso no Gondomar SC, passou pela Dragon Force FC e chegou ao FC Famalicão onde não parou de surpreender.",
+        tags: ["Guarda-Redes", "Pé Esquerdo", "159cm · 47kg", "🇵🇹", "⭐ Agenciado YTB"],
+        bio: "Guarda-redes esquerdino natural de Gondomar, com 12 anos a titular no Sub-15 do FC Famalicão — dois escalões acima da sua idade real. Com 159cm e 47kg, é leve e explosivo como poucos: domina o espaço da baliza com segurança e timing de saída fora do comum. Nascido em agosto, beneficia de um perfil físico já acima da média para a sua idade real. Reflexos rápidos, colocação instintiva e uma dedicação no treino que o distingue de qualquer colega. Iniciou o percurso no Gondomar SC, passou pela Dragon Force FC e chegou ao FC Famalicão onde não parou de surpreender.",
         historial: [
           { epoca: "2025/26", clube: "FC Famalicão",    escalao: "Sub-15", j: 11, g: null, a: null },
           { epoca: "2024/25", clube: "FC Famalicão",    escalao: "Sub-13", j: 18, g: null, a: null },
@@ -2108,10 +2106,10 @@ footer{
 
     // --- Botões login área reservada ---
     var navRes = document.getElementById("navReservada");
-    if (navRes) navRes.onclick = function(e) { e.preventDefault(); abrirLogin("scout"); };
+    if (navRes) navRes.onclick = function(e) { e.preventDefault(); abrirLogin("reservada"); };
 
     var btnScout = document.getElementById("btnScout");
-    if (btnScout) btnScout.onclick = function() { abrirLogin("scout"); };
+    if (btnScout) btnScout.onclick = function() { abrirLogin("reservada"); };
 
     var btnClube = document.getElementById("btnClube");
     if (btnClube) btnClube.onclick = function() { abrirLogin("clube"); };
@@ -2811,16 +2809,37 @@ footer{
       var data = await res.json();
       scRelatorioTexto = (data.content || []).map(function(b) { return b.text || ""; }).join("\n");
 
-      // Chamada 2 — Perfil de Posicionamento (em paralelo não é possível sem Promise.all, fazemos sequencial)
-      var resPosicao = await fetch("/api/claude", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: [{ role: "user", content: promptPosicionamento }] })
-      });
-      var dataPosicao = await resPosicao.json();
-      scTextoPosicionamento = (dataPosicao.content || []).map(function(b) { return b.text || ""; }).join("\n");
-
+      // Mostrar relatório imediatamente com posicionamento a carregar
+      scTextoPosicionamento = "";
       scMostrarRelatorio();
+
+      // Carregar posicionamento em segundo plano
+      var posTextoDiv = document.getElementById("scRelPosTexto");
+      if(posTextoDiv) {
+        posTextoDiv.innerHTML = '<div style="display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px;padding:8px 0;"><div style="width:16px;height:16px;border:2px solid var(--border);border-top:2px solid #3B82F6;border-radius:50%;animation:scSpin 0.9s linear infinite;flex-shrink:0;"></div>A calcular perfil de posicionamento...</div>';
+      }
+
+      try {
+        var resPosicao = await fetch("/api/claude", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ messages: [{ role: "user", content: promptPosicionamento }] })
+        });
+        var dataPosicao = await resPosicao.json();
+        scTextoPosicionamento = (dataPosicao.content || []).map(function(b) { return b.text || ""; }).join("\n");
+        if(posTextoDiv && scTextoPosicionamento) {
+          posTextoDiv.innerHTML = scTextoPosicionamento
+            .replace(/\*\*(.+?)\*\*/g, '<strong style="color:#fff;font-weight:600;">$1</strong>')
+            .split('\n').filter(function(l){ return l.trim(); })
+            .map(function(l){ return '<p style="margin-bottom:10px;">' + l.trim() + '</p>'; })
+            .join('');
+        } else if(posTextoDiv) {
+          posTextoDiv.innerHTML = '<p style="color:var(--muted);font-size:12px;font-style:italic;">Posicionamento não disponível.</p>';
+        }
+      } catch(ePosicao) {
+        console.error("Erro posicionamento:", ePosicao);
+        if(posTextoDiv) posTextoDiv.innerHTML = '<p style="color:var(--muted);font-size:12px;font-style:italic;">Erro ao carregar posicionamento.</p>';
+      }
     } catch(e) {
       document.getElementById("scLoading").style.display = "none";
       document.getElementById("scForm").style.display = "block";
@@ -3003,23 +3022,8 @@ footer{
       }).join("");
     }
 
-    // Texto de posicionamento — chamada separada à API
-    var posTextoDiv = document.getElementById("scRelPosTexto");
-    if(posTextoDiv && scTextoPosicionamento) {
-      posTextoDiv.innerHTML = scTextoPosicionamento
-        .replace(/\*\*(.+?)\*\*/g, '<strong style="color:#fff;font-weight:600;">$1</strong>')
-        .split('\n').filter(function(l){ return l.trim(); })
-        .map(function(l){ return '<p style="margin-bottom:10px;">' + l.trim() + '</p>'; })
-        .join('');
-    } else if(posTextoDiv) {
-      posTextoDiv.style.display = "none";
-    }
-
-    // Nota do scout — limpar campo
-    var notaScout = document.getElementById("scNotaScout");
-    if(notaScout) notaScout.value = "";
-    var notaDisplay = document.getElementById("scNotaScoutDisplay");
-    if(notaDisplay) notaDisplay.style.display = "none";
+    // Texto de posicionamento — populado assincronamente após scMostrarRelatorio
+    // (ver código na chamada à API acima)
   }
 
   // ── SCOUTING: GERAR PDF via Print Window ──
@@ -3238,7 +3242,7 @@ footer{
 
   // ── LOGIN OVERLAY ──
   window.abrirLogin = function(modo) {
-    modoLogin = modo || "scout";
+    modoLogin = modo || "reservada";
     var overlay = document.getElementById("loginOverlay");
     var loginErro = document.getElementById("loginErro");
     var loginInput = document.getElementById("loginInput");
@@ -3269,7 +3273,6 @@ footer{
     if(pass === SUPER) {
       fecharLogin();
       if(modoLogin === "scout") {
-        // Abre Scout Report com badge Admin
         nomeScoutActual = "Admin";
         var badge = document.getElementById("scBadgeRole");
         if(badge) badge.textContent = "Admin YTB";
@@ -3284,6 +3287,7 @@ footer{
         if(areaClube) { areaClube.style.display = "block"; document.body.style.overflow = "hidden"; }
         carregarAtletasClube();
       } else {
+        // reservada ou qualquer outro modo
         roleActual = "superuser";
         var badgeR = document.getElementById("badgeRole");
         if(badgeR) {
@@ -3301,7 +3305,7 @@ footer{
       return;
     }
 
-    // Scouts individuais
+    // Scouts — só Scout Report
     var scoutMatch = SCOUTS.find(function(s) { return s.pass === pass; });
     if(scoutMatch) {
       fecharLogin();

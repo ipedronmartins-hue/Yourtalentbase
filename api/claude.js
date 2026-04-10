@@ -4,7 +4,19 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { messages } = req.body;
+    const { messages, system } = req.body;
+
+    if (!messages || !Array.isArray(messages)) {
+      return res.status(400).json({ error: 'Missing or invalid messages' });
+    }
+
+    const body = {
+      model: 'claude-3-5-sonnet-20241022',
+      max_tokens: 4096,
+      messages: messages
+    };
+
+    if (system) body.system = system;
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -13,11 +25,7 @@ export default async function handler(req, res) {
         'x-api-key': process.env.ANTHROPIC_API_KEY,
         'anthropic-version': '2023-06-01'
       },
-      body: JSON.stringify({
-        model: 'claude-3-5-sonnet-20241022',
-        max_tokens: 2048,
-        messages: messages
-      })
+      body: JSON.stringify(body)
     });
 
     if (!response.ok) {
