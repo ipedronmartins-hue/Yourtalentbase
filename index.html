@@ -1263,7 +1263,7 @@ footer{
 <div id="areaScouting" style="display:none;position:fixed;inset:0;z-index:998;background:var(--bg);overflow-y:auto;">
   <div class="sc-nav">
     <div style="display:flex;align-items:center;gap:12px;">
-      <div style="width:32px;height:32px;background:var(--gold);border-radius:5px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;color:var(--bg);">TB</div>
+      <div style="width:32px;height:32px;background:var(--gold);border-radius:5px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:900;color:var(--bg);letter-spacing:0.5px;">YTB</div>
       <span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:3px;text-transform:uppercase;">Your<span style="color:var(--gold);">TalentBase</span> <span style="color:var(--muted);font-size:12px;letter-spacing:2px;">· SCOUT REPORT</span></span>
     </div>
     <div style="display:flex;align-items:center;gap:10px;">
@@ -3111,8 +3111,8 @@ footer{
           var v=scScores[item.id];
           var vCor=v?SC_CORES_L[v]:"#aaa";
           critHtml+='<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 12px;border-bottom:1px solid #e5e7eb;">';
-          critHtml+='<span style="font-size:9.5px;color:#374151;">'+item.label+'</span>';
-          critHtml+='<span style="font-size:9px;font-weight:700;color:'+vCor+';">'+(v?v+' · '+SC_LEGENDA_L[v]:'—')+'</span>';
+          critHtml+='<span style="font-size:10px;color:#374151;">'+item.label+'</span>';
+          critHtml+='<span style="font-size:10px;font-weight:700;color:'+vCor+';">'+(v?v+' · '+SC_LEGENDA_L[v]:'—')+'</span>';
           critHtml+='</div>';
         });
         critHtml+='</div></td>';
@@ -3126,7 +3126,7 @@ footer{
     html+='<style>';
     html+='@import url("https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@300;400;500;600&display=swap");';
     html+='*{margin:0;padding:0;box-sizing:border-box;}';
-    html+='body{font-family:Barlow,sans-serif;background:#fff;color:#111;font-size:11px;-webkit-print-color-adjust:exact;print-color-adjust:exact;}';
+    html+='body{font-family:Barlow,sans-serif;background:#fff;color:#111;font-size:12px;-webkit-print-color-adjust:exact;print-color-adjust:exact;}';
     html+='@page{size:A4;margin:0;}';
     html+='@media print{body{margin:0;}#printBtn{display:none!important;}}';
     html+='#printBtn{position:fixed;bottom:24px;right:24px;background:#D4AF37;color:#111;font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:12px 28px;border:none;border-radius:4px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.15);z-index:999;}';
@@ -3177,12 +3177,12 @@ footer{
     if(infoArr.length) html+='<div style="font-size:10px;color:#6b7280;margin-top:6px;font-weight:500;">'+infoArr.join(' · ')+'</div>';
     html+='</td>';
     html+='<td style="vertical-align:top;text-align:right;">';
-    var quickData=[[d.tatica||'—','Estrutura'],[d.camisola?'Nº'+d.camisola:'—','Camisola'],[d.golos||'0','Golos']];
+    var quickData=[[d.tatica||'—','Estrutura'],[d.camisola?'Nº'+d.camisola:'—','Camisola']];
     html+='<div style="display:inline-flex;gap:10px;">';
     quickData.forEach(function(qd){
-      html+='<div style="text-align:center;background:#fff;border:1px solid #e5e7eb;border-radius:4px;padding:8px 12px;">';
-      html+='<div style="font-family:Barlow Condensed,sans-serif;font-size:16px;font-weight:800;color:#111;">'+qd[0]+'</div>';
-      html+='<div style="font-size:8px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#9ca3af;margin-top:2px;">'+qd[1]+'</div>';
+      html+='<div style="text-align:center;background:#fff;border:1px solid #e5e7eb;border-radius:4px;padding:8px 14px;">';
+      html+='<div style="font-family:Barlow Condensed,sans-serif;font-size:18px;font-weight:800;color:#111;">'+qd[0]+'</div>';
+      html+='<div style="font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#9ca3af;margin-top:2px;">'+qd[1]+'</div>';
       html+='</div>';
     });
     html+='</div></td></tr></table></td></tr>';
@@ -3254,7 +3254,7 @@ footer{
     var textoHTML = scRelatorioTexto
       .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
       .split('\n').map(function(l){
-        return l.trim() ? '<p style="margin-bottom:7px;line-height:1.7;font-size:10.5px;color:#374151;">'+l+'</p>' : '<p style="margin-bottom:4px;"></p>';
+        return l.trim() ? '<p style="margin-bottom:7px;line-height:1.75;font-size:11.5px;color:#374151;">'+l+'</p>' : '<p style="margin-bottom:4px;"></p>';
       }).join('');
     html+='<div>'+textoHTML+'</div>';
     html+='</td></tr>';
@@ -3298,7 +3298,7 @@ footer{
       var posHtml = scTextoPosicionamento
         .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
         .split('\n').filter(function(l){return l.trim();})
-        .map(function(l){return '<p style="margin-bottom:6px;line-height:1.7;font-size:10px;color:#374151;">'+l.trim()+'</p>';})
+        .map(function(l){return '<p style="margin-bottom:6px;line-height:1.75;font-size:11px;color:#374151;">'+l.trim()+'</p>';})
         .join('');
       html+='<div>'+posHtml+'</div>';
       html+='</td></tr>';
