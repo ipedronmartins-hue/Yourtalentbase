@@ -3889,11 +3889,13 @@ footer{
         html += '</div>';
       }
 
+      // Guardar dados no cache para o PDF
+      window._relatorioAberto = r;
+
       // Botão PDF
       html += '<div style="display:flex;gap:10px;">';
-      html += '<button onclick="scRelatorioTexto='' + (r.relatorio_texto||'').replace(/'/g,"\'").replace(/
-/g,'\n') + '';scDadosAtleta=' + JSON.stringify(r.dados||{}).replace(/'/g,"\'") + ';scDecisao='' + (r.decisao||'') + '';scRendimento='' + (r.rendimento||'') + '';scPrazo='' + (r.prazo||'') + '';scScores=' + JSON.stringify(r.scores||{}) + ';scGerarPDF();" style="flex:1;background:#D4AF37;color:#000;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:12px;border-radius:4px;border:none;cursor:pointer;">📄 Gerar PDF</button>';
-      html += '<button onclick="apagarRelatorio('' + r.id + '')" style="padding:12px 16px;background:rgba(239,68,68,.1);color:#ef4444;border:1px solid rgba(239,68,68,.3);border-radius:4px;font-size:11px;font-weight:700;cursor:pointer;">🗑</button>';
+      html += '<button onclick="gerarPDFDoRelatorio()" style="flex:1;background:#D4AF37;color:#000;font-family:\'Barlow Condensed\',sans-serif;font-size:13px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:12px;border-radius:4px;border:none;cursor:pointer;">📄 Gerar PDF</button>';
+      html += '<button onclick="apagarRelatorio(\'' + r.id + '\')" style="padding:12px 16px;background:rgba(239,68,68,.1);color:#ef4444;border:1px solid rgba(239,68,68,.3);border-radius:4px;font-size:11px;font-weight:700;cursor:pointer;">🗑</button>';
       html += '</div>';
 
       document.getElementById("modalInscricaoBody").innerHTML = html;
@@ -3909,6 +3911,19 @@ footer{
       fecharModalInscricao();
       carregarRelatorios();
     } catch(e) { alert("Erro ao apagar."); }
+  };
+
+
+  window.gerarPDFDoRelatorio = function() {
+    var r = window._relatorioAberto;
+    if(!r) return;
+    scRelatorioTexto = r.relatorio_texto || "";
+    scDadosAtleta = r.dados || {};
+    scDecisao = r.decisao || "";
+    scRendimento = r.rendimento || "";
+    scPrazo = r.prazo || "";
+    scScores = r.scores || {};
+    scGerarPDF();
   };
 
 })();
