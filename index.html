@@ -1003,6 +1003,48 @@ footer{
   </div>
 </section>
 
+
+<!-- NOTÍCIAS RSS -->
+<section id="noticias" style="padding:72px 0;background:#0D0D0D;border-top:1px solid #1a1a1a;border-bottom:1px solid #1a1a1a;">
+  <div style="max-width:1200px;margin:0 auto;padding:0 16px;">
+
+    <!-- Header -->
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:24px;padding:0 0;">
+      <div>
+        <div style="font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#D4AF37;margin-bottom:8px;">Futebol Jovem · Portugal</div>
+        <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:clamp(28px,5vw,44px);font-weight:800;color:#fff;letter-spacing:-0.5px;text-transform:uppercase;line-height:1;">Últimas Notícias</h2>
+      </div>
+      <div id="rssFilters" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+        <button onclick="filtrarRSS('todos')" id="rf-todos" class="rss-filter active-filter" style="padding:5px 14px;border-radius:20px;border:1px solid rgba(212,175,55,.4);background:rgba(212,175,55,.12);color:#D4AF37;font-size:11px;font-weight:600;cursor:pointer;">Todos</button>
+        <button onclick="filtrarRSS('Record')" id="rf-Record" class="rss-filter" style="padding:5px 14px;border-radius:20px;border:1px solid #1E2128;background:none;color:#52576A;font-size:11px;font-weight:600;cursor:pointer;">Record</button>
+        <button onclick="filtrarRSS('O Jogo')" id="rf-OJogo" class="rss-filter" style="padding:5px 14px;border-radius:20px;border:1px solid #1E2128;background:none;color:#52576A;font-size:11px;font-weight:600;cursor:pointer;">O Jogo</button>
+        <button onclick="filtrarRSS('ZeroZero')" id="rf-ZeroZero" class="rss-filter" style="padding:5px 14px;border-radius:20px;border:1px solid #1E2128;background:none;color:#52576A;font-size:11px;font-weight:600;cursor:pointer;">ZeroZero</button>
+      </div>
+    </div>
+
+    <!-- Scroll wrap -->
+    <div style="position:relative;">
+      <div style="position:absolute;left:0;top:0;bottom:0;width:40px;background:linear-gradient(to right,#0D0D0D,transparent);z-index:2;pointer-events:none;"></div>
+      <div style="position:absolute;right:0;top:0;bottom:0;width:40px;background:linear-gradient(to left,#0D0D0D,transparent);z-index:2;pointer-events:none;"></div>
+      <div id="rssCarrossel" style="display:flex;gap:14px;overflow-x:auto;padding:4px 0 16px;scrollbar-width:none;cursor:grab;">
+        <!-- Loading state -->
+        <div id="rssLoading" style="display:flex;gap:14px;">
+          <div style="flex-shrink:0;width:280px;height:160px;background:#111318;border:1px solid #1E2128;border-radius:8px;opacity:.5;animation:pulse 1.5s infinite;"></div>
+          <div style="flex-shrink:0;width:280px;height:160px;background:#111318;border:1px solid #1E2128;border-radius:8px;opacity:.4;animation:pulse 1.5s infinite .2s;"></div>
+          <div style="flex-shrink:0;width:280px;height:160px;background:#111318;border:1px solid #1E2128;border-radius:8px;opacity:.3;animation:pulse 1.5s infinite .4s;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fonte -->
+    <div style="display:flex;align-items:center;gap:8px;margin-top:4px;">
+      <div id="rssDot" style="width:6px;height:6px;border-radius:50%;background:#22C55E;flex-shrink:0;"></div>
+      <span style="font-size:11px;color:#444;">Feed automático · Record · O Jogo · ZeroZero · actualizado a cada visita</span>
+    </div>
+
+  </div>
+</section>
+
 <!-- SERVIÇOS -->
 <section class="servicos" id="servicos">
   <div class="wrap">
@@ -1651,7 +1693,7 @@ footer{
   <div style="background:#111318;border:1px solid #1E2128;border-top:3px solid #F5C000;border-radius:12px;padding:48px 40px;width:100%;max-width:400px;position:relative;">
     <button id="btnFecharLogin" style="position:absolute;top:16px;right:16px;background:none;border:none;color:#52576A;font-size:22px;cursor:pointer;">×</button>
     <div style="text-align:center;margin-bottom:32px;">
-      <div style="width:48px;height:48px;background:#F5C000;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:#08090C;margin:0 auto 14px;">TB</div>
+      <div style="width:48px;height:48px;background:#F5C000;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;color:#08090C;margin:0 auto 14px;">YTB</div>
       <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#F0F2F7;" id="loginTitulo">Área Reservada</div>
       <div style="font-size:12px;color:#52576A;margin-top:4px;letter-spacing:1px;" id="loginSubtitulo">Introduz a tua password</div>
     </div>
@@ -1668,7 +1710,7 @@ footer{
 <div id="areaReservada" style="display:none;position:fixed;inset:0;z-index:998;background:var(--bg);overflow-y:auto;">
   <nav style="position:sticky;top:0;z-index:10;height:68px;display:flex;align-items:center;justify-content:space-between;padding:0 48px;background:rgba(8,9,12,0.96);border-bottom:1px solid #1E2128;backdrop-filter:blur(16px);">
     <div style="display:flex;align-items:center;gap:12px;">
-      <div style="width:32px;height:32px;background:#F5C000;border-radius:5px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;color:#08090C;">TB</div>
+      <div style="width:32px;height:32px;background:#F5C000;border-radius:5px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;color:#08090C;letter-spacing:.5px;">YTB</div>
       <span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#F0F2F7;">Your<span style="color:#F5C000;">TalentBase</span></span>
     </div>
     <div style="display:flex;align-items:center;gap:12px;">
@@ -1680,7 +1722,11 @@ footer{
     <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:32px;flex-wrap:wrap;gap:16px;">
       <div>
         <div style="font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#F5C000;margin-bottom:8px;">Área Reservada</div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:44px;font-weight:800;letter-spacing:-0.5px;text-transform:uppercase;color:#F0F2F7;">ATLETAS</div>
+        <div style="display:flex;gap:4px;margin-bottom:8px;">
+        <button onclick="mostrarTabAdmin('atletas')" id="tabAtletas" style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:8px 20px;border-radius:4px;cursor:pointer;background:rgba(212,175,55,.12);color:#D4AF37;border:1px solid rgba(212,175,55,.3);">ATLETAS</button>
+        <button onclick="mostrarTabAdmin('relatorios')" id="tabRelatorios" style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:8px 20px;border-radius:4px;cursor:pointer;background:none;color:#52576A;border:1px solid #1E2128;">RELATÓRIOS</button>
+      </div>
+      <div id="tabTituloAdmin" style="font-family:'Barlow Condensed',sans-serif;font-size:44px;font-weight:800;letter-spacing:-0.5px;text-transform:uppercase;color:#F0F2F7;">ATLETAS</div>
       </div>
       <div id="adminFiltros" style="display:none;flex-wrap:wrap;gap:8px;">
         <select id="filtroPlano" style="background:#111318;border:1px solid #1E2128;border-radius:4px;padding:8px 12px;font-family:'Barlow',sans-serif;font-size:12px;color:#8892A4;outline:none;">
@@ -1698,6 +1744,7 @@ footer{
       </div>
     </div>
     <div id="listaAtletas" style="display:flex;flex-direction:column;gap:12px;"></div>
+    <div id="listaRelatorios" style="display:none;flex-direction:column;gap:12px;"></div>
   </div>
 </div>
 
@@ -1705,7 +1752,7 @@ footer{
 <div id="areaClube" style="display:none;position:fixed;inset:0;z-index:998;background:var(--bg);overflow-y:auto;">
   <nav style="position:sticky;top:0;z-index:10;height:68px;display:flex;align-items:center;justify-content:space-between;padding:0 48px;background:rgba(8,9,12,0.96);border-bottom:1px solid #1E2128;backdrop-filter:blur(16px);">
     <div style="display:flex;align-items:center;gap:12px;">
-      <div style="width:32px;height:32px;background:#0047AB;border-radius:5px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;color:#fff;">TB</div>
+      <div style="width:32px;height:32px;background:#0047AB;border-radius:5px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;color:#fff;letter-spacing:.5px;">YTB</div>
       <span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#F0F2F7;">Your<span style="color:#F5C000;">TalentBase</span></span>
     </div>
     <div style="display:flex;align-items:center;gap:12px;">
@@ -2854,6 +2901,28 @@ footer{
 
       scRelatorioTexto = data.content.map(function(b) { return b.text || ""; }).join("\n");
 
+      // Guardar relatório no Supabase automaticamente
+      (async function() {
+        try {
+          var mgSave = scMediaGeral();
+          await db.from("relatorios").insert([{
+            scout: scDadosAtleta.scout || "YTB",
+            atleta: scDadosAtleta.nome,
+            clube: scDadosAtleta.clube || "",
+            categoria: scDadosAtleta.categoria || "",
+            posicao: scDadosAtleta.posicao || "",
+            epoca: scDadosAtleta.epoca || "",
+            scores: scScores,
+            dados: scDadosAtleta,
+            relatorio_texto: scRelatorioTexto,
+            decisao: scDecisao || "",
+            rendimento: scRendimento || "",
+            prazo: scPrazo || "",
+            media_geral: mgSave ? parseFloat(mgSave.toFixed(2)) : null
+          }]);
+        } catch(eSave) { console.warn("Relatório não guardado:", eSave); }
+      })();
+
       // Mostrar relatório imediatamente com posicionamento a carregar
       scTextoPosicionamento = "";
       scMostrarRelatorio();
@@ -3322,7 +3391,15 @@ footer{
     html+='<div style="font-size:7px;color:#272B35;letter-spacing:1px;">' + (d.scout ? 'Avaliado por ' + d.scout + ' · YTB Scout' : 'YourTalentBase Scout Network') + '</div>';
     html+='</div></td></tr>';
     html+='</table></td></tr>';
-    html+='</table></body></html>';
+    html+='</table>
+<!-- MODAL ATLETA ÁREA RESERVADA -->
+<div id="modalInscricao" onclick="if(event.target===this)fecharModalInscricao()" style="display:none;position:fixed;inset:0;z-index:1100;background:rgba(6,7,9,0.95);backdrop-filter:blur(16px);align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#111318;border:1px solid #1E2128;border-top:3px solid #D4AF37;border-radius:10px;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;position:relative;scrollbar-width:none;">
+    <button onclick="fecharModalInscricao()" style="position:absolute;top:14px;right:14px;background:rgba(255,255,255,.06);border:1px solid #272B35;border-radius:50%;width:32px;height:32px;color:#52576A;font-size:18px;cursor:pointer;z-index:2;display:flex;align-items:center;justify-content:center;">×</button>
+    <div style="padding:28px 28px 24px;" id="modalInscricaoBody"></div>
+  </div>
+</div>
+</body></html>';
 
     var w = window.open("","_blank","width=900,height=700");
     if(w) { w.document.write(html); w.document.close(); }
@@ -3469,7 +3546,7 @@ footer{
     lista.innerHTML = dados.map(function(a) {
       var dataFmt = a.created_at ? new Date(a.created_at).toLocaleDateString("pt-PT") : "—";
       var estadoCor = {"Novo":"#F5C000","Em análise":"#3b82f6","Aceite":"#22c55e","Recusado":"#ef4444"}[a.estado] || "#52576A";
-      return '<div style="background:#111318;border:1px solid #1E2128;border-radius:8px;padding:20px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">' +
+      return '<div onclick="abrirModalInscricao('' + a.id + '')" style="background:#111318;border:1px solid #1E2128;border-radius:8px;padding:20px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;cursor:pointer;transition:border-color .2s;" onmouseover="this.style.borderColor='#D4AF3740'" onmouseout="this.style.borderColor='#1E2128'">' +
         '<div>' +
           '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:18px;font-weight:800;color:#F0F2F7;">' + (a.nome || '—') + '</div>' +
           '<div style="font-size:12px;color:#52576A;margin-top:3px;">' + [a.escalao, a.posicao, a.clube].filter(Boolean).join(' · ') + '</div>' +
@@ -3556,7 +3633,293 @@ footer{
     }
   };
 
+
+  // ── MODAL INSCRIÇÃO (ÁREA RESERVADA) ──
+  window.abrirModalInscricao = function(id) {
+    var a = atletasCache.find(function(x){ return x.id === id; });
+    if(!a) return;
+    var dataFmt = a.created_at ? new Date(a.created_at).toLocaleDateString("pt-PT", {day:"2-digit",month:"long",year:"numeric",hour:"2-digit",minute:"2-digit"}) : "—";
+    var estadoCor = {"Novo":"#F5C000","Em análise":"#3b82f6","Aceite":"#22c55e","Recusado":"#ef4444"}[a.estado] || "#52576A";
+
+    var html = '';
+
+    // Header
+    html += '<div style="margin-bottom:24px;">';
+    html += '<div style="font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#D4AF37;margin-bottom:6px;">Inscrição · YourTalentBase</div>';
+    html += '<div style="font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:800;color:#F0F2F7;line-height:1;">' + (a.nome || '—') + '</div>';
+    html += '<div style="font-size:12px;color:#52576A;margin-top:6px;">' + dataFmt + '</div>';
+    html += '</div>';
+
+    // Estado
+    html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:20px;">';
+    html += '<span style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:5px 12px;border-radius:3px;background:' + estadoCor + '18;color:' + estadoCor + ';border:1px solid ' + estadoCor + '44;">' + (a.estado || 'Novo') + '</span>';
+    if(a.plano) html += '<span style="font-size:10px;color:#52576A;background:#1E2128;padding:5px 12px;border-radius:3px;border:1px solid #272B35;">' + a.plano + '</span>';
+    html += '</div>';
+
+    // Dados em grelha
+    var campos = [
+      ["Idade", a.idade], ["Clube", a.clube], ["Escalão", a.escalao],
+      ["Posição", a.posicao], ["Contacto", a.contacto]
+    ];
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;">';
+    campos.forEach(function(c) {
+      if(!c[1]) return;
+      html += '<div style="background:#0d0f14;border:1px solid #1E2128;border-radius:6px;padding:12px 14px;">';
+      html += '<div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#52576A;margin-bottom:4px;">' + c[0] + '</div>';
+      html += '<div style="font-size:13px;color:#F0F2F7;font-weight:500;">' + c[1] + '</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+
+    // ZeroZero
+    if(a.zerozero) {
+      html += '<div style="background:#0d0f14;border:1px solid #1E2128;border-radius:6px;padding:12px 14px;margin-bottom:20px;">';
+      html += '<div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#52576A;margin-bottom:8px;">Perfil ZeroZero</div>';
+      html += '<div style="display:flex;align-items:center;gap:8px;">';
+      html += '<a href="' + a.zerozero + '" target="_blank" style="font-size:12px;color:#3B82F6;text-decoration:none;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + a.zerozero + '</a>';
+      html += '<button onclick="navigator.clipboard.writeText('' + a.zerozero + '').then(function(){var b=document.getElementById('btnCopiarZZ');b.textContent='✓ Copiado';setTimeout(function(){b.textContent='Copiar'},2000)})" id="btnCopiarZZ" style="font-size:10px;font-weight:600;letter-spacing:1px;padding:5px 12px;border-radius:3px;background:#1E2128;border:1px solid #272B35;color:#8892A4;cursor:pointer;flex-shrink:0;white-space:nowrap;">Copiar</button>';
+      html += '</div></div>';
+    }
+
+    // Descrição
+    if(a.descricao) {
+      html += '<div style="background:#0d0f14;border:1px solid #1E2128;border-radius:6px;padding:12px 14px;margin-bottom:20px;">';
+      html += '<div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#52576A;margin-bottom:6px;">Descrição</div>';
+      html += '<div style="font-size:13px;color:#8892A4;line-height:1.7;font-weight:300;">' + a.descricao + '</div>';
+      html += '</div>';
+    }
+
+    // Acções
+    html += '<div style="display:flex;gap:10px;flex-wrap:wrap;">';
+    // Alterar estado
+    var estados = ["Novo","Em análise","Aceite","Recusado"];
+    estados.forEach(function(est) {
+      if(est === a.estado) return;
+      var cor = {"Novo":"#F5C000","Em análise":"#3b82f6","Aceite":"#22c55e","Recusado":"#ef4444"}[est] || "#52576A";
+      html += '<button onclick="alterarEstado('' + a.id + '','' + est + '')" style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:8px 14px;border-radius:4px;cursor:pointer;background:' + cor + '15;color:' + cor + ';border:1px solid ' + cor + '44;">→ ' + est + '</button>';
+    });
+    html += '<button onclick="apagarAtleta('' + a.id + '')" style="margin-left:auto;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:8px 14px;border-radius:4px;cursor:pointer;background:rgba(239,68,68,.1);color:#ef4444;border:1px solid rgba(239,68,68,.3);">🗑 Apagar</button>';
+    html += '</div>';
+
+    document.getElementById("modalInscricaoBody").innerHTML = html;
+    document.getElementById("modalInscricao").style.display = "flex";
+    document.body.style.overflow = "hidden";
+  };
+
+  window.fecharModalInscricao = function() {
+    document.getElementById("modalInscricao").style.display = "none";
+    document.body.style.overflow = "";
+  };
+
+  window.alterarEstado = async function(id, novoEstado) {
+    try {
+      await db.from("sugestoes").update({ estado: novoEstado }).eq("id", id);
+      var idx = atletasCache.findIndex(function(a){ return a.id === id; });
+      if(idx >= 0) atletasCache[idx].estado = novoEstado;
+      fecharModalInscricao();
+      renderAtletas();
+    } catch(e) { alert("Erro ao actualizar estado."); }
+  };
+
+  window.apagarAtleta = async function(id) {
+    if(!confirm("Tens a certeza que queres apagar este atleta? Esta acção não pode ser revertida.")) return;
+    try {
+      await db.from("sugestoes").delete().eq("id", id);
+      atletasCache = atletasCache.filter(function(a){ return a.id !== id; });
+      fecharModalInscricao();
+      renderAtletas();
+    } catch(e) { alert("Erro ao apagar atleta."); }
+  };
+
+
+  // ── RSS NOTÍCIAS ──
+  var rssAllItems = [];
+  var rssActiveFilter = 'todos';
+
+  window.filtrarRSS = function(source) {
+    rssActiveFilter = source;
+    // Actualizar botões
+    document.querySelectorAll('.rss-filter').forEach(function(btn) {
+      btn.style.background = 'none';
+      btn.style.borderColor = '#1E2128';
+      btn.style.color = '#52576A';
+    });
+    var activeId = source === 'todos' ? 'rf-todos' : source === 'O Jogo' ? 'rf-OJogo' : 'rf-' + source;
+    var activeBtn = document.getElementById(activeId);
+    if(activeBtn) {
+      activeBtn.style.background = 'rgba(212,175,55,.12)';
+      activeBtn.style.borderColor = 'rgba(212,175,55,.4)';
+      activeBtn.style.color = '#D4AF37';
+    }
+    renderRSS();
+  };
+
+  function renderRSS() {
+    var carrossel = document.getElementById('rssCarrossel');
+    if(!carrossel) return;
+    var items = rssActiveFilter === 'todos' ? rssAllItems : rssAllItems.filter(function(i){ return i.source === rssActiveFilter; });
+    if(!items.length) {
+      carrossel.innerHTML = '<div style="color:#52576A;font-size:13px;padding:20px;">Sem notícias de momento.</div>';
+      return;
+    }
+    var sourceColors = { 'Record': '#EF4444', 'O Jogo': '#F97316', 'ZeroZero': '#3B82F6' };
+    carrossel.innerHTML = items.map(function(item) {
+      var cor = sourceColors[item.source] || '#D4AF37';
+      return '<a href="' + (item.link||'#') + '" target="_blank" rel="noopener" style="text-decoration:none;flex-shrink:0;width:280px;">' +
+        '<div style="background:#111318;border:1px solid #1E2128;border-top:3px solid ' + cor + ';border-radius:8px;padding:18px 16px 14px;height:160px;display:flex;flex-direction:column;justify-content:space-between;transition:border-color .2s;cursor:pointer;" ' +
+        'onmouseover="this.style.borderColor='' + cor + '40'" onmouseout="this.style.borderColor='#1E2128'">' +
+          '<div style="font-size:13px;font-weight:600;color:#F0F2F7;line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;">' + item.title + '</div>' +
+          '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;">' +
+            '<span style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px;border-radius:3px;background:' + cor + '18;color:' + cor + ';border:1px solid ' + cor + '30;">' + item.source + '</span>' +
+            '<span style="font-size:10px;color:#444;">' + item.time + '</span>' +
+          '</div>' +
+        '</div>' +
+      '</a>';
+    }).join('');
+
+    // drag scroll
+    var isDrag = false, dragX, dragSL;
+    carrossel.onmousedown = function(e){ isDrag=true; dragX=e.pageX-carrossel.offsetLeft; dragSL=carrossel.scrollLeft; carrossel.style.cursor='grabbing'; };
+    document.onmouseup = function(){ isDrag=false; if(carrossel)carrossel.style.cursor='grab'; };
+    carrossel.onmousemove = function(e){ if(!isDrag)return; e.preventDefault(); var x=e.pageX-carrossel.offsetLeft; carrossel.scrollLeft=dragSL-(x-dragX)*1.5; };
+  }
+
+  async function carregarRSS() {
+    try {
+      var r = await fetch('/api/rss');
+      if(!r.ok) throw new Error('fail');
+      var data = await r.json();
+      rssAllItems = data.items || [];
+      renderRSS();
+    } catch(e) {
+      var carrossel = document.getElementById('rssCarrossel');
+      if(carrossel) carrossel.innerHTML = '<div style="color:#444;font-size:12px;padding:20px;">Não foi possível carregar as notícias de momento.</div>';
+      var dot = document.getElementById('rssDot');
+      if(dot) dot.style.background = '#EF4444';
+    }
+  }
+
+  // Carregar RSS quando a página estiver pronta
+  document.addEventListener('DOMContentLoaded', function(){ carregarRSS(); });
+
+
+  // ── TABS ÁREA RESERVADA ──
+  window.mostrarTabAdmin = function(tab) {
+    var isAtletas = tab === 'atletas';
+    document.getElementById('listaAtletas').style.display = isAtletas ? 'flex' : 'none';
+    document.getElementById('listaRelatorios').style.display = isAtletas ? 'none' : 'flex';
+    document.getElementById('adminFiltros').style.display = isAtletas && roleActual !== 'scout' ? 'flex' : 'none';
+    document.getElementById('tabTituloAdmin').textContent = isAtletas ? 'ATLETAS' : 'RELATÓRIOS';
+    var tabA = document.getElementById('tabAtletas');
+    var tabR = document.getElementById('tabRelatorios');
+    if(tabA) { tabA.style.background = isAtletas ? 'rgba(212,175,55,.12)' : 'none'; tabA.style.color = isAtletas ? '#D4AF37' : '#52576A'; tabA.style.borderColor = isAtletas ? 'rgba(212,175,55,.3)' : '#1E2128'; }
+    if(tabR) { tabR.style.background = !isAtletas ? 'rgba(212,175,55,.12)' : 'none'; tabR.style.color = !isAtletas ? '#D4AF37' : '#52576A'; tabR.style.borderColor = !isAtletas ? 'rgba(212,175,55,.3)' : '#1E2128'; }
+    if(!isAtletas) carregarRelatorios();
+  };
+
+  async function carregarRelatorios() {
+    var lista = document.getElementById('listaRelatorios');
+    if(!lista) return;
+    lista.innerHTML = '<div style="color:#52576A;font-size:14px;padding:32px 0;text-align:center;">A carregar relatórios...</div>';
+    try {
+      var result = await db.from("relatorios").select("id,scout,atleta,clube,categoria,posicao,decisao,rendimento,media_geral,created_at").order("created_at", { ascending: false });
+      var dados = result.data || [];
+      if(!dados.length) {
+        lista.innerHTML = '<div style="color:#52576A;font-size:14px;padding:32px 0;text-align:center;">Nenhum relatório gerado ainda.</div>';
+        return;
+      }
+      var decisaoCor = {"Contratar":"#22c55e","Acompanhar":"#eab308","Nova Observação":"#3b82f6","Sem Interesse":"#ef4444"};
+      lista.innerHTML = dados.map(function(r) {
+        var dataFmt = r.created_at ? new Date(r.created_at).toLocaleDateString("pt-PT", {day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}) : "—";
+        var dCor = decisaoCor[r.decisao] || '#52576A';
+        var mg = r.media_geral ? parseFloat(r.media_geral).toFixed(1) : "—";
+        return '<div onclick="abrirRelatorio('' + r.id + '')" style="background:#111318;border:1px solid #1E2128;border-radius:8px;padding:18px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;cursor:pointer;transition:border-color .2s;" onmouseover="this.style.borderColor='#D4AF3740'" onmouseout="this.style.borderColor='#1E2128'">' +
+          '<div>' +
+            '<div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:#F0F2F7;">' + (r.atleta||'—') + '</div>' +
+            '<div style="font-size:12px;color:#52576A;margin-top:3px;">' + [r.categoria, r.posicao, r.clube].filter(Boolean).join(' · ') + '</div>' +
+            '<div style="font-size:11px;color:#444;margin-top:4px;">Scout: <span style="color:#8892A4;">' + (r.scout||'—') + '</span></div>' +
+          '</div>' +
+          '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">' +
+            '<div style="text-align:center;background:#0d0f14;border:1px solid #1E2128;border-radius:4px;padding:6px 12px;">' +
+              '<div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:#D4AF37;">' + mg + '</div>' +
+              '<div style="font-size:8px;color:#444;text-transform:uppercase;letter-spacing:1px;">Média</div>' +
+            '</div>' +
+            (r.decisao ? '<span style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:5px 12px;border-radius:3px;background:' + dCor + '18;color:' + dCor + ';border:1px solid ' + dCor + '44;">' + r.decisao + '</span>' : '') +
+            '<span style="font-size:10px;color:#444;font-family:monospace;">' + dataFmt + '</span>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+      // cache para abrir modal
+      window._relatoriosCache = result.data;
+    } catch(e) {
+      lista.innerHTML = '<div style="color:#ef4444;font-size:13px;padding:32px 0;text-align:center;">Erro ao carregar relatórios.</div>';
+    }
+  }
+
+  window.abrirRelatorio = async function(id) {
+    // Buscar relatório completo
+    try {
+      var result = await db.from("relatorios").select("*").eq("id", id).single();
+      var r = result.data;
+      if(!r) return;
+      var dataFmt = new Date(r.created_at).toLocaleDateString("pt-PT", {day:"2-digit",month:"long",year:"numeric",hour:"2-digit",minute:"2-digit"});
+      var dCor = {"Contratar":"#22c55e","Acompanhar":"#eab308","Nova Observação":"#3b82f6","Sem Interesse":"#ef4444"}[r.decisao] || '#52576A';
+      var mg = r.media_geral ? parseFloat(r.media_geral).toFixed(1) : "—";
+
+      var html = '';
+      html += '<div style="margin-bottom:20px;">';
+      html += '<div style="font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#D4AF37;margin-bottom:5px;">Scout Report · YourTalentBase</div>';
+      html += '<div style="font-family:'Barlow Condensed',sans-serif;font-size:30px;font-weight:800;color:#F0F2F7;line-height:1;">' + (r.atleta||'—') + '</div>';
+      html += '<div style="font-size:12px;color:#52576A;margin-top:5px;">' + [r.categoria, r.posicao, r.clube].filter(Boolean).join(' · ') + ' · ' + (r.epoca||'') + '</div>';
+      html += '</div>';
+
+      // Meta info
+      html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;">';
+      html += '<div style="background:#0d0f14;border:1px solid #1E2128;border-radius:5px;padding:10px 12px;"><div style="font-size:9px;color:#444;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:3px;">Scout</div><div style="font-size:13px;color:#F0F2F7;">' + (r.scout||'—') + '</div></div>';
+      html += '<div style="background:#0d0f14;border:1px solid #1E2128;border-radius:5px;padding:10px 12px;"><div style="font-size:9px;color:#444;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:3px;">Data</div><div style="font-size:12px;color:#8892A4;">' + dataFmt + '</div></div>';
+      html += '<div style="background:#0d0f14;border:1px solid #1E2128;border-radius:5px;padding:10px 12px;"><div style="font-size:9px;color:#444;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:3px;">Média Geral</div><div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:#D4AF37;">' + mg + '</div></div>';
+      html += (r.decisao ? '<div style="background:#0d0f14;border:1px solid #1E2128;border-radius:5px;padding:10px 12px;"><div style="font-size:9px;color:#444;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:3px;">Decisão</div><div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:' + dCor + ';">' + r.decisao + '</div></div>' : '');
+      html += '</div>';
+
+      // Texto do relatório
+      if(r.relatorio_texto) {
+        html += '<div style="background:#0d0f14;border:1px solid #1E2128;border-radius:6px;padding:16px;margin-bottom:16px;">';
+        html += '<div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#D4AF37;margin-bottom:10px;">Relatório</div>';
+        html += '<div style="font-size:12px;color:#8892A4;line-height:1.8;font-weight:300;white-space:pre-wrap;">' + r.relatorio_texto.replace(/\*\*(.+?)\*\*/g,'<strong style="color:#fff;font-weight:600;">$1</strong>') + '</div>';
+        html += '</div>';
+      }
+
+      // Botão PDF
+      html += '<div style="display:flex;gap:10px;">';
+      html += '<button onclick="scRelatorioTexto='' + (r.relatorio_texto||'').replace(/'/g,"\'").replace(/
+/g,'\n') + '';scDadosAtleta=' + JSON.stringify(r.dados||{}).replace(/'/g,"\'") + ';scDecisao='' + (r.decisao||'') + '';scRendimento='' + (r.rendimento||'') + '';scPrazo='' + (r.prazo||'') + '';scScores=' + JSON.stringify(r.scores||{}) + ';scGerarPDF();" style="flex:1;background:#D4AF37;color:#000;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:12px;border-radius:4px;border:none;cursor:pointer;">📄 Gerar PDF</button>';
+      html += '<button onclick="apagarRelatorio('' + r.id + '')" style="padding:12px 16px;background:rgba(239,68,68,.1);color:#ef4444;border:1px solid rgba(239,68,68,.3);border-radius:4px;font-size:11px;font-weight:700;cursor:pointer;">🗑</button>';
+      html += '</div>';
+
+      document.getElementById("modalInscricaoBody").innerHTML = html;
+      document.getElementById("modalInscricao").style.display = "flex";
+      document.body.style.overflow = "hidden";
+    } catch(e) { alert("Erro ao abrir relatório."); }
+  };
+
+  window.apagarRelatorio = async function(id) {
+    if(!confirm("Apagar este relatório permanentemente?")) return;
+    try {
+      await db.from("relatorios").delete().eq("id", id);
+      fecharModalInscricao();
+      carregarRelatorios();
+    } catch(e) { alert("Erro ao apagar."); }
+  };
+
 })();
 </script>
+
+<!-- MODAL ATLETA ÁREA RESERVADA -->
+<div id="modalInscricao" onclick="if(event.target===this)fecharModalInscricao()" style="display:none;position:fixed;inset:0;z-index:1100;background:rgba(6,7,9,0.95);backdrop-filter:blur(16px);align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#111318;border:1px solid #1E2128;border-top:3px solid #D4AF37;border-radius:10px;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;position:relative;scrollbar-width:none;">
+    <button onclick="fecharModalInscricao()" style="position:absolute;top:14px;right:14px;background:rgba(255,255,255,.06);border:1px solid #272B35;border-radius:50%;width:32px;height:32px;color:#52576A;font-size:18px;cursor:pointer;z-index:2;display:flex;align-items:center;justify-content:center;">×</button>
+    <div style="padding:28px 28px 24px;" id="modalInscricaoBody"></div>
+  </div>
+</div>
 </body>
 </html>
