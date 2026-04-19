@@ -959,7 +959,7 @@ var SC_FORMATOS = {
 
 var SC_ZONA_COR = {GR:'#ef4444', DEF:'#3b82f6', MED:'#eab308', ATA:'#22c55e'};
 
-function atualizarPosicoes(){
+window.atualizarPosicoes = function(){
   var fmt = el('sc-formato').value;
   var sel = el('sc-pos');
   sel.innerHTML = '<option value="">Selecionar...</option>';
@@ -976,7 +976,7 @@ function atualizarPosicoes(){
   });
 }
 
-function renderPerfilPosicao(){
+window.renderPerfilPosicao = function(){
   var fmt = el('sc-formato').value;
   var pos = el('sc-pos').value;
   if(!fmt || !pos || !SC_FORMATOS[fmt]) { el('scPerfilPos').style.display='none'; return; }
@@ -988,18 +988,16 @@ function renderPerfilPosicao(){
   el('scPosZona').textContent = {GR:'Guarda-Redes',DEF:'Linha Defensiva',MED:'Setor Médio',ATA:'Linha de Ataque'}[info.zona] || info.zona;
   el('scPosDesc').textContent = info.desc;
 
-  // Atributos
   el('scPosAtrib').innerHTML = info.atrib.map(function(a){
     return '<span style="font-size:9px;font-weight:600;padding:2px 8px;border-radius:100px;background:rgba(212,175,55,.1);color:var(--gold);border:1px solid rgba(212,175,55,.22);">'+a+'</span>';
   }).join('');
 
-  // Zonas
   var zonas = {GR:'zona-gr', DEF:'zona-def', MED:'zona-med', ATA:'zona-ata'};
   Object.keys(zonas).forEach(function(z){
-    var cor = z===info.zona ? SC_ZONA_COR[z] : 'transparent';
-    var opacidade = z===info.zona ? 'rgba('+hexToRgb(SC_ZONA_COR[z])+', .35)' : 'transparent';
-    el(zonas[z]).style.background = opacidade;
-    el(zonas[z]).style.boxShadow = z===info.zona ? 'inset 0 0 0 1px '+SC_ZONA_COR[z]+'88' : 'none';
+    var cor = SC_ZONA_COR[z];
+    var rgb = hexToRgb(cor);
+    el(zonas[z]).style.background = z===info.zona ? 'rgba('+rgb+',.35)' : 'transparent';
+    el(zonas[z]).style.boxShadow  = z===info.zona ? 'inset 0 0 0 1px '+cor+'88' : 'none';
   });
 }
 
