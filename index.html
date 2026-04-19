@@ -2053,7 +2053,7 @@ footer{
               '<div style="font-size:12px;font-weight:600;color:#fff;">' + p.titulo + '</div>' +
               '<div style="font-size:10px;color:var(--slate);margin-top:2px;">' + p.clube + ' · ' + p.escalao + '</div>' +
             '</div>' +
-            '<div style="font-size:11px;font-weight:700;color:var(--gold);font-family:\'Barlow Condensed\',sans-serif;letter-spacing:1px;">' + p.epoca + '</div>' +
+            '<div style="font-size:11px;font-weight:700;color:var(--gold);font-family:Barlow Condensed,sans-serif;letter-spacing:1px;">' + p.epoca + '</div>' +
           '</div>';
         }).join('');
         bioHTML += '</div>';
@@ -2073,7 +2073,7 @@ footer{
         bioHTML += a.historial.map(function(h, i) {
           var bg = i % 2 === 0 ? 'rgba(255,255,255,.02)' : 'transparent';
           return '<tr style="background:' + bg + ';font-size:12px;">' +
-            '<td style="padding:6px;color:var(--muted);font-family:\'Barlow Condensed\',sans-serif;letter-spacing:1px;">' + h.epoca + '</td>' +
+            '<td style="padding:6px;color:var(--muted);font-family:Barlow Condensed,sans-serif;letter-spacing:1px;">' + h.epoca + '</td>' +
             '<td style="padding:6px;color:var(--slate);">' + h.clube + ' <span style="color:var(--muted);font-size:10px;">' + h.escalao + '</span></td>' +
             '<td style="padding:6px;text-align:center;color:#fff;font-weight:600;">' + (h.j !== null ? h.j : '—') + '</td>' +
             '<td style="padding:6px;text-align:center;color:#fff;font-weight:600;">' + (h.g !== null ? h.g : '—') + '</td>' +
@@ -2085,17 +2085,17 @@ footer{
       document.getElementById("modalAtletaBio").innerHTML = bioHTML;
       document.getElementById("modalAtletaStats").innerHTML = a.stats.map(function(s, i) {
         return '<div style="text-align:center;padding:12px 8px;' + (i < a.stats.length-1 ? 'border-right:1px solid var(--border);' : '') + '">' +
-          '<div style="font-family:\'Syne\',sans-serif;font-size:22px;font-weight:800;color:#fff;line-height:1;">' + s.num + '</div>' +
-          '<div style="font-family:\'Syne Mono\',monospace;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-top:3px;">' + s.label + '</div>' +
+          '<div style="font-family:Syne,sans-serif;font-size:22px;font-weight:800;color:#fff;line-height:1;">' + s.num + '</div>' +
+          '<div style="font-family:Syne Mono,monospace;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-top:3px;">' + s.label + '</div>' +
           '</div>';
       }).join('');
       document.getElementById("modalAtletaTags").innerHTML = a.tags.map(function(t) {
         var isFlag = /🇧🇷|🇵🇹/.test(t);
-        return '<span style="font-family:\'Syne Mono\',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border-radius:2px;background:' + (isFlag ? 'rgba(245,192,0,0.08)' : 'var(--card2)') + ';border:1px solid ' + (isFlag ? 'rgba(245,192,0,0.2)' : 'var(--border2)') + ';color:' + (isFlag ? 'var(--gold)' : 'var(--slate)') + ';">' + t + '</span>';
+        return '<span style="font-family:Syne Mono,monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border-radius:2px;background:' + (isFlag ? 'rgba(245,192,0,0.08)' : 'var(--card2)') + ';border:1px solid ' + (isFlag ? 'rgba(245,192,0,0.2)' : 'var(--border2)') + ';color:' + (isFlag ? 'var(--gold)' : 'var(--slate)') + ';">' + t + '</span>';
       }).join('');
       var links = '';
-      if (a.zerozero) links += '<a href="' + a.zerozero + '" target="_blank" style="display:inline-flex;align-items:center;gap:6px;font-family:\'Syne\',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:10px 16px;border-radius:3px;background:var(--dark);color:#fff;text-decoration:none;">🔗 ZeroZero</a>';
-      links += '<a href="#scout" onclick="fecharPerfilAtleta()" style="display:inline-flex;align-items:center;gap:6px;font-family:\'Syne\',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:10px 16px;border-radius:3px;background:var(--gold);color:var(--bg);text-decoration:none;">Inscrever Atleta →</a>';
+      if (a.zerozero) links += '<a href="' + a.zerozero + '" target="_blank" style="display:inline-flex;align-items:center;gap:6px;font-family:Syne,sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:10px 16px;border-radius:3px;background:var(--dark);color:#fff;text-decoration:none;">🔗 ZeroZero</a>';
+      links += '<a href="#scout" onclick="fecharPerfilAtleta()" style="display:inline-flex;align-items:center;gap:6px;font-family:Syne,sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:10px 16px;border-radius:3px;background:var(--gold);color:var(--bg);text-decoration:none;">Inscrever Atleta →</a>';
       document.getElementById("modalAtletaLinks").innerHTML = links;
       document.getElementById("modalAtleta").style.display = "flex";
       document.body.style.overflow = "hidden";
@@ -2262,7 +2262,7 @@ footer{
       return '<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;">' +
         col.map(function(item) {
           var btns = [1,2,3,4,5].map(function(n) {
-            return '<button class="sc-btn s'+n+'" data-pos-id="'+item.id+'" data-pos-val="'+n+'" onclick="posSetScore(\''+item.id+'\','+n+')" title="'+n+'">' + n + '</button>';
+            return '<button class="sc-btn s' + n + '" data-pos-id="' + item.id + '" data-pos-val="' + n + '" onclick="posSetScore(this.dataset.posId,parseInt(this.dataset.posVal))" title="' + n + '">' + n + '</button>';
           }).join("");
           return '<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-bottom:1px solid rgba(30,33,40,0.8);gap:8px;flex-wrap:wrap;">' +
             '<span style="font-size:12px;color:var(--slate);flex:1;min-width:100px;">'+item.label+'</span>' +
@@ -2612,9 +2612,9 @@ footer{
       if (!container) return;
       container.innerHTML = area.items.map(function(item) {
         var btns = [1,2,3,4,5].map(function(n) {
-          return '<button class="sc-btn s' + n + '" data-id="' + item.id + '" data-val="' + n + '" onclick="scSetScore(\'' + item.id + '\',' + n + ')" title="' + SC_LEGENDA[n] + '">' + n + '</button>';
+          return '<button class="sc-btn s' + n + '" data-id="' + item.id + '" data-val="' + n + '" onclick="scSetScore(this.dataset.id,parseInt(this.dataset.val))" title="' + SC_LEGENDA[n] + '">' + n + '</button>';
         }).join("");
-        btns += '<button class="sc-btn sna" data-id="' + item.id + '" data-val="0" onclick="scSetScore(\'' + item.id + '\',0)" title="Não Aplicável" style="font-size:9px;letter-spacing:.3px;opacity:.6;">N/A</button>';
+        btns += '<button class="sc-btn sna" data-id="' + item.id + '" data-val="0" onclick="scSetScore(this.dataset.id,0)" title="Não Aplicável" style="font-size:9px;letter-spacing:.3px;opacity:.6;">N/A</button>';
         return '<div class="sc-row"><span class="sc-row-label">' + item.label + '</span><div class="sc-btns">' + btns + '</div><span class="sc-score-label" id="scl-' + item.id + '" style="color:var(--muted);">—</span></div>';
       }).join("");
     });
@@ -3071,7 +3071,7 @@ footer{
           var classeCor = classeVal.match(/Muito Bom/i) ? '#3b82f6' : classeVal.match(/Bom/i) ? '#22c55e' : classeVal.match(/Satisf/i) ? '#eab308' : classeVal.match(/Mediocre/i) ? '#f97316' : '#ef4444';
           html += '<div class="rel-classificacao-global">';
           html += '<span style="font-size:10px;color:var(--slate);letter-spacing:2px;text-transform:uppercase;">Classificação Global</span>';
-          html += '<span style="font-family:\'Syne\',sans-serif;font-size:24px;font-weight:800;color:' + classeCor + ';">' + classeVal + '</span>';
+          html += '<span style="font-family:Syne,sans-serif;font-size:24px;font-weight:800;color:' + classeCor + ';">' + classeVal + '</span>';
           html += '</div>';
           return;
         }
@@ -3548,7 +3548,7 @@ footer{
       var estadoCor = {"Novo":"#F5C000","Em análise":"#3b82f6","Aceite":"#22c55e","Recusado":"#ef4444"}[a.estado] || "#52576A";
       return '<div onclick="abrirModalInscricao('' + a.id + '')" style="background:#111318;border:1px solid #1E2128;border-radius:8px;padding:20px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;cursor:pointer;transition:border-color .2s;" onmouseover="this.style.borderColor='#D4AF3740'" onmouseout="this.style.borderColor='#1E2128'">' +
         '<div>' +
-          '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:18px;font-weight:800;color:#F0F2F7;">' + (a.nome || '—') + '</div>' +
+          '<div style="font-family:Barlow Condensed,sans-serif;font-size:18px;font-weight:800;color:#F0F2F7;">' + (a.nome || '—') + '</div>' +
           '<div style="font-size:12px;color:#52576A;margin-top:3px;">' + [a.escalao, a.posicao, a.clube].filter(Boolean).join(' · ') + '</div>' +
           '<div style="font-size:11px;color:#8892A4;margin-top:6px;">' + (a.contacto || '') + '</div>' +
         '</div>' +
@@ -3575,7 +3575,7 @@ footer{
       }
       cont.innerHTML = dados.map(function(a) {
         return '<div style="background:#111318;border:1px solid #1E2128;border-radius:8px;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">' +
-          '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:16px;font-weight:800;color:#F0F2F7;">' + (a.nome||'—') + '</div>' +
+          '<div style="font-family:Barlow Condensed,sans-serif;font-size:16px;font-weight:800;color:#F0F2F7;">' + (a.nome||'—') + '</div>' +
           '<div style="font-size:11px;color:#52576A;">' + [a.escalao,a.posicao,a.clube].filter(Boolean).join(' · ') + '</div>' +
           '</div>';
       }).join("");
@@ -3837,12 +3837,12 @@ footer{
         return [
           '<div data-rid="' + rid + '" onclick="abrirRelatorio(this.dataset.rid)" style="background:#111318;border:1px solid #1E2128;border-radius:8px;padding:18px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;cursor:pointer;">',
           '<div>',
-          '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:20px;font-weight:800;color:#F0F2F7;">' + (r.atleta||'—') + '</div>',
+          '<div style="font-family:Barlow Condensed,sans-serif;font-size:20px;font-weight:800;color:#F0F2F7;">' + (r.atleta||'—') + '</div>',
           '<div style="font-size:12px;color:#52576A;margin-top:3px;">' + [r.categoria,r.posicao,r.clube].filter(Boolean).join(' · ') + '</div>',
           '<div style="font-size:11px;color:#444;margin-top:4px;">Scout: <span style="color:#8892A4;">' + (r.scout||'—') + '</span></div>',
           '</div>',
           '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">',
-          '<div style="text-align:center;background:#0d0f14;border:1px solid #1E2128;border-radius:4px;padding:6px 12px;"><div style="font-family:\'Barlow Condensed\',sans-serif;font-size:20px;font-weight:800;color:#D4AF37;">' + mg + '</div><div style="font-size:8px;color:#444;text-transform:uppercase;letter-spacing:1px;">Média</div></div>',
+          '<div style="text-align:center;background:#0d0f14;border:1px solid #1E2128;border-radius:4px;padding:6px 12px;"><div style="font-family:Barlow Condensed,sans-serif;font-size:20px;font-weight:800;color:#D4AF37;">' + mg + '</div><div style="font-size:8px;color:#444;text-transform:uppercase;letter-spacing:1px;">Média</div></div>',
           (r.decisao ? '<span style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:5px 12px;border-radius:3px;background:' + dCor + '18;color:' + dCor + ';border:1px solid ' + dCor + '44;">' + r.decisao + '</span>' : ''),
           '<span style="font-size:10px;color:#444;font-family:monospace;">' + dataFmt + '</span>',
           '</div>',
@@ -3893,8 +3893,8 @@ footer{
 
       // Botão PDF
       html += '<div style="display:flex;gap:10px;">';
-      html += '<button onclick="gerarPDFDoRelatorio()" style="flex:1;background:#D4AF37;color:#000;font-family:\'Barlow Condensed\',sans-serif;font-size:13px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:12px;border-radius:4px;border:none;cursor:pointer;">📄 Gerar PDF</button>';
-      html += '<button onclick="apagarRelatorio(\'' + r.id + '\')" style="padding:12px 16px;background:rgba(239,68,68,.1);color:#ef4444;border:1px solid rgba(239,68,68,.3);border-radius:4px;font-size:11px;font-weight:700;cursor:pointer;">🗑</button>';
+      html += '<button onclick="gerarPDFDoRelatorio()" style="flex:1;background:#D4AF37;color:#000;font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:12px;border-radius:4px;border:none;cursor:pointer;">📄 Gerar PDF</button>';
+      html += '<button data-del-id="' + r.id + '" onclick="apagarRelatorio(this.dataset.delId)" style="padding:12px 16px;background:rgba(239,68,68,.1);color:#ef4444;border:1px solid rgba(239,68,68,.3);border-radius:4px;font-size:11px;font-weight:700;cursor:pointer;">🗑</button>';
       html += '</div>';
 
       document.getElementById("modalInscricaoBody").innerHTML = html;
