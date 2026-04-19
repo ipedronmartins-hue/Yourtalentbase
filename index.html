@@ -183,14 +183,7 @@ footer{padding:20px;border-top:1px solid var(--border);text-align:center;}
 .sc-rt{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
 
 /* NEWS */
-.news-card{flex-shrink:0;width:250px;background:var(--bg3);border-radius:6px;padding:14px;cursor:pointer;text-decoration:none;border-top:3px solid;}
-.news-src{font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:2px 7px;border-radius:2px;display:inline-block;margin-bottom:8px;}
-.news-t{font-size:12px;font-weight:600;color:#fff;line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:8px;transition:color .2s;}
-.news-card:hover .news-t{color:var(--gold);}
-.news-time{font-size:9px;color:var(--muted);}
-.nf{padding:4px 12px;border-radius:20px;font-size:10px;font-weight:600;border:1px solid var(--border);background:none;color:var(--muted);transition:all .15s;}
-.nf.on{border-color:rgba(212,175,55,.4);background:rgba(212,175,55,.1);color:var(--gold);}
-
+.news-card:hover 
 /* PERFIL */
 .perfil-ov{display:none;position:fixed;inset:0;z-index:260;background:rgba(6,7,9,.97);overflow-y:auto;padding:20px;}
 .perfil-ov.open{display:block;}
@@ -381,34 +374,6 @@ footer{padding:20px;border-top:1px solid var(--border);text-align:center;}
 
 <div class="divider"></div>
 
-<!-- NOTICIAS -->
-<section class="sec sec-dark" id="noticias">
-  <div class="eyebrow">Futebol Jovem · Portugal</div>
-  <div class="sec-title">Últimas Notícias</div>
-  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;" id="newsFilters">
-    <button class="nf on" data-src="todos">Todos</button>
-    <button class="nf" data-src="Record">Record</button>
-    <button class="nf" data-src="O Jogo">O Jogo</button>
-    <button class="nf" data-src="A Bola">A Bola</button>
-  </div>
-  <div class="scroll-wrap">
-    <div class="fade-l" style="background:linear-gradient(to right,var(--bg2),transparent);"></div>
-    <div class="fade-r" style="background:linear-gradient(to left,var(--bg2),transparent);"></div>
-    <div class="scroll-row" id="newsRow">
-      <div style="display:flex;gap:12px;">
-        <div style="flex-shrink:0;width:250px;height:140px;background:var(--bg3);border-radius:6px;opacity:.6;"></div>
-        <div style="flex-shrink:0;width:250px;height:140px;background:var(--bg3);border-radius:6px;opacity:.4;"></div>
-        <div style="flex-shrink:0;width:250px;height:140px;background:var(--bg3);border-radius:6px;opacity:.2;"></div>
-      </div>
-    </div>
-  </div>
-  <div style="display:flex;align-items:center;gap:8px;margin-top:6px;">
-    <div id="newsDot" style="width:5px;height:5px;border-radius:50%;background:#22c55e;flex-shrink:0;"></div>
-    <span style="font-size:10px;color:var(--muted);">Actualizado automaticamente · Record · O Jogo · A Bola</span>
-  </div>
-</section>
-
-<div class="divider"></div>
 
 <!-- PLANOS -->
 <section class="sec" id="planos">
@@ -621,7 +586,7 @@ footer{padding:20px;border-top:1px solid var(--border);text-align:center;}
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
           <div><label style="font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:3px;">Formato</label>
-            <select class="sc-sel" id="sc-formato" onchange="atualizarPosicoes()">
+            <select class="sc-sel" id="sc-formato">
               <option value="">Selecionar...</option>
               <option>Fut5</option><option>Fut7</option><option>Fut9</option><option>Fut11</option>
             </select>
@@ -636,7 +601,7 @@ footer{padding:20px;border-top:1px solid var(--border);text-align:center;}
         <!-- POSIÇÃO + PERFIL VISUAL -->
         <div>
           <label style="font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:6px;">Posição</label>
-          <select class="sc-sel" id="sc-pos" onchange="renderPerfilPosicao()" style="width:100%;margin-bottom:12px;">
+          <select class="sc-sel" id="sc-pos" style="width:100%;margin-bottom:12px;">
             <option value="">Seleciona o formato primeiro...</option>
           </select>
           <!-- PERFIL VISUAL -->
@@ -766,7 +731,6 @@ var CREDS = [
 // ── STATE ───────────────────────────────────────────
 var S = {
   role:null, nome:"", atletasDB:[], relatoriosDB:[],
-  newsDB:[], newsFiltro:"todos",
   scScores:{}, scRendimento:"", scPrazo:"", scDecisao:"",
   scTexto:"", scDados:{}
 };
@@ -959,7 +923,7 @@ var SC_FORMATOS = {
 
 var SC_ZONA_COR = {GR:'#ef4444', DEF:'#3b82f6', MED:'#eab308', ATA:'#22c55e'};
 
-window.atualizarPosicoes = function(){
+function atualizarPosicoes(){
   var fmt = el('sc-formato').value;
   var sel = el('sc-pos');
   sel.innerHTML = '<option value="">Selecionar...</option>';
@@ -972,11 +936,11 @@ window.atualizarPosicoes = function(){
   }
   el('scPerfilPos').style.display = 'none';
   ['zona-gr','zona-def','zona-med','zona-ata'].forEach(function(id){
-    el(id).style.background = 'transparent';
+    var z = el(id); if(z){ z.style.background='transparent'; z.style.boxShadow='none'; }
   });
 }
 
-window.renderPerfilPosicao = function(){
+function renderPerfilPosicao(){
   var fmt = el('sc-formato').value;
   var pos = el('sc-pos').value;
   if(!fmt || !pos || !SC_FORMATOS[fmt]) { el('scPerfilPos').style.display='none'; return; }
@@ -996,8 +960,10 @@ window.renderPerfilPosicao = function(){
   Object.keys(zonas).forEach(function(z){
     var cor = SC_ZONA_COR[z];
     var rgb = hexToRgb(cor);
-    el(zonas[z]).style.background = z===info.zona ? 'rgba('+rgb+',.35)' : 'transparent';
-    el(zonas[z]).style.boxShadow  = z===info.zona ? 'inset 0 0 0 1px '+cor+'88' : 'none';
+    var zEl = el(zonas[z]);
+    if(!zEl) return;
+    zEl.style.background = z===info.zona ? 'rgba('+rgb+',.35)' : 'transparent';
+    zEl.style.boxShadow  = z===info.zona ? 'inset 0 0 0 1px '+cor+'88' : 'none';
   });
 }
 
@@ -1215,14 +1181,6 @@ document.addEventListener('click', function(e){
     return;
   }
 
-  // NEWS FILTERS
-  if(t.classList.contains('nf')){
-    document.querySelectorAll('.nf').forEach(function(b){ b.classList.remove('on'); });
-    t.classList.add('on');
-    S.newsFiltro = t.dataset.src;
-    renderNews();
-    return;
-  }
 });
 
 // Enter em campos password
@@ -1737,50 +1695,14 @@ function gerarPDF(){
   else { alert('Permite popups para gerar o PDF.'); }
 }
 
-// ── NEWS ──────────────────────────────────────────────
-async function carregarNews(){
-  try {
-    var res=await fetch('/api/rss');
-    if(!res.ok) throw new Error('fail');
-    var data=await res.json();
-    S.newsDB=data.items||[];
-    renderNews();
-    el('newsDot').style.background=S.newsDB.length?'#22c55e':'#ef4444';
-  } catch(err){
-    el('newsRow').innerHTML='<div style="color:var(--muted);font-size:11px;padding:16px;">Notícias não disponíveis.</div>';
-    el('newsDot').style.background='#ef4444';
-  }
-}
-
-function renderNews(){
-  var row=el('newsRow');
-  if(!row) return;
-  var items=S.newsFiltro==='todos'?S.newsDB:S.newsDB.filter(function(n){ return n.source===S.newsFiltro; });
-  if(!items.length){
-    row.innerHTML='<div style="color:var(--muted);font-size:11px;padding:16px;">Sem notícias.</div>';
-    return;
-  }
-  var cm={Record:'#ef4444','O Jogo':'#f97316','A Bola':'#3b82f6'};
-  row.innerHTML=items.slice(0,10).map(function(n){
-    var c=cm[n.source]||'var(--gold)';
-    return '<a href="'+(n.link||'#')+'" target="_blank" rel="noopener" class="news-card" style="border-top-color:'+c+';">';
-    + '<span class="news-src" style="background:'+c+'12;color:'+c+';border:1px solid '+c+'28;">'+n.source+'</span>'
-    + '<div class="news-t">'+n.title+'</div>'
-    + '<div class="news-time">'+n.time+'</div>'
-    + '</a>';
-  }).join('');
-  // Fix: rewrite properly
-  row.innerHTML = items.slice(0,10).map(function(n){
-    var c=cm[n.source]||'var(--gold)';
-    return '<a href="'+(n.link||'#')+'" target="_blank" rel="noopener" class="news-card" style="border-top-color:'+c+';"><span class="news-src" style="background:'+c+'12;color:'+c+';border:1px solid '+c+'28;">'+n.source+'</span><div class="news-t">'+n.title+'</div><div class="news-time">'+n.time+'</div></a>';
-  }).join('');
-  dragScroll(row);
-}
 
 // ── INIT ─────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', function(){
   dragScroll(el('atletasRow'));
-  carregarNews();
+  var fmtSel = el('sc-formato');
+  var posSel = el('sc-pos');
+  if(fmtSel) fmtSel.addEventListener('change', atualizarPosicoes);
+  if(posSel) posSel.addEventListener('change', renderPerfilPosicao);
 });
 
 })();

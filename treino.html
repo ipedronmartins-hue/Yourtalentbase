@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Treino em Casa · YourTalentBase</title>
+<meta name="description" content="Treinos prescritos pelo teu treinador. 3 sessões por semana, adaptadas ao teu escalão. YourTalentBase.">
+<meta name="theme-color" content="#09090C">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --gold:#D4AF37;--gs:rgba(212,175,55,.10);--gb:rgba(212,175,55,.22);
+  --blue:#1A237E;--bm:#283593;
+  --green:#00D46A;--gs2:rgba(0,212,106,.10);--gb2:rgba(0,212,106,.28);
+  --bg:#09090C;--bg2:#111116;--bg3:#18181F;
+  --border:#1E1E2A;--border2:#2A2A3A;
+  --white:#EEEEF5;--slate:#AAAABF;--muted:#7777A0;--dim:#52526A;
+}
+html,body{background:var(--bg);color:var(--white);font-family:'Plus Jakarta Sans',sans-serif;-webkit-text-size-adjust:100%;}
+button,input{font-family:inherit;}
+a{color:inherit;text-decoration:none;}
+@keyframes up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes cf{0%{transform:translateY(-10px) rotate(0);opacity:1}100%{transform:translateY(105vh) rotate(var(--r,360deg));opacity:0}}
+
+.nav{position:sticky;top:0;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:rgba(9,9,12,.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);z-index:100;}
+.logo{display:flex;align-items:center;gap:8px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:13px;letter-spacing:2px;text-transform:uppercase;}
+.logo-b{width:25px;height:25px;background:var(--gold);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:900;color:#000;}
+.logo span{color:var(--gold);}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px;position:relative;overflow:hidden;}
+.card.gold{background:linear-gradient(135deg,rgba(212,175,55,.08),rgba(212,175,55,.02));border-color:var(--gb);}
+.card.grad::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--bm),var(--gold));}
+.btn-g{background:var(--gold);color:#000;border:none;padding:13px 20px;border-radius:11px;font-size:14px;font-weight:800;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn-g:disabled{background:var(--border2);color:var(--muted);cursor:default;}
+.inp{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:11px;padding:13px 15px;color:var(--white);font-size:15px;outline:none;}
+.inp:focus{border-color:var(--gold);}
+.view{display:none;min-height:100vh;}
+.view.on{display:block;}
+.center{display:flex;align-items:flex-start;justify-content:center;min-height:100vh;padding:40px 20px;}
+.inner{max-width:400px;width:100%;animation:up .5s both;}
+.dot{height:5px;border-radius:3px;background:var(--border2);transition:all .3s;}
+.dot.done{background:var(--green);}
+.dot.cur{background:var(--gold);}
+.fcard{background:var(--bg3);border:1px solid var(--border);border-radius:11px;padding:12px 14px;cursor:pointer;display:flex;align-items:center;gap:11px;transition:all .2s;margin-bottom:6px;}
+.fcard:hover,.fcard.sel{background:var(--gs);border-color:var(--gold);}
+.fcard.sel .fn{color:var(--gold);}
+.fn{font-size:13px;font-weight:700;}
+.fs{font-size:10px;color:var(--muted);margin-top:1px;font-weight:300;}
+.sr{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);gap:10px;}
+.sr:last-child{border-bottom:none;}
+.sl{font-size:12px;color:var(--muted);}
+.sv{font-size:12px;font-weight:700;text-align:right;max-width:200px;}
+.ey{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+.num{font-family:'Barlow Condensed',sans-serif;}
+.h1{font-family:'Barlow Condensed',sans-serif;font-size:clamp(28px,9vw,46px);font-weight:900;line-height:.95;margin-bottom:3px;}
+.bg-gold{display:inline-flex;align-items:center;gap:5px;background:var(--gs);border:1px solid var(--gb);color:var(--gold);font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;border-radius:100px;}
+.pbar{height:7px;background:var(--border);border-radius:100px;overflow:hidden;}
+.pfill{height:100%;background:linear-gradient(90deg,var(--bm),var(--gold));border-radius:100px;transition:width .9s cubic-bezier(.4,0,.2,1);}
+.thero{background:linear-gradient(135deg,var(--bm),var(--blue));border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:18px 16px;cursor:pointer;position:relative;overflow:hidden;}
+.tglow{position:absolute;top:-40%;right:-10%;width:160px;height:160px;background:radial-gradient(circle,rgba(255,215,0,.1) 0%,transparent 65%);pointer-events:none;}
+.tchip{background:rgba(255,215,0,.18);color:var(--gold);font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:3px 9px;border-radius:100px;}
+.ttt{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:26px;line-height:1;margin-bottom:4px;color:#fff;}
+.td{font-size:12px;color:rgba(255,255,255,.6);font-weight:300;margin-bottom:12px;line-height:1.5;}
+.chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);border-radius:100px;padding:3px 9px;font-size:10px;color:rgba(255,255,255,.7);}
+.titem{background:var(--bg2);border:1px solid var(--border);border-radius:13px;padding:13px 15px;display:flex;align-items:center;gap:11px;cursor:pointer;transition:all .2s;margin-bottom:6px;opacity:.9;}
+.titem.done{background:rgba(0,212,106,.04);border-color:var(--gb2);cursor:default;opacity:1;}
+.tbadge{font-size:9px;font-weight:700;padding:3px 8px;border-radius:100px;background:var(--bg3);color:var(--muted);border:1px solid var(--border);flex-shrink:0;}
+.tbadge.done{background:var(--gs2);color:var(--green);border-color:var(--gb2);}
+.dica{background:rgba(212,175,55,.06);border:1px solid var(--gb);border-radius:13px;padding:13px 15px;margin-bottom:16px;display:flex;gap:10px;}
+.dlbl{font-size:7px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:4px;}
+.dtxt{font-size:11px;color:var(--slate);line-height:1.65;font-weight:300;}
+.bdone{background:linear-gradient(135deg,rgba(0,212,106,.12),rgba(0,212,106,.04));border:1px solid var(--gb2);border-radius:14px;padding:18px;text-align:center;margin-bottom:16px;}
+.rpe-g{display:flex;gap:5px;justify-content:center;margin-bottom:20px;}
+.rb{flex:1;padding:10px 3px;border-radius:11px;cursor:pointer;background:var(--bg3);border:2px solid var(--border);transition:all .2s;text-align:center;}
+.rb.sel{background:var(--gs);border-color:var(--gold);}
+.re{font-size:22px;margin-bottom:2px;}
+.rl{font-size:8px;font-weight:700;color:var(--muted);}
+.rb.sel .rl{color:var(--gold);}
+.exitem{background:var(--bg2);border:1px solid var(--border);border-radius:11px;padding:14px 15px;display:flex;align-items:flex-start;gap:11px;margin-bottom:8px;}
+.exn{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:19px;color:var(--gold);width:19px;flex-shrink:0;line-height:1;margin-top:2px;}
+.spn{width:18px;height:18px;border:2px solid var(--border2);border-top:2px solid var(--gold);border-radius:50%;animation:spin .8s linear infinite;display:inline-block;}
+.toast{position:fixed;top:64px;left:50%;transform:translateX(-50%);background:var(--bg3);border:1px solid var(--border);border-radius:100px;padding:10px 20px;font-size:13px;font-weight:600;z-index:999;white-space:nowrap;box-shadow:0 8px 28px rgba(0,0,0,.6);opacity:0;transition:opacity .3s;pointer-events:none;}
+.toast.show{opacity:1;}
+.sbox{background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:9px 6px;text-align:center;}
+.sn{font-family:'Barlow Condensed',sans-serif;font-size:21px;font-weight:900;color:var(--gold);}
+.sl2{font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:1px;}
+.hitem{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:8px;}
+.hrow{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;}
+.sbadge{font-size:9px;font-weight:700;padding:3px 9px;border-radius:100px;}
+.wrap{max-width:500px;margin:0 auto;padding:22px 16px 80px;}
+</style>
+</head>
+<body>
+
+<div id="toast" class="toast"></div>
+<div id="cfWrap" style="position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden;"></div>
+
+<!-- LOADING -->
+<div id="vLoad" class="view on">
+  <div class="center" style="align-items:center;">
+    <div class="spn" style="width:36px;height:36px;border-width:3px;"></div>
+  </div>
+</div>
+
+<!-- ONBOARDING -->
+<div id="vOb" class="view">
+  <div class="center">
+    <div class="inner">
+      <a href="/" class="logo" style="margin-bottom:32px;display:flex;">
+        <div class="logo-b">YTB</div>
+        Your<span>Talent</span>Base<span style="color:var(--muted);font-weight:400;font-size:11px;"> · Treino</span>
+      </a>
+      <div id="sdots" style="display:flex;gap:7px;margin-bottom:28px;"></div>
+
+      <!-- Passo 0 -->
+      <div id="s0">
+        <div style="font-size:42px;margin-bottom:12px;">👋</div>
+        <h1 style="font-family:'Barlow Condensed',sans-serif;font-size:40px;font-weight:900;line-height:1;margin-bottom:7px;">Olá!<br><span style="color:var(--gold);">Como se chama</span><br>o atleta?</h1>
+        <p style="font-size:13px;color:var(--slate);font-weight:300;line-height:1.6;margin-bottom:20px;">Os treinos vão ser adaptados ao escalão e acompanhados pelo teu treinador.</p>
+        <input class="inp" id="inNome" type="text" placeholder="Ex: João Silva" style="margin-bottom:12px;" autocomplete="off">
+        <button class="btn-g" id="bNome" disabled>Continuar →</button>
+      </div>
+
+      <!-- Passo 1 -->
+      <div id="s1" style="display:none;">
+        <button id="bV1" style="background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer;margin-bottom:16px;display:flex;align-items:center;gap:5px;">← Voltar</button>
+        <div style="font-size:36px;margin-bottom:10px;">⚽</div>
+        <h1 id="h1f" style="font-family:'Barlow Condensed',sans-serif;font-size:38px;font-weight:900;line-height:1;margin-bottom:7px;">Escalão?</h1>
+        <p style="font-size:12px;color:var(--slate);font-weight:300;margin-bottom:18px;line-height:1.6;">Os treinos adaptam-se à faixa etária e ao estágio de desenvolvimento.</p>
+        <div id="fList"></div>
+        <div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin:18px 0 10px;">Posição</div>
+        <div id="pList" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:4px;"></div>
+        <button class="btn-g" id="bFaixa" disabled style="margin-top:14px;">Continuar →</button>
+      </div>
+
+      <!-- Passo 2 -->
+      <div id="s2" style="display:none;">
+        <button id="bV2" style="background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer;margin-bottom:16px;display:flex;align-items:center;gap:5px;">← Voltar</button>
+        <div style="font-size:36px;margin-bottom:10px;">🚀</div>
+        <h1 style="font-family:'Barlow Condensed',sans-serif;font-size:38px;font-weight:900;line-height:1;margin-bottom:16px;">Tudo pronto,<br><span style="color:var(--gold);">vamos a isso!</span></h1>
+        <div class="card grad" id="sumCard" style="margin-bottom:18px;"></div>
+        <button class="btn-g" id="bComec">⚽ Começar Semana 1</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="vDash" class="view">
+  <nav class="nav">
+    <a href="/" class="logo"><div class="logo-b">YTB</div>Treino <span>Casa</span></a>
+    <button id="bPerfil" style="background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:5px 10px;color:var(--muted);font-size:11px;font-weight:600;">Perfil</button>
+  </nav>
+  <div class="wrap" id="dashWrap"></div>
+</div>
+
+<!-- PLAYER -->
+<div id="vPlay" class="view">
+  <nav class="nav">
+    <button id="bPlayBack" style="display:flex;align-items:center;gap:5px;background:none;border:1px solid var(--border);color:var(--slate);padding:4px 11px;border-radius:7px;font-size:11px;font-weight:600;">← Voltar</button>
+    <div style="display:flex;align-items:center;gap:7px;">
+      <div id="tDot" style="width:7px;height:7px;border-radius:50%;background:var(--dim);transition:background .3s;flex-shrink:0;"></div>
+      <span id="tNum" class="num" style="font-size:24px;font-weight:900;letter-spacing:1px;color:var(--muted);">00:00</span>
+    </div>
+    <button id="bTimer" style="background:var(--gs);border:1px solid var(--gb);color:var(--gold);padding:4px 11px;border-radius:7px;font-size:11px;font-weight:700;">▶ Iniciar</button>
+  </nav>
+  <div class="wrap" id="playWrap"></div>
+</div>
+
+<!-- RPE -->
+<div id="vRpe" class="view">
+  <div class="center">
+    <div class="inner" id="rpeWrap"></div>
+  </div>
+</div>
+
+<!-- PERFIL -->
+<div id="vPerf" class="view">
+  <nav class="nav">
+    <button id="bPerfBack" style="display:flex;align-items:center;gap:5px;background:none;border:1px solid var(--border);color:var(--slate);padding:4px 11px;border-radius:7px;font-size:11px;font-weight:600;">← Dashboard</button>
+  </nav>
+  <div class="wrap" id="perfWrap"></div>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+var FAIXAS=[
+  {id:'sub10',label:'Sub-10',idades:'8-9 anos', emoji:'⚽',foco:'Coordenação e amor pela bola'},
+  {id:'sub12',label:'Sub-12',idades:'10-11 anos',emoji:'🎯',foco:'Controlo de bola e 1v1'},
+  {id:'sub14',label:'Sub-14',idades:'12-13 anos',emoji:'🧠',foco:'Decisão e criatividade'},
+  {id:'sub16',label:'Sub-16',idades:'14-15 anos',emoji:'💪',foco:'Força e velocidade'},
+  {id:'sub19',label:'Sub-19',idades:'16+ anos',  emoji:'🏆',foco:'Performance e especialização'},
+];
+var RPE=[
+  {val:1,emoji:'😴',label:'Fácil'},
+  {val:2,emoji:'🙂',label:'Suave'},
+  {val:3,emoji:'😤',label:'Esforço'},
+  {val:4,emoji:'😰',label:'Difícil'},
+  {val:5,emoji:'🤯',label:'Máximo!'},
+];
+
+var POSICOES=[
+  {id:'gr', label:'Guarda-Redes', emoji:'🧤'},
+  {id:'def',label:'Defesa',       emoji:'🛡️'},
+  {id:'med',label:'Médio',        emoji:'⚙️'},
+  {id:'ava',label:'Avançado',     emoji:'⚡'},
+];
+
+var S={ob:0,nome:'',faixa:null,posicao:null,user:null,semana:null,hist:[],cidx:null,timer:0,ton:false,tref:null,rpe:null};
+
+function el(id){return document.getElementById(id);}
+function fmt(s){return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
+function fi(){return FAIXAS.find(function(f){return f.id===S.faixa;});}
+function pn(){return S.user?S.user.nome.split(' ')[0]:'';}
+
+function show(id){
+  document.querySelectorAll('.view').forEach(function(v){v.classList.remove('on');});
+  el(id).classList.add('on');
+  window.scrollTo(0,0);
+}
+
+function toast(msg){
+  var t=el('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},3500);
+}
+
+function confetti(){
+  var w=el('cfWrap');w.innerHTML='';
+  var c=['#D4AF37','#fff','#00D46A','#c084fc','#ff6b6b'];
+  for(var i=0;i<60;i++){
+    var d=document.createElement('div');
+    var sz=Math.random()*9+5;
+    d.style.cssText='position:absolute;top:0;width:'+sz+'px;height:'+sz+'px;left:'+(Math.random()*100)+'%;background:'+c[Math.floor(Math.random()*c.length)]+';border-radius:'+(Math.random()>.5?'50%':'2px')+';--r:'+(Math.random()*720)+'deg;animation:cf '+(Math.random()*1.5+2.5)+'s '+(Math.random()*1.5)+'s ease-in forwards;';
+    w.appendChild(d);
+  }
+  setTimeout(function(){w.innerHTML='';},5000);
+}
+
+function saveUser(u){localStorage.setItem('ytb-u',JSON.stringify(u));S.user=u;}
+function saveSem(n,s){localStorage.setItem('ytb-s'+n,JSON.stringify(s));S.semana=s;}
+function saveHist(h){localStorage.setItem('ytb-h',JSON.stringify(h));S.hist=h;}
+
+function startT(){
+  S.ton=true;
+  S.tref=setInterval(function(){S.timer++;el('tNum').textContent=fmt(S.timer);},1000);
+  el('tDot').style.cssText='width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 7px var(--green);transition:background .3s;flex-shrink:0;';
+  el('tNum').style.color='var(--white)';
+  el('bTimer').style.cssText='background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#ef4444;padding:4px 11px;border-radius:7px;font-size:11px;font-weight:700;';
+  el('bTimer').textContent='⏸ Pausa';
+}
+function stopT(){
+  S.ton=false;clearInterval(S.tref);
+  el('tDot').style.cssText='width:7px;height:7px;border-radius:50%;background:var(--dim);transition:background .3s;flex-shrink:0;';
+  el('tNum').style.color='var(--muted)';
+  el('bTimer').style.cssText='background:var(--gs);border:1px solid var(--gb);color:var(--gold);padding:4px 11px;border-radius:7px;font-size:11px;font-weight:700;';
+  el('bTimer').textContent='▶ Iniciar';
+}
+
+function fallback(nome,fid,sem){
+  var f=FAIXAS.find(function(x){return x.id===fid;});
+  return {semana:sem,foco:'Semana '+sem+' — '+f.foco,
+    dica_pai:'Encoraja o '+nome.split(' ')[0]+' a focar na qualidade. 15 minutos bem feitos valem mais do que 30 descuidados.',
+    treinos:[
+      {id:1,titulo:'Controlo de Bola',emoji:'⚽',duracao:15,desc:'Domínio com ambos os pés e coordenação',completo:false,tempoReal:0,rpe:null,score:'',
+        exercicios:[
+          {nome:'Toques alternados',instrucoes:'Alterna toques entre pé direito e esquerdo sem deixar cair.',duracao_min:5,metrica:'Toques seguidos sem cair',tags:['Técnico','Controlo']},
+          {nome:'Condução em 8',instrucoes:'2 objectos a 3m. Conduz em figura de 8 sem perder o controlo.',duracao_min:5,metrica:'Voltas em 2 minutos',tags:['Técnico','Agilidade']},
+          {nome:'Domínio + sprint',instrucoes:'Domina parado, ao sinal conduz 10m e para. Repete 8x.',duracao_min:5,metrica:'Perdas de controlo (menos = melhor)',tags:['Técnico','Coordenação']},
+        ]},
+      {id:2,titulo:'Passe e Precisão',emoji:'🎯',duracao:15,desc:'Precisão no passe contra a parede',completo:false,tempoReal:0,rpe:null,score:'',
+        exercicios:[
+          {nome:'Passe interior',instrucoes:'A 3m da parede, passa com interior do pé e repete.',duracao_min:5,metrica:'Passes certos em 1 minuto',tags:['Técnico','Passe']},
+          {nome:'Alvo marcado',instrucoes:'Marca 30x30cm na parede. Acerta de 4m com interior do pé.',duracao_min:5,metrica:'Acertos em 10 tentativas',tags:['Técnico','Precisão']},
+          {nome:'Passe e sprint',instrucoes:'Passa, corre 5m e volta. Sem parar durante 3 minutos.',duracao_min:5,metrica:'Repetições sem errar',tags:['Físico','Passe']},
+        ]},
+      {id:3,titulo:'Finalização',emoji:'🥅',duracao:15,desc:'Remate e posicionamento',completo:false,tempoReal:0,rpe:null,score:'',
+        exercicios:[
+          {nome:'Remate com engate',instrucoes:'Bola parada. Remata com engate para zona marcada.',duracao_min:5,metrica:'Certeiros em 10 remates',tags:['Técnico','Remate']},
+          {nome:'Condução + remate',instrucoes:'Conduz 5m e remata alternando pé direito e esquerdo.',duracao_min:5,metrica:'Nota ao remate: 1-5',tags:['Técnico','Remate']},
+          {nome:'Pressão cronometrada',instrucoes:'10 remates seguidos o mais rápido possível. Bate o teu recorde!',duracao_min:5,metrica:'Recorde de acertos seguidos',tags:['Mental','Intensidade']},
+        ]},
+    ]};
+}
+
+async function gerarTreino(nome,fid,sem){
+  var f=FAIXAS.find(function(x){return x.id===fid;});
+  var pos=POSICOES.find(function(x){return x.id===S.user.posicao;})||{label:'Médio'};
+  var prompt='Cria plano treino semanal futebol jovem casa. Apenas JSON sem markdown.\nAtleta:'+nome+'|Escalão:'+f.label+'('+f.idades+')|Posição:'+pos.label+'|Foco:'+f.foco+'|Semana:'+sem+'\nGera 3 treinos 3 exercícios cada ~15min, adaptados especificamente à posição '+pos.label+'.\n{"semana":'+sem+',"foco":"foco semana adaptado à posição","dica_pai":"nota do treinador 1-2 frases","treinos":[{"id":1,"titulo":"título","emoji":"emoji","duracao":15,"desc":"desc","exercicios":[{"nome":"nome","instrucoes":"instrução","duracao_min":5,"metrica":"métrica","tags":["tag"]}]}]}';
+  try{
+    var res=await fetch('/api/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt,max_tokens:1400})});
+    var d=await res.json();
+    var raw=(d.content&&d.content[0]&&d.content[0].text)||d.text||'';
+    var p=JSON.parse(raw.replace(/```json|```/g,'').trim());
+    return {semana:p.semana,foco:p.foco,dica_pai:p.dica_pai,
+      treinos:p.treinos.map(function(t){return Object.assign({},t,{completo:false,tempoReal:0,rpe:null,score:''});})
+    };
+  }catch(e){return fallback(nome,fid,sem);}
+}
+
+/* ── ONBOARDING ─────────────────────── */
+function dots(a){
+  var h='';
+  [0,1,2].forEach(function(i){
+    h+='<div class="dot'+(i<a?' done':i===a?' cur':'')+'" style="width:'+(i===a?22:7)+'px;"></div>';
+  });
+  el('sdots').innerHTML=h;
+}
+
+function renderFaixas(){
+  var h='';
+  FAIXAS.forEach(function(f){
+    h+='<div class="fcard'+(S.faixa===f.id?' sel':'')+'" data-fid="'+f.id+'">';
+    h+='<span style="font-size:20px;">'+f.emoji+'</span>';
+    h+='<div><div class="fn">'+f.label+' · '+f.idades+'</div>';
+    h+='<div class="fs">'+f.foco+'</div></div>';
+    if(S.faixa===f.id) h+='<span style="color:var(--gold);font-weight:900;margin-left:auto;">✓</span>';
+    h+='</div>';
+  });
+  el('fList').innerHTML=h;
+}
+
+function renderPosicoes(){
+  var h='';
+  POSICOES.forEach(function(p){
+    var sel=S.posicao===p.id;
+    h+='<div class="fcard'+(sel?' sel':'')+'" data-pid="'+p.id+'" style="justify-content:center;gap:8px;padding:11px 10px;">';
+    h+='<span style="font-size:18px;">'+p.emoji+'</span>';
+    h+='<span class="fn" style="font-size:12px;">'+(sel?'<span style="color:var(--gold);">'+p.label+'</span>':p.label)+'</span>';
+    if(sel) h+='<span style="color:var(--gold);font-weight:900;font-size:12px;margin-left:auto;">✓</span>';
+    h+='</div>';
+  });
+  el('pList').innerHTML=h;
+}
+
+function goStep(n){
+  S.ob=n; dots(n);
+  el('s0').style.display=n===0?'block':'none';
+  el('s1').style.display=n===1?'block':'none';
+  el('s2').style.display=n===2?'block':'none';
+  if(n===1){
+    el('h1f').innerHTML='Escalão do <span style="color:var(--gold);">'+S.nome.split(' ')[0]+'</span>?';
+    renderFaixas();
+    renderPosicoes();
+  }
+  if(n===2){
+    var f=FAIXAS.find(function(x){return x.id===S.faixa;});
+    var pos=POSICOES.find(function(x){return x.id===S.posicao;});
+    el('sumCard').innerHTML=
+      '<div class="sr"><span class="sl">Atleta</span><span class="sv">'+S.nome+'</span></div>'+
+      '<div class="sr"><span class="sl">Escalão</span><span class="sv" style="color:var(--gold);">'+f.label+'</span></div>'+
+      '<div class="sr"><span class="sl">Posição</span><span class="sv" style="color:var(--gold);">'+(pos?pos.emoji+' '+pos.label:'—')+'</span></div>'+
+      '<div class="sr"><span class="sl">Foco</span><span class="sv">'+f.foco+'</span></div>'+
+      '<div class="sr"><span class="sl">Treinos/semana</span><span class="sv" style="color:var(--green);">3 sessões · ~15 min cada</span></div>';
+  }
+}
+
+function checkStep1(){
+  el('bFaixa').disabled=!(S.faixa&&S.posicao);
+}
+
+async function finalizarOb(){
+  var b=el('bComec'); b.disabled=true;
+  b.innerHTML='<div class="spn"></div> A preparar o teu plano...';
+  var u={nome:S.nome,faixa:S.faixa,posicao:S.posicao,sem:1};
+  saveUser(u);
+  var s=await gerarTreino(S.nome,S.faixa,1);
+  saveSem(1,s);
+  b.disabled=false; b.innerHTML='⚽ Começar Semana 1';
+  renderDash(); show('vDash');
+}
+
+/* ── DASHBOARD ──────────────────────── */
+function renderDash(){
+  var u=S.user,sem=S.semana;
+  if(!u||!sem) return;
+  var fc=sem.treinos.filter(function(t){return t.completo;}).length;
+  var all=fc===3,pct=Math.round(fc/3*100);
+  var ni=sem.treinos.findIndex(function(t){return !t.completo;});
+  var nt=ni>=0?sem.treinos[ni]:null;
+  var gr=all?'🏆 Semana completa, '+pn()+'!':fc===2?'Quase lá, '+pn()+'!':fc===1?'Bom começo, '+pn()+'!':'Olá, '+pn()+'.';
+  var finfo=FAIXAS.find(function(x){return x.id===u.faixa;});
+  var h='';
+
+  h+='<div style="margin-bottom:20px;animation:up .5s both;">';
+  h+='<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">';
+  h+='<div><h1 class="h1">'+gr+'</h1><p style="font-size:11px;color:var(--muted);font-weight:300;">Semana '+u.sem+' · '+sem.foco+'</p></div>';
+  h+='<div class="card" style="padding:7px 12px;text-align:right;flex-shrink:0;"><div class="ey" style="margin-bottom:2px;">Semana</div>';
+  h+='<div class="num" style="font-size:22px;font-weight:900;color:var(--gold);line-height:1.1;">'+String(u.sem).padStart(2,'0')+'</div></div></div>';
+  h+='<div style="margin-top:9px;display:flex;gap:6px;flex-wrap:wrap;">';
+  h+='<span class="bg-gold">'+finfo.emoji+' '+finfo.label+'</span>';
+  if(u.posicao){var pi=POSICOES.find(function(x){return x.id===u.posicao;});if(pi)h+='<span class="bg-gold">'+pi.emoji+' '+pi.label+'</span>';}
+  h+='</div></div>';
+
+  h+='<div class="card grad" style="margin-bottom:16px;animation:up .5s .07s both;">';
+  h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;"><span class="ey">Progresso da semana</span>';
+  h+='<span class="num" style="font-size:24px;font-weight:900;color:var(--gold);">'+pct+'%</span></div>';
+  h+='<div class="pbar" style="margin-bottom:8px;"><div class="pfill" style="width:'+pct+'%;"></div></div>';
+  h+='<div style="display:flex;gap:12px;"><span style="font-size:11px;color:var(--slate);"><span style="color:var(--green);">●</span> '+fc+' concluídos</span>';
+  h+='<span style="font-size:11px;color:var(--slate);"><span style="color:var(--dim);">●</span> '+(3-fc)+' por fazer</span></div></div>';
+
+  if(all){
+    h+='<div class="bdone" style="animation:up .4s both;">';
+    h+='<div style="font-size:34px;margin-bottom:7px;">🏆</div>';
+    h+='<h2 class="num" style="font-size:24px;font-weight:900;color:var(--green);margin-bottom:4px;">Semana '+u.sem+' completa!</h2>';
+    h+='<p style="font-size:12px;color:var(--slate);font-weight:300;margin-bottom:14px;line-height:1.6;">O '+pn()+' completou todos os treinos!</p>';
+    h+='<button id="bAv" style="background:var(--green);color:#000;border:none;padding:10px 22px;border-radius:9px;font-size:13px;font-weight:800;cursor:pointer;">Avançar para Semana '+(u.sem+1)+' →</button>';
+    h+='</div>';
+  }
+
+  if(sem.dica_pai){
+    h+='<div class="dica" style="animation:up .5s .11s both;"><span style="font-size:17px;flex-shrink:0;">💡</span>';
+    h+='<div><div class="dlbl">Nota do Mister</div><p class="dtxt">'+sem.dica_pai+'</p></div></div>';
+  }
+
+  if(nt&&!all){
+    h+='<div style="margin-bottom:10px;animation:up .5s .14s both;">';
+    h+='<div class="ey" style="margin-bottom:8px;">A seguir</div>';
+    h+='<div class="thero" data-act="open" data-idx="'+ni+'">';
+    h+='<div class="tglow"></div>';
+    h+='<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">';
+    h+='<span class="tchip">Em destaque</span><span style="font-size:30px;">'+nt.emoji+'</span></div>';
+    h+='<div class="ttt">'+nt.titulo+'</div>';
+    h+='<p class="td">'+nt.desc+'</p>';
+    h+='<div style="display:flex;gap:6px;margin-bottom:12px;"><span class="chip">⏱ '+nt.duracao+' min</span><span class="chip">📋 '+nt.exercicios.length+' ex.</span></div>';
+    h+='<button style="width:100%;background:var(--gold);color:#000;border:none;padding:11px;border-radius:9px;font-size:13px;font-weight:800;cursor:pointer;">▶ Iniciar treino</button>';
+    h+='</div></div>';
+  }
+
+  h+='<div style="animation:up .5s .19s both;">';
+  h+='<div class="ey" style="margin-bottom:8px;margin-top:14px;">Esta semana</div>';
+  sem.treinos.forEach(function(t,i){
+    if(i===ni&&!t.completo) return;
+    var done=t.completo;
+    h+='<div class="titem'+(done?' done':'')+'"'+(done?'':' data-act="open" data-idx="'+i+'"')+'>';
+    h+='<span style="font-size:21px;flex-shrink:0;">'+t.emoji+'</span>';
+    h+='<div style="flex:1;"><div style="font-size:12px;font-weight:700;color:'+(done?'var(--green)':'var(--white)')+';">'+t.titulo+'</div>';
+    h+='<div style="font-size:10px;color:var(--muted);font-weight:300;margin-top:2px;">'+(done?'✓ '+Math.round(t.tempoReal/60)+' min · RPE '+t.rpe+'/5':t.desc)+'</div></div>';
+    h+='<span class="tbadge'+(done?' done':'')+'">'+(done?'Feito ✓':t.duracao+'m')+'</span></div>';
+  });
+  h+='</div>';
+
+  el('dashWrap').innerHTML=h;
+
+  var bAv=el('bAv');
+  if(bAv) bAv.addEventListener('click',async function(){
+    bAv.disabled=true; bAv.textContent='A preparar...';
+    var entry={sem:S.user.sem,treinos:S.semana.treinos,foco:S.semana.foco};
+    saveHist(S.hist.concat([entry]));
+    var n=S.user.sem+1;
+    saveUser(Object.assign({},S.user,{sem:n}));
+    saveSem(n,await gerarTreino(S.user.nome,S.user.faixa,n));
+    renderDash();
+  });
+}
+
+/* ── PLAYER ─────────────────────────── */
+function renderPlayer(idx){
+  var tr=S.semana.treinos[idx];
+  var h='';
+  h+='<div class="card grad" style="margin-bottom:14px;">';
+  h+='<div style="display:flex;align-items:flex-start;gap:11px;margin-bottom:11px;">';
+  h+='<span style="font-size:32px;flex-shrink:0;">'+tr.emoji+'</span>';
+  h+='<div><h2 class="num" style="font-size:26px;font-weight:900;line-height:1;margin-bottom:2px;">'+tr.titulo+'</h2>';
+  h+='<p style="font-size:11px;color:var(--muted);font-weight:300;">'+tr.desc+'</p></div></div>';
+  h+='<div style="display:flex;gap:6px;">';
+  h+='<span style="background:var(--bg3);border:1px solid var(--border);border-radius:100px;padding:3px 9px;font-size:9px;color:var(--muted);">⏱ ~'+tr.duracao+' min</span>';
+  h+='<span style="background:var(--bg3);border:1px solid var(--border);border-radius:100px;padding:3px 9px;font-size:9px;color:var(--muted);">📋 '+tr.exercicios.length+' exercícios</span>';
+  h+='</div></div>';
+  if(S.semana.dica_pai){
+    h+='<div class="dica"><span style="font-size:16px;flex-shrink:0;">💡</span>';
+    h+='<div><div class="dlbl">Nota do Mister</div><p class="dtxt">'+S.semana.dica_pai+'</p></div></div>';
+  }
+  h+='<div class="ey" style="margin-bottom:8px;">Exercícios</div>';
+  tr.exercicios.forEach(function(ex,i){
+    h+='<div class="exitem"><div class="exn">'+(i+1)+'</div>';
+    h+='<div style="flex:1;"><div style="font-size:13px;font-weight:700;margin-bottom:4px;">'+ex.nome+'</div>';
+    h+='<div style="font-size:11px;color:var(--slate);line-height:1.6;font-weight:300;margin-bottom:8px;">'+ex.instrucoes+'</div>';
+    h+='<div style="display:flex;gap:5px;flex-wrap:wrap;">';
+    h+='<span style="font-size:9px;font-weight:600;padding:2px 8px;border-radius:100px;background:var(--gs);color:var(--gold);border:1px solid var(--gb);">📊 '+ex.metrica+'</span>';
+    ex.tags.forEach(function(tag){
+      h+='<span style="font-size:9px;font-weight:600;padding:2px 8px;border-radius:100px;background:rgba(40,53,147,.2);color:#8899FF;border:1px solid rgba(40,53,147,.35);">'+tag+'</span>';
+    });
+    h+='</div></div></div>';
+  });
+  h+='<button id="bConc" style="width:100%;padding:14px;border-radius:12px;background:var(--gold);color:#000;border:none;font-size:14px;font-weight:800;cursor:pointer;margin-top:8px;box-shadow:0 8px 26px rgba(212,175,55,.18);">✅ Concluir treino</button>';
+  el('playWrap').innerHTML=h;
+  el('bConc').addEventListener('click',function(){ stopT(); renderRpe(idx); show('vRpe'); });
+}
+
+/* ── RPE ────────────────────────────── */
+function renderRpe(idx){
+  S.cidx=idx; S.rpe=null;
+  var tr=S.semana.treinos[idx],ex1=tr.exercicios[0];
+  var h='';
+  h+='<div class="card grad" style="margin-bottom:22px;text-align:center;">';
+  h+='<div class="ey" style="margin-bottom:4px;">Tempo registado</div>';
+  h+='<div class="num" style="font-size:44px;font-weight:900;color:var(--gold);line-height:1;">'+fmt(S.timer)+'</div>';
+  h+='<div style="font-size:11px;color:var(--muted);margin-top:3px;font-weight:300;">de ~'+tr.duracao+' min previstos</div></div>';
+  h+='<h2 class="num" style="font-size:32px;font-weight:900;line-height:1;margin-bottom:4px;text-align:center;">Como foi,<br><span style="color:var(--gold);">'+pn()+'?</span></h2>';
+  h+='<p style="font-size:12px;color:var(--muted);font-weight:300;margin-bottom:20px;text-align:center;">Escolhe o emoji que representa o esforço.</p>';
+  h+='<div class="rpe-g">';
+  RPE.forEach(function(r){
+    h+='<div class="rb" data-rv="'+r.val+'"><div class="re">'+r.emoji+'</div><div class="rl">'+r.label+'</div></div>';
+  });
+  h+='</div>';
+  if(ex1&&ex1.metrica){
+    h+='<div style="margin-bottom:18px;">';
+    h+='<div class="ey" style="margin-bottom:5px;">Resultado — '+ex1.nome+'</div>';
+    h+='<div style="font-size:11px;color:var(--slate);margin-bottom:6px;font-weight:300;">'+ex1.metrica+'</div>';
+    h+='<input class="inp" id="inScore" placeholder="Ex: 42 toques, 8/10..." style="font-size:12px;"></div>';
+  }
+  h+='<button class="btn-g" id="bGuard" disabled>Selecciona o esforço primeiro</button>';
+  el('rpeWrap').innerHTML=h;
+
+  el('rpeWrap').querySelectorAll('.rb').forEach(function(b){
+    b.addEventListener('click',function(){
+      S.rpe=parseInt(b.dataset.rv);
+      el('rpeWrap').querySelectorAll('.rb').forEach(function(x){x.classList.remove('sel');});
+      b.classList.add('sel');
+      var bg=el('bGuard');
+      bg.disabled=false; bg.textContent='✓ Guardar e terminar';
+      bg.style.background='var(--green)'; bg.style.color='#000';
+    });
+  });
+  el('bGuard').addEventListener('click',function(){
+    if(!S.rpe) return;
+    var sc=el('inScore')?el('inScore').value:'';
+    concluir(S.cidx,sc);
+  });
+}
+
+function concluir(idx,score){
+  var nt=S.semana.treinos.map(function(t,i){
+    return i===idx?Object.assign({},t,{completo:true,tempoReal:S.timer,rpe:S.rpe,score:score}):t;
+  });
+  saveSem(S.user.sem,Object.assign({},S.semana,{treinos:nt}));
+  var all=nt.every(function(t){return t.completo;});
+  if(all){confetti();toast('🏆 Semana '+S.user.sem+' completa, '+pn()+'!');}
+  else toast('✅ '+Math.round(S.timer/60)+' min guardados!');
+  S.timer=0; el('tNum').textContent='00:00';
+  renderDash(); show('vDash');
+}
+
+/* ── PERFIL ─────────────────────────── */
+function renderPerfil(){
+  var u=S.user,sem=S.semana;
+  var fi2=FAIXAS.find(function(x){return x.id===u.faixa;});
+  var fc=sem?sem.treinos.filter(function(t){return t.completo;}).length:0;
+  var mins=sem?sem.treinos.filter(function(t){return t.completo;}).reduce(function(a,t){return a+Math.round(t.tempoReal/60);},0):0;
+  var todas=S.hist.concat([{sem:u.sem,treinos:sem?sem.treinos:[],foco:sem?sem.foco:''}]).reverse();
+  var h='';
+
+  h+='<div class="card grad" style="margin-bottom:16px;">';
+  h+='<div style="display:flex;align-items:center;gap:13px;margin-bottom:14px;">';
+  h+='<div style="width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--bm),var(--blue));display:flex;align-items:center;justify-content:center;font-family:\'Barlow Condensed\',sans-serif;font-weight:900;font-size:22px;border:2px solid var(--border);">'+u.nome.charAt(0).toUpperCase()+'</div>';
+  h+='<div><h2 class="num" style="font-size:24px;font-weight:900;line-height:1;margin-bottom:5px;">'+u.nome+'</h2>';
+  h+='<span class="bg-gold">'+fi2.emoji+' '+fi2.label+'</span>';
+  if(u.posicao){var pi2=POSICOES.find(function(x){return x.id===u.posicao;});if(pi2)h+='<span class="bg-gold" style="margin-left:4px;">'+pi2.emoji+' '+pi2.label+'</span>';}
+  h+='</div></div>';
+  h+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px;">';
+  [{n:u.sem,l:'Semana'},{n:fc+'/3',l:'Esta sem.'},{n:mins,l:'Min'}].forEach(function(s){
+    h+='<div class="sbox"><div class="sn">'+s.n+'</div><div class="sl2">'+s.l+'</div></div>';
+  });
+  h+='</div></div>';
+
+  h+='<div class="ey" style="margin-bottom:8px;">Histórico</div>';
+  todas.forEach(function(entry){
+    var done=entry.treinos.filter(function(t){return t.completo;}).length;
+    var isA=entry.sem===u.sem;
+    var bs,bl;
+    if(done===3){bs='background:var(--gs2);color:var(--green);border:1px solid var(--gb2);';bl='Completa ✓';}
+    else if(done===0){bs='background:var(--bg3);color:var(--muted);border:1px solid var(--border);';bl='Não iniciada';}
+    else{bs='background:var(--gs);color:var(--gold);border:1px solid var(--gb);';bl=Math.round(done/3*100)+'% feito';}
+    h+='<div class="hitem" style="border-color:'+(isA?'var(--gb)':'var(--border)')+';">';
+    h+='<div class="hrow"><div>';
+    h+='<div style="font-size:12px;font-weight:700;color:'+(isA?'var(--gold)':'var(--white)')+';">Semana '+entry.sem+(isA?' (actual)':'')+'</div>';
+    h+='<div style="font-size:10px;color:var(--muted);font-weight:300;margin-top:1px;">'+entry.foco+'</div></div>';
+    h+='<span class="sbadge" style="'+bs+'">'+bl+'</span></div>';
+    if(isA&&entry.treinos.length){
+      h+='<div style="padding:10px 14px;border-top:1px solid var(--border);">';
+      entry.treinos.forEach(function(t){
+        h+='<div style="display:flex;align-items:center;gap:9px;margin-bottom:6px;">';
+        h+='<span style="font-size:18px;">'+t.emoji+'</span>';
+        h+='<div style="flex:1;"><div style="font-size:11px;font-weight:600;color:'+(t.completo?'var(--green)':'var(--white)')+';">'+t.titulo+'</div>';
+        if(t.completo) h+='<div style="font-size:9px;color:var(--muted);">'+Math.round(t.tempoReal/60)+' min · RPE '+t.rpe+'/5'+(t.score?' · '+t.score:'')+'</div>';
+        h+='</div><span style="font-size:8px;font-weight:700;padding:2px 7px;border-radius:100px;background:'+(t.completo?'var(--gs2)':'var(--bg3)')+';color:'+(t.completo?'var(--green)':'var(--muted)')+';border:1px solid '+(t.completo?'var(--gb2)':'var(--border)')+';">'+(t.completo?'✓':'–')+'</span></div>';
+      });
+      h+='</div>';
+    }
+    h+='</div>';
+  });
+
+  h+='<button id="bReset" style="width:100%;background:none;border:1px solid rgba(239,68,68,.25);color:#ef4444;padding:10px;border-radius:9px;font-size:11px;font-weight:600;cursor:pointer;margin-top:4px;">🗑 Apagar dados e recomeçar</button>';
+  el('perfWrap').innerHTML=h;
+  el('bReset').addEventListener('click',function(){
+    if(confirm('Apagar todo o progresso e recomeçar?')){localStorage.clear();location.reload();}
+  });
+}
+
+/* ── EVENTOS GLOBAIS ────────────────── */
+document.addEventListener('click',function(e){
+  var t=e.target;
+  var card=t.closest('[data-act="open"]');
+  if(card){
+    var idx=parseInt(card.dataset.idx);
+    S.cidx=idx; S.timer=0; stopT(); el('tNum').textContent='00:00';
+    renderPlayer(idx); show('vPlay'); return;
+  }
+  if(t.id==='bPerfil'){renderPerfil();show('vPerf');return;}
+  if(t.id==='bPerfBack'){show('vDash');return;}
+  if(t.id==='bPlayBack'){stopT();show('vDash');return;}
+  if(t.id==='bTimer'){S.ton?stopT():startT();return;}
+  var fc=t.closest('.fcard');
+  if(fc&&fc.dataset.fid){S.faixa=fc.dataset.fid;renderFaixas();checkStep1();return;}
+  if(fc&&fc.dataset.pid){S.posicao=fc.dataset.pid;renderPosicoes();checkStep1();return;}
+  if(t.id==='bNome'){goStep(1);return;}
+  if(t.id==='bFaixa'&&S.faixa){goStep(2);return;}
+  if(t.id==='bV1'){goStep(0);return;}
+  if(t.id==='bV2'){goStep(1);return;}
+  if(t.id==='bComec'){finalizarOb();return;}
+});
+
+el('inNome').addEventListener('input',function(){
+  S.nome=this.value.trim();
+  el('bNome').disabled=!S.nome;
+});
+el('inNome').addEventListener('keydown',function(e){
+  if(e.key==='Enter'&&S.nome) goStep(1);
+});
+
+/* ── INIT ───────────────────────────── */
+window.addEventListener('DOMContentLoaded',function(){
+  try{
+    var u=JSON.parse(localStorage.getItem('ytb-u'));
+    if(u){
+      S.user=u;
+      var s=JSON.parse(localStorage.getItem('ytb-s'+u.sem));
+      if(s) S.semana=s;
+      S.hist=JSON.parse(localStorage.getItem('ytb-h')||'[]');
+      renderDash(); show('vDash');
+    } else { goStep(0); show('vOb'); }
+  } catch(e){ goStep(0); show('vOb'); }
+});
+
+})();
+</script>
+</body>
+</html>
