@@ -3,1709 +3,505 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>YourTalentBase — Onde o talento é visto</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<style>
-*{margin:0;padding:0;box-sizing:border-box;}
-:root{
-  --gold:#D4AF37;--bg:#0B0B0B;--bg2:#0D0D0D;--bg3:#111318;
-  --border:#1E2128;--border2:#272B35;
-  --slate:#8892A4;--muted:#52576A;
-}
-html,body{background:var(--bg);color:#fff;font-family:'Inter',sans-serif;overflow-x:hidden;}
-a{color:inherit;text-decoration:none;}
-button{cursor:pointer;font-family:'Inter',sans-serif;}
-
-/* NAV */
-.nav{position:fixed;top:0;left:0;right:0;z-index:100;height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:rgba(11,11,11,.97);border-bottom:1px solid var(--border);}
-.logo{display:flex;align-items:center;gap:10px;font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:800;letter-spacing:2px;text-transform:uppercase;}
-.logo-badge{width:28px;height:28px;background:var(--gold);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#000;}
-.logo span{color:var(--gold);}
-.nav-links{display:none;}
-.btn-gold{background:var(--gold);color:#000;border:none;padding:8px 16px;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
-.btn-ghost{background:none;color:#fff;border:1px solid var(--border2);padding:8px 16px;border-radius:4px;font-size:12px;}
-.menu-btn{display:flex;flex-direction:column;gap:5px;padding:6px;background:none;border:none;}
-.menu-btn span{width:20px;height:2px;background:#fff;border-radius:1px;}
-
-/* MENU MOBILE */
-.menu-mob{display:none;position:fixed;inset:0;z-index:200;background:#0B0B0B;flex-direction:column;align-items:center;justify-content:center;gap:24px;}
-.menu-mob.open{display:flex;}
-.menu-mob a,.menu-mob button{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:800;text-transform:uppercase;letter-spacing:2px;background:none;border:none;color:#fff;}
-.menu-mob-close{position:absolute;top:16px;right:20px;background:none;border:none;color:#fff;font-size:28px;}
-
-/* HERO */
-.hero{padding:90px 20px 56px;text-align:center;}
-.eyebrow{font-size:10px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:12px;}
-.hero-title{font-family:'Barlow Condensed',sans-serif;font-size:clamp(44px,13vw,80px);font-weight:900;line-height:.9;text-transform:uppercase;margin-bottom:16px;}
-.hero-title em{font-style:normal;color:var(--gold);}
-.hero-sub{font-size:14px;color:var(--slate);line-height:1.75;max-width:420px;margin:0 auto 28px;}
-.hero-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
-.hero-stats{display:flex;gap:20px;justify-content:center;margin-top:36px;flex-wrap:wrap;}
-.hstat{text-align:center;}
-.hstat-num{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:900;color:var(--gold);}
-.hstat-lbl{font-size:9px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-top:2px;}
-
-/* SECÇÃO */
-.sec{padding:48px 20px;}
-.sec-dark{background:var(--bg2);}
-.sec-title{font-family:'Barlow Condensed',sans-serif;font-size:clamp(26px,7vw,40px);font-weight:900;text-transform:uppercase;letter-spacing:-.5px;margin-bottom:20px;}
-.divider{height:1px;background:var(--border);}
-
-/* CARROSSEL */
-.scroll-wrap{position:relative;}
-.fade-l{position:absolute;left:0;top:0;bottom:0;width:28px;background:linear-gradient(to right,var(--bg2),transparent);z-index:2;pointer-events:none;}
-.fade-r{position:absolute;right:0;top:0;bottom:0;width:28px;background:linear-gradient(to left,var(--bg2),transparent);z-index:2;pointer-events:none;}
-.scroll-row{display:flex;gap:12px;overflow-x:auto;padding:4px 0 12px;scrollbar-width:none;cursor:grab;}
-.scroll-row::-webkit-scrollbar{display:none;}
-.fade-r-bg{background:linear-gradient(to left,var(--bg),transparent)!important;}
-.fade-l-bg{background:linear-gradient(to right,var(--bg),transparent)!important;}
-
-/* CARDS ATLETA */
-.a-card{flex-shrink:0;width:220px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;overflow:hidden;cursor:pointer;transition:border-color .2s;}
-.a-card:hover{border-color:rgba(212,175,55,.3);}
-.a-foto{height:190px;background:center/cover no-repeat #1a1a2e;position:relative;}
-.a-badge{position:absolute;top:8px;left:8px;display:flex;align-items:center;gap:4px;background:rgba(212,175,55,.12);border:1px solid rgba(212,175,55,.35);border-radius:20px;padding:3px 8px;font-size:9px;font-weight:600;color:var(--gold);}
-.a-dot{width:4px;height:4px;border-radius:50%;background:var(--gold);}
-.a-clube{position:absolute;top:8px;right:8px;background:rgba(6,7,9,.75);border:1px solid var(--border);border-radius:3px;font-size:8px;font-weight:600;letter-spacing:1px;color:var(--slate);padding:2px 6px;}
-.a-nivel{position:absolute;bottom:8px;right:8px;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;}
-.a-info{padding:12px;}
-.a-escalao{font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:2px;}
-.a-nome{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;margin-bottom:2px;}
-.a-meta{font-size:10px;color:var(--muted);margin-bottom:8px;}
-.a-stats{display:flex;border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-bottom:8px;}
-.a-stat{flex:1;text-align:center;padding:6px 3px;border-right:1px solid var(--border);}
-.a-stat:last-child{border-right:none;}
-.a-stat-n{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:900;}
-.a-stat-l{font-size:7px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:1px;}
-.a-tags{display:flex;flex-wrap:wrap;gap:3px;}
-.a-tag{font-size:8px;padding:2px 6px;border-radius:2px;background:var(--bg);border:1px solid var(--border);color:var(--slate);}
-
-/* STEPS */
-.steps{display:flex;flex-direction:column;gap:14px;}
-.step{display:flex;gap:14px;align-items:flex-start;}
-.step-n{width:30px;height:30px;border-radius:50%;background:rgba(212,175,55,.1);border:1px solid rgba(212,175,55,.3);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:900;color:var(--gold);flex-shrink:0;}
-.step-t{font-size:13px;font-weight:700;margin-bottom:3px;}
-.step-d{font-size:12px;color:var(--slate);line-height:1.6;}
-
-/* PLANOS */
-.planos{display:flex;flex-direction:column;gap:10px;}
-.plano{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:18px 20px;}
-.plano.dest{border-color:rgba(212,175,55,.4);background:rgba(212,175,55,.04);}
-.plano-n{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
-.plano-p{font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:900;color:var(--gold);}
-.plano-per{font-size:11px;color:var(--muted);}
-.plano-d{font-size:12px;color:var(--slate);margin-top:6px;line-height:1.6;}
-.plano-btn{width:100%;margin-top:12px;padding:10px;border-radius:4px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
-
-/* CTA */
-.cta{background:linear-gradient(135deg,rgba(212,175,55,.08),rgba(212,175,55,.02));border:1px solid rgba(212,175,55,.2);border-radius:8px;padding:36px 20px;text-align:center;margin:0 20px 48px;}
-.cta-title{font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:900;text-transform:uppercase;margin-bottom:8px;}
-.cta-sub{font-size:13px;color:var(--slate);margin-bottom:20px;line-height:1.65;}
-.cta-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
-.btn-wa{background:#25D366;color:#000;border:none;padding:10px 20px;border-radius:4px;font-size:12px;font-weight:700;}
-
-/* FORM */
-.form-sec{background:var(--bg2);border-top:1px solid var(--border);padding:40px 20px;}
-.form-grid{display:flex;flex-direction:column;gap:10px;max-width:480px;margin:0 auto;}
-.fg label{display:block;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
-.fg input,.fg select,.fg textarea{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:4px;padding:10px 13px;font-family:'Inter',sans-serif;font-size:13px;color:#fff;outline:none;}
-.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:rgba(212,175,55,.4);}
-.fg select option{background:#111;}
-.f-check{display:flex;align-items:flex-start;gap:8px;font-size:11px;color:var(--muted);line-height:1.5;}
-.f-check input{flex-shrink:0;margin-top:2px;accent-color:var(--gold);}
-.f-err{color:#ef4444;font-size:12px;text-align:center;display:none;}
-.btn-sub{width:100%;background:var(--gold);color:#000;border:none;padding:13px;border-radius:4px;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;}
-
-/* FOOTER */
-footer{padding:20px;border-top:1px solid var(--border);text-align:center;}
-.f-logo{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;letter-spacing:2px;margin-bottom:8px;}
-.f-logo span{color:var(--gold);}
-.f-links{display:flex;gap:16px;justify-content:center;font-size:11px;color:var(--muted);margin-bottom:8px;flex-wrap:wrap;}
-.f-copy{font-size:10px;color:var(--border2);}
-
-/* OVERLAY */
-.overlay{display:none;position:fixed;inset:0;z-index:300;background:rgba(6,7,9,.97);backdrop-filter:blur(16px);align-items:center;justify-content:center;padding:20px;}
-.overlay.open{display:flex;}
-.modal{background:var(--bg3);border:1px solid var(--border);border-top:3px solid var(--gold);border-radius:10px;width:100%;max-width:420px;max-height:88vh;overflow-y:auto;position:relative;}
-.modal-body{padding:24px;}
-.modal-close{position:absolute;top:10px;right:10px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:50%;width:28px;height:28px;color:var(--muted);font-size:16px;display:flex;align-items:center;justify-content:center;}
-.m-ey{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:4px;}
-.m-title{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;margin-bottom:18px;}
-.m-input{width:100%;background:#0d0f14;border:1px solid var(--border2);border-radius:4px;padding:11px 13px;font-family:'Inter',sans-serif;font-size:13px;color:#fff;outline:none;margin-bottom:8px;}
-.m-input:focus{border-color:rgba(212,175,55,.4);}
-.m-btn{width:100%;padding:12px;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;border:none;}
-.m-err{color:#ef4444;font-size:11px;text-align:center;display:none;margin-bottom:8px;}
-.m-hint{font-size:11px;color:var(--muted);text-align:center;margin-top:8px;}
-
-/* ÁREA RESERVADA */
-.area-full{display:none;position:fixed;inset:0;z-index:250;background:var(--bg);overflow-y:auto;}
-.area-full.open{display:block;}
-.area-nav{position:sticky;top:0;z-index:10;height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:rgba(8,9,12,.97);border-bottom:1px solid var(--border);}
-.area-body{max-width:860px;margin:0 auto;padding:28px 20px;}
-.a-tabs{display:flex;gap:4px;margin-bottom:20px;}
-.a-tab{padding:7px 16px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;border:none;background:none;color:var(--muted);}
-.a-tab.on{background:rgba(212,175,55,.1);color:var(--gold);border:1px solid rgba(212,175,55,.25);}
-.lista-item{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:16px 18px;margin-bottom:8px;cursor:pointer;transition:border-color .2s;}
-.lista-item:hover{border-color:rgba(212,175,55,.2);}
-.li-nome{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:800;}
-.li-sub{font-size:11px;color:var(--muted);margin-top:2px;}
-
-/* SCOUT REPORT */
-.sc-full{display:none;position:fixed;inset:0;z-index:250;background:var(--bg);overflow-y:auto;}
-.sc-full.open{display:block;}
-.sc-form{max-width:680px;margin:0 auto;padding:20px;}
-.sc-sec{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:18px;margin-bottom:12px;}
-.sc-sec-t{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:12px;}
-.sc-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(30,33,40,.6);gap:6px;flex-wrap:wrap;}
-.sc-row:last-child{border-bottom:none;}
-.sc-lbl{font-size:11px;color:var(--slate);flex:1;min-width:100px;}
-.sc-btns{display:flex;gap:3px;}
-.sc-btn{width:30px;height:26px;border-radius:3px;border:1px solid var(--border2);background:none;color:var(--slate);font-size:10px;font-weight:600;transition:all .15s;}
-.sc-btn:hover{border-color:var(--gold);color:var(--gold);}
-.sc-btn.on.s1{background:#ef4444;border-color:#ef4444;color:#fff;}
-.sc-btn.on.s2{background:#f97316;border-color:#f97316;color:#fff;}
-.sc-btn.on.s3{background:#eab308;border-color:#eab308;color:#fff;}
-.sc-btn.on.s4{background:#22c55e;border-color:#22c55e;color:#fff;}
-.sc-btn.on.s5{background:#3b82f6;border-color:#3b82f6;color:#fff;}
-.sc-btn.on.sna{background:var(--muted);border-color:var(--muted);color:#fff;}
-.sc-slbl{font-size:9px;font-weight:700;min-width:56px;text-align:right;color:var(--muted);}
-.sc-input{width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:4px;padding:10px 13px;font-family:'Inter',sans-serif;font-size:13px;color:#fff;outline:none;}
-.sc-input:focus{border-color:rgba(212,175,55,.4);}
-.sc-sel{width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:4px;padding:10px 13px;font-family:'Inter',sans-serif;font-size:13px;color:#fff;outline:none;}
-.sc-sel option{background:#111;}
-.sc-cls-btn{padding:8px 14px;border-radius:4px;border:1px solid var(--border);background:none;color:var(--muted);font-size:11px;font-weight:600;transition:all .15s;}
-.sc-cls-btn.on{background:rgba(212,175,55,.12);color:var(--gold);border-color:rgba(212,175,55,.4);}
-.sc-loading{display:none;text-align:center;padding:80px 20px;}
-.sc-spin{width:38px;height:38px;border:3px solid var(--border);border-top:3px solid var(--gold);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px;}
-.sc-result{display:none;max-width:680px;margin:0 auto;padding:20px;}
-.sc-rbox{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:18px;margin-bottom:12px;}
-.sc-rt{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
-
-/* NEWS */
-.news-card:hover 
-/* PERFIL */
-.perfil-ov{display:none;position:fixed;inset:0;z-index:260;background:rgba(6,7,9,.97);overflow-y:auto;padding:20px;}
-.perfil-ov.open{display:block;}
-.perfil-inner{max-width:560px;margin:0 auto;}
-.p-back{font-size:12px;color:var(--muted);cursor:pointer;margin-bottom:16px;display:flex;align-items:center;gap:6px;}
-.p-foto{width:100%;height:260px;background:center/cover no-repeat #1a1a2e;border-radius:8px;margin-bottom:16px;position:relative;}
-.p-nome{font-family:'Barlow Condensed',sans-serif;font-size:40px;font-weight:900;line-height:1;}
-.p-sub{font-size:12px;color:var(--muted);margin-top:3px;}
-.p-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:16px 0;}
-.p-stat{background:var(--bg3);border:1px solid var(--border);border-radius:5px;padding:10px;text-align:center;}
-.p-stat-n{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:900;color:var(--gold);}
-.p-stat-l{font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px;}
-.p-bio{font-size:12px;color:var(--slate);line-height:1.8;margin-bottom:16px;}
-.p-hist{background:var(--bg3);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
-.h-row{display:flex;justify-content:space-between;padding:10px 13px;border-bottom:1px solid rgba(30,33,40,.6);font-size:11px;flex-wrap:wrap;gap:4px;}
-.h-row:last-child{border-bottom:none;}
-
-@keyframes spin{to{transform:rotate(360deg)}}
-</style>
+<title>YourTalentBase — O sistema operativo do futebol de formação</title>
+<meta name="description" content="Plataforma SaaS para clubes, treinadores, pais e atletas. Gestão, scouting e desenvolvimento em futebol de formação.">
+<meta name="theme-color" content="#09090C">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/global.css">
+<link rel="stylesheet" href="assets/css/home.css">
 </head>
 <body>
 
-<!-- NAV -->
-<nav class="nav">
-  <a href="#" class="logo"><div class="logo-badge">YTB</div>Your<span>Talent</span>Base</a>
-  <div class="nav-links" style="display:none;"></div>
-  <div style="display:flex;gap:8px;align-items:center;">
-    <button class="btn-gold" id="btnNavScout">⚡ Scout</button>
-    <button class="menu-btn" id="btnMenu"><span></span><span></span><span></span></button>
+<!-- ── NAV ──────────────────────────────────────────────────── -->
+<nav class="nav" id="mainNav">
+  <a href="/" class="nav-logo">
+    <div class="nav-logo-badge">YTB</div>
+    Your<span>Talent</span>Base
+  </a>
+  <div class="nav-actions">
+    <a href="treino.html" class="btn btn-ghost btn-sm hide-mobile">⚽ Treino</a>
+    <a href="scout-report.html" class="btn btn-ghost btn-sm hide-mobile">⚡ Scout</a>
+    <a href="auth.html" class="btn btn-primary btn-sm">Entrar</a>
+    <button class="nav-hamburger" id="btnMenu" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </nav>
 
-<!-- MENU MOBILE -->
+<!-- ── MENU MOBILE ───────────────────────────────────────────── -->
 <div class="menu-mob" id="menuMob">
   <button class="menu-mob-close" id="btnMenuClose">×</button>
+  <a href="#modulos">Plataforma</a>
   <a href="#atletas">Atletas</a>
-  <a href="#servicos">Serviços</a>
   <a href="#planos">Planos</a>
-  <a href="#inscricao">Inscrição</a>
-  <button id="btnMobScout">⚡ Scout Report</button>
-  <button id="btnMobArea" style="color:var(--slate);font-size:20px;">🔒 Área Reservada</button>
+  <a href="treino.html" class="gold">⚽ Treino em Casa</a>
+  <a href="scout-report.html">⚡ Scout Report</a>
+  <a href="auth.html">Entrar</a>
 </div>
 
-<!-- HERO -->
-<section class="hero">
-  <div class="eyebrow">Porto · Portugal · Scouting de Formação</div>
-  <h1 class="hero-title">O talento não<br>precisa de <em>sorte</em>.</h1>
-  <p class="hero-sub">Conectamos atletas jovens a clubes, scouts e oportunidades reais através de perfis profissionais e Scout Reports.</p>
-  <div class="hero-btns">
-    <button class="btn-gold" id="btnHeroInscricao">Inscrever Atleta</button>
-    <button class="btn-ghost" id="btnHeroScout">⚡ Scout Report</button>
+<!-- ── HERO ──────────────────────────────────────────────────── -->
+<section class="hero-section">
+  <div class="hero-bg">
+    <div class="hero-grid"></div>
+    <div class="hero-glow hero-glow-1"></div>
+    <div class="hero-glow hero-glow-2"></div>
   </div>
-  <div class="hero-stats">
-    <div class="hstat"><div class="hstat-num">5</div><div class="hstat-lbl">Atletas</div></div>
-    <div class="hstat"><div class="hstat-num">25</div><div class="hstat-lbl">Critérios</div></div>
-    <div class="hstat"><div class="hstat-num">48h</div><div class="hstat-lbl">Resposta</div></div>
-    <div class="hstat"><div class="hstat-num">A→D</div><div class="hstat-lbl">Níveis</div></div>
+  <div class="container-sm hero-content">
+    <div class="eyebrow anim-up">Porto · Portugal · Futebol de Formação</div>
+    <h1 class="display-xl hero-title anim-up-1">
+      O sistema<br>operativo<br><span class="text-gold">do futebol</span><br>de formação.
+    </h1>
+    <p class="hero-sub anim-up-2">
+      Clubes, treinadores, pais e atletas.<br>
+      Tudo numa plataforma. Simples e poderosa.
+    </p>
+    <div class="hero-btns anim-up-3">
+      <a href="auth.html" class="btn btn-primary btn-lg">Começar Agora</a>
+      <a href="#modulos" class="btn btn-ghost btn-lg">Ver Plataforma</a>
+    </div>
+    <div class="hero-stats anim-up-3">
+      <div class="hstat"><div class="hstat-n">5</div><div class="hstat-l">Atletas</div></div>
+      <div class="hstat-div"></div>
+      <div class="hstat"><div class="hstat-n">25</div><div class="hstat-l">Critérios</div></div>
+      <div class="hstat-div"></div>
+      <div class="hstat"><div class="hstat-n">48h</div><div class="hstat-l">Resposta</div></div>
+      <div class="hstat-div"></div>
+      <div class="hstat"><div class="hstat-n">A→D</div><div class="hstat-l">Níveis</div></div>
+    </div>
   </div>
 </section>
 
-<div class="divider"></div>
+<!-- ── MÓDULOS ───────────────────────────────────────────────── -->
+<section class="section" id="modulos">
+  <div class="container">
+    <div class="section-header">
+      <div class="eyebrow">Plataforma completa</div>
+      <h2 class="display-md">Tudo o que precisas.</h2>
+      <p class="section-sub">Do campo ao escritório. Do pai ao director.</p>
+    </div>
+    <div class="modules-grid">
 
-<!-- ATLETAS -->
-<section class="sec sec-dark" id="atletas">
-  <div class="eyebrow">Agenciados YTB</div>
-  <div class="sec-title">Em Destaque</div>
-  <div class="scroll-wrap">
-    <div class="fade-l"></div>
-    <div class="fade-r" style="background:linear-gradient(to left,var(--bg2),transparent);"></div>
-    <div class="scroll-row" id="atletasRow">
+      <a href="club-dashboard.html" class="module-card module-card-featured">
+        <div class="module-icon">🏟️</div>
+        <div class="module-label">Club OS</div>
+        <h3 class="module-title">Gestão completa<br>do clube</h3>
+        <p class="module-desc">Plantel, presenças, treinos, financeiro e certificação FPF. Tudo mobile-first.</p>
+        <div class="module-tags">
+          <span class="badge badge-gold">Presenças</span>
+          <span class="badge badge-gold">Financeiro</span>
+          <span class="badge badge-gold">FPF Stars</span>
+        </div>
+        <div class="module-arrow">→</div>
+      </a>
+
+      <a href="treino.html" class="module-card">
+        <div class="module-icon">⚽</div>
+        <div class="module-label">Treino Extra</div>
+        <h3 class="module-title">Treino em Casa</h3>
+        <p class="module-desc">Planos semanais prescritos pelo treinador. 3 sessões de 15 minutos por semana.</p>
+        <div class="module-tags">
+          <span class="badge badge-green">9,99€/mês</span>
+          <span class="badge badge-gray">Grátis 1ª semana</span>
+        </div>
+        <div class="module-arrow">→</div>
+      </a>
+
+      <a href="scout-report.html" class="module-card">
+        <div class="module-icon">📋</div>
+        <div class="module-label">Scouting</div>
+        <h3 class="module-title">Scout Report</h3>
+        <p class="module-desc">25 critérios avaliados. Perfil de posição por formato. Relatório narrativo. PDF exportável.</p>
+        <div class="module-tags">
+          <span class="badge badge-gold">39€ / relatório</span>
+        </div>
+        <div class="module-arrow">→</div>
+      </a>
+
+      <a href="database.html" class="module-card">
+        <div class="module-icon">🔍</div>
+        <div class="module-label">Talentos</div>
+        <h3 class="module-title">Base de Dados</h3>
+        <p class="module-desc">Maior base de jovens atletas. Inscreve, filtra e conecta com clubes e scouts.</p>
+        <div class="module-tags">
+          <span class="badge badge-gray">Gratuito</span>
+          <span class="badge badge-gold">Premium disponível</span>
+        </div>
+        <div class="module-arrow">→</div>
+      </a>
+
+      <a href="parents.html" class="module-card">
+        <div class="module-icon">👨‍👧</div>
+        <div class="module-label">Pais</div>
+        <h3 class="module-title">Área de Pais</h3>
+        <p class="module-desc">Progresso do filho, presenças, pagamentos, calendário e comunicação com o clube.</p>
+        <div class="module-tags">
+          <span class="badge badge-gray">Incluído</span>
+        </div>
+        <div class="module-arrow">→</div>
+      </a>
+
+      <div class="module-card module-card-coming">
+        <div class="module-icon">📊</div>
+        <div class="module-label">Em breve</div>
+        <h3 class="module-title">Analytics & IA</h3>
+        <p class="module-desc">Dashboards de performance, relatórios automáticos e recomendações por IA.</p>
+        <div class="module-tags">
+          <span class="badge badge-gray">2025</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── ATLETAS ───────────────────────────────────────────────── -->
+<div class="divider"></div>
+<section class="section" id="atletas" style="background:var(--bg2);">
+  <div class="container">
+    <div class="section-header">
+      <div class="eyebrow">Agenciados YTB</div>
+      <h2 class="display-md">Em Destaque</h2>
+    </div>
+  </div>
+  <div class="athletes-scroll-wrap">
+    <div class="athletes-fade-l"></div>
+    <div class="athletes-fade-r"></div>
+    <div class="athletes-row" id="atletasRow">
+
       <div class="a-card" data-atleta="guilherme">
-        <div class="a-foto" style="background-image:url('/guilherme.jpg');background-position:center 20%;">
-          <div class="a-badge"><div class="a-dot"></div>Agenciado</div>
+        <div class="a-foto" style="background-image:url('guilherme.jpg');background-position:center 20%;">
+          <div class="a-badge"><span class="badge-dot" style="width:4px;height:4px;border-radius:50%;background:var(--gold);display:inline-block;margin-right:4px;"></span>Agenciado</div>
           <div class="a-clube">Gondomar SC</div>
-          <div class="a-nivel" style="background:rgba(212,175,55,.15);border:2px solid var(--gold);color:var(--gold);">A</div>
         </div>
         <div class="a-info">
           <div class="a-escalao">Sub-19 · II Divisão · 2025/26</div>
           <div class="a-nome">Neto</div>
           <div class="a-meta">17 anos · Médio · Pé Esq.</div>
-          <div class="a-stats">
+          <div class="a-stats-row">
             <div class="a-stat"><div class="a-stat-n">16</div><div class="a-stat-l">Jogos</div></div>
             <div class="a-stat"><div class="a-stat-n">1313</div><div class="a-stat-l">Min</div></div>
             <div class="a-stat"><div class="a-stat-n">1</div><div class="a-stat-l">Golos</div></div>
           </div>
-          <div class="a-tags"><span class="a-tag">Médio</span><span class="a-tag">Capitão</span><span class="a-tag" style="color:var(--gold);border-color:rgba(212,175,55,.3);">Nível A</span></div>
+          <div class="a-tags-row">
+            <span class="badge badge-gray">Médio</span>
+            <span class="badge badge-gray">Capitão</span>
+          </div>
         </div>
       </div>
 
       <div class="a-card" data-atleta="vasco">
-        <div class="a-foto" style="background-image:url('/vasco.jpg');background-position:center center;">
-          <div class="a-badge"><div class="a-dot"></div>Agenciado</div>
+        <div class="a-foto" style="background-image:url('vasco.jpg');background-position:center center;">
+          <div class="a-badge"><span style="width:4px;height:4px;border-radius:50%;background:var(--gold);display:inline-block;margin-right:4px;"></span>Agenciado</div>
           <div class="a-clube">Gondomar SC</div>
-          <div class="a-nivel" style="background:rgba(212,175,55,.15);border:2px solid var(--gold);color:var(--gold);">A</div>
         </div>
         <div class="a-info">
           <div class="a-escalao">Sub-13 · 2ª Divisão · 2025/26</div>
           <div class="a-nome">Coutinho</div>
           <div class="a-meta">11 anos · MDC · Pé Dir.</div>
-          <div class="a-stats">
+          <div class="a-stats-row">
             <div class="a-stat"><div class="a-stat-n">18</div><div class="a-stat-l">Jogos</div></div>
             <div class="a-stat"><div class="a-stat-n">593</div><div class="a-stat-l">Min</div></div>
             <div class="a-stat"><div class="a-stat-n">2</div><div class="a-stat-l">Golos</div></div>
           </div>
-          <div class="a-tags"><span class="a-tag">MDC</span><span class="a-tag">2× Campeão</span><span class="a-tag" style="color:var(--gold);border-color:rgba(212,175,55,.3);">Nível A</span></div>
+          <div class="a-tags-row">
+            <span class="badge badge-gray">MDC</span>
+            <span class="badge badge-gray">2× Campeão Elite</span>
+          </div>
         </div>
       </div>
 
       <div class="a-card" data-atleta="duarte">
-        <div class="a-foto" style="background-image:url('/duarte.jpg');background-position:center 35%;background-size:160%;">
-          <div class="a-badge"><div class="a-dot"></div>Agenciado</div>
+        <div class="a-foto" style="background-image:url('duarte.jpg');background-position:center 35%;background-size:160%;">
+          <div class="a-badge"><span style="width:4px;height:4px;border-radius:50%;background:var(--gold);display:inline-block;margin-right:4px;"></span>Agenciado</div>
           <div class="a-clube">FC Famalicão</div>
-          <div class="a-nivel" style="background:rgba(212,175,55,.15);border:2px solid var(--gold);color:var(--gold);">A</div>
         </div>
         <div class="a-info">
           <div class="a-escalao">Sub-15 · AF Braga · 2025/26</div>
           <div class="a-nome">Du</div>
           <div class="a-meta">12 anos · GR · Pé Dir.</div>
-          <div class="a-stats">
-            <div class="a-stat"><div class="a-stat-n">11</div><div class="a-stat-l">Jogos</div></div>
-            <div class="a-stat"><div class="a-stat-n">434</div><div class="a-stat-l">Min</div></div>
-            <div class="a-stat"><div class="a-stat-n">9gs</div><div class="a-stat-l">GS</div></div>
+          <div class="a-stats-row">
+            <div class="a-stat"><div class="a-stat-n">12</div><div class="a-stat-l">Jogos</div></div>
+            <div class="a-stat"><div class="a-stat-n">1080</div><div class="a-stat-l">Min</div></div>
+            <div class="a-stat"><div class="a-stat-n">—</div><div class="a-stat-l">GR</div></div>
           </div>
-          <div class="a-tags"><span class="a-tag">GR</span><span class="a-tag">157cm</span><span class="a-tag" style="color:var(--gold);border-color:rgba(212,175,55,.3);">Nível A</span></div>
+          <div class="a-tags-row">
+            <span class="badge badge-gray">Guarda-Redes</span>
+          </div>
         </div>
       </div>
 
       <div class="a-card" data-atleta="jorginho">
-        <div class="a-foto" style="background-image:url('/jorginho.jpg');background-position:center 15%;">
-          <div class="a-badge"><div class="a-dot"></div>Agenciado</div>
+        <div class="a-foto" style="background-image:url('jorginho.jpg');background-position:center 15%;">
+          <div class="a-badge"><span style="width:4px;height:4px;border-radius:50%;background:var(--gold);display:inline-block;margin-right:4px;"></span>Agenciado</div>
           <div class="a-clube">Sousense</div>
-          <div class="a-nivel" style="background:rgba(34,197,94,.15);border:2px solid #22c55e;color:#22c55e;">C</div>
         </div>
         <div class="a-info">
           <div class="a-escalao">Sub-13 · 1ª Divisão · 2025/26</div>
           <div class="a-nome">Jorginho</div>
           <div class="a-meta">12 anos · Médio · Pé Dir.</div>
-          <div class="a-stats">
+          <div class="a-stats-row">
             <div class="a-stat"><div class="a-stat-n">20</div><div class="a-stat-l">Jogos</div></div>
             <div class="a-stat"><div class="a-stat-n">998</div><div class="a-stat-l">Min</div></div>
-            <div class="a-stat"><div class="a-stat-n">1</div><div class="a-stat-l">Golo</div></div>
+            <div class="a-stat"><div class="a-stat-n">—</div><div class="a-stat-l">Ast</div></div>
           </div>
-          <div class="a-tags"><span class="a-tag">Médio</span><span class="a-tag" style="color:#22c55e;border-color:rgba(34,197,94,.3);">Nível C</span></div>
+          <div class="a-tags-row">
+            <span class="badge badge-gray">Médio</span>
+          </div>
         </div>
       </div>
 
       <div class="a-card" data-atleta="bruninho">
-        <div class="a-foto" style="background-image:url('/bruninho.jpg');background-position:center 10%;">
-          <div class="a-badge"><div class="a-dot"></div>Agenciado</div>
+        <div class="a-foto" style="background-image:url('bruninho.jpg');background-position:center 10%;">
+          <div class="a-badge"><span style="width:4px;height:4px;border-radius:50%;background:var(--gold);display:inline-block;margin-right:4px;"></span>Agenciado</div>
           <div class="a-clube">EAS V.N. Gaia</div>
-          <div class="a-nivel" style="background:rgba(34,197,94,.15);border:2px solid #22c55e;color:#22c55e;">C</div>
         </div>
         <div class="a-info">
           <div class="a-escalao">Sub-12 · AF Porto · 2025/26</div>
           <div class="a-nome">Bruninho</div>
           <div class="a-meta">11 anos · Médio · Pé Dir.</div>
-          <div class="a-stats">
+          <div class="a-stats-row">
             <div class="a-stat"><div class="a-stat-n">14</div><div class="a-stat-l">Jogos</div></div>
             <div class="a-stat"><div class="a-stat-n">1</div><div class="a-stat-l">Golo</div></div>
             <div class="a-stat"><div class="a-stat-n">2</div><div class="a-stat-l">Ast</div></div>
           </div>
-          <div class="a-tags"><span class="a-tag">Médio</span><span class="a-tag" style="color:#22c55e;border-color:rgba(34,197,94,.3);">Nível C</span></div>
+          <div class="a-tags-row">
+            <span class="badge badge-gray">Médio</span>
+          </div>
         </div>
       </div>
 
-      <div class="a-card" style="border-style:dashed;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:24px;min-height:360px;">
-        <div style="font-size:28px;opacity:.2;">⚽</div>
-        <div style="font-size:12px;font-weight:700;color:var(--muted);">O teu atleta aqui?</div>
-        <button class="btn-gold" id="btnCardInscricao" style="font-size:10px;padding:7px 14px;">Inscrever →</button>
+      <div class="a-card a-card-cta" id="btnCardInscricao">
+        <div class="a-cta-icon">⚽</div>
+        <div class="a-cta-text">O teu atleta aqui?</div>
+        <div class="btn btn-primary btn-sm" style="width:100%;">Inscrever →</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── TREINO PILOTO ─────────────────────────────────────────── -->
+<div class="divider"></div>
+<section class="section" id="treino">
+  <div class="container">
+    <div class="treino-block">
+      <div class="treino-text">
+        <div class="eyebrow">Novo · Piloto Gondomar SC</div>
+        <h2 class="display-md">Treino em Casa</h2>
+        <p style="font-size:15px;color:var(--slate);line-height:1.75;margin:var(--space-4) 0 var(--space-6);font-weight:300;">
+          Planos semanais prescritos pelo teu treinador. 3 sessões de 15 minutos, adaptadas ao teu escalão e à posição. Em casa, ao teu ritmo.
+        </p>
+        <div class="treino-stats">
+          <div class="tstat"><div class="tstat-n">3×</div><div class="tstat-l">Por semana</div></div>
+          <div class="tstat"><div class="tstat-n">15'</div><div class="tstat-l">Por sessão</div></div>
+          <div class="tstat"><div class="tstat-n">📊</div><div class="tstat-l">Com registo</div></div>
+        </div>
+        <div style="display:flex;gap:var(--space-3);flex-wrap:wrap;margin-top:var(--space-6);">
+          <a href="treino.html" class="btn btn-primary btn-lg">⚽ Começar Agora</a>
+          <div class="treino-price-tag">Grátis 1ª semana · 9,99€/mês</div>
+        </div>
+      </div>
+      <div class="treino-visual">
+        <div class="tv-card tv-card-1">
+          <div class="tv-label">Esta semana</div>
+          <div class="tv-prog">Semana <span>01</span></div>
+          <div class="tv-bar-wrap"><div class="tv-bar" style="width:33%"></div></div>
+          <div class="tv-meta">1/3 treinos · 33%</div>
+        </div>
+        <div class="tv-card tv-card-2">
+          <div style="font-size:28px;margin-bottom:8px;">⚽</div>
+          <div style="font-family:var(--font-display);font-size:20px;font-weight:900;color:#fff;margin-bottom:4px;">Controlo de Bola</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.6);">⏱ 15 min · 3 exercícios</div>
+          <div class="tv-btn">▶ Iniciar treino</div>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
+<!-- ── PLANOS ─────────────────────────────────────────────────── -->
 <div class="divider"></div>
-
-<!-- SERVIÇOS -->
-<section class="sec" id="servicos">
-  <div class="eyebrow">O que fazemos</div>
-  <div class="sec-title">Serviços</div>
-  <div class="steps">
-    <div class="step"><div class="step-n">01</div><div><div class="step-t">Perfil Digital Profissional</div><div class="step-d">Criamos o perfil completo — foto, estatísticas, historial e análise. Visível para scouts e clubes parceiros.</div></div></div>
-    <div class="step"><div class="step-n">02</div><div><div class="step-t">Scout Report com 25 Critérios</div><div class="step-d">Relatório nas componentes Técnica, Tática, Física e Mental. Texto narrativo por scout e PDF pronto a partilhar.</div></div></div>
-    <div class="step"><div class="step-n">03</div><div><div class="step-t">Análise EIR</div><div class="step-d">Efeito Idade Relativa calculado automaticamente em cada relatório para contextualizar a avaliação.</div></div></div>
-    <div class="step"><div class="step-n">04</div><div><div class="step-t">Marketplace de Talentos</div><div class="step-d">Clubes parceiros acedem à base de dados filtrada por posição, nível e zona geográfica.</div></div></div>
+<section class="section" id="planos" style="background:var(--bg2);">
+  <div class="container">
+    <div class="section-header">
+      <div class="eyebrow">Preços</div>
+      <h2 class="display-md">Planos</h2>
+      <p class="section-sub">Começa grátis. Escala quando precisares.</p>
+    </div>
+    <div class="plans-grid">
+      <div class="plan-card">
+        <div class="plan-name">Base</div>
+        <div class="plan-price">Gratuito</div>
+        <div class="plan-desc">Perfil público com estatísticas e visibilidade para scouts e clubes.</div>
+        <ul class="plan-features">
+          <li>✓ Perfil digital profissional</li>
+          <li>✓ Visível para scouts</li>
+          <li>✓ Estatísticas básicas</li>
+        </ul>
+        <button class="btn btn-ghost btn-full" id="btnPlanoBase">Inscrever →</button>
+      </div>
+      <div class="plan-card plan-card-featured">
+        <div class="plan-badge">Mais popular</div>
+        <div class="plan-name">Treino Extra</div>
+        <div class="plan-price">9,99€<span>/mês</span></div>
+        <div class="plan-desc">Treinos semanais prescritos pelo treinador. Ideal para desenvolvimento individual.</div>
+        <ul class="plan-features">
+          <li>✓ 3 sessões/semana</li>
+          <li>✓ Adaptado à posição</li>
+          <li>✓ Registo RPE + progresso</li>
+          <li>✓ Nota do Mister</li>
+        </ul>
+        <a href="treino.html" class="btn btn-primary btn-full">Começar Grátis →</a>
+      </div>
+      <div class="plan-card">
+        <div class="plan-name">Scout Report</div>
+        <div class="plan-price">39€<span>/relatório</span></div>
+        <div class="plan-desc">Avaliação profissional com 25 critérios, perfil de posição e narrativa por scout.</div>
+        <ul class="plan-features">
+          <li>✓ 25 critérios avaliados</li>
+          <li>✓ Perfil de posição visual</li>
+          <li>✓ Relatório narrativo</li>
+          <li>✓ Export PDF premium</li>
+        </ul>
+        <button class="btn btn-ghost btn-full" id="btnPlanoScout">Pedir Scout Report</button>
+      </div>
+      <div class="plan-card">
+        <div class="plan-name">Clube Parceiro</div>
+        <div class="plan-price">79€<span>/mês</span></div>
+        <div class="plan-desc">Acesso à base de dados, gestão completa do clube e Club OS com todos os módulos.</div>
+        <ul class="plan-features">
+          <li>✓ Club OS completo</li>
+          <li>✓ Presenças & treinos</li>
+          <li>✓ Gestão financeira</li>
+          <li>✓ Certificação FPF</li>
+        </ul>
+        <button class="btn btn-ghost btn-full" id="btnPlanoClube">Contactar →</button>
+      </div>
+    </div>
   </div>
 </section>
 
-<div class="divider"></div>
-
-
-<!-- PLANOS -->
-<section class="sec" id="planos">
-  <div class="eyebrow">Preços</div>
-  <div class="sec-title">Planos</div>
-  <div class="planos">
-    <div class="plano">
-      <div class="plano-n">Base</div>
-      <div class="plano-p">Gratuito</div>
-      <div class="plano-d">Perfil público no carrossel com estatísticas e visibilidade para scouts.</div>
-      <button class="plano-btn btn-ghost" id="btnPlanoBase">Inscrever →</button>
-    </div>
-    <div class="plano dest">
-      <div class="plano-n">Scout Report</div>
-      <div><span class="plano-p">39€</span> <span class="plano-per">por relatório</span></div>
-      <div class="plano-d">25 critérios avaliados por scout profissional. Narrativa gerada por IA. PDF para clubes.</div>
-      <button class="plano-btn btn-gold" id="btnPlanoScout">Pedir Scout Report</button>
-    </div>
-    <div class="plano">
-      <div class="plano-n">Premium</div>
-      <div><span class="plano-p">9,99€</span> <span class="plano-per">/mês</span></div>
-      <div class="plano-d">Perfil em destaque, relatórios mensais e acompanhamento contínuo.</div>
-      <button class="plano-btn btn-ghost" id="btnPlanoPremium">Saber mais →</button>
-    </div>
-    <div class="plano">
-      <div class="plano-n">Clube Parceiro</div>
-      <div><span class="plano-p">79€</span> <span class="plano-per">/mês</span></div>
-      <div class="plano-d">Acesso à base de dados, filtros avançados e contacto directo com atletas Nível A/B.</div>
-      <button class="plano-btn btn-ghost" id="btnPlanoClube">Contactar →</button>
+<!-- ── CTA ────────────────────────────────────────────────────── -->
+<section class="cta-section">
+  <div class="cta-glow"></div>
+  <div class="container-sm" style="text-align:center;position:relative;z-index:1;">
+    <h2 class="display-lg cta-title">O talento não<br>precisa de <span class="text-gold">sorte.</span></h2>
+    <p style="font-size:15px;color:var(--slate);margin:var(--space-4) 0 var(--space-8);font-weight:300;">Inscreve o teu atleta hoje. Respondemos em 48 horas.</p>
+    <div style="display:flex;gap:var(--space-3);justify-content:center;flex-wrap:wrap;">
+      <button class="btn btn-primary btn-xl" id="btnCtaInscricao">Inscrever Atleta</button>
+      <a href="https://wa.me/351913695846?text=Olá%2C%20gostaria%20de%20saber%20mais%20sobre%20a%20YourTalentBase" class="btn btn-ghost btn-xl" target="_blank" rel="noopener">📱 WhatsApp</a>
     </div>
   </div>
 </section>
 
-<!-- CTA -->
-<div class="cta">
-  <div class="cta-title">O talento não precisa<br>de <span style="color:var(--gold);">sorte</span>.</div>
-  <div class="cta-sub">Inscreve o teu atleta hoje. Respondemos em 48 horas.</div>
-  <div class="cta-btns">
-    <button class="btn-gold" id="btnCtaInscricao">Inscrever Atleta</button>
-    <a href="https://wa.me/351913695846?text=Olá%2C%20gostaria%20de%20saber%20mais%20sobre%20a%20YourTalentBase" class="btn-wa" target="_blank" rel="noopener">📱 WhatsApp</a>
-  </div>
-</div>
-
-<!-- FORMULÁRIO -->
-<section class="form-sec" id="inscricao">
-  <div style="text-align:center;max-width:480px;margin:0 auto 28px;">
-    <div class="eyebrow">Inscrição</div>
-    <div class="sec-title">Inscreve o teu atleta</div>
-    <p style="font-size:13px;color:var(--slate);line-height:1.7;">A nossa equipa analisa cada perfil e entra em contacto em menos de 48 horas.</p>
-  </div>
-  <div class="form-grid">
-    <div class="fg"><label>Nome do Atleta *</label><input type="text" id="f-nome" placeholder="Nome completo"></div>
-    <div class="fg"><label>Idade *</label><input type="text" id="f-idade" placeholder="Ex: 14"></div>
-    <div class="fg"><label>Clube</label><input type="text" id="f-clube" placeholder="Clube actual"></div>
-    <div class="fg"><label>Escalão</label>
-      <select id="f-escalao">
-        <option value="" disabled selected>Seleccionar</option>
-        <option>Sub-9</option><option>Sub-10</option><option>Sub-11</option><option>Sub-12</option>
-        <option>Sub-13</option><option>Sub-14</option><option>Sub-15</option><option>Sub-16</option>
-        <option>Sub-17</option><option>Sub-18</option><option>Sub-19</option>
-      </select>
+<!-- ── FOOTER ─────────────────────────────────────────────────── -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="nav-logo" style="margin-bottom:var(--space-3);">
+          <div class="nav-logo-badge">YTB</div>
+          Your<span>Talent</span>Base
+        </div>
+        <p style="font-size:13px;color:var(--muted);font-weight:300;max-width:240px;line-height:1.7;">O sistema operativo do futebol de formação em Portugal.</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <div class="footer-col-title">Produto</div>
+          <a href="treino.html">Treino em Casa</a>
+          <a href="scout-report.html">Scout Report</a>
+          <a href="database.html">Base de Talentos</a>
+          <a href="club-dashboard.html">Club OS</a>
+        </div>
+        <div class="footer-col">
+          <div class="footer-col-title">Empresa</div>
+          <a href="mailto:yourtalentbase@gmail.com">Contacto</a>
+          <a href="#planos">Preços</a>
+          <a href="auth.html">Entrar</a>
+        </div>
+      </div>
     </div>
-    <div class="fg"><label>Posição</label>
-      <select id="f-posicao">
-        <option value="" disabled selected>Seleccionar</option>
-        <option>Guarda-Redes</option><option>Defesa Central</option><option>Defesa Direito</option>
-        <option>Defesa Esquerdo</option><option>Médio Defensivo</option><option>Médio Centro</option>
-        <option>Médio Ofensivo</option><option>Extremo Direito</option><option>Extremo Esquerdo</option><option>Avançado</option>
-      </select>
+    <div class="divider" style="margin:var(--space-6) 0;"></div>
+    <div class="footer-bottom">
+      <div>© 2026 YourTalentBase · Porto, Portugal</div>
+      <a href="mailto:yourtalentbase@gmail.com">yourtalentbase@gmail.com</a>
     </div>
-    <div class="fg"><label>Plano de Interesse</label>
-      <select id="f-plano">
-        <option value="" disabled selected>Seleccionar</option>
-        <option>Plano Base — Gratuito</option><option>Scout Report — 39€</option><option>Plano Premium — 9,99€/mês</option>
-      </select>
-    </div>
-    <div class="fg"><label>Contacto do Responsável *</label><input type="text" id="f-contacto" placeholder="Telemóvel ou email"></div>
-    <div class="fg"><label>Perfil ZeroZero (opcional)</label><input type="text" id="f-zerozero" placeholder="https://www.zerozero.pt/jogador/..."></div>
-    <div class="fg"><label>Descrição (opcional)</label><textarea class="sc-input" id="f-descricao" rows="3" placeholder="Características do atleta..."></textarea></div>
-    <div class="f-check"><input type="checkbox" id="f-auth"><label for="f-auth">Autorização de imagem e dados — Declaro que sou o responsável legal pelo atleta e autorizo a YourTalentBase a utilizar a sua imagem, nome e dados desportivos para fins de divulgação desportiva, em conformidade com o RGPD.</label></div>
-    <div class="f-err" id="fErr"></div>
-    <button class="btn-sub" id="btnSubmit">➤ Enviar Inscrição</button>
   </div>
-</section>
-
-<!-- FOOTER -->
-<footer>
-  <div class="f-logo">Your<span>Talent</span>Base</div>
-  <div class="f-links">
-    <a href="mailto:yourtalentbase@gmail.com">yourtalentbase@gmail.com</a>
-    <a href="#atletas">Atletas</a>
-    <a href="#planos">Planos</a>
-    <a href="#" id="btnFooterArea">🔒 Área Reservada</a>
-  </div>
-  <div class="f-copy">© 2026 YourTalentBase · Porto, Portugal</div>
 </footer>
 
-<!-- OVERLAYS LOGIN -->
-<div class="overlay" id="ovScout">
-  <div class="modal">
-    <button class="modal-close" data-close="ovScout">×</button>
-    <div class="modal-body">
-      <div class="m-ey">Acesso Profissional</div>
-      <div class="m-title">Scout Report</div>
-      <input class="m-input" type="password" id="scPass" placeholder="Password" autocomplete="current-password">
-      <div class="m-err" id="scErr">Password incorrecta.</div>
-      <button class="m-btn btn-gold" id="btnScLogin">Entrar</button>
-      <div class="m-hint">Scouts YTB · Clubes Parceiros</div>
-    </div>
-  </div>
-</div>
-
-<div class="overlay" id="ovArea">
-  <div class="modal">
-    <button class="modal-close" data-close="ovArea">×</button>
-    <div class="modal-body">
-      <div class="m-ey">Acesso Interno</div>
-      <div class="m-title">Área Reservada</div>
-      <input class="m-input" type="password" id="areaPass" placeholder="Password" autocomplete="current-password">
-      <div class="m-err" id="areaErr">Password incorrecta.</div>
-      <button class="m-btn btn-gold" id="btnAreaLogin">Entrar</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL GENERICO (atleta/relatório) -->
-<div class="overlay" id="ovModal">
-  <div class="modal" style="max-width:500px;">
-    <button class="modal-close" data-close="ovModal">×</button>
-    <div class="modal-body" id="modalBody"></div>
-  </div>
-</div>
-
-<!-- PERFIL ATLETA -->
-<div class="perfil-ov" id="ovPerfil">
-  <div class="perfil-inner">
-    <div class="p-back" id="btnPerfilBack">← Voltar</div>
+<!-- ── PERFIL ATLETA OVERLAY ─────────────────────────────────── -->
+<div class="overlay-full" id="ovPerfil">
+  <div style="max-width:560px;margin:0 auto;padding:var(--space-5);">
+    <button id="btnPerfilBack" class="btn btn-ghost btn-sm" style="margin-bottom:var(--space-5);">← Voltar</button>
     <div id="perfilContent"></div>
   </div>
 </div>
 
-<!-- ÁREA RESERVADA -->
-<div class="area-full" id="areaReservada">
-  <div class="area-nav">
-    <div style="display:flex;align-items:center;gap:8px;">
-      <div class="logo-badge">YTB</div>
-      <span style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;letter-spacing:2px;">Your<span style="color:var(--gold);">Talent</span>Base</span>
-    </div>
-    <div style="display:flex;align-items:center;gap:8px;">
-      <span id="areaBadge" style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px;border-radius:3px;background:rgba(212,175,55,.1);color:var(--gold);border:1px solid rgba(212,175,55,.2);"></span>
-      <button id="btnAreaSair" style="font-size:10px;color:var(--muted);background:none;border:1px solid var(--border);padding:5px 12px;border-radius:3px;">Sair</button>
-    </div>
-  </div>
-  <div class="area-body">
-    <div class="a-tabs" id="areaTabs">
-      <button class="a-tab on" data-tab="atletas">Atletas</button>
-      <button class="a-tab" data-tab="relatorios">Relatórios</button>
-    </div>
-    <div id="tabAtletas">
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
-        <select id="filtroPlano" style="background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:6px 10px;color:#fff;font-size:11px;">
-          <option value="">Todos os planos</option>
-          <option>Plano Base — Gratuito</option><option>Scout Report — 39€</option><option>Plano Premium — 9,99€/mês</option>
-        </select>
-        <select id="filtroEstado" style="background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:6px 10px;color:#fff;font-size:11px;">
-          <option value="">Todos os estados</option>
-          <option>Novo</option><option>Em análise</option><option>Aceite</option><option>Recusado</option>
-        </select>
+<!-- ── MODAL INSCRIÇÃO ───────────────────────────────────────── -->
+<div class="overlay" id="ovInscricao">
+  <div class="modal" style="max-width:540px;">
+    <button class="modal-close" data-close="ovInscricao">×</button>
+    <div class="eyebrow">Inscrição</div>
+    <h2 class="display-xs" style="margin-bottom:var(--space-5);">Inscreve o teu atleta</h2>
+    <div style="display:flex;flex-direction:column;gap:var(--space-3);">
+      <div class="input-group">
+        <label class="label">Nome do Atleta *</label>
+        <input class="inp" id="f-nome" type="text" placeholder="Nome completo">
       </div>
-      <div id="listaAtletas"></div>
-    </div>
-    <div id="tabRelatorios" style="display:none;">
-      <div id="listaRelatorios"></div>
-    </div>
-  </div>
-</div>
-
-<!-- SCOUT REPORT -->
-<div class="sc-full" id="scArea">
-  <div class="area-nav">
-    <div style="display:flex;align-items:center;gap:8px;">
-      <div class="logo-badge">YTB</div>
-      <span style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;letter-spacing:2px;">Scout<span style="color:var(--gold);">Report</span></span>
-    </div>
-    <div style="display:flex;align-items:center;gap:8px;">
-      <span id="scBadge" style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px;border-radius:3px;background:rgba(212,175,55,.1);color:var(--gold);border:1px solid rgba(212,175,55,.2);"></span>
-      <button id="btnScSair" style="font-size:10px;color:var(--muted);background:none;border:1px solid var(--border);padding:5px 12px;border-radius:3px;">Sair</button>
-    </div>
-  </div>
-  <!-- FORM -->
-  <div class="sc-form" id="scForm">
-    <div class="sc-sec">
-      <div class="sc-sec-t">01 · Dados do Atleta</div>
-      <div style="display:grid;gap:10px;">
-        <div><label style="font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:3px;">Nome</label><input class="sc-input" id="sc-nome" placeholder="Nome do atleta"></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-          <div><label style="font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:3px;">Nasc.</label><input class="sc-input" id="sc-nasc" type="date"></div>
-          <div><label style="font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:3px;">Época</label><input class="sc-input" id="sc-epoca" placeholder="2025/26"></div>
+      <div class="input-row input-row-2">
+        <div class="input-group">
+          <label class="label">Idade *</label>
+          <input class="inp" id="f-idade" type="number" placeholder="Ex: 12">
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-          <div><label style="font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:3px;">Clube</label><input class="sc-input" id="sc-clube" placeholder="Clube"></div>
-          <div><label style="font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:3px;">Escalão</label>
-            <select class="sc-sel" id="sc-cat">
-              <option value="">Selecionar...</option>
-              <option>Sub-9</option><option>Sub-10</option><option>Sub-11</option><option>Sub-12</option>
-              <option>Sub-13</option><option>Sub-14</option><option>Sub-15</option><option>Sub-16</option>
-              <option>Sub-17</option><option>Sub-18</option><option>Sub-19</option>
-            </select>
-          </div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-          <div><label style="font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:3px;">Formato</label>
-            <select class="sc-sel" id="sc-formato">
-              <option value="">Selecionar...</option>
-              <option>Fut5</option><option>Fut7</option><option>Fut9</option><option>Fut11</option>
-            </select>
-          </div>
-          <div><label style="font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:3px;">Pé Pref.</label>
-            <select class="sc-sel" id="sc-pe">
-              <option value="">Selecionar...</option>
-              <option>Direito</option><option>Esquerdo</option><option>Ambidestro</option>
-            </select>
-          </div>
-        </div>
-        <!-- POSIÇÃO + PERFIL VISUAL -->
-        <div>
-          <label style="font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:6px;">Posição</label>
-          <select class="sc-sel" id="sc-pos" style="width:100%;margin-bottom:12px;">
-            <option value="">Seleciona o formato primeiro...</option>
+        <div class="input-group">
+          <label class="label">Escalão</label>
+          <select class="select" id="f-escalao">
+            <option value="">Seleccionar</option>
+            <option>Sub-9</option><option>Sub-10</option><option>Sub-11</option>
+            <option>Sub-12</option><option>Sub-13</option><option>Sub-14</option>
+            <option>Sub-15</option><option>Sub-16</option><option>Sub-17</option>
+            <option>Sub-18</option><option>Sub-19</option>
           </select>
-          <!-- PERFIL VISUAL -->
-          <div id="scPerfilPos" style="display:none;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:14px;">
-            <div style="font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;">Perfil de Posição</div>
-            <div style="display:flex;gap:14px;align-items:flex-start;">
-              <!-- Campo SVG -->
-              <div style="flex-shrink:0;width:90px;height:128px;background:#1c3a1c;border:1px solid #2d4a2d;border-radius:5px;position:relative;overflow:hidden;">
-                <svg width="90" height="128" viewBox="0 0 90 128" style="position:absolute;inset:0;">
-                  <rect x="6" y="6" width="78" height="116" rx="2" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="1"/>
-                  <line x1="6" y1="64" x2="84" y2="64" stroke="rgba(255,255,255,.1)" stroke-width="1"/>
-                  <circle cx="45" cy="64" r="11" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="1"/>
-                  <rect x="27" y="6" width="36" height="18" rx="1" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="1"/>
-                  <rect x="27" y="104" width="36" height="18" rx="1" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="1"/>
-                  <rect x="36" y="6" width="18" height="9" rx="1" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="1"/>
-                  <rect x="36" y="113" width="18" height="9" rx="1" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="1"/>
-                </svg>
-                <!-- Zonas destacadas (HTML sobre o SVG) -->
-                <div id="zona-gr"  style="position:absolute;bottom:6px;left:6px;right:6px;height:26px;border-radius:2px;transition:all .25s;pointer-events:none;"></div>
-                <div id="zona-def" style="position:absolute;bottom:36px;left:6px;right:6px;height:26px;border-radius:2px;transition:all .25s;pointer-events:none;"></div>
-                <div id="zona-med" style="position:absolute;top:50%;left:6px;right:6px;height:26px;transform:translateY(-50%);border-radius:2px;transition:all .25s;pointer-events:none;"></div>
-                <div id="zona-ata" style="position:absolute;top:36px;left:6px;right:6px;height:26px;border-radius:2px;transition:all .25s;pointer-events:none;"></div>
-              </div>
-              <!-- Info -->
-              <div style="flex:1;">
-                <div id="scPosNome" style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;color:var(--gold);line-height:1;margin-bottom:3px;">—</div>
-                <div id="scPosZona" style="font-size:8px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:7px;">Seleciona uma posição</div>
-                <div id="scPosDesc" style="font-size:11px;color:var(--slate);line-height:1.6;font-weight:300;"></div>
-                <div id="scPosAtrib" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
-          <div><label style="font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:3px;">Altura cm</label><input class="sc-input" id="sc-alt" type="number" placeholder="170"></div>
-          <div><label style="font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:3px;">Peso kg</label><input class="sc-input" id="sc-peso" type="number" placeholder="65"></div>
-          <div><label style="font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:3px;">Data Obs.</label><input class="sc-input" id="sc-dobs" type="date"></div>
         </div>
       </div>
-    </div>
-    <!-- critérios inseridos dinamicamente -->
-    <div id="scCrit"></div>
-    <!-- classificação -->
-    <div class="sc-sec">
-      <div class="sc-sec-t">06 · Classificação</div>
-      <div style="margin-bottom:12px;">
-        <div style="font-size:10px;color:var(--muted);margin-bottom:6px;">Rendimento vs. Escalão</div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;" id="grpRendimento">
-          <button class="sc-cls-btn" data-grp="rendimento" data-val="R1 Acima">R1 Acima</button>
-          <button class="sc-cls-btn" data-grp="rendimento" data-val="R2 Dentro">R2 Dentro</button>
-          <button class="sc-cls-btn" data-grp="rendimento" data-val="R3 Abaixo">R3 Abaixo</button>
+      <div class="input-row input-row-2">
+        <div class="input-group">
+          <label class="label">Clube</label>
+          <input class="inp" id="f-clube" type="text" placeholder="Clube actual">
+        </div>
+        <div class="input-group">
+          <label class="label">Posição</label>
+          <select class="select" id="f-posicao">
+            <option value="">Seleccionar</option>
+            <option>Guarda-Redes</option><option>Defesa Central</option>
+            <option>Defesa Direito</option><option>Defesa Esquerdo</option>
+            <option>Médio Defensivo</option><option>Médio Centro</option>
+            <option>Médio Ofensivo</option><option>Extremo Direito</option>
+            <option>Extremo Esquerdo</option><option>Avançado</option>
+          </select>
         </div>
       </div>
-      <div>
-        <div style="font-size:10px;color:var(--muted);margin-bottom:6px;">Prazo de Contratação</div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;" id="grpPrazo">
-          <button class="sc-cls-btn" data-grp="prazo" data-val="Imediata">Imediata</button>
-          <button class="sc-cls-btn" data-grp="prazo" data-val="Médio Prazo">Médio Prazo</button>
-          <button class="sc-cls-btn" data-grp="prazo" data-val="Longo Prazo">Longo Prazo</button>
-        </div>
+      <div class="input-group">
+        <label class="label">Contacto do Responsável *</label>
+        <input class="inp" id="f-contacto" type="text" placeholder="Telemóvel ou email">
       </div>
-    </div>
-    <div class="sc-sec">
-      <div class="sc-sec-t">07 · Decisão Final</div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;" id="grpDecisao">
-        <button class="sc-cls-btn" data-grp="decisao" data-val="Contratar" style="color:#22c55e;border-color:rgba(34,197,94,.3);">✓ Contratar</button>
-        <button class="sc-cls-btn" data-grp="decisao" data-val="Acompanhar">● Acompanhar</button>
-        <button class="sc-cls-btn" data-grp="decisao" data-val="Nova Observação">↺ Nova Obs.</button>
-        <button class="sc-cls-btn" data-grp="decisao" data-val="Sem Interesse" style="color:#ef4444;border-color:rgba(239,68,68,.25);">✕ Sem Int.</button>
+      <div class="input-group">
+        <label class="label">Perfil ZeroZero (opcional)</label>
+        <input class="inp" id="f-zerozero" type="text" placeholder="https://www.zerozero.pt/jogador/...">
       </div>
-    </div>
-    <div class="sc-sec">
-      <div class="sc-sec-t">08 · Observações</div>
-      <textarea class="sc-input" id="sc-obs" rows="4" placeholder="Contexto do jogo, condições, notas adicionais..."></textarea>
-    </div>
-    <div class="f-err" id="scErr2" style="margin-bottom:10px;"></div>
-    <button class="btn-gold" id="btnScGerar" style="width:100%;padding:14px;font-size:13px;letter-spacing:2px;text-transform:uppercase;border:none;border-radius:4px;">⚡ Gerar Scout Report</button>
-  </div>
-  <!-- LOADING -->
-  <div class="sc-loading" id="scLoad">
-    <div class="sc-spin"></div>
-    <div style="font-size:13px;color:var(--slate);">A gerar relatório...</div>
-  </div>
-  <!-- RESULTADO -->
-  <div class="sc-result" id="scRes">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;gap:10px;flex-wrap:wrap;">
-      <div>
-        <div style="font-size:9px;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin-bottom:3px;">Scout Report · YourTalentBase</div>
-        <div id="scResNome" style="font-family:'Barlow Condensed',sans-serif;font-size:30px;font-weight:900;"></div>
-        <div id="scResSub" style="font-size:11px;color:var(--muted);margin-top:2px;"></div>
-      </div>
-      <div style="text-align:center;background:var(--bg3);border:1px solid var(--border);border-radius:5px;padding:10px 16px;">
-        <div id="scResMed" style="font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:900;color:var(--gold);line-height:1;"></div>
-        <div style="font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px;">Média</div>
-      </div>
-    </div>
-    <div id="scResBoxes" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px;"></div>
-    <div class="sc-rbox">
-      <div class="sc-rt">Relatório</div>
-      <div id="scResTexto" style="font-size:13px;color:var(--slate);line-height:1.8;"></div>
-    </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <button class="btn-gold" id="btnScPDF" style="flex:1;padding:12px;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;border:none;border-radius:4px;">📄 Download PDF</button>
-      <button id="btnScNovo" style="padding:12px 16px;background:none;border:1px solid var(--border);color:var(--slate);border-radius:4px;font-size:11px;">Novo Relatório</button>
+      <label style="display:flex;gap:var(--space-3);align-items:flex-start;font-size:11px;color:var(--muted);cursor:pointer;">
+        <input type="checkbox" id="f-auth" style="margin-top:2px;flex-shrink:0;">
+        <span>Autorização de imagem e dados — declaro que sou responsável legal pelo atleta e autorizo a YourTalentBase a utilizar os seus dados desportivos para fins de divulgação, em conformidade com o RGPD.</span>
+      </label>
+      <div id="fErr" style="color:var(--red);font-size:12px;display:none;"></div>
+      <button class="btn btn-primary btn-full" id="btnSubmit">➤ Enviar Inscrição</button>
     </div>
   </div>
 </div>
 
-<script>
-(function(){
-'use strict';
-
-// ── CONFIG ──────────────────────────────────────────
-var SB_URL = "https://nhshnplaiolxwcfuijfo.supabase.co";
-var SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oc2hucGxhaW9seHdjZnVpamZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NDQxNTAsImV4cCI6MjA4OTQyMDE1MH0.uyZiDun8495sjnHA6Wsk-Hou-3lubbNJfQqSYbMLSek";
-var db = supabase.createClient(SB_URL, SB_KEY);
-
-// NOTE: Para produção mover para /api/login com env vars
-var CREDS = [
-  {pass:"YTB#Super2026",  role:"super",  nome:"Admin"},
-  {pass:"YTB#Admin2026",  role:"admin",  nome:"Admin"},
-  {pass:"YTB#Clube2026",  role:"clube",  nome:"Clube"},
-  {pass:"YTB#Miro#3ozkUuLO6D",  role:"scout", nome:"Miro"},
-  {pass:"YTB#Jonas#gLWjfiu6LG", role:"scout", nome:"Jonas"}
-];
-
-// ── STATE ───────────────────────────────────────────
-var S = {
-  role:null, nome:"", atletasDB:[], relatoriosDB:[],
-  scScores:{}, scRendimento:"", scPrazo:"", scDecisao:"",
-  scTexto:"", scDados:{}
-};
-
-// ── ATLETAS DATA ─────────────────────────────────────
-var ATLETAS = {
-  guilherme:{
-    nome:"Neto", completo:"Guilherme Branco Gaspar Neto", nivel:"A",
-    nascimento:"24 Jun 2008 · 17 anos",
-    escalao:"Sub-19 · II Divisão · 2025/26", clube:"Gondomar SC",
-    foto:"/guilherme.jpg", fotoPos:"center 20%", fotoSize:"cover",
-    posicao:"Médio", pe:"Esquerdo",
-    stats:[{n:"16",l:"Jogos"},{n:"1313",l:"Min"},{n:"1",l:"Golos"}],
-    tags:["Médio","Capitão","🇧🇷🇵🇹"],
-    bio:"Médio com dupla nacionalidade portuguesa e brasileira, capitão do Gondomar SC Sub-19. Formado no Boavista, Rio Ave e Leixões. Liderança natural, visão de jogo acima da média e experiência acumulada em competições distritais e nacionais.",
-    hist:[
-      {e:"2025/26",c:"Gondomar SC",esc:"Sub-19",j:16,g:1},
-      {e:"2024/25",c:"Gondomar SC",esc:"Sub-19",j:22,g:2},
-      {e:"2023/24",c:"Leixões SC", esc:"Sub-17",j:18,g:1}
-    ],
-    zz:"https://www.zerozero.pt/jogador/guilherme-neto/916200"
-  },
-  vasco:{
-    nome:"Coutinho", completo:"Vasco Coutinho Martins", nivel:"A",
-    nascimento:"2013 · 11 anos",
-    escalao:"Sub-13 · 2ª Divisão · 2025/26", clube:"Gondomar SC",
-    foto:"/vasco.jpg", fotoPos:"center center", fotoSize:"cover",
-    posicao:"MDC", pe:"Direito",
-    stats:[{n:"18",l:"Jogos"},{n:"593",l:"Min"},{n:"2",l:"Golos"}],
-    tags:["MDC","2× Campeão","🇵🇹"],
-    bio:"Médio defensivo de 11 anos formado no Gondomar SC. Bicampeão Distrital Sub-10 e Sub-11. Leitura de jogo excecional para a idade, com capacidade de controlo do ritmo. O nº10 fala por si.",
-    hist:[
-      {e:"2025/26",c:"Gondomar SC",esc:"Sub-13",j:18,g:2},
-      {e:"2024/25",c:"Gondomar SC",esc:"Sub-11",j:24,g:3},
-      {e:"2023/24",c:"Gondomar SC",esc:"Sub-10",j:20,g:4}
-    ],
-    palmares:["Campeão Distrital Sub-10 Divisão Elite","Campeão Distrital Sub-11"],
-    zz:"https://www.zerozero.pt/jogador/vasco-coutinho/1100918"
-  },
-  duarte:{
-    nome:"Du", completo:"Duarte Filipe Simões Almeida", nivel:"A",
-    nascimento:"2013 · 12 anos",
-    escalao:"Sub-15 · AF Braga · 2025/26", clube:"FC Famalicão",
-    foto:"/duarte.jpg", fotoPos:"center 35%", fotoSize:"160%",
-    posicao:"GR", pe:"Direito",
-    stats:[{n:"11",l:"Jogos"},{n:"434",l:"Min"},{n:"9gs",l:"GS"}],
-    tags:["GR","157cm / 45kg","🇵🇹"],
-    bio:"Guarda-redes de 12 anos que joga dois escalões acima da sua faixa etária no FC Famalicão Sub-15. Maturidade e presença na baliza invulgares. EIR potencialmente significativo — nascido no segundo semestre.",
-    hist:[
-      {e:"2025/26",c:"FC Famalicão",esc:"Sub-15 AF Braga",j:11},
-      {e:"2024/25",c:"FC Famalicão",esc:"Sub-14",j:15}
-    ],
-    zz:"https://www.zerozero.pt/jogador/duarte-almeida/930968"
-  },
-  jorginho:{
-    nome:"Jorginho", completo:"Jorge Manuel Lourenço Ribeiro", nivel:"C",
-    nascimento:"2 Mai 2013 · 12 anos",
-    escalao:"Sub-13 · 1ª Divisão · 2025/26", clube:"Sousense",
-    foto:"/jorginho.jpg", fotoPos:"center 15%", fotoSize:"cover",
-    posicao:"Médio", pe:"Direito",
-    stats:[{n:"20",l:"Jogos"},{n:"998",l:"Min"},{n:"1",l:"Golo"}],
-    tags:["Médio","Nº 5","🇵🇹"],
-    bio:"Médio versátil com formação no Gondomar SC desde Sub-9, transferido para a Sousense em 2025/26 onde se afirmou como titular indiscutível. 20 jogos e 998 minutos — dos registos mais sólidos do escalão. Irmão do também agenciado Bruninho.",
-    hist:[
-      {e:"2025/26",c:"Sousense",    esc:"Sub-13",j:13,g:1},
-      {e:"2025/26",c:"Gondomar SC", esc:"Sub-13",j:7, g:0},
-      {e:"2024/25",c:"Gondomar SC", esc:"Sub-13",j:26,g:3}
-    ],
-    zz:"https://www.zerozero.pt/jogador/jorge-ribeiro/1101258"
-  },
-  bruninho:{
-    nome:"Bruninho", completo:"Bruno Jorge Lourenço Ribeiro", nivel:"C",
-    nascimento:"29 Jul 2014 · 11 anos",
-    escalao:"Sub-12 · AF Porto · 2025/26", clube:"EAS V.N. Gaia",
-    foto:"/bruninho.jpg", fotoPos:"center 10%", fotoSize:"cover",
-    posicao:"Médio", pe:"Direito",
-    stats:[{n:"14",l:"Jogos"},{n:"1",l:"Golo"},{n:"2",l:"Ast"}],
-    tags:["Médio","Nº 20","🇵🇹"],
-    bio:"Médio de 11 anos com formação no Gondomar SC desde Sub-9. Transferido para o EAS V.N. Gaia em 2025/26. Nascido em julho — EIR relevante. Perfil criativo com 1 golo e 2 assistências. Irmão do também agenciado Jorginho.",
-    hist:[
-      {e:"2025/26",c:"EAS V.N. Gaia",esc:"Sub-12",j:14,g:1},
-      {e:"2024/25",c:"Gondomar SC",  esc:"Sub-11",j:27,g:3}
-    ],
-    zz:"https://www.zerozero.pt/jogador/bruno-ribeiro/1063304"
-  }
-};
-
-// ── SCOUT CRITÉRIOS ──────────────────────────────────
-var SC_CRIT = {
-  tec:{label:"Técnicos",cor:"#3b82f6",items:[
-    {id:"t1",l:"1x1 Defensivo"},{id:"t2",l:"1x1 Ofensivo"},
-    {id:"t3",l:"Receção"},{id:"t4",l:"Passe Curto"},
-    {id:"t5",l:"Passe Longo"},{id:"t6",l:"Remate"}
-  ]},
-  tac:{label:"Táticos",cor:"#a78bfa",items:[
-    {id:"ta1",l:"Posicionamento Def."},{id:"ta2",l:"Posicionamento Of."},
-    {id:"ta3",l:"Leitura de Jogo"},{id:"ta4",l:"Pressing"},
-    {id:"ta5",l:"Transições"},{id:"ta6",l:"Jogo Conjunto"}
-  ]},
-  fis:{label:"Físicos",cor:"#22c55e",items:[
-    {id:"f1",l:"Velocidade"},{id:"f2",l:"Resistência"},
-    {id:"f3",l:"Força"},{id:"f4",l:"Coordenação"},{id:"f5",l:"Agilidade"}
-  ]},
-  men:{label:"Mentais",cor:"#f97316",items:[
-    {id:"m1",l:"Liderança"},{id:"m2",l:"Concentração"},
-    {id:"m3",l:"Atitude Competitiva"},{id:"m4",l:"Comunicação"},
-    {id:"m5",l:"Resiliência"},{id:"m6",l:"Int. Emocional"}
-  ]}
-};
-var SC_LEG = {1:"Insuf.",2:"Fraco",3:"Médio",4:"Bom",5:"Excelente"};
-var SC_COR = {1:"#ef4444",2:"#f97316",3:"#eab308",4:"#22c55e",5:"#3b82f6"};
-
-// ── UTILIDADES ──────────────────────────────────────
-function qs(sel){ return document.querySelector(sel); }
-function el(id){ return document.getElementById(id); }
-
-function openOv(id){
-  var e = el(id);
-  if(e){ e.classList.add('open'); document.body.style.overflow='hidden'; }
-}
-function closeOv(id){
-  var e = el(id);
-  if(e){ e.classList.remove('open'); document.body.style.overflow=''; }
-}
-function openFull(id){
-  var e = el(id);
-  if(e){ e.classList.add('open'); document.body.style.overflow='hidden'; }
-}
-function closeFull(id){
-  var e = el(id);
-  if(e){ e.classList.remove('open'); document.body.style.overflow=''; }
-}
-
-function dragScroll(rowEl){
-  if(!rowEl) return;
-  var drag=false, sx=0, sl=0;
-  rowEl.addEventListener('mousedown',function(e){
-    drag=true; sx=e.pageX-rowEl.offsetLeft; sl=rowEl.scrollLeft; rowEl.style.cursor='grabbing';
-  });
-  document.addEventListener('mouseup',function(){ drag=false; if(rowEl) rowEl.style.cursor='grab'; });
-  rowEl.addEventListener('mousemove',function(e){
-    if(!drag) return; e.preventDefault();
-    rowEl.scrollLeft = sl - (e.pageX - rowEl.offsetLeft - sx)*1.5;
-  });
-}
-
-function scrollTo(id){
-  var e = el(id);
-  if(e) e.scrollIntoView({behavior:'smooth'});
-}
-
-// ── FORMATO E PERFIL DE POSIÇÃO ──────────────────────
-var SC_FORMATOS = {
-  'Fut5':  [
-    {pos:'Guarda-Redes',   zona:'GR',  desc:'Organiza a defesa e é o último recurso. Em Fut5 tem papel fundamental na saída de bola.', atrib:['Reflexos','Saída a pé','Posicionamento']},
-    {pos:'Defesa',         zona:'DEF', desc:'Cobertura defensiva e início de construção. Em Fut5 pode jogar como defesa central ou lateral.', atrib:['Marcação','Interceção','Passe curto']},
-    {pos:'Ala',            zona:'MED', desc:'Liga defesa ao ataque nas faixas laterais. Grande mobilidade e desequilíbrio no 1v1.', atrib:['Velocidade','Drible','Cruzamento']},
-    {pos:'Pivô',           zona:'ATA', desc:'Referência ofensiva. Joga de costas e associa-se para criar superioridades.', atrib:['Jogo de costas','Finalização','Proteção de bola']},
-  ],
-  'Fut7':  [
-    {pos:'Guarda-Redes',   zona:'GR',  desc:'Domina a grande área e dirige a linha defensiva. Importante na saída a jogar.', atrib:['Reflexos','Saída de bola','Comunicação']},
-    {pos:'Defesa Central', zona:'DEF', desc:'Eixo defensivo. Posicionamento, antecipação e jogo aéreo são essenciais.', atrib:['Cabeceamento','Antecipação','Marcação']},
-    {pos:'Defesa Lateral', zona:'DEF', desc:'Controla a faixa e apoia o ataque. Equilíbrio entre defesa e projeção ofensiva.', atrib:['Velocidade','Cruzamento','Duelação']},
-    {pos:'Médio',          zona:'MED', desc:'Coração do jogo. Equilibra e distribui, com grande capacidade de leitura.', atrib:['Passe','Leitura de jogo','Recuperação']},
-    {pos:'Extremo',        zona:'ATA', desc:'Desequilíbrio pelas faixas com velocidade e 1v1. Cria e finaliza.', atrib:['Drible','Velocidade','Remate']},
-    {pos:'Avançado',       zona:'ATA', desc:'Referência ofensiva. Finalização, jogo aéreo e movimentos de rutura.', atrib:['Finalização','Movimentos','Jogo aéreo']},
-  ],
-  'Fut9':  [
-    {pos:'Guarda-Redes',   zona:'GR',  desc:'Protege a baliza e inicia o jogo. Crescente importância da saída a jogar.', atrib:['Reflexos','Distribuição','Posicionamento']},
-    {pos:'Defesa Central', zona:'DEF', desc:'Organiza a linha defensiva e ganha duelos aéreos e terrestres.', atrib:['Cabeceamento','Antecipação','Saída de bola']},
-    {pos:'Defesa Lateral', zona:'DEF', desc:'Faixa lateral com capacidade de projeção e cobertura defensiva.', atrib:['Velocidade','1v1 defensivo','Assistências']},
-    {pos:'Médio Defensivo',zona:'MED', desc:'Sentinela defensiva. Recupera bola e protege a linha defensiva.', atrib:['Recuperação','Pressing','Passe simples']},
-    {pos:'Médio Centro',   zona:'MED', desc:'Distribuição e transição. Liga setores com visão e técnica.', atrib:['Passe longo','Leitura','Transições']},
-    {pos:'Extremo',        zona:'ATA', desc:'Largura e profundidade. Desequilíbrio no 1v1 e cruzamento.', atrib:['Drible','Velocidade','Cruzamento']},
-    {pos:'Avançado',       zona:'ATA', desc:'Finalização e jogo de referência. Pivô e segundo poste.', atrib:['Finalização','Jogo aéreo','Movimentos']},
-  ],
-  'Fut11': [
-    {pos:'Guarda-Redes',   zona:'GR',  desc:'Defende a baliza e inicia o jogo posicional. Reflexos, posicionamento e pé são essenciais.', atrib:['Reflexos','Posicionamento','Saída de bola']},
-    {pos:'Defesa Central', zona:'DEF', desc:'Eixo defensivo. Liderança, antecipação e capacidade aérea definem o perfil.', atrib:['Cabeceamento','Antecipação','Liderança']},
-    {pos:'Defesa Direito',  zona:'DEF', desc:'Faixa direita. Equilibra cobertura defensiva com projeção e cruzamento.', atrib:['Velocidade','Cruzamento','1v1 def.']},
-    {pos:'Defesa Esquerdo', zona:'DEF', desc:'Faixa esquerda. Mesmo perfil do lateral direito com dominância do pé esquerdo.', atrib:['Velocidade','Cruzamento','Duelação']},
-    {pos:'Médio Defensivo', zona:'MED', desc:'Proteção da defesa e distribuição. Visão, posicionamento e capacidade de pressionar.', atrib:['Recuperação','Pressing','Passe']},
-    {pos:'Médio Centro',    zona:'MED', desc:'Coração do jogo. Liga todos os setores com técnica e inteligência tática.', atrib:['Passe longo','Leitura','Transições']},
-    {pos:'Médio Ofensivo',  zona:'MED', desc:'Entre linhas. Criatividade, visão e remate de longe.', atrib:['Criatividade','Visão','Remate']},
-    {pos:'Extremo Direito', zona:'ATA', desc:'Desequilíbrio pela direita. Velocidade, drible e entradas na área.', atrib:['Drible','Velocidade','Finalização']},
-    {pos:'Extremo Esquerdo',zona:'ATA', desc:'Desequilíbrio pela esquerda. Inversão e remate com pé contrário.', atrib:['Drible','Inversão','Remate']},
-    {pos:'Avançado',        zona:'ATA', desc:'Referência ofensiva máxima. Finalização, movimentos e jogo de costas.', atrib:['Finalização','Movimentos','Jogo aéreo']},
-  ],
-};
-
-var SC_ZONA_COR = {GR:'#ef4444', DEF:'#3b82f6', MED:'#eab308', ATA:'#22c55e'};
-
-function atualizarPosicoes(){
-  var fmt = el('sc-formato').value;
-  var sel = el('sc-pos');
-  sel.innerHTML = '<option value="">Selecionar...</option>';
-  if(fmt && SC_FORMATOS[fmt]){
-    SC_FORMATOS[fmt].forEach(function(p){
-      var opt = document.createElement('option');
-      opt.value = p.pos; opt.textContent = p.pos;
-      sel.appendChild(opt);
-    });
-  }
-  el('scPerfilPos').style.display = 'none';
-  ['zona-gr','zona-def','zona-med','zona-ata'].forEach(function(id){
-    var z = el(id); if(z){ z.style.background='transparent'; z.style.boxShadow='none'; }
-  });
-}
-
-function renderPerfilPosicao(){
-  var fmt = el('sc-formato').value;
-  var pos = el('sc-pos').value;
-  if(!fmt || !pos || !SC_FORMATOS[fmt]) { el('scPerfilPos').style.display='none'; return; }
-  var info = SC_FORMATOS[fmt].find(function(p){ return p.pos===pos; });
-  if(!info) { el('scPerfilPos').style.display='none'; return; }
-
-  el('scPerfilPos').style.display = 'block';
-  el('scPosNome').textContent = pos;
-  el('scPosZona').textContent = {GR:'Guarda-Redes',DEF:'Linha Defensiva',MED:'Setor Médio',ATA:'Linha de Ataque'}[info.zona] || info.zona;
-  el('scPosDesc').textContent = info.desc;
-
-  el('scPosAtrib').innerHTML = info.atrib.map(function(a){
-    return '<span style="font-size:9px;font-weight:600;padding:2px 8px;border-radius:100px;background:rgba(212,175,55,.1);color:var(--gold);border:1px solid rgba(212,175,55,.22);">'+a+'</span>';
-  }).join('');
-
-  var zonas = {GR:'zona-gr', DEF:'zona-def', MED:'zona-med', ATA:'zona-ata'};
-  Object.keys(zonas).forEach(function(z){
-    var cor = SC_ZONA_COR[z];
-    var rgb = hexToRgb(cor);
-    var zEl = el(zonas[z]);
-    if(!zEl) return;
-    zEl.style.background = z===info.zona ? 'rgba('+rgb+',.35)' : 'transparent';
-    zEl.style.boxShadow  = z===info.zona ? 'inset 0 0 0 1px '+cor+'88' : 'none';
-  });
-}
-
-function hexToRgb(hex){
-  var r=parseInt(hex.slice(1,3),16);
-  var g=parseInt(hex.slice(3,5),16);
-  var b=parseInt(hex.slice(5,7),16);
-  return r+','+g+','+b;
-}
-
-// ── SCOUT REPORT — BUILD ─────────────────────────────
-function buildCriterios(){
-  var cont = el('scCrit');
-  if(!cont) return;
-  var html = '';
-  var num = 2;
-  Object.keys(SC_CRIT).forEach(function(key){
-    var area = SC_CRIT[key];
-    html += '<div class="sc-sec">';
-    html += '<div class="sc-sec-t" style="color:'+area.cor+'">0'+num+' · '+area.label+'</div>';
-    area.items.forEach(function(it){
-      html += '<div class="sc-row">';
-      html += '<span class="sc-lbl">'+it.l+'</span>';
-      html += '<div class="sc-btns" data-cid="'+it.id+'">';
-      [1,2,3,4,5].forEach(function(n){
-        html += '<button class="sc-btn s'+n+'" data-id="'+it.id+'" data-val="'+n+'">'+n+'</button>';
-      });
-      html += '<button class="sc-btn sna" data-id="'+it.id+'" data-val="0" title="N/A" style="font-size:8px;">N/A</button>';
-      html += '</div>';
-      html += '<span class="sc-slbl" id="sl-'+it.id+'">—</span>';
-      html += '</div>';
-    });
-    html += '</div>';
-    num++;
-  });
-  cont.innerHTML = html;
-}
-
-function mediaGeral(){
-  var vals = Object.values(S.scScores).filter(function(v){ return v>0; });
-  if(!vals.length) return null;
-  return vals.reduce(function(a,b){ return a+b; },0) / vals.length;
-}
-
-function mediaArea(ids){
-  var vals = ids.map(function(id){ return S.scScores[id]; }).filter(function(v){ return v&&v>0; });
-  if(!vals.length) return null;
-  return (vals.reduce(function(a,b){ return a+b; },0) / vals.length).toFixed(1);
-}
-
-function calcEIR(nascStr, cat){
-  if(!nascStr||!cat) return null;
-  var d = new Date(nascStr);
-  var m = d.getMonth();
-  var tri = m<3?"Q1":m<6?"Q2":m<9?"Q3":"Q4";
-  var van = m<3?"Vantagem máxima (+11 meses)":
-            m<6?"Vantagem moderada":
-            m<9?"Ligeira desvantagem":"EIR relevante — desvantagem máxima";
-  return {tri:tri, van:van};
-}
-
-// ── EVENT DELEGATION CENTRAL ─────────────────────────
-document.addEventListener('click', function(e){
-  var t = e.target;
-
-  // Fechar overlays pelo botão ×
-  if(t.dataset.close){ closeOv(t.dataset.close); return; }
-
-  // Fechar overlay ao clicar no fundo
-  if(t.classList.contains('overlay') || t.classList.contains('open')){
-    // só fecha se for o overlay em si (fundo escuro)
-    if(t.id==='ovScout'||t.id==='ovArea'||t.id==='ovModal') closeOv(t.id);
-    return;
-  }
-
-  // MENU
-  if(t.closest('#btnMenu')){ openOv('menuMob'); return; }
-  if(t.id==='btnMenuClose'){ closeOv('menuMob'); return; }
-
-  // Links menu mobile fecham-no
-  if(t.closest('.menu-mob') && t.tagName==='A'){
-    closeOv('menuMob');
-    return;
-  }
-
-  // ABRIR SCOUT REPORT
-  var scIds = ['btnNavScout','btnHeroScout','btnMobScout','btnPlanoScout'];
-  if(scIds.indexOf(t.id)!==-1){
-    closeOv('menuMob');
-    openOv('ovScout');
-    var inp = el('scPass');
-    if(inp) inp.focus();
-    return;
-  }
-
-  // ABRIR ÁREA RESERVADA
-  if(t.id==='btnFooterArea'||t.id==='btnMobArea'){
-    e.preventDefault();
-    closeOv('menuMob');
-    openOv('ovArea');
-    var inp2 = el('areaPass');
-    if(inp2) inp2.focus();
-    return;
-  }
-
-  // LOGIN SCOUT
-  if(t.id==='btnScLogin'){ loginScout(); return; }
-  if(t.id==='btnAreaLogin'){ loginArea(); return; }
-
-  // INSCRIÇÃO / CTA
-  var inscIds=['btnHeroInscricao','btnCtaInscricao','btnCardInscricao','btnPlanoBase','btnPlanoPremium'];
-  if(inscIds.indexOf(t.id)!==-1){ scrollTo('inscricao'); return; }
-
-  if(t.id==='btnPlanoClube'){
-    window.open('mailto:yourtalentbase@gmail.com?subject=Clube%20Parceiro%20YTB','_blank');
-    return;
-  }
-
-  // SUBMIT FORM
-  if(t.id==='btnSubmit'){ submitForm(); return; }
-
-  // CARDS ATLETA → perfil
-  var card = t.closest('[data-atleta]');
-  if(card && !t.closest('.area-full') && !t.closest('.sc-full')){
-    abrirPerfil(card.dataset.atleta); return;
-  }
-
-  // VOLTAR DO PERFIL
-  if(t.id==='btnPerfilBack'){ closeFull('ovPerfil'); return; }
-
-  // SC BTNS (critérios)
-  if(t.classList.contains('sc-btn')){
-    var sid = t.dataset.id;
-    var sval = parseInt(t.dataset.val);
-    if(sval===0){ delete S.scScores[sid]; }
-    else { S.scScores[sid] = sval; }
-    // update label
-    var lbl = el('sl-'+sid);
-    if(lbl){
-      if(sval===0){ lbl.textContent='N/A'; lbl.style.color='var(--muted)'; }
-      else { lbl.textContent=SC_LEG[sval]; lbl.style.color=SC_COR[sval]; }
-    }
-    // update botões no grupo
-    var grp = t.closest('[data-cid]');
-    if(grp) grp.querySelectorAll('.sc-btn').forEach(function(b){ b.classList.remove('on'); });
-    t.classList.add('on');
-    return;
-  }
-
-  // SC CLASS BTNS
-  if(t.classList.contains('sc-cls-btn')){
-    var grpName = t.dataset.grp;
-    var val = t.dataset.val;
-    if(grpName==='rendimento') S.scRendimento=val;
-    else if(grpName==='prazo') S.scPrazo=val;
-    else if(grpName==='decisao') S.scDecisao=val;
-    var grpEl = el('grp'+grpName.charAt(0).toUpperCase()+grpName.slice(1));
-    if(grpEl){
-      grpEl.querySelectorAll('.sc-cls-btn').forEach(function(b){ b.classList.remove('on'); });
-      t.classList.add('on');
-    }
-    return;
-  }
-
-  // GERAR RELATÓRIO
-  if(t.id==='btnScGerar'){ gerarRelatorio(); return; }
-  if(t.id==='btnScPDF'){ gerarPDF(); return; }
-  if(t.id==='btnScNovo'){ resetSc(); return; }
-  if(t.id==='btnScSair'){ closeFull('scArea'); resetSc(); return; }
-
-  // ÁREA RESERVADA — SAIR
-  if(t.id==='btnAreaSair'){ closeFull('areaReservada'); S.role=null; return; }
-
-  // TABS
-  if(t.classList.contains('a-tab')){
-    document.querySelectorAll('.a-tab').forEach(function(b){ b.classList.remove('on'); });
-    t.classList.add('on');
-    var tab = t.dataset.tab;
-    el('tabAtletas').style.display = tab==='atletas'?'block':'none';
-    el('tabRelatorios').style.display = tab==='relatorios'?'block':'none';
-    if(tab==='relatorios') carregarRelatorios();
-    return;
-  }
-
-  // LISTA ATLETAS — abrir modal
-  var li = t.closest('.lista-item');
-  if(li && li.closest('#listaAtletas')){
-    abrirModalAtleta(li.dataset.id); return;
-  }
-  if(li && li.closest('#listaRelatorios')){
-    abrirModalRelatorio(li.dataset.id); return;
-  }
-
-  // ACÇÕES NO MODAL (usam data-action para evitar onclick inline)
-  if(t.dataset.action==='estado'){
-    alterarEstado(t.dataset.id, t.dataset.val); return;
-  }
-  if(t.dataset.action==='del-atleta'){
-    delAtleta(t.dataset.id); return;
-  }
-  if(t.dataset.action==='del-relatorio'){
-    delRelatorio(t.dataset.id); return;
-  }
-  if(t.dataset.action==='copiar'){
-    navigator.clipboard.writeText(t.dataset.url).then(function(){
-      t.textContent='✓ Copiado';
-      setTimeout(function(){ t.textContent='Copiar'; },2000);
-    });
-    return;
-  }
-  if(t.dataset.action==='pdf-rel'){
-    var rid = t.dataset.id;
-    var r = S.relatoriosDB.find(function(x){ return x.id===rid; });
-    if(r){ S.scTexto=r.relatorio_texto||''; S.scDados=r.dados||{}; S.scDecisao=r.decisao||''; S.scRendimento=r.rendimento||''; S.scPrazo=r.prazo||''; S.scScores=r.scores||{}; gerarPDF(); }
-    return;
-  }
-
-});
-
-// Enter em campos password
-document.addEventListener('keydown', function(e){
-  if(e.key!=='Enter') return;
-  if(document.activeElement===el('scPass')) loginScout();
-  if(document.activeElement===el('areaPass')) loginArea();
-});
-
-// Filtros área reservada
-document.addEventListener('change', function(e){
-  if(e.target.id==='filtroPlano'||e.target.id==='filtroEstado') renderAtletas();
-});
-
-// ── LOGIN ────────────────────────────────────────────
-function loginScout(){
-  var pass = (el('scPass').value||'').trim();
-  var found = CREDS.find(function(c){ return c.pass===pass; });
-  if(found){
-    el('scErr').style.display='none';
-    el('scPass').value='';
-    S.role = found.role;
-    S.nome = found.nome;
-    el('scBadge').textContent = 'Scout · '+S.nome;
-    closeOv('ovScout');
-    buildCriterios();
-    openFull('scArea');
-  } else {
-    el('scErr').style.display='block';
-    el('scPass').value='';
-  }
-}
-
-function loginArea(){
-  var pass = (el('areaPass').value||'').trim();
-  var found = CREDS.find(function(c){ return c.pass===pass && (c.role==='super'||c.role==='admin'); });
-  if(found){
-    el('areaErr').style.display='none';
-    el('areaPass').value='';
-    S.role = found.role;
-    S.nome = found.nome;
-    el('areaBadge').textContent = found.role==='super'?'Superuser':'Admin';
-    closeOv('ovArea');
-    openFull('areaReservada');
-    carregarAtletas();
-  } else {
-    el('areaErr').style.display='block';
-    el('areaPass').value='';
-  }
-}
-
-// ── PERFIL ATLETA ─────────────────────────────────────
-function abrirPerfil(id){
-  var a = ATLETAS[id];
-  if(!a) return;
-  var nc = {A:'var(--gold)',B:'#3b82f6',C:'#22c55e',D:'#8892a4'}[a.nivel]||'var(--gold)';
-  var h = '';
-  h += '<div class="p-foto" style="background-image:url(\''+a.foto+'\');background-position:'+a.fotoPos+';background-size:'+a.fotoSize+';">';
-  h += '<div class="a-badge" style="position:absolute;top:10px;left:10px;"><div class="a-dot"></div>Agenciado YTB</div>';
-  h += '<div style="position:absolute;bottom:10px;right:10px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,.5);border:2px solid '+nc+';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:'+nc+';">'+a.nivel+'</div>';
-  h += '</div>';
-  h += '<div style="margin-bottom:14px;">';
-  h += '<div style="font-size:8px;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin-bottom:3px;">'+a.escalao+'</div>';
-  h += '<div class="p-nome">'+a.nome+'</div>';
-  h += '<div class="p-sub">'+a.completo+' · '+a.nascimento+'</div>';
-  h += '</div>';
-  h += '<div class="p-stats">';
-  a.stats.forEach(function(s){
-    h += '<div class="p-stat"><div class="p-stat-n">'+s.n+'</div><div class="p-stat-l">'+s.l+'</div></div>';
-  });
-  h += '</div>';
-  h += '<div class="p-bio">'+a.bio+'</div>';
-  if(a.hist&&a.hist.length){
-    h += '<div style="font-size:9px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">Historial</div>';
-    h += '<div class="p-hist">';
-    a.hist.forEach(function(hr){
-      h += '<div class="h-row">';
-      h += '<span style="color:var(--gold);font-weight:600;">'+hr.e+'</span>';
-      h += '<span style="color:#fff;">'+hr.c+' · '+hr.esc+'</span>';
-      h += '<span style="color:var(--muted);">'+(hr.j?hr.j+'j':'')+''+(hr.g!=null?' · '+hr.g+'g':'')+'</span>';
-      h += '</div>';
-    });
-    h += '</div>';
-  }
-  if(a.palmares&&a.palmares.length){
-    h += '<div style="margin-top:12px;">';
-    a.palmares.forEach(function(p){
-      h += '<div style="font-size:11px;color:var(--gold);margin-bottom:4px;">🏆 '+p+'</div>';
-    });
-    h += '</div>';
-  }
-  if(a.zz){
-    h += '<div style="margin-top:14px;"><a href="'+a.zz+'" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;font-size:11px;color:#3b82f6;border:1px solid rgba(59,130,246,.3);padding:7px 13px;border-radius:4px;">🔗 Ver no ZeroZero</a></div>';
-  }
-  el('perfilContent').innerHTML = h;
-  openFull('ovPerfil');
-}
-
-// ── FORMULÁRIO ────────────────────────────────────────
-async function submitForm(){
-  var nome = (el('f-nome').value||'').trim();
-  var contacto = (el('f-contacto').value||'').trim();
-  var auth = el('f-auth').checked;
-  var btn = el('btnSubmit');
-  var errEl = el('fErr');
-
-  if(!nome||!contacto){ alert('Preenche nome e contacto.'); return; }
-  if(!auth){ alert('Aceita a autorização para continuar.'); return; }
-
-  btn.textContent='A enviar...'; btn.disabled=true; errEl.style.display='none';
-
-  try {
-    var res = await db.from('sugestoes').insert([{
-      nome:nome,
-      idade:el('f-idade').value||null,
-      clube:el('f-clube').value||'',
-      escalao:el('f-escalao').value||'',
-      posicao:el('f-posicao').value||'',
-      plano:el('f-plano').value||'',
-      contacto:contacto,
-      zerozero:el('f-zerozero').value||'',
-      descricao:el('f-descricao').value||'',
-      estado:'Novo'
-    }]);
-    if(res.error) throw res.error;
-    btn.textContent='✓ Enviado!'; btn.style.background='#22c55e'; btn.style.color='#fff';
-    ['f-nome','f-idade','f-clube','f-contacto','f-zerozero','f-descricao'].forEach(function(id){
-      var x=el(id); if(x) x.value='';
-    });
-    ['f-escalao','f-posicao','f-plano'].forEach(function(id){
-      var x=el(id); if(x) x.selectedIndex=0;
-    });
-    el('f-auth').checked=false;
-    setTimeout(function(){
-      btn.textContent='➤ Enviar Inscrição'; btn.disabled=false;
-      btn.style.background=''; btn.style.color='';
-    },4000);
-  } catch(err){
-    errEl.textContent='Erro ao enviar. Contacta: yourtalentbase@gmail.com';
-    errEl.style.display='block';
-    btn.textContent='➤ Enviar Inscrição'; btn.disabled=false;
-  }
-}
-
-// ── ÁREA RESERVADA — ATLETAS ──────────────────────────
-async function carregarAtletas(){
-  var lista = el('listaAtletas');
-  if(!lista) return;
-  lista.innerHTML='<div style="color:var(--muted);text-align:center;padding:28px;">A carregar...</div>';
-  try {
-    var res = await db.from('sugestoes').select('*').order('created_at',{ascending:false});
-    S.atletasDB = res.data||[];
-    renderAtletas();
-  } catch(err){
-    lista.innerHTML='<div style="color:#ef4444;text-align:center;padding:28px;">Erro ao carregar.</div>';
-  }
-}
-
-function renderAtletas(){
-  var lista = el('listaAtletas');
-  if(!lista) return;
-  var fp=(el('filtroPlano')||{}).value||'';
-  var fe=(el('filtroEstado')||{}).value||'';
-  var dados = S.atletasDB.filter(function(a){
-    return (!fp||a.plano===fp) && (!fe||a.estado===fe);
-  });
-  if(!dados.length){
-    lista.innerHTML='<div style="color:var(--muted);text-align:center;padding:28px;">Nenhum atleta.</div>';
-    return;
-  }
-  var ec={Novo:'#F5C000','Em análise':'#3b82f6',Aceite:'#22c55e',Recusado:'#ef4444'};
-  lista.innerHTML = dados.map(function(a){
-    var c=ec[a.estado]||'var(--muted)';
-    var dt=a.created_at?new Date(a.created_at).toLocaleDateString('pt-PT'):'—';
-    return '<div class="lista-item" data-id="'+a.id+'">'+
-      '<div>'+
-        '<div class="li-nome">'+(a.nome||'—')+'</div>'+
-        '<div class="li-sub">'+[a.escalao,a.posicao,a.clube].filter(Boolean).join(' · ')+'</div>'+
-      '</div>'+
-      '<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">'+
-        '<span style="font-size:9px;font-weight:700;color:'+c+';">'+(a.estado||'Novo')+'</span>'+
-        '<span style="font-size:9px;color:var(--muted);">'+dt+'</span>'+
-      '</div>'+
-    '</div>';
-  }).join('');
-}
-
-async function abrirModalAtleta(id){
-  var a = S.atletasDB.find(function(x){ return x.id===id; });
-  if(!a) return;
-  var dt=a.created_at?new Date(a.created_at).toLocaleDateString('pt-PT',{day:'2-digit',month:'long',year:'numeric'}):'—';
-  var ec={Novo:'#F5C000','Em análise':'#3b82f6',Aceite:'#22c55e',Recusado:'#ef4444'};
-  var c=ec[a.estado]||'var(--muted)';
-  var h='';
-  h+='<div class="m-ey">Inscrição YTB</div>';
-  h+='<div class="m-title">'+(a.nome||'—')+'</div>';
-  h+='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;">';
-  h+='<span style="font-size:9px;font-weight:700;letter-spacing:1px;padding:3px 9px;border-radius:3px;background:'+c+'18;color:'+c+';border:1px solid '+c+'44;">'+(a.estado||'Novo')+'</span>';
-  if(a.plano) h+='<span style="font-size:9px;background:var(--bg);border:1px solid var(--border);padding:3px 9px;border-radius:3px;color:var(--muted);">'+a.plano+'</span>';
-  h+='</div>';
-  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">';
-  [['Idade',a.idade],['Clube',a.clube],['Escalão',a.escalao],['Posição',a.posicao],['Contacto',a.contacto],['Data',dt]].forEach(function(row){
-    if(!row[1]) return;
-    h+='<div style="background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:9px 11px;">';
-    h+='<div style="font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:2px;">'+row[0]+'</div>';
-    h+='<div style="font-size:12px;color:#fff;">'+row[1]+'</div>';
-    h+='</div>';
-  });
-  h+='</div>';
-  if(a.zerozero){
-    h+='<div style="background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:9px 11px;margin-bottom:12px;">';
-    h+='<div style="font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:5px;">ZeroZero</div>';
-    h+='<div style="display:flex;align-items:center;gap:8px;">';
-    h+='<a href="'+a.zerozero+'" target="_blank" style="font-size:11px;color:#3b82f6;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+a.zerozero+'</a>';
-    h+='<button data-action="copiar" data-url="'+a.zerozero+'" style="font-size:9px;padding:3px 9px;border-radius:3px;background:var(--bg3);border:1px solid var(--border);color:var(--muted);">Copiar</button>';
-    h+='</div></div>';
-  }
-  if(a.descricao){
-    h+='<div style="background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:9px 11px;margin-bottom:12px;">';
-    h+='<div style="font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px;">Descrição</div>';
-    h+='<div style="font-size:12px;color:var(--slate);line-height:1.7;">'+a.descricao+'</div></div>';
-  }
-  h+='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;">';
-  ['Novo','Em análise','Aceite','Recusado'].forEach(function(est){
-    if(est===a.estado) return;
-    var cc=ec[est]||'var(--muted)';
-    h+='<button data-action="estado" data-id="'+a.id+'" data-val="'+est+'" style="font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;padding:6px 11px;border-radius:3px;background:'+cc+'15;color:'+cc+';border:1px solid '+cc+'44;">→ '+est+'</button>';
-  });
-  h+='<button data-action="del-atleta" data-id="'+a.id+'" style="margin-left:auto;font-size:9px;font-weight:700;padding:6px 11px;border-radius:3px;background:rgba(239,68,68,.1);color:#ef4444;border:1px solid rgba(239,68,68,.25);">🗑 Apagar</button>';
-  h+='</div>';
-  el('modalBody').innerHTML=h;
-  openOv('ovModal');
-}
-
-async function alterarEstado(id, novoEstado){
-  try {
-    await db.from('sugestoes').update({estado:novoEstado}).eq('id',id);
-    var idx = S.atletasDB.findIndex(function(a){ return a.id===id; });
-    if(idx>=0) S.atletasDB[idx].estado=novoEstado;
-    closeOv('ovModal');
-    renderAtletas();
-  } catch(err){ alert('Erro ao actualizar.'); }
-}
-
-async function delAtleta(id){
-  if(!confirm('Apagar permanentemente?')) return;
-  try {
-    await db.from('sugestoes').delete().eq('id',id);
-    S.atletasDB = S.atletasDB.filter(function(a){ return a.id!==id; });
-    closeOv('ovModal');
-    renderAtletas();
-  } catch(err){ alert('Erro ao apagar.'); }
-}
-
-// ── RELATÓRIOS ────────────────────────────────────────
-async function carregarRelatorios(){
-  var lista = el('listaRelatorios');
-  if(!lista) return;
-  lista.innerHTML='<div style="color:var(--muted);text-align:center;padding:28px;">A carregar...</div>';
-  try {
-    var res = await db.from('relatorios').select('id,scout,atleta,clube,categoria,posicao,decisao,media_geral,created_at').order('created_at',{ascending:false});
-    S.relatoriosDB = res.data||[];
-    if(!S.relatoriosDB.length){
-      lista.innerHTML='<div style="color:var(--muted);text-align:center;padding:28px;">Sem relatórios ainda.</div>';
-      return;
-    }
-    var dc={Contratar:'#22c55e',Acompanhar:'#eab308','Nova Observação':'#3b82f6','Sem Interesse':'#ef4444'};
-    lista.innerHTML = S.relatoriosDB.map(function(r){
-      var dt=r.created_at?new Date(r.created_at).toLocaleDateString('pt-PT'):'—';
-      var mg=r.media_geral?parseFloat(r.media_geral).toFixed(1):'—';
-      var dCor=dc[r.decisao]||'var(--muted)';
-      return '<div class="lista-item" data-id="'+r.id+'">'+
-        '<div>'+
-          '<div class="li-nome">'+(r.atleta||'—')+'</div>'+
-          '<div class="li-sub">'+[r.categoria,r.posicao,r.clube].filter(Boolean).join(' · ')+' · '+(r.scout||'—')+'</div>'+
-        '</div>'+
-        '<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">'+
-          '<span style="font-family:Barlow Condensed,sans-serif;font-size:18px;font-weight:900;color:var(--gold);">'+mg+'</span>'+
-          (r.decisao?'<span style="font-size:9px;color:'+dCor+';">'+r.decisao+'</span>':'')+
-          '<span style="font-size:9px;color:var(--muted);">'+dt+'</span>'+
-        '</div>'+
-      '</div>';
-    }).join('');
-  } catch(err){
-    lista.innerHTML='<div style="color:#ef4444;text-align:center;padding:28px;">Erro ao carregar.</div>';
-  }
-}
-
-async function abrirModalRelatorio(id){
-  try {
-    var res = await db.from('relatorios').select('*').eq('id',id).single();
-    var r = res.data;
-    if(!r) return;
-    // guardar em cache para PDF
-    if(!S.relatoriosDB.find(function(x){ return x.id===id; })) S.relatoriosDB.push(r);
-    var dc={Contratar:'#22c55e',Acompanhar:'#eab308','Nova Observação':'#3b82f6','Sem Interesse':'#ef4444'};
-    var dCor=dc[r.decisao]||'var(--muted)';
-    var mg=r.media_geral?parseFloat(r.media_geral).toFixed(1):'—';
-    var h='';
-    h+='<div class="m-ey">Scout Report · YTB</div>';
-    h+='<div class="m-title">'+(r.atleta||'—')+'</div>';
-    h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">';
-    h+='<div style="background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:9px 11px;"><div style="font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:2px;">Scout</div><div style="font-size:12px;">'+(r.scout||'—')+'</div></div>';
-    h+='<div style="background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:9px 11px;"><div style="font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:2px;">Média</div><div style="font-family:Barlow Condensed,sans-serif;font-size:22px;font-weight:900;color:var(--gold);">'+mg+'</div></div>';
-    if(r.decisao) h+='<div style="background:'+dCor+'12;border:1px solid '+dCor+'33;border-radius:4px;padding:9px 11px;grid-column:span 2;"><div style="font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:2px;">Decisão</div><div style="font-family:Barlow Condensed,sans-serif;font-size:17px;font-weight:800;color:'+dCor+';">'+r.decisao+'</div></div>';
-    h+='</div>';
-    if(r.relatorio_texto){
-      h+='<div style="background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:10px 12px;margin-bottom:12px;max-height:180px;overflow-y:auto;">';
-      h+='<div style="font-size:8px;color:var(--gold);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;">Relatório</div>';
-      h+='<div style="font-size:11px;color:var(--slate);line-height:1.7;white-space:pre-wrap;">'+r.relatorio_texto+'</div></div>';
-    }
-    h+='<div style="display:flex;gap:8px;">';
-    h+='<button data-action="pdf-rel" data-id="'+r.id+'" style="flex:1;padding:10px;background:var(--gold);color:#000;border:none;border-radius:4px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">📄 PDF</button>';
-    h+='<button data-action="del-relatorio" data-id="'+r.id+'" style="padding:10px 13px;background:rgba(239,68,68,.1);color:#ef4444;border:1px solid rgba(239,68,68,.25);border-radius:4px;font-size:11px;">🗑</button>';
-    h+='</div>';
-    el('modalBody').innerHTML=h;
-    openOv('ovModal');
-  } catch(err){ alert('Erro ao abrir relatório.'); }
-}
-
-async function delRelatorio(id){
-  if(!confirm('Apagar permanentemente?')) return;
-  try {
-    await db.from('relatorios').delete().eq('id',id);
-    closeOv('ovModal');
-    carregarRelatorios();
-  } catch(err){ alert('Erro ao apagar.'); }
-}
-
-// ── GERAR RELATÓRIO ───────────────────────────────────
-async function gerarRelatorio(){
-  var nome=(el('sc-nome').value||'').trim();
-  var cat=el('sc-cat').value;
-  var pos=el('sc-pos').value;
-  var formato=el('sc-formato').value;
-  var clube=(el('sc-clube').value||'').trim();
-  var obs=(el('sc-obs').value||'').trim();
-  var errEl=el('scErr2');
-
-  if(!nome||!cat||!pos){
-    errEl.textContent='Preenche Nome, Escalão e Posição.';
-    errEl.style.display='block';
-    return;
-  }
-  errEl.style.display='none';
-
-  var nasc=el('sc-nasc').value;
-  var alt=el('sc-alt').value;
-  var peso=el('sc-peso').value;
-  var pe=el('sc-pe').value;
-  var epoca=el('sc-epoca').value||'2025/26';
-  var dobs=el('sc-dobs').value;
-  var eir=nasc?calcEIR(nasc,cat):null;
-
-  S.scDados={nome:nome,clube:clube,cat:cat,pos:pos,formato:formato,pe:pe,alt:alt,peso:peso,epoca:epoca,scout:S.nome,nasc:nasc,dobs:dobs};
-
-  var notas='';
-  Object.keys(SC_CRIT).forEach(function(k){
-    var a=SC_CRIT[k];
-    notas+=a.label+':\n';
-    a.items.forEach(function(it){
-      var v=S.scScores[it.id];
-      notas+='  '+it.l+': '+(v&&v>0?v+'/5 ('+SC_LEG[v]+')':'N/A')+'\n';
-    });
-  });
-
-  var mg=mediaGeral();
-
-  var prompt=[
-    "Scout da YourTalentBase. Escreve Scout Report em português europeu.",
-    "ATLETA: "+nome+" | POSIÇÃO: "+pos+(pe?" · Pé "+pe:"")+(formato?" | FORMATO: "+formato:"")+" | ESCALÃO: "+cat+" · "+clube,
-    "ÉPOCA: "+epoca+(alt?" | ALTURA: "+alt+"cm":"")+(peso?" | PESO: "+peso+"kg":""),
-    eir?"EIR: "+eir.tri+" — "+eir.van:"",
-    "SCOUT: "+S.nome+(dobs?" | OBS: "+dobs:""),
-    "",
-    "AVALIAÇÃO:\n"+notas,
-    "MÉDIA: "+(mg?mg.toFixed(1)+"/5":"—"),
-    "RENDIMENTO: "+(S.scRendimento||"—"),
-    "DECISÃO: "+(S.scDecisao||"—"),
-    obs?"NOTAS DO SCOUT:\n"+obs:"",
-    "",
-    "Secções: **ESTILO DE JOGO** | **PONTOS FORTES** (3 itens) | **PONTOS A DESENVOLVER** (2 itens) | **RECOMENDAÇÃO**",
-    "Tom profissional, objetivo, específico. Máx 320 palavras."
-  ].filter(function(l){ return l!==""; }).join("\n");
-
-  el('scForm').style.display='none';
-  el('scLoad').style.display='block';
-  el('scRes').style.display='none';
-
-  try {
-    var res=await fetch('/api/claude',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({messages:[{role:'user',content:prompt}]})
-    });
-    if(!res.ok){ var er=await res.json(); throw new Error(er.error||'Erro API'); }
-    var data=await res.json();
-    if(!data.content) throw new Error('Resposta inválida');
-    S.scTexto=data.content.map(function(b){ return b.text||''; }).join('\n');
-
-    // Guardar Supabase
-    try {
-      await db.from('relatorios').insert([{
-        scout:S.nome, atleta:nome, clube:clube, categoria:cat, posicao:pos, epoca:epoca,
-        scores:S.scScores, dados:S.scDados, relatorio_texto:S.scTexto,
-        decisao:S.scDecisao, rendimento:S.scRendimento, prazo:S.scPrazo,
-        media_geral:mg?parseFloat(mg.toFixed(2)):null
-      }]);
-    } catch(es){ console.warn('Save Supabase falhou:',es); }
-
-    mostrarResultado();
-  } catch(err){
-    el('scLoad').style.display='none';
-    el('scForm').style.display='block';
-    errEl.textContent='Erro: '+(err.message||'Tenta novamente.');
-    errEl.style.display='block';
-  }
-}
-
-function mostrarResultado(){
-  el('scLoad').style.display='none';
-  el('scRes').style.display='block';
-
-  var nome=S.scDados.nome||'—';
-  var mg=mediaGeral();
-  el('scResNome').textContent=nome;
-  el('scResSub').textContent=[S.scDados.cat,S.scDados.pos,S.scDados.clube].filter(Boolean).join(' · ');
-  el('scResMed').textContent=mg?mg.toFixed(1):'—';
-
-  var boxes='';
-  Object.keys(SC_CRIT).forEach(function(k){
-    var a=SC_CRIT[k];
-    var m=mediaArea(a.items.map(function(i){ return i.id; }));
-    boxes+='<div style="background:var(--bg3);border:1px solid var(--border);border-radius:5px;padding:9px;text-align:center;">';
-    boxes+='<div style="font-family:Barlow Condensed,sans-serif;font-size:20px;font-weight:900;color:'+a.cor+';">'+(m||'—')+'</div>';
-    boxes+='<div style="font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:1px;">'+a.label+'</div>';
-    boxes+='</div>';
-  });
-  el('scResBoxes').innerHTML=boxes;
-
-  var textoFmt=S.scTexto
-    .replace(/\*\*(.+?)\*\*/g,'<strong style="color:#fff;font-weight:700;">$1</strong>')
-    .split('\n').filter(function(l){ return l.trim(); })
-    .map(function(l){ return '<p style="margin-bottom:8px;">'+l+'</p>'; })
-    .join('');
-  el('scResTexto').innerHTML=textoFmt;
-}
-
-function resetSc(){
-  S.scScores={}; S.scRendimento=''; S.scPrazo=''; S.scDecisao=''; S.scTexto=''; S.scDados={};
-  el('scForm').style.display='block';
-  el('scLoad').style.display='none';
-  el('scRes').style.display='none';
-  el('scErr2').style.display='none';
-  ['sc-nome','sc-clube','sc-epoca','sc-alt','sc-peso'].forEach(function(id){ var x=el(id); if(x) x.value=''; });
-  ['sc-nasc','sc-dobs'].forEach(function(id){ var x=el(id); if(x) x.value=''; });
-  ['sc-cat','sc-pos','sc-pe','sc-formato'].forEach(function(id){ var x=el(id); if(x) x.selectedIndex=0; });
-  if(el('scPerfilPos')) el('scPerfilPos').style.display='none';
-  document.querySelectorAll('.sc-btn').forEach(function(b){ b.classList.remove('on'); });
-  document.querySelectorAll('.sc-slbl').forEach(function(l){ l.textContent='—'; l.style.color='var(--muted)'; });
-  document.querySelectorAll('.sc-cls-btn').forEach(function(b){ b.classList.remove('on'); });
-}
-
-// ── PDF ───────────────────────────────────────────────
-function gerarPDF(){
-  var nome=S.scDados.nome||'—';
-  var mg=mediaGeral();
-  var data=new Date().toLocaleDateString('pt-PT',{day:'2-digit',month:'long',year:'numeric'});
-
-  var h='<!DOCTYPE html><html lang="pt"><head><meta charset="UTF-8"><title>Scout Report — '+nome+'</title>';
-  h+='<style>*{margin:0;padding:0;box-sizing:border-box;}body{font-family:Arial,sans-serif;background:#fff;color:#111;font-size:13px;line-height:1.5;}';
-  h+='.hdr{background:#0B0B0B;color:#fff;padding:20px 28px;display:flex;justify-content:space-between;align-items:center;}';
-  h+='.hdr-logo{font-size:16px;font-weight:900;letter-spacing:2px;}.hdr-logo span{color:#D4AF37;}';
-  h+='.hdr-badge{background:#D4AF37;color:#000;padding:3px 10px;border-radius:3px;font-size:9px;font-weight:700;letter-spacing:1px;}';
-  h+='.sec{padding:16px 28px;border-bottom:1px solid #eee;}';
-  h+='.ey{font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#888;margin-bottom:3px;}';
-  h+='.tit{font-size:24px;font-weight:900;}';
-  h+='.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:12px 0;}';
-  h+='.stat{background:#f5f5f5;border-radius:5px;padding:10px;text-align:center;}';
-  h+='.stat-n{font-size:22px;font-weight:900;color:#D4AF37;}.stat-l{font-size:8px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-top:2px;}';
-  h+='.txt{line-height:1.8;color:#333;font-size:12px;}strong{font-weight:700;color:#111;}';
-  h+='.wm{font-size:8px;color:#bbb;text-align:center;padding:10px;}';
-  h+='@media print{body{margin:0;}#pbtn{display:none!important;}}</style></head><body>';
-
-  h+='<div class="hdr"><div class="hdr-logo">Your<span>Talent</span>Base</div><div class="hdr-badge">SCOUT REPORT · CONFIDENCIAL</div></div>';
-  h+='<div class="sec"><div class="ey">Atleta</div><div class="tit">'+nome+'</div><div style="font-size:11px;color:#666;margin-top:3px;">'+[S.scDados.cat,S.scDados.pos,S.scDados.clube].filter(Boolean).join(' · ')+'</div></div>';
-
-  h+='<div class="sec"><div class="grid">';
-  Object.keys(SC_CRIT).forEach(function(k){
-    var a=SC_CRIT[k];
-    var m=mediaArea(a.items.map(function(i){ return i.id; }));
-    h+='<div class="stat"><div class="stat-n">'+(m||'—')+'</div><div class="stat-l">'+a.label+'</div></div>';
-  });
-  h+='<div class="stat"><div class="stat-n" style="color:#111;">'+(mg?mg.toFixed(1):'—')+'</div><div class="stat-l">Geral</div></div>';
-  h+='</div></div>';
-
-  if(S.scTexto){
-    h+='<div class="sec"><div class="ey">Relatório</div><div style="height:8px;"></div>';
-    h+='<div class="txt">'+S.scTexto.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>')+'</div></div>';
-  }
-
-  h+='<div class="sec" style="display:flex;justify-content:space-between;align-items:center;">';
-  if(S.scDecisao) h+='<div><div class="ey">Decisão</div><div style="font-size:14px;font-weight:700;">'+S.scDecisao+'</div></div>';
-  h+='<div style="text-align:right;"><div class="ey">Scout · Data</div><div style="font-size:12px;">'+S.nome+' · '+data+'</div></div>';
-  h+='</div>';
-  h+='<div class="wm">YourTalentBase · yourtalentbase.pt · Documento Confidencial</div>';
-  h+='<button id="pbtn" onclick="window.print()" style="position:fixed;bottom:16px;right:16px;background:#D4AF37;color:#000;padding:10px 20px;border:none;border-radius:4px;font-size:12px;font-weight:700;cursor:pointer;">🖨 Imprimir / PDF</button>';
-  h+='</body></html>';
-
-  var w=window.open('','_blank','width=860,height=680');
-  if(w){ w.document.write(h); w.document.close(); }
-  else { alert('Permite popups para gerar o PDF.'); }
-}
-
-
-// ── INIT ─────────────────────────────────────────────
-window.addEventListener('DOMContentLoaded', function(){
-  dragScroll(el('atletasRow'));
-  var fmtSel = el('sc-formato');
-  var posSel = el('sc-pos');
-  if(fmtSel) fmtSel.addEventListener('change', atualizarPosicoes);
-  if(posSel) posSel.addEventListener('change', renderPerfilPosicao);
-});
-
-})();
-</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/js/app.js"></script>
+<script src="assets/js/home.js"></script>
 </body>
 </html>

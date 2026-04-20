@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Club OS · YourTalentBase</title>
+<meta name="theme-color" content="#09090C">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/global.css">
+<link rel="stylesheet" href="assets/css/club.css">
+</head>
+<body>
+
+<!-- ── TOP NAV ──────────────────────────────────────────────── -->
+<nav class="dash-nav" id="dashNav">
+  <div class="dash-nav-left">
+    <button class="btn btn-ghost btn-icon" id="btnSideToggle" aria-label="Menu">
+      <svg width="18" height="14" viewBox="0 0 18 14" fill="none"><rect y="0" width="18" height="2" rx="1" fill="currentColor"/><rect y="6" width="12" height="2" rx="1" fill="currentColor"/><rect y="12" width="18" height="2" rx="1" fill="currentColor"/></svg>
+    </button>
+    <div class="nav-logo">
+      <div class="nav-logo-badge">YTB</div>
+      <span class="hide-mobile">Club <span>OS</span></span>
+    </div>
+  </div>
+  <div class="dash-nav-center" id="navClubName">
+    <span>Gondomar SC · Sub-12</span>
+  </div>
+  <div class="dash-nav-right">
+    <div class="dash-avatar" id="dashAvatar">MT</div>
+  </div>
+</nav>
+
+<!-- ── SIDEBAR ──────────────────────────────────────────────── -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-inner">
+    <nav class="sidebar-nav">
+      <div class="sidebar-section-label">Principal</div>
+      <button class="snav-item active" data-module="home">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>Início</span>
+      </button>
+      <button class="snav-item" data-module="presencas">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        <span>Presenças</span>
+        <span class="snav-badge" id="badgePresencas"></span>
+      </button>
+      <button class="snav-item" data-module="treinos">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span>Treinos</span>
+      </button>
+      <button class="snav-item" data-module="plantel">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>Plantel</span>
+      </button>
+
+      <div class="sidebar-section-label">Gestão</div>
+      <button class="snav-item" data-module="financeiro">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+        <span>Financeiro</span>
+      </button>
+      <button class="snav-item" data-module="calendario">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <span>Calendário</span>
+      </button>
+      <button class="snav-item" data-module="fpf">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <span>Certificação FPF</span>
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="index.html" class="snav-item" style="text-decoration:none;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+        <span>YTB Home</span>
+      </a>
+    </div>
+  </div>
+</aside>
+
+<!-- ── OVERLAY sidebar mobile ─────────────────────────────────── -->
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+<!-- ── MAIN CONTENT ─────────────────────────────────────────── -->
+<main class="dash-main" id="dashMain">
+
+  <!-- HOME MODULE -->
+  <div id="mod-home" class="module active">
+    <div class="module-header">
+      <h1 class="display-sm">Bom dia, Mister Teles 👋</h1>
+      <p class="text-sm text-muted">Segunda-feira, 20 de Abril 2026</p>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background:var(--gold-soft);color:var(--gold);">👥</div>
+        <div class="kpi-val">25</div>
+        <div class="kpi-label">Atletas no plantel</div>
+        <div class="kpi-sub text-muted">3 posições em aberto</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background:var(--green-soft);color:var(--green);">✓</div>
+        <div class="kpi-val" style="color:var(--green);">87%</div>
+        <div class="kpi-label">Taxa de presença</div>
+        <div class="kpi-sub text-muted">Última semana</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background:var(--blue-soft);color:#60a5fa;">📋</div>
+        <div class="kpi-val" style="color:#60a5fa;">12</div>
+        <div class="kpi-label">Treinos este mês</div>
+        <div class="kpi-sub text-muted">+2 vs mês anterior</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background:var(--orange-soft);color:var(--orange);">💰</div>
+        <div class="kpi-val" style="color:var(--orange);">3</div>
+        <div class="kpi-label">Pagamentos em atraso</div>
+        <div class="kpi-sub text-muted">€180 em dívida</div>
+      </div>
+    </div>
+
+    <!-- Quick actions -->
+    <div class="qa-grid">
+      <button class="qa-btn" data-module="presencas">
+        <span class="qa-icon">✓</span>
+        <span>Registar Presença</span>
+      </button>
+      <button class="qa-btn" data-module="treinos">
+        <span class="qa-icon">⏱</span>
+        <span>Novo Treino</span>
+      </button>
+      <button class="qa-btn" data-module="financeiro">
+        <span class="qa-icon">💰</span>
+        <span>Ver Pagamentos</span>
+      </button>
+      <button class="qa-btn" data-module="fpf">
+        <span class="qa-icon">⭐</span>
+        <span>Certificação FPF</span>
+      </button>
+    </div>
+
+    <!-- Próximos eventos -->
+    <div class="card" style="margin-top:var(--space-5);">
+      <div class="flex items-center justify-between" style="margin-bottom:var(--space-4);">
+        <div class="text-2xs text-muted">Próximos eventos</div>
+        <button class="btn btn-ghost btn-sm" data-module="calendario">Ver calendário</button>
+      </div>
+      <div class="events-list">
+        <div class="event-item">
+          <div class="event-date"><div class="event-day">22</div><div class="event-month">ABR</div></div>
+          <div class="event-info">
+            <div class="event-title">Treino</div>
+            <div class="event-sub">Campo 3 · 18h00 — 19h30</div>
+          </div>
+          <span class="badge badge-blue">Treino</span>
+        </div>
+        <div class="event-item">
+          <div class="event-date"><div class="event-day">26</div><div class="event-month">ABR</div></div>
+          <div class="event-info">
+            <div class="event-title">Gondomar SC vs FC Porto B</div>
+            <div class="event-sub">Estádio Municipal · 10h30</div>
+          </div>
+          <span class="badge badge-gold">Jogo</span>
+        </div>
+        <div class="event-item">
+          <div class="event-date"><div class="event-day">29</div><div class="event-month">ABR</div></div>
+          <div class="event-info">
+            <div class="event-title">Treino</div>
+            <div class="event-sub">Campo 3 · 18h00 — 19h30</div>
+          </div>
+          <span class="badge badge-blue">Treino</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRESENÇAS MODULE -->
+  <div id="mod-presencas" class="module">
+    <div class="module-header">
+      <div>
+        <h1 class="display-sm">Presenças</h1>
+        <p class="text-sm text-muted" id="presDataLabel">Treino · Hoje</p>
+      </div>
+      <div style="display:flex;gap:var(--space-2);">
+        <input type="date" class="inp inp-sm" id="presData" style="width:auto;">
+        <button class="btn btn-primary btn-sm" id="btnGuardarPres">Guardar</button>
+      </div>
+    </div>
+
+    <!-- Stats rápidos -->
+    <div class="pres-stats">
+      <div class="pres-stat"><span id="presTotal" class="pres-stat-n">0</span><span class="pres-stat-l">Total</span></div>
+      <div class="pres-stat pres-stat-pres"><span id="presPresentes" class="pres-stat-n">0</span><span class="pres-stat-l">Presentes</span></div>
+      <div class="pres-stat pres-stat-falta"><span id="presFaltas" class="pres-stat-n">0</span><span class="pres-stat-l">Faltas</span></div>
+      <div class="pres-stat pres-stat-les"><span id="presLesionados" class="pres-stat-n">0</span><span class="pres-stat-l">Lesionados</span></div>
+    </div>
+
+    <!-- Lista atletas -->
+    <div class="pres-list" id="presList"></div>
+  </div>
+
+  <!-- TREINOS MODULE -->
+  <div id="mod-treinos" class="module">
+    <div class="module-header">
+      <h1 class="display-sm">Treinos</h1>
+      <button class="btn btn-primary btn-sm" id="btnNovoTreino">+ Novo Treino</button>
+    </div>
+    <div id="treinosContent"></div>
+  </div>
+
+  <!-- PLANTEL MODULE -->
+  <div id="mod-plantel" class="module">
+    <div class="module-header">
+      <h1 class="display-sm">Plantel</h1>
+      <div style="display:flex;gap:var(--space-2);">
+        <input class="inp inp-sm" id="searchPlantel" placeholder="Pesquisar..." style="width:160px;">
+        <select class="select inp-sm" id="filterPos" style="width:120px;">
+          <option value="">Posição</option>
+          <option>GR</option><option>DEF</option><option>MED</option><option>AVA</option>
+        </select>
+      </div>
+    </div>
+    <div id="plantelContent"></div>
+  </div>
+
+  <!-- FINANCEIRO MODULE -->
+  <div id="mod-financeiro" class="module">
+    <div class="module-header">
+      <h1 class="display-sm">Financeiro</h1>
+      <div style="display:flex;gap:var(--space-2);">
+        <span class="badge badge-gold">Abril 2026</span>
+      </div>
+    </div>
+    <div id="financeiroContent"></div>
+  </div>
+
+  <!-- CALENDÁRIO MODULE -->
+  <div id="mod-calendario" class="module">
+    <div class="module-header">
+      <h1 class="display-sm">Calendário</h1>
+      <button class="btn btn-primary btn-sm" id="btnNovoEvento">+ Evento</button>
+    </div>
+    <div id="calendarioContent"></div>
+  </div>
+
+  <!-- FPF MODULE -->
+  <div id="mod-fpf" class="module">
+    <div class="module-header">
+      <h1 class="display-sm">Certificação FPF</h1>
+      <span class="badge badge-gold">Gondomar SC · Sub-12</span>
+    </div>
+    <div id="fpfContent"></div>
+  </div>
+
+</main>
+
+<!-- ── MODAL NOVO TREINO ──────────────────────────────────────── -->
+<div class="overlay" id="ovNovoTreino">
+  <div class="modal" style="max-width:540px;max-height:90vh;overflow-y:auto;">
+    <button class="modal-close" data-close="ovNovoTreino">×</button>
+    <div class="eyebrow">Registo</div>
+    <h2 class="display-xs" style="margin-bottom:var(--space-5);">Novo Treino</h2>
+    <div style="display:flex;flex-direction:column;gap:var(--space-3);" id="novoTreinoForm">
+
+      <div class="input-row input-row-2">
+        <div class="input-group"><label class="label">Data</label><input class="inp" id="nt-data" type="date"></div>
+        <div class="input-group"><label class="label">Duração (min)</label><input class="inp" id="nt-dur" type="number" placeholder="90"></div>
+      </div>
+
+      <div class="input-group">
+        <label class="label">Objetivo</label>
+        <input class="inp" id="nt-obj" placeholder="Ex: Organização defensiva + transições">
+      </div>
+
+      <div class="input-group">
+        <label class="label">Intensidade geral</label>
+        <div class="intensity-grid" id="intensGrid">
+          <button class="intens-btn" data-val="1">1<span>Leve</span></button>
+          <button class="intens-btn" data-val="2">2<span>Moderada</span></button>
+          <button class="intens-btn sel" data-val="3">3<span>Normal</span></button>
+          <button class="intens-btn" data-val="4">4<span>Alta</span></button>
+          <button class="intens-btn" data-val="5">5<span>Máxima</span></button>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label class="label">Tipo de trabalho (seleciona todos)</label>
+        <div class="tags-sel" id="tipoTags">
+          <button class="ttag" data-tag="Ofensivo">⚡ Ofensivo</button>
+          <button class="ttag" data-tag="Defensivo">🛡 Defensivo</button>
+          <button class="ttag" data-tag="Transição">↔ Transição</button>
+          <button class="ttag" data-tag="Posse">⚽ Posse</button>
+          <button class="ttag" data-tag="Finalização">🥅 Finalização</button>
+          <button class="ttag" data-tag="Bolas Paradas">🎯 Bolas Paradas</button>
+          <button class="ttag" data-tag="Físico">💪 Físico</button>
+          <button class="ttag" data-tag="Coordenação">🎪 Coordenação</button>
+          <button class="ttag" data-tag="Recuperação">🔄 Recuperação</button>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label class="label">Dinâmicas usadas</label>
+        <div class="tags-sel" id="dinamTags">
+          <button class="ttag" data-tag="Rondo">Rondo</button>
+          <button class="ttag" data-tag="Posse 5x2">Posse 5x2</button>
+          <button class="ttag" data-tag="Jogo Reduzido">Jogo Reduzido</button>
+          <button class="ttag" data-tag="Circuito Técnico">Circuito Técnico</button>
+          <button class="ttag" data-tag="Sprint">Sprint</button>
+          <button class="ttag" data-tag="Mobilidade">Mobilidade</button>
+          <button class="ttag" data-tag="Finalização">Finalização</button>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label class="label">Notas</label>
+        <textarea class="inp inp-area" id="nt-notas" placeholder="Observações, condições, etc."></textarea>
+      </div>
+
+      <button class="btn btn-primary btn-full" id="btnSalvarTreino">Guardar Treino</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL ATLETA ───────────────────────────────────────────── -->
+<div class="overlay" id="ovAtleta">
+  <div class="modal" style="max-width:480px;max-height:90vh;overflow-y:auto;">
+    <button class="modal-close" data-close="ovAtleta">×</button>
+    <div id="atletaModalContent"></div>
+  </div>
+</div>
+
+<script src="assets/js/app.js"></script>
+<script src="assets/js/club.js"></script>
+</body>
+</html>
