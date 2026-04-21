@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YourTalentBase · Ecossistema</title>
+    <style>
+        body { 
+            background: #050505; color: #fff; margin: 0; padding: 0;
+            overflow: hidden; font-family: 'Segoe UI', Roboto, sans-serif; height: 100vh; 
+        }
+        .network-wrap { 
+            position: relative; width: 100vw; height: 100vh; 
+            display: flex; align-items: center; justify-content: center; 
+        }
+        .hub-center {
+            width: 180px; height: 180px; background: #D4AF37; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            text-align: center; color: #000; font-weight: 900; z-index: 10;
+            box-shadow: 0 0 40px rgba(212, 175, 55, 0.3); border: 4px solid #fff;
+            font-size: 0.9rem;
+        }
+        .node {
+            position: absolute; padding: 12px 18px; background: rgba(255,255,255,0.08);
+            border: 1px solid #333; border-radius: 50px; color: #fff; text-decoration: none;
+            transition: 0.3s; font-weight: 600; font-size: 0.85rem; white-space: nowrap;
+        }
+        .node:hover { background: #D4AF37; color: #000; transform: scale(1.1); }
+        
+        /* Posicionamento Manual para não quebrar */
+        .n1 { transform: translate(0, -240px); }    /* Gestor */
+        .n2 { transform: translate(220px, -120px); } /* Scout */
+        .n3 { transform: translate(220px, 120px); }  /* TacticsLab */
+        .n4 { transform: translate(0, 240px); }      /* Treino Extra */
+        .n5 { transform: translate(-220px, 120px); } /* Database */
+        .n6 { transform: translate(-220px, -120px); }/* Representação */
+
+        .slogan { 
+            position: fixed; bottom: 30px; width: 100%; text-align: center; 
+            color: #555; font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; 
+        }
+    </style>
+</head>
+<body>
+    <div class="network-wrap">
+        <div class="hub-center">YOURTALENTBASE</div>
+        <a href="gestor.html" class="node n1">📊 GESTOR</a>
+        <a href="scout-report.html" class="node n2">🔍 SCOUT REPORT</a>
+        <a href="tacticslab.html" class="node n3">📋 TACTICSLAB</a>
+        <a href="treino.html" class="node n4">⚽ TREINO EXTRA</a>
+        <a href="database.html" class="node n5">🗂️ BASE DE DADOS</a>
+        <a href="representacao.html" class="node n6">🤝 REPRESENTAÇÃO</a>
+    </div>
+    <div class="slogan">O mais completo ecossistema de futebol</div>
+</body>
+</html>
