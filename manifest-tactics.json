@@ -1,0 +1,18 @@
+{
+  "id": "/tacticslab",
+  "name": "TacticsLab · YourTalentBase",
+  "short_name": "TacticsLab",
+  "description": "Simulador tático com análise por IA. Define movimentos, fases de jogo e recebe contra-táticas em tempo real.",
+  "start_url": "/tacticslab.html",
+  "scope": "/tacticslab.html",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#080C08",
+  "theme_color": "#080C08",
+  "lang": "pt",
+  "icons": [
+    { "src": "/icons/tactics-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icons/tactics-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "categories": ["sports", "productivity"]
+}

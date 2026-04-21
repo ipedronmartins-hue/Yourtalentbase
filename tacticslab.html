@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>TacticsLab · YourTalentBase</title>
+<meta name="theme-color" content="#080C08">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="TacticsLab">
+<link rel="manifest" href="/manifest-tactics.json">
+<link rel="apple-touch-icon" href="/icons/tactics-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,900;1,700&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#080C08; --surface:#0F140F; --surface2:#141C14; --surface3:#1A241A;
+  --border:#1E2B1E; --border2:#253325;
+  --pitch:#16301A; --pitch2:#183520;
+  --gold:#D4AF37; --gold2:#F0CC55; --gold-dim:rgba(212,175,55,0.12); --gold-glow:rgba(212,175,55,0.35);
+  --team-a:#D4AF37; --team-a-glow:rgba(212,175,55,0.55);
+  --team-b:#4A9FE8; --team-b-glow:rgba(74,159,232,0.55);
+  --text:#DDE8DD; --text-dim:#6A806A; --text-muted:#3A503A;
+  --danger:#E05050; --green-bright:#4AE87A;
+  --radius:6px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;}
+button{cursor:pointer;}
+select,input,textarea{font-family:'Barlow',sans-serif;}
+
+/* ── LOGIN SCREEN ─────────────────────────────────────── */
+#loginScreen {
+  position:fixed;inset:0;z-index:2000;
+  background:var(--bg);
+  display:flex;align-items:center;justify-content:center;
+  padding:20px;
+}
+.lbox {
+  background:var(--surface);border:1px solid var(--border2);
+  border-top:3px solid var(--gold);border-radius:12px;
+  padding:32px 28px;width:100%;max-width:400px;
+}
+.lbox-icon{font-size:40px;margin-bottom:14px;}
+.lbox-ey{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:4px;}
+.lbox-title{font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:900;margin-bottom:6px;}
+.lbox-sub{font-size:13px;color:var(--text-dim);font-weight:300;margin-bottom:24px;line-height:1.6;}
+.lsel,.linp {
+  width:100%;background:var(--surface2);border:1px solid var(--border2);
+  border-radius:var(--radius);color:var(--text);font-size:14px;
+  padding:11px 13px;outline:none;margin-bottom:10px;
+  transition:border-color .2s;appearance:none;
+}
+.linp:focus,.lsel:focus{border-color:rgba(212,175,55,.4);}
+.linp::placeholder{color:var(--text-muted);}
+.lbtn {
+  width:100%;background:var(--gold);color:#000;border:none;
+  padding:13px;border-radius:var(--radius);
+  font-size:14px;font-weight:700;letter-spacing:.5px;
+  margin-top:4px;transition:background .15s;
+}
+.lbtn:hover{background:var(--gold2);}
+.lerr{color:var(--danger);font-size:12px;text-align:center;display:none;margin-bottom:8px;}
+
+/* ── PLAYER SETUP MODAL ───────────────────────────────── */
+#setupModal {
+  position:fixed;inset:0;z-index:1900;
+  background:rgba(0,0,0,.85);
+  display:none;align-items:center;justify-content:center;
+  padding:12px;
+}
+#setupModal.show{display:flex;}
+.setup-box {
+  background:var(--surface);border:1px solid var(--border2);
+  border-radius:12px;width:100%;max-width:620px;
+  max-height:92vh;display:flex;flex-direction:column;overflow:hidden;
+}
+.setup-head {
+  padding:16px 18px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
+}
+.setup-head-title{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;color:var(--gold);}
+.setup-head-sub{font-size:11px;color:var(--text-dim);font-weight:300;margin-top:2px;}
+.setup-tabs {
+  display:flex;overflow-x:auto;border-bottom:1px solid var(--border);
+  flex-shrink:0;scrollbar-width:none;padding:0 8px;gap:2px;
+}
+.setup-tabs::-webkit-scrollbar{display:none;}
+.setup-tab {
+  padding:9px 13px;font-size:12px;font-weight:700;
+  color:var(--text-dim);background:none;border:none;
+  border-bottom:2px solid transparent;white-space:nowrap;
+  transition:all .15s;flex-shrink:0;
+}
+.setup-tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+.setup-body{flex:1;overflow-y:auto;padding:16px 18px;}
+.setup-field{margin-bottom:14px;}
+.setup-label{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);display:block;margin-bottom:6px;}
+.setup-sel {
+  width:100%;background:var(--surface2);border:1px solid var(--border2);
+  border-radius:var(--radius);color:var(--text);font-size:13px;
+  padding:9px 12px;outline:none;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236A806A'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;
+  transition:border-color .15s;
+}
+.setup-sel:focus{border-color:rgba(212,175,55,.4);}
+.setup-sel option{background:var(--surface2);}
+.setup-2col{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.setup-foot {
+  padding:14px 18px;border-top:1px solid var(--border);
+  display:flex;gap:8px;flex-shrink:0;
+}
+.setup-save{
+  flex:1;background:var(--gold);color:#000;border:none;
+  padding:11px;border-radius:var(--radius);font-size:14px;font-weight:700;
+}
+.setup-save:hover{background:var(--gold2);}
+.setup-skip{
+  background:transparent;color:var(--text-dim);
+  border:1px solid var(--border2);padding:11px 16px;
+  border-radius:var(--radius);font-size:13px;font-weight:600;
+}
+.setup-skip:hover{background:var(--surface3);}
+
+/* ── ARROW PICKER (bottom panel) ─────────────────────── */
+#arrowPicker {
+  position:fixed;bottom:0;left:0;right:0;z-index:800;
+  background:var(--surface);border-top:1px solid var(--border2);
+  padding:12px 16px 20px;
+  transform:translateY(100%);transition:transform .25s ease;
+}
+#arrowPicker.show{transform:translateY(0);}
+.ap-title{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;}
+.ap-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;max-width:220px;margin:0 auto 10px;}
+.ap-btn{
+  height:48px;border-radius:var(--radius);border:1px solid var(--border2);
+  background:var(--surface2);color:var(--text-dim);
+  font-size:18px;display:flex;align-items:center;justify-content:center;
+  transition:all .15s;
+}
+.ap-btn:hover,.ap-btn.sel{background:var(--gold-dim);border-color:var(--gold);color:var(--gold);}
+.ap-btn.center{background:var(--surface3);font-size:11px;font-weight:700;letter-spacing:1px;}
+.ap-actions{display:flex;gap:8px;max-width:220px;margin:0 auto;}
+.ap-clear{flex:1;padding:10px;border-radius:var(--radius);background:transparent;color:var(--danger);border:1px solid rgba(224,80,80,.3);font-size:12px;font-weight:600;}
+.ap-close{flex:1;padding:10px;border-radius:var(--radius);background:var(--surface3);color:var(--text-dim);border:1px solid var(--border2);font-size:12px;font-weight:600;}
+
+/* ── MAIN APP ─────────────────────────────────────────── */
+body.app-ready{overflow:hidden;}
+#app{display:flex;flex-direction:column;height:100%;display:none;}
+#app.show{display:flex;}
+
+header {
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 16px;height:50px;background:var(--surface);
+  border-bottom:1px solid var(--border);flex-shrink:0;
+}
+.header-left{display:flex;align-items:center;gap:12px;}
+.logo-icon{width:26px;height:26px;background:var(--gold);border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:13px;color:#000;letter-spacing:-1px;}
+.logo-text{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;color:var(--text);letter-spacing:.5px;}
+.logo-text span{color:var(--gold);}
+.hbadge{display:flex;align-items:center;gap:5px;background:var(--gold-dim);border:1px solid rgba(212,175,55,.25);border-radius:4px;padding:3px 9px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;}
+.header-actions{display:flex;align-items:center;gap:6px;}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:var(--radius);font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all .15s;font-family:'Barlow',sans-serif;}
+.btn-ghost{background:transparent;color:var(--text-dim);border:1px solid var(--border2);}
+.btn-ghost:hover{background:var(--surface3);color:var(--text);}
+.btn-gold{background:var(--gold);color:#000;}
+.btn-gold:hover{background:var(--gold2);}
+.btn-danger{background:transparent;color:var(--danger);border:1px solid rgba(224,80,80,.3);}
+.btn-danger:hover{background:rgba(224,80,80,.1);}
+.btn-sm{padding:4px 10px;font-size:11px;}
+.btn-ai{background:linear-gradient(135deg,rgba(212,175,55,.15),rgba(212,175,55,.05));border:1px solid var(--gold);color:var(--gold);font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:1px;font-size:13px;padding:7px 14px;}
+.btn-ai:hover{background:linear-gradient(135deg,rgba(212,175,55,.25),rgba(212,175,55,.1));}
+
+/* ── INFO BAR ─────────────────────────────────────────── */
+.info-bar{
+  display:flex;align-items:center;gap:8px;padding:5px 14px;
+  background:rgba(212,175,55,.04);border-bottom:1px solid rgba(212,175,55,.08);
+  font-size:11px;color:var(--text-dim);flex-shrink:0;flex-wrap:wrap;
+}
+.ib-pill{background:var(--surface2);border:1px solid var(--border2);border-radius:100px;padding:2px 10px;font-size:10px;font-weight:600;}
+.ib-pill.gold{background:var(--gold-dim);border-color:var(--gold);color:var(--gold);}
+
+/* ── MAIN AREA ────────────────────────────────────────── */
+.app-body{display:flex;flex:1;overflow:hidden;}
+
+/* ── SIDEBAR LEFT ─────────────────────────────────────── */
+.sidebar{
+  width:210px;flex-shrink:0;background:var(--surface);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;
+  scrollbar-width:thin;scrollbar-color:var(--border2) transparent;
+}
+.sidebar::-webkit-scrollbar{width:3px;}
+.sidebar::-webkit-scrollbar-thumb{background:var(--border2);}
+.ss{padding:12px;border-bottom:1px solid var(--border);}
+.sl{font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:4px;}
+.fb{background:var(--surface2);border:1px solid var(--border2);color:var(--text-dim);border-radius:var(--radius);padding:7px 5px;text-align:center;cursor:pointer;transition:all .15s;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;}
+.fb:hover,.fb.active{background:var(--gold-dim);border-color:var(--gold);color:var(--gold);}
+.fb .tt{display:block;font-size:8px;letter-spacing:1px;opacity:.6;margin-top:2px;font-weight:600;}
+.team-sel{display:flex;gap:4px;}
+.tbtn{flex:1;padding:7px 5px;border-radius:var(--radius);border:2px solid transparent;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-align:center;transition:all .15s;text-transform:uppercase;}
+.tbtn-a{background:rgba(212,175,55,.1);color:var(--team-a);border-color:rgba(212,175,55,.3);}
+.tbtn-a.active,.tbtn-a:hover{background:rgba(212,175,55,.2);border-color:var(--team-a);}
+.tbtn-b{background:rgba(74,159,232,.1);color:var(--team-b);border-color:rgba(74,159,232,.3);}
+.tbtn-b.active,.tbtn-b:hover{background:rgba(74,159,232,.2);border-color:var(--team-b);}
+.ctrl-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;}
+.ctrl-lbl{font-size:11px;color:var(--text-dim);}
+.toggle{width:30px;height:17px;background:var(--surface3);border-radius:9px;cursor:pointer;position:relative;border:1px solid var(--border2);transition:background .2s;flex-shrink:0;}
+.toggle.on{background:var(--gold);border-color:var(--gold);}
+.toggle::after{content:'';position:absolute;width:11px;height:11px;background:var(--text-dim);border-radius:50%;top:2px;left:2px;transition:all .2s;}
+.toggle.on::after{left:15px;background:#000;}
+
+/* Game phases */
+.phase-list{display:flex;flex-direction:column;gap:3px;}
+.phase-btn{
+  display:flex;align-items:center;gap:7px;
+  padding:7px 9px;border-radius:var(--radius);
+  background:none;border:1px solid transparent;
+  color:var(--text-dim);font-size:11px;font-weight:500;
+  cursor:pointer;transition:all .15s;text-align:left;
+  width:100%;
+}
+.phase-btn:hover{background:var(--surface2);color:var(--text);}
+.phase-btn.active{background:var(--gold-dim);border-color:rgba(212,175,55,.25);color:var(--gold);}
+.phase-icon{font-size:13px;flex-shrink:0;width:16px;}
+
+/* ── PITCH ────────────────────────────────────────────── */
+.pitch-area{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  padding:12px;background:var(--bg);position:relative;overflow:hidden;
+}
+.pitch-area::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 50% 50%,rgba(22,48,26,.3) 0%,transparent 70%);pointer-events:none;}
+#pitch-container{position:relative;user-select:none;filter:drop-shadow(0 8px 40px rgba(0,0,0,.8));}
+#pitch-svg{display:block;border-radius:4px;cursor:crosshair;}
+.player-piece{cursor:grab;transition:filter .15s;}
+.player-piece:active{cursor:grabbing;}
+.player-piece:hover .piece-circle{filter:brightness(1.2);}
+.player-piece.dragging{opacity:.9;}
+.player-piece.dragging .piece-circle{filter:drop-shadow(0 0 12px currentColor) brightness(1.3);}
+.player-piece.selected .piece-circle{filter:drop-shadow(0 0 14px rgba(255,255,255,.7)) brightness(1.2);}
+.player-number{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:11px;fill:#000;dominant-baseline:central;text-anchor:middle;pointer-events:none;}
+.player-number-b{fill:#fff;}
+
+/* ── SIDEBAR RIGHT ────────────────────────────────────── */
+.sidebar-right{
+  width:260px;flex-shrink:0;background:var(--surface);
+  border-left:1px solid var(--border);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.sr-tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;}
+.sr-tab{flex:1;padding:10px 8px;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;border:none;background:none;color:var(--text-muted);border-bottom:2px solid transparent;transition:all .15s;font-family:'Barlow Condensed',sans-serif;}
+.sr-tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+.sr-panel{flex:1;overflow-y:auto;display:none;flex-direction:column;scrollbar-width:thin;scrollbar-color:var(--border2) transparent;}
+.sr-panel::-webkit-scrollbar{width:3px;}
+.sr-panel::-webkit-scrollbar-thumb{background:var(--border2);}
+.sr-panel.active{display:flex;}
+
+/* AI panel */
+.ai-section{padding:12px;}
+.ai-phase-display{background:var(--gold-dim);border:1px solid rgba(212,175,55,.2);border-radius:var(--radius);padding:8px 10px;margin-bottom:10px;font-size:11px;color:var(--gold);}
+.ai-phase-label{font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;opacity:.7;margin-bottom:2px;}
+.ai-result{flex:1;padding:12px;overflow-y:auto;}
+.ai-block{margin-bottom:14px;}
+.ai-block-title{font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.ai-block-title::before{content:'';width:14px;height:1px;background:var(--border2);}
+.ai-block-body{font-size:12px;color:var(--text-dim);line-height:1.7;font-weight:300;}
+.ai-block-body strong{color:var(--text);font-weight:600;}
+.ai-empty{padding:28px 12px;text-align:center;color:var(--text-muted);font-size:12px;font-weight:300;line-height:1.7;}
+.ai-loading{display:flex;flex-direction:column;align-items:center;padding:32px 12px;gap:10px;color:var(--text-muted);font-size:12px;}
+.spin{width:28px;height:28px;border:2px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Notes panel */
+.notes-section{flex:1;padding:12px;display:flex;flex-direction:column;gap:8px;overflow-y:auto;}
+.note-field label{display:block;font-size:9px;letter-spacing:1.5px;color:var(--text-muted);font-weight:700;text-transform:uppercase;margin-bottom:4px;}
+.note-input{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-size:12px;padding:7px 9px;resize:none;outline:none;transition:border-color .15s;line-height:1.5;}
+.note-input:focus{border-color:rgba(212,175,55,.4);}
+.note-input::placeholder{color:var(--text-muted);}
+.note-title-input{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;padding:7px 9px;outline:none;transition:border-color .15s;}
+.note-title-input:focus{border-color:rgba(212,175,55,.4);}
+.note-title-input::placeholder{color:var(--text-muted);}
+
+/* Zone stats */
+.zone-analysis{padding:10px 12px;border-top:1px solid var(--border);flex-shrink:0;}
+.zone-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-top:6px;}
+.zone-stat{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);padding:7px 5px;text-align:center;}
+.zone-stat-label{font-size:8px;letter-spacing:1px;color:var(--text-muted);text-transform:uppercase;margin-bottom:2px;font-weight:700;}
+.zone-stat-value{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;}
+.zone-stat-value.advantage{color:var(--team-a);}
+.zone-stat-value.disadvantage{color:var(--team-b);}
+.zone-stat-value.neutral{color:var(--text-dim);}
+.export-actions{padding:10px 12px;border-top:1px solid var(--border);display:flex;gap:5px;flex-shrink:0;}
+
+/* Modals & Toast */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:1000;opacity:0;pointer-events:none;transition:opacity .2s;}
+.modal-overlay.show{opacity:1;pointer-events:all;}
+.modal{background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:22px;width:300px;transform:scale(.95);transition:transform .2s;}
+.modal-overlay.show .modal{transform:scale(1);}
+.modal-title{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:var(--text);margin-bottom:6px;}
+.modal-desc{font-size:12px;color:var(--text-dim);margin-bottom:18px;line-height:1.5;}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface3);border:1px solid var(--border2);border-radius:var(--radius);padding:9px 16px;font-size:12px;color:var(--text);opacity:0;pointer-events:none;transition:all .3s;z-index:9999;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* Zone overlay */
+.zone-overlay-rect{pointer-events:none;transition:fill .3s,opacity .3s;}
+</style>
+</head>
+<body>
+
+<!-- ── TOAST ──────────────────────────────────────────── -->
+<div class="toast" id="toast"></div>
+
+<!-- ── RESET MODAL ────────────────────────────────────── -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-title">Limpar Campo</div>
+    <div class="modal-desc">Remove todos os jogadores. As setas e notas são mantidas.</div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-danger" onclick="confirmReset()">Limpar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── LOGIN SCREEN ────────────────────────────────────── -->
+<div id="loginScreen">
+  <div class="lbox">
+    <div class="lbox-icon">🧠</div>
+    <div class="lbox-ey">YourTalentBase</div>
+    <div class="lbox-title">TacticsLab</div>
+    <div class="lbox-sub">Simulador tático com análise por IA. Coloca os jogadores, define movimentos e a IA contraría a tua estratégia.</div>
+    <label style="display:block;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#3A503A;margin-bottom:5px;">Escalão</label>
+    <select class="lsel" id="loginEscalao">
+      <option value="">Selecionar escalão...</option>
+      <option value="Sub-8">Sub-8 (6-7 anos) — Fut5</option>
+      <option value="Sub-10">Sub-10 (8-9 anos) — Fut7</option>
+      <option value="Sub-12">Sub-12 (10-11 anos) — Fut7</option>
+      <option value="Sub-14">Sub-14 (12-13 anos) — Fut9</option>
+      <option value="Sub-16">Sub-16 (14-15 anos) — Fut11</option>
+      <option value="Sub-19">Sub-19 (16-18 anos) — Fut11</option>
+    </select>
+    <label style="display:block;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#3A503A;margin-bottom:5px;margin-top:4px;">Password</label>
+    <input class="linp" type="password" id="loginPass" placeholder="Password de acesso">
+    <div class="lerr" id="loginErr">Password incorrecta.</div>
+    <button class="lbtn" id="btnLogin">Entrar →</button>
+  </div>
+</div>
+
+<!-- ── PLAYER SETUP MODAL ──────────────────────────────── -->
+<div id="setupModal">
+  <div class="setup-box">
+    <div class="setup-head">
+      <div>
+        <div class="setup-head-title">⚽ Configurar Plantel</div>
+        <div class="setup-head-sub">Define a posição e perfil de cada jogador</div>
+      </div>
+    </div>
+    <div class="setup-tabs" id="setupTabs"></div>
+    <div class="setup-body" id="setupBody"></div>
+    <div class="setup-foot">
+      <button class="setup-skip" onclick="skipSetup()">Saltar →</button>
+      <button class="setup-save" onclick="saveSetup()">✓ Confirmar e Entrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── ARROW PICKER ────────────────────────────────────── -->
+<div id="arrowPicker">
+  <div class="ap-title">
+    <span>Direção do Jogador <span id="apPlayerLabel" style="color:var(--gold);">—</span></span>
+    <span style="font-size:10px;font-weight:300;">Seleciona para onde vai</span>
+  </div>
+  <div class="ap-grid" id="apGrid">
+    <button class="ap-btn" data-dir="NW" title="NW">↖</button>
+    <button class="ap-btn" data-dir="N" title="N">↑</button>
+    <button class="ap-btn" data-dir="NE" title="NE">↗</button>
+    <button class="ap-btn" data-dir="W" title="W">←</button>
+    <button class="ap-btn center" data-dir="NONE">SEM</button>
+    <button class="ap-btn" data-dir="E" title="E">→</button>
+    <button class="ap-btn" data-dir="SW" title="SW">↙</button>
+    <button class="ap-btn" data-dir="S" title="S">↓</button>
+    <button class="ap-btn" data-dir="SE" title="SE">↘</button>
+  </div>
+  <div class="ap-actions">
+    <button class="ap-clear" onclick="clearArrow()">🗑 Limpar seta</button>
+    <button class="ap-close" onclick="closeArrowPicker()">Fechar</button>
+  </div>
+</div>
+
+<!-- ── MAIN APP ────────────────────────────────────────── -->
+<div id="app">
+
+  <header>
+    <div class="header-left">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div class="logo-icon">YT</div>
+        <div class="logo-text">Your<span>Talent</span>Base</div>
+      </div>
+      <div style="width:1px;height:22px;background:var(--border2);"></div>
+      <div class="hbadge">🧠 TacticsLab</div>
+    </div>
+    <div class="header-actions">
+      <span id="hEscalao" style="font-size:10px;color:var(--text-dim);font-weight:600;letter-spacing:.5px;"></span>
+      <button class="btn btn-ghost btn-sm" onclick="openSetup()">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Plantel
+      </button>
+      <button class="btn btn-ghost btn-sm" onclick="showModal()">Limpar</button>
+      <button class="btn btn-ghost btn-sm" onclick="exportPDF()">PDF</button>
+    </div>
+  </header>
+
+  <div class="info-bar" id="infoBar">
+    <span id="ibPhase" class="ib-pill gold">Ataque Organizado</span>
+    <span>·</span>
+    <span id="ibEscalao" class="ib-pill">Sub-12</span>
+    <span style="margin-left:4px;">Clica num jogador para definir seta de movimento</span>
+  </div>
+
+  <div class="app-body">
+
+    <!-- LEFT SIDEBAR -->
+    <div class="sidebar">
+
+      <div class="ss">
+        <div class="sl">Equipa Activa</div>
+        <div class="team-sel">
+          <button class="tbtn tbtn-a active" id="teamBtnA" onclick="setActiveTeam('A')">Eq. A</button>
+          <button class="tbtn tbtn-b" id="teamBtnB" onclick="setActiveTeam('B')">Eq. B</button>
+        </div>
+      </div>
+
+      <div class="ss">
+        <div class="sl">Formações — Eq. A</div>
+        <div class="fg">
+          <button class="fb" onclick="applyFormation('A','4-3-3')">4-3-3<span class="tt">EQ A</span></button>
+          <button class="fb" onclick="applyFormation('A','4-4-2')">4-4-2<span class="tt">EQ A</span></button>
+          <button class="fb" onclick="applyFormation('A','4-2-3-1')">4-2-3-1<span class="tt">EQ A</span></button>
+          <button class="fb" onclick="applyFormation('A','3-5-2')">3-5-2<span class="tt">EQ A</span></button>
+          <button class="fb" onclick="applyFormation('A','5-3-2')">5-3-2<span class="tt">EQ A</span></button>
+          <button class="fb" onclick="applyFormation('A','4-1-4-1')">4-1-4-1<span class="tt">EQ A</span></button>
+        </div>
+      </div>
+
+      <div class="ss">
+        <div class="sl">Formações — Eq. B</div>
+        <div class="fg">
+          <button class="fb" onclick="applyFormation('B','4-3-3')">4-3-3<span class="tt">EQ B</span></button>
+          <button class="fb" onclick="applyFormation('B','4-4-2')">4-4-2<span class="tt">EQ B</span></button>
+          <button class="fb" onclick="applyFormation('B','4-2-3-1')">4-2-3-1<span class="tt">EQ B</span></button>
+          <button class="fb" onclick="applyFormation('B','3-5-2')">3-5-2<span class="tt">EQ B</span></button>
+          <button class="fb" onclick="applyFormation('B','5-3-2')">5-3-2<span class="tt">EQ B</span></button>
+          <button class="fb" onclick="applyFormation('B','4-1-4-1')">4-1-4-1<span class="tt">EQ B</span></button>
+        </div>
+      </div>
+
+      <div class="ss">
+        <div class="sl">Fase de Jogo</div>
+        <div class="phase-list">
+          <button class="phase-btn active" data-phase="Ataque Organizado" onclick="setPhase(this)"><span class="phase-icon">⚔️</span>Ataque Organizado</button>
+          <button class="phase-btn" data-phase="Defesa Organizada" onclick="setPhase(this)"><span class="phase-icon">🛡️</span>Defesa Organizada</button>
+          <button class="phase-btn" data-phase="Contra-Ataque" onclick="setPhase(this)"><span class="phase-icon">⚡</span>Contra-Ataque</button>
+          <button class="phase-btn" data-phase="Transição Defensiva" onclick="setPhase(this)"><span class="phase-icon">🔄</span>Transição Defensiva</button>
+          <button class="phase-btn" data-phase="Transição Ofensiva" onclick="setPhase(this)"><span class="phase-icon">🔁</span>Transição Ofensiva</button>
+          <button class="phase-btn" data-phase="Posse de Bola" onclick="setPhase(this)"><span class="phase-icon">⚽</span>Posse de Bola</button>
+          <button class="phase-btn" data-phase="Pressing Alto" onclick="setPhase(this)"><span class="phase-icon">🔥</span>Pressing Alto</button>
+          <button class="phase-btn" data-phase="Canto Ofensivo" onclick="setPhase(this)"><span class="phase-icon">📐</span>Canto Ofensivo</button>
+          <button class="phase-btn" data-phase="Canto Defensivo" onclick="setPhase(this)"><span class="phase-icon">🏁</span>Canto Defensivo</button>
+          <button class="phase-btn" data-phase="Lançamento Lateral" onclick="setPhase(this)"><span class="phase-icon">↔️</span>Lançamento Lateral</button>
+          <button class="phase-btn" data-phase="Livre Direto" onclick="setPhase(this)"><span class="phase-icon">🎯</span>Livre Direto</button>
+          <button class="phase-btn" data-phase="Livre Indireto" onclick="setPhase(this)"><span class="phase-icon">📌</span>Livre Indireto</button>
+        </div>
+      </div>
+
+      <div class="ss">
+        <div class="sl">Visualização</div>
+        <div class="ctrl-row"><span class="ctrl-lbl">Zonas</span><div class="toggle on" id="zoneToggle" onclick="toggleZones()"></div></div>
+        <div class="ctrl-row"><span class="ctrl-lbl">Números</span><div class="toggle on" id="numberToggle" onclick="toggleNumbers()"></div></div>
+        <div class="ctrl-row"><span class="ctrl-lbl">Pressão</span><div class="toggle" id="lineToggle" onclick="toggleLines()"></div></div>
+        <div class="ctrl-row"><span class="ctrl-lbl">Setas</span><div class="toggle on" id="arrowToggle" onclick="toggleArrows()"></div></div>
+      </div>
+
+    </div>
+
+    <!-- PITCH -->
+    <div class="pitch-area">
+      <div id="pitch-container">
+        <svg id="pitch-svg" width="500" height="740" viewBox="0 0 500 740">
+          <g id="zone-overlay"></g>
+          <g id="pitch-markings"></g>
+          <g id="pressure-lines"></g>
+          <g id="arrows-layer"></g>
+          <g id="players-layer"></g>
+        </svg>
+      </div>
+    </div>
+
+    <!-- RIGHT SIDEBAR -->
+    <div class="sidebar-right">
+      <div class="sr-tabs">
+        <button class="sr-tab active" onclick="switchSrTab('ai',this)">🧠 IA Táctica</button>
+        <button class="sr-tab" onclick="switchSrTab('notes',this)">📝 Notas</button>
+      </div>
+
+      <!-- AI PANEL -->
+      <div class="sr-panel active" id="srAi">
+        <div class="ai-section">
+          <div class="ai-phase-display">
+            <div class="ai-phase-label">Fase Activa</div>
+            <div id="aiPhaseLabel" style="font-weight:700;font-size:13px;">Ataque Organizado</div>
+          </div>
+          <button class="btn btn-ai" style="width:100%;" id="btnAnalyze" onclick="analyzeScenario()">
+            ⚡ Analisar Cenário com IA
+          </button>
+        </div>
+        <div class="ai-result" id="aiResult">
+          <div class="ai-empty">
+            Coloca os jogadores em campo, define as setas de movimento e carrega em <strong>Analisar</strong>.<br><br>
+            A IA vai ler a tua táctica e sugerir como o adversário deve responder.
+          </div>
+        </div>
+      </div>
+
+      <!-- NOTES PANEL -->
+      <div class="sr-panel" id="srNotes">
+        <div class="notes-section">
+          <div>
+            <label style="display:block;font-size:9px;letter-spacing:1.5px;color:var(--text-muted);font-weight:700;text-transform:uppercase;margin-bottom:4px;">Título / Sessão</label>
+            <input type="text" class="note-title-input" id="noteTitle" placeholder="Ex: Bloco defensivo Sub-14" oninput="saveNotes()">
+          </div>
+          <div>
+            <label style="display:block;font-size:9px;letter-spacing:1.5px;color:var(--text-muted);font-weight:700;text-transform:uppercase;margin-bottom:4px;">Equipa A</label>
+            <textarea class="note-input" id="noteTeamA" rows="3" placeholder="Instrução táctica..." oninput="saveNotes()"></textarea>
+          </div>
+          <div>
+            <label style="display:block;font-size:9px;letter-spacing:1.5px;color:var(--text-muted);font-weight:700;text-transform:uppercase;margin-bottom:4px;">Equipa B</label>
+            <textarea class="note-input" id="noteTeamB" rows="3" placeholder="Instrução táctica..." oninput="saveNotes()"></textarea>
+          </div>
+          <div style="flex:1;">
+            <label style="display:block;font-size:9px;letter-spacing:1.5px;color:var(--text-muted);font-weight:700;text-transform:uppercase;margin-bottom:4px;">Notas Gerais</label>
+            <textarea class="note-input" id="noteGeneral" rows="6" style="min-height:80px;" placeholder="Observações, padrões de jogo..." oninput="saveNotes()"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- ZONE STATS (always visible) -->
+      <div class="zone-analysis">
+        <div class="sl">Superioridades</div>
+        <div class="zone-stats">
+          <div class="zone-stat"><div class="zone-stat-label">Def</div><div class="zone-stat-value" id="statDefense">—</div></div>
+          <div class="zone-stat"><div class="zone-stat-label">Meio</div><div class="zone-stat-value" id="statMidfield">—</div></div>
+          <div class="zone-stat"><div class="zone-stat-label">Atq</div><div class="zone-stat-value" id="statAttack">—</div></div>
+        </div>
+        <div style="margin-top:5px;display:grid;grid-template-columns:1fr 1fr;gap:5px;">
+          <div class="zone-stat"><div class="zone-stat-label">Ala Esq</div><div class="zone-stat-value" id="statLeft">—</div></div>
+          <div class="zone-stat"><div class="zone-stat-label">Ala Dir</div><div class="zone-stat-value" id="statRight">—</div></div>
+        </div>
+      </div>
+      <div class="export-actions">
+        <button class="btn btn-ghost btn-sm" style="flex:1" onclick="exportImage()">PNG</button>
+        <button class="btn btn-gold btn-sm" style="flex:1" onclick="exportPDF()">PDF</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+//  CONSTANTS & STATE
+// ══════════════════════════════════════════════════════
+const PASS = 'YTB#Tactics2026';
+const PITCH_W = 500, PITCH_H = 740, PLAYER_R = 16;
+
+let escalao = '';
+let players = [];
+let activeTeam = 'A';
+let zonesOn = true, numbersOn = true, linesOn = false, arrowsOn = true;
+let playerCount = { A: 0, B: 0 };
+let dragging = null, dragOffX = 0, dragOffY = 0;
+let nextId = 1;
+let selectedPlayerId = null;
+let currentPhase = 'Ataque Organizado';
+let dragMoved = false;
+
+// Arrow directions per player ID
+let playerArrows = {}; // { playerId: 'N'|'NE'|'E'|'SE'|'S'|'SW'|'W'|'NW' }
+
+// Player profiles for 11 players of team A
+const DEFAULT_POSITIONS = {
+  1:'GR', 2:'Lat. Direito', 3:'Def. Central', 4:'Def. Central', 5:'Lat. Esquerdo',
+  6:'Médio Defensivo', 7:'Médio Centro', 8:'Médio Centro',
+  9:'Extremo Direito', 10:'Avançado', 11:'Extremo Esquerdo'
+};
+let playerProfiles = {};
+for (let i=1;i<=11;i++) playerProfiles[i] = { pos:DEFAULT_POSITIONS[i], speed:'Normal', physical:'Normal', style:'Equilibrado' };
+
+// Arrow vectors
+const ARROW_VEC = {
+  N:[0,-1], NE:[1,-1], E:[1,0], SE:[1,1], S:[0,1], SW:[-1,1], W:[-1,0], NW:[-1,-1]
+};
+const ARROW_LABEL = {
+  N:'Avança ↑', NE:'Diagonal Dir. ↗', E:'Ala Direita →', SE:'Recua Dir. ↘',
+  S:'Recua ↓', SW:'Recua Esq. ↙', W:'Ala Esquerda ←', NW:'Diagonal Esq. ↖'
+};
+const DIR_EMOJI = { N:'↑', NE:'↗', E:'→', SE:'↘', S:'↓', SW:'↙', W:'←', NW:'↖' };
+
+// ══════════════════════════════════════════════════════
+//  LOGIN
+// ══════════════════════════════════════════════════════
+function doLogin() {
+  const pass = document.getElementById('loginPass').value.trim();
+  const esc  = document.getElementById('loginEscalao').value;
+  const err  = document.getElementById('loginErr');
+  if (!esc) { err.textContent='Seleciona o escalão.'; err.style.display='block'; return; }
+  if (pass !== PASS) { err.style.display='block'; document.getElementById('loginPass').value=''; return; }
+  err.style.display='none';
+  escalao = esc;
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('app').classList.add('show');
+  document.getElementById('hEscalao').textContent = escalao;
+  document.getElementById('ibEscalao').textContent = escalao;
+  drawPitch(); initZoneOverlay(); loadNotes();
+  applyFormation('A','4-3-3'); applyFormation('B','4-3-3');
+  openSetup();
+}
+
+document.getElementById('btnLogin').addEventListener('click', doLogin);
+document.getElementById('loginPass').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+
+// ══════════════════════════════════════════════════════
+//  PLAYER SETUP
+// ══════════════════════════════════════════════════════
+function openSetup() {
+  buildSetupTabs();
+  buildSetupPanel(1);
+  document.getElementById('setupModal').classList.add('show');
+}
+
+function buildSetupTabs() {
+  let h='';
+  for(let i=1;i<=11;i++) {
+    h+=`<button class="setup-tab${i===1?' active':''}" onclick="buildSetupPanel(${i})" id="stab-${i}">${i}</button>`;
+  }
+  document.getElementById('setupTabs').innerHTML=h;
+}
+
+function buildSetupPanel(num) {
+  document.querySelectorAll('.setup-tab').forEach((t,i)=>t.classList.toggle('active',i+1===num));
+  const p = playerProfiles[num];
+  const positions=['GR','Lat. Direito','Def. Central','Def. Central (Esq.)','Lat. Esquerdo','Médio Defensivo','Médio Centro','Médio Ofensivo','Extremo Direito','Avançado','Extremo Esquerdo'];
+  const speeds=['Lento','Normal','Rápido','Explosivo'];
+  const physicals=['Leve','Normal','Forte','Possante'];
+  const styles=['Técnico','Equilibrado','Agressivo','Líder'];
+
+  const sel=(name,arr,cur) => `<select class="setup-sel" id="sp-${name}-${num}" onchange="updateProfile(${num},'${name}',this.value)">${arr.map(a=>`<option${a===cur?' selected':''}>${a}</option>`).join('')}</select>`;
+
+  document.getElementById('setupBody').innerHTML=`
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:var(--gold);margin-bottom:14px;">
+      Jogador ${num} — <span style="color:var(--text);">${p.pos}</span>
+    </div>
+    <div class="setup-field">
+      <label class="setup-label">Posição</label>
+      ${sel('pos',positions,p.pos)}
+    </div>
+    <div class="setup-2col">
+      <div class="setup-field">
+        <label class="setup-label">Velocidade</label>
+        ${sel('speed',speeds,p.speed)}
+      </div>
+      <div class="setup-field">
+        <label class="setup-label">Físico</label>
+        ${sel('physical',physicals,p.physical)}
+      </div>
+    </div>
+    <div class="setup-field">
+      <label class="setup-label">Estilo de Jogo</label>
+      ${sel('style',styles,p.style)}
+    </div>
+    <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);padding:10px 12px;font-size:11px;color:var(--text-dim);line-height:1.6;margin-top:8px;">
+      ${getProfileDesc(num)}
+    </div>
+  `;
+}
+
+function updateProfile(num, field, val) {
+  playerProfiles[num][field] = val;
+  buildSetupPanel(num);
+}
+
+function getProfileDesc(num) {
+  const p = playerProfiles[num];
+  return `<strong style="color:var(--text);">${p.pos}</strong> — ${p.speed}, ${p.physical}, ${p.style}. Contexto tático para a IA ajustado ao perfil do jogador.`;
+}
+
+function saveSetup() {
+  document.getElementById('setupModal').classList.remove('show');
+  showToast('✓ Plantel configurado');
+}
+function skipSetup() {
+  document.getElementById('setupModal').classList.remove('show');
+}
+
+// ══════════════════════════════════════════════════════
+//  PHASE
+// ══════════════════════════════════════════════════════
+function setPhase(btn) {
+  currentPhase = btn.dataset.phase;
+  document.querySelectorAll('.phase-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('ibPhase').textContent = currentPhase;
+  document.getElementById('aiPhaseLabel').textContent = currentPhase;
+}
+
+// ══════════════════════════════════════════════════════
+//  SIDEBAR TABS
+// ══════════════════════════════════════════════════════
+function switchSrTab(id, btn) {
+  document.querySelectorAll('.sr-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.sr-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('sr'+id.charAt(0).toUpperCase()+id.slice(1)).classList.add('active');
+}
+
+// ══════════════════════════════════════════════════════
+//  PITCH DRAWING
+// ══════════════════════════════════════════════════════
+function drawPitch() {
+  const svg=document.getElementById('pitch-markings');
+  const W=PITCH_W,H=PITCH_H,pad=30;
+  const pw=W-pad*2, ph=H-pad*2;
+  const lines=[
+    `<rect x="0" y="0" width="${W}" height="${H}" fill="#0D1F0F"/>`,
+    ...Array.from({length:8},(_,i)=>{
+      const sy=pad+i*(ph/8),sh=ph/8;
+      return i%2===0?`<rect x="${pad}" y="${sy}" width="${pw}" height="${sh}" fill="#16301A"/>`:
+                     `<rect x="${pad}" y="${sy}" width="${pw}" height="${sh}" fill="#183520"/>`;
+    }),
+    `<rect x="${pad}" y="${pad}" width="${pw}" height="${ph}" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="2"/>`,
+    `<line x1="${pad}" y1="${H/2}" x2="${W-pad}" y2="${H/2}" stroke="rgba(255,255,255,0.22)" stroke-width="1.5"/>`,
+    `<circle cx="${W/2}" cy="${H/2}" r="${pw*0.15}" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>`,
+    `<circle cx="${W/2}" cy="${H/2}" r="3" fill="rgba(255,255,255,0.3)"/>`,
+    `<rect x="${pad+pw*0.18}" y="${pad}" width="${pw*0.64}" height="${ph*0.17}" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>`,
+    `<rect x="${pad+pw*0.33}" y="${pad}" width="${pw*0.34}" height="${ph*0.07}" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>`,
+    `<circle cx="${W/2}" cy="${pad+ph*0.125}" r="3" fill="rgba(255,255,255,0.3)"/>`,
+    `<path d="M ${pad+pw*0.18} ${pad+ph*0.17} A ${pw*0.15} ${pw*0.15} 0 0 1 ${pad+pw*0.82} ${pad+ph*0.17}" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>`,
+    `<rect x="${pad+pw*0.18}" y="${pad+ph*0.83}" width="${pw*0.64}" height="${ph*0.17}" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>`,
+    `<rect x="${pad+pw*0.33}" y="${pad+ph*0.93}" width="${pw*0.34}" height="${ph*0.07}" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>`,
+    `<circle cx="${W/2}" cy="${pad+ph*0.875}" r="3" fill="rgba(255,255,255,0.3)"/>`,
+    `<path d="M ${pad+pw*0.18} ${pad+ph*0.83} A ${pw*0.15} ${pw*0.15} 0 0 0 ${pad+pw*0.82} ${pad+ph*0.83}" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>`,
+    `<rect x="${pad+pw*0.38}" y="${pad-14}" width="${pw*0.24}" height="14" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>`,
+    `<rect x="${pad+pw*0.38}" y="${pad+ph}" width="${pw*0.24}" height="14" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>`,
+    `<path d="M ${pad} ${pad+10} A 10 10 0 0 1 ${pad+10} ${pad}" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>`,
+    `<path d="M ${W-pad} ${pad+10} A 10 10 0 0 0 ${W-pad-10} ${pad}" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>`,
+    `<path d="M ${pad} ${H-pad-10} A 10 10 0 0 0 ${pad+10} ${H-pad}" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>`,
+    `<path d="M ${W-pad} ${H-pad-10} A 10 10 0 0 1 ${W-pad-10} ${H-pad}" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>`,
+  ];
+  svg.innerHTML=lines.join('\n');
+}
+
+// ══════════════════════════════════════════════════════
+//  ZONE ANALYSIS
+// ══════════════════════════════════════════════════════
+const ZONES=[
+  {id:'def-left',x:30,y:30,w:147,h:220},{id:'def-center',x:177,y:30,w:146,h:220},{id:'def-right',x:323,y:30,w:147,h:220},
+  {id:'mid-left',x:30,y:250,w:147,h:240},{id:'mid-center',x:177,y:250,w:146,h:240},{id:'mid-right',x:323,y:250,w:147,h:240},
+  {id:'att-left',x:30,y:490,w:147,h:220},{id:'att-center',x:177,y:490,w:146,h:220},{id:'att-right',x:323,y:490,w:147,h:220},
+];
+
+function initZoneOverlay() {
+  document.getElementById('zone-overlay').innerHTML=
+    ZONES.map(z=>`<rect class="zone-overlay-rect" id="zone-${z.id}" x="${z.x}" y="${z.y}" width="${z.w}" height="${z.h}" fill="transparent" opacity="0" rx="0"/>`).join('\n');
+}
+
+function updateZones() {
+  if(!zonesOn){ZONES.forEach(z=>{const e=document.getElementById(`zone-${z.id}`);if(e){e.setAttribute('fill','transparent');e.setAttribute('opacity','0');}});return;}
+  ZONES.forEach(z=>{
+    const aC=players.filter(p=>p.team==='A'&&p.x>=z.x&&p.x<=z.x+z.w&&p.y>=z.y&&p.y<=z.y+z.h).length;
+    const bC=players.filter(p=>p.team==='B'&&p.x>=z.x&&p.x<=z.x+z.w&&p.y>=z.y&&p.y<=z.y+z.h).length;
+    const e=document.getElementById(`zone-${z.id}`);if(!e)return;
+    if(!aC&&!bC){e.setAttribute('fill','transparent');e.setAttribute('opacity','0');}
+    else if(aC>bC){const i=Math.min(.5,.15+(aC-bC)*.12);e.setAttribute('fill',`rgba(212,175,55,${i})`);e.setAttribute('opacity','1');}
+    else if(bC>aC){const i=Math.min(.5,.15+(bC-aC)*.12);e.setAttribute('fill',`rgba(74,159,232,${i})`);e.setAttribute('opacity','1');}
+    else{e.setAttribute('fill','rgba(255,255,255,0.04)');e.setAttribute('opacity','1');}
+  });
+  updateZoneStats();
+}
+
+function updateZoneStats() {
+  const z=[
+    ['statDefense',p=>p.y<250],['statMidfield',p=>p.y>=250&&p.y<490],['statAttack',p=>p.y>=490],
+    ['statLeft',p=>p.x<177],['statRight',p=>p.x>323],
+  ];
+  z.forEach(([id,fn])=>{
+    const a=players.filter(p=>p.team==='A'&&fn(p)).length;
+    const b=players.filter(p=>p.team==='B'&&fn(p)).length;
+    const e=document.getElementById(id);if(!e)return;
+    if(!a&&!b){e.textContent='—';e.className='zone-stat-value neutral';}
+    else if(a>b){e.textContent=`A ${a}×${b}`;e.className='zone-stat-value advantage';}
+    else if(b>a){e.textContent=`B ${b}×${a}`;e.className='zone-stat-value disadvantage';}
+    else{e.textContent=`${a}×${b}`;e.className='zone-stat-value neutral';}
+  });
+}
+
+// ══════════════════════════════════════════════════════
+//  PRESSURE LINES
+// ══════════════════════════════════════════════════════
+function updatePressureLines() {
+  const g=document.getElementById('pressure-lines');
+  if(!linesOn){g.innerHTML='';return;}
+  const aP=players.filter(p=>p.team==='A'),bP=players.filter(p=>p.team==='B');
+  let html='';
+  aP.forEach(pa=>{
+    let near=null,minD=Infinity;
+    bP.forEach(pb=>{const d=Math.hypot(pa.x-pb.x,pa.y-pb.y);if(d<minD){minD=d;near=pb;}});
+    if(near&&minD<120){const op=Math.max(.05,.35-minD/350);html+=`<line x1="${pa.x}" y1="${pa.y}" x2="${near.x}" y2="${near.y}" stroke="rgba(255,255,255,${op})" stroke-width="1" stroke-dasharray="4 4"/>`;}
+  });
+  g.innerHTML=html;
+}
+
+// ══════════════════════════════════════════════════════
+//  ARROWS
+// ══════════════════════════════════════════════════════
+function renderArrows() {
+  const g=document.getElementById('arrows-layer');
+  if(!arrowsOn){g.innerHTML='';return;}
+  let html='';
+  players.forEach(p=>{
+    const dir=playerArrows[p.id];
+    if(!dir)return;
+    const v=ARROW_VEC[dir];if(!v)return;
+    const len=28, hLen=9, hWid=6;
+    const ex=p.x+v[0]*len, ey=p.y+v[1]*len;
+    // Arrowhead
+    const ang=Math.atan2(v[1],v[0]);
+    const ax1=ex-hLen*Math.cos(ang)+hWid*Math.sin(ang);
+    const ay1=ey-hLen*Math.sin(ang)-hWid*Math.cos(ang);
+    const ax2=ex-hLen*Math.cos(ang)-hWid*Math.sin(ang);
+    const ay2=ey-hLen*Math.sin(ang)+hWid*Math.cos(ang);
+    const col=p.team==='A'?'rgba(212,175,55,.9)':'rgba(74,159,232,.9)';
+    html+=`<g>
+      <line x1="${p.x}" y1="${p.y}" x2="${ex}" y2="${ey}" stroke="${col}" stroke-width="2.5" stroke-linecap="round"/>
+      <polygon points="${ex},${ey} ${ax1},${ay1} ${ax2},${ay2}" fill="${col}"/>
+    </g>`;
+  });
+  g.innerHTML=html;
+}
+
+// ══════════════════════════════════════════════════════
+//  PLAYER RENDERING
+// ══════════════════════════════════════════════════════
+function renderPlayers() {
+  const g=document.getElementById('players-layer');
+  g.innerHTML=players.map(p=>{
+    const isA=p.team==='A';
+    const fill=isA?'#D4AF37':'#4A9FE8';
+    const stroke=isA?'#F0CC55':'#6AB8F5';
+    const numCls=isA?'player-number':'player-number player-number-b';
+    const sel=p.id===selectedPlayerId;
+    return `
+    <g class="player-piece${sel?' selected':''}" id="player-${p.id}" data-id="${p.id}" transform="translate(${p.x},${p.y})">
+      <circle cx="1" cy="2" r="${PLAYER_R}" fill="rgba(0,0,0,0.5)"/>
+      <circle class="piece-circle" r="${PLAYER_R}" fill="${fill}" stroke="${stroke}" stroke-width="${sel?3:2}"/>
+      ${sel?`<circle r="${PLAYER_R+5}" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" stroke-dasharray="3 3"/>`:''}
+      <circle r="${PLAYER_R-5}" fill="transparent" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+      ${numbersOn?`<text class="${numCls}" y="0">${p.number}</text>`:''}
+    </g>`;
+  }).join('');
+
+  players.forEach(p=>{
+    const el=document.getElementById(`player-${p.id}`);
+    if(el){
+      el.addEventListener('mousedown',startDrag);
+      el.addEventListener('touchstart',startDragTouch,{passive:false});
+    }
+  });
+  renderArrows();
+  updateZones();
+  updatePressureLines();
+}
+
+// ══════════════════════════════════════════════════════
+//  DRAG & DROP
+// ══════════════════════════════════════════════════════
+function getSVGCoords(e) {
+  const svg=document.getElementById('pitch-svg');
+  const rect=svg.getBoundingClientRect();
+  const sx=PITCH_W/rect.width, sy=PITCH_H/rect.height;
+  const cx=(e.clientX||e.touches[0].clientX)-rect.left;
+  const cy=(e.clientY||e.touches[0].clientY)-rect.top;
+  return{x:cx*sx,y:cy*sy};
+}
+
+function startDrag(e) {
+  e.preventDefault(); e.stopPropagation();
+  const id=parseInt(e.currentTarget.dataset.id);
+  const p=players.find(pl=>pl.id===id);if(!p)return;
+  const coords=getSVGCoords(e);
+  dragOffX=coords.x-p.x; dragOffY=coords.y-p.y;
+  dragging=id; dragMoved=false;
+  document.getElementById(`player-${id}`).classList.add('dragging');
+}
+
+function startDragTouch(e) {
+  e.preventDefault(); e.stopPropagation();
+  const id=parseInt(e.currentTarget.dataset.id);
+  const p=players.find(pl=>pl.id===id);if(!p)return;
+  const coords=getSVGCoords(e);
+  dragOffX=coords.x-p.x; dragOffY=coords.y-p.y;
+  dragging=id; dragMoved=false;
+}
+
+document.addEventListener('mousemove',e=>{
+  if(dragging===null)return;
+  dragMoved=true;
+  const coords=getSVGCoords(e);
+  const p=players.find(pl=>pl.id===dragging);if(!p)return;
+  p.x=Math.max(PLAYER_R,Math.min(PITCH_W-PLAYER_R,coords.x-dragOffX));
+  p.y=Math.max(PLAYER_R,Math.min(PITCH_H-PLAYER_R,coords.y-dragOffY));
+  const el=document.getElementById(`player-${dragging}`);
+  if(el)el.setAttribute('transform',`translate(${p.x},${p.y})`);
+  updateZones(); updatePressureLines(); renderArrows();
+});
+
+document.addEventListener('mouseup',e=>{
+  if(dragging!==null){
+    const el=document.getElementById(`player-${dragging}`);
+    if(el)el.classList.remove('dragging');
+    // If didn't move much → it's a click → open arrow picker
+    if(!dragMoved){
+      selectPlayer(dragging);
+    }
+    dragging=null;
+  }
+});
+
+document.addEventListener('touchmove',e=>{
+  if(dragging===null)return;
+  e.preventDefault();
+  dragMoved=true;
+  const coords=getSVGCoords(e);
+  const p=players.find(pl=>pl.id===dragging);if(!p)return;
+  p.x=Math.max(PLAYER_R,Math.min(PITCH_W-PLAYER_R,coords.x-dragOffX));
+  p.y=Math.max(PLAYER_R,Math.min(PITCH_H-PLAYER_R,coords.y-dragOffY));
+  const el=document.getElementById(`player-${dragging}`);
+  if(el)el.setAttribute('transform',`translate(${p.x},${p.y})`);
+  updateZones(); renderArrows();
+},{passive:false});
+
+document.addEventListener('touchend',()=>{
+  if(dragging!==null){
+    if(!dragMoved) selectPlayer(dragging);
+    dragging=null;
+  }
+});
+
+// Click on empty pitch → add player
+document.getElementById('pitch-svg').addEventListener('click',e=>{
+  if(e.target.closest('.player-piece'))return;
+  if(selectedPlayerId!==null){deselectPlayer();return;}
+  const coords=getSVGCoords(e);
+  if(coords.x<30||coords.x>470||coords.y<30||coords.y>710)return;
+  const team=activeTeam;
+  if(players.filter(p=>p.team===team).length>=11){showToast(`Equipa ${team} já tem 11 jogadores`);return;}
+  playerCount[team]++;
+  players.push({id:nextId++,team,x:coords.x,y:coords.y,number:playerCount[team]});
+  renderPlayers();
+});
+
+// ══════════════════════════════════════════════════════
+//  PLAYER SELECTION & ARROW PICKER
+// ══════════════════════════════════════════════════════
+function selectPlayer(id) {
+  selectedPlayerId=id;
+  renderPlayers();
+  const p=players.find(pl=>pl.id===id);
+  const profNum=p.number; // 1-11
+  const profLabel=p.team==='A'&&playerProfiles[profNum]?`${profNum} — ${playerProfiles[profNum].pos}`:`Jog. ${profNum}`;
+  document.getElementById('apPlayerLabel').textContent=profLabel;
+  // Highlight current arrow direction
+  const cur=playerArrows[id];
+  document.querySelectorAll('.ap-btn').forEach(b=>{
+    b.classList.toggle('sel',b.dataset.dir===cur);
+  });
+  document.getElementById('arrowPicker').classList.add('show');
+}
+
+function deselectPlayer() {
+  selectedPlayerId=null;
+  renderPlayers();
+  document.getElementById('arrowPicker').classList.remove('show');
+}
+
+function closeArrowPicker() { deselectPlayer(); }
+
+function clearArrow() {
+  if(selectedPlayerId!==null){ delete playerArrows[selectedPlayerId]; renderPlayers(); showToast('Seta removida'); }
+  deselectPlayer();
+}
+
+// Arrow picker buttons
+document.getElementById('apGrid').addEventListener('click',e=>{
+  const btn=e.target.closest('.ap-btn');
+  if(!btn)return;
+  const dir=btn.dataset.dir;
+  if(dir==='NONE'){ clearArrow(); return; }
+  if(selectedPlayerId!==null){
+    playerArrows[selectedPlayerId]=dir;
+    renderPlayers();
+    document.querySelectorAll('.ap-btn').forEach(b=>b.classList.toggle('sel',b.dataset.dir===dir));
+    showToast(`${DIR_EMOJI[dir]} ${ARROW_LABEL[dir]}`);
+  }
+});
+
+// ══════════════════════════════════════════════════════
+//  FORMATIONS
+// ══════════════════════════════════════════════════════
+const FORMATIONS={
+  '4-3-3':{A:[[250,680],[90,570],[175,580],[325,580],[410,570],[140,440],[250,420],[360,440],[120,290],[250,265],[380,290]],B:[[250,60],[90,170],[175,160],[325,160],[410,170],[140,300],[250,320],[360,300],[120,450],[250,475],[380,450]]},
+  '4-4-2':{A:[[250,680],[90,570],[185,580],[315,580],[410,570],[90,440],[195,450],[305,450],[410,440],[175,290],[325,290]],B:[[250,60],[90,170],[185,160],[315,160],[410,170],[90,300],[195,290],[305,290],[410,300],[175,450],[325,450]]},
+  '4-2-3-1':{A:[[250,680],[90,580],[185,590],[315,590],[410,580],[185,470],[315,470],[110,340],[250,320],[390,340],[250,230]],B:[[250,60],[90,160],[185,150],[315,150],[410,160],[185,270],[315,270],[110,400],[250,420],[390,400],[250,510]]},
+  '3-5-2':{A:[[250,680],[145,590],[250,600],[355,590],[70,460],[175,450],[250,430],[325,450],[430,460],[185,300],[315,300]],B:[[250,60],[145,150],[250,140],[355,150],[70,280],[175,290],[250,310],[325,290],[430,280],[185,440],[315,440]]},
+  '5-3-2':{A:[[250,680],[60,580],[160,570],[250,590],[340,570],[440,580],[145,440],[250,420],[355,440],[185,300],[315,300]],B:[[250,60],[60,160],[160,170],[250,150],[340,170],[440,160],[145,300],[250,320],[355,300],[185,440],[315,440]]},
+  '4-1-4-1':{A:[[250,680],[90,580],[185,590],[315,590],[410,580],[250,490],[80,380],[190,370],[310,370],[420,380],[250,250]],B:[[250,60],[90,160],[185,150],[315,150],[410,160],[250,250],[80,360],[190,370],[310,370],[420,360],[250,490]]},
+};
+
+function applyFormation(team,name) {
+  const coords=FORMATIONS[name]?.[team];if(!coords)return;
+  players=players.filter(p=>p.team!==team);
+  playerCount[team]=0;
+  coords.forEach(pos=>{playerCount[team]++;players.push({id:nextId++,team,x:pos[0],y:pos[1],number:playerCount[team]});});
+  renderPlayers();showToast(`${name} aplicado à Equipa ${team}`);
+}
+
+// ══════════════════════════════════════════════════════
+//  TOGGLES
+// ══════════════════════════════════════════════════════
+function setActiveTeam(t){activeTeam=t;document.getElementById('teamBtnA').classList.toggle('active',t==='A');document.getElementById('teamBtnB').classList.toggle('active',t==='B');}
+function toggleZones(){zonesOn=!zonesOn;document.getElementById('zoneToggle').classList.toggle('on',zonesOn);updateZones();}
+function toggleNumbers(){numbersOn=!numbersOn;document.getElementById('numberToggle').classList.toggle('on',numbersOn);renderPlayers();}
+function toggleLines(){linesOn=!linesOn;document.getElementById('lineToggle').classList.toggle('on',linesOn);updatePressureLines();}
+function toggleArrows(){arrowsOn=!arrowsOn;document.getElementById('arrowToggle').classList.toggle('on',arrowsOn);renderArrows();}
+
+// ══════════════════════════════════════════════════════
+//  AI ANALYSIS
+// ══════════════════════════════════════════════════════
+async function analyzeScenario() {
+  const aPlayers=players.filter(p=>p.team==='A');
+  const bPlayers=players.filter(p=>p.team==='B');
+  if(aPlayers.length<3){showToast('Coloca pelo menos 3 jogadores da Eq. A');return;}
+
+  document.getElementById('aiResult').innerHTML='<div class="ai-loading"><div class="spin"></div><span>A analisar o cenário tático...</span><span style="font-size:10px;opacity:.6;">A IA lê formação, setas e perfis</span></div>';
+
+  // Build prompt
+  const teamADesc=aPlayers.map(p=>{
+    const prof=playerProfiles[p.number]||{};
+    const arrow=playerArrows[p.id];
+    const posLabel=`[${Math.round(p.x)},${Math.round(p.y)}]`;
+    const arrowStr=arrow?` → ${DIR_EMOJI[arrow]} ${ARROW_LABEL[arrow]}`:'';
+    const profStr=prof.pos?` (${prof.pos}, ${prof.speed}, ${prof.physical}, ${prof.style})`:'';
+    return `Jog.${p.number}${profStr} ${posLabel}${arrowStr}`;
+  }).join('\n');
+
+  const teamBDesc=bPlayers.map(p=>`Jog.${p.number} [${Math.round(p.x)},${Math.round(p.y)}]`).join('\n');
+
+  const arrowCount=aPlayers.filter(p=>playerArrows[p.id]).length;
+  const hasArrows=arrowCount>0;
+
+  const prompt=[
+    `Analista Tático YourTalentBase. Responde em português europeu, tom profissional UEFA.`,
+    ``,
+    `CONTEXTO: Mister Teles | Escalão: ${escalao} | Fase: ${currentPhase}`,
+    ``,
+    `EQUIPA A (MISSÃO DO TREINADOR):`,
+    teamADesc,
+    ``,
+    bPlayers.length>0?`EQUIPA B (ADVERSÁRIO):\n${teamBDesc}\n`:'EQUIPA B: Sem jogadores definidos\n',
+    hasArrows?`Setas de movimento definidas: ${arrowCount} jogadores com intenção de movimento.`:'Sem setas de movimento definidas ainda.',
+    ``,
+    `Analisa este cenário de ${currentPhase} e responde com EXATAMENTE este formato:`,
+    ``,
+    `**LEITURA TÁTICA**`,
+    `[O que a Equipa A está a impor, 2-3 frases]`,
+    ``,
+    `**CONTRA-TÁTICA**`,
+    `[Como a Equipa B deve responder, posicionamento específico, 3-4 frases]`,
+    ``,
+    `**3 AJUSTES — ${escalao}**`,
+    `1. [instrução concreta adaptada à faixa etária]`,
+    `2. [instrução concreta]`,
+    `3. [instrução concreta]`,
+    ``,
+    `**⚠ ALERTA**`,
+    `[1 ponto crítico que o treinador deve vigiar]`,
+    ``,
+    `Máx 280 palavras. Direto e específico.`,
+  ].filter(l=>l!==undefined).join('\n');
+
+  try {
+    const res=await fetch('/api/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'user',content:prompt}]})});
+    if(!res.ok) throw new Error('API error');
+    const data=await res.json();
+    const text=data.content.map(b=>b.text||'').join('\n');
+    renderAIResult(text);
+  } catch(e) {
+    document.getElementById('aiResult').innerHTML='<div class="ai-empty" style="color:var(--danger);">Erro ao contactar a IA. Verifica a ligação.</div>';
+  }
+}
+
+function renderAIResult(text) {
+  // Parse **SECTION** blocks
+  const sections=text.split(/\*\*([^*]+)\*\*/g).filter(s=>s.trim());
+  let html='<div style="padding:12px;">';
+  for(let i=0;i<sections.length;i+=2){
+    const title=sections[i]?.trim();
+    const body=sections[i+1]?.trim()||'';
+    if(!title)continue;
+    const icons={'LEITURA TÁTICA':'🔍','CONTRA-TÁTICA':'🛡️','⚠ ALERTA':'⚠️'};
+    const iconMatch=Object.entries(icons).find(([k])=>title.includes(k.replace('⚠ ','')));
+    html+=`<div class="ai-block">
+      <div class="ai-block-title">${icons[title]||'📌'} ${title}</div>
+      <div class="ai-block-body">${body.replace(/\n/g,'<br>').replace(/(\d+\. )/g,'<strong>$1</strong>')}</div>
+    </div>`;
+  }
+  html+='</div>';
+  document.getElementById('aiResult').innerHTML=html;
+}
+
+// ══════════════════════════════════════════════════════
+//  NOTES
+// ══════════════════════════════════════════════════════
+function saveNotes(){localStorage.setItem('ytb_tl_title',document.getElementById('noteTitle').value);localStorage.setItem('ytb_tl_a',document.getElementById('noteTeamA').value);localStorage.setItem('ytb_tl_b',document.getElementById('noteTeamB').value);localStorage.setItem('ytb_tl_g',document.getElementById('noteGeneral').value);}
+function loadNotes(){document.getElementById('noteTitle').value=localStorage.getItem('ytb_tl_title')||'';document.getElementById('noteTeamA').value=localStorage.getItem('ytb_tl_a')||'';document.getElementById('noteTeamB').value=localStorage.getItem('ytb_tl_b')||'';document.getElementById('noteGeneral').value=localStorage.getItem('ytb_tl_g')||'';}
+
+// ══════════════════════════════════════════════════════
+//  EXPORT
+// ══════════════════════════════════════════════════════
+function exportImage(){
+  const svg=document.getElementById('pitch-svg');
+  const s=new XMLSerializer().serializeToString(svg);
+  const blob=new Blob([s],{type:'image/svg+xml'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download='tacticslab.svg';a.click();URL.revokeObjectURL(url);
+  showToast('PNG exportado');
+}
+
+function exportPDF(){
+  const title=document.getElementById('noteTitle').value||'Sessão Tática';
+  const svg=document.getElementById('pitch-svg');
+  const svgStr=new XMLSerializer().serializeToString(svg);
+  const svgB64=btoa(unescape(encodeURIComponent(svgStr)));
+  const noteA=document.getElementById('noteTeamA').value;
+  const noteB=document.getElementById('noteTeamB').value;
+  const noteG=document.getElementById('noteGeneral').value;
+  const aiResult=document.getElementById('aiResult').innerText||'';
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${title}</title><style>
+    body{margin:0;background:#0A0F0A;color:#DDE8DD;font-family:Arial,sans-serif;padding:28px;}
+    .hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;border-bottom:2px solid #D4AF37;padding-bottom:14px;}
+    .logo{font-size:20px;font-weight:900;color:#D4AF37;}.module{font-size:10px;letter-spacing:3px;color:#6A806A;text-transform:uppercase;}
+    .meta{font-size:11px;color:#6A806A;text-align:right;}
+    .title{font-size:22px;font-weight:700;margin-bottom:18px;}
+    .layout{display:flex;gap:24px;}.pitch-wrap{flex-shrink:0;}.pitch-wrap img{width:300px;border-radius:5px;}
+    .notes{flex:1;font-size:12px;}.note-block{margin-bottom:14px;}.nl{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:#6A806A;margin-bottom:4px;font-weight:700;}
+    .nb{background:#111811;border:1px solid #1E2B1E;border-radius:4px;padding:8px 10px;white-space:pre-wrap;min-height:40px;line-height:1.6;}
+    .footer{margin-top:24px;font-size:9px;color:#3A503A;display:flex;justify-content:space-between;border-top:1px solid #1E2B1E;padding-top:10px;}
+    @media print{#pbtn{display:none!important;}}
+  </style></head><body>
+  <div class="hdr"><div><div class="logo">YourTalentBase</div><div class="module">TacticsLab · ${escalao}</div></div><div class="meta"><div>${currentPhase}</div><div>${new Date().toLocaleDateString('pt-PT')}</div></div></div>
+  <div class="title">${title}</div>
+  <div class="layout">
+    <div class="pitch-wrap"><img src="data:image/svg+xml;base64,${svgB64}" alt="Campo"/></div>
+    <div class="notes">
+      ${noteA?`<div class="note-block"><div class="nl">Equipa A</div><div class="nb">${noteA}</div></div>`:''}
+      ${noteB?`<div class="note-block"><div class="nl">Equipa B</div><div class="nb">${noteB}</div></div>`:''}
+      ${noteG?`<div class="note-block"><div class="nl">Notas</div><div class="nb">${noteG}</div></div>`:''}
+      ${aiResult?`<div class="note-block"><div class="nl">Análise IA</div><div class="nb" style="font-size:11px;">${aiResult}</div></div>`:''}
+    </div>
+  </div>
+  <div class="footer"><span>YourTalentBase · TacticsLab</span><span>yourtalentbase.pt</span><span>${new Date().toLocaleDateString('pt-PT')}</span></div>
+  <button id="pbtn" onclick="window.print()" style="position:fixed;bottom:16px;right:16px;background:#D4AF37;color:#000;padding:10px 20px;border:none;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer;">🖨 Imprimir</button>
+  </body></html>`;
+  const w=window.open('','_blank');w.document.write(html);w.document.close();
+  setTimeout(()=>w.print(),600);
+}
+
+// ══════════════════════════════════════════════════════
+//  MODAL & TOAST
+// ══════════════════════════════════════════════════════
+function showModal(){document.getElementById('modal').classList.add('show');}
+function closeModal(){document.getElementById('modal').classList.remove('show');}
+function confirmReset(){players=[];playerCount={A:0,B:0};playerArrows={};renderPlayers();closeModal();showToast('Campo limpo');}
+let _tt;
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),2200);}
+
+// ══════════════════════════════════════════════════════
+//  PWA
+// ══════════════════════════════════════════════════════
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('/sw-tactics.js',{scope:'/tacticslab.html'})
+      .catch(e=>console.warn('SW tactics:',e));
+  });
+}
+</script>
+</body>
+</html>
