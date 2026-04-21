@@ -1191,7 +1191,7 @@ window.addEventListener('DOMContentLoaded', function(){
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
-    navigator.serviceWorker.register('/sw-treino.js')
+    navigator.serviceWorker.register('/sw-treino.js', { scope: '/treino.html' })
       .catch(function(e) { console.warn('SW treino:', e); });
   });
 }

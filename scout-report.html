@@ -1040,7 +1040,7 @@ document.addEventListener('DOMContentLoaded',function(){
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
-    navigator.serviceWorker.register('/sw-scout.js')
+    navigator.serviceWorker.register('/sw-scout.js', { scope: '/scout-report.html' })
       .catch(function(e) { console.warn('SW scout:', e); });
   });
 }
