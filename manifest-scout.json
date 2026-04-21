@@ -1,9 +1,10 @@
 {
+  "id": "/scout-report",
   "name": "Scout Report · YourTalentBase",
   "short_name": "Scout Report",
   "description": "Sistema profissional de avaliação de atletas jovens com 25 critérios e relatório IA.",
   "start_url": "/scout-report.html",
-  "scope": "/",
+  "scope": "/scout-report.html",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#09090C",
@@ -13,6 +14,5 @@
     { "src": "/icons/scout-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
     { "src": "/icons/scout-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ],
-  "screenshots": [],
   "categories": ["sports", "productivity"]
 }

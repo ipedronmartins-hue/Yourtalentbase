@@ -1,9 +1,10 @@
 {
+  "id": "/treino",
   "name": "Treino Extra · YourTalentBase",
   "short_name": "Treino Extra",
   "description": "Treinos semanais prescritos pelo teu treinador. Compete com a tua equipa.",
   "start_url": "/treino.html",
-  "scope": "/",
+  "scope": "/treino.html",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#09090C",
@@ -13,6 +14,5 @@
     { "src": "/icons/treino-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
     { "src": "/icons/treino-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ],
-  "screenshots": [],
   "categories": ["sports", "health"]
 }
