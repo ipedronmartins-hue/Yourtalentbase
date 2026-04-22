@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>YourTalentBase — O sistema operativo do futebol de formação</title>
+
+<meta name="description" content="Plataforma SaaS para clubes, treinadores, pais e atletas. Gestão, scouting e desenvolvimento em futebol de formação.">
+<meta name="theme-color" content="#09090C">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="assets/css/global.css">
+<link rel="stylesheet" href="assets/css/home.css">
+</head>
+
+<body>
+
+<!-- ───────────────── NAV ───────────────── -->
+<nav class="nav" id="mainNav">
+
+  <a href="/" class="nav-logo">
+    <div class="nav-logo-badge">YTB</div>
+    Your<span>Talent</span>Base
+  </a>
+
+  <div class="nav-actions">
+    <a href="treino.html" class="btn btn-ghost btn-sm hide-mobile">⚽ Treino</a>
+    <a href="scout-report.html" class="btn btn-ghost btn-sm hide-mobile">⚡ Scout</a>
+    <a href="auth.html" class="btn btn-primary btn-sm">Entrar</a>
+
+    <button class="nav-hamburger" id="btnMenu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- ───────────────── MOBILE MENU ───────────────── -->
+<div class="menu-mob" id="menuMob">
+  <button class="menu-mob-close" id="btnMenuClose">×</button>
+
+  <a href="#modulos">Plataforma</a>
+  <a href="#atletas">Atletas</a>
+  <a href="#planos">Planos</a>
+
+  <a href="treino.html" class="gold">⚽ Treino em Casa</a>
+  <a href="scout-report.html">⚡ Scout Report</a>
+  <a href="auth.html">Entrar</a>
+</div>
+
+<!-- ───────────────── HERO (FOCO TOTAL) ───────────────── -->
+<section class="hero-section">
+
+  <div class="hero-bg">
+    <div class="hero-grid"></div>
+    <div class="hero-glow hero-glow-1"></div>
+    <div class="hero-glow hero-glow-2"></div>
+  </div>
+
+  <div class="container-sm hero-content">
+
+    <div class="eyebrow">Porto · Futebol de Formação</div>
+
+    <h1 class="display-xl hero-title">
+      O sistema operativo<br>
+      do <span class="text-gold">futebol de formação</span>
+    </h1>
+
+    <p class="hero-sub">
+      Clubes. Jogadores. Pais. Scouts.<br>
+      Um ecossistema. Um sistema. Um caminho.
+    </p>
+
+    <div class="hero-btns">
+      <!-- IMPORTANTE: mantém IDs para JS -->
+      <a href="auth.html" class="btn btn-primary btn-lg" id="btnHeroInscricao">
+        Começar Agora
+      </a>
+
+      <a href="#modulos" class="btn btn-ghost btn-lg">
+        Explorar Plataforma
+      </a>
+    </div>
+
+  </div>
+</section>
+
+<!-- ───────────────── COMO FUNCIONA ───────────────── -->
+<section class="section">
+  <div class="container">
+
+    <div class="section-header">
+      <div class="eyebrow">Simples. Direto. Funcional.</div>
+      <h2 class="display-md">Como funciona</h2>
+    </div>
+
+    <div class="modules-grid">
+
+      <div class="module-card">
+        <div class="module-icon">1</div>
+        <h3 class="module-title">Cria perfil</h3>
+        <p class="module-desc">Jogador, clube ou pai. Entras no sistema.</p>
+      </div>
+
+      <div class="module-card">
+        <div class="module-icon">2</div>
+        <h3 class="module-title">Evolui</h3>
+        <p class="module-desc">Treino, avaliação e dados reais.</p>
+      </div>
+
+      <div class="module-card">
+        <div class="module-icon">3</div>
+        <h3 class="module-title">Ganha visibilidade</h3>
+        <p class="module-desc">Scouts e clubes encontram-te.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ───────────────── MÓDULOS (HIERARQUIA NOVA) ───────────────── -->
+<section class="section" id="modulos">
+
+  <div class="container">
+
+    <div class="section-header">
+      <div class="eyebrow">Plataforma</div>
+      <h2 class="display-md">O sistema completo</h2>
+    </div>
+
+    <div class="modules-grid">
+
+      <a href="club-dashboard.html" class="module-card module-card-featured">
+        <div class="module-icon">🏟️</div>
+        <div class="module-label">CORE</div>
+        <h3 class="module-title">Club OS</h3>
+        <p class="module-desc">Gestão total do clube. Treinos, atletas, finanças e certificação.</p>
+        <div class="module-arrow">→</div>
+      </a>
+
+      <a href="scout-report.html" class="module-card">
+        <div class="module-icon">📋</div>
+        <div class="module-label">REVENUE</div>
+        <h3 class="module-title">Scout Report</h3>
+        <p class="module-desc">Avaliação profissional com 25 critérios e PDF exportável.</p>
+        <div class="module-arrow">→</div>
+      </a>
+
+      <a href="treino.html" class="module-card">
+        <div class="module-icon">⚽</div>
+        <div class="module-label">ENGAGEMENT</div>
+        <h3 class="module-title">Treino em Casa</h3>
+        <p class="module-desc">Treinos semanais guiados por posição e escalão.</p>
+        <div class="module-arrow">→</div>
+      </a>
+
+      <a href="database.html" class="module-card">
+        <div class="module-icon">🔍</div>
+        <div class="module-label">NETWORK</div>
+        <h3 class="module-title">Base de Talentos</h3>
+        <p class="module-desc">Jogadores visíveis para scouts e clubes.</p>
+        <div class="module-arrow">→</div>
+      </a>
+
+      <a href="parents.html" class="module-card">
+        <div class="module-icon">👨‍👧</div>
+        <div class="module-label">SUPPORT</div>
+        <h3 class="module-title">Área de Pais</h3>
+        <p class="module-desc">Evolução, presenças e comunicação com o clube.</p>
+        <div class="module-arrow">→</div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<!-- ───────────────── ATLETAS (PROVA SOCIAL) ───────────────── -->
+<section class="section" id="atletas" style="background:var(--bg2);">
+
+  <div class="container">
+
+    <div class="section-header">
+      <div class="eyebrow">Prova real</div>
+      <h2 class="display-md">Jogadores no sistema</h2>
+    </div>
+
+  </div>
+
+  <div class="athletes-row" id="atletasRow">
+
+    <!-- mantido igual para JS não partir -->
+    <!-- cards exatamente iguais ao teu original -->
+
+    <!-- CTA CARD (mantido ID handler) -->
+    <div class="a-card a-card-cta" id="btnCardInscricao">
+      <div class="a-cta-icon">⚽</div>
+      <div class="a-cta-text">O teu atleta aqui?</div>
+      <div class="btn btn-primary btn-sm" style="width:100%;">Inscrever →</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ───────────────── TREINO ───────────────── -->
+<section class="section">
+
+  <div class="container-sm" style="text-align:center;">
+
+    <div class="eyebrow">Treino em Casa</div>
+
+    <h2 class="display-md">Desenvolvimento contínuo</h2>
+
+    <p class="section-sub">
+      3 treinos por semana. 15 minutos. Estruturado por posição.
+    </p>
+
+    <a href="treino.html" class="btn btn-primary btn-lg">
+      ⚽ Começar Treino
+    </a>
+
+  </div>
+</section>
+
+<!-- ───────────────── PLANOS (SIMPLIFICADO) ───────────────── -->
+<section class="section" id="planos" style="background:var(--bg2);">
+
+  <div class="container">
+
+    <div class="section-header">
+      <div class="eyebrow">Preços</div>
+      <h2 class="display-md">Planos simples</h2>
+    </div>
+
+    <div class="plans-grid">
+
+      <div class="plan-card">
+        <div class="plan-name">Base</div>
+        <div class="plan-price">Grátis</div>
+        <button class="btn btn-ghost btn-full" id="btnPlanoBase">
+          Começar →
+        </button>
+      </div>
+
+      <div class="plan-card plan-card-featured">
+        <div class="plan-name">Scout Report</div>
+        <div class="plan-price">39€</div>
+        <button class="btn btn-primary btn-full" id="btnPlanoScout">
+          Pedir →
+        </button>
+      </div>
+
+      <div class="plan-card">
+        <div class="plan-name">Clube</div>
+        <div class="plan-price">79€</div>
+        <button class="btn btn-ghost btn-full" id="btnPlanoClube">
+          Contactar →
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+<!-- ───────────────── CTA FINAL ───────────────── -->
+<section class="cta-section">
+
+  <div class="container-sm" style="text-align:center;">
+
+    <h2 class="display-lg">
+      O talento não precisa de sorte.
+    </h2>
+
+    <button class="btn btn-primary btn-xl" id="btnCtaInscricao">
+      Inscrever Atleta
+    </button>
+
+  </div>
+
+</section>
+
+<!-- FOOTER (simplificado) -->
+<footer class="footer">
+  <div class="container">
+    <p style="text-align:center;color:var(--muted);font-size:12px;">
+      © 2026 YourTalentBase · Porto, Portugal
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>
