@@ -962,12 +962,16 @@ async function runAnalysis(){
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ messages:[{role:'user',content:prompt}] })
     });
-    if(!res.ok) throw new Error('API error '+res.status);
     var data = await res.json();
+    if(!res.ok) {
+      var errMsg = (data && data.error) ? data.error : 'Erro '+res.status;
+      throw new Error(errMsg);
+    }
+    if(!data.content || !data.content.length) throw new Error('Resposta vazia da IA');
     var text = data.content.map(function(b){ return b.text||''; }).join('\n');
     renderAIOutput(text);
   } catch(e) {
-    el('aiOutput').innerHTML = '<div class="ai-empty" style="color:var(--red);">Erro ao contactar a IA.<br>Verifica a ligação à internet.</div>';
+    el('aiOutput').innerHTML = '<div class="ai-empty" style="color:var(--red);">Erro ao contactar a IA.<br><span style="font-size:11px;opacity:.7;">'+e.message+'</span></div>';
   }
 }
 
