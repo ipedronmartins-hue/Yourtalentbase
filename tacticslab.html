@@ -114,8 +114,8 @@ button,select,input,textarea{font-family:'Barlow',sans-serif;cursor:pointer;}
 .tbtn.active{background:var(--gd);border-color:var(--gold);color:var(--gold);}
 .tbtn.ai{background:rgba(74,159,232,.1);border-color:rgba(74,159,232,.3);color:var(--blue);}
 .tbtn.ai:hover,.tbtn.ai.active{background:rgba(74,159,232,.2);border-color:var(--blue);}
-.pitch-wrap{flex:1;display:flex;align-items:center;justify-content:center;background:var(--bg);position:relative;overflow:hidden;padding:8px;}
-#pitchSvg{display:block;max-width:100%;max-height:100%;border-radius:4px;}
+.pitch-wrap{flex:1;display:flex;align-items:center;justify-content:center;background:var(--bg);position:relative;overflow:hidden;padding:6px 4px;}
+#pitchSvg{display:block;width:auto;height:100%;max-width:100%;max-height:100%;border-radius:4px;}
 
 /* Arrow picker overlay */
 #arrowPicker{position:fixed;bottom:0;left:0;right:0;z-index:500;background:var(--s1);border-top:1px solid var(--b2);padding:14px 16px 24px;transform:translateY(100%);transition:transform .25s ease;}
@@ -144,9 +144,9 @@ button,select,input,textarea{font-family:'Barlow',sans-serif;cursor:pointer;}
 .spin{width:32px;height:32px;border:2px solid var(--b2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;}
 .ai-empty{padding:32px 16px;text-align:center;color:var(--muted);font-size:13px;font-weight:300;line-height:1.7;}
 .ai-block{margin-bottom:16px;background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:14px;}
-.ai-block-title{font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.ai-block-title{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
 .ai-block-title::before{content:'';width:12px;height:1px;background:var(--b2);}
-.ai-block-body{font-size:13px;color:var(--dim);line-height:1.75;font-weight:300;}
+.ai-block-body{font-size:14px;color:var(--text);line-height:1.8;font-weight:400;}
 .ai-block-body strong{color:var(--text);font-weight:600;}
 .ai-block.highlight{background:var(--gd);border-color:var(--gg);}
 .ai-block.highlight .ai-block-title{color:var(--gold);}
@@ -271,8 +271,8 @@ button,select,input,textarea{font-family:'Barlow',sans-serif;cursor:pointer;}
     </div>
 
     <!-- PANEL 2: CAMPO -->
-    <div class="panel" id="panel1" style="overflow:hidden;">
-      <div class="p2-inner">
+    <div class="panel" id="panel1" style="overflow:hidden;display:flex;flex-direction:column;">
+      <div class="p2-inner" style="flex:1;overflow:hidden;">
         <div class="p2-toolbar" id="toolbar">
           <button class="tbtn active" id="tTeamA" onclick="setTeam('A')">⚽ Minha Equipa</button>
           <button class="tbtn" id="tTeamB" onclick="setTeam('B')">🤖 IA / Adversário</button>

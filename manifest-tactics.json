@@ -6,7 +6,7 @@
   "start_url": "/tacticslab.html",
   "scope": "/tacticslab.html",
   "display": "standalone",
-  "orientation": "landscape",
+  "orientation": "portrait",
   "background_color": "#080C08",
   "theme_color": "#080C08",
   "lang": "pt",
