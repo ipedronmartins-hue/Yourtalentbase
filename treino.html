@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Treino em Casa · YourTalentBase</title>
+<title>Treino Extra - YourTalentBase</title>
 <meta name="theme-color" content="#09090C">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -14,1187 +14,960 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0;}
+*{box-sizing:border-box;margin:0;padding:0}
 :root{
   --gold:#D4AF37;--gs:rgba(212,175,55,.10);--gb:rgba(212,175,55,.22);
-  --blue:#1A237E;--bm:#283593;
   --green:#00D46A;--gs2:rgba(0,212,106,.10);--gb2:rgba(0,212,106,.28);
-  --red:#EF4444;--rs:rgba(239,68,68,.10);--rb:rgba(239,68,68,.25);
+  --red:#EF4444;--blue:#283593;
   --bg:#09090C;--bg2:#111116;--bg3:#18181F;
   --border:#1E1E2A;--border2:#2A2A3A;
-  --white:#EEEEF5;--slate:#AAAABF;--muted:#7777A0;--dim:#52526A;
+  --white:#EEEEF5;--slate:#AAAABF;--muted:#7777A0;--dim:#52526A
 }
-html,body{background:var(--bg);color:var(--white);font-family:'Plus Jakarta Sans',sans-serif;-webkit-text-size-adjust:100%;overflow-x:hidden;}
-button,input,textarea{font-family:inherit;}
-a{color:inherit;text-decoration:none;}
-@keyframes up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+html,body{background:var(--bg);color:var(--white);font-family:"Plus Jakarta Sans",sans-serif;overflow-x:hidden;-webkit-text-size-adjust:100%}
+button,input{font-family:inherit}
+a{color:inherit;text-decoration:none}
+@keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 @keyframes spin{to{transform:rotate(360deg)}}
-@keyframes cf{0%{transform:translateY(-10px) rotate(0);opacity:1}100%{transform:translateY(105vh) rotate(var(--r,360deg));opacity:0}}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes cf{0%{transform:translateY(-10px) rotate(0);opacity:1}100%{transform:translateY(110vh) rotate(var(--r,360deg));opacity:0}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.12)}100%{transform:scale(1)}}
 
 /* NAV */
-.nav{position:sticky;top:0;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:rgba(9,9,12,.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);z-index:100;}
-.logo{display:flex;align-items:center;gap:8px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:13px;letter-spacing:2px;text-transform:uppercase;}
-.logo-b{width:25px;height:25px;background:var(--gold);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:900;color:#000;}
-.logo span{color:var(--gold);}
-
-/* COUNTDOWN */
-.countdown-bar{
-  position:sticky;top:56px;z-index:90;
-  height:60px;
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 16px;
-  background:rgba(9,9,12,.97);
-  border-bottom:1px solid var(--border);
-  backdrop-filter:blur(16px);
-}
-.cd-time{
-  font-family:'Barlow Condensed',sans-serif;
-  font-size:38px;font-weight:900;letter-spacing:2px;
-  line-height:1;
-  transition:color .3s;
-}
-.cd-time.running{color:var(--green);}
-.cd-time.urgent{color:var(--red);animation:pulse 1s infinite;}
-.cd-time.paused{color:var(--muted);}
-.cd-dot{width:8px;height:8px;border-radius:50%;margin-right:6px;flex-shrink:0;transition:all .3s;}
-.cd-dot.on{background:var(--green);box-shadow:0 0 8px var(--green);}
-.cd-dot.off{background:var(--dim);}
-.cd-dot.urgent{background:var(--red);box-shadow:0 0 8px var(--red);}
-
-/* BUTTONS */
-.btn-g{background:var(--gold);color:#000;border:none;padding:14px 20px;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;min-height:52px;transition:all .2s;}
-.btn-g:hover{background:#e0bc3d;transform:translateY(-1px);}
-.btn-g:disabled{background:var(--border2);color:var(--muted);cursor:default;transform:none;}
-.btn-g.green{background:var(--green);}
-.btn-ghost{background:none;border:1px solid var(--border2);color:var(--slate);padding:10px 16px;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;min-height:44px;}
-.btn-small{padding:8px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;min-height:44px;border:none;}
-
-.inp{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:11px;padding:12px 14px;color:var(--white);font-size:15px;outline:none;transition:border-color .2s;}
-.inp:focus{border-color:var(--gold);}
-.inp::placeholder{color:var(--dim);}
-.inp-sm{font-size:13px;padding:10px 12px;border-radius:9px;}
+.nav{position:sticky;top:0;height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:rgba(9,9,12,.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);z-index:100}
+.logo{display:flex;align-items:center;gap:8px;font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:13px;letter-spacing:2px;text-transform:uppercase}
+.logo-b{width:25px;height:25px;background:var(--gold);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:900;color:#000}
+.logo span{color:var(--gold)}
 
 /* VIEWS */
-.view.on.vload-center{display:flex;align-items:center;justify-content:center;}
-.view{display:none;min-height:calc(100vh - 56px);}
-.view.on{display:block;}
-.center{display:flex;align-items:flex-start;justify-content:center;min-height:calc(100vh - 56px);padding:32px 16px 80px;}
-.inner{max-width:420px;width:100%;animation:up .4s both;}
-.wrap{max-width:500px;margin:0 auto;padding:18px 16px 80px;}
+.view{display:none}
+.view.on{display:block}
+.vc{display:flex;align-items:flex-start;justify-content:center;min-height:calc(100vh - 54px);padding:28px 16px 80px}
+.inner{max-width:420px;width:100%;animation:up .35s both}
+.page{max-width:480px;margin:0 auto;padding:18px 16px 80px}
+
+/* UTILS */
+.ey{font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted)}
+.h1{font-family:"Barlow Condensed",sans-serif;font-size:clamp(30px,9vw,48px);font-weight:900;line-height:.95}
+.num{font-family:"Barlow Condensed",sans-serif}
+.pbar{height:6px;background:var(--border);border-radius:100px;overflow:hidden}
+.pfill{height:100%;background:linear-gradient(90deg,var(--blue),var(--gold));border-radius:100px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+.spn{border-radius:50%;border:2px solid var(--border2);border-top-color:var(--gold);animation:spin .8s linear infinite;display:inline-block}
+.toast{position:fixed;top:62px;left:50%;transform:translateX(-50%);background:var(--bg3);border:1px solid var(--border);border-radius:100px;padding:10px 20px;font-size:13px;font-weight:600;z-index:9999;white-space:nowrap;box-shadow:0 8px 28px rgba(0,0,0,.6);opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
 
 /* CARDS */
-.card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px;position:relative;overflow:hidden;}
-.card.gold{background:linear-gradient(135deg,rgba(212,175,55,.08),rgba(212,175,55,.02));border-color:var(--gb);}
-.card.grad::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--bm),var(--gold));}
-.card.green{background:linear-gradient(135deg,rgba(0,212,106,.08),rgba(0,212,106,.02));border-color:var(--gb2);}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px}
+.card.gold{background:linear-gradient(135deg,rgba(212,175,55,.08),rgba(212,175,55,.02));border-color:var(--gb)}
+
+/* BUTTONS */
+.btn-g{background:var(--gold);color:#000;border:none;padding:14px 20px;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;min-height:52px;transition:all .2s}
+.btn-g:active{transform:scale(.97)}
+.btn-g:disabled{background:var(--border2);color:var(--muted);cursor:not-allowed}
+.btn-g.grn{background:var(--green);color:#000}
+.btn-gs{background:none;border:1px solid var(--border2);color:var(--slate);padding:10px 16px;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;min-height:44px}
+.inp{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:11px;padding:12px 14px;color:var(--white);font-size:15px;outline:none;transition:border-color .2s}
+.inp:focus{border-color:var(--gold)}
+.inp::placeholder{color:var(--dim)}
 
 /* IDENTITY */
-.id-option{
-  background:var(--bg2);border:1px solid var(--border);border-radius:16px;
-  padding:20px 18px;cursor:pointer;transition:all .2s;
-  display:flex;align-items:center;gap:16px;
-  min-height:80px;
-}
-.id-option:hover,.id-option:active{border-color:var(--gold);background:var(--gs);}
-.id-icon{font-size:28px;flex-shrink:0;}
-.id-label{font-size:16px;font-weight:700;}
-.id-sub{font-size:11px;color:var(--muted);font-weight:300;margin-top:2px;}
+.id-opt{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:20px 18px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:16px;min-height:78px}
+.id-opt:active{border-color:var(--gold);background:var(--gs)}
 
-/* ATLETA PICKER */
-.pick-item{
-  background:var(--bg3);border:1px solid var(--border);border-radius:11px;
-  padding:13px 15px;cursor:pointer;display:flex;align-items:center;gap:12px;
-  transition:all .2s;margin-bottom:6px;min-height:54px;
+/* PICK */
+.pick-it{background:var(--bg3);border:1px solid var(--border);border-radius:11px;padding:13px 15px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:all .15s;margin-bottom:6px;min-height:54px}
+.pick-it.sel{background:var(--gs);border-color:var(--gold)}
+.pick-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--blue),#1A237E);display:flex;align-items:center;justify-content:center;font-family:"Barlow Condensed",sans-serif;font-weight:900;font-size:15px;flex-shrink:0}
+
+/* SESSION CARDS */
+.sc{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:16px;cursor:pointer;transition:all .2s;margin-bottom:10px}
+.sc:active{transform:scale(.98)}
+.sc.done{border-color:var(--gb2);background:rgba(0,212,106,.04);cursor:default}
+
+/* ===== TIMER ===== */
+.timer-box{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:20px;padding:28px 20px 22px;margin-bottom:16px;
+  text-align:center;position:relative;overflow:hidden
 }
-.pick-item:hover,.pick-item.sel{background:var(--gs);border-color:var(--gold);}
-.pick-item.sel .pick-name{color:var(--gold);}
-.pick-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--bm),var(--blue));display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:15px;flex-shrink:0;}
-.pick-name{font-size:13px;font-weight:700;}
-.pick-pos{font-size:10px;color:var(--muted);margin-top:1px;}
+.timer-box::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--blue),var(--gold))}
+.timer-dig{
+  font-family:"Barlow Condensed",sans-serif;
+  font-size:88px;font-weight:900;letter-spacing:6px;
+  line-height:1;transition:color .4s;color:var(--white)
+}
+.timer-dig.go{color:var(--green)}
+.timer-dig.warn{color:var(--red);animation:pulse 1s infinite}
+.timer-dig.fin{color:var(--gold)}
+.timer-status{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin:6px 0 20px}
+.timer-big-btn{
+  background:var(--gold);color:#000;border:none;
+  padding:15px 36px;border-radius:100px;
+  font-size:16px;font-weight:800;cursor:pointer;
+  display:inline-flex;align-items:center;gap:8px;
+  transition:all .2s;min-height:52px
+}
+.timer-big-btn:active{transform:scale(.96)}
+.timer-big-btn.pause{background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+.timer-pbar{margin-top:16px}
+.timer-bonus{font-size:11px;color:var(--green);font-weight:700;margin-top:8px;min-height:16px}
 
 /* EXERCISE CARDS */
-.ex-card{
-  background:var(--bg2);border:1px solid var(--border);border-radius:13px;
-  padding:16px 15px;margin-bottom:10px;
-  transition:all .3s;
-}
-.ex-card.active{border-color:var(--gold);background:rgba(212,175,55,.04);}
-.ex-card.done{border-color:var(--gb2);background:rgba(0,212,106,.03);}
-.ex-card.waiting{opacity:.55;}
-.ex-num{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:22px;color:var(--gold);width:24px;flex-shrink:0;line-height:1;}
-.ex-title{font-size:14px;font-weight:700;margin-bottom:4px;}
-.ex-instr{font-size:12px;color:var(--slate);line-height:1.6;font-weight:300;margin-bottom:10px;}
-.ex-meta{font-size:10px;font-weight:700;padding:3px 10px;border-radius:100px;background:var(--gs);color:var(--gold);border:1px solid var(--gb);display:inline-flex;align-items:center;gap:5px;margin-bottom:10px;}
-.ex-result-row{display:flex;gap:8px;align-items:center;margin-bottom:10px;}
-.ex-timestamp{font-size:10px;color:var(--green);font-weight:700;padding:3px 9px;border-radius:100px;background:var(--gs2);border:1px solid var(--gb2);}
-.ex-done-badge{font-size:10px;color:var(--green);font-weight:700;display:flex;align-items:center;gap:5px;}
-.btn-conc{
-  width:100%;padding:12px;border-radius:10px;
-  background:var(--gold);color:#000;border:none;
-  font-size:13px;font-weight:800;cursor:pointer;
-  min-height:48px;transition:all .2s;
-}
-.btn-conc:hover{background:#e0bc3d;}
-.btn-conc:disabled{background:var(--border2);color:var(--muted);cursor:default;}
+.ex{background:var(--bg2);border:1px solid var(--border);border-radius:13px;padding:16px;margin-bottom:10px;transition:border-color .25s,background .25s}
+.ex.active{border-color:var(--gold);background:rgba(212,175,55,.03)}
+.ex.done{border-color:var(--gb2);background:rgba(0,212,106,.025)}
+.ex.lock{opacity:.4}
+.ex-n{font-family:"Barlow Condensed",sans-serif;font-size:24px;font-weight:900;color:var(--dim);width:28px;line-height:1;flex-shrink:0}
+.ex.active .ex-n{color:var(--gold)}
+.ex-title{font-size:14px;font-weight:700;margin-bottom:4px}
+.ex-info{font-size:12px;color:var(--slate);line-height:1.65;font-weight:300;margin-bottom:10px}
+.ex-metric{font-size:9px;font-weight:700;padding:3px 10px;border-radius:100px;background:var(--gs);color:var(--gold);border:1px solid var(--gb);display:inline-flex;align-items:center;gap:5px;margin-bottom:10px}
+.ex-inp{width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:9px;padding:10px 13px;color:var(--white);font-size:13px;outline:none;margin-bottom:10px;transition:border-color .2s}
+.ex-inp:focus{border-color:var(--gold)}
+.ex-inp::placeholder{color:var(--dim)}
+.ex-inp:disabled{opacity:.4}
+.ex-done-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:6px 0}
+.ex-done-badge{font-size:10px;color:var(--green);font-weight:700}
+.ex-ts{font-size:9px;font-weight:700;padding:2px 8px;border-radius:100px;background:rgba(0,212,106,.1);color:var(--green);border:1px solid rgba(0,212,106,.2)}
+.btn-conc{width:100%;padding:12px;border-radius:10px;background:var(--gold);color:#000;border:none;font-size:13px;font-weight:800;cursor:pointer;min-height:46px;transition:all .15s}
+.btn-conc:disabled{background:var(--border2);color:var(--muted);cursor:not-allowed}
 
 /* RPE */
-.rpe-g{display:flex;gap:5px;justify-content:center;margin-bottom:20px;}
-.rb{flex:1;padding:10px 3px;border-radius:11px;cursor:pointer;background:var(--bg3);border:2px solid var(--border);transition:all .2s;text-align:center;min-height:72px;}
-.rb.sel{background:var(--gs);border-color:var(--gold);}
-.re{font-size:22px;margin-bottom:2px;}
-.rl{font-size:8px;font-weight:700;color:var(--muted);}
-.rb.sel .rl{color:var(--gold);}
+.rpe-row{display:flex;gap:6px;margin-bottom:20px}
+.rpe-b{flex:1;padding:10px 3px;border-radius:11px;cursor:pointer;background:var(--bg3);border:2px solid var(--border);transition:all .15s;text-align:center;min-height:74px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
+.rpe-b.sel{background:var(--gs);border-color:var(--gold)}
+.rpe-em{font-size:22px}
+.rpe-lb{font-size:8px;font-weight:700;color:var(--muted);letter-spacing:.5px}
+.rpe-b.sel .rpe-lb{color:var(--gold)}
 
-/* RESULT SCREEN */
-.result-score{
-  font-family:'Barlow Condensed',sans-serif;
-  font-size:96px;font-weight:900;color:var(--gold);
-  line-height:1;text-align:center;
-}
-.result-level{font-size:16px;font-weight:700;text-align:center;margin-top:6px;}
+/* RESULT */
+.r-score{font-family:"Barlow Condensed",sans-serif;font-size:96px;font-weight:900;color:var(--gold);line-height:1;text-align:center}
+.r-level{font-size:16px;font-weight:700;text-align:center;margin-top:6px}
+.r-stat{background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:10px;text-align:center}
+.r-sn{font-family:"Barlow Condensed",sans-serif;font-size:20px;font-weight:900;color:var(--gold);line-height:1}
+.r-sl{font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
 
 /* LEADERBOARD */
-.lead-row{
-  display:flex;align-items:center;gap:12px;
-  padding:12px 14px;border-bottom:1px solid var(--border);
-  background:var(--bg2);transition:background .2s;
-}
-.lead-row:first-child{border-radius:13px 13px 0 0;}
-.lead-row:last-child{border-radius:0 0 13px 13px;border-bottom:none;}
-.lead-row.me{background:rgba(212,175,55,.06);border-left:3px solid var(--gold);}
-.lead-row.not-trained{opacity:.45;}
-.lead-pos{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;width:30px;text-align:center;flex-shrink:0;}
-.lead-pos.gold{color:var(--gold);}
-.lead-pos.silver{color:#C0C0C0;}
-.lead-pos.bronze{color:#CD7F32;}
-.lead-av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--bm),var(--blue));display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:15px;flex-shrink:0;}
-.lead-name{flex:1;font-size:13px;font-weight:700;}
-.lead-sub{font-size:10px;color:var(--muted);font-weight:300;margin-top:1px;}
-.lead-score{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:900;color:var(--gold);}
+.lr{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--border);background:var(--bg2)}
+.lr:first-child{border-radius:13px 13px 0 0}
+.lr:last-child{border-radius:0 0 13px 13px;border-bottom:none}
+.lr.me{background:rgba(212,175,55,.05);border-left:3px solid var(--gold);padding-left:11px}
+.lr.dim{opacity:.4}
+.lr-pos{font-family:"Barlow Condensed",sans-serif;font-size:22px;font-weight:900;width:32px;text-align:center;flex-shrink:0}
+.lr-av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--blue),#1A237E);display:flex;align-items:center;justify-content:center;font-family:"Barlow Condensed",sans-serif;font-weight:900;font-size:15px;flex-shrink:0}
+.lr-score{font-family:"Barlow Condensed",sans-serif;font-size:24px;font-weight:900;color:var(--gold)}
 
-/* MISC */
-.ey{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
-.h1{font-family:'Barlow Condensed',sans-serif;font-size:clamp(28px,9vw,46px);font-weight:900;line-height:.95;margin-bottom:3px;}
-.num{font-family:'Barlow Condensed',sans-serif;}
-.pbar{height:6px;background:var(--border);border-radius:100px;overflow:hidden;}
-.pfill{height:100%;background:linear-gradient(90deg,var(--bm),var(--gold));border-radius:100px;transition:width .9s cubic-bezier(.4,0,.2,1);}
-.spn{width:18px;height:18px;border:2px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;display:inline-block;}
-.toast{position:fixed;top:64px;left:50%;transform:translateX(-50%);background:var(--bg3);border:1px solid var(--border);border-radius:100px;padding:10px 20px;font-size:13px;font-weight:600;z-index:999;white-space:nowrap;box-shadow:0 8px 28px rgba(0,0,0,.6);opacity:0;transition:opacity .3s;pointer-events:none;}
-.toast.show{opacity:1;}
-.dica{background:rgba(212,175,55,.06);border:1px solid var(--gb);border-radius:13px;padding:13px 15px;display:flex;gap:10px;}
-.dlbl{font-size:7px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:4px;}
-.dtxt{font-size:11px;color:var(--slate);line-height:1.65;font-weight:300;}
-.tag-chip{font-size:9px;font-weight:600;padding:2px 8px;border-radius:100px;background:rgba(40,53,147,.2);color:#8899FF;border:1px solid rgba(40,53,147,.35);}
-.divider{height:1px;background:var(--border);margin:16px 0;}
+/* INTERACTION ADDITIONS */
+.timer-msg{
+  min-height:28px;display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;color:var(--green);
+  margin-top:10px;transition:all .3s;opacity:0;
+}
+.timer-msg.show{opacity:1;}
+.timer-msg.urgent{color:var(--red);}
+.timer-msg.gold{color:var(--gold);}
+
+.ex-dica{
+  background:rgba(212,175,55,.06);border:1px solid var(--gb);
+  border-radius:9px;padding:9px 12px;margin-bottom:10px;
+  display:flex;align-items:flex-start;gap:8px;
+  font-size:11px;color:var(--gold);line-height:1.55;font-weight:500;
+  animation:up .3s both;
+}
+.ex-mini-timer{
+  font-family:"Barlow Condensed",sans-serif;font-size:11px;font-weight:700;
+  color:var(--muted);letter-spacing:1px;margin-bottom:8px;
+  display:none;
+}
+.ex-mini-timer.on{display:block;color:var(--gold);}
+.ex-celebrate{animation:pop .4s ease;}
+@keyframes popBig{0%{transform:scale(1)}40%{transform:scale(1.04)}100%{transform:scale(1)}}
 </style>
 </head>
 <body>
 
+<div id="cfW" style="position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden"></div>
 <div id="toast" class="toast"></div>
-<div id="cfWrap" style="position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden;"></div>
 
-<!-- ── COMMON NAV ───────────────────────────────────── -->
-<nav class="nav" id="mainNav">
+<nav class="nav">
   <a href="/" class="logo"><div class="logo-b">YTB</div>Treino <span>Extra</span></a>
-  <div id="navRight" style="display:flex;align-items:center;gap:8px;"></div>
+  <div id="navR"></div>
 </nav>
 
-<!-- ── VIEWS ────────────────────────────────────────── -->
-
 <!-- LOAD -->
-<div id="vLoad" class="view on vload-center">
-  <div class="spn" style="width:36px;height:36px;border-width:3px;"></div>
+<div id="vLoad" class="view on" style="display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 54px)">
+  <div class="spn" style="width:36px;height:36px;border-width:3px"></div>
 </div>
 
-<!-- IDENTITY — quem és? -->
-<div id="vIdentity" class="view">
-  <div class="center">
-    <div class="inner">
-      <div style="margin-bottom:32px;">
-        <div style="font-size:40px;margin-bottom:12px;">⚽</div>
-        <h1 class="h1" style="margin-bottom:6px;">Gondomar SC<br><span style="color:var(--gold);">Sub-12</span></h1>
-        <p style="font-size:13px;color:var(--muted);font-weight:300;line-height:1.6;">Treino em Casa · Piloto Mister Teles</p>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:10px;">
-        <div class="id-option" id="pickAtleta">
-          <div class="id-icon">⚽</div>
-          <div>
-            <div class="id-label">Sou atleta</div>
-            <div class="id-sub">Seleciona o teu nome e treina</div>
-          </div>
-          <div style="margin-left:auto;color:var(--muted);font-size:18px;">›</div>
-        </div>
-        <div class="id-option" id="pickMister">
-          <div class="id-icon">📋</div>
-          <div>
-            <div class="id-label">Sou o Mister</div>
-            <div class="id-sub">Ver resultados e leaderboard</div>
-          </div>
-          <div style="margin-left:auto;color:var(--muted);font-size:18px;">›</div>
-        </div>
-      </div>
+<!-- IDENTITY -->
+<div id="vId" class="view">
+<div class="vc"><div class="inner">
+  <div style="margin-bottom:32px">
+    <div style="font-size:44px;margin-bottom:12px">&#9917;</div>
+    <h1 class="h1" style="margin-bottom:8px">Gondomar SC<br><span style="color:var(--gold)">Sub-12</span></h1>
+    <p style="font-size:13px;color:var(--muted);font-weight:300;line-height:1.6">Treino em Casa - Piloto Mister Teles</p>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <div class="id-opt" id="pickA">
+      <div style="font-size:28px;flex-shrink:0">&#9917;</div>
+      <div><div style="font-size:16px;font-weight:700">Sou atleta</div><div style="font-size:11px;color:var(--muted);font-weight:300;margin-top:2px">Seleciona o teu nome e treina</div></div>
+      <div style="margin-left:auto;color:var(--muted);font-size:20px">&#8250;</div>
+    </div>
+    <div class="id-opt" id="pickM">
+      <div style="font-size:28px;flex-shrink:0">&#128203;</div>
+      <div><div style="font-size:16px;font-weight:700">Sou o Mister</div><div style="font-size:11px;color:var(--muted);font-weight:300;margin-top:2px">Ver resultados da equipa</div></div>
+      <div style="margin-left:auto;color:var(--muted);font-size:20px">&#8250;</div>
     </div>
   </div>
+</div></div>
 </div>
 
-<!-- MISTER LOGIN -->
-<div id="vMisterLogin" class="view">
-  <div class="center">
-    <div class="inner">
-      <button id="bMisterBack" class="btn-ghost" style="margin-bottom:24px;">← Voltar</button>
-      <div style="font-size:36px;margin-bottom:12px;">📋</div>
-      <h2 class="h1" style="margin-bottom:20px;">Acesso <span style="color:var(--gold);">Mister</span></h2>
-      <input class="inp" type="password" id="inMisterPass" placeholder="Password" style="margin-bottom:10px;">
-      <div id="misterErr" style="color:var(--red);font-size:12px;display:none;margin-bottom:10px;text-align:center;">Password incorrecta.</div>
-      <button class="btn-g" id="bMisterLogin">Entrar →</button>
-    </div>
-  </div>
-</div>
-
-<!-- TEAM PASSWORD -->
-<div id="vTeamPass" class="view">
-  <div class="center">
-    <div class="inner">
-      <button id="bTeamPassBack" class="btn-ghost" style="margin-bottom:24px;">← Voltar</button>
-      <div style="font-size:36px;margin-bottom:12px;">🔒</div>
-      <h2 class="h1" style="margin-bottom:6px;">Código <span style="color:var(--gold);">da Equipa</span></h2>
-      <p style="font-size:13px;color:var(--muted);font-weight:300;margin-bottom:24px;line-height:1.6;">O Mister deu-te o código. Introduz aqui.</p>
-      <input class="inp" type="password" id="inTeamPass" placeholder="Código da equipa" style="margin-bottom:10px;" autocomplete="off">
-      <div id="teamPassErr" style="color:var(--red);font-size:12px;display:none;margin-bottom:10px;text-align:center;">Código incorrecto. Pergunta ao Mister.</div>
-      <button class="btn-g" id="bTeamPassOk">Entrar →</button>
-    </div>
-  </div>
+<!-- TEAM PASS -->
+<div id="vTeam" class="view">
+<div class="vc"><div class="inner">
+  <button id="bTBack" class="btn-gs" style="width:auto;padding:8px 16px;margin-bottom:24px">&#8592; Voltar</button>
+  <div style="font-size:40px;margin-bottom:12px">&#128274;</div>
+  <h2 class="h1" style="margin-bottom:8px">Codigo <span style="color:var(--gold)">da Equipa</span></h2>
+  <p style="font-size:13px;color:var(--muted);font-weight:300;margin-bottom:22px;line-height:1.6">O Mister deu-te o codigo. Introduz aqui para entrar.</p>
+  <input class="inp" type="password" id="inTP" placeholder="Codigo da equipa" style="margin-bottom:10px">
+  <div id="tpErr" style="color:var(--red);font-size:12px;display:none;margin-bottom:10px;text-align:center">Codigo incorrecto. Pergunta ao Mister.</div>
+  <button class="btn-g" id="bTOk">Entrar &#8594;</button>
+</div></div>
 </div>
 
 <!-- ATLETA PICKER -->
-<div id="vAtletaPick" class="view">
-  <div class="center">
-    <div class="inner">
-      <button id="bPickBack" class="btn-ghost" style="margin-bottom:20px;">← Voltar</button>
-      <h2 class="h1" style="margin-bottom:6px;">Qual é o<br><span style="color:var(--gold);">teu nome?</span></h2>
-      <p style="font-size:12px;color:var(--muted);font-weight:300;margin-bottom:18px;line-height:1.5;">Seleciona o teu nome na lista.</p>
-      <input class="inp inp-sm" id="inSearch" placeholder="🔍  Pesquisar..." style="margin-bottom:12px;">
-      <div id="plantelList" style="max-height:55vh;overflow-y:auto;"></div>
-      <div style="margin-top:14px;">
-        <button class="btn-g" id="bConfirmAtleta" disabled>Continuar →</button>
-      </div>
-    </div>
-  </div>
+<div id="vPick" class="view">
+<div class="vc"><div class="inner">
+  <button id="bPBack" class="btn-gs" style="width:auto;padding:8px 16px;margin-bottom:20px">&#8592; Voltar</button>
+  <h2 class="h1" style="margin-bottom:6px">Qual e o<br><span style="color:var(--gold)">teu nome?</span></h2>
+  <p style="font-size:12px;color:var(--muted);font-weight:300;margin-bottom:18px">Seleciona o teu nome na lista.</p>
+  <input class="inp" id="inSrch" placeholder="Pesquisar..." style="font-size:13px;padding:10px 13px;margin-bottom:12px">
+  <div id="plantelList" style="max-height:50vh;overflow-y:auto"></div>
+  <div style="margin-top:14px"><button class="btn-g" id="bConf" disabled>Continuar &#8594;</button></div>
+</div></div>
 </div>
 
-<!-- DASHBOARD ATLETA -->
+<!-- DASHBOARD -->
 <div id="vDash" class="view">
-  <div class="wrap" id="dashWrap"></div>
+  <div class="page" id="dashP"></div>
 </div>
 
-<!-- PLAYER — sessão de treino -->
+<!-- PLAY - NO STICKY BAR, TIMER IS INSIDE THE PAGE CONTENT -->
 <div id="vPlay" class="view">
-  <!-- Countdown bar fica aqui injectado dinamicamente -->
-  <div id="countdownBar" class="countdown-bar" style="display:none;">
-    <div style="display:flex;align-items:center;gap:8px;">
-      <div id="cdDot" class="cd-dot off"></div>
-      <div id="cdTime" class="cd-time paused">15:00</div>
-    </div>
-    <div style="display:flex;gap:8px;align-items:center;">
-      <div id="cdStatus" style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);"></div>
-      <button id="bCdToggle" style="background:var(--gs);border:1px solid var(--gb);color:var(--gold);padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700;min-height:38px;">▶ Iniciar</button>
-      <button id="bPlayBack" class="btn-ghost" style="font-size:11px;padding:7px 12px;min-height:38px;">Sair</button>
-    </div>
-  </div>
-  <div class="wrap" id="playWrap" style="padding-top:10px;"></div>
+  <div class="page" id="playP"></div>
 </div>
 
 <!-- RPE -->
 <div id="vRpe" class="view">
-  <div class="center">
-    <div class="inner" id="rpeWrap"></div>
-  </div>
+<div class="vc"><div class="inner" id="rpeP"></div></div>
 </div>
 
-<!-- AI LOADING -->
-<div id="vAiLoad" class="view" style="display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;">
-  <div class="spn" style="width:44px;height:44px;border-width:3px;"></div>
-  <div style="font-size:13px;color:var(--slate);">A avaliar o teu treino...</div>
-  <div style="font-size:11px;color:var(--dim);">A IA está a analisar os teus resultados</div>
+<!-- AI LOAD -->
+<div id="vAI" class="view" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 54px);gap:16px">
+  <div class="spn" style="width:44px;height:44px;border-width:3px"></div>
+  <div style="font-size:14px;color:var(--slate);font-weight:600">A avaliar o teu treino...</div>
+  <div style="font-size:11px;color:var(--dim)">A IA esta a analisar os resultados</div>
 </div>
 
-<!-- RESULTADO -->
-<div id="vResult" class="view">
-  <div class="center">
-    <div class="inner" id="resultWrap"></div>
-  </div>
+<!-- RESULT -->
+<div id="vRes" class="view">
+<div class="vc"><div class="inner" id="resP"></div></div>
 </div>
 
 <!-- LEADERBOARD -->
 <div id="vLead" class="view">
-  <div class="wrap" id="leadWrap"></div>
+  <div class="page" id="leadP"></div>
 </div>
 
-<!-- MISTER DASHBOARD -->
-<div id="vMister" class="view">
-  <div class="wrap" id="misterWrap"></div>
+<!-- MISTER LOGIN -->
+<div id="vML" class="view">
+<div class="vc"><div class="inner">
+  <button id="bMLBack" class="btn-gs" style="width:auto;padding:8px 16px;margin-bottom:24px">&#8592; Voltar</button>
+  <div style="font-size:40px;margin-bottom:12px">&#128203;</div>
+  <h2 class="h1" style="margin-bottom:20px">Acesso <span style="color:var(--gold)">Mister</span></h2>
+  <input class="inp" type="password" id="inMP" placeholder="Password" style="margin-bottom:10px">
+  <div id="mErr" style="color:var(--red);font-size:12px;display:none;margin-bottom:10px;text-align:center">Password incorrecta.</div>
+  <button class="btn-g" id="bML">Entrar &#8594;</button>
+</div></div>
+</div>
+
+<!-- MISTER DASH -->
+<div id="vMist" class="view">
+  <div class="page" id="mistP"></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (function(){
-'use strict';
+"use strict";
 
-/* ── CONFIG ─────────────────────────────────────────── */
 var SB_URL="https://nhshnplaiolxwcfuijfo.supabase.co";
 var SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oc2hucGxhaW9seHdjZnVpamZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NDQxNTAsImV4cCI6MjA4OTQyMDE1MH0.uyZiDun8495sjnHA6Wsk-Hou-3lubbNJfQqSYbMLSek";
-var db = supabase.createClient(SB_URL, SB_KEY);
+var db=supabase.createClient(SB_URL,SB_KEY);
+var TEAM_PASS="gondomar12";
+var MIST_PASS="YTB#Teles2026";
+var SECS=900;
 
-var MISTER_PASS = "YTB#Teles2026";
-var TEAM_PASS   = "gondomar12";
-var SESSION_DURATION = 15 * 60; // 15 minutos em segundos
-
-/* ── PLANTEL SUB-12 ─────────────────────────────────── */
-var PLANTEL = [
-  {nome:'Enzo Faria',        pos:'GR'},
-  {nome:'Rafael Delindro',   pos:'GR'},
-  {nome:'Diego Barbosa',     pos:'GR'},
-  {nome:'Duarte Costa',      pos:'DEF'},
-  {nome:'Guilherme Barbosa', pos:'DEF'},
-  {nome:'Santos',            pos:'DEF'},
-  {nome:'Salvador Neves',    pos:'DEF'},
-  {nome:'Gonçalo Brito',     pos:'DEF'},
-  {nome:'Gabriel Matos',     pos:'DEF'},
-  {nome:'Rodrigo Rocha',     pos:'DEF'},
-  {nome:'Fernando Gonçalves',pos:'DEF'},
-  {nome:'Pedro Sousa',       pos:'MED'},
-  {nome:'José Sousa',        pos:'MED'},
-  {nome:'Mateus Silva',      pos:'MED'},
-  {nome:'Salvador Pinho',    pos:'MED'},
-  {nome:'João Vieira',       pos:'MED'},
-  {nome:'Santiago Gonçalves',pos:'MED'},
-  {nome:'Vasco Coutinho',    pos:'MED'},
-  {nome:'Rodrigo Batista',   pos:'AVA'},
-  {nome:'Dinis Soares',      pos:'AVA'},
-  {nome:'Rafael Rocha',      pos:'AVA'},
-  {nome:'Dinis Duarte',      pos:'AVA'},
-  {nome:'Tomás Morais',      pos:'AVA'},
-  {nome:'Miguel Gaspar',     pos:'AVA'},
-  {nome:'Rafael Cerqueira',  pos:'AVA'},
+var PLANTEL=[
+  {n:"Enzo Faria",p:"GR"},{n:"Rafael Delindro",p:"GR"},{n:"Diego Barbosa",p:"GR"},
+  {n:"Duarte Costa",p:"DEF"},{n:"Guilherme Barbosa",p:"DEF"},{n:"Santos",p:"DEF"},
+  {n:"Salvador Neves",p:"DEF"},{n:"Goncalo Brito",p:"DEF"},{n:"Gabriel Matos",p:"DEF"},
+  {n:"Rodrigo Rocha",p:"DEF"},{n:"Fernando Goncalves",p:"DEF"},
+  {n:"Pedro Sousa",p:"MED"},{n:"Jose Sousa",p:"MED"},{n:"Mateus Silva",p:"MED"},
+  {n:"Salvador Pinho",p:"MED"},{n:"Joao Vieira",p:"MED"},{n:"Santiago Goncalves",p:"MED"},
+  {n:"Vasco Coutinho",p:"MED"},
+  {n:"Rodrigo Batista",p:"AVA"},{n:"Dinis Soares",p:"AVA"},{n:"Rafael Rocha",p:"AVA"},
+  {n:"Dinis Duarte",p:"AVA"},{n:"Tomas Morais",p:"AVA"},{n:"Miguel Gaspar",p:"AVA"},
+  {n:"Rafael Cerqueira",p:"AVA"}
 ];
+var PL={GR:"Guarda-Redes",DEF:"Defesa",MED:"Medio",AVA:"Avancado"};
+var RPE=[{v:1,e:"&#128564;",l:"Facil"},{v:2,e:"&#128578;",l:"Suave"},{v:3,e:"&#128548;",l:"Esforco"},{v:4,e:"&#128560;",l:"Dificil"},{v:5,e:"&#129327;",l:"Maximo!"}];
 
-var POS_LABEL = {GR:'Guarda-Redes', DEF:'Defesa', MED:'Médio', AVA:'Avançado'};
-var RPE_DATA = [
-  {val:1,emoji:'😴',label:'Fácil'},
-  {val:2,emoji:'🙂',label:'Suave'},
-  {val:3,emoji:'😤',label:'Esforço'},
-  {val:4,emoji:'😰',label:'Difícil'},
-  {val:5,emoji:'🤯',label:'Máximo!'},
-];
-
-/* ── STATE ──────────────────────────────────────────── */
-var S = {
-  view: null,
-  atletaNome: null,
-  atletaPos: null,
-  mister: false,
-  semana: numSemana(),
-  treino: null,        // plano semanal
-  cidx: null,          // índice do treino actual
-  // Timer
-  mainTimer: SESSION_DURATION,
-  timerOn: false,
-  timerRef: null,
+var S={
+  atleta:null,pos:null,semana:weekNum(),treino:null,hist:[],
+  cidx:null,curTr:null,
+  // TIMER
+  timerVal:SECS,timerOn:false,timerRef:null,
   // Per-exercise
-  exDone: [],          // [false, false, false]
-  exTempos: [],        // tempo restante quando concluiu cada ex
-  exResultados: [],    // texto inserido pelo atleta
-  rpe: null,
+  exDone:[],exTempos:[],exRes:[],rpe:null,
+  // Interaction additions
+  exMiniRef:null,exMiniVal:0,
+  msgsFired:{},
+  lastRankData:null,
 };
 
-/* ── UTILS ──────────────────────────────────────────── */
-function el(id){ return document.getElementById(id); }
-function fmt(s){
-  s = Math.max(0, s);
-  return String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0');
-}
-function numSemana(){
-  var d = new Date(), jan1 = new Date(d.getFullYear(),0,1);
-  return Math.ceil(((d - jan1) / 86400000 + jan1.getDay() + 1) / 7);
-}
-function primerNome(n){ return (n||'').split(' ')[0]; }
-function toast(msg){
-  var t = el('toast');
-  t.textContent = msg; t.classList.add('show');
-  clearTimeout(t._t); t._t = setTimeout(function(){ t.classList.remove('show'); }, 3200);
-}
-function confetti(){
-  var w = el('cfWrap'); w.innerHTML = '';
-  var c = ['#D4AF37','#fff','#00D46A','#c084fc','#ff6b6b'];
-  for(var i=0;i<70;i++){
-    var d = document.createElement('div');
-    var sz = Math.random()*9+5;
-    d.style.cssText = 'position:absolute;top:0;width:'+sz+'px;height:'+sz+'px;left:'+(Math.random()*100)+'%;background:'+c[Math.floor(Math.random()*c.length)]+';border-radius:'+(Math.random()>.5?'50%':'2px')+';--r:'+(Math.random()*720)+'deg;animation:cf '+(Math.random()*1.5+2.5)+'s '+(Math.random()*1.5)+'s ease-in forwards;';
-    w.appendChild(d);
-  }
-  setTimeout(function(){ w.innerHTML=''; }, 6000);
-}
+// Mensagens temporizadas (tempo RESTANTE em segundos quando disparam)
+var TIMER_MSGS=[
+  {t:870,m:"&#128293; Esquenta bem! Foca em cada movimento.",cls:"gold"},
+  {t:750,m:"A meio caminho! &#128170; Continua assim.",cls:""},
+  {t:600,m:"&#9889; 10 minutos! Intensidade a subir!",cls:"gold"},
+  {t:420,m:"7 minutos! Os campeoes nao param. &#128081;",cls:"gold"},
+  {t:300,m:"&#128680; Ultimos 5 minutos! DA TUDO!",cls:"urgent"},
+  {t:120,m:"&#128293;&#128293; MENOS DE 2 MINUTOS! SPRINT FINAL!",cls:"urgent"},
+  {t:30, m:"&#9889; 30 SEGUNDOS! FORCA!",cls:"urgent"},
+];
 
-function show(id){
-  document.querySelectorAll('.view').forEach(function(v){
-    v.classList.remove('on');
-    v.style.display = ''; // limpa inline styles para o CSS display:none funcionar
-  });
-  var e = el(id); if(!e) return;
-  e.classList.add('on');
-  var cb = el('countdownBar');
-  if(cb) cb.style.display = id === 'vPlay' ? 'flex' : 'none';
-  window.scrollTo(0,0);
-  S.view = id;
-  updateNavRight();
-}
-
-function updateNavRight(){
-  var r = el('navRight');
-  if(S.view === 'vDash' || S.view === 'vLead'){
-    var btn1 = S.view === 'vLead' ? '<button id="nBtnDash" style="background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:5px 10px;color:var(--muted);font-size:11px;font-weight:600;">Dashboard</button>' : '<button id="nBtnLead" style="background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:5px 10px;color:var(--muted);font-size:11px;font-weight:600;">🏆 Ranking</button>';
-    r.innerHTML = btn1 + '<button id="nBtnSair" style="background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer;padding:5px;">Sair</button>';
-  } else if(S.view === 'vMister'){
-    r.innerHTML = '<button id="nBtnMisterSair" style="background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer;padding:5px;">Sair</button>';
-  } else {
-    r.innerHTML = '';
-  }
-}
-
-/* ── TREINO DATA ────────────────────────────────────── */
-var TREINOS_FALLBACK = {
-  foco: 'Controlo, Passe e Finalização',
-  dica: 'Foca-te na qualidade de cada execução. 15 minutos bem feitos valem mais do que 30 descuidados. Dá o teu melhor!',
-  treinos: [
-    {id:1, titulo:'Controlo de Bola', emoji:'⚽', duracao:15, desc:'Domínio com ambos os pés e coordenação',
-      exercicios:[
-        {nome:'Toques alternados', instrucoes:'Alterna toques entre pé direito e esquerdo sem deixar a bola cair no chão. Vê quantos toques consecutivos consegues.', metrica:'Toques seguidos sem cair', tipo:'reps', tags:['Técnico','Controlo']},
-        {nome:'Condução em 8', instrucoes:'Coloca 2 objectos a 3m de distância. Conduz a bola em figura de 8 sem perder o controlo. Conta as voltas em 2 minutos.', metrica:'Voltas completas em 2 minutos', tipo:'reps', tags:['Técnico','Agilidade']},
-        {nome:'Domínio + sprint', instrucoes:'Domina a bola parado durante 5 segundos, depois conduz a bola 10m rapidamente e para com a sola. Repete 8 vezes.', metrica:'Perdas de controlo (menos = melhor)', tipo:'reps', tags:['Técnico','Coordenação']},
-      ]},
-    {id:2, titulo:'Passe e Precisão', emoji:'🎯', duracao:15, desc:'Precisão no passe contra a parede',
-      exercicios:[
-        {nome:'Passe de interior', instrucoes:'A 4m da parede, passa com o interior do pé e recebe de volta. Mantém o ritmo constante. Conta os passes certos em 1 minuto.', metrica:'Passes certos em 1 minuto', tipo:'reps', tags:['Técnico','Passe']},
-        {nome:'Alvo marcado', instrucoes:'Marca um quadrado 30x30cm na parede com fita ou giz. De 5m, acerta no alvo com o interior do pé. Conta os acertos em 10 tentativas.', metrica:'Acertos em 10 tentativas', tipo:'reps', tags:['Técnico','Precisão']},
-        {nome:'Passe e sprint', instrucoes:'Passa contra a parede, corre 5m para a frente e volta a receber. Sem parar durante 3 minutos. Conta as repetições.', metrica:'Repetições sem errar', tipo:'reps', tags:['Físico','Passe']},
-      ]},
-    {id:3, titulo:'Finalização', emoji:'🥅', duracao:15, desc:'Remate e posicionamento de área',
-      exercicios:[
-        {nome:'Remate com engate', instrucoes:'Bola parada a 8m do alvo (mochila ou objecto). Remata com engate a apontar ao centro. Conta os certeiros em 10 remates.', metrica:'Certeiros em 10 remates', tipo:'reps', tags:['Técnico','Remate']},
-        {nome:'Condução + remate', instrucoes:'Conduz a bola 8m e remata. Alterna entre pé direito e esquerdo em cada remate. Avalia a qualidade do remate de 1 a 5.', metrica:'Nota de qualidade (1-5)', tipo:'nota', tags:['Técnico','Remate']},
-        {nome:'Pressão cronometrada', instrucoes:'10 remates seguidos o mais rápido possível ao mesmo alvo. Bate o teu recorde. Conta acertos seguidos sem falhar.', metrica:'Acertos seguidos (recorde)', tipo:'reps', tags:['Mental','Intensidade']},
-      ]},
+// Dicas por posicao e numero de exercicio
+var DICAS={
+  GR:[
+    "&#129354; Foca nos reflexos — velocidade de reaccao e tudo para um GR!",
+    "&#128170; Forca nas maos e agilidade nos pes — treinamos os dois.",
+    "&#127919; Concentracao maxima. Um GR de elite nao desliga nunca.",
+  ],
+  DEF:[
+    "&#128170; Antecipacao primeiro, velocidade depois. Pensa antes de agir.",
+    "&#127919; Um defesa forte domina o espaco, nao so a bola.",
+    "&#9889; Pes rapidos, cabeca fria. E a formula de um defesa solido.",
+  ],
+  MED:[
+    "&#127919; O medio e o motor da equipa. Cada toque tem de ser preciso.",
+    "&#128170; Dois toques maximos — recebe, decide, passa. Treina esse ritmo.",
+    "&#9889; Visao e ritmo. Treina a cabeca tanto quanto os pes.",
+  ],
+  AVA:[
+    "&#128293; Um avancado de elite remata sempre — mesmo quando parece impossivel.",
+    "&#127919; Posicionamento e 90% do golo. Chegares ao lugar certo primeiro.",
+    "&#9889; Explosividade no primeiro passo. E o que separa os melhores.",
+  ],
+  default:[
+    "&#128293; Concentra-te em cada repeticao. Qualidade bate quantidade.",
+    "&#127919; Se fizeres bem devagar, vais fazer bem a alta velocidade.",
+    "&#9889; Os campeoes treinam quando nao tem vontade. Tu podes.",
   ]
 };
 
-async function gerarTreino(nome, pos, semana){
-  var posLabel = POS_LABEL[pos] || 'Médio';
-  var prompt = 'Cria plano treino semanal futebol jovem casa. Apenas JSON sem markdown.\nAtleta:'+nome+'|Escalão:Sub-12|Posição:'+posLabel+'|Semana:'+semana+'\nGera 3 treinos 3 exercícios cada ~15min em casa sem equipamento.\n{"foco":"string","dica":"nota treinador 2 frases","treinos":[{"id":1,"titulo":"t","emoji":"e","duracao":15,"desc":"d","exercicios":[{"nome":"n","instrucoes":"instr completas","metrica":"o que medir","tipo":"reps|nota","tags":["t"]}]}]}';
-  try{
-    var res = await fetch('/api/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt,max_tokens:1600})});
-    var d = await res.json();
-    var raw = (d.content&&d.content[0]&&d.content[0].text) || d.text || '';
-    return JSON.parse(raw.replace(/```json|```/g,'').trim());
-  } catch(e){ return TREINOS_FALLBACK; }
+function getDica(pos,idx){
+  var arr=DICAS[pos]||DICAS.default;
+  return arr[idx%arr.length];
 }
 
-async function avaliarTreino(nome, pos, treinoTitulo, exResultados, tempoRestante, rpeVal){
-  var posLabel = POS_LABEL[pos] || 'Médio';
-  var tempo_usado = SESSION_DURATION - tempoRestante;
-  var linhas = exResultados.map(function(ex, i){
-    return (i+1)+'. '+ex.nome+' (meta: "'+ex.metrica+'") → Resultado: '+(ex.resultado||'não registado')+' [concluído aos '+ fmt(SESSION_DURATION - ex.tempoQuandoConcluiu) +' de sessão]';
-  }).join('\n');
+function el(id){return document.getElementById(id)}
+function pad(n){return n<10?"0"+n:""+n}
+function fmt(s){s=Math.max(0,s);return pad(Math.floor(s/60))+":"+pad(s%60)}
+function weekNum(){var d=new Date(),j=new Date(d.getFullYear(),0,1);return Math.ceil(((d-j)/86400000+j.getDay()+1)/7)}
+function first(s){return(s||"").split(" ")[0]}
 
-  var prompt = [
-    'Scout da YourTalentBase. Avalia o treino em português europeu, tom motivador para Sub-12.',
-    'Atleta: '+nome+' | Posição: '+posLabel+' | Treino: '+treinoTitulo,
-    'Duração: '+fmt(tempo_usado)+' usados de 15:00 | Tempo restante: '+fmt(tempoRestante),
-    'RPE: '+rpeVal+'/5',
-    '',
-    'Resultados por exercício:',
-    linhas,
-    '',
-    'Responde APENAS em JSON sem markdown: {"score": 0-100, "nivel": "Insuficiente|Suficiente|Bom|Muito Bom|Excelente", "feedback": "2-3 frases motivadoras e específicas", "destaque": "o melhor que o atleta fez hoje em 1 frase curta"}'
-  ].join('\n');
+var toastT;
+function toast(m){var t=el("toast");t.textContent=m;t.classList.add("show");clearTimeout(toastT);toastT=setTimeout(function(){t.classList.remove("show")},3000)}
 
-  try{
-    var res = await fetch('/api/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt,max_tokens:400})});
-    var d = await res.json();
-    var raw = (d.content&&d.content[0]&&d.content[0].text) || d.text || '';
-    return JSON.parse(raw.replace(/```json|```/g,'').trim());
-  } catch(e){
-    // Fallback se IA falhar
-    var sc = Math.round(60 + rpeVal * 6 + (tempoRestante > 0 ? 10 : 0));
-    return {score: Math.min(100, sc), nivel: sc >= 80 ? 'Muito Bom' : sc >= 60 ? 'Bom' : 'Suficiente', feedback: 'Treino registado com sucesso. Continua assim, '+primerNome(nome)+'!', destaque: 'Completaste os 3 exercícios!'};
-  }
+function confetti(){
+  var w=el("cfW");w.innerHTML="";
+  var c=["#D4AF37","#fff","#00D46A","#c084fc","#ff6b6b"];
+  for(var i=0;i<72;i++){var d=document.createElement("div");var sz=Math.random()*9+5;d.style.cssText="position:absolute;top:0;width:"+sz+"px;height:"+sz+"px;left:"+(Math.random()*100)+"%;background:"+c[Math.floor(Math.random()*c.length)]+";border-radius:"+(Math.random()>.5?"50%":"2px")+";--r:"+(Math.random()*720)+"deg;animation:cf "+(Math.random()*1.5+2.5)+"s "+(Math.random()*1.5)+"s ease-in forwards;";w.appendChild(d)}
+  setTimeout(function(){w.innerHTML=""},7000)
 }
 
-/* ── TIMER ──────────────────────────────────────────── */
-function startTimer(){
-  if(S.timerOn) return;
-  S.timerOn = true;
-  el('bCdToggle').textContent = '⏸ Pausa';
-  el('bCdToggle').style.cssText = 'background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#ef4444;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700;min-height:38px;';
-  updateCdUI();
-  S.timerRef = setInterval(function(){
-    S.mainTimer--;
-    updateCdUI();
-    if(S.mainTimer <= 0){
-      S.mainTimer = 0;
-      stopTimer();
-      // Auto-concluir exercícios não feitos e ir para RPE
-      autoFinishAndRpe();
-    }
-  }, 1000);
+function show(id){
+  // Simple and reliable: just toggle display
+  document.querySelectorAll(".view").forEach(function(v){
+    v.classList.remove("on");
+    v.style.display="none";
+  });
+  var e=el(id);
+  if(!e)return;
+  e.style.display="block";
+  e.classList.add("on");
+  window.scrollTo(0,0);
+  S.curView=id;
+  renderNavR();
 }
 
-function stopTimer(){
-  if(!S.timerOn) return;
-  S.timerOn = false;
-  clearInterval(S.timerRef);
-  el('bCdToggle').textContent = '▶ Iniciar';
-  el('bCdToggle').style.cssText = 'background:var(--gs);border:1px solid var(--gb);color:var(--gold);padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700;min-height:38px;';
-  updateCdUI();
+function renderNavR(){
+  var r=el("navR");
+  if(S.curView==="vDash"||S.curView==="vLead"){
+    var o=S.curView==="vLead"?'<button id="nD" style="background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:5px 11px;color:var(--muted);font-size:11px;font-weight:600">Dashboard</button>':'<button id="nL" style="background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:5px 11px;color:var(--muted);font-size:11px;font-weight:600">&#127942; Ranking</button>';
+    r.innerHTML=o+'<button id="nS" style="padding:5px;background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer">Sair</button>';
+  }else if(S.curView==="vMist"){r.innerHTML='<button id="nMS" style="padding:5px;background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer">Sair</button>'}
+  else{r.innerHTML=""}
 }
 
-function updateCdUI(){
-  var t = el('cdTime'), d = el('cdDot'), s = el('cdStatus');
-  if(!t) return;
-  t.textContent = fmt(S.mainTimer);
-  var urgent = S.mainTimer <= 120 && S.mainTimer > 0;
-  var done = S.mainTimer <= 0;
-  t.className = 'cd-time ' + (done ? 'urgent' : S.timerOn ? (urgent ? 'urgent' : 'running') : 'paused');
-  d.className = 'cd-dot ' + (done ? 'urgent' : S.timerOn ? 'on' : 'off');
-  if(s){
-    var exDone = S.exDone.filter(Boolean).length;
-    s.textContent = exDone + '/' + (S.treino ? S.treino.exercicios.length : 3) + ' exercícios';
-  }
-  // Actualiza botão concluir de exercícios activos
-  var allDone = S.exDone.length > 0 && S.exDone.every(Boolean);
-  var bFinal = el('bFinalizar');
-  if(bFinal) bFinal.disabled = !allDone || !S.timerOn && S.mainTimer > 0;
-}
-
-function autoFinishAndRpe(){
-  // marca exercícios não feitos como concluídos com tempo 0
-  if(S.treino){
-    S.treino.exercicios.forEach(function(_, i){
-      if(!S.exDone[i]){
-        S.exDone[i] = true;
-        S.exTempos[i] = 0;
-        if(!S.exResultados[i]) S.exResultados[i] = {nome:S.treino.exercicios[i].nome, metrica:S.treino.exercicios[i].metrica, resultado:'', tempoQuandoConcluiu:0};
+/* ===== TIMER FUNCTIONS ===== */
+function timerStart(){
+  if(S.timerOn)return;
+  S.timerOn=true;
+  S.msgsFired={};
+  var btn=el("btnTimer");
+  if(btn){btn.innerHTML="&#9208; Pausa";btn.classList.add("pause")}
+  updateTimerUI();
+  updateExCards();
+  vibrate([30]);
+  S.timerRef=setInterval(function(){
+    S.timerVal=S.timerVal-1;
+    // Mini timer
+    S.exMiniVal++;
+    updateMiniTimer();
+    // Timed messages
+    TIMER_MSGS.forEach(function(msg){
+      if(!S.msgsFired[msg.t]&&S.timerVal<=msg.t&&S.timerVal>msg.t-3){
+        S.msgsFired[msg.t]=true;
+        showTimerMsg(msg.m,msg.cls);
       }
     });
-  }
-  toast('⏱ Tempo esgotado!');
-  renderRpe();
-  show('vRpe');
-}
-
-/* ── VIEWS ──────────────────────────────────────────── */
-
-// DASHBOARD
-function renderDash(){
-  var u = S.atletaNome;
-  var tr = S.treino;
-  if(!tr){ el('dashWrap').innerHTML='<div style="padding:40px;text-align:center;color:var(--muted);">A carregar treino...</div>'; return; }
-  var fc = S.treino_hist ? S.treino_hist.length : 0;
-  var pct = Math.round(fc / 3 * 100);
-  var h = '';
-
-  h += '<div style="margin-bottom:20px;animation:up .4s both;">';
-  h += '<h1 class="h1" style="margin-bottom:4px;">Olá, <span style="color:var(--gold);">'+primerNome(u)+'!</span></h1>';
-  h += '<p style="font-size:11px;color:var(--muted);font-weight:300;">Sub-12 · Gondomar SC · Semana '+S.semana+'</p>';
-  h += '</div>';
-
-  // Progress
-  h += '<div class="card grad" style="margin-bottom:14px;animation:up .4s .05s both;">';
-  h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;">';
-  h += '<span class="ey">Treinos esta semana</span>';
-  h += '<span class="num" style="font-size:24px;font-weight:900;color:var(--gold);">'+fc+'/3</span></div>';
-  h += '<div class="pbar"><div class="pfill" style="width:'+pct+'%;"></div></div>';
-  h += '</div>';
-
-  // Nota do mister
-  if(tr.dica){
-    h += '<div class="dica" style="animation:up .4s .1s both;margin-bottom:14px;">';
-    h += '<span style="font-size:18px;flex-shrink:0;">💡</span>';
-    h += '<div><div class="dlbl">Nota do Mister</div><p class="dtxt">'+tr.dica+'</p></div></div>';
-  }
-
-  // Treinos
-  h += '<div class="ey" style="margin-bottom:10px;animation:up .4s .12s both;">Esta semana</div>';
-  tr.treinos.forEach(function(t, i){
-    var feito = S.treino_hist && S.treino_hist.some(function(r){ return r.treino_idx === i; });
-    h += '<div class="card'+(feito?' green':'')+'" style="margin-bottom:8px;cursor:'+(feito?'default':'pointer')+';animation:up .4s '+(0.14+i*.04)+'s both;" '+(feito?'':' data-treino="'+i+'"')+'>';
-    h += '<div style="display:flex;align-items:center;gap:12px;">';
-    h += '<span style="font-size:28px;">'+t.emoji+'</span>';
-    h += '<div style="flex:1;"><div style="font-size:14px;font-weight:700;color:'+(feito?'var(--green)':'var(--white)')+';">'+t.titulo+'</div>';
-    h += '<div style="font-size:11px;color:var(--muted);font-weight:300;margin-top:2px;">'+t.desc+'</div></div>';
-    if(feito){
-      var res = S.treino_hist.find(function(r){ return r.treino_idx === i; });
-      h += '<div style="text-align:right;flex-shrink:0;">';
-      h += '<div class="num" style="font-size:20px;font-weight:900;color:var(--green);">'+(res?res.ai_score:'—')+'</div>';
-      h += '<div style="font-size:8px;color:var(--muted);">pontos</div></div>';
-    } else {
-      h += '<div style="background:var(--gold);color:#000;font-size:11px;font-weight:800;padding:7px 14px;border-radius:8px;flex-shrink:0;white-space:nowrap;">▶ Iniciar</div>';
+    updateTimerUI();
+    if(S.timerVal<=0){
+      S.timerVal=0;
+      timerStop();
+      autoFinish();
     }
-    h += '</div></div>';
-  });
-
-  // Leaderboard btn
-  h += '<button id="bVerRanking" class="btn-ghost" style="width:100%;margin-top:16px;animation:up .4s .24s both;">🏆 Ver Ranking da Equipa</button>';
-
-  el('dashWrap').innerHTML = h;
+  },1000);
 }
 
-// PLAYER
-function renderPlayer(idx){
-  S.cidx = idx;
-  S.mainTimer = SESSION_DURATION;
-  S.timerOn = false;
-  S.exDone = [];
-  S.exTempos = [];
-  S.exResultados = [];
-  var tr = S.treino.treinos[idx];
-  tr.exercicios.forEach(function(){ S.exDone.push(false); S.exTempos.push(null); S.exResultados.push(null); });
-  S.treino = Object.assign({}, S.treino, {_currentTr: tr});
-
-  // Reset countdown
-  var t = el('cdTime'), d = el('cdDot');
-  if(t){ t.textContent = '15:00'; t.className = 'cd-time paused'; }
-  if(d){ d.className = 'cd-dot off'; }
-  var btog = el('bCdToggle');
-  if(btog){ btog.textContent = '▶ Iniciar'; btog.style.cssText = 'background:var(--gs);border:1px solid var(--gb);color:var(--gold);padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700;min-height:38px;'; }
-
-  buildPlayerHTML(tr, idx);
-  show('vPlay');
+function timerStop(){
+  if(!S.timerOn)return;
+  S.timerOn=false;
+  clearInterval(S.timerRef);
+  S.timerRef=null;
+  var btn=el("btnTimer");
+  if(btn){btn.innerHTML="&#9654; Continuar";btn.classList.remove("pause")}
+  updateTimerUI();
 }
 
-function buildPlayerHTML(tr, idx){
-  var h = '';
-  h += '<div class="card grad" style="margin-bottom:14px;">';
-  h += '<div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:10px;">';
-  h += '<span style="font-size:32px;">'+tr.emoji+'</span>';
-  h += '<div><h2 class="num" style="font-size:24px;font-weight:900;line-height:1;margin-bottom:3px;">'+tr.titulo+'</h2>';
-  h += '<p style="font-size:11px;color:var(--muted);font-weight:300;">'+tr.desc+'</p></div></div>';
-  h += '<p style="font-size:11px;color:var(--dim);font-weight:300;">▶ Inicia o timer, completa os exercícios pela ordem, e toca em <strong style="color:var(--white);">Concluído</strong> quando acabares cada um.</p>';
-  h += '</div>';
-
-  tr.exercicios.forEach(function(ex, i){
-    h += '<div id="exCard-'+i+'" class="ex-card waiting">';
-    h += '<div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:8px;">';
-    h += '<div class="ex-num">'+(i+1)+'</div>';
-    h += '<div style="flex:1;">';
-    h += '<div class="ex-title">'+ex.nome+'</div>';
-    h += '<div class="ex-instr">'+ex.instrucoes+'</div>';
-    h += '<div class="ex-meta">📊 '+ex.metrica+'</div>';
-    ex.tags.forEach(function(tag){ h += '<span class="tag-chip" style="margin-right:4px;">'+tag+'</span>'; });
-    h += '</div></div>';
-    // Resultado input + concluir
-    h += '<div id="exInput-'+i+'">';
-    h += '<input class="inp inp-sm" id="exR-'+i+'" placeholder="O teu resultado aqui..." disabled>';
-    h += '</div>';
-    h += '<div id="exDone-'+i+'" style="display:none;">';
-    h += '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">';
-    h += '<div class="ex-done-badge">✓ Concluído</div>';
-    h += '<div id="exTs-'+i+'" class="ex-timestamp"></div>';
-    h += '<div id="exResLabel-'+i+'" style="font-size:11px;color:var(--muted);"></div>';
-    h += '</div></div>';
-    h += '<button id="bConc-'+i+'" class="btn-conc" data-exidx="'+i+'" style="margin-top:10px;" disabled>✓ Concluído</button>';
-    h += '</div>';
-  });
-
-  h += '<div style="height:16px;"></div>';
-  h += '<button id="bFinalizar" class="btn-g" disabled style="opacity:.4;">Terminar treino →</button>';
-
-  el('playWrap').innerHTML = h;
-
-  // Bind concluir buttons
-  tr.exercicios.forEach(function(_, i){
-    var btn = el('bConc-'+i);
-    if(btn) btn.addEventListener('click', function(){ concluirEx(i); });
-  });
-  el('bFinalizar').addEventListener('click', function(){ goRpe(); });
-
-  updateCardStates();
+function timerToggle(){
+  if(S.timerOn)timerStop();
+  else timerStart();
 }
 
-function updateCardStates(){
-  if(!S.treino || !S.treino._currentTr) return;
-  var n = S.treino._currentTr.exercicios.length;
-  var nextActive = -1;
+function vibrate(pattern){
+  try{if(navigator.vibrate)navigator.vibrate(pattern);}catch(e){}
+}
+
+var _msgT;
+function showTimerMsg(msg,cls){
+  var d=el("timerMsg");
+  if(!d)return;
+  d.innerHTML=msg;
+  d.className="timer-msg show"+(cls?" "+cls:"");
+  clearTimeout(_msgT);
+  _msgT=setTimeout(function(){
+    if(d)d.classList.remove("show");
+  },4000);
+}
+
+function updateMiniTimer(){
+  // Find the currently active exercise and update its mini timer
+  if(!S.curTr)return;
+  var n=S.curTr.exercicios.length;
   for(var i=0;i<n;i++){
-    if(!S.exDone[i]){ nextActive = i; break; }
+    if(!S.exDone[i]){
+      var mt=el("exMT-"+i);
+      if(mt&&S.timerOn){
+        mt.className="ex-mini-timer on";
+        mt.textContent="&#9203; "+fmt(S.exMiniVal)+" neste exercicio";
+      }
+      break;
+    }
   }
+}
+
+function updateTimerUI(){
+  var td=el("tDig");
+  if(!td)return;
+  td.textContent=fmt(S.timerVal);
+  if(S.timerVal<=0){td.className="timer-dig fin"}
+  else if(S.timerVal<=90){td.className="timer-dig warn"}
+  else if(S.timerOn){td.className="timer-dig go"}
+  else{td.className="timer-dig"}
+  // Progress bar
+  var pb=el("tBar");
+  if(pb)pb.style.width=((S.timerVal/SECS)*100)+"%";
+  // Status
+  var st=el("tStatus");
+  if(st){
+    var dc=S.exDone.filter(Boolean).length,n=S.exDone.length;
+    if(S.timerOn)st.textContent=dc+"/"+n+" exercicios - a decorrer";
+    else if(S.timerVal<SECS)st.textContent="Em pausa";
+    else st.textContent="Pronto para iniciar";
+  }
+  // Bonus
+  var allD=S.exDone.length>0&&S.exDone.every(Boolean);
+  var bon=el("tBonus");
+  if(bon)bon.textContent=(allD&&S.timerVal>0)?"&#9889; "+fmt(S.timerVal)+" a frente do tempo!":"";
+  // Finalizar
+  var bf=el("btnFin");
+  if(bf){
+    bf.disabled=!allD;
+    bf.style.opacity=allD?"1":".35";
+    if(allD)bf.textContent="&#127937; Terminar e Ver Avaliacao";
+  }
+}
+
+function autoFinish(){
+  if(!S.curTr)return;
+  S.curTr.exercicios.forEach(function(_,i){
+    if(!S.exDone[i]){
+      S.exDone[i]=true;S.exTempos[i]=0;
+      if(!S.exRes[i])S.exRes[i]={nome:S.curTr.exercicios[i].nome,metrica:S.curTr.exercicios[i].metrica,resultado:"",tempo:0};
+    }
+  });
+  toast("&#9201; Tempo terminado!");
+  setTimeout(function(){renderRpe();show("vRpe")},800);
+}
+/* ===== END TIMER ===== */
+
+var FALLBACK={
+  foco:"Controlo, Passe e Finalizacao",
+  dica:"Foca-te na qualidade de cada execucao. 15 minutos bem feitos valem mais do que 30 descuidados!",
+  treinos:[
+    {id:1,titulo:"Controlo de Bola",emoji:"&#9917;",desc:"Dominio com ambos os pes",exercicios:[
+      {nome:"Toques alternados",instrucoes:"Alterna toques entre pe direito e esquerdo sem deixar a bola cair. Conta os toques seguidos.",metrica:"Toques seguidos",tipo:"reps"},
+      {nome:"Conducao em 8",instrucoes:"Coloca 2 objectos a 3m. Conduz em figura de 8 sem perder controlo. Conta as voltas em 2 minutos.",metrica:"Voltas em 2 min",tipo:"reps"},
+      {nome:"Dominio + sprint",instrucoes:"Domina a bola 5 segundos, depois conduz 10m e para com a sola. Repete 8 vezes.",metrica:"Series sem erro",tipo:"reps"}]},
+    {id:2,titulo:"Passe e Precisao",emoji:"&#127919;",desc:"Precisao no passe contra a parede",exercicios:[
+      {nome:"Passe de interior",instrucoes:"A 4m da parede, passa com o interior do pe e recebe de volta. Conta os passes certos em 1 minuto.",metrica:"Passes certos em 1 min",tipo:"reps"},
+      {nome:"Alvo marcado",instrucoes:"Marca um alvo 30x30cm na parede. De 5m, acerta no centro. 10 tentativas, conta acertos.",metrica:"Acertos em 10",tipo:"reps"},
+      {nome:"Passe e sprint",instrucoes:"Passa contra a parede, corre 5m e recebe. Sem parar durante 3 minutos. Conta repeticoes.",metrica:"Repeticoes sem erro",tipo:"reps"}]},
+    {id:3,titulo:"Finalizacao",emoji:"&#127949;",desc:"Remate e posicionamento",exercicios:[
+      {nome:"Remate com engate",instrucoes:"Bola parada a 8m do alvo. Remata com engate ao centro. 10 remates, conta certeiros.",metrica:"Certeiros em 10",tipo:"reps"},
+      {nome:"Conducao + remate",instrucoes:"Conduz 8m e remata. Alterna pe direito e esquerdo. Avalia qualidade 1 a 5.",metrica:"Nota de qualidade (1-5)",tipo:"nota"},
+      {nome:"Pressao cronometrada",instrucoes:"10 remates seguidos ao mesmo alvo o mais rapido possivel. Conta acertos seguidos.",metrica:"Acertos seguidos",tipo:"reps"}]}
+  ]
+};
+
+async function gerarTreino(nome,pos){
+  var prompt="Cria plano treino futebol jovem casa. So JSON sem markdown.\nAtleta:"+nome+"|Sub-12|"+PL[pos]+"|Semana:"+S.semana+"\n3 treinos 3 exercicios ~15min sem equipamento.\n{\"foco\":\"s\",\"dica\":\"2 frases\",\"treinos\":[{\"id\":1,\"titulo\":\"t\",\"emoji\":\"e\",\"desc\":\"d\",\"exercicios\":[{\"nome\":\"n\",\"instrucoes\":\"instrucoes completas\",\"metrica\":\"o que medir\",\"tipo\":\"reps\"}]}]}";
+  try{
+    var r=await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt:prompt,max_tokens:1600})});
+    var d=await r.json();
+    var raw=(d.content&&d.content[0]&&d.content[0].text)||"";
+    return JSON.parse(raw.replace(/```json|```/g,"").trim());
+  }catch(e){return FALLBACK}
+}
+
+async function avaliar(nome,pos,titulo,results,timerR,rpe){
+  var linhas=results.map(function(r,i){return(i+1)+". "+r.nome+" - "+r.resultado+(r.tempo?" ["+fmt(SECS-r.tempo)+" de sessao]":"")}).join("\n");
+  var prompt="Scout YTB. Avalia treino em portugues europeu, tom motivador Sub-12.\nAtleta:"+nome+"|"+PL[pos]+"|Treino:"+titulo+"\nDuracao:"+fmt(SECS-timerR)+" de 15:00|RPE:"+rpe+"/5\nResultados:\n"+linhas+"\nSo JSON:{\"score\":0-100,\"nivel\":\"Bom\",\"feedback\":\"2-3 frases\",\"destaque\":\"1 frase\"}";
+  try{
+    var r=await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt:prompt,max_tokens:350})});
+    var d=await r.json();
+    var raw=(d.content&&d.content[0]&&d.content[0].text)||"";
+    return JSON.parse(raw.replace(/```json|```/g,"").trim());
+  }catch(e){
+    var sc=Math.min(100,55+rpe*7+(timerR>0?12:0));
+    return{score:sc,nivel:sc>=80?"Muito Bom":sc>=60?"Bom":"Suficiente",feedback:"Treino concluido! "+first(nome)+", continua assim.",destaque:"Completaste os 3 exercicios!"}
+  }
+}
+
+function renderDash(){
+  var t=S.treino;if(!t){el("dashP").innerHTML="<div style=\"padding:40px;text-align:center;color:var(--muted)\">A carregar...</div>";return}
+  var done=S.hist.length,pct=Math.round(done/3*100);
+  var h="";
+  h+="<div style=\"margin-bottom:20px;animation:up .4s both\"><h1 class=\"h1\" style=\"margin-bottom:4px\">Ola, <span style=\"color:var(--gold)\">"+first(S.atleta)+"!</span></h1>";
+  h+="<p style=\"font-size:11px;color:var(--muted);font-weight:300\">Sub-12 - Gondomar SC - Semana "+S.semana+"</p></div>";
+  h+="<div class=\"card\" style=\"margin-bottom:14px;position:relative;overflow:hidden;animation:up .35s .05s both\">";
+  h+="<div style=\"position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--blue),var(--gold))\"></div>";
+  h+="<div style=\"display:flex;justify-content:space-between;align-items:center;margin-bottom:10px\">";
+  h+="<span class=\"ey\">Treinos esta semana</span><span class=\"num\" style=\"font-size:26px;font-weight:900;color:var(--gold)\">"+done+"/3</span></div>";
+  h+="<div class=\"pbar\"><div class=\"pfill\" style=\"width:"+pct+"%\"></div></div></div>";
+  if(t.dica)h+="<div style=\"background:rgba(212,175,55,.06);border:1px solid var(--gb);border-radius:12px;padding:12px 14px;display:flex;gap:10px;margin-bottom:14px;animation:up .35s .08s both\"><div style=\"font-size:16px;flex-shrink:0\">&#128161;</div><div><div style=\"font-size:7px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:3px\">Nota do Mister</div><div style=\"font-size:11px;color:var(--slate);line-height:1.65;font-weight:300\">"+t.dica+"</div></div></div>";
+  h+="<div class=\"ey\" style=\"margin-bottom:10px;animation:up .35s .1s both\">Esta semana</div>";
+  t.treinos.forEach(function(tr,i){
+    var feito=S.hist.some(function(r){return r.treino_idx===i});
+    var reg=feito?S.hist.find(function(r){return r.treino_idx===i}):null;
+    h+="<div class=\"sc"+(feito?" done":"")+"\" "+(feito?"":"data-ti=\""+i+"\"")+" style=\"animation:up .35s "+(0.12+i*.04)+"s both\">";
+    h+="<div style=\"display:flex;align-items:center;gap:12px\">";
+    h+="<span style=\"font-size:28px\">"+tr.emoji+"</span>";
+    h+="<div style=\"flex:1\"><div style=\"font-size:14px;font-weight:700;color:"+(feito?"var(--green)":"var(--white)")+"\">"+tr.titulo+"</div>";
+    h+="<div style=\"font-size:11px;color:var(--muted);font-weight:300;margin-top:2px\">"+tr.desc+"</div></div>";
+    if(feito&&reg)h+="<div style=\"text-align:right\"><div class=\"num\" style=\"font-size:22px;font-weight:900;color:var(--green)\">"+reg.ai_score+"</div><div style=\"font-size:8px;color:var(--muted)\">pts</div></div>";
+    else if(!feito)h+="<div style=\"background:var(--gold);color:#000;font-size:11px;font-weight:800;padding:7px 14px;border-radius:8px;flex-shrink:0\">&#9654; Iniciar</div>";
+    h+="</div></div>";
+  });
+  h+="<button id=\"bRank\" class=\"btn-gs\" style=\"width:100%;margin-top:16px;animation:up .35s .22s both\">&#127942; Ver Ranking da Equipa</button>";
+  el("dashP").innerHTML=h;
+}
+
+function renderPlay(idx){
+  // Clear any existing timer
+  clearInterval(S.timerRef);
+  S.timerRef=null;S.timerOn=false;S.timerVal=SECS;
+  S.cidx=idx;
+  var tr=S.treino.treinos[idx];
+  S.curTr=tr;
+  S.exDone=tr.exercicios.map(function(){return false});
+  S.exTempos=tr.exercicios.map(function(){return null});
+  S.exRes=tr.exercicios.map(function(){return null});
+
+  var h="";
+  h+="<div style=\"margin-bottom:16px\">";
+  h+="<button id=\"bBack\" class=\"btn-gs\" style=\"width:auto;padding:8px 14px;font-size:11px;margin-bottom:14px\">&#8592; Sair</button>";
+  h+="<div class=\"ey\" style=\"margin-bottom:3px\">Sessao "+(idx+1)+" de 3</div>";
+  h+="<div style=\"display:flex;align-items:center;gap:10px\">";
+  h+="<span style=\"font-size:28px\">"+tr.emoji+"</span>";
+  h+="<div><div style=\"font-family:Barlow Condensed,sans-serif;font-size:24px;font-weight:900;line-height:1\">"+tr.titulo+"</div>";
+  h+="<div style=\"font-size:11px;color:var(--muted);font-weight:300\">"+tr.desc+"</div></div></div></div>";
+
+  // TIMER BOX - always visible, no show/hide needed
+  h+="<div class=\"timer-box\">";
+  h+="<div id=\"tDig\" class=\"timer-dig\">15:00</div>";
+  h+="<div id=\"tStatus\" class=\"timer-status\">Pronto para iniciar</div>";
+  h+="<button id=\"btnTimer\" class=\"timer-big-btn\">&#9654; Iniciar Cronometro</button>";
+  h+="<div class=\"timer-pbar\"><div class=\"pbar\"><div class=\"pfill\" id=\"tBar\" style=\"width:100%\"></div></div></div>";
+  h+="<div class=\"timer-bonus\" id=\"tBonus\"></div>";
+  h+="<div class=\"timer-msg\" id=\"timerMsg\"></div>";
+  h+="</div>";
+
+  // Exercises
+  tr.exercicios.forEach(function(ex,i){
+    h+="<div class=\"ex lock\" id=\"ex-"+i+"\">";
+    h+="<div style=\"display:flex;gap:10px;align-items:flex-start;margin-bottom:8px\">";
+    h+="<div class=\"ex-n\">"+(i+1)+"</div>";
+    h+="<div style=\"flex:1\"><div class=\"ex-title\">"+ex.nome+"</div>";
+    h+="<div class=\"ex-info\">"+ex.instrucoes+"</div>";
+    h+="<div class=\"ex-metric\">&#128202; "+ex.metrica+"</div></div></div>";
+    h+="<div class=\"ex-dica\" id=\"exDica-"+i+"\" style=\"display:none\"></div>";
+    h+="<div class=\"ex-mini-timer\" id=\"exMT-"+i+"\"></div>";
+    var metricaPlaceholder=ex.tipo==="nota"?"Nota de 1 a 5 (ex: 4)":ex.tipo==="tempo"?"Tempo em segundos (ex: 45)":"Resultado de "+ex.metrica.toLowerCase()+" (ex: 12)";
+    h+="<input class=\"ex-inp\" id=\"exI-"+i+"\" placeholder=\""+metricaPlaceholder+"\" inputmode=\"numeric\" disabled>";
+    h+="<div id=\"exD-"+i+"\" style=\"display:none\" class=\"ex-done-row\">";
+    h+="<div class=\"ex-done-badge\">&#10003; Concluido</div>";
+    h+="<div id=\"exTs-"+i+"\" class=\"ex-ts\"></div>";
+    h+="<div id=\"exRL-"+i+"\" style=\"font-size:11px;color:var(--muted)\"></div></div>";
+    h+="<button id=\"btnC-"+i+"\" class=\"btn-conc\" data-ei=\""+i+"\" style=\"margin-top:8px\" disabled>&#9989; Concluido</button>";
+    h+="</div>";
+  });
+
+  h+="<button id=\"btnFin\" class=\"btn-g\" style=\"margin-top:16px;opacity:.35\" disabled>&#127937; Terminar e Ver Avaliacao</button>";
+  el("playP").innerHTML=h;
+
+  // Bind events after innerHTML
+  el("btnTimer").addEventListener("click",function(){timerToggle()});
+  tr.exercicios.forEach(function(_,i){
+    var b=el("btnC-"+i);
+    if(b)b.addEventListener("click",function(){completeEx(i)});
+  });
+  el("btnFin").addEventListener("click",goRpe);
+
+  show("vPlay");
+}
+
+function updateExCards(){
+  if(!S.curTr)return;
+  var n=S.curTr.exercicios.length;
+  var next=-1;
+  for(var i=0;i<n;i++){if(!S.exDone[i]){next=i;break}}
   for(var j=0;j<n;j++){
-    var card = el('exCard-'+j);
-    var inp = el('exR-'+j);
-    var bConc = el('bConc-'+j);
-    if(!card) continue;
+    var c=el("ex-"+j),inp=el("exI-"+j),btn=el("btnC-"+j),mt=el("exMT-"+j);
+    if(!c)continue;
     if(S.exDone[j]){
-      card.className = 'ex-card done';
-      if(inp) inp.disabled = true;
-      if(bConc) bConc.style.display = 'none';
-      el('exDone-'+j).style.display = 'block';
-      el('exInput-'+j).style.display = 'none';
-    } else if(j === nextActive){
-      card.className = 'ex-card active';
-      if(inp){ inp.disabled = !S.timerOn; inp.placeholder = S.timerOn ? 'Introduz o teu resultado...' : 'Inicia o timer primeiro...'; }
-      if(bConc){ bConc.disabled = !S.timerOn; }
+      c.className="ex done";
+      if(mt)mt.className="ex-mini-timer";
+    } else if(j===next&&S.timerOn){
+      var wasLocked=c.className.indexOf("active")===-1;
+      c.className="ex active";
+      if(inp){
+        var ex=S.curTr.exercicios[j];
+        inp.disabled=false;
+        inp.placeholder=ex.tipo==="nota"?"Nota de 1 a 5 (ex: 4)":ex.tipo==="tempo"?"Tempo em segundos (ex: 45)":"Resultado de "+ex.metrica.toLowerCase()+" (ex: 12)";
+        // Auto focus and numeric keyboard
+        inp.setAttribute("inputmode","numeric");
+        if(wasLocked){
+          S.exMiniVal=0;
+          // Show dica
+          var dicaEl=el("exDica-"+j);
+          if(dicaEl){dicaEl.innerHTML="&#128161; "+getDica(S.pos,j);dicaEl.style.display="flex";}
+          // Challenge msg from last rank
+          if(S.lastRankData&&S.lastRankData.length>0){
+            var top=S.lastRankData[0];
+            if(top.atleta_nome!==S.atleta){
+              showTimerMsg("&#127942; "+first(top.atleta_nome)+" lidera com "+top.ai_score+" pts — vai buscar ele!","gold");
+            }
+          }
+          setTimeout(function(){try{inp.focus();}catch(e){}},100);
+        }
+        if(mt)mt.className="ex-mini-timer on";
+      }
+      if(btn)btn.disabled=false;
     } else {
-      card.className = 'ex-card waiting';
-      if(inp) inp.disabled = true;
-      if(bConc) bConc.disabled = true;
+      c.className="ex lock";
+      if(inp){
+        inp.disabled=true;
+        inp.placeholder=S.timerOn?"Termina o exercicio anterior":"Inicia o cronometro primeiro...";
+      }
+      if(btn)btn.disabled=true;
+      if(mt)mt.className="ex-mini-timer";
     }
   }
+  updateTimerUI();
 }
 
-function concluirEx(i){
-  if(!S.timerOn && S.mainTimer > 0) return;
-  var inp = el('exR-'+i);
-  var resultado = inp ? inp.value.trim() : '';
-  S.exDone[i] = true;
-  S.exTempos[i] = S.mainTimer;
-  S.exResultados[i] = {
-    nome: S.treino._currentTr.exercicios[i].nome,
-    metrica: S.treino._currentTr.exercicios[i].metrica,
-    resultado: resultado,
-    tempoQuandoConcluiu: S.mainTimer,
-  };
-
-  // Update done card
-  el('exDone-'+i).style.display = 'block';
-  el('exInput-'+i).style.display = 'none';
-  var bConc = el('bConc-'+i); if(bConc) bConc.style.display = 'none';
-  var ts = el('exTs-'+i);
-  if(ts){
-    var elapsed = SESSION_DURATION - S.mainTimer;
-    ts.textContent = fmt(elapsed) + ' de sessão';
+function completeEx(i){
+  if(!S.timerOn&&S.timerVal>0){toast("Inicia o cronometro primeiro!");vibrate([50,30,50]);return}
+  var inp=el("exI-"+i);
+  var res=inp?inp.value.trim():"";
+  S.exDone[i]=true;S.exTempos[i]=S.timerVal;
+  S.exMiniVal=0; // reset mini timer for next exercise
+  S.exRes[i]={nome:S.curTr.exercicios[i].nome,metrica:S.curTr.exercicios[i].metrica,resultado:res,tempo:S.timerVal};
+  var c=el("ex-"+i);if(c){c.className="ex done ex-celebrate";}
+  var drow=el("exD-"+i);if(drow)drow.style.display="flex";
+  var dicaEl=el("exDica-"+i);if(dicaEl)dicaEl.style.display="none";
+  var mt=el("exMT-"+i);if(mt)mt.className="ex-mini-timer";
+  if(inp)inp.style.display="none";
+  var btn=el("btnC-"+i);if(btn)btn.style.display="none";
+  var ts=el("exTs-"+i);if(ts)ts.textContent=fmt(SECS-S.timerVal)+" de sessao";
+  var rl=el("exRL-"+i);if(rl&&res)rl.textContent="&#8594; "+res;
+  var dc=S.exDone.filter(Boolean).length,n=S.curTr.exercicios.length;
+  var celebMsgs=[
+    "&#127881; Ex."+(i+1)+" feito! Forca para o proximo!",
+    "&#9989; Excelente! Continua com essa energia!",
+    "&#128293; Isso! Proximo exercicio a contar!",
+  ];
+  if(dc===n){
+    toast("&#127881; Todos os exercicios concluidos! ELITE!");
+    vibrate([100,50,100,50,200]);
+    timerStop();
+    confetti();
+    setTimeout(function(){
+      var bf=el("btnFin");
+      if(bf){bf.style.opacity="1";bf.disabled=false;bf.innerHTML="&#127937; Terminar e Ver Avaliacao";}
+    },400);
+  } else {
+    toast(celebMsgs[i%celebMsgs.length]);
+    vibrate([60,30,60]);
+    showTimerMsg("&#9889; Ex."+(i+1)+" concluido em "+fmt(SECS-S.timerVal)+"! Segue!","gold");
   }
-  var rl = el('exResLabel-'+i);
-  if(rl && resultado) rl.textContent = '→ ' + resultado;
-
-  updateCardStates();
-  updateCdUI();
-
-  // Activar input do próximo (agora que updateCardStates correu)
-  toast(i === S.treino._currentTr.exercicios.length - 1 ? '✅ Último exercício!' : '✅ Ex. ' + (i+1) + ' feito! Continua.');
-
-  // Se todos feitos, activar botão finalizar
-  if(S.exDone.every(Boolean)){
-    var bF = el('bFinalizar');
-    if(bF){ bF.disabled = false; bF.style.opacity = '1'; bF.textContent = '🏁 Terminar e ver avaliação →'; }
-    toast('🎉 Todos os exercícios concluídos!');
-  }
+  updateExCards();
 }
 
-function goRpe(){
-  stopTimer();
-  renderRpe();
-  show('vRpe');
-}
+function goRpe(){timerStop();renderRpe();show("vRpe")}
 
-// RPE
 function renderRpe(){
-  S.rpe = null;
-  var tr = S.treino._currentTr || {};
-  var elapsed = SESSION_DURATION - S.mainTimer;
-  var h = '';
-
-  h += '<div class="card grad" style="margin-bottom:22px;text-align:center;">';
-  if(S.mainTimer > 0){
-    h += '<div class="ey" style="margin-bottom:6px;">Terminaste antes do tempo!</div>';
-    h += '<div class="num" style="font-size:44px;font-weight:900;color:var(--green);line-height:1;">+'+fmt(S.mainTimer)+'</div>';
-    h += '<div style="font-size:11px;color:var(--muted);margin-top:3px;font-weight:300;">restavam '+fmt(S.mainTimer)+' — treino de elite!</div>';
-  } else {
-    h += '<div class="ey" style="margin-bottom:6px;">Tempo de sessão</div>';
-    h += '<div class="num" style="font-size:44px;font-weight:900;color:var(--gold);line-height:1;">'+fmt(elapsed)+'</div>';
-    h += '<div style="font-size:11px;color:var(--muted);margin-top:3px;font-weight:300;">'+S.exDone.filter(Boolean).length+'/'+S.exDone.length+' exercícios completos</div>';
-  }
-  h += '</div>';
-
-  h += '<h2 class="num" style="font-size:32px;font-weight:900;line-height:1;margin-bottom:4px;text-align:center;">Como foi,<br><span style="color:var(--gold);">'+primerNome(S.atletaNome)+'?</span></h2>';
-  h += '<p style="font-size:12px;color:var(--muted);font-weight:300;margin-bottom:20px;text-align:center;">Escolhe o emoji que representa o esforço.</p>';
-  h += '<div class="rpe-g">';
-  RPE_DATA.forEach(function(r){
-    h += '<div class="rb" data-rv="'+r.val+'"><div class="re">'+r.emoji+'</div><div class="rl">'+r.label+'</div></div>';
-  });
-  h += '</div>';
-  h += '<button class="btn-g" id="bEnviarRpe" disabled>Selecciona o esforço primeiro</button>';
-
-  el('rpeWrap').innerHTML = h;
-
-  el('rpeWrap').querySelectorAll('.rb').forEach(function(b){
-    b.addEventListener('click',function(){
-      S.rpe = parseInt(b.dataset.rv);
-      el('rpeWrap').querySelectorAll('.rb').forEach(function(x){ x.classList.remove('sel'); });
-      b.classList.add('sel');
-      var bg = el('bEnviarRpe');
-      bg.disabled = false; bg.textContent = '⚡ Avaliar com IA'; bg.classList.add('green');
+  S.rpe=null;
+  var elapsed=SECS-S.timerVal,bon=S.timerVal>0;
+  var h="";
+  h+="<div class=\"card\" style=\"margin-bottom:22px;text-align:center;position:relative;overflow:hidden\">";
+  h+="<div style=\"position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--blue),var(--gold))\"></div>";
+  if(bon){h+="<div class=\"ey\" style=\"margin-bottom:6px\">Terminaste antes do tempo!</div>";h+="<div class=\"num\" style=\"font-size:52px;font-weight:900;color:var(--green);line-height:1\">+"+fmt(S.timerVal)+"</div>";h+="<div style=\"font-size:11px;color:var(--muted);margin-top:4px;font-weight:300\">Treino de elite!</div>"}
+  else{h+="<div class=\"ey\" style=\"margin-bottom:6px\">Tempo de sessao</div>";h+="<div class=\"num\" style=\"font-size:52px;font-weight:900;color:var(--gold);line-height:1\">"+fmt(elapsed)+"</div>";h+="<div style=\"font-size:11px;color:var(--muted);margin-top:4px;font-weight:300\">"+S.exDone.filter(Boolean).length+"/"+S.exDone.length+" exercicios</div>"}
+  h+="</div>";
+  h+="<h2 class=\"h1\" style=\"text-align:center;margin-bottom:4px\">Como foi,<br><span style=\"color:var(--gold)\">"+first(S.atleta)+"?</span></h2>";
+  h+="<p style=\"font-size:12px;color:var(--muted);font-weight:300;margin-bottom:18px;text-align:center\">Escolhe o emoji que representa o teu esforco.</p>";
+  h+="<div class=\"rpe-row\">";
+  RPE.forEach(function(r){h+="<div class=\"rpe-b\" data-rv=\""+r.v+"\"><div class=\"rpe-em\">"+r.e+"</div><div class=\"rpe-lb\">"+r.l+"</div></div>"});
+  h+="</div>";
+  h+="<button class=\"btn-g\" id=\"bEnv\" disabled style=\"opacity:.35\">Selecciona o esforco primeiro</button>";
+  document.getElementById("rpeP").innerHTML=h;
+  document.getElementById("rpeP").querySelectorAll(".rpe-b").forEach(function(b){
+    b.addEventListener("click",function(){
+      S.rpe=parseInt(b.dataset.rv);
+      document.getElementById("rpeP").querySelectorAll(".rpe-b").forEach(function(x){x.classList.remove("sel")});
+      b.classList.add("sel");
+      var be=document.getElementById("bEnv");
+      be.disabled=false;be.style.opacity="1";be.textContent="&#9889; Ver Avaliacao da IA";be.classList.add("grn");
     });
   });
-
-  el('bEnviarRpe').addEventListener('click', function(){
-    if(!S.rpe) return;
-    enviarParaIA();
-  });
+  document.getElementById("bEnv").addEventListener("click",function(){if(S.rpe)enviarIA()});
 }
 
-async function enviarParaIA(){
-  show('vAiLoad');
+async function enviarIA(){
+  show("vAI");
   try{
-    var tr = S.treino._currentTr;
-    var avaliacao = await avaliarTreino(S.atletaNome, S.atletaPos, tr.titulo, S.exResultados, S.mainTimer, S.rpe);
-    // Guardar no Supabase
-    var registo = {
-      atleta_nome: S.atletaNome,
-      semana: S.semana,
-      treino_idx: S.cidx,
-      treino_titulo: tr.titulo,
-      tempo_restante: S.mainTimer,
-      rpe: S.rpe,
-      ai_score: avaliacao.score || 0,
-      ai_feedback: avaliacao.feedback || '',
-      ex_resultados: S.exResultados,
-    };
-    try{ await db.from('treino_resultados').insert([registo]); }catch(e){ console.warn('Supabase:',e); }
-    // Actualizar hist local
-    if(!S.treino_hist) S.treino_hist = [];
-    S.treino_hist.push(registo);
-    // Mostrar resultado
-    renderResult(avaliacao, tr.titulo);
-    show('vResult');
-    if(avaliacao.score >= 80) confetti();
-  } catch(e){
-    toast('Erro ao avaliar. Verifica a ligação.');
-    show('vRpe');
-  }
+    var tr=S.curTr;
+    var av=await avaliar(S.atleta,S.pos,tr.titulo,S.exRes,S.timerVal,S.rpe);
+    var reg={atleta_nome:S.atleta,semana:S.semana,treino_idx:S.cidx,treino_titulo:tr.titulo,tempo_restante:S.timerVal,rpe:S.rpe,ai_score:av.score||0,ai_feedback:av.feedback||"",ex_resultados:S.exRes};
+    try{await db.from("treino_resultados").insert([reg])}catch(e){console.warn("SB:",e)}
+    S.hist.push(reg);renderResult(av,tr.titulo);show("vRes");
+    if(av.score>=80)confetti();
+  }catch(e){toast("Erro ao avaliar.");show("vRpe")}
 }
 
-function renderResult(av, titulo){
-  var elapsed = SESSION_DURATION - S.mainTimer;
-  var bonus = S.mainTimer > 0;
-  var h = '';
-
-  h += '<div style="text-align:center;margin-bottom:24px;animation:up .4s both;">';
-  h += '<div class="ey" style="margin-bottom:8px;">'+titulo+'</div>';
-  h += '<div class="result-score">'+av.score+'</div>';
-  h += '<div class="result-level" style="color:'+(av.score>=80?'var(--green)':av.score>=60?'var(--gold)':'var(--muted)')+';">'+av.nivel+'</div>';
-  if(bonus) h += '<div style="margin-top:8px;font-size:11px;color:var(--green);font-weight:700;">⚡ Terminaste '+fmt(S.mainTimer)+' antes do tempo!</div>';
-  h += '</div>';
-
-  if(av.destaque){
-    h += '<div class="card gold" style="margin-bottom:12px;text-align:center;animation:up .4s .1s both;">';
-    h += '<div class="ey" style="margin-bottom:6px;">Destaque</div>';
-    h += '<div style="font-size:14px;font-weight:700;">⭐ '+av.destaque+'</div></div>';
-  }
-
-  h += '<div class="card" style="margin-bottom:16px;animation:up .4s .15s both;">';
-  h += '<div class="ey" style="margin-bottom:8px;">Avaliação da IA</div>';
-  h += '<p style="font-size:13px;color:var(--slate);line-height:1.8;font-weight:300;">'+av.feedback+'</p></div>';
-
-  h += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:20px;animation:up .4s .2s both;">';
-  [{n:fmt(elapsed),l:'Duração'},{n:S.rpe+'/5',l:'Esforço (RPE)'},{n:S.exDone.filter(Boolean).length+'/'+S.exDone.length,l:'Exercícios'}].forEach(function(s){
-    h += '<div style="background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:10px;text-align:center;">';
-    h += '<div class="num" style="font-size:20px;font-weight:900;color:var(--gold);">'+s.n+'</div>';
-    h += '<div style="font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px;">'+s.l+'</div></div>';
-  });
-  h += '</div>';
-
-  h += '<button id="bVerRankingRes" class="btn-g" style="animation:up .4s .24s both;">🏆 Ver Ranking da Equipa</button>';
-  h += '<button id="bVoltaDash" class="btn-ghost" style="width:100%;margin-top:8px;animation:up .4s .28s both;">← Dashboard</button>';
-
-  el('resultWrap').innerHTML = h;
-  el('bVerRankingRes').addEventListener('click', function(){ carregarLeaderboard(); });
-  el('bVoltaDash').addEventListener('click', function(){ renderDash(); show('vDash'); });
+function renderResult(av,titulo){
+  var elapsed=SECS-S.timerVal,bon=S.timerVal>0;
+  var h="";
+  h+="<div style=\"text-align:center;margin-bottom:22px;animation:up .4s both\">";
+  h+="<div class=\"ey\" style=\"margin-bottom:6px\">"+titulo+"</div>";
+  h+="<div class=\"r-score\">"+av.score+"</div>";
+  h+="<div class=\"r-level\" style=\"color:"+(av.score>=80?"var(--green)":av.score>=60?"var(--gold)":"var(--muted)")+"\">"+av.nivel+"</div>";
+  if(bon)h+="<div style=\"margin-top:8px;font-size:11px;color:var(--green);font-weight:700\">&#9889; "+fmt(S.timerVal)+" antes do tempo!</div>";
+  h+="</div>";
+  if(av.destaque)h+="<div class=\"card gold\" style=\"margin-bottom:12px;text-align:center;animation:up .4s .1s both\"><div class=\"ey\" style=\"margin-bottom:6px\">Destaque</div><div style=\"font-size:14px;font-weight:700\">&#11088; "+av.destaque+"</div></div>";
+  h+="<div class=\"card\" style=\"margin-bottom:14px;animation:up .4s .14s both\"><div class=\"ey\" style=\"margin-bottom:8px\">Avaliacao da IA</div>";
+  h+="<p style=\"font-size:13px;color:var(--slate);line-height:1.8;font-weight:300\">"+av.feedback+"</p></div>";
+  h+="<div style=\"display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:18px;animation:up .4s .18s both\">";
+  [{n:fmt(elapsed),l:"Duracao"},{n:S.rpe+"/5",l:"Esforco"},{n:S.exDone.filter(Boolean).length+"/"+S.exDone.length,l:"Exercicios"}].forEach(function(s){h+="<div class=\"r-stat\"><div class=\"r-sn\">"+s.n+"</div><div class=\"r-sl\">"+s.l+"</div></div>"});
+  h+="</div>";
+  h+="<button id=\"bLdRes\" class=\"btn-g\" style=\"animation:up .4s .22s both\">&#127942; Ver Ranking</button>";
+  h+="<button id=\"bDBRes\" class=\"btn-gs\" style=\"width:100%;margin-top:8px;animation:up .4s .26s both\">&#8592; Dashboard</button>";
+  document.getElementById("resP").innerHTML=h;
+  document.getElementById("bLdRes").addEventListener("click",loadLead);
+  document.getElementById("bDBRes").addEventListener("click",function(){renderDash();show("vDash")});
 }
 
-// LEADERBOARD
-async function carregarLeaderboard(){
-  show('vLead');
-  el('leadWrap').innerHTML = '<div style="padding:60px;text-align:center;"><div class="spn" style="width:36px;height:36px;border-width:3px;margin:0 auto;"></div></div>';
+async function loadLead(){
+  show("vLead");
+  document.getElementById("leadP").innerHTML="<div style=\"padding:60px;text-align:center\"><div class=\"spn\" style=\"width:36px;height:36px;border-width:3px\"></div></div>";
   try{
-    var res = await db.from('treino_resultados')
-      .select('atleta_nome,ai_score,treino_titulo,tempo_restante,rpe,created_at')
-      .eq('semana', S.semana)
-      .order('ai_score', {ascending:false});
-    renderLeaderboard(res.data || []);
-  } catch(e){
-    el('leadWrap').innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted);">Erro ao carregar. Verifica a ligação.</div>';
-  }
+    var r=await db.from("treino_resultados").select("atleta_nome,ai_score,treino_titulo,rpe,created_at").eq("semana",S.semana).order("ai_score",{ascending:false});
+    renderLead(r.data||[]);
+  }catch(e){document.getElementById("leadP").innerHTML="<div style=\"padding:40px;text-align:center;color:var(--muted)\">Erro ao carregar.</div>"}
 }
 
-function renderLeaderboard(dados){
-  // Agregar por atleta — melhor score da semana
-  var byAtleta = {};
-  dados.forEach(function(r){
-    var n = r.atleta_nome;
-    if(!byAtleta[n] || r.ai_score > byAtleta[n].ai_score) byAtleta[n] = r;
-  });
-
-  // Contar treinos por atleta
-  var treinosCount = {};
-  dados.forEach(function(r){ treinosCount[r.atleta_nome] = (treinosCount[r.atleta_nome]||0)+1; });
-
-  // Ordenar por score
-  var ranking = Object.values(byAtleta).sort(function(a,b){ return b.ai_score - a.ai_score; });
-
-  // Plantel que ainda não treinou
-  var treinaram = Object.keys(byAtleta);
-  var naoTreinaram = PLANTEL.filter(function(p){ return !treinaram.includes(p.nome); });
-
-  var h = '';
-  h += '<div style="margin-bottom:20px;">';
-  h += '<h1 class="h1" style="margin-bottom:4px;">Ranking <span style="color:var(--gold);">Semana '+S.semana+'</span></h1>';
-  h += '<p style="font-size:11px;color:var(--muted);font-weight:300;">Sub-12 · Gondomar SC · '+ranking.length+' atletas activos</p>';
-  h += '</div>';
-
-  if(ranking.length === 0){
-    h += '<div class="card" style="text-align:center;padding:40px;"><div style="font-size:36px;margin-bottom:12px;">🏃</div><div style="font-size:14px;font-weight:700;margin-bottom:6px;">Ainda ninguém treinou!</div><div style="font-size:12px;color:var(--muted);">Sê o primeiro esta semana.</div></div>';
-  } else {
-    h += '<div style="margin-bottom:16px;">';
-    // Pódio top 3
-    if(ranking.length >= 1){
-      var medals = ['🥇','🥈','🥉'];
-      h += '<div style="display:flex;gap:8px;margin-bottom:14px;">';
-      ranking.slice(0,3).forEach(function(r,i){
-        var isMe = r.atleta_nome === S.atletaNome;
-        h += '<div style="flex:1;background:'+(isMe?'rgba(212,175,55,.08)':'var(--bg2)')+';border:1px solid '+(isMe?'var(--gb)':'var(--border)')+';border-radius:14px;padding:14px;text-align:center;">';
-        h += '<div style="font-size:24px;margin-bottom:5px;">'+medals[i]+'</div>';
-        h += '<div class="num" style="font-size:28px;font-weight:900;color:var(--gold);">'+r.ai_score+'</div>';
-        h += '<div style="font-size:10px;font-weight:700;margin-top:5px;'+(isMe?'color:var(--gold)':'')+'">'+primerNome(r.atleta_nome)+'</div>';
-        h += '<div style="font-size:9px;color:var(--muted);">'+(treinosCount[r.atleta_nome]||1)+'/3 treinos</div>';
-        h += '</div>';
-      });
-      h += '</div>';
+function renderLead(dados){
+  var best={};
+  dados.forEach(function(r){if(!best[r.atleta_nome]||r.ai_score>best[r.atleta_nome].ai_score)best[r.atleta_nome]=r});
+  var rank=Object.values(best).sort(function(a,b){return b.ai_score-a.ai_score});
+  var treinaram=Object.keys(best);
+  var nao=PLANTEL.filter(function(p){return!treinaram.includes(p.n)});
+  var med=["&#129351;","&#129352;","&#129353;"];
+  var h="<div style=\"margin-bottom:20px\"><h1 class=\"h1\" style=\"margin-bottom:4px\">Ranking <span style=\"color:var(--gold)\">Semana "+S.semana+"</span></h1><p style=\"font-size:11px;color:var(--muted);font-weight:300\">"+rank.length+" atletas activos</p></div>";
+  if(!rank.length){h+="<div class=\"card\" style=\"text-align:center;padding:40px\">&#127939; Ainda ninguem treinou!</div>"}
+  else{
+    if(rank.length>=3){
+      h+="<div style=\"display:flex;gap:8px;margin-bottom:14px\">";
+      rank.slice(0,3).forEach(function(r,i){var me=r.atleta_nome===S.atleta;h+="<div style=\"flex:1;background:"+(me?"rgba(212,175,55,.08)":"var(--bg2)")+";border:1px solid "+(me?"var(--gb)":"var(--border)")+";border-radius:12px;padding:14px;text-align:center\"><div style=\"font-size:22px;margin-bottom:5px\">"+med[i]+"</div><div class=\"num\" style=\"font-size:28px;font-weight:900;color:var(--gold)\">"+r.ai_score+"</div><div style=\"font-size:10px;font-weight:700;margin-top:4px;"+(me?"color:var(--gold)":"")+"\">"+first(r.atleta_nome)+"</div></div>"});
+      h+="</div>";
     }
-    // Lista completa
-    h += '<div>';
-    ranking.forEach(function(r, i){
-      var isMe = r.atleta_nome === S.atletaNome;
-      var pos = i+1;
-      var posColor = pos===1?'gold':pos===2?'silver':pos===3?'bronze':'';
-      h += '<div class="lead-row'+(isMe?' me':'')+'">';
-      h += '<div class="lead-pos '+(posColor||'')+'">'+(pos<=3?['🥇','🥈','🥉'][pos-1]:pos)+'</div>';
-      h += '<div class="lead-av">'+r.atleta_nome.charAt(0)+'</div>';
-      h += '<div style="flex:1;min-width:0;"><div class="lead-name">'+(isMe?'<span style="color:var(--gold);">'+primerNome(r.atleta_nome)+' (tu)</span>':primerNome(r.atleta_nome))+'</div>';
-      h += '<div class="lead-sub">'+(treinosCount[r.atleta_nome]||1)+'/3 treinos · RPE '+r.rpe+'/5</div></div>';
-      h += '<div class="lead-score">'+r.ai_score+'</div>';
-      h += '</div>';
-    });
-    h += '</div></div>';
+    h+="<div style=\"overflow:hidden;border-radius:13px\">";
+    rank.forEach(function(r,i){var me=r.atleta_nome===S.atleta;h+="<div class=\"lr"+(me?" me":"")+"\"><div class=\"lr-pos\" style=\"color:"+(i===0?"#D4AF37":i===1?"#C0C0C0":i===2?"#CD7F32":"var(--dim)")+"\">"+((i<3)?med[i]:i+1)+"</div><div class=\"lr-av\">"+r.atleta_nome.charAt(0)+"</div><div style=\"flex:1;min-width:0\"><div style=\"font-size:13px;font-weight:700\">"+(me?"<span style=\"color:var(--gold)\">"+first(r.atleta_nome)+" (tu)</span>":first(r.atleta_nome))+"</div><div style=\"font-size:10px;color:var(--muted);font-weight:300\">RPE "+r.rpe+" - "+r.treino_titulo+"</div></div><div class=\"lr-score\">"+r.ai_score+"</div></div>"});
+    h+="</div>";
   }
-
-  // Quem não treinou
-  if(naoTreinaram.length > 0){
-    h += '<div class="ey" style="margin-bottom:8px;margin-top:4px;">Ainda não treinaram ('+naoTreinaram.length+')</div>';
-    h += '<div>';
-    naoTreinaram.forEach(function(p){
-      h += '<div class="lead-row not-trained">';
-      h += '<div class="lead-pos" style="color:var(--dim);">—</div>';
-      h += '<div class="lead-av" style="background:var(--bg3);border:1px solid var(--border);">'+p.nome.charAt(0)+'</div>';
-      h += '<div style="flex:1;"><div class="lead-name" style="color:var(--muted);">'+p.nome+'</div>';
-      h += '<div class="lead-sub">'+POS_LABEL[p.pos]+' · esta semana</div></div>';
-      h += '<div style="font-size:11px;color:var(--dim);">0 pts</div>';
-      h += '</div>';
-    });
-    h += '</div>';
-  }
-
-  el('leadWrap').innerHTML = h;
+  if(nao.length){h+="<div class=\"ey\" style=\"margin:14px 0 8px\">Ainda nao treinaram ("+nao.length+")</div><div style=\"overflow:hidden;border-radius:13px\">";nao.forEach(function(p){h+="<div class=\"lr dim\"><div class=\"lr-pos\" style=\"color:var(--dim)\">&#8212;</div><div class=\"lr-av\" style=\"background:var(--bg3);border:1px solid var(--border)\">"+p.n.charAt(0)+"</div><div style=\"flex:1\"><div style=\"font-size:13px;font-weight:700;color:var(--muted)\">"+p.n+"</div><div style=\"font-size:10px;color:var(--muted);font-weight:300\">"+PL[p.p]+" - sem treino</div></div><div style=\"font-size:11px;color:var(--dim)\">0 pts</div></div>"});h+="</div>"}
+  document.getElementById("leadP").innerHTML=h;
 }
 
-// MISTER DASHBOARD
-async function renderMister(){
-  show('vMister');
-  el('misterWrap').innerHTML = '<div style="padding:60px;text-align:center;"><div class="spn" style="width:36px;height:36px;border-width:3px;margin:0 auto;"></div></div>';
+async function loadMist(){
+  show("vMist");
+  document.getElementById("mistP").innerHTML="<div style=\"padding:60px;text-align:center\"><div class=\"spn\" style=\"width:36px;height:36px;border-width:3px\"></div></div>";
   try{
-    var res = await db.from('treino_resultados')
-      .select('*')
-      .eq('semana', S.semana)
-      .order('created_at', {ascending:false});
-    var dados = res.data || [];
-    var h = '';
-    h += '<h1 class="h1" style="margin-bottom:4px;">Dashboard <span style="color:var(--gold);">Mister</span></h1>';
-    h += '<p style="font-size:11px;color:var(--muted);font-weight:300;margin-bottom:20px;">Sub-12 · Semana '+S.semana+' · '+dados.length+' sessões registadas</p>';
-    // KPIs
-    var atletas_activos = [...new Set(dados.map(function(r){ return r.atleta_nome; }))].length;
-    var media = dados.length ? Math.round(dados.reduce(function(a,r){return a+r.ai_score;},0)/dados.length) : 0;
-    var media_rpe = dados.length ? (dados.reduce(function(a,r){return a+r.rpe;},0)/dados.length).toFixed(1) : 0;
-    h += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:20px;">';
-    [{n:atletas_activos+'/'+PLANTEL.length,l:'Treinaram'},{n:media,l:'Média Score'},{n:media_rpe+'/5',l:'RPE Médio'}].forEach(function(s){
-      h += '<div class="card" style="text-align:center;"><div class="num" style="font-size:28px;font-weight:900;color:var(--gold);">'+s.n+'</div><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:3px;">'+s.l+'</div></div>';
-    });
-    h += '</div>';
-    // Leaderboard rápido
-    var byAtleta = {};
-    dados.forEach(function(r){var n=r.atleta_nome;if(!byAtleta[n]||r.ai_score>byAtleta[n].ai_score)byAtleta[n]=r;});
-    var ranking = Object.values(byAtleta).sort(function(a,b){return b.ai_score-a.ai_score;});
-    h += '<div class="ey" style="margin-bottom:10px;">Top Atletas desta semana</div>';
-    h += '<div>';
-    ranking.forEach(function(r,i){
-      h += '<div class="lead-row">';
-      h += '<div class="lead-pos '+(i===0?'gold':i===1?'silver':i===2?'bronze':'')+'">'+(i<3?['🥇','🥈','🥉'][i]:i+1)+'</div>';
-      h += '<div class="lead-av">'+r.atleta_nome.charAt(0)+'</div>';
-      h += '<div style="flex:1;"><div class="lead-name">'+r.atleta_nome+'</div>';
-      h += '<div class="lead-sub">'+r.treino_titulo+' · RPE '+r.rpe+'</div></div>';
-      h += '<div class="lead-score">'+r.ai_score+'</div></div>';
-    });
-    if(!ranking.length) h += '<div style="padding:24px;text-align:center;color:var(--muted);">Nenhum atleta treinou esta semana ainda.</div>';
-    h += '</div>';
-    el('misterWrap').innerHTML = h;
-  } catch(e){
-    el('misterWrap').innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted);">Erro ao carregar dados.</div>';
-  }
+    var r=await db.from("treino_resultados").select("*").eq("semana",S.semana).order("created_at",{ascending:false});
+    var d=r.data||[];
+    var aa=[...new Set(d.map(function(r){return r.atleta_nome}))].length;
+    var ms=d.length?Math.round(d.reduce(function(a,r){return a+r.ai_score},0)/d.length):0;
+    var mr=d.length?(d.reduce(function(a,r){return a+r.rpe},0)/d.length).toFixed(1):"--";
+    var h="<h1 class=\"h1\" style=\"margin-bottom:4px\">Dashboard <span style=\"color:var(--gold)\">Mister</span></h1>";
+    h+="<p style=\"font-size:11px;color:var(--muted);font-weight:300;margin-bottom:18px\">Sub-12 - Semana "+S.semana+" - "+d.length+" sessoes</p>";
+    h+="<div style=\"display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:18px\">";
+    [{n:aa+"/"+PLANTEL.length,l:"Treinaram"},{n:ms,l:"Score Medio"},{n:mr+"/5",l:"RPE Medio"}].forEach(function(s){h+="<div class=\"card\" style=\"text-align:center\"><div class=\"num\" style=\"font-size:28px;font-weight:900;color:var(--gold)\">"+s.n+"</div><div style=\"font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:4px\">"+s.l+"</div></div>"});
+    h+="</div>";
+    var best={};d.forEach(function(r){if(!best[r.atleta_nome]||r.ai_score>best[r.atleta_nome].ai_score)best[r.atleta_nome]=r});
+    var rank=Object.values(best).sort(function(a,b){return b.ai_score-a.ai_score});
+    h+="<div class=\"ey\" style=\"margin-bottom:10px\">Top atletas</div>";
+    if(!rank.length)h+="<div style=\"padding:20px;text-align:center;color:var(--muted)\">Nenhum atleta treinou ainda.</div>";
+    else{h+="<div style=\"overflow:hidden;border-radius:13px\">";rank.forEach(function(r,i){h+="<div class=\"lr\"><div class=\"lr-pos\" style=\"color:"+(i===0?"#D4AF37":i===1?"#C0C0C0":i===2?"#CD7F32":"var(--dim)")+"\">"+(i<3?["&#129351;","&#129352;","&#129353;"][i]:i+1)+"</div><div class=\"lr-av\">"+r.atleta_nome.charAt(0)+"</div><div style=\"flex:1\"><div style=\"font-size:13px;font-weight:700\">"+r.atleta_nome+"</div><div style=\"font-size:10px;color:var(--muted);font-weight:300\">"+r.treino_titulo+" - RPE "+r.rpe+"</div></div><div class=\"lr-score\">"+r.ai_score+"</div></div>"});h+="</div>"}
+    document.getElementById("mistP").innerHTML=h;
+  }catch(e){document.getElementById("mistP").innerHTML="<div style=\"padding:40px;text-align:center;color:var(--muted)\">Erro ao carregar.</div>"}
 }
 
-/* ── EVENTO DELEGATION ──────────────────────────────── */
-document.addEventListener('click', function(e){
-  var t = e.target;
-
-  // Identity
-  if(t.id==='pickAtleta'||t.closest('#pickAtleta')){ show('vTeamPass'); el('inTeamPass').focus(); return; }
-  if(t.id==='pickMister'||t.closest('#pickMister')){ show('vMisterLogin'); return; }
-  if(t.id==='bTeamPassBack'){ show('vIdentity'); el('inTeamPass').value=''; el('teamPassErr').style.display='none'; return; }
-  if(t.id==='bTeamPassOk'){ loginTeam(); return; }
-  if(t.id==='bPickBack'){ show('vTeamPass'); return; }
-  if(t.id==='bMisterBack'){ show('vIdentity'); return; }
-  if(t.id==='bMisterLogin'){ loginMister(); return; }
-
-  // Atleta confirm
-  if(t.id==='bConfirmAtleta' && S.atletaNome){ confirmarAtleta(); return; }
-
-  // Dashboard → abrir treino
-  var tCard = t.closest('[data-treino]');
-  if(tCard && S.treino){ renderPlayer(parseInt(tCard.dataset.treino)); return; }
-  if(t.id==='bVerRanking'){ carregarLeaderboard(); return; }
-  if(t.id==='bVerRankingRes'){ carregarLeaderboard(); return; }
-  if(t.id==='bVoltaDash'){ renderDash(); show('vDash'); return; }
-
-  // Player
-  if(t.id==='bCdToggle'){ S.timerOn ? stopTimer() : startTimer(); updateCardStates(); return; }
-  if(t.id==='bPlayBack'){ stopTimer(); renderDash(); show('vDash'); return; }
-
-  // Nav
-  if(t.id==='nBtnLead'){ carregarLeaderboard(); return; }
-  if(t.id==='nBtnDash'){ renderDash(); show('vDash'); return; }
-  if(t.id==='nBtnSair' || t.id==='nBtnMisterSair'){ resetSession(); show('vIdentity'); return; }
-});
-
-// Search plantel
-document.addEventListener('input', function(e){
-  if(e.target.id==='inSearch'){ renderPlantelList(e.target.value); }
-  if(e.target.id==='inMisterPass'){ el('misterErr').style.display='none'; }
-  if(e.target.id==='inTeamPass'){ el('teamPassErr').style.display='none'; }
-});
-document.addEventListener('keydown', function(e){
-  if(e.key==='Enter' && document.activeElement && document.activeElement.id==='inMisterPass') loginMister();
-  if(e.key==='Enter' && document.activeElement && document.activeElement.id==='inTeamPass') loginTeam();
-});
-
-/* ── LOGIC ──────────────────────────────────────────── */
 function loginTeam(){
-  var pass = (el('inTeamPass').value||'').trim();
-  if(pass === TEAM_PASS){
-    el('teamPassErr').style.display = 'none';
-    el('inTeamPass').value = '';
-    renderPlantelList();
-    show('vAtletaPick');
-  } else {
-    el('teamPassErr').style.display = 'block';
-    el('inTeamPass').value = '';
-    el('inTeamPass').style.animation = 'shake .3s';
-    setTimeout(function(){ el('inTeamPass').style.animation=''; }, 400);
-  }
+  var v=(document.getElementById("inTP").value||"").trim();
+  if(v===TEAM_PASS){document.getElementById("tpErr").style.display="none";document.getElementById("inTP").value="";renderPlantel();show("vPick")}
+  else{document.getElementById("tpErr").style.display="block";document.getElementById("inTP").value="";document.getElementById("inTP").style.animation="shake .3s";setTimeout(function(){document.getElementById("inTP").style.animation=""},350)}
+}
+function loginMist(){
+  var v=(document.getElementById("inMP").value||"").trim();
+  if(v===MIST_PASS){document.getElementById("mErr").style.display="none";document.getElementById("inMP").value="";loadMist()}
+  else{document.getElementById("mErr").style.display="block";document.getElementById("inMP").value="";document.getElementById("inMP").style.animation="shake .3s";setTimeout(function(){document.getElementById("inMP").style.animation=""},350)}
 }
 
-function loginMister(){
-  var pass = (el('inMisterPass').value||'').trim();
-  if(pass === MISTER_PASS){
-    el('misterErr').style.display = 'none';
-    el('inMisterPass').value = '';
-    S.mister = true;
-    renderMister();
-  } else {
-    el('misterErr').style.display = 'block';
-    el('inMisterPass').value = '';
-    el('inMisterPass').style.animation = 'shake .3s';
-    setTimeout(function(){ el('inMisterPass').style.animation=''; },400);
-  }
-}
-
-function renderPlantelList(filtro){
-  var lista = PLANTEL.filter(function(p){
-    return !filtro || p.nome.toLowerCase().includes(filtro.toLowerCase());
-  });
-  var h = '';
+function renderPlantel(filtro){
+  var lista=PLANTEL.filter(function(p){return!filtro||p.n.toLowerCase().includes(filtro.toLowerCase())});
+  var h="";
   lista.forEach(function(p){
-    var sel = S.atletaNome === p.nome;
-    h += '<div class="pick-item'+(sel?' sel':'')+'" data-pnome="'+p.nome+'" data-ppos="'+p.pos+'">';
-    h += '<div class="pick-avatar">'+p.nome.charAt(0)+'</div>';
-    h += '<div><div class="pick-name">'+p.nome+'</div><div class="pick-pos">'+POS_LABEL[p.pos]+'</div></div>';
-    if(sel) h += '<div style="margin-left:auto;color:var(--gold);font-weight:900;">✓</div>';
-    h += '</div>';
+    var sel=S.atleta===p.n;
+    h+="<div class=\"pick-it"+(sel?" sel":"")+"\" data-pn=\""+p.n+"\" data-pp=\""+p.p+"\">";
+    h+="<div class=\"pick-av\">"+p.n.charAt(0)+"</div>";
+    h+="<div><div style=\"font-size:13px;font-weight:700\">"+(sel?"<span style=\"color:var(--gold)\">"+p.n+"</span>":p.n)+"</div><div style=\"font-size:10px;color:var(--muted);margin-top:1px\">"+PL[p.p]+"</div></div>";
+    if(sel)h+="<div style=\"margin-left:auto;color:var(--gold);font-weight:900\">&#10003;</div>";
+    h+="</div>";
   });
-  if(!lista.length) h = '<div style="padding:20px;text-align:center;color:var(--muted);">Nenhum atleta encontrado.</div>';
-  el('plantelList').innerHTML = h;
-  // Bind clicks
-  el('plantelList').querySelectorAll('.pick-item').forEach(function(item){
-    item.addEventListener('click', function(){
-      S.atletaNome = item.dataset.pnome;
-      S.atletaPos = item.dataset.ppos;
-      renderPlantelList(el('inSearch') ? el('inSearch').value : '');
-      el('bConfirmAtleta').disabled = false;
+  document.getElementById("plantelList").innerHTML=h||"<div style=\"padding:20px;text-align:center;color:var(--muted)\">Nenhum resultado.</div>";
+  document.getElementById("plantelList").querySelectorAll(".pick-it").forEach(function(item){
+    item.addEventListener("click",function(){
+      S.atleta=item.dataset.pn;S.pos=item.dataset.pp;
+      renderPlantel(document.getElementById("inSrch").value||"");
+      document.getElementById("bConf").disabled=false;
     });
   });
 }
 
-async function confirmarAtleta(){
-  var btn = el('bConfirmAtleta');
-  btn.disabled = true; btn.innerHTML = '<div class="spn"></div> A preparar...';
-  // Carregar hist desta semana do Supabase
+async function confirmAtleta(){
+  var btn=document.getElementById("bConf");
+  btn.disabled=true;btn.innerHTML="<div class=\"spn\" style=\"width:16px;height:16px\"></div> A preparar...";
+  try{var r=await db.from("treino_resultados").select("*").eq("atleta_nome",S.atleta).eq("semana",S.semana);S.hist=r.data||[]}catch(e){S.hist=[]}
+  // Load current week leaderboard for challenge messages
   try{
-    var res = await db.from('treino_resultados')
-      .select('*')
-      .eq('atleta_nome', S.atletaNome)
-      .eq('semana', S.semana);
-    S.treino_hist = res.data || [];
-  } catch(e){ S.treino_hist = []; }
-  // Gerar ou usar treino
-  if(!S.treino){
-    var pos = S.atletaPos || 'MED';
-    var plan = await gerarTreino(S.atletaNome, pos, S.semana);
-    S.treino = plan;
-  }
-  renderDash();
-  show('vDash');
+    var lr=await db.from("treino_resultados").select("atleta_nome,ai_score").eq("semana",S.semana).order("ai_score",{ascending:false}).limit(5);
+    var best={};(lr.data||[]).forEach(function(r){if(!best[r.atleta_nome]||r.ai_score>best[r.atleta_nome].ai_score)best[r.atleta_nome]=r});
+    S.lastRankData=Object.values(best).sort(function(a,b){return b.ai_score-a.ai_score});
+  }catch(e){S.lastRankData=[];}
+  if(!S.treino)S.treino=await gerarTreino(S.atleta,S.pos);
+  renderDash();show("vDash");
 }
 
-function resetSession(){
-  stopTimer();
-  S.atletaNome = null; S.atletaPos = null; S.mister = false;
-  S.rpe = null; S.treino_hist = [];
-  S.mainTimer = SESSION_DURATION;
-  S.exDone = []; S.exTempos = []; S.exResultados = [];
-}
+function resetS(){clearInterval(S.timerRef);S.atleta=null;S.pos=null;S.treino=null;S.hist=[];S.timerVal=SECS;S.timerOn=false;S.timerRef=null;S.exDone=[];S.exTempos=[];S.exRes=[];S.rpe=null;S.lastRankData=null;S.msgsFired={};S.exMiniVal=0;}
 
-/* ── INIT ───────────────────────────────────────────── */
-window.addEventListener('DOMContentLoaded', function(){
-  // Pequeno delay para parecer carregamento
-  setTimeout(function(){ show('vIdentity'); }, 400);
+document.addEventListener("click",function(e){
+  var t=e.target;
+  if(t.id==="pickA"||t.closest("#pickA")){show("vTeam");document.getElementById("inTP").focus();return}
+  if(t.id==="pickM"||t.closest("#pickM")){show("vML");return}
+  if(t.id==="bTBack"){show("vId");document.getElementById("inTP").value="";document.getElementById("tpErr").style.display="none";return}
+  if(t.id==="bTOk"){loginTeam();return}
+  if(t.id==="bPBack"){show("vTeam");return}
+  if(t.id==="bConf"&&S.atleta){confirmAtleta();return}
+  if(t.id==="bBack"){clearInterval(S.timerRef);S.timerOn=false;renderDash();show("vDash");return}
+  if(t.id==="bMLBack"){show("vId");return}
+  if(t.id==="bML"){loginMist();return}
+  if(t.id==="bRank"){loadLead();return}
+  var tc=t.closest("[data-ti]");if(tc&&S.treino){renderPlay(parseInt(tc.dataset.ti));return}
+  if(t.id==="nL"){loadLead();return}
+  if(t.id==="nD"){renderDash();show("vDash");return}
+  if(t.id==="nS"||t.id==="nMS"){resetS();show("vId");return}
 });
+
+document.addEventListener("input",function(e){
+  if(e.target.id==="inSrch")renderPlantel(e.target.value);
+  if(e.target.id==="inTP")document.getElementById("tpErr").style.display="none";
+  if(e.target.id==="inMP")document.getElementById("mErr").style.display="none";
+});
+document.addEventListener("keydown",function(e){
+  if(e.key==="Enter"&&e.target.id==="inTP")loginTeam();
+  if(e.key==="Enter"&&e.target.id==="inMP")loginMist();
+});
+
+window.addEventListener("DOMContentLoaded",function(){setTimeout(function(){show("vId")},300)});
+
+if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("/sw-treino.js",{scope:"/treino.html"}).catch(function(){})})}
 
 })();
-
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function() {
-    navigator.serviceWorker.register('/sw-treino.js', { scope: '/treino.html' })
-      .catch(function(e) { console.warn('SW treino:', e); });
-  });
-}
 </script>
 </body>
 </html>

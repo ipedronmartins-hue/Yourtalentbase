@@ -11,1197 +11,1018 @@
 <meta name="apple-mobile-web-app-title" content="TacticsLab">
 <link rel="manifest" href="/manifest-tactics.json">
 <link rel="apple-touch-icon" href="/icons/tactics-192.png">
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,900;1,700&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg:#080C08; --surface:#0F140F; --surface2:#141C14; --surface3:#1A241A;
-  --border:#1E2B1E; --border2:#253325;
-  --pitch:#16301A; --pitch2:#183520;
-  --gold:#D4AF37; --gold2:#F0CC55; --gold-dim:rgba(212,175,55,0.12); --gold-glow:rgba(212,175,55,0.35);
-  --team-a:#D4AF37; --team-a-glow:rgba(212,175,55,0.55);
-  --team-b:#4A9FE8; --team-b-glow:rgba(74,159,232,0.55);
-  --text:#DDE8DD; --text-dim:#6A806A; --text-muted:#3A503A;
-  --danger:#E05050; --green-bright:#4AE87A;
-  --radius:6px;
-}
+/* ── RESET & ROOT ─────────────────────────────────────── */
 *{box-sizing:border-box;margin:0;padding:0;}
-html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;}
-button{cursor:pointer;}
-select,input,textarea{font-family:'Barlow',sans-serif;}
-
-/* ── LOGIN SCREEN ─────────────────────────────────────── */
-#loginScreen {
-  position:fixed;inset:0;z-index:2000;
-  background:var(--bg);
-  display:flex;align-items:center;justify-content:center;
-  padding:20px;
+:root{
+  --bg:#080C08;--s1:#0F140F;--s2:#141C14;--s3:#1A241A;
+  --b1:#1E2B1E;--b2:#253325;
+  --gold:#D4AF37;--gold2:#F0CC55;--gd:rgba(212,175,55,.12);--gg:rgba(212,175,55,.28);
+  --blue:#4A9FE8;--bd:rgba(74,159,232,.12);--bg2:rgba(74,159,232,.28);
+  --green:#4AE87A;--red:#E05050;
+  --text:#DDE8DD;--dim:#6A806A;--muted:#3A503A;
+  --r:6px;
 }
-.lbox {
-  background:var(--surface);border:1px solid var(--border2);
-  border-top:3px solid var(--gold);border-radius:12px;
-  padding:32px 28px;width:100%;max-width:400px;
-}
-.lbox-icon{font-size:40px;margin-bottom:14px;}
-.lbox-ey{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:4px;}
-.lbox-title{font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:900;margin-bottom:6px;}
-.lbox-sub{font-size:13px;color:var(--text-dim);font-weight:300;margin-bottom:24px;line-height:1.6;}
-.lsel,.linp {
-  width:100%;background:var(--surface2);border:1px solid var(--border2);
-  border-radius:var(--radius);color:var(--text);font-size:14px;
-  padding:11px 13px;outline:none;margin-bottom:10px;
-  transition:border-color .2s;appearance:none;
-}
-.linp:focus,.lsel:focus{border-color:rgba(212,175,55,.4);}
-.linp::placeholder{color:var(--text-muted);}
-.lbtn {
-  width:100%;background:var(--gold);color:#000;border:none;
-  padding:13px;border-radius:var(--radius);
-  font-size:14px;font-weight:700;letter-spacing:.5px;
-  margin-top:4px;transition:background .15s;
-}
-.lbtn:hover{background:var(--gold2);}
-.lerr{color:var(--danger);font-size:12px;text-align:center;display:none;margin-bottom:8px;}
-
-/* ── PLAYER SETUP MODAL ───────────────────────────────── */
-#setupModal {
-  position:fixed;inset:0;z-index:1900;
-  background:rgba(0,0,0,.85);
-  display:none;align-items:center;justify-content:center;
-  padding:12px;
-}
-#setupModal.show{display:flex;}
-.setup-box {
-  background:var(--surface);border:1px solid var(--border2);
-  border-radius:12px;width:100%;max-width:620px;
-  max-height:92vh;display:flex;flex-direction:column;overflow:hidden;
-}
-.setup-head {
-  padding:16px 18px;border-bottom:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
-}
-.setup-head-title{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;color:var(--gold);}
-.setup-head-sub{font-size:11px;color:var(--text-dim);font-weight:300;margin-top:2px;}
-.setup-tabs {
-  display:flex;overflow-x:auto;border-bottom:1px solid var(--border);
-  flex-shrink:0;scrollbar-width:none;padding:0 8px;gap:2px;
-}
-.setup-tabs::-webkit-scrollbar{display:none;}
-.setup-tab {
-  padding:9px 13px;font-size:12px;font-weight:700;
-  color:var(--text-dim);background:none;border:none;
-  border-bottom:2px solid transparent;white-space:nowrap;
-  transition:all .15s;flex-shrink:0;
-}
-.setup-tab.active{color:var(--gold);border-bottom-color:var(--gold);}
-.setup-body{flex:1;overflow-y:auto;padding:16px 18px;}
-.setup-field{margin-bottom:14px;}
-.setup-label{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);display:block;margin-bottom:6px;}
-.setup-sel {
-  width:100%;background:var(--surface2);border:1px solid var(--border2);
-  border-radius:var(--radius);color:var(--text);font-size:13px;
-  padding:9px 12px;outline:none;appearance:none;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236A806A'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;
-  transition:border-color .15s;
-}
-.setup-sel:focus{border-color:rgba(212,175,55,.4);}
-.setup-sel option{background:var(--surface2);}
-.setup-2col{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.setup-foot {
-  padding:14px 18px;border-top:1px solid var(--border);
-  display:flex;gap:8px;flex-shrink:0;
-}
-.setup-save{
-  flex:1;background:var(--gold);color:#000;border:none;
-  padding:11px;border-radius:var(--radius);font-size:14px;font-weight:700;
-}
-.setup-save:hover{background:var(--gold2);}
-.setup-skip{
-  background:transparent;color:var(--text-dim);
-  border:1px solid var(--border2);padding:11px 16px;
-  border-radius:var(--radius);font-size:13px;font-weight:600;
-}
-.setup-skip:hover{background:var(--surface3);}
-
-/* ── ARROW PICKER (bottom panel) ─────────────────────── */
-#arrowPicker {
-  position:fixed;bottom:0;left:0;right:0;z-index:800;
-  background:var(--surface);border-top:1px solid var(--border2);
-  padding:12px 16px 20px;
-  transform:translateY(100%);transition:transform .25s ease;
-}
-#arrowPicker.show{transform:translateY(0);}
-.ap-title{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;}
-.ap-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;max-width:220px;margin:0 auto 10px;}
-.ap-btn{
-  height:48px;border-radius:var(--radius);border:1px solid var(--border2);
-  background:var(--surface2);color:var(--text-dim);
-  font-size:18px;display:flex;align-items:center;justify-content:center;
-  transition:all .15s;
-}
-.ap-btn:hover,.ap-btn.sel{background:var(--gold-dim);border-color:var(--gold);color:var(--gold);}
-.ap-btn.center{background:var(--surface3);font-size:11px;font-weight:700;letter-spacing:1px;}
-.ap-actions{display:flex;gap:8px;max-width:220px;margin:0 auto;}
-.ap-clear{flex:1;padding:10px;border-radius:var(--radius);background:transparent;color:var(--danger);border:1px solid rgba(224,80,80,.3);font-size:12px;font-weight:600;}
-.ap-close{flex:1;padding:10px;border-radius:var(--radius);background:var(--surface3);color:var(--text-dim);border:1px solid var(--border2);font-size:12px;font-weight:600;}
-
-/* ── MAIN APP ─────────────────────────────────────────── */
-body.app-ready{overflow:hidden;}
-#app{display:flex;flex-direction:column;height:100%;display:none;}
-#app.show{display:flex;}
-
-header {
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 16px;height:50px;background:var(--surface);
-  border-bottom:1px solid var(--border);flex-shrink:0;
-}
-.header-left{display:flex;align-items:center;gap:12px;}
-.logo-icon{width:26px;height:26px;background:var(--gold);border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:13px;color:#000;letter-spacing:-1px;}
-.logo-text{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;color:var(--text);letter-spacing:.5px;}
-.logo-text span{color:var(--gold);}
-.hbadge{display:flex;align-items:center;gap:5px;background:var(--gold-dim);border:1px solid rgba(212,175,55,.25);border-radius:4px;padding:3px 9px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;}
-.header-actions{display:flex;align-items:center;gap:6px;}
-.btn{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:var(--radius);font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all .15s;font-family:'Barlow',sans-serif;}
-.btn-ghost{background:transparent;color:var(--text-dim);border:1px solid var(--border2);}
-.btn-ghost:hover{background:var(--surface3);color:var(--text);}
-.btn-gold{background:var(--gold);color:#000;}
-.btn-gold:hover{background:var(--gold2);}
-.btn-danger{background:transparent;color:var(--danger);border:1px solid rgba(224,80,80,.3);}
-.btn-danger:hover{background:rgba(224,80,80,.1);}
-.btn-sm{padding:4px 10px;font-size:11px;}
-.btn-ai{background:linear-gradient(135deg,rgba(212,175,55,.15),rgba(212,175,55,.05));border:1px solid var(--gold);color:var(--gold);font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:1px;font-size:13px;padding:7px 14px;}
-.btn-ai:hover{background:linear-gradient(135deg,rgba(212,175,55,.25),rgba(212,175,55,.1));}
-
-/* ── INFO BAR ─────────────────────────────────────────── */
-.info-bar{
-  display:flex;align-items:center;gap:8px;padding:5px 14px;
-  background:rgba(212,175,55,.04);border-bottom:1px solid rgba(212,175,55,.08);
-  font-size:11px;color:var(--text-dim);flex-shrink:0;flex-wrap:wrap;
-}
-.ib-pill{background:var(--surface2);border:1px solid var(--border2);border-radius:100px;padding:2px 10px;font-size:10px;font-weight:600;}
-.ib-pill.gold{background:var(--gold-dim);border-color:var(--gold);color:var(--gold);}
-
-/* ── MAIN AREA ────────────────────────────────────────── */
-.app-body{display:flex;flex:1;overflow:hidden;}
-
-/* ── SIDEBAR LEFT ─────────────────────────────────────── */
-.sidebar{
-  width:210px;flex-shrink:0;background:var(--surface);
-  border-right:1px solid var(--border);
-  display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;
-  scrollbar-width:thin;scrollbar-color:var(--border2) transparent;
-}
-.sidebar::-webkit-scrollbar{width:3px;}
-.sidebar::-webkit-scrollbar-thumb{background:var(--border2);}
-.ss{padding:12px;border-bottom:1px solid var(--border);}
-.sl{font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;}
-.fg{display:grid;grid-template-columns:1fr 1fr;gap:4px;}
-.fb{background:var(--surface2);border:1px solid var(--border2);color:var(--text-dim);border-radius:var(--radius);padding:7px 5px;text-align:center;cursor:pointer;transition:all .15s;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;}
-.fb:hover,.fb.active{background:var(--gold-dim);border-color:var(--gold);color:var(--gold);}
-.fb .tt{display:block;font-size:8px;letter-spacing:1px;opacity:.6;margin-top:2px;font-weight:600;}
-.team-sel{display:flex;gap:4px;}
-.tbtn{flex:1;padding:7px 5px;border-radius:var(--radius);border:2px solid transparent;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-align:center;transition:all .15s;text-transform:uppercase;}
-.tbtn-a{background:rgba(212,175,55,.1);color:var(--team-a);border-color:rgba(212,175,55,.3);}
-.tbtn-a.active,.tbtn-a:hover{background:rgba(212,175,55,.2);border-color:var(--team-a);}
-.tbtn-b{background:rgba(74,159,232,.1);color:var(--team-b);border-color:rgba(74,159,232,.3);}
-.tbtn-b.active,.tbtn-b:hover{background:rgba(74,159,232,.2);border-color:var(--team-b);}
-.ctrl-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;}
-.ctrl-lbl{font-size:11px;color:var(--text-dim);}
-.toggle{width:30px;height:17px;background:var(--surface3);border-radius:9px;cursor:pointer;position:relative;border:1px solid var(--border2);transition:background .2s;flex-shrink:0;}
-.toggle.on{background:var(--gold);border-color:var(--gold);}
-.toggle::after{content:'';position:absolute;width:11px;height:11px;background:var(--text-dim);border-radius:50%;top:2px;left:2px;transition:all .2s;}
-.toggle.on::after{left:15px;background:#000;}
-
-/* Game phases */
-.phase-list{display:flex;flex-direction:column;gap:3px;}
-.phase-btn{
-  display:flex;align-items:center;gap:7px;
-  padding:7px 9px;border-radius:var(--radius);
-  background:none;border:1px solid transparent;
-  color:var(--text-dim);font-size:11px;font-weight:500;
-  cursor:pointer;transition:all .15s;text-align:left;
-  width:100%;
-}
-.phase-btn:hover{background:var(--surface2);color:var(--text);}
-.phase-btn.active{background:var(--gold-dim);border-color:rgba(212,175,55,.25);color:var(--gold);}
-.phase-icon{font-size:13px;flex-shrink:0;width:16px;}
-
-/* ── PITCH ────────────────────────────────────────────── */
-.pitch-area{
-  flex:1;display:flex;align-items:center;justify-content:center;
-  padding:12px;background:var(--bg);position:relative;overflow:hidden;
-}
-.pitch-area::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 50% 50%,rgba(22,48,26,.3) 0%,transparent 70%);pointer-events:none;}
-#pitch-container{position:relative;user-select:none;filter:drop-shadow(0 8px 40px rgba(0,0,0,.8));}
-#pitch-svg{display:block;border-radius:4px;cursor:crosshair;}
-.player-piece{cursor:grab;transition:filter .15s;}
-.player-piece:active{cursor:grabbing;}
-.player-piece:hover .piece-circle{filter:brightness(1.2);}
-.player-piece.dragging{opacity:.9;}
-.player-piece.dragging .piece-circle{filter:drop-shadow(0 0 12px currentColor) brightness(1.3);}
-.player-piece.selected .piece-circle{filter:drop-shadow(0 0 14px rgba(255,255,255,.7)) brightness(1.2);}
-.player-number{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:11px;fill:#000;dominant-baseline:central;text-anchor:middle;pointer-events:none;}
-.player-number-b{fill:#fff;}
-
-/* ── SIDEBAR RIGHT ────────────────────────────────────── */
-.sidebar-right{
-  width:260px;flex-shrink:0;background:var(--surface);
-  border-left:1px solid var(--border);
-  display:flex;flex-direction:column;overflow:hidden;
-}
-.sr-tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;}
-.sr-tab{flex:1;padding:10px 8px;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;border:none;background:none;color:var(--text-muted);border-bottom:2px solid transparent;transition:all .15s;font-family:'Barlow Condensed',sans-serif;}
-.sr-tab.active{color:var(--gold);border-bottom-color:var(--gold);}
-.sr-panel{flex:1;overflow-y:auto;display:none;flex-direction:column;scrollbar-width:thin;scrollbar-color:var(--border2) transparent;}
-.sr-panel::-webkit-scrollbar{width:3px;}
-.sr-panel::-webkit-scrollbar-thumb{background:var(--border2);}
-.sr-panel.active{display:flex;}
-
-/* AI panel */
-.ai-section{padding:12px;}
-.ai-phase-display{background:var(--gold-dim);border:1px solid rgba(212,175,55,.2);border-radius:var(--radius);padding:8px 10px;margin-bottom:10px;font-size:11px;color:var(--gold);}
-.ai-phase-label{font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;opacity:.7;margin-bottom:2px;}
-.ai-result{flex:1;padding:12px;overflow-y:auto;}
-.ai-block{margin-bottom:14px;}
-.ai-block-title{font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;display:flex;align-items:center;gap:6px;}
-.ai-block-title::before{content:'';width:14px;height:1px;background:var(--border2);}
-.ai-block-body{font-size:12px;color:var(--text-dim);line-height:1.7;font-weight:300;}
-.ai-block-body strong{color:var(--text);font-weight:600;}
-.ai-empty{padding:28px 12px;text-align:center;color:var(--text-muted);font-size:12px;font-weight:300;line-height:1.7;}
-.ai-loading{display:flex;flex-direction:column;align-items:center;padding:32px 12px;gap:10px;color:var(--text-muted);font-size:12px;}
-.spin{width:28px;height:28px;border:2px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;-webkit-text-size-adjust:100%;}
+button,select,input,textarea{font-family:'Barlow',sans-serif;cursor:pointer;}
+@keyframes up{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 @keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
 
-/* Notes panel */
-.notes-section{flex:1;padding:12px;display:flex;flex-direction:column;gap:8px;overflow-y:auto;}
-.note-field label{display:block;font-size:9px;letter-spacing:1.5px;color:var(--text-muted);font-weight:700;text-transform:uppercase;margin-bottom:4px;}
-.note-input{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-size:12px;padding:7px 9px;resize:none;outline:none;transition:border-color .15s;line-height:1.5;}
-.note-input:focus{border-color:rgba(212,175,55,.4);}
-.note-input::placeholder{color:var(--text-muted);}
-.note-title-input{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;padding:7px 9px;outline:none;transition:border-color .15s;}
-.note-title-input:focus{border-color:rgba(212,175,55,.4);}
-.note-title-input::placeholder{color:var(--text-muted);}
+/* ── TOAST ────────────────────────────────────────────── */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--s3);border:1px solid var(--b2);border-radius:100px;padding:9px 18px;font-size:12px;color:var(--text);opacity:0;pointer-events:none;transition:all .3s;z-index:9999;white-space:nowrap;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
-/* Zone stats */
-.zone-analysis{padding:10px 12px;border-top:1px solid var(--border);flex-shrink:0;}
-.zone-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-top:6px;}
-.zone-stat{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);padding:7px 5px;text-align:center;}
-.zone-stat-label{font-size:8px;letter-spacing:1px;color:var(--text-muted);text-transform:uppercase;margin-bottom:2px;font-weight:700;}
-.zone-stat-value{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;}
-.zone-stat-value.advantage{color:var(--team-a);}
-.zone-stat-value.disadvantage{color:var(--team-b);}
-.zone-stat-value.neutral{color:var(--text-dim);}
-.export-actions{padding:10px 12px;border-top:1px solid var(--border);display:flex;gap:5px;flex-shrink:0;}
+/* ── LOGIN ────────────────────────────────────────────── */
+#vLogin{position:fixed;inset:0;z-index:3000;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px;}
+.lbox{background:var(--s1);border:1px solid var(--b2);border-top:3px solid var(--gold);border-radius:14px;padding:32px 28px;width:100%;max-width:400px;animation:up .4s both;}
+.lbox-ey{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:4px;}
+.lbox-title{font-family:'Barlow Condensed',sans-serif;font-size:38px;font-weight:900;margin-bottom:6px;}
+.lbox-sub{font-size:13px;color:var(--dim);font-weight:300;margin-bottom:22px;line-height:1.6;}
+.linp,.lsel{width:100%;background:var(--s2);border:1px solid var(--b2);border-radius:var(--r);color:var(--text);font-size:14px;padding:12px 13px;outline:none;margin-bottom:10px;transition:border-color .2s;appearance:none;}
+.linp:focus,.lsel:focus{border-color:rgba(212,175,55,.5);}
+.linp::placeholder{color:var(--muted);}
+.lbtn{width:100%;background:var(--gold);color:#000;border:none;padding:14px;border-radius:var(--r);font-size:14px;font-weight:700;margin-top:2px;transition:background .15s;}
+.lbtn:hover{background:var(--gold2);}
+.lerr{color:var(--red);font-size:12px;text-align:center;display:none;margin-bottom:8px;}
 
-/* Modals & Toast */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:1000;opacity:0;pointer-events:none;transition:opacity .2s;}
-.modal-overlay.show{opacity:1;pointer-events:all;}
-.modal{background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:22px;width:300px;transform:scale(.95);transition:transform .2s;}
-.modal-overlay.show .modal{transform:scale(1);}
-.modal-title{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:var(--text);margin-bottom:6px;}
-.modal-desc{font-size:12px;color:var(--text-dim);margin-bottom:18px;line-height:1.5;}
-.modal-actions{display:flex;gap:8px;justify-content:flex-end;}
-.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface3);border:1px solid var(--border2);border-radius:var(--radius);padding:9px 16px;font-size:12px;color:var(--text);opacity:0;pointer-events:none;transition:all .3s;z-index:9999;white-space:nowrap;}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+/* ── APP SHELL ────────────────────────────────────────── */
+#app{display:none;flex-direction:column;height:100%;}
+#app.on{display:flex;}
 
-/* Zone overlay */
-.zone-overlay-rect{pointer-events:none;transition:fill .3s,opacity .3s;}
+/* NAV */
+.nav{height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;background:var(--s1);border-bottom:1px solid var(--b1);flex-shrink:0;z-index:100;}
+.nav-logo{display:flex;align-items:center;gap:7px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;}
+.nav-badge{width:24px;height:24px;background:var(--gold);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;color:#000;letter-spacing:-1px;}
+.nav-logo span{color:var(--gold);}
+.nav-right{display:flex;align-items:center;gap:6px;}
+.nbtn{background:none;border:1px solid var(--b2);border-radius:var(--r);padding:5px 11px;color:var(--dim);font-size:11px;font-weight:600;}
+.nbtn.gold{background:var(--gold);color:#000;border-color:var(--gold);}
+.nbtn:hover{border-color:var(--gold);color:var(--gold);}
+.nbtn.gold:hover{background:var(--gold2);}
+
+/* PANEL DOTS NAV */
+.panel-nav{display:flex;align-items:center;justify-content:center;gap:8px;padding:7px 0;background:var(--s1);border-bottom:1px solid var(--b1);flex-shrink:0;}
+.pdot{width:24px;height:6px;border-radius:3px;background:var(--b2);cursor:pointer;transition:all .2s;}
+.pdot.active{background:var(--gold);width:32px;}
+.pdot-label{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);}
+
+/* PANELS CONTAINER */
+.panels{display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;flex:1;scroll-behavior:smooth;}
+.panels::-webkit-scrollbar{display:none;}
+.panel{flex:0 0 100%;height:100%;scroll-snap-align:start;overflow-y:auto;overflow-x:hidden;}
+.panel::-webkit-scrollbar{width:3px;}
+.panel::-webkit-scrollbar-thumb{background:var(--b2);}
+
+/* ── PANEL 1 — CONFIGURAR ─────────────────────────────── */
+.p1-body{padding:16px 14px 80px;}
+.p1-section{margin-bottom:20px;}
+.p1-label{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:9px;display:block;}
+.p1-title{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:900;color:var(--gold);margin-bottom:12px;}
+
+/* Formation grid */
+.form-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
+.form-btn{background:var(--s2);border:1px solid var(--b2);border-radius:var(--r);padding:11px 6px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;color:var(--dim);transition:all .15s;}
+.form-btn:hover,.form-btn.active{background:var(--gd);border-color:var(--gold);color:var(--gold);}
+.form-btn .ft{display:block;font-size:8px;letter-spacing:1px;font-weight:600;opacity:.6;margin-top:2px;}
+
+/* Phase grid */
+.phase-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
+.phase-btn{background:var(--s2);border:1px solid var(--b2);border-radius:var(--r);padding:10px 10px;text-align:left;font-size:12px;font-weight:600;color:var(--dim);transition:all .15s;display:flex;align-items:center;gap:7px;}
+.phase-btn:hover,.phase-btn.active{background:var(--gd);border-color:var(--gold);color:var(--gold);}
+.phase-btn .pi{font-size:16px;flex-shrink:0;}
+
+/* Player setup cards */
+.player-setup-list{display:flex;flex-direction:column;gap:6px;}
+.ps-card{background:var(--s2);border:1px solid var(--b2);border-radius:var(--r);padding:10px 12px;display:flex;align-items:center;gap:10px;}
+.ps-num{width:28px;height:28px;border-radius:50%;background:var(--gd);border:1px solid var(--gg);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:13px;color:var(--gold);flex-shrink:0;}
+.ps-pos{flex:1;font-size:12px;font-weight:600;}
+.ps-sel{background:var(--s3);border:1px solid var(--b2);border-radius:4px;color:var(--text);font-size:11px;padding:4px 6px;outline:none;max-width:100px;}
+
+/* CTA go */
+.p1-go{position:sticky;bottom:0;padding:12px 14px;background:linear-gradient(to top,var(--bg) 60%,transparent);margin:0 -14px;}
+.go-btn{width:100%;background:var(--gold);color:#000;border:none;padding:14px;border-radius:var(--r);font-size:15px;font-weight:700;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;}
+.go-btn:hover{background:var(--gold2);}
+
+/* ── PANEL 2 — CAMPO ──────────────────────────────────── */
+.p2-inner{display:flex;flex-direction:column;height:100%;overflow:hidden;}
+.p2-toolbar{display:flex;align-items:center;gap:6px;padding:8px 12px;background:var(--s1);border-bottom:1px solid var(--b1);flex-shrink:0;overflow-x:auto;scrollbar-width:none;}
+.p2-toolbar::-webkit-scrollbar{display:none;}
+.tbtn{background:var(--s2);border:1px solid var(--b2);border-radius:var(--r);padding:6px 10px;font-size:11px;font-weight:600;color:var(--dim);white-space:nowrap;transition:all .15s;}
+.tbtn:hover{border-color:var(--gold);color:var(--gold);}
+.tbtn.active{background:var(--gd);border-color:var(--gold);color:var(--gold);}
+.tbtn.ai{background:rgba(74,159,232,.1);border-color:rgba(74,159,232,.3);color:var(--blue);}
+.tbtn.ai:hover,.tbtn.ai.active{background:rgba(74,159,232,.2);border-color:var(--blue);}
+.pitch-wrap{flex:1;display:flex;align-items:center;justify-content:center;background:var(--bg);position:relative;overflow:hidden;padding:8px;}
+#pitchSvg{display:block;max-width:100%;max-height:100%;border-radius:4px;}
+
+/* Arrow picker overlay */
+#arrowPicker{position:fixed;bottom:0;left:0;right:0;z-index:500;background:var(--s1);border-top:1px solid var(--b2);padding:14px 16px 24px;transform:translateY(100%);transition:transform .25s ease;}
+#arrowPicker.on{transform:translateY(0);}
+.ap-title{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;}
+.ap-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;max-width:200px;margin:0 auto 10px;}
+.ap-btn{height:44px;border-radius:var(--r);border:1px solid var(--b2);background:var(--s2);color:var(--dim);font-size:18px;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.ap-btn:hover,.ap-btn.sel{background:var(--gd);border-color:var(--gold);color:var(--gold);}
+.ap-btn.none{font-size:10px;font-weight:700;letter-spacing:.5px;}
+.ap-footer{display:flex;gap:6px;max-width:200px;margin:0 auto;}
+.ap-clear{flex:1;padding:9px;border-radius:var(--r);background:transparent;border:1px solid rgba(224,80,80,.3);color:var(--red);font-size:11px;font-weight:600;}
+.ap-close{flex:1;padding:9px;border-radius:var(--r);background:var(--s3);border:1px solid var(--b2);color:var(--dim);font-size:11px;font-weight:600;}
+
+/* Phase chip */
+.phase-chip{position:absolute;top:10px;left:50%;transform:translateX(-50%);background:rgba(9,12,9,.85);border:1px solid var(--b2);border-radius:100px;padding:4px 12px;font-size:10px;font-weight:700;color:var(--dim);white-space:nowrap;pointer-events:none;}
+
+/* ── PANEL 3 — ANÁLISE IA ─────────────────────────────── */
+.p3-body{padding:16px 14px 80px;}
+.p3-header{margin-bottom:18px;}
+.p3-eyebrow{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:4px;}
+.p3-title{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:900;line-height:1;}
+.p3-meta{font-size:11px;color:var(--dim);font-weight:300;margin-top:4px;}
+.analyze-btn{width:100%;background:linear-gradient(135deg,rgba(212,175,55,.15),rgba(212,175,55,.05));border:1px solid var(--gold);color:var(--gold);padding:14px;border-radius:var(--r);font-size:14px;font-weight:700;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;margin-bottom:16px;transition:all .15s;}
+.analyze-btn:hover{background:linear-gradient(135deg,rgba(212,175,55,.25),rgba(212,175,55,.1));}
+.ai-loading{display:flex;flex-direction:column;align-items:center;padding:40px 20px;gap:12px;color:var(--dim);font-size:13px;}
+.spin{width:32px;height:32px;border:2px solid var(--b2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;}
+.ai-empty{padding:32px 16px;text-align:center;color:var(--muted);font-size:13px;font-weight:300;line-height:1.7;}
+.ai-block{margin-bottom:16px;background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:14px;}
+.ai-block-title{font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.ai-block-title::before{content:'';width:12px;height:1px;background:var(--b2);}
+.ai-block-body{font-size:13px;color:var(--dim);line-height:1.75;font-weight:300;}
+.ai-block-body strong{color:var(--text);font-weight:600;}
+.ai-block.highlight{background:var(--gd);border-color:var(--gg);}
+.ai-block.highlight .ai-block-title{color:var(--gold);}
+.ai-block.blue{background:var(--bd);border-color:var(--bg2);}
+.ai-block.blue .ai-block-title{color:var(--blue);}
+.scenario-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.scenario-chip{background:var(--s2);border:1px solid var(--b2);border-radius:100px;padding:5px 12px;font-size:10px;font-weight:600;color:var(--dim);}
+
+/* ── PLAYER PIECES ────────────────────────────────────── */
+.player-piece{cursor:grab;}
+.player-piece:active{cursor:grabbing;}
+.player-piece.dragging .pc{filter:drop-shadow(0 0 10px currentColor) brightness(1.3);}
+.player-piece.sel .pc{filter:drop-shadow(0 0 14px rgba(255,255,255,.7));}
+.player-piece.ai-piece{cursor:default;pointer-events:none;}
+
+/* ── MISC ─────────────────────────────────────────────── */
+.chip{display:inline-flex;align-items:center;gap:4px;background:var(--gd);border:1px solid var(--gg);border-radius:100px;padding:3px 10px;font-size:10px;font-weight:700;color:var(--gold);}
+.section-divider{height:1px;background:var(--b1);margin:18px 0;}
 </style>
 </head>
 <body>
 
-<!-- ── TOAST ──────────────────────────────────────────── -->
-<div class="toast" id="toast"></div>
+<div id="toast"></div>
 
-<!-- ── RESET MODAL ────────────────────────────────────── -->
-<div class="modal-overlay" id="modal">
-  <div class="modal">
-    <div class="modal-title">Limpar Campo</div>
-    <div class="modal-desc">Remove todos os jogadores. As setas e notas são mantidas.</div>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
-      <button class="btn btn-danger" onclick="confirmReset()">Limpar</button>
-    </div>
-  </div>
-</div>
-
-<!-- ── LOGIN SCREEN ────────────────────────────────────── -->
-<div id="loginScreen">
+<!-- ══════════════════ LOGIN ══════════════════ -->
+<div id="vLogin">
   <div class="lbox">
-    <div class="lbox-icon">🧠</div>
+    <div style="font-size:36px;margin-bottom:12px;">🧠</div>
     <div class="lbox-ey">YourTalentBase</div>
     <div class="lbox-title">TacticsLab</div>
-    <div class="lbox-sub">Simulador tático com análise por IA. Coloca os jogadores, define movimentos e a IA contraría a tua estratégia.</div>
-    <label style="display:block;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#3A503A;margin-bottom:5px;">Escalão</label>
-    <select class="lsel" id="loginEscalao">
+    <div class="lbox-sub">Simulador tático com IA. Define a tua estratégia e recebe a contra-tática em segundos.</div>
+    <label class="lbox-ey" style="margin-bottom:6px;display:block;">Escalão</label>
+    <select class="lsel" id="loginEsc">
       <option value="">Selecionar escalão...</option>
-      <option value="Sub-8">Sub-8 (6-7 anos) — Fut5</option>
-      <option value="Sub-10">Sub-10 (8-9 anos) — Fut7</option>
-      <option value="Sub-12">Sub-12 (10-11 anos) — Fut7</option>
-      <option value="Sub-14">Sub-14 (12-13 anos) — Fut9</option>
-      <option value="Sub-16">Sub-16 (14-15 anos) — Fut11</option>
-      <option value="Sub-19">Sub-19 (16-18 anos) — Fut11</option>
+      <optgroup label="Futebol 7 — 7 jogadores">
+        <option value="Sub-9|fut7|7">Sub-9 · Fut7</option>
+        <option value="Sub-10|fut7|7">Sub-10 · Fut7</option>
+        <option value="Sub-11|fut7|7">Sub-11 · Fut7</option>
+      </optgroup>
+      <optgroup label="Futebol 11 — 11 jogadores">
+        <option value="Sub-12|fut11|11">Sub-12 · Fut11</option>
+        <option value="Sub-13|fut11|11">Sub-13 · Fut11</option>
+        <option value="Sub-14|fut11|11">Sub-14 · Fut11</option>
+        <option value="Sub-15|fut11|11">Sub-15 · Fut11</option>
+        <option value="Sub-16|fut11|11">Sub-16 · Fut11</option>
+        <option value="Sub-17|fut11|11">Sub-17 · Fut11</option>
+        <option value="Sub-18|fut11|11">Sub-18 · Fut11</option>
+        <option value="Sub-19|fut11|11">Sub-19 · Fut11</option>
+      </optgroup>
     </select>
-    <label style="display:block;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#3A503A;margin-bottom:5px;margin-top:4px;">Password</label>
+    <label class="lbox-ey" style="margin-bottom:6px;display:block;margin-top:2px;">Password</label>
     <input class="linp" type="password" id="loginPass" placeholder="Password de acesso">
     <div class="lerr" id="loginErr">Password incorrecta.</div>
     <button class="lbtn" id="btnLogin">Entrar →</button>
   </div>
 </div>
 
-<!-- ── PLAYER SETUP MODAL ──────────────────────────────── -->
-<div id="setupModal">
-  <div class="setup-box">
-    <div class="setup-head">
-      <div>
-        <div class="setup-head-title">⚽ Configurar Plantel</div>
-        <div class="setup-head-sub">Define a posição e perfil de cada jogador</div>
-      </div>
-    </div>
-    <div class="setup-tabs" id="setupTabs"></div>
-    <div class="setup-body" id="setupBody"></div>
-    <div class="setup-foot">
-      <button class="setup-skip" onclick="skipSetup()">Saltar →</button>
-      <button class="setup-save" onclick="saveSetup()">✓ Confirmar e Entrar</button>
-    </div>
-  </div>
-</div>
-
-<!-- ── ARROW PICKER ────────────────────────────────────── -->
-<div id="arrowPicker">
-  <div class="ap-title">
-    <span>Direção do Jogador <span id="apPlayerLabel" style="color:var(--gold);">—</span></span>
-    <span style="font-size:10px;font-weight:300;">Seleciona para onde vai</span>
-  </div>
-  <div class="ap-grid" id="apGrid">
-    <button class="ap-btn" data-dir="NW" title="NW">↖</button>
-    <button class="ap-btn" data-dir="N" title="N">↑</button>
-    <button class="ap-btn" data-dir="NE" title="NE">↗</button>
-    <button class="ap-btn" data-dir="W" title="W">←</button>
-    <button class="ap-btn center" data-dir="NONE">SEM</button>
-    <button class="ap-btn" data-dir="E" title="E">→</button>
-    <button class="ap-btn" data-dir="SW" title="SW">↙</button>
-    <button class="ap-btn" data-dir="S" title="S">↓</button>
-    <button class="ap-btn" data-dir="SE" title="SE">↘</button>
-  </div>
-  <div class="ap-actions">
-    <button class="ap-clear" onclick="clearArrow()">🗑 Limpar seta</button>
-    <button class="ap-close" onclick="closeArrowPicker()">Fechar</button>
-  </div>
-</div>
-
-<!-- ── MAIN APP ────────────────────────────────────────── -->
+<!-- ══════════════════ APP ══════════════════ -->
 <div id="app">
 
-  <header>
-    <div class="header-left">
-      <div style="display:flex;align-items:center;gap:8px;">
-        <div class="logo-icon">YT</div>
-        <div class="logo-text">Your<span>Talent</span>Base</div>
-      </div>
-      <div style="width:1px;height:22px;background:var(--border2);"></div>
-      <div class="hbadge">🧠 TacticsLab</div>
+  <!-- NAV -->
+  <div class="nav">
+    <div class="nav-logo"><div class="nav-badge">YT</div>Tactics<span>Lab</span></div>
+    <div class="nav-right">
+      <span id="navEsc" style="font-size:10px;color:var(--dim);font-weight:600;"></span>
+      <button class="nbtn gold" id="btnAnalyzeNav" onclick="goToAnalysis()">⚡ IA →</button>
+      <button class="nbtn" onclick="exportSVG()">PNG</button>
     </div>
-    <div class="header-actions">
-      <span id="hEscalao" style="font-size:10px;color:var(--text-dim);font-weight:600;letter-spacing:.5px;"></span>
-      <button class="btn btn-ghost btn-sm" onclick="openSetup()">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-        Plantel
-      </button>
-      <button class="btn btn-ghost btn-sm" onclick="showModal()">Limpar</button>
-      <button class="btn btn-ghost btn-sm" onclick="exportPDF()">PDF</button>
-    </div>
-  </header>
-
-  <div class="info-bar" id="infoBar">
-    <span id="ibPhase" class="ib-pill gold">Ataque Organizado</span>
-    <span>·</span>
-    <span id="ibEscalao" class="ib-pill">Sub-12</span>
-    <span style="margin-left:4px;">Clica num jogador para definir seta de movimento</span>
   </div>
 
-  <div class="app-body">
+  <!-- PANEL DOTS -->
+  <div class="panel-nav">
+    <div class="pdot active" onclick="goPanel(0)" id="dot0"></div>
+    <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:var(--muted);">·</div>
+    <div class="pdot" onclick="goPanel(1)" id="dot1"></div>
+    <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:var(--muted);">·</div>
+    <div class="pdot" onclick="goPanel(2)" id="dot2"></div>
+  </div>
 
-    <!-- LEFT SIDEBAR -->
-    <div class="sidebar">
+  <!-- PANELS -->
+  <div class="panels" id="panelsWrap">
 
-      <div class="ss">
-        <div class="sl">Equipa Activa</div>
-        <div class="team-sel">
-          <button class="tbtn tbtn-a active" id="teamBtnA" onclick="setActiveTeam('A')">Eq. A</button>
-          <button class="tbtn tbtn-b" id="teamBtnB" onclick="setActiveTeam('B')">Eq. B</button>
+    <!-- PANEL 1: CONFIGURAR -->
+    <div class="panel" id="panel0">
+      <div class="p1-body">
+
+        <div class="p1-section">
+          <div class="p1-title">① Formação</div>
+          <div id="formGrid" class="form-grid"></div>
         </div>
-      </div>
 
-      <div class="ss">
-        <div class="sl">Formações — Eq. A</div>
-        <div class="fg">
-          <button class="fb" onclick="applyFormation('A','4-3-3')">4-3-3<span class="tt">EQ A</span></button>
-          <button class="fb" onclick="applyFormation('A','4-4-2')">4-4-2<span class="tt">EQ A</span></button>
-          <button class="fb" onclick="applyFormation('A','4-2-3-1')">4-2-3-1<span class="tt">EQ A</span></button>
-          <button class="fb" onclick="applyFormation('A','3-5-2')">3-5-2<span class="tt">EQ A</span></button>
-          <button class="fb" onclick="applyFormation('A','5-3-2')">5-3-2<span class="tt">EQ A</span></button>
-          <button class="fb" onclick="applyFormation('A','4-1-4-1')">4-1-4-1<span class="tt">EQ A</span></button>
-        </div>
-      </div>
+        <div class="section-divider"></div>
 
-      <div class="ss">
-        <div class="sl">Formações — Eq. B</div>
-        <div class="fg">
-          <button class="fb" onclick="applyFormation('B','4-3-3')">4-3-3<span class="tt">EQ B</span></button>
-          <button class="fb" onclick="applyFormation('B','4-4-2')">4-4-2<span class="tt">EQ B</span></button>
-          <button class="fb" onclick="applyFormation('B','4-2-3-1')">4-2-3-1<span class="tt">EQ B</span></button>
-          <button class="fb" onclick="applyFormation('B','3-5-2')">3-5-2<span class="tt">EQ B</span></button>
-          <button class="fb" onclick="applyFormation('B','5-3-2')">5-3-2<span class="tt">EQ B</span></button>
-          <button class="fb" onclick="applyFormation('B','4-1-4-1')">4-1-4-1<span class="tt">EQ B</span></button>
-        </div>
-      </div>
-
-      <div class="ss">
-        <div class="sl">Fase de Jogo</div>
-        <div class="phase-list">
-          <button class="phase-btn active" data-phase="Ataque Organizado" onclick="setPhase(this)"><span class="phase-icon">⚔️</span>Ataque Organizado</button>
-          <button class="phase-btn" data-phase="Defesa Organizada" onclick="setPhase(this)"><span class="phase-icon">🛡️</span>Defesa Organizada</button>
-          <button class="phase-btn" data-phase="Contra-Ataque" onclick="setPhase(this)"><span class="phase-icon">⚡</span>Contra-Ataque</button>
-          <button class="phase-btn" data-phase="Transição Defensiva" onclick="setPhase(this)"><span class="phase-icon">🔄</span>Transição Defensiva</button>
-          <button class="phase-btn" data-phase="Transição Ofensiva" onclick="setPhase(this)"><span class="phase-icon">🔁</span>Transição Ofensiva</button>
-          <button class="phase-btn" data-phase="Posse de Bola" onclick="setPhase(this)"><span class="phase-icon">⚽</span>Posse de Bola</button>
-          <button class="phase-btn" data-phase="Pressing Alto" onclick="setPhase(this)"><span class="phase-icon">🔥</span>Pressing Alto</button>
-          <button class="phase-btn" data-phase="Canto Ofensivo" onclick="setPhase(this)"><span class="phase-icon">📐</span>Canto Ofensivo</button>
-          <button class="phase-btn" data-phase="Canto Defensivo" onclick="setPhase(this)"><span class="phase-icon">🏁</span>Canto Defensivo</button>
-          <button class="phase-btn" data-phase="Lançamento Lateral" onclick="setPhase(this)"><span class="phase-icon">↔️</span>Lançamento Lateral</button>
-          <button class="phase-btn" data-phase="Livre Direto" onclick="setPhase(this)"><span class="phase-icon">🎯</span>Livre Direto</button>
-          <button class="phase-btn" data-phase="Livre Indireto" onclick="setPhase(this)"><span class="phase-icon">📌</span>Livre Indireto</button>
-        </div>
-      </div>
-
-      <div class="ss">
-        <div class="sl">Visualização</div>
-        <div class="ctrl-row"><span class="ctrl-lbl">Zonas</span><div class="toggle on" id="zoneToggle" onclick="toggleZones()"></div></div>
-        <div class="ctrl-row"><span class="ctrl-lbl">Números</span><div class="toggle on" id="numberToggle" onclick="toggleNumbers()"></div></div>
-        <div class="ctrl-row"><span class="ctrl-lbl">Pressão</span><div class="toggle" id="lineToggle" onclick="toggleLines()"></div></div>
-        <div class="ctrl-row"><span class="ctrl-lbl">Setas</span><div class="toggle on" id="arrowToggle" onclick="toggleArrows()"></div></div>
-      </div>
-
-    </div>
-
-    <!-- PITCH -->
-    <div class="pitch-area">
-      <div id="pitch-container">
-        <svg id="pitch-svg" width="500" height="740" viewBox="0 0 500 740">
-          <g id="zone-overlay"></g>
-          <g id="pitch-markings"></g>
-          <g id="pressure-lines"></g>
-          <g id="arrows-layer"></g>
-          <g id="players-layer"></g>
-        </svg>
-      </div>
-    </div>
-
-    <!-- RIGHT SIDEBAR -->
-    <div class="sidebar-right">
-      <div class="sr-tabs">
-        <button class="sr-tab active" onclick="switchSrTab('ai',this)">🧠 IA Táctica</button>
-        <button class="sr-tab" onclick="switchSrTab('notes',this)">📝 Notas</button>
-      </div>
-
-      <!-- AI PANEL -->
-      <div class="sr-panel active" id="srAi">
-        <div class="ai-section">
-          <div class="ai-phase-display">
-            <div class="ai-phase-label">Fase Activa</div>
-            <div id="aiPhaseLabel" style="font-weight:700;font-size:13px;">Ataque Organizado</div>
+        <div class="p1-section">
+          <div class="p1-title">② Fase de Jogo</div>
+          <div class="phase-grid" id="phaseGrid">
+            <button class="phase-btn active" data-phase="Ataque Organizado"><span class="pi">⚔️</span>Ataque Organizado</button>
+            <button class="phase-btn" data-phase="Defesa Organizada"><span class="pi">🛡️</span>Defesa Organizada</button>
+            <button class="phase-btn" data-phase="Contra-Ataque"><span class="pi">⚡</span>Contra-Ataque</button>
+            <button class="phase-btn" data-phase="Transição Defensiva"><span class="pi">🔄</span>Transição Defensiva</button>
+            <button class="phase-btn" data-phase="Transição Ofensiva"><span class="pi">🔁</span>Transição Ofensiva</button>
+            <button class="phase-btn" data-phase="Posse de Bola"><span class="pi">⚽</span>Posse de Bola</button>
+            <button class="phase-btn" data-phase="Pressing Alto"><span class="pi">🔥</span>Pressing Alto</button>
+            <button class="phase-btn" data-phase="Pressing Médio"><span class="pi">🧱</span>Pressing Médio</button>
+            <button class="phase-btn" data-phase="Canto Ofensivo"><span class="pi">📐</span>Canto Ofensivo</button>
+            <button class="phase-btn" data-phase="Canto Defensivo"><span class="pi">🏁</span>Canto Defensivo</button>
+            <button class="phase-btn" data-phase="Livre Direto"><span class="pi">🎯</span>Livre Direto</button>
+            <button class="phase-btn" data-phase="Lançamento Lateral"><span class="pi">↔️</span>Lançamento Lateral</button>
           </div>
-          <button class="btn btn-ai" style="width:100%;" id="btnAnalyze" onclick="analyzeScenario()">
-            ⚡ Analisar Cenário com IA
-          </button>
         </div>
-        <div class="ai-result" id="aiResult">
+
+        <div class="section-divider"></div>
+
+        <div class="p1-section">
+          <div class="p1-title">③ Perfil dos Jogadores <span style="font-size:10px;font-weight:400;color:var(--muted);">(opcional)</span></div>
+          <div class="player-setup-list" id="playerSetupList"></div>
+        </div>
+
+        <div class="p1-go">
+          <button class="go-btn" onclick="applyAndGoField()">Ver no Campo →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANEL 2: CAMPO -->
+    <div class="panel" id="panel1" style="overflow:hidden;">
+      <div class="p2-inner">
+        <div class="p2-toolbar" id="toolbar">
+          <button class="tbtn active" id="tTeamA" onclick="setTeam('A')">⚽ Minha Equipa</button>
+          <button class="tbtn" id="tTeamB" onclick="setTeam('B')">🤖 IA / Adversário</button>
+          <div style="width:1px;height:20px;background:var(--b2);flex-shrink:0;"></div>
+          <button class="tbtn" id="tAI" onclick="placeAITeam()">🤖 Gerar Adversário</button>
+          <button class="tbtn" id="tZones" onclick="toggleZones()">Zonas</button>
+          <button class="tbtn" id="tArrows" onclick="toggleArrows()">Setas</button>
+          <button class="tbtn" id="tNums" onclick="toggleNums()">Nºs</button>
+          <button class="tbtn" onclick="clearField()">Limpar</button>
+        </div>
+        <div class="pitch-wrap" id="pitchWrap">
+          <div id="phaseChip" class="phase-chip">Ataque Organizado</div>
+          <svg id="pitchSvg" viewBox="0 0 500 740" preserveAspectRatio="xMidYMid meet">
+            <g id="gPitch"></g>
+            <g id="gZones"></g>
+            <g id="gLines"></g>
+            <g id="gArrows"></g>
+            <g id="gPlayers"></g>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANEL 3: ANÁLISE -->
+    <div class="panel" id="panel2">
+      <div class="p3-body">
+        <div class="p3-header">
+          <div class="p3-eyebrow">Análise Tática · IA</div>
+          <div class="p3-title" id="p3Title">Pronto para analisar</div>
+          <div class="p3-meta" id="p3Meta">Define a táctica no campo e carrega em Analisar</div>
+        </div>
+        <div class="scenario-chips" id="scenarioChips"></div>
+        <button class="analyze-btn" onclick="runAnalysis()">⚡ Analisar Cenário com IA</button>
+        <div id="aiOutput">
           <div class="ai-empty">
-            Coloca os jogadores em campo, define as setas de movimento e carrega em <strong>Analisar</strong>.<br><br>
-            A IA vai ler a tua táctica e sugerir como o adversário deve responder.
+            Posiciona os jogadores no campo,<br>define as setas de movimento<br>e carrega em <strong>Analisar</strong>.<br><br>
+            A IA lê a tua táctica e devolve<br>contra-tática + dicas específicas.
           </div>
         </div>
-      </div>
-
-      <!-- NOTES PANEL -->
-      <div class="sr-panel" id="srNotes">
-        <div class="notes-section">
-          <div>
-            <label style="display:block;font-size:9px;letter-spacing:1.5px;color:var(--text-muted);font-weight:700;text-transform:uppercase;margin-bottom:4px;">Título / Sessão</label>
-            <input type="text" class="note-title-input" id="noteTitle" placeholder="Ex: Bloco defensivo Sub-14" oninput="saveNotes()">
-          </div>
-          <div>
-            <label style="display:block;font-size:9px;letter-spacing:1.5px;color:var(--text-muted);font-weight:700;text-transform:uppercase;margin-bottom:4px;">Equipa A</label>
-            <textarea class="note-input" id="noteTeamA" rows="3" placeholder="Instrução táctica..." oninput="saveNotes()"></textarea>
-          </div>
-          <div>
-            <label style="display:block;font-size:9px;letter-spacing:1.5px;color:var(--text-muted);font-weight:700;text-transform:uppercase;margin-bottom:4px;">Equipa B</label>
-            <textarea class="note-input" id="noteTeamB" rows="3" placeholder="Instrução táctica..." oninput="saveNotes()"></textarea>
-          </div>
-          <div style="flex:1;">
-            <label style="display:block;font-size:9px;letter-spacing:1.5px;color:var(--text-muted);font-weight:700;text-transform:uppercase;margin-bottom:4px;">Notas Gerais</label>
-            <textarea class="note-input" id="noteGeneral" rows="6" style="min-height:80px;" placeholder="Observações, padrões de jogo..." oninput="saveNotes()"></textarea>
-          </div>
-        </div>
-      </div>
-
-      <!-- ZONE STATS (always visible) -->
-      <div class="zone-analysis">
-        <div class="sl">Superioridades</div>
-        <div class="zone-stats">
-          <div class="zone-stat"><div class="zone-stat-label">Def</div><div class="zone-stat-value" id="statDefense">—</div></div>
-          <div class="zone-stat"><div class="zone-stat-label">Meio</div><div class="zone-stat-value" id="statMidfield">—</div></div>
-          <div class="zone-stat"><div class="zone-stat-label">Atq</div><div class="zone-stat-value" id="statAttack">—</div></div>
-        </div>
-        <div style="margin-top:5px;display:grid;grid-template-columns:1fr 1fr;gap:5px;">
-          <div class="zone-stat"><div class="zone-stat-label">Ala Esq</div><div class="zone-stat-value" id="statLeft">—</div></div>
-          <div class="zone-stat"><div class="zone-stat-label">Ala Dir</div><div class="zone-stat-value" id="statRight">—</div></div>
-        </div>
-      </div>
-      <div class="export-actions">
-        <button class="btn btn-ghost btn-sm" style="flex:1" onclick="exportImage()">PNG</button>
-        <button class="btn btn-gold btn-sm" style="flex:1" onclick="exportPDF()">PDF</button>
       </div>
     </div>
 
+  </div><!-- /panels -->
+</div><!-- /app -->
+
+<!-- ARROW PICKER -->
+<div id="arrowPicker">
+  <div class="ap-title">
+    <span>Movimento — <span id="apLabel" style="color:var(--gold);">Jogador</span></span>
+    <span style="font-size:10px;font-weight:300;color:var(--muted);">Escolhe a direção</span>
+  </div>
+  <div class="ap-grid">
+    <button class="ap-btn" data-dir="NW">↖</button>
+    <button class="ap-btn" data-dir="N">↑</button>
+    <button class="ap-btn" data-dir="NE">↗</button>
+    <button class="ap-btn" data-dir="W">←</button>
+    <button class="ap-btn none" data-dir="NONE">SEM</button>
+    <button class="ap-btn" data-dir="E">→</button>
+    <button class="ap-btn" data-dir="SW">↙</button>
+    <button class="ap-btn" data-dir="S">↓</button>
+    <button class="ap-btn" data-dir="SE">↘</button>
+  </div>
+  <div class="ap-footer">
+    <button class="ap-clear" onclick="clearArrow()">🗑 Remover seta</button>
+    <button class="ap-close" onclick="closeAP()">Fechar</button>
   </div>
 </div>
 
 <script>
-// ══════════════════════════════════════════════════════
-//  CONSTANTS & STATE
-// ══════════════════════════════════════════════════════
-const PASS = 'YTB#Tactics2026';
-const PITCH_W = 500, PITCH_H = 740, PLAYER_R = 16;
+'use strict';
+// ════════════════════════════════════════════════
+//  CONSTANTS
+// ════════════════════════════════════════════════
+var PASS = 'YTB#Tactics2026';
+var W = 500, H = 740, R = 17;
 
-let escalao = '';
-let players = [];
-let activeTeam = 'A';
-let zonesOn = true, numbersOn = true, linesOn = false, arrowsOn = true;
-let playerCount = { A: 0, B: 0 };
-let dragging = null, dragOffX = 0, dragOffY = 0;
-let nextId = 1;
-let selectedPlayerId = null;
-let currentPhase = 'Ataque Organizado';
-let dragMoved = false;
-
-// Arrow directions per player ID
-let playerArrows = {}; // { playerId: 'N'|'NE'|'E'|'SE'|'S'|'SW'|'W'|'NW' }
-
-// Player profiles for 11 players of team A
-const DEFAULT_POSITIONS = {
-  1:'GR', 2:'Lat. Direito', 3:'Def. Central', 4:'Def. Central', 5:'Lat. Esquerdo',
-  6:'Médio Defensivo', 7:'Médio Centro', 8:'Médio Centro',
-  9:'Extremo Direito', 10:'Avançado', 11:'Extremo Esquerdo'
+// ════════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════════
+var S = {
+  escalao:'', format:'fut11', numPlayers:11,
+  formation:'4-3-3', phase:'Ataque Organizado',
+  players:[],         // {id,team,x,y,num,pos}
+  arrows:{},          // playerId -> dir string
+  profiles:{},        // num -> {speed,physical,style}
+  zonesOn:true, arrowsOn:true, numsOn:true,
+  activeTeam:'A',
+  selectedId:null,
+  dragging:null, dragOffX:0, dragOffY:0, dragMoved:false,
+  nextId:1,
+  currentPanel:0,
 };
-let playerProfiles = {};
-for (let i=1;i<=11;i++) playerProfiles[i] = { pos:DEFAULT_POSITIONS[i], speed:'Normal', physical:'Normal', style:'Equilibrado' };
 
-// Arrow vectors
-const ARROW_VEC = {
-  N:[0,-1], NE:[1,-1], E:[1,0], SE:[1,1], S:[0,1], SW:[-1,1], W:[-1,0], NW:[-1,-1]
-};
-const ARROW_LABEL = {
-  N:'Avança ↑', NE:'Diagonal Dir. ↗', E:'Ala Direita →', SE:'Recua Dir. ↘',
-  S:'Recua ↓', SW:'Recua Esq. ↙', W:'Ala Esquerda ←', NW:'Diagonal Esq. ↖'
-};
-const DIR_EMOJI = { N:'↑', NE:'↗', E:'→', SE:'↘', S:'↓', SW:'↙', W:'←', NW:'↖' };
+var DIR_VEC = {N:[0,-1],NE:[1,-1],E:[1,0],SE:[1,1],S:[0,1],SW:[-1,1],W:[-1,0],NW:[-1,-1]};
+var DIR_EMJ = {N:'↑',NE:'↗',E:'→',SE:'↘',S:'↓',SW:'↙',W:'←',NW:'↖'};
+var DIR_LBL = {N:'Avança',NE:'Diagonal Dir.',E:'Ala Dir.',SE:'Recua Dir.',S:'Recua',SW:'Recua Esq.',W:'Ala Esq.',NW:'Diagonal Esq.'};
 
-// ══════════════════════════════════════════════════════
-//  LOGIN
-// ══════════════════════════════════════════════════════
-function doLogin() {
-  const pass = document.getElementById('loginPass').value.trim();
-  const esc  = document.getElementById('loginEscalao').value;
-  const err  = document.getElementById('loginErr');
-  if (!esc) { err.textContent='Seleciona o escalão.'; err.style.display='block'; return; }
-  if (pass !== PASS) { err.style.display='block'; document.getElementById('loginPass').value=''; return; }
-  err.style.display='none';
-  escalao = esc;
-  document.getElementById('loginScreen').style.display='none';
-  document.getElementById('app').classList.add('show');
-  document.getElementById('hEscalao').textContent = escalao;
-  document.getElementById('ibEscalao').textContent = escalao;
-  drawPitch(); initZoneOverlay(); loadNotes();
-  applyFormation('A','4-3-3'); applyFormation('B','4-3-3');
-  openSetup();
-}
+// Fut7 positions
+var POS_7 = {1:'GR',2:'Def. Central',3:'Def. Central',4:'Médio',5:'Médio',6:'Extremo',7:'Avançado'};
+// Fut11 positions (default by number)
+var POS_11 = {1:'GR',2:'Lat. Direito',3:'Def. Central',4:'Def. Central',5:'Lat. Esquerdo',6:'Médio Def.',7:'Médio',8:'Médio',9:'Extremo Dir.',10:'Avançado',11:'Extremo Esq.'};
 
-document.getElementById('btnLogin').addEventListener('click', doLogin);
-document.getElementById('loginPass').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
-
-// ══════════════════════════════════════════════════════
-//  PLAYER SETUP
-// ══════════════════════════════════════════════════════
-function openSetup() {
-  buildSetupTabs();
-  buildSetupPanel(1);
-  document.getElementById('setupModal').classList.add('show');
-}
-
-function buildSetupTabs() {
-  let h='';
-  for(let i=1;i<=11;i++) {
-    h+=`<button class="setup-tab${i===1?' active':''}" onclick="buildSetupPanel(${i})" id="stab-${i}">${i}</button>`;
+// ════════════════════════════════════════════════
+//  FORMATIONS
+// ════════════════════════════════════════════════
+var FORMS = {
+  fut7:{
+    '1-2-3':{
+      label:'1-2-3',
+      A:[[250,700],[165,590],[335,590],[100,430],[250,410],[400,430],[250,280]],
+      B:[[250,40],[165,150],[335,150],[100,310],[250,330],[400,310],[250,460]]
+    },
+    '1-3-2':{
+      label:'1-3-2',
+      A:[[250,700],[130,590],[250,600],[370,590],[170,430],[330,430],[250,280]],
+      B:[[250,40],[130,150],[250,140],[370,150],[170,310],[330,310],[250,460]]
+    },
+    '1-2-1-2':{
+      label:'1-2-1-2',
+      A:[[250,700],[165,610],[335,610],[250,480],[165,350],[335,350],[250,220]],
+      B:[[250,40],[165,130],[335,130],[250,260],[165,390],[335,390],[250,520]]
+    },
+    '1-2-2-1':{
+      label:'1-2-2-1',
+      A:[[250,700],[165,620],[335,620],[165,480],[335,480],[165,340],[335,340],[250,220]],
+      B:[[250,40],[165,120],[335,120],[165,260],[335,260],[165,400],[335,400],[250,520]]
+    },
+    '1-1-3-1':{
+      label:'1-1-3-1',
+      A:[[250,700],[250,620],[130,480],[250,460],[370,480],[250,300]],
+      B:[[250,40],[250,120],[130,260],[250,280],[370,260],[250,440]]
+    },
+  },
+  fut11:{
+    '4-3-3':{
+      label:'4-3-3',
+      A:[[250,695],[80,590],[175,600],[325,600],[420,590],[140,455],[250,435],[360,455],[110,295],[250,265],[390,295]],
+      B:[[250,45],[80,150],[175,140],[325,140],[420,150],[140,285],[250,305],[360,285],[110,445],[250,475],[390,445]]
+    },
+    '4-4-2':{
+      label:'4-4-2',
+      A:[[250,695],[80,595],[185,605],[315,605],[420,595],[80,455],[195,465],[305,465],[420,455],[175,295],[325,295]],
+      B:[[250,45],[80,145],[185,135],[315,135],[420,145],[80,285],[195,275],[305,275],[420,285],[175,445],[325,445]]
+    },
+    '4-2-3-1':{
+      label:'4-2-3-1',
+      A:[[250,695],[80,600],[185,610],[315,610],[420,600],[175,490],[325,490],[100,355],[250,335],[400,355],[250,230]],
+      B:[[250,45],[80,140],[185,130],[315,130],[420,140],[175,250],[325,250],[100,385],[250,405],[400,385],[250,510]]
+    },
+    '3-5-2':{
+      label:'3-5-2',
+      A:[[250,695],[140,610],[250,620],[360,610],[70,470],[175,460],[250,440],[325,460],[430,470],[185,305],[315,305]],
+      B:[[250,45],[140,130],[250,120],[360,130],[70,270],[175,280],[250,300],[325,280],[430,270],[185,435],[315,435]]
+    },
+    '5-3-2':{
+      label:'5-3-2',
+      A:[[250,695],[55,600],[155,590],[250,600],[345,590],[445,600],[140,455],[250,435],[360,455],[185,305],[315,305]],
+      B:[[250,45],[55,140],[155,150],[250,140],[345,150],[445,140],[140,285],[250,305],[360,285],[185,435],[315,435]]
+    },
+    '4-1-4-1':{
+      label:'4-1-4-1',
+      A:[[250,695],[80,600],[185,610],[315,610],[420,600],[250,505],[75,385],[190,375],[310,375],[425,385],[250,255]],
+      B:[[250,45],[80,140],[185,130],[315,130],[420,140],[250,235],[75,355],[190,365],[310,365],[425,355],[250,485]]
+    },
+    '3-4-3':{
+      label:'3-4-3',
+      A:[[250,695],[140,600],[250,610],[360,600],[100,465],[210,455],[290,455],[400,465],[110,305],[250,275],[390,305]],
+      B:[[250,45],[140,140],[250,130],[360,140],[100,275],[210,285],[290,285],[400,275],[110,435],[250,465],[390,435]]
+    },
+    '4-3-2-1':{
+      label:'4-3-2-1',
+      A:[[250,695],[80,600],[185,610],[315,610],[420,600],[140,480],[250,460],[360,480],[175,350],[325,350],[250,235]],
+      B:[[250,45],[80,140],[185,130],[315,130],[420,140],[140,260],[250,280],[360,260],[175,390],[325,390],[250,505]]
+    },
   }
-  document.getElementById('setupTabs').innerHTML=h;
+};
+
+// Auto counter formations
+var COUNTER = {
+  'Ataque Organizado':{'4-3-3':'4-4-2','4-4-2':'5-3-2','4-2-3-1':'4-5-1','3-5-2':'5-4-1','5-3-2':'4-4-2','1-2-3':'1-3-2','1-3-2':'1-2-3'},
+  'Pressing Alto':{'4-3-3':'4-3-3','4-4-2':'4-3-3','4-2-3-1':'4-3-3','1-2-3':'1-2-3'},
+  'Defesa Organizada':{'4-3-3':'4-3-3','4-4-2':'4-4-2','4-2-3-1':'4-5-1','1-2-3':'1-3-2'},
+  'Contra-Ataque':{'4-3-3':'4-1-4-1','4-4-2':'4-1-4-1','4-2-3-1':'4-3-3','1-2-3':'1-2-3'},
+  'Posse de Bola':{'4-3-3':'4-4-2','4-4-2':'4-4-2','4-2-3-1':'4-4-2'},
+};
+
+function getCounterFormation(formation, phase) {
+  var byPhase = COUNTER[phase] || COUNTER['Ataque Organizado'];
+  return byPhase[formation] || formation;
 }
 
-function buildSetupPanel(num) {
-  document.querySelectorAll('.setup-tab').forEach((t,i)=>t.classList.toggle('active',i+1===num));
-  const p = playerProfiles[num];
-  const positions=['GR','Lat. Direito','Def. Central','Def. Central (Esq.)','Lat. Esquerdo','Médio Defensivo','Médio Centro','Médio Ofensivo','Extremo Direito','Avançado','Extremo Esquerdo'];
-  const speeds=['Lento','Normal','Rápido','Explosivo'];
-  const physicals=['Leve','Normal','Forte','Possante'];
-  const styles=['Técnico','Equilibrado','Agressivo','Líder'];
+// ════════════════════════════════════════════════
+//  HELPERS
+// ════════════════════════════════════════════════
+function el(id){ return document.getElementById(id); }
+function isFut7(){ return S.format === 'fut7'; }
+function getFormKey(){ return isFut7() ? 'fut7' : 'fut11'; }
+function getFormations(){ return FORMS[getFormKey()]; }
+function getPosMap(){ return S.numPlayers === 7 ? POS_7 : POS_11; }
+function primerName(n){ return (n||'').split('|')[0]; }
 
-  const sel=(name,arr,cur) => `<select class="setup-sel" id="sp-${name}-${num}" onchange="updateProfile(${num},'${name}',this.value)">${arr.map(a=>`<option${a===cur?' selected':''}>${a}</option>`).join('')}</select>`;
-
-  document.getElementById('setupBody').innerHTML=`
-    <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:var(--gold);margin-bottom:14px;">
-      Jogador ${num} — <span style="color:var(--text);">${p.pos}</span>
-    </div>
-    <div class="setup-field">
-      <label class="setup-label">Posição</label>
-      ${sel('pos',positions,p.pos)}
-    </div>
-    <div class="setup-2col">
-      <div class="setup-field">
-        <label class="setup-label">Velocidade</label>
-        ${sel('speed',speeds,p.speed)}
-      </div>
-      <div class="setup-field">
-        <label class="setup-label">Físico</label>
-        ${sel('physical',physicals,p.physical)}
-      </div>
-    </div>
-    <div class="setup-field">
-      <label class="setup-label">Estilo de Jogo</label>
-      ${sel('style',styles,p.style)}
-    </div>
-    <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);padding:10px 12px;font-size:11px;color:var(--text-dim);line-height:1.6;margin-top:8px;">
-      ${getProfileDesc(num)}
-    </div>
-  `;
+var _tt;
+function toast(msg){
+  var t = el('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(_tt); _tt = setTimeout(function(){ t.classList.remove('show'); }, 2400);
 }
 
-function updateProfile(num, field, val) {
-  playerProfiles[num][field] = val;
-  buildSetupPanel(num);
+function fmt(x){ return x != null ? (Math.round(x)).toString() : '—'; }
+
+// ════════════════════════════════════════════════
+//  LOGIN
+// ════════════════════════════════════════════════
+el('btnLogin').addEventListener('click', doLogin);
+el('loginPass').addEventListener('keydown', function(e){ if(e.key==='Enter') doLogin(); });
+
+function doLogin(){
+  var escVal = el('loginEsc').value;
+  var pass = (el('loginPass').value||'').trim();
+  var err = el('loginErr');
+  if(!escVal){ err.textContent='Seleciona o escalão.'; err.style.display='block'; return; }
+  if(pass !== PASS){ err.style.display='block'; el('loginPass').value=''; return; }
+  err.style.display='none';
+  var parts = escVal.split('|');
+  S.escalao = parts[0]; S.format = parts[1]; S.numPlayers = parseInt(parts[2]);
+  el('vLogin').style.display='none';
+  el('app').classList.add('on');
+  el('navEsc').textContent = S.escalao;
+  buildPanel1();
+  drawPitch();
+  applyFormation('A', S.formation);
+  placeAITeam();
+  updateP3Header();
 }
 
-function getProfileDesc(num) {
-  const p = playerProfiles[num];
-  return `<strong style="color:var(--text);">${p.pos}</strong> — ${p.speed}, ${p.physical}, ${p.style}. Contexto tático para a IA ajustado ao perfil do jogador.`;
+// ════════════════════════════════════════════════
+//  PANEL NAVIGATION
+// ════════════════════════════════════════════════
+function goPanel(idx){
+  S.currentPanel = idx;
+  var pw = el('panelsWrap');
+  pw.scrollTo({ left: idx * pw.offsetWidth, behavior:'smooth' });
+  [0,1,2].forEach(function(i){
+    el('dot'+i).classList.toggle('active', i===idx);
+  });
 }
 
-function saveSetup() {
-  document.getElementById('setupModal').classList.remove('show');
-  showToast('✓ Plantel configurado');
-}
-function skipSetup() {
-  document.getElementById('setupModal').classList.remove('show');
+function goToAnalysis(){ goPanel(2); updateP3Header(); }
+
+// Update dots on manual scroll
+el('panelsWrap').addEventListener('scroll', function(){
+  var idx = Math.round(this.scrollLeft / this.offsetWidth);
+  if(idx !== S.currentPanel){
+    S.currentPanel = idx;
+    [0,1,2].forEach(function(i){ el('dot'+i).classList.toggle('active', i===idx); });
+  }
+}, {passive:true});
+
+// ════════════════════════════════════════════════
+//  BUILD PANEL 1
+// ════════════════════════════════════════════════
+function buildPanel1(){
+  buildFormGrid();
+  buildPlayerSetup();
 }
 
-// ══════════════════════════════════════════════════════
-//  PHASE
-// ══════════════════════════════════════════════════════
-function setPhase(btn) {
-  currentPhase = btn.dataset.phase;
-  document.querySelectorAll('.phase-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('ibPhase').textContent = currentPhase;
-  document.getElementById('aiPhaseLabel').textContent = currentPhase;
+function buildFormGrid(){
+  var forms = getFormations();
+  var keys = Object.keys(forms);
+  var h = '';
+  keys.forEach(function(k){
+    var active = k === S.formation;
+    var ft = isFut7() ? 'Fut7 · 7 jog.' : 'Fut11 · 11 jog.';
+    h += '<button class="form-btn'+(active?' active':'')+'" data-form="'+k+'">';
+    h += k + '<span class="ft">'+ft+'</span></button>';
+  });
+  el('formGrid').innerHTML = h;
+  el('formGrid').querySelectorAll('.form-btn').forEach(function(b){
+    b.addEventListener('click', function(){
+      S.formation = b.dataset.form;
+      el('formGrid').querySelectorAll('.form-btn').forEach(function(x){ x.classList.remove('active'); });
+      b.classList.add('active');
+    });
+  });
 }
 
-// ══════════════════════════════════════════════════════
-//  SIDEBAR TABS
-// ══════════════════════════════════════════════════════
-function switchSrTab(id, btn) {
-  document.querySelectorAll('.sr-tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.sr-panel').forEach(p=>p.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('sr'+id.charAt(0).toUpperCase()+id.slice(1)).classList.add('active');
+function buildPlayerSetup(){
+  var n = S.numPlayers;
+  var posMap = getPosMap();
+  var speeds = ['Normal','Rápido','Explosivo','Lento'];
+  var physicals = ['Normal','Forte','Possante','Leve'];
+  var styles = ['Equilibrado','Técnico','Agressivo','Líder'];
+  var h = '';
+  for(var i=1;i<=n;i++){
+    var prof = S.profiles[i] || {speed:'Normal',physical:'Normal',style:'Equilibrado'};
+    var pos = posMap[i] || 'Campo';
+    h += '<div class="ps-card">';
+    h += '<div class="ps-num">'+i+'</div>';
+    h += '<div class="ps-pos">'+pos+'</div>';
+    var mkSel = function(name, arr, cur, num) {
+      var id = 'psel-'+name+'-'+num;
+      var s = '<select class="ps-sel" id="'+id+'" data-pnum="'+num+'" data-pfield="'+name+'">';
+      arr.forEach(function(a){ s += '<option'+(a===cur?' selected':'')+'>'+a+'</option>'; });
+      s += '</select>';
+      return s;
+    };
+    h += mkSel('speed', speeds, prof.speed, i);
+    h += '</div>';
+  }
+  el('playerSetupList').innerHTML = h;
+  el('playerSetupList').querySelectorAll('.ps-sel').forEach(function(sel){
+    sel.addEventListener('change', function(){
+      var num = parseInt(this.dataset.pnum);
+      var field = this.dataset.pfield;
+      if(!S.profiles[num]) S.profiles[num] = {speed:'Normal',physical:'Normal',style:'Equilibrado'};
+      S.profiles[num][field] = this.value;
+    });
+  });
 }
 
-// ══════════════════════════════════════════════════════
-//  PITCH DRAWING
-// ══════════════════════════════════════════════════════
-function drawPitch() {
-  const svg=document.getElementById('pitch-markings');
-  const W=PITCH_W,H=PITCH_H,pad=30;
-  const pw=W-pad*2, ph=H-pad*2;
-  const lines=[
-    `<rect x="0" y="0" width="${W}" height="${H}" fill="#0D1F0F"/>`,
-    ...Array.from({length:8},(_,i)=>{
-      const sy=pad+i*(ph/8),sh=ph/8;
-      return i%2===0?`<rect x="${pad}" y="${sy}" width="${pw}" height="${sh}" fill="#16301A"/>`:
-                     `<rect x="${pad}" y="${sy}" width="${pw}" height="${sh}" fill="#183520"/>`;
-    }),
-    `<rect x="${pad}" y="${pad}" width="${pw}" height="${ph}" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="2"/>`,
-    `<line x1="${pad}" y1="${H/2}" x2="${W-pad}" y2="${H/2}" stroke="rgba(255,255,255,0.22)" stroke-width="1.5"/>`,
-    `<circle cx="${W/2}" cy="${H/2}" r="${pw*0.15}" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>`,
-    `<circle cx="${W/2}" cy="${H/2}" r="3" fill="rgba(255,255,255,0.3)"/>`,
-    `<rect x="${pad+pw*0.18}" y="${pad}" width="${pw*0.64}" height="${ph*0.17}" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>`,
-    `<rect x="${pad+pw*0.33}" y="${pad}" width="${pw*0.34}" height="${ph*0.07}" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>`,
-    `<circle cx="${W/2}" cy="${pad+ph*0.125}" r="3" fill="rgba(255,255,255,0.3)"/>`,
-    `<path d="M ${pad+pw*0.18} ${pad+ph*0.17} A ${pw*0.15} ${pw*0.15} 0 0 1 ${pad+pw*0.82} ${pad+ph*0.17}" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>`,
-    `<rect x="${pad+pw*0.18}" y="${pad+ph*0.83}" width="${pw*0.64}" height="${ph*0.17}" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>`,
-    `<rect x="${pad+pw*0.33}" y="${pad+ph*0.93}" width="${pw*0.34}" height="${ph*0.07}" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>`,
-    `<circle cx="${W/2}" cy="${pad+ph*0.875}" r="3" fill="rgba(255,255,255,0.3)"/>`,
-    `<path d="M ${pad+pw*0.18} ${pad+ph*0.83} A ${pw*0.15} ${pw*0.15} 0 0 0 ${pad+pw*0.82} ${pad+ph*0.83}" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>`,
-    `<rect x="${pad+pw*0.38}" y="${pad-14}" width="${pw*0.24}" height="14" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>`,
-    `<rect x="${pad+pw*0.38}" y="${pad+ph}" width="${pw*0.24}" height="14" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>`,
-    `<path d="M ${pad} ${pad+10} A 10 10 0 0 1 ${pad+10} ${pad}" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>`,
-    `<path d="M ${W-pad} ${pad+10} A 10 10 0 0 0 ${W-pad-10} ${pad}" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>`,
-    `<path d="M ${pad} ${H-pad-10} A 10 10 0 0 0 ${pad+10} ${H-pad}" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>`,
-    `<path d="M ${W-pad} ${H-pad-10} A 10 10 0 0 1 ${W-pad-10} ${H-pad}" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>`,
+// Phase buttons
+el('phaseGrid').querySelectorAll('.phase-btn').forEach(function(b){
+  b.addEventListener('click', function(){
+    S.phase = b.dataset.phase;
+    el('phaseGrid').querySelectorAll('.phase-btn').forEach(function(x){ x.classList.remove('active'); });
+    b.classList.add('active');
+    el('phaseChip').textContent = S.phase;
+    updateP3Header();
+  });
+});
+
+function applyAndGoField(){
+  applyFormation('A', S.formation);
+  placeAITeam();
+  goPanel(1);
+}
+
+// ════════════════════════════════════════════════
+//  DRAW PITCH
+// ════════════════════════════════════════════════
+function drawPitch(){
+  var g = el('gPitch');
+  var W=500, H=740, pad=30;
+  var pw=W-pad*2, ph=H-pad*2;
+  var lines = [
+    '<rect x="0" y="0" width="'+W+'" height="'+H+'" fill="#0D1F0F"/>',
   ];
-  svg.innerHTML=lines.join('\n');
+  // Grass stripes
+  for(var i=0;i<8;i++){
+    var sy = pad + i*(ph/8), sh = ph/8;
+    lines.push('<rect x="'+pad+'" y="'+sy+'" width="'+pw+'" height="'+sh+'" fill="'+(i%2===0?'#16301A':'#183520')+'"/>');
+  }
+  lines.push('<rect x="'+pad+'" y="'+pad+'" width="'+pw+'" height="'+ph+'" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="2"/>');
+  lines.push('<line x1="'+pad+'" y1="'+(H/2)+'" x2="'+(W-pad)+'" y2="'+(H/2)+'" stroke="rgba(255,255,255,0.22)" stroke-width="1.5"/>');
+  lines.push('<circle cx="'+(W/2)+'" cy="'+(H/2)+'" r="'+(pw*0.15)+'" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>');
+  lines.push('<circle cx="'+(W/2)+'" cy="'+(H/2)+'" r="3" fill="rgba(255,255,255,0.3)"/>');
+  // Penalty areas
+  lines.push('<rect x="'+(pad+pw*0.18)+'" y="'+pad+'" width="'+(pw*0.64)+'" height="'+(ph*0.17)+'" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>');
+  lines.push('<rect x="'+(pad+pw*0.33)+'" y="'+pad+'" width="'+(pw*0.34)+'" height="'+(ph*0.07)+'" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>');
+  lines.push('<circle cx="'+(W/2)+'" cy="'+(pad+ph*0.125)+'" r="3" fill="rgba(255,255,255,0.3)"/>');
+  lines.push('<rect x="'+(pad+pw*0.18)+'" y="'+(pad+ph*0.83)+'" width="'+(pw*0.64)+'" height="'+(ph*0.17)+'" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>');
+  lines.push('<rect x="'+(pad+pw*0.33)+'" y="'+(pad+ph*0.93)+'" width="'+(pw*0.34)+'" height="'+(ph*0.07)+'" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>');
+  lines.push('<circle cx="'+(W/2)+'" cy="'+(pad+ph*0.875)+'" r="3" fill="rgba(255,255,255,0.3)"/>');
+  // Goals
+  lines.push('<rect x="'+(pad+pw*0.38)+'" y="'+(pad-14)+'" width="'+(pw*0.24)+'" height="14" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>');
+  lines.push('<rect x="'+(pad+pw*0.38)+'" y="'+(pad+ph)+'" width="'+(pw*0.24)+'" height="14" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>');
+  g.innerHTML = lines.join('');
 }
 
-// ══════════════════════════════════════════════════════
-//  ZONE ANALYSIS
-// ══════════════════════════════════════════════════════
-const ZONES=[
-  {id:'def-left',x:30,y:30,w:147,h:220},{id:'def-center',x:177,y:30,w:146,h:220},{id:'def-right',x:323,y:30,w:147,h:220},
-  {id:'mid-left',x:30,y:250,w:147,h:240},{id:'mid-center',x:177,y:250,w:146,h:240},{id:'mid-right',x:323,y:250,w:147,h:240},
-  {id:'att-left',x:30,y:490,w:147,h:220},{id:'att-center',x:177,y:490,w:146,h:220},{id:'att-right',x:323,y:490,w:147,h:220},
+// ════════════════════════════════════════════════
+//  ZONE OVERLAY
+// ════════════════════════════════════════════════
+var ZONES=[
+  {id:'dl',x:30,y:30,w:147,h:220},{id:'dc',x:177,y:30,w:146,h:220},{id:'dr',x:323,y:30,w:147,h:220},
+  {id:'ml',x:30,y:250,w:147,h:240},{id:'mc',x:177,y:250,w:146,h:240},{id:'mr',x:323,y:250,w:147,h:240},
+  {id:'al',x:30,y:490,w:147,h:220},{id:'ac',x:177,y:490,w:146,h:220},{id:'ar',x:323,y:490,w:147,h:220},
 ];
 
-function initZoneOverlay() {
-  document.getElementById('zone-overlay').innerHTML=
-    ZONES.map(z=>`<rect class="zone-overlay-rect" id="zone-${z.id}" x="${z.x}" y="${z.y}" width="${z.w}" height="${z.h}" fill="transparent" opacity="0" rx="0"/>`).join('\n');
+function initZones(){
+  el('gZones').innerHTML = ZONES.map(function(z){
+    return '<rect id="z-'+z.id+'" x="'+z.x+'" y="'+z.y+'" width="'+z.w+'" height="'+z.h+'" fill="transparent" opacity="0" style="transition:fill .3s,opacity .3s;pointer-events:none;"/>';
+  }).join('');
 }
 
-function updateZones() {
-  if(!zonesOn){ZONES.forEach(z=>{const e=document.getElementById(`zone-${z.id}`);if(e){e.setAttribute('fill','transparent');e.setAttribute('opacity','0');}});return;}
-  ZONES.forEach(z=>{
-    const aC=players.filter(p=>p.team==='A'&&p.x>=z.x&&p.x<=z.x+z.w&&p.y>=z.y&&p.y<=z.y+z.h).length;
-    const bC=players.filter(p=>p.team==='B'&&p.x>=z.x&&p.x<=z.x+z.w&&p.y>=z.y&&p.y<=z.y+z.h).length;
-    const e=document.getElementById(`zone-${z.id}`);if(!e)return;
+function updateZones(){
+  if(!S.zonesOn){ ZONES.forEach(function(z){ var e=document.getElementById('z-'+z.id);if(e){e.setAttribute('fill','transparent');e.setAttribute('opacity','0');} }); return; }
+  ZONES.forEach(function(z){
+    var aC=S.players.filter(function(p){ return p.team==='A'&&p.x>=z.x&&p.x<=z.x+z.w&&p.y>=z.y&&p.y<=z.y+z.h; }).length;
+    var bC=S.players.filter(function(p){ return p.team==='B'&&p.x>=z.x&&p.x<=z.x+z.w&&p.y>=z.y&&p.y<=z.y+z.h; }).length;
+    var e=document.getElementById('z-'+z.id);if(!e)return;
     if(!aC&&!bC){e.setAttribute('fill','transparent');e.setAttribute('opacity','0');}
-    else if(aC>bC){const i=Math.min(.5,.15+(aC-bC)*.12);e.setAttribute('fill',`rgba(212,175,55,${i})`);e.setAttribute('opacity','1');}
-    else if(bC>aC){const i=Math.min(.5,.15+(bC-aC)*.12);e.setAttribute('fill',`rgba(74,159,232,${i})`);e.setAttribute('opacity','1');}
+    else if(aC>bC){e.setAttribute('fill','rgba(212,175,55,'+(Math.min(.5,.15+(aC-bC)*.12))+')');e.setAttribute('opacity','1');}
+    else if(bC>aC){e.setAttribute('fill','rgba(74,159,232,'+(Math.min(.5,.15+(bC-aC)*.12))+')');e.setAttribute('opacity','1');}
     else{e.setAttribute('fill','rgba(255,255,255,0.04)');e.setAttribute('opacity','1');}
   });
-  updateZoneStats();
 }
 
-function updateZoneStats() {
-  const z=[
-    ['statDefense',p=>p.y<250],['statMidfield',p=>p.y>=250&&p.y<490],['statAttack',p=>p.y>=490],
-    ['statLeft',p=>p.x<177],['statRight',p=>p.x>323],
-  ];
-  z.forEach(([id,fn])=>{
-    const a=players.filter(p=>p.team==='A'&&fn(p)).length;
-    const b=players.filter(p=>p.team==='B'&&fn(p)).length;
-    const e=document.getElementById(id);if(!e)return;
-    if(!a&&!b){e.textContent='—';e.className='zone-stat-value neutral';}
-    else if(a>b){e.textContent=`A ${a}×${b}`;e.className='zone-stat-value advantage';}
-    else if(b>a){e.textContent=`B ${b}×${a}`;e.className='zone-stat-value disadvantage';}
-    else{e.textContent=`${a}×${b}`;e.className='zone-stat-value neutral';}
+// ════════════════════════════════════════════════
+//  FORMATIONS APPLY
+// ════════════════════════════════════════════════
+function applyFormation(team, name){
+  var forms = getFormations();
+  var coords = forms[name] && forms[name][team];
+  if(!coords){ toast('Formação não encontrada para este formato'); return; }
+  S.players = S.players.filter(function(p){ return p.team !== team; });
+  var posMap = getPosMap();
+  coords.forEach(function(pos, i){
+    S.players.push({ id:S.nextId++, team:team, x:pos[0], y:pos[1], num:i+1, pos:posMap[i+1]||'Campo' });
   });
+  renderPlayers();
+  toast((team==='A'?'⚽':'🤖')+' '+name+' aplicado');
 }
 
-// ══════════════════════════════════════════════════════
-//  PRESSURE LINES
-// ══════════════════════════════════════════════════════
-function updatePressureLines() {
-  const g=document.getElementById('pressure-lines');
-  if(!linesOn){g.innerHTML='';return;}
-  const aP=players.filter(p=>p.team==='A'),bP=players.filter(p=>p.team==='B');
-  let html='';
-  aP.forEach(pa=>{
-    let near=null,minD=Infinity;
-    bP.forEach(pb=>{const d=Math.hypot(pa.x-pb.x,pa.y-pb.y);if(d<minD){minD=d;near=pb;}});
-    if(near&&minD<120){const op=Math.max(.05,.35-minD/350);html+=`<line x1="${pa.x}" y1="${pa.y}" x2="${near.x}" y2="${near.y}" stroke="rgba(255,255,255,${op})" stroke-width="1" stroke-dasharray="4 4"/>`;}
-  });
-  g.innerHTML=html;
+function placeAITeam(){
+  var counterName = getCounterFormation(S.formation, S.phase);
+  var forms = getFormations();
+  if(!forms[counterName]) counterName = Object.keys(forms)[0];
+  applyFormation('B', counterName);
+  toast('🤖 Adversário gerou '+counterName+' para contrariar');
 }
 
-// ══════════════════════════════════════════════════════
-//  ARROWS
-// ══════════════════════════════════════════════════════
-function renderArrows() {
-  const g=document.getElementById('arrows-layer');
-  if(!arrowsOn){g.innerHTML='';return;}
-  let html='';
-  players.forEach(p=>{
-    const dir=playerArrows[p.id];
-    if(!dir)return;
-    const v=ARROW_VEC[dir];if(!v)return;
-    const len=28, hLen=9, hWid=6;
-    const ex=p.x+v[0]*len, ey=p.y+v[1]*len;
-    // Arrowhead
-    const ang=Math.atan2(v[1],v[0]);
-    const ax1=ex-hLen*Math.cos(ang)+hWid*Math.sin(ang);
-    const ay1=ey-hLen*Math.sin(ang)-hWid*Math.cos(ang);
-    const ax2=ex-hLen*Math.cos(ang)-hWid*Math.sin(ang);
-    const ay2=ey-hLen*Math.sin(ang)+hWid*Math.cos(ang);
-    const col=p.team==='A'?'rgba(212,175,55,.9)':'rgba(74,159,232,.9)';
-    html+=`<g>
-      <line x1="${p.x}" y1="${p.y}" x2="${ex}" y2="${ey}" stroke="${col}" stroke-width="2.5" stroke-linecap="round"/>
-      <polygon points="${ex},${ey} ${ax1},${ay1} ${ax2},${ay2}" fill="${col}"/>
-    </g>`;
-  });
-  g.innerHTML=html;
-}
-
-// ══════════════════════════════════════════════════════
-//  PLAYER RENDERING
-// ══════════════════════════════════════════════════════
-function renderPlayers() {
-  const g=document.getElementById('players-layer');
-  g.innerHTML=players.map(p=>{
-    const isA=p.team==='A';
-    const fill=isA?'#D4AF37':'#4A9FE8';
-    const stroke=isA?'#F0CC55':'#6AB8F5';
-    const numCls=isA?'player-number':'player-number player-number-b';
-    const sel=p.id===selectedPlayerId;
-    return `
-    <g class="player-piece${sel?' selected':''}" id="player-${p.id}" data-id="${p.id}" transform="translate(${p.x},${p.y})">
-      <circle cx="1" cy="2" r="${PLAYER_R}" fill="rgba(0,0,0,0.5)"/>
-      <circle class="piece-circle" r="${PLAYER_R}" fill="${fill}" stroke="${stroke}" stroke-width="${sel?3:2}"/>
-      ${sel?`<circle r="${PLAYER_R+5}" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" stroke-dasharray="3 3"/>`:''}
-      <circle r="${PLAYER_R-5}" fill="transparent" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
-      ${numbersOn?`<text class="${numCls}" y="0">${p.number}</text>`:''}
-    </g>`;
+// ════════════════════════════════════════════════
+//  RENDER PLAYERS
+// ════════════════════════════════════════════════
+function renderPlayers(){
+  var g = el('gPlayers');
+  g.innerHTML = S.players.map(function(p){
+    var isA = p.team==='A';
+    var fill = isA ? '#D4AF37' : '#4A9FE8';
+    var stroke = isA ? '#F0CC55' : '#6AB8F5';
+    var numFill = isA ? '#000' : '#fff';
+    var isSel = p.id === S.selectedId;
+    var isAI = p.team === 'B';
+    return [
+      '<g class="player-piece'+(isSel?' sel':'')+(isAI?' ai-piece':'')+'" id="pp-'+p.id+'" data-id="'+p.id+'" transform="translate('+p.x+','+p.y+')">',
+      '<circle cx="1" cy="2" r="'+R+'" fill="rgba(0,0,0,0.45)"/>',
+      '<circle class="pc" r="'+R+'" fill="'+fill+'" stroke="'+stroke+'" stroke-width="'+(isSel?3:2)+'"/>',
+      isSel ? '<circle r="'+(R+5)+'" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="1.5" stroke-dasharray="3 3"/>' : '',
+      S.numsOn ? '<text font-family="Barlow Condensed" font-weight="900" font-size="11" fill="'+numFill+'" dominant-baseline="central" text-anchor="middle" pointer-events="none">'+p.num+'</text>' : '',
+      '</g>'
+    ].join('');
   }).join('');
-
-  players.forEach(p=>{
-    const el=document.getElementById(`player-${p.id}`);
-    if(el){
-      el.addEventListener('mousedown',startDrag);
-      el.addEventListener('touchstart',startDragTouch,{passive:false});
+  // Bind drag events
+  S.players.forEach(function(p){
+    if(p.team === 'B') return; // AI team not draggable
+    var el2 = document.getElementById('pp-'+p.id);
+    if(el2){
+      el2.addEventListener('mousedown', startDrag);
+      el2.addEventListener('touchstart', startDragTouch, {passive:false});
     }
   });
   renderArrows();
   updateZones();
-  updatePressureLines();
 }
 
-// ══════════════════════════════════════════════════════
+// ════════════════════════════════════════════════
+//  ARROWS
+// ════════════════════════════════════════════════
+function renderArrows(){
+  var g = el('gArrows');
+  if(!S.arrowsOn){ g.innerHTML=''; return; }
+  var html = '';
+  S.players.forEach(function(p){
+    var dir = S.arrows[p.id];
+    if(!dir) return;
+    var v = DIR_VEC[dir]; if(!v) return;
+    var len=30, hw=9, wid=6;
+    var ex=p.x+v[0]*len, ey=p.y+v[1]*len;
+    var ang=Math.atan2(v[1],v[0]);
+    var ax1=ex-hw*Math.cos(ang)+wid*Math.sin(ang), ay1=ey-hw*Math.sin(ang)-wid*Math.cos(ang);
+    var ax2=ex-hw*Math.cos(ang)-wid*Math.sin(ang), ay2=ey-hw*Math.sin(ang)+wid*Math.cos(ang);
+    var col = p.team==='A' ? 'rgba(212,175,55,.95)' : 'rgba(74,159,232,.95)';
+    html += '<line x1="'+p.x+'" y1="'+p.y+'" x2="'+ex+'" y2="'+ey+'" stroke="'+col+'" stroke-width="2.5" stroke-linecap="round"/>';
+    html += '<polygon points="'+ex+','+ey+' '+ax1+','+ay1+' '+ax2+','+ay2+'" fill="'+col+'"/>';
+  });
+  g.innerHTML = html;
+}
+
+// ════════════════════════════════════════════════
 //  DRAG & DROP
-// ══════════════════════════════════════════════════════
-function getSVGCoords(e) {
-  const svg=document.getElementById('pitch-svg');
-  const rect=svg.getBoundingClientRect();
-  const sx=PITCH_W/rect.width, sy=PITCH_H/rect.height;
-  const cx=(e.clientX||e.touches[0].clientX)-rect.left;
-  const cy=(e.clientY||e.touches[0].clientY)-rect.top;
-  return{x:cx*sx,y:cy*sy};
+// ════════════════════════════════════════════════
+function getSVGCoords(e){
+  var svg = el('pitchSvg');
+  var rect = svg.getBoundingClientRect();
+  var sx = 500/rect.width, sy = 740/rect.height;
+  var cx = (e.clientX||e.touches[0].clientX) - rect.left;
+  var cy = (e.clientY||e.touches[0].clientY) - rect.top;
+  return {x:cx*sx, y:cy*sy};
 }
 
-function startDrag(e) {
+function startDrag(e){
   e.preventDefault(); e.stopPropagation();
-  const id=parseInt(e.currentTarget.dataset.id);
-  const p=players.find(pl=>pl.id===id);if(!p)return;
-  const coords=getSVGCoords(e);
-  dragOffX=coords.x-p.x; dragOffY=coords.y-p.y;
-  dragging=id; dragMoved=false;
-  document.getElementById(`player-${id}`).classList.add('dragging');
+  var id = parseInt(e.currentTarget.dataset.id);
+  var p = S.players.find(function(pl){ return pl.id===id; });
+  if(!p) return;
+  var c = getSVGCoords(e);
+  S.dragOffX = c.x-p.x; S.dragOffY = c.y-p.y;
+  S.dragging = id; S.dragMoved = false;
 }
-
-function startDragTouch(e) {
+function startDragTouch(e){
   e.preventDefault(); e.stopPropagation();
-  const id=parseInt(e.currentTarget.dataset.id);
-  const p=players.find(pl=>pl.id===id);if(!p)return;
-  const coords=getSVGCoords(e);
-  dragOffX=coords.x-p.x; dragOffY=coords.y-p.y;
-  dragging=id; dragMoved=false;
+  var id = parseInt(e.currentTarget.dataset.id);
+  var p = S.players.find(function(pl){ return pl.id===id; });
+  if(!p) return;
+  var c = getSVGCoords(e);
+  S.dragOffX = c.x-p.x; S.dragOffY = c.y-p.y;
+  S.dragging = id; S.dragMoved = false;
 }
 
-document.addEventListener('mousemove',e=>{
-  if(dragging===null)return;
-  dragMoved=true;
-  const coords=getSVGCoords(e);
-  const p=players.find(pl=>pl.id===dragging);if(!p)return;
-  p.x=Math.max(PLAYER_R,Math.min(PITCH_W-PLAYER_R,coords.x-dragOffX));
-  p.y=Math.max(PLAYER_R,Math.min(PITCH_H-PLAYER_R,coords.y-dragOffY));
-  const el=document.getElementById(`player-${dragging}`);
-  if(el)el.setAttribute('transform',`translate(${p.x},${p.y})`);
-  updateZones(); updatePressureLines(); renderArrows();
+document.addEventListener('mousemove', function(e){
+  if(S.dragging===null) return;
+  S.dragMoved=true;
+  movePlayer(e);
 });
-
-document.addEventListener('mouseup',e=>{
-  if(dragging!==null){
-    const el=document.getElementById(`player-${dragging}`);
-    if(el)el.classList.remove('dragging');
-    // If didn't move much → it's a click → open arrow picker
-    if(!dragMoved){
-      selectPlayer(dragging);
-    }
-    dragging=null;
-  }
-});
-
-document.addEventListener('touchmove',e=>{
-  if(dragging===null)return;
-  e.preventDefault();
-  dragMoved=true;
-  const coords=getSVGCoords(e);
-  const p=players.find(pl=>pl.id===dragging);if(!p)return;
-  p.x=Math.max(PLAYER_R,Math.min(PITCH_W-PLAYER_R,coords.x-dragOffX));
-  p.y=Math.max(PLAYER_R,Math.min(PITCH_H-PLAYER_R,coords.y-dragOffY));
-  const el=document.getElementById(`player-${dragging}`);
-  if(el)el.setAttribute('transform',`translate(${p.x},${p.y})`);
-  updateZones(); renderArrows();
+document.addEventListener('touchmove', function(e){
+  if(S.dragging===null) return;
+  e.preventDefault(); S.dragMoved=true;
+  movePlayer(e);
 },{passive:false});
 
-document.addEventListener('touchend',()=>{
-  if(dragging!==null){
-    if(!dragMoved) selectPlayer(dragging);
-    dragging=null;
+function movePlayer(e){
+  var c = getSVGCoords(e);
+  var p = S.players.find(function(pl){ return pl.id===S.dragging; });
+  if(!p) return;
+  p.x = Math.max(R, Math.min(500-R, c.x-S.dragOffX));
+  p.y = Math.max(R, Math.min(740-R, c.y-S.dragOffY));
+  var el2 = document.getElementById('pp-'+S.dragging);
+  if(el2) el2.setAttribute('transform','translate('+p.x+','+p.y+')');
+  updateZones(); renderArrows();
+}
+
+document.addEventListener('mouseup', function(){
+  if(S.dragging!==null){
+    if(!S.dragMoved) selectPlayer(S.dragging);
+    S.dragging=null;
+  }
+});
+document.addEventListener('touchend', function(){
+  if(S.dragging!==null){
+    if(!S.dragMoved) selectPlayer(S.dragging);
+    S.dragging=null;
   }
 });
 
-// Click on empty pitch → add player
-document.getElementById('pitch-svg').addEventListener('click',e=>{
-  if(e.target.closest('.player-piece'))return;
-  if(selectedPlayerId!==null){deselectPlayer();return;}
-  const coords=getSVGCoords(e);
-  if(coords.x<30||coords.x>470||coords.y<30||coords.y>710)return;
-  const team=activeTeam;
-  if(players.filter(p=>p.team===team).length>=11){showToast(`Equipa ${team} já tem 11 jogadores`);return;}
-  playerCount[team]++;
-  players.push({id:nextId++,team,x:coords.x,y:coords.y,number:playerCount[team]});
+// ════════════════════════════════════════════════
+//  PLAYER SELECTION / ARROW PICKER
+// ════════════════════════════════════════════════
+function selectPlayer(id){
+  S.selectedId = id;
   renderPlayers();
-});
+  var p = S.players.find(function(pl){ return pl.id===id; });
+  if(!p) return;
+  var prof = S.profiles[p.num] || {};
+  var lbl = 'Jog. '+p.num+(p.pos?' — '+p.pos:'');
+  el('apLabel').textContent = lbl;
+  var cur = S.arrows[id];
+  document.querySelectorAll('.ap-btn').forEach(function(b){ b.classList.toggle('sel', b.dataset.dir===cur); });
+  el('arrowPicker').classList.add('on');
+}
 
-// ══════════════════════════════════════════════════════
-//  PLAYER SELECTION & ARROW PICKER
-// ══════════════════════════════════════════════════════
-function selectPlayer(id) {
-  selectedPlayerId=id;
-  renderPlayers();
-  const p=players.find(pl=>pl.id===id);
-  const profNum=p.number; // 1-11
-  const profLabel=p.team==='A'&&playerProfiles[profNum]?`${profNum} — ${playerProfiles[profNum].pos}`:`Jog. ${profNum}`;
-  document.getElementById('apPlayerLabel').textContent=profLabel;
-  // Highlight current arrow direction
-  const cur=playerArrows[id];
-  document.querySelectorAll('.ap-btn').forEach(b=>{
-    b.classList.toggle('sel',b.dataset.dir===cur);
+function closeAP(){ S.selectedId=null; renderPlayers(); el('arrowPicker').classList.remove('on'); }
+function clearArrow(){
+  if(S.selectedId){ delete S.arrows[S.selectedId]; renderArrows(); toast('Seta removida'); }
+  closeAP();
+}
+
+document.querySelectorAll('.ap-btn').forEach(function(b){
+  b.addEventListener('click', function(){
+    var dir = b.dataset.dir;
+    if(dir==='NONE'){ clearArrow(); return; }
+    if(S.selectedId){
+      S.arrows[S.selectedId] = dir;
+      renderArrows();
+      document.querySelectorAll('.ap-btn').forEach(function(x){ x.classList.toggle('sel', x.dataset.dir===dir); });
+      toast(DIR_EMJ[dir]+' '+DIR_LBL[dir]);
+    }
   });
-  document.getElementById('arrowPicker').classList.add('show');
-}
-
-function deselectPlayer() {
-  selectedPlayerId=null;
-  renderPlayers();
-  document.getElementById('arrowPicker').classList.remove('show');
-}
-
-function closeArrowPicker() { deselectPlayer(); }
-
-function clearArrow() {
-  if(selectedPlayerId!==null){ delete playerArrows[selectedPlayerId]; renderPlayers(); showToast('Seta removida'); }
-  deselectPlayer();
-}
-
-// Arrow picker buttons
-document.getElementById('apGrid').addEventListener('click',e=>{
-  const btn=e.target.closest('.ap-btn');
-  if(!btn)return;
-  const dir=btn.dataset.dir;
-  if(dir==='NONE'){ clearArrow(); return; }
-  if(selectedPlayerId!==null){
-    playerArrows[selectedPlayerId]=dir;
-    renderPlayers();
-    document.querySelectorAll('.ap-btn').forEach(b=>b.classList.toggle('sel',b.dataset.dir===dir));
-    showToast(`${DIR_EMOJI[dir]} ${ARROW_LABEL[dir]}`);
-  }
 });
 
-// ══════════════════════════════════════════════════════
-//  FORMATIONS
-// ══════════════════════════════════════════════════════
-const FORMATIONS={
-  '4-3-3':{A:[[250,680],[90,570],[175,580],[325,580],[410,570],[140,440],[250,420],[360,440],[120,290],[250,265],[380,290]],B:[[250,60],[90,170],[175,160],[325,160],[410,170],[140,300],[250,320],[360,300],[120,450],[250,475],[380,450]]},
-  '4-4-2':{A:[[250,680],[90,570],[185,580],[315,580],[410,570],[90,440],[195,450],[305,450],[410,440],[175,290],[325,290]],B:[[250,60],[90,170],[185,160],[315,160],[410,170],[90,300],[195,290],[305,290],[410,300],[175,450],[325,450]]},
-  '4-2-3-1':{A:[[250,680],[90,580],[185,590],[315,590],[410,580],[185,470],[315,470],[110,340],[250,320],[390,340],[250,230]],B:[[250,60],[90,160],[185,150],[315,150],[410,160],[185,270],[315,270],[110,400],[250,420],[390,400],[250,510]]},
-  '3-5-2':{A:[[250,680],[145,590],[250,600],[355,590],[70,460],[175,450],[250,430],[325,450],[430,460],[185,300],[315,300]],B:[[250,60],[145,150],[250,140],[355,150],[70,280],[175,290],[250,310],[325,290],[430,280],[185,440],[315,440]]},
-  '5-3-2':{A:[[250,680],[60,580],[160,570],[250,590],[340,570],[440,580],[145,440],[250,420],[355,440],[185,300],[315,300]],B:[[250,60],[60,160],[160,170],[250,150],[340,170],[440,160],[145,300],[250,320],[355,300],[185,440],[315,440]]},
-  '4-1-4-1':{A:[[250,680],[90,580],[185,590],[315,590],[410,580],[250,490],[80,380],[190,370],[310,370],[420,380],[250,250]],B:[[250,60],[90,160],[185,150],[315,150],[410,160],[250,250],[80,360],[190,370],[310,370],[420,360],[250,490]]},
-};
-
-function applyFormation(team,name) {
-  const coords=FORMATIONS[name]?.[team];if(!coords)return;
-  players=players.filter(p=>p.team!==team);
-  playerCount[team]=0;
-  coords.forEach(pos=>{playerCount[team]++;players.push({id:nextId++,team,x:pos[0],y:pos[1],number:playerCount[team]});});
-  renderPlayers();showToast(`${name} aplicado à Equipa ${team}`);
+// ════════════════════════════════════════════════
+//  TOOLBAR TOGGLES
+// ════════════════════════════════════════════════
+function setTeam(t){
+  S.activeTeam=t;
+  el('tTeamA').classList.toggle('active',t==='A');
+  el('tTeamB').classList.toggle('active',t==='B');
 }
 
-// ══════════════════════════════════════════════════════
-//  TOGGLES
-// ══════════════════════════════════════════════════════
-function setActiveTeam(t){activeTeam=t;document.getElementById('teamBtnA').classList.toggle('active',t==='A');document.getElementById('teamBtnB').classList.toggle('active',t==='B');}
-function toggleZones(){zonesOn=!zonesOn;document.getElementById('zoneToggle').classList.toggle('on',zonesOn);updateZones();}
-function toggleNumbers(){numbersOn=!numbersOn;document.getElementById('numberToggle').classList.toggle('on',numbersOn);renderPlayers();}
-function toggleLines(){linesOn=!linesOn;document.getElementById('lineToggle').classList.toggle('on',linesOn);updatePressureLines();}
-function toggleArrows(){arrowsOn=!arrowsOn;document.getElementById('arrowToggle').classList.toggle('on',arrowsOn);renderArrows();}
+function toggleZones(){
+  S.zonesOn=!S.zonesOn;
+  el('tZones').classList.toggle('active',S.zonesOn);
+  updateZones();
+}
+function toggleArrows(){
+  S.arrowsOn=!S.arrowsOn;
+  el('tArrows').classList.toggle('active',S.arrowsOn);
+  renderArrows();
+}
+function toggleNums(){
+  S.numsOn=!S.numsOn;
+  el('tNums').classList.toggle('active',S.numsOn);
+  renderPlayers();
+}
+function clearField(){
+  S.players=[]; S.arrows={}; S.selectedId=null;
+  renderPlayers(); toast('Campo limpo');
+}
 
-// ══════════════════════════════════════════════════════
+// ════════════════════════════════════════════════
+//  P3 HEADER UPDATE
+// ════════════════════════════════════════════════
+function updateP3Header(){
+  el('p3Title').textContent = S.formation + ' · ' + S.phase;
+  el('p3Meta').textContent = S.escalao + ' · ' + (isFut7()?'Fut7':'Fut11') + ' · ' + S.players.filter(function(p){return p.team==='A';}).length + ' jogadores definidos';
+  var chips = el('scenarioChips');
+  var aHasArrows = S.players.filter(function(p){ return p.team==='A' && S.arrows[p.id]; }).length;
+  var html = '<div class="scenario-chip">'+S.formation+'</div>';
+  html += '<div class="scenario-chip">'+S.phase+'</div>';
+  html += '<div class="scenario-chip">'+S.escalao+'</div>';
+  if(aHasArrows) html += '<div class="scenario-chip">'+aHasArrows+' setas definidas</div>';
+  chips.innerHTML = html;
+}
+
+// ════════════════════════════════════════════════
 //  AI ANALYSIS
-// ══════════════════════════════════════════════════════
-async function analyzeScenario() {
-  const aPlayers=players.filter(p=>p.team==='A');
-  const bPlayers=players.filter(p=>p.team==='B');
-  if(aPlayers.length<3){showToast('Coloca pelo menos 3 jogadores da Eq. A');return;}
+// ════════════════════════════════════════════════
+async function runAnalysis(){
+  updateP3Header();
+  var aPlayers = S.players.filter(function(p){ return p.team==='A'; });
+  var bPlayers = S.players.filter(function(p){ return p.team==='B'; });
+  if(aPlayers.length < 3){ toast('Coloca pelo menos 3 jogadores'); return; }
 
-  document.getElementById('aiResult').innerHTML='<div class="ai-loading"><div class="spin"></div><span>A analisar o cenário tático...</span><span style="font-size:10px;opacity:.6;">A IA lê formação, setas e perfis</span></div>';
+  el('aiOutput').innerHTML = '<div class="ai-loading"><div class="spin"></div><span>A analisar o cenário...</span></div>';
 
-  // Build prompt
-  const teamADesc=aPlayers.map(p=>{
-    const prof=playerProfiles[p.number]||{};
-    const arrow=playerArrows[p.id];
-    const posLabel=`[${Math.round(p.x)},${Math.round(p.y)}]`;
-    const arrowStr=arrow?` → ${DIR_EMOJI[arrow]} ${ARROW_LABEL[arrow]}`:'';
-    const profStr=prof.pos?` (${prof.pos}, ${prof.speed}, ${prof.physical}, ${prof.style})`:'';
-    return `Jog.${p.number}${profStr} ${posLabel}${arrowStr}`;
+  var aDesc = aPlayers.map(function(p){
+    var prof = S.profiles[p.num] || {};
+    var arrow = S.arrows[p.id];
+    var arrowStr = arrow ? ' → '+DIR_EMJ[arrow]+' '+DIR_LBL[arrow] : '';
+    var profStr = prof.speed ? ' ('+prof.speed+')' : '';
+    return p.num+'. '+p.pos+profStr+' [x:'+Math.round(p.x)+',y:'+Math.round(p.y)+']'+arrowStr;
   }).join('\n');
 
-  const teamBDesc=bPlayers.map(p=>`Jog.${p.number} [${Math.round(p.x)},${Math.round(p.y)}]`).join('\n');
+  var bDesc = bPlayers.length ? bPlayers.map(function(p){
+    return p.num+'. [x:'+Math.round(p.x)+',y:'+Math.round(p.y)+']';
+  }).join('\n') : 'Não definida';
 
-  const arrowCount=aPlayers.filter(p=>playerArrows[p.id]).length;
-  const hasArrows=arrowCount>0;
+  var counterForm = getCounterFormation(S.formation, S.phase);
+  var arrowCount = aPlayers.filter(function(p){ return S.arrows[p.id]; }).length;
 
-  const prompt=[
-    `Analista Tático YourTalentBase. Responde em português europeu, tom profissional UEFA.`,
-    ``,
-    `CONTEXTO: Mister Teles | Escalão: ${escalao} | Fase: ${currentPhase}`,
-    ``,
-    `EQUIPA A (MISSÃO DO TREINADOR):`,
-    teamADesc,
-    ``,
-    bPlayers.length>0?`EQUIPA B (ADVERSÁRIO):\n${teamBDesc}\n`:'EQUIPA B: Sem jogadores definidos\n',
-    hasArrows?`Setas de movimento definidas: ${arrowCount} jogadores com intenção de movimento.`:'Sem setas de movimento definidas ainda.',
-    ``,
-    `Analisa este cenário de ${currentPhase} e responde com EXATAMENTE este formato:`,
-    ``,
-    `**LEITURA TÁTICA**`,
-    `[O que a Equipa A está a impor, 2-3 frases]`,
-    ``,
-    `**CONTRA-TÁTICA**`,
-    `[Como a Equipa B deve responder, posicionamento específico, 3-4 frases]`,
-    ``,
-    `**3 AJUSTES — ${escalao}**`,
-    `1. [instrução concreta adaptada à faixa etária]`,
-    `2. [instrução concreta]`,
-    `3. [instrução concreta]`,
-    ``,
-    `**⚠ ALERTA**`,
-    `[1 ponto crítico que o treinador deve vigiar]`,
-    ``,
-    `Máx 280 palavras. Direto e específico.`,
-  ].filter(l=>l!==undefined).join('\n');
+  var prompt = [
+    'Analista tático UEFA. Responde em português europeu. Escalão: '+S.escalao+'. Formato: '+(isFut7()?'Fut7 (7 jogadores)':'Fut11 (11 jogadores)')+'.',
+    'Formação do treinador: '+S.formation+'. Fase: '+S.phase+'.',
+    '',
+    'EQUIPA DO TREINADOR (A):',
+    aDesc,
+    '',
+    'ADVERSÁRIO GERADO (B) — '+counterForm+':',
+    bDesc,
+    '',
+    arrowCount>0 ? arrowCount+' jogadores com setas de movimento definidas.' : 'Sem setas de movimento definidas ainda.',
+    '',
+    'FORMATO DE RESPOSTA (usa exatamente estes títulos com **):',
+    '',
+    '**LEITURA TÁTICA**',
+    '[O que a táctica do treinador pretende impor, 2-3 frases específicas ao escalão '+S.escalao+']',
+    '',
+    '**CONTRA-TÁTICA**',
+    '[Como o adversário com '+counterForm+' deve responder, movimentos concretos, 3-4 frases]',
+    '',
+    '**'+S.numPlayers+' AJUSTES PARA '+S.escalao.toUpperCase()+'**',
+    '1. [instrução concreta e simples adaptada à faixa etária]',
+    '2. [instrução concreta]',
+    '3. [instrução concreta]',
+    '',
+    '**⚠ VULNERABILIDADE**',
+    '[O ponto mais fraco desta táctica em 1-2 frases]',
+    '',
+    '**💡 DICA DO SCOUT**',
+    '[1 conselho premium que um treinador UEFA B daria neste cenário]',
+    '',
+    'Máx 300 palavras. Direto, específico, adaptado a Sub-12.',
+  ].join('\n');
 
   try {
-    const res=await fetch('/api/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'user',content:prompt}]})});
-    if(!res.ok) throw new Error('API error');
-    const data=await res.json();
-    const text=data.content.map(b=>b.text||'').join('\n');
-    renderAIResult(text);
+    var res = await fetch('/api/claude', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ messages:[{role:'user',content:prompt}] })
+    });
+    if(!res.ok) throw new Error('API error '+res.status);
+    var data = await res.json();
+    var text = data.content.map(function(b){ return b.text||''; }).join('\n');
+    renderAIOutput(text);
   } catch(e) {
-    document.getElementById('aiResult').innerHTML='<div class="ai-empty" style="color:var(--danger);">Erro ao contactar a IA. Verifica a ligação.</div>';
+    el('aiOutput').innerHTML = '<div class="ai-empty" style="color:var(--red);">Erro ao contactar a IA.<br>Verifica a ligação à internet.</div>';
   }
 }
 
-function renderAIResult(text) {
-  // Parse **SECTION** blocks
-  const sections=text.split(/\*\*([^*]+)\*\*/g).filter(s=>s.trim());
-  let html='<div style="padding:12px;">';
-  for(let i=0;i<sections.length;i+=2){
-    const title=sections[i]?.trim();
-    const body=sections[i+1]?.trim()||'';
-    if(!title)continue;
-    const icons={'LEITURA TÁTICA':'🔍','CONTRA-TÁTICA':'🛡️','⚠ ALERTA':'⚠️'};
-    const iconMatch=Object.entries(icons).find(([k])=>title.includes(k.replace('⚠ ','')));
-    html+=`<div class="ai-block">
-      <div class="ai-block-title">${icons[title]||'📌'} ${title}</div>
-      <div class="ai-block-body">${body.replace(/\n/g,'<br>').replace(/(\d+\. )/g,'<strong>$1</strong>')}</div>
-    </div>`;
+function renderAIOutput(text){
+  var ICONS = {'LEITURA TÁTICA':'🔍','CONTRA-TÁTICA':'🛡️','⚠ VULNERABILIDADE':'⚠️','💡 DICA DO SCOUT':'💡'};
+  var STYLES = {'LEITURA TÁTICA':'','CONTRA-TÁTICA':'blue','⚠ VULNERABILIDADE':'','💡 DICA DO SCOUT':'highlight'};
+  var parts = text.split(/\*\*([^*]+)\*\*/g);
+  var html = '';
+  for(var i=0; i<parts.length; i+=2){
+    var title = parts[i]?parts[i].trim():null;
+    var body = parts[i+1]?parts[i+1].trim():'';
+    if(!title||!body) continue;
+    // Check if title matches
+    var icon = Object.keys(ICONS).find(function(k){ return title.includes(k.replace('⚠ ','').replace('💡 ','')); });
+    var style = STYLES[title] || '';
+    var dispIcon = icon ? ICONS[icon] : '📌';
+    html += '<div class="ai-block '+(style||'')+'">';
+    html += '<div class="ai-block-title">'+dispIcon+' '+title+'</div>';
+    html += '<div class="ai-block-body">'+body.replace(/\n/g,'<br>').replace(/(\d+\. )/g,'<strong>$1</strong>')+'</div>';
+    html += '</div>';
   }
-  html+='</div>';
-  document.getElementById('aiResult').innerHTML=html;
+  if(!html) html = '<div class="ai-block"><div class="ai-block-body">'+text.replace(/\n/g,'<br>')+'</div></div>';
+  el('aiOutput').innerHTML = html;
 }
 
-// ══════════════════════════════════════════════════════
-//  NOTES
-// ══════════════════════════════════════════════════════
-function saveNotes(){localStorage.setItem('ytb_tl_title',document.getElementById('noteTitle').value);localStorage.setItem('ytb_tl_a',document.getElementById('noteTeamA').value);localStorage.setItem('ytb_tl_b',document.getElementById('noteTeamB').value);localStorage.setItem('ytb_tl_g',document.getElementById('noteGeneral').value);}
-function loadNotes(){document.getElementById('noteTitle').value=localStorage.getItem('ytb_tl_title')||'';document.getElementById('noteTeamA').value=localStorage.getItem('ytb_tl_a')||'';document.getElementById('noteTeamB').value=localStorage.getItem('ytb_tl_b')||'';document.getElementById('noteGeneral').value=localStorage.getItem('ytb_tl_g')||'';}
-
-// ══════════════════════════════════════════════════════
+// ════════════════════════════════════════════════
 //  EXPORT
-// ══════════════════════════════════════════════════════
-function exportImage(){
-  const svg=document.getElementById('pitch-svg');
-  const s=new XMLSerializer().serializeToString(svg);
-  const blob=new Blob([s],{type:'image/svg+xml'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');a.href=url;a.download='tacticslab.svg';a.click();URL.revokeObjectURL(url);
-  showToast('PNG exportado');
+// ════════════════════════════════════════════════
+function exportSVG(){
+  var svg = el('pitchSvg');
+  var s = new XMLSerializer().serializeToString(svg);
+  var blob = new Blob([s],{type:'image/svg+xml'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href=url; a.download='tacticslab-'+S.formation+'.svg'; a.click();
+  URL.revokeObjectURL(url); toast('PNG exportado');
 }
 
-function exportPDF(){
-  const title=document.getElementById('noteTitle').value||'Sessão Tática';
-  const svg=document.getElementById('pitch-svg');
-  const svgStr=new XMLSerializer().serializeToString(svg);
-  const svgB64=btoa(unescape(encodeURIComponent(svgStr)));
-  const noteA=document.getElementById('noteTeamA').value;
-  const noteB=document.getElementById('noteTeamB').value;
-  const noteG=document.getElementById('noteGeneral').value;
-  const aiResult=document.getElementById('aiResult').innerText||'';
-  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${title}</title><style>
-    body{margin:0;background:#0A0F0A;color:#DDE8DD;font-family:Arial,sans-serif;padding:28px;}
-    .hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;border-bottom:2px solid #D4AF37;padding-bottom:14px;}
-    .logo{font-size:20px;font-weight:900;color:#D4AF37;}.module{font-size:10px;letter-spacing:3px;color:#6A806A;text-transform:uppercase;}
-    .meta{font-size:11px;color:#6A806A;text-align:right;}
-    .title{font-size:22px;font-weight:700;margin-bottom:18px;}
-    .layout{display:flex;gap:24px;}.pitch-wrap{flex-shrink:0;}.pitch-wrap img{width:300px;border-radius:5px;}
-    .notes{flex:1;font-size:12px;}.note-block{margin-bottom:14px;}.nl{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:#6A806A;margin-bottom:4px;font-weight:700;}
-    .nb{background:#111811;border:1px solid #1E2B1E;border-radius:4px;padding:8px 10px;white-space:pre-wrap;min-height:40px;line-height:1.6;}
-    .footer{margin-top:24px;font-size:9px;color:#3A503A;display:flex;justify-content:space-between;border-top:1px solid #1E2B1E;padding-top:10px;}
-    @media print{#pbtn{display:none!important;}}
-  </style></head><body>
-  <div class="hdr"><div><div class="logo">YourTalentBase</div><div class="module">TacticsLab · ${escalao}</div></div><div class="meta"><div>${currentPhase}</div><div>${new Date().toLocaleDateString('pt-PT')}</div></div></div>
-  <div class="title">${title}</div>
-  <div class="layout">
-    <div class="pitch-wrap"><img src="data:image/svg+xml;base64,${svgB64}" alt="Campo"/></div>
-    <div class="notes">
-      ${noteA?`<div class="note-block"><div class="nl">Equipa A</div><div class="nb">${noteA}</div></div>`:''}
-      ${noteB?`<div class="note-block"><div class="nl">Equipa B</div><div class="nb">${noteB}</div></div>`:''}
-      ${noteG?`<div class="note-block"><div class="nl">Notas</div><div class="nb">${noteG}</div></div>`:''}
-      ${aiResult?`<div class="note-block"><div class="nl">Análise IA</div><div class="nb" style="font-size:11px;">${aiResult}</div></div>`:''}
-    </div>
-  </div>
-  <div class="footer"><span>YourTalentBase · TacticsLab</span><span>yourtalentbase.pt</span><span>${new Date().toLocaleDateString('pt-PT')}</span></div>
-  <button id="pbtn" onclick="window.print()" style="position:fixed;bottom:16px;right:16px;background:#D4AF37;color:#000;padding:10px 20px;border:none;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer;">🖨 Imprimir</button>
-  </body></html>`;
-  const w=window.open('','_blank');w.document.write(html);w.document.close();
-  setTimeout(()=>w.print(),600);
-}
+// ════════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', function(){
+  initZones();
+  // Active toolbar defaults
+  el('tZones').classList.add('active');
+  el('tArrows').classList.add('active');
+  el('tNums').classList.add('active');
+});
 
-// ══════════════════════════════════════════════════════
-//  MODAL & TOAST
-// ══════════════════════════════════════════════════════
-function showModal(){document.getElementById('modal').classList.add('show');}
-function closeModal(){document.getElementById('modal').classList.remove('show');}
-function confirmReset(){players=[];playerCount={A:0,B:0};playerArrows={};renderPlayers();closeModal();showToast('Campo limpo');}
-let _tt;
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),2200);}
-
-// ══════════════════════════════════════════════════════
-//  PWA
-// ══════════════════════════════════════════════════════
+// PWA
 if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>{
+  window.addEventListener('load', function(){
     navigator.serviceWorker.register('/sw-tactics.js',{scope:'/tacticslab.html'})
-      .catch(e=>console.warn('SW tactics:',e));
+      .catch(function(e){ console.warn('SW:',e); });
   });
 }
 </script>

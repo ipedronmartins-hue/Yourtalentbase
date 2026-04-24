@@ -3,12 +3,138 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Club OS · YourTalentBase</title>
+<title>Gestor · YourTalentBase</title>
 <meta name="theme-color" content="#09090C">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/global.css">
 <link rel="stylesheet" href="assets/css/club.css">
+<style>
+/* ── GESTOR OVERRIDES ─────────────────────────────────── */
+.snav-section{
+  font-size:8px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;
+  color:var(--dim);padding:14px 16px 4px;
+}
+.snav-item{
+  display:flex;align-items:center;gap:10px;width:100%;padding:10px 16px;
+  background:none;border:none;border-radius:8px;
+  font-size:13px;font-weight:500;color:var(--slate);
+  cursor:pointer;transition:all .15s;text-align:left;
+  position:relative;
+}
+.snav-item:hover{background:rgba(255,255,255,.04);color:var(--white);}
+.snav-item.active{background:var(--gold-soft);color:var(--gold);font-weight:700;}
+.snav-item.active svg{color:var(--gold);}
+.snav-item svg{color:var(--muted);flex-shrink:0;}
+.snav-item.coming{opacity:.45;cursor:default;}
+.snav-item.coming:hover{background:none;color:var(--slate);}
+.snav-badge-coming{
+  font-size:7px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  background:rgba(255,255,255,.05);border:1px solid var(--border2);
+  color:var(--dim);padding:1px 5px;border-radius:3px;margin-left:auto;
+}
+
+/* ── FLASH PRESENÇAS ──────────────────────────────────── */
+.fp-card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:12px;
+  padding:14px 16px;display:flex;align-items:center;gap:12px;
+  margin-bottom:6px;transition:all .15s;
+}
+.fp-av{
+  width:38px;height:38px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,var(--blue-dark),var(--blue-mid));
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-display);font-weight:900;font-size:16px;
+}
+.fp-name{font-size:13px;font-weight:700;flex:1;min-width:0;}
+.fp-pos{font-size:10px;color:var(--muted);font-weight:300;}
+.fp-btns{display:flex;gap:4px;flex-shrink:0;}
+.fp-btn{
+  width:38px;height:38px;border-radius:9px;border:1px solid var(--border2);
+  background:var(--bg3);font-size:16px;cursor:pointer;transition:all .15s;
+  display:flex;align-items:center;justify-content:center;
+}
+.fp-btn:hover{transform:scale(1.08);}
+.fp-btn.p-sel-P{background:rgba(0,212,106,.15);border-color:rgba(0,212,106,.4);}
+.fp-btn.p-sel-F{background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.3);}
+.fp-btn.p-sel-L{background:rgba(249,115,22,.12);border-color:rgba(249,115,22,.3);}
+.fp-btn.p-sel-J{background:rgba(99,102,241,.12);border-color:rgba(99,102,241,.3);}
+
+/* ── CONVOCATÓRIA ─────────────────────────────────────── */
+.conv-card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:12px;
+  padding:13px 15px;display:flex;align-items:center;gap:12px;margin-bottom:6px;
+}
+.conv-av{width:36px;height:36px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,var(--blue-dark),var(--blue-mid));display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:900;font-size:15px;}
+.conv-name{font-size:13px;font-weight:700;flex:1;}
+.conv-pos{font-size:10px;color:var(--muted);}
+.conv-sel{display:flex;gap:4px;}
+.conv-btn{padding:5px 10px;border-radius:7px;border:1px solid var(--border2);background:var(--bg3);font-size:10px;font-weight:700;cursor:pointer;transition:all .15s;color:var(--muted);}
+.conv-btn:hover{border-color:var(--gold-border);color:var(--gold);}
+.conv-btn.active-C{background:rgba(0,212,106,.12);border-color:rgba(0,212,106,.4);color:var(--green);}
+.conv-btn.active-N{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.3);color:var(--red);}
+.conv-btn.active-L{background:rgba(249,115,22,.1);border-color:rgba(249,115,22,.3);color:var(--orange);}
+
+/* ── HUMOR ────────────────────────────────────────────── */
+.humor-row{display:flex;gap:8px;margin-bottom:16px;}
+.humor-btn{
+  flex:1;padding:12px 4px;border-radius:11px;border:2px solid var(--border);
+  background:var(--bg3);text-align:center;cursor:pointer;transition:all .15s;
+}
+.humor-btn:hover,.humor-btn.sel{background:var(--gold-soft);border-color:var(--gold-border);}
+.humor-em{font-size:24px;display:block;margin-bottom:2px;}
+.humor-lb{font-size:8px;color:var(--muted);letter-spacing:.5px;}
+
+/* ── MICROCICLO ───────────────────────────────────────── */
+.mc-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:12px;}
+@media(max-width:600px){.mc-grid{grid-template-columns:repeat(3,1fr);}}
+.mc-day{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 6px;text-align:center;}
+.mc-day.game{background:rgba(212,175,55,.08);border-color:var(--gold-border);}
+.mc-day.rest{opacity:.5;}
+.mc-day-name{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+.mc-day-type{font-size:11px;font-weight:600;color:var(--white);}
+.mc-day.game .mc-day-type{color:var(--gold);}
+.mc-day-int{font-size:9px;color:var(--muted);margin-top:3px;}
+
+/* ── COMING SOON MODULES ──────────────────────────────── */
+.coming-wrap{padding:32px 20px;text-align:center;}
+.coming-icon{font-size:44px;margin-bottom:14px;opacity:.4;}
+.coming-title{font-family:var(--font-display);font-size:26px;font-weight:900;margin-bottom:6px;color:var(--white);}
+.coming-sub{font-size:13px;color:var(--muted);font-weight:300;line-height:1.7;max-width:340px;margin:0 auto 20px;}
+.coming-features{display:flex;flex-direction:column;gap:8px;max-width:360px;margin:0 auto;}
+.cf-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:9px;font-size:12px;font-weight:600;color:var(--slate);text-align:left;}
+.cf-dot{width:6px;height:6px;border-radius:50%;background:var(--gold-border);flex-shrink:0;}
+
+/* ── INSIGHTS WIDGETS ─────────────────────────────────── */
+.ins-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+@media(min-width:800px){.ins-grid{grid-template-columns:repeat(4,1fr);}}
+.ins-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;}
+.ins-icon{font-size:20px;margin-bottom:8px;}
+.ins-num{font-family:var(--font-display);font-size:32px;font-weight:900;line-height:1;margin-bottom:2px;}
+.ins-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-weight:700;}
+.ins-trend{font-size:11px;font-weight:600;margin-top:4px;}
+.ins-trend.up{color:var(--green);}
+.ins-trend.down{color:var(--red);}
+.ins-trend.flat{color:var(--muted);}
+
+/* ── AGENDA ───────────────────────────────────────────── */
+.ag-item{display:flex;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid var(--border);}
+.ag-item:last-child{border-bottom:none;}
+.ag-date{width:40px;text-align:center;flex-shrink:0;}
+.ag-day{font-family:var(--font-display);font-size:24px;font-weight:900;line-height:1;color:var(--white);}
+.ag-mon{font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-top:2px;}
+.ag-line{width:3px;height:40px;border-radius:2px;flex-shrink:0;}
+.ag-title{font-size:13px;font-weight:700;margin-bottom:2px;}
+.ag-sub{font-size:11px;color:var(--muted);font-weight:300;}
+.ag-badge{margin-left:auto;flex-shrink:0;}
+
+/* ── FORMA WIDGET ─────────────────────────────────────── */
+.forma-dots{display:flex;gap:4px;align-items:center;}
+.forma-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;}
+.forma-dot.v{background:rgba(0,212,106,.15);color:var(--green);border:1px solid rgba(0,212,106,.3);}
+.forma-dot.d{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.25);}
+.forma-dot.e{background:rgba(212,175,55,.1);color:var(--gold);border:1px solid var(--gold-border);}
+</style>
 </head>
 <body>
 
@@ -20,7 +146,7 @@
     </button>
     <div class="nav-logo">
       <div class="nav-logo-badge">YTB</div>
-      <span class="hide-mobile">Club <span>OS</span></span>
+      <span class="hide-mobile">Gestor</span>
     </div>
   </div>
   <div class="dash-nav-center" id="navClubName">
@@ -35,59 +161,127 @@
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-inner">
     <nav class="sidebar-nav">
-      <div class="sidebar-section-label">Principal</div>
+
+      <div class="snav-section">Principal</div>
       <button class="snav-item active" data-module="home">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         <span>Início</span>
       </button>
+
+      <div class="snav-section">Balneário</div>
       <button class="snav-item" data-module="presencas">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
-        <span>Presenças</span>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        <span>Presenças Flash</span>
         <span class="snav-badge" id="badgePresencas"></span>
       </button>
+      <button class="snav-item" data-module="convocatoria">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        <span>Convocatória</span>
+      </button>
+      <button class="snav-item" data-module="humor">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+        <span>Humor Equipa</span>
+      </button>
+
+      <div class="snav-section">Treinador</div>
       <button class="snav-item" data-module="treinos">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        <span>Treinos</span>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span>Planeamento</span>
+      </button>
+      <button class="snav-item" data-module="microciclo">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <span>Microciclo</span>
       </button>
       <button class="snav-item" data-module="plantel">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         <span>Plantel</span>
       </button>
 
-      <div class="sidebar-section-label">Gestão</div>
+      <div class="snav-section">Gestão</div>
+      <button class="snav-item coming" data-module="secretaria">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+        <span>Secretaria</span>
+        <span class="snav-badge-coming">Em breve</span>
+      </button>
       <button class="snav-item" data-module="financeiro">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
         <span>Financeiro</span>
       </button>
-      <button class="snav-item" data-module="calendario">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        <span>Calendário</span>
+      <button class="snav-item coming" data-module="clinico">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        <span>Clínico</span>
+        <span class="snav-badge-coming">Em breve</span>
       </button>
-      <button class="snav-item" data-module="fpf">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      <button class="snav-item coming" data-module="escolar">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+        <span>Escolar</span>
+        <span class="snav-badge-coming">Em breve</span>
+      </button>
+
+      <div class="snav-section">Outro</div>
+      <button class="snav-item" data-module="agenda">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <span>Agenda</span>
+      </button>
+      <button class="snav-item" data-module="insights">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <span>Insights</span>
+      </button>
+      <button class="snav-item coming" data-module="fpf">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
         <span>Certificação FPF</span>
+        <span class="snav-badge-coming">Em breve</span>
       </button>
+
     </nav>
     <div class="sidebar-footer">
       <a href="index.html" class="snav-item" style="text-decoration:none;">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
         <span>YTB Home</span>
       </a>
     </div>
   </div>
 </aside>
 
-<!-- ── OVERLAY sidebar mobile ─────────────────────────────────── -->
 <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 
-<!-- ── MAIN CONTENT ─────────────────────────────────────────── -->
+<!-- ── MAIN ──────────────────────────────────────────────────── -->
 <main class="dash-main" id="dashMain">
 
-  <!-- HOME MODULE -->
+  <!-- ══ HOME ══════════════════════════════════════════════════ -->
   <div id="mod-home" class="module active">
     <div class="module-header">
-      <h1 class="display-sm">Bom dia, Mister Teles 👋</h1>
-      <p class="text-sm text-muted">Segunda-feira, 20 de Abril 2026</p>
+      <div>
+        <h1 class="display-sm">Bom dia, Mister Teles 👋</h1>
+        <p class="text-sm text-muted">Gondomar SC · Sub-12 · Época 2025/26</p>
+      </div>
+    </div>
+
+    <!-- Equipa header -->
+    <div class="card" style="background:linear-gradient(135deg,rgba(212,175,55,.08),rgba(212,175,55,.02));border-color:var(--gold-border);margin-bottom:var(--space-4);position:relative;overflow:hidden;">
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--blue-mid),var(--gold));"></div>
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+        <div style="width:48px;height:48px;border-radius:10px;background:rgba(212,175,55,.15);border:1px solid var(--gold-border);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">⚽</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-family:var(--font-display);font-size:22px;font-weight:900;line-height:1;">Infantis Sub-12.1</div>
+          <div style="font-size:11px;color:var(--muted);font-weight:300;margin-top:2px;">Futebol · Sub-12 · Masculino · 11×11 · Estádio São Miguel</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <span class="badge badge-gold">2025/26</span>
+          <span class="badge badge-blue">25 atletas</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
+        <span style="font-size:11px;color:var(--muted);font-weight:600;">Forma recente</span>
+        <div class="forma-dots">
+          <div class="forma-dot v">V</div>
+          <div class="forma-dot v">V</div>
+          <div class="forma-dot e">E</div>
+          <div class="forma-dot v">V</div>
+          <div class="forma-dot d">D</div>
+        </div>
+        <span style="font-size:10px;color:var(--muted);margin-left:4px;">Últimos 5 jogos</span>
+      </div>
     </div>
 
     <!-- KPIs -->
@@ -96,7 +290,7 @@
         <div class="kpi-icon" style="background:var(--gold-soft);color:var(--gold);">👥</div>
         <div class="kpi-val">25</div>
         <div class="kpi-label">Atletas no plantel</div>
-        <div class="kpi-sub text-muted">3 posições em aberto</div>
+        <div class="kpi-sub text-muted">Época 2025/26</div>
       </div>
       <div class="kpi-card">
         <div class="kpi-icon" style="background:var(--green-soft);color:var(--green);">✓</div>
@@ -119,65 +313,45 @@
     </div>
 
     <!-- Quick actions -->
-    <div class="qa-grid">
-      <button class="qa-btn" data-module="presencas">
-        <span class="qa-icon">✓</span>
-        <span>Registar Presença</span>
-      </button>
-      <button class="qa-btn" data-module="treinos">
-        <span class="qa-icon">⏱</span>
-        <span>Novo Treino</span>
-      </button>
-      <button class="qa-btn" data-module="financeiro">
-        <span class="qa-icon">💰</span>
-        <span>Ver Pagamentos</span>
-      </button>
-      <button class="qa-btn" data-module="fpf">
-        <span class="qa-icon">⭐</span>
-        <span>Certificação FPF</span>
-      </button>
+    <div class="qa-grid" style="margin-bottom:var(--space-5);">
+      <button class="qa-btn" data-module="presencas"><span class="qa-icon">✓</span><span>Presenças</span></button>
+      <button class="qa-btn" data-module="convocatoria"><span class="qa-icon">📋</span><span>Convocatória</span></button>
+      <button class="qa-btn" data-module="treinos"><span class="qa-icon">⏱</span><span>Novo Treino</span></button>
+      <button class="qa-btn" data-module="humor"><span class="qa-icon">😊</span><span>Humor</span></button>
     </div>
 
-    <!-- Próximos eventos -->
-    <div class="card" style="margin-top:var(--space-5);">
+    <!-- Próximos -->
+    <div class="card">
       <div class="flex items-center justify-between" style="margin-bottom:var(--space-4);">
-        <div class="text-2xs text-muted">Próximos eventos</div>
-        <button class="btn btn-ghost btn-sm" data-module="calendario">Ver calendário</button>
+        <div class="text-2xs text-muted">Esta semana</div>
+        <button class="btn btn-ghost btn-sm" data-module="agenda">Ver agenda</button>
       </div>
-      <div class="events-list">
-        <div class="event-item">
-          <div class="event-date"><div class="event-day">22</div><div class="event-month">ABR</div></div>
-          <div class="event-info">
-            <div class="event-title">Treino</div>
-            <div class="event-sub">Campo 3 · 18h00 — 19h30</div>
-          </div>
-          <span class="badge badge-blue">Treino</span>
-        </div>
-        <div class="event-item">
-          <div class="event-date"><div class="event-day">26</div><div class="event-month">ABR</div></div>
-          <div class="event-info">
-            <div class="event-title">Gondomar SC vs FC Porto B</div>
-            <div class="event-sub">Estádio Municipal · 10h30</div>
-          </div>
-          <span class="badge badge-gold">Jogo</span>
-        </div>
-        <div class="event-item">
-          <div class="event-date"><div class="event-day">29</div><div class="event-month">ABR</div></div>
-          <div class="event-info">
-            <div class="event-title">Treino</div>
-            <div class="event-sub">Campo 3 · 18h00 — 19h30</div>
-          </div>
-          <span class="badge badge-blue">Treino</span>
-        </div>
+      <div class="ag-item">
+        <div class="ag-date"><div class="ag-day">22</div><div class="ag-mon">ABR</div></div>
+        <div class="ag-line" style="background:var(--blue-mid);"></div>
+        <div><div class="ag-title">Treino</div><div class="ag-sub">Campo 3 · 18h00–19h30</div></div>
+        <span class="badge badge-blue ag-badge">Treino</span>
+      </div>
+      <div class="ag-item">
+        <div class="ag-date"><div class="ag-day">26</div><div class="ag-mon">ABR</div></div>
+        <div class="ag-line" style="background:var(--gold);"></div>
+        <div><div class="ag-title">Gondomar SC vs FC Porto B</div><div class="ag-sub">Estádio Municipal · 10h30</div></div>
+        <span class="badge badge-gold ag-badge">Jogo</span>
+      </div>
+      <div class="ag-item">
+        <div class="ag-date"><div class="ag-day">29</div><div class="ag-mon">ABR</div></div>
+        <div class="ag-line" style="background:var(--blue-mid);"></div>
+        <div><div class="ag-title">Treino</div><div class="ag-sub">Campo 3 · 18h00–19h30</div></div>
+        <span class="badge badge-blue ag-badge">Treino</span>
       </div>
     </div>
   </div>
 
-  <!-- PRESENÇAS MODULE -->
+  <!-- ══ PRESENÇAS ═════════════════════════════════════════════ -->
   <div id="mod-presencas" class="module">
     <div class="module-header">
       <div>
-        <h1 class="display-sm">Presenças</h1>
+        <h1 class="display-sm">Presenças Flash</h1>
         <p class="text-sm text-muted" id="presDataLabel">Treino · Hoje</p>
       </div>
       <div style="display:flex;gap:var(--space-2);">
@@ -185,35 +359,138 @@
         <button class="btn btn-primary btn-sm" id="btnGuardarPres">Guardar</button>
       </div>
     </div>
-
-    <!-- Stats rápidos -->
     <div class="pres-stats">
       <div class="pres-stat"><span id="presTotal" class="pres-stat-n">0</span><span class="pres-stat-l">Total</span></div>
       <div class="pres-stat pres-stat-pres"><span id="presPresentes" class="pres-stat-n">0</span><span class="pres-stat-l">Presentes</span></div>
       <div class="pres-stat pres-stat-falta"><span id="presFaltas" class="pres-stat-n">0</span><span class="pres-stat-l">Faltas</span></div>
       <div class="pres-stat pres-stat-les"><span id="presLesionados" class="pres-stat-n">0</span><span class="pres-stat-l">Lesionados</span></div>
     </div>
-
-    <!-- Lista atletas -->
     <div class="pres-list" id="presList"></div>
   </div>
 
-  <!-- TREINOS MODULE -->
+  <!-- ══ CONVOCATÓRIA ══════════════════════════════════════════ -->
+  <div id="mod-convocatoria" class="module">
+    <div class="module-header">
+      <div>
+        <h1 class="display-sm">Convocatória</h1>
+        <p class="text-sm text-muted">Gondomar SC vs FC Porto B · 26 Abr</p>
+      </div>
+      <button class="btn btn-primary btn-sm" id="btnPartilharConv">📱 WhatsApp</button>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;">
+      <div class="card" style="text-align:center;padding:10px;"><div style="font-family:var(--font-display);font-size:28px;font-weight:900;color:var(--green);" id="convCount">0</div><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">Convocados</div></div>
+      <div class="card" style="text-align:center;padding:10px;"><div style="font-family:var(--font-display);font-size:28px;font-weight:900;color:var(--red);" id="nconvCount">0</div><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">Não conv.</div></div>
+      <div class="card" style="text-align:center;padding:10px;"><div style="font-family:var(--font-display);font-size:28px;font-weight:900;color:var(--orange);" id="lesCount">0</div><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">Lesionados</div></div>
+    </div>
+
+    <div id="convList"></div>
+  </div>
+
+  <!-- ══ HUMOR EQUIPA ══════════════════════════════════════════ -->
+  <div id="mod-humor" class="module">
+    <div class="module-header">
+      <h1 class="display-sm">Humor da Equipa</h1>
+      <button class="btn btn-primary btn-sm" id="btnGuardarHumor">Guardar</button>
+    </div>
+
+    <div class="card" style="margin-bottom:16px;">
+      <div class="text-2xs text-muted" style="margin-bottom:10px;">Como está a equipa hoje?</div>
+      <div class="humor-row">
+        <button class="humor-btn sel" data-h="5"><span class="humor-em">😀</span><span class="humor-lb">Óptimo</span></button>
+        <button class="humor-btn" data-h="4"><span class="humor-em">🙂</span><span class="humor-lb">Bem</span></button>
+        <button class="humor-btn" data-h="3"><span class="humor-em">😐</span><span class="humor-lb">Normal</span></button>
+        <button class="humor-btn" data-h="2"><span class="humor-em">😕</span><span class="humor-lb">Cansado</span></button>
+        <button class="humor-btn" data-h="1"><span class="humor-em">😣</span><span class="humor-lb">Mal</span></button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px;">
+      <div class="text-2xs text-muted" style="margin-bottom:10px;">Mensagem para o balneário</div>
+      <div style="display:flex;flex-direction:column;gap:6px;" id="humorMsgs">
+        <button class="btn btn-ghost" style="justify-content:flex-start;gap:10px;" data-msg="Foco total hoje! 🎯"><span style="font-size:16px;">🎯</span> Foco total hoje!</button>
+        <button class="btn btn-ghost" style="justify-content:flex-start;gap:10px;" data-msg="Parabéns pelo último jogo! 🏆"><span style="font-size:16px;">🏆</span> Parabéns pelo último jogo!</button>
+        <button class="btn btn-ghost" style="justify-content:flex-start;gap:10px;" data-msg="Intensidade máxima no treino! ⚡"><span style="font-size:16px;">⚡</span> Intensidade máxima no treino!</button>
+        <button class="btn btn-ghost" style="justify-content:flex-start;gap:10px;" data-msg="Jogo importante a seguir. Preparados! ⚽"><span style="font-size:16px;">⚽</span> Jogo importante a seguir. Preparados!</button>
+      </div>
+    </div>
+
+    <!-- Histórico humor simplificado -->
+    <div class="card">
+      <div class="text-2xs text-muted" style="margin-bottom:10px;">Tendência da semana</div>
+      <div style="display:flex;align-items:flex-end;gap:6px;height:60px;">
+        <div style="flex:1;background:rgba(0,212,106,.2);border-radius:4px 4px 0 0;height:90%;" title="😀"></div>
+        <div style="flex:1;background:rgba(0,212,106,.2);border-radius:4px 4px 0 0;height:75%;" title="🙂"></div>
+        <div style="flex:1;background:rgba(212,175,55,.2);border-radius:4px 4px 0 0;height:60%;" title="😐"></div>
+        <div style="flex:1;background:rgba(0,212,106,.2);border-radius:4px 4px 0 0;height:85%;" title="😀"></div>
+        <div style="flex:1;background:rgba(0,212,106,.2);border-radius:4px 4px 0 0;height:95%;" title="😀"></div>
+      </div>
+      <div style="display:flex;gap:6px;margin-top:4px;">
+        <div style="flex:1;text-align:center;font-size:8px;color:var(--muted);">Seg</div>
+        <div style="flex:1;text-align:center;font-size:8px;color:var(--muted);">Ter</div>
+        <div style="flex:1;text-align:center;font-size:8px;color:var(--muted);">Qua</div>
+        <div style="flex:1;text-align:center;font-size:8px;color:var(--muted);">Qui</div>
+        <div style="flex:1;text-align:center;font-size:8px;color:var(--gold);font-weight:700;">Hoje</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ TREINOS ═══════════════════════════════════════════════ -->
   <div id="mod-treinos" class="module">
     <div class="module-header">
-      <h1 class="display-sm">Treinos</h1>
+      <h1 class="display-sm">Planeamento</h1>
       <button class="btn btn-primary btn-sm" id="btnNovoTreino">+ Novo Treino</button>
     </div>
     <div id="treinosContent"></div>
   </div>
 
-  <!-- PLANTEL MODULE -->
+  <!-- ══ MICROCICLO ════════════════════════════════════════════ -->
+  <div id="mod-microciclo" class="module">
+    <div class="module-header">
+      <h1 class="display-sm">Microciclo</h1>
+      <span class="badge badge-gold">Semana 17</span>
+    </div>
+
+    <div class="card" style="margin-bottom:14px;">
+      <div class="text-2xs text-muted" style="margin-bottom:10px;">Semana 17 · 21–27 Abril 2026</div>
+      <div class="mc-grid">
+        <div class="mc-day rest"><div class="mc-day-name">Seg</div><div class="mc-day-type">Folga</div><div class="mc-day-int">—</div></div>
+        <div class="mc-day"><div class="mc-day-name">Ter</div><div class="mc-day-type">Tático</div><div class="mc-day-int">Int. 3</div></div>
+        <div class="mc-day"><div class="mc-day-name">Qua</div><div class="mc-day-type">Físico</div><div class="mc-day-int">Int. 4</div></div>
+        <div class="mc-day"><div class="mc-day-name">Qui</div><div class="mc-day-type">Bolas P.</div><div class="mc-day-int">Int. 2</div></div>
+        <div class="mc-day rest"><div class="mc-day-name">Sex</div><div class="mc-day-type">Activação</div><div class="mc-day-int">Int. 1</div></div>
+        <div class="mc-day game"><div class="mc-day-name">Sáb</div><div class="mc-day-type">🏟 Jogo</div><div class="mc-day-int">10h30</div></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:14px;">
+      <div class="text-2xs text-muted" style="margin-bottom:10px;">Carga da semana</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+        <div style="text-align:center;"><div style="font-family:var(--font-display);font-size:24px;font-weight:900;color:var(--gold);">3</div><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">Treinos</div></div>
+        <div style="text-align:center;"><div style="font-family:var(--font-display);font-size:24px;font-weight:900;color:var(--blue-mid);">270</div><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">Minutos</div></div>
+        <div style="text-align:center;"><div style="font-family:var(--font-display);font-size:24px;font-weight:900;color:var(--green);">2.8</div><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">Int. Média</div></div>
+      </div>
+    </div>
+
+    <div class="card" style="background:rgba(212,175,55,.04);border-color:var(--gold-border);">
+      <div style="display:flex;gap:10px;align-items:flex-start;">
+        <span style="font-size:18px;flex-shrink:0;">🧠</span>
+        <div>
+          <div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:4px;">Tactical Lab</div>
+          <div style="font-size:12px;color:var(--slate);font-weight:300;line-height:1.6;margin-bottom:10px;">Liga o TacticsLab para desenhar exercícios e anexar ao treino desta semana.</div>
+          <a href="tacticslab.html" class="btn btn-ghost btn-sm" style="text-decoration:none;">🧠 Abrir TacticsLab →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PLANTEL ═══════════════════════════════════════════════ -->
   <div id="mod-plantel" class="module">
     <div class="module-header">
       <h1 class="display-sm">Plantel</h1>
       <div style="display:flex;gap:var(--space-2);">
-        <input class="inp inp-sm" id="searchPlantel" placeholder="Pesquisar..." style="width:160px;">
-        <select class="select inp-sm" id="filterPos" style="width:120px;">
+        <input class="inp inp-sm" id="searchPlantel" placeholder="Pesquisar..." style="width:140px;">
+        <select class="select inp-sm" id="filterPos" style="width:110px;">
           <option value="">Posição</option>
           <option>GR</option><option>DEF</option><option>MED</option><option>AVA</option>
         </select>
@@ -222,55 +499,213 @@
     <div id="plantelContent"></div>
   </div>
 
-  <!-- FINANCEIRO MODULE -->
+  <!-- ══ SECRETARIA (COMING SOON) ══════════════════════════════ -->
+  <div id="mod-secretaria" class="module">
+    <div class="module-header"><h1 class="display-sm">Secretaria</h1></div>
+    <div class="coming-wrap">
+      <div class="coming-icon">📑</div>
+      <div class="coming-title">Secretaria</div>
+      <div class="coming-sub">Gestão completa de documentação, inscrições, licenças e renovações. Em desenvolvimento para a próxima época.</div>
+      <div class="coming-features">
+        <div class="cf-item"><div class="cf-dot"></div>Inscrições e fichas de atleta</div>
+        <div class="cf-item"><div class="cf-dot"></div>Licenças e documentos FPF</div>
+        <div class="cf-item"><div class="cf-dot"></div>Seguros e consentimentos</div>
+        <div class="cf-item"><div class="cf-dot"></div>Alertas de documentação em falta</div>
+        <div class="cf-item"><div class="cf-dot"></div>Renovação de atletas</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ FINANCEIRO ════════════════════════════════════════════ -->
   <div id="mod-financeiro" class="module">
     <div class="module-header">
       <h1 class="display-sm">Financeiro</h1>
-      <div style="display:flex;gap:var(--space-2);">
-        <span class="badge badge-gold">Abril 2026</span>
-      </div>
+      <span class="badge badge-gold">Abril 2026</span>
     </div>
     <div id="financeiroContent"></div>
   </div>
 
-  <!-- CALENDÁRIO MODULE -->
-  <div id="mod-calendario" class="module">
+  <!-- ══ CLÍNICO (COMING SOON) ═════════════════════════════════ -->
+  <div id="mod-clinico" class="module">
+    <div class="module-header"><h1 class="display-sm">Clínico</h1></div>
+    <div class="coming-wrap">
+      <div class="coming-icon">🏥</div>
+      <div class="coming-title">Módulo Clínico</div>
+      <div class="coming-sub">Acompanhamento de lesões, disponibilidade de atletas e comunicação com o staff clínico em tempo real.</div>
+      <div class="coming-features">
+        <div class="cf-item"><div class="cf-dot"></div>Registo de lesões e histórico</div>
+        <div class="cf-item"><div class="cf-dot"></div>Previsão de retorno ao jogo</div>
+        <div class="cf-item"><div class="cf-dot"></div>Limitações de treino por atleta</div>
+        <div class="cf-item"><div class="cf-dot"></div>Comunicação directa com fisioterapeuta</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ ESCOLAR (COMING SOON) ═════════════════════════════════ -->
+  <div id="mod-escolar" class="module">
+    <div class="module-header"><h1 class="display-sm">Escolar</h1></div>
+    <div class="coming-wrap">
+      <div class="coming-icon">📚</div>
+      <div class="coming-title">Módulo Escolar</div>
+      <div class="coming-sub">Acompanhamento escolar dos atletas. Notas, comportamento e alertas quando algo não está bem fora do campo.</div>
+      <div class="coming-features">
+        <div class="cf-item"><div class="cf-dot"></div>Registo de notas por período</div>
+        <div class="cf-item"><div class="cf-dot"></div>Comportamento e assiduidade escolar</div>
+        <div class="cf-item"><div class="cf-dot"></div>Alertas automáticos ao encarregado</div>
+        <div class="cf-item"><div class="cf-dot"></div>Plano de acompanhamento individual</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ AGENDA ════════════════════════════════════════════════ -->
+  <div id="mod-agenda" class="module">
     <div class="module-header">
-      <h1 class="display-sm">Calendário</h1>
+      <h1 class="display-sm">Agenda</h1>
       <button class="btn btn-primary btn-sm" id="btnNovoEvento">+ Evento</button>
+    </div>
+    <div class="card">
+      <div class="text-2xs text-muted" style="margin-bottom:14px;">Abril — Maio 2026</div>
+      <div class="ag-item">
+        <div class="ag-date"><div class="ag-day">22</div><div class="ag-mon">ABR</div></div>
+        <div class="ag-line" style="background:var(--blue-mid);"></div>
+        <div><div class="ag-title">Treino</div><div class="ag-sub">Campo 3 · 18h00–19h30</div></div>
+        <span class="badge badge-blue ag-badge">Treino</span>
+      </div>
+      <div class="ag-item">
+        <div class="ag-date"><div class="ag-day">26</div><div class="ag-mon">ABR</div></div>
+        <div class="ag-line" style="background:var(--gold);"></div>
+        <div><div class="ag-title">Gondomar SC vs FC Porto B</div><div class="ag-sub">Estádio Municipal · 10h30</div></div>
+        <span class="badge badge-gold ag-badge">Jogo</span>
+      </div>
+      <div class="ag-item">
+        <div class="ag-date"><div class="ag-day">29</div><div class="ag-mon">ABR</div></div>
+        <div class="ag-line" style="background:var(--blue-mid);"></div>
+        <div><div class="ag-title">Treino</div><div class="ag-sub">Campo 3 · 18h00–19h30</div></div>
+        <span class="badge badge-blue ag-badge">Treino</span>
+      </div>
+      <div class="ag-item">
+        <div class="ag-date"><div class="ag-day">3</div><div class="ag-mon">MAI</div></div>
+        <div class="ag-line" style="background:var(--gold);"></div>
+        <div><div class="ag-title">Gondomar SC vs Leixões SC</div><div class="ag-sub">Campo Adversário · 11h00</div></div>
+        <span class="badge badge-gold ag-badge">Jogo</span>
+      </div>
+      <div class="ag-item">
+        <div class="ag-date"><div class="ag-day">10</div><div class="ag-mon">MAI</div></div>
+        <div class="ag-line" style="background:rgba(99,102,241,.6);"></div>
+        <div><div class="ag-title">Reunião de pais</div><div class="ag-sub">Sede do Clube · 19h30</div></div>
+        <span class="badge ag-badge" style="background:rgba(99,102,241,.1);color:#818cf8;border-color:rgba(99,102,241,.3);">Reunião</span>
+      </div>
     </div>
     <div id="calendarioContent"></div>
   </div>
 
-  <!-- FPF MODULE -->
-  <div id="mod-fpf" class="module">
+  <!-- ══ INSIGHTS ══════════════════════════════════════════════ -->
+  <div id="mod-insights" class="module">
     <div class="module-header">
-      <h1 class="display-sm">Certificação FPF</h1>
-      <span class="badge badge-gold">Gondomar SC · Sub-12</span>
+      <h1 class="display-sm">Insights</h1>
+      <span class="badge badge-gold">Época 2025/26</span>
+    </div>
+
+    <div class="ins-grid">
+      <div class="ins-card"><div class="ins-icon">👥</div><div class="ins-num">25</div><div class="ins-label">Atletas activos</div><div class="ins-trend flat">Estável</div></div>
+      <div class="ins-card"><div class="ins-icon">✅</div><div class="ins-num" style="color:var(--green);">87%</div><div class="ins-label">Assiduidade</div><div class="ins-trend up">↑ 4% vs mês ant.</div></div>
+      <div class="ins-card"><div class="ins-icon">💰</div><div class="ins-num" style="color:var(--orange);">88%</div><div class="ins-label">Pagamentos OK</div><div class="ins-trend down">3 em atraso</div></div>
+      <div class="ins-card"><div class="ins-icon">🏥</div><div class="ins-num" style="color:var(--red);">2</div><div class="ins-label">Lesões activas</div><div class="ins-trend flat">Sem novidades</div></div>
+    </div>
+
+    <!-- Assiduidade mensal -->
+    <div class="card" style="margin-bottom:14px;">
+      <div class="text-2xs text-muted" style="margin-bottom:12px;">Assiduidade mensal</div>
+      <div style="display:flex;align-items:flex-end;gap:6px;height:70px;">
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">
+          <div style="flex:1;width:100%;background:rgba(0,212,106,.2);border-radius:4px 4px 0 0;" title="Jan 82%"></div>
+          <div style="font-size:8px;color:var(--muted);">Jan</div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">
+          <div style="flex:1;width:100%;background:rgba(0,212,106,.2);border-radius:4px 4px 0 0;height:85%;"></div>
+          <div style="font-size:8px;color:var(--muted);">Fev</div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">
+          <div style="flex:1;width:100%;background:rgba(0,212,106,.2);border-radius:4px 4px 0 0;height:78%;"></div>
+          <div style="font-size:8px;color:var(--muted);">Mar</div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">
+          <div style="flex:1;width:100%;background:rgba(212,175,55,.35);border-radius:4px 4px 0 0;height:95%;border:1px solid var(--gold-border);"></div>
+          <div style="font-size:8px;color:var(--gold);font-weight:700;">Abr</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagamentos -->
+    <div class="card" style="margin-bottom:14px;">
+      <div class="text-2xs text-muted" style="margin-bottom:10px;">Estado de pagamentos · Abril</div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+        <div style="flex:1;background:var(--border);border-radius:100px;height:8px;overflow:hidden;">
+          <div style="width:88%;height:100%;background:linear-gradient(90deg,var(--green),rgba(0,212,106,.6));border-radius:100px;"></div>
+        </div>
+        <span style="font-size:12px;font-weight:700;color:var(--green);flex-shrink:0;">88%</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);">
+        <span>22 pagos</span><span style="color:var(--orange);">3 em atraso</span>
+      </div>
+    </div>
+
+    <!-- Top presença -->
+    <div class="card">
+      <div class="text-2xs text-muted" style="margin-bottom:10px;">Top presença este mês</div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:14px;">🥇</span>
+          <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--blue-dark),var(--blue-mid));display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:900;font-size:12px;">V</div>
+          <span style="flex:1;font-size:13px;font-weight:600;">Vasco Coutinho</span>
+          <span style="font-size:12px;font-weight:700;color:var(--green);">100%</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:14px;">🥈</span>
+          <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--blue-dark),var(--blue-mid));display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:900;font-size:12px;">S</div>
+          <span style="flex:1;font-size:13px;font-weight:600;">Salvador Pinho</span>
+          <span style="font-size:12px;font-weight:700;color:var(--green);">100%</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:14px;">🥉</span>
+          <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--blue-dark),var(--blue-mid));display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:900;font-size:12px;">R</div>
+          <span style="flex:1;font-size:13px;font-weight:600;">Rafael Cerqueira</span>
+          <span style="font-size:12px;font-weight:700;color:var(--gold);">92%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ FPF (COMING SOON) ═════════════════════════════════════ -->
+  <div id="mod-fpf" class="module">
+    <div class="module-header"><h1 class="display-sm">Certificação FPF</h1><span class="badge badge-gold">Gondomar SC · Sub-12</span></div>
+    <div class="coming-wrap">
+      <div class="coming-icon">⭐</div>
+      <div class="coming-title">FPF Stars</div>
+      <div class="coming-sub">Acompanhamento automático dos critérios de certificação FPF. Sabe sempre onde estás e o que falta.</div>
+      <div class="coming-features">
+        <div class="cf-item"><div class="cf-dot"></div>Tracker de critérios por estrela</div>
+        <div class="cf-item"><div class="cf-dot"></div>Alertas de documentação em falta</div>
+        <div class="cf-item"><div class="cf-dot"></div>Relatório de conformidade PDF</div>
+      </div>
     </div>
     <div id="fpfContent"></div>
   </div>
 
 </main>
 
-<!-- ── MODAL NOVO TREINO ──────────────────────────────────────── -->
+<!-- ══ MODAL NOVO TREINO ════════════════════════════════════════ -->
 <div class="overlay" id="ovNovoTreino">
   <div class="modal" style="max-width:540px;max-height:90vh;overflow-y:auto;">
     <button class="modal-close" data-close="ovNovoTreino">×</button>
-    <div class="eyebrow">Registo</div>
+    <div class="eyebrow">Planeamento</div>
     <h2 class="display-xs" style="margin-bottom:var(--space-5);">Novo Treino</h2>
     <div style="display:flex;flex-direction:column;gap:var(--space-3);" id="novoTreinoForm">
-
       <div class="input-row input-row-2">
         <div class="input-group"><label class="label">Data</label><input class="inp" id="nt-data" type="date"></div>
         <div class="input-group"><label class="label">Duração (min)</label><input class="inp" id="nt-dur" type="number" placeholder="90"></div>
       </div>
-
-      <div class="input-group">
-        <label class="label">Objetivo</label>
-        <input class="inp" id="nt-obj" placeholder="Ex: Organização defensiva + transições">
-      </div>
-
+      <div class="input-group"><label class="label">Objetivo</label><input class="inp" id="nt-obj" placeholder="Ex: Organização defensiva + transições"></div>
       <div class="input-group">
         <label class="label">Intensidade geral</label>
         <div class="intensity-grid" id="intensGrid">
@@ -281,9 +716,8 @@
           <button class="intens-btn" data-val="5">5<span>Máxima</span></button>
         </div>
       </div>
-
       <div class="input-group">
-        <label class="label">Tipo de trabalho (seleciona todos)</label>
+        <label class="label">Tipo de trabalho</label>
         <div class="tags-sel" id="tipoTags">
           <button class="ttag" data-tag="Ofensivo">⚡ Ofensivo</button>
           <button class="ttag" data-tag="Defensivo">🛡 Defensivo</button>
@@ -296,12 +730,11 @@
           <button class="ttag" data-tag="Recuperação">🔄 Recuperação</button>
         </div>
       </div>
-
       <div class="input-group">
-        <label class="label">Dinâmicas usadas</label>
+        <label class="label">Dinâmicas</label>
         <div class="tags-sel" id="dinamTags">
           <button class="ttag" data-tag="Rondo">Rondo</button>
-          <button class="ttag" data-tag="Posse 5x2">Posse 5x2</button>
+          <button class="ttag" data-tag="Posse 5x2">Posse 5×2</button>
           <button class="ttag" data-tag="Jogo Reduzido">Jogo Reduzido</button>
           <button class="ttag" data-tag="Circuito Técnico">Circuito Técnico</button>
           <button class="ttag" data-tag="Sprint">Sprint</button>
@@ -309,18 +742,13 @@
           <button class="ttag" data-tag="Finalização">Finalização</button>
         </div>
       </div>
-
-      <div class="input-group">
-        <label class="label">Notas</label>
-        <textarea class="inp inp-area" id="nt-notas" placeholder="Observações, condições, etc."></textarea>
-      </div>
-
+      <div class="input-group"><label class="label">Notas</label><textarea class="inp inp-area" id="nt-notas" placeholder="Observações, condições, etc."></textarea></div>
       <button class="btn btn-primary btn-full" id="btnSalvarTreino">Guardar Treino</button>
     </div>
   </div>
 </div>
 
-<!-- ── MODAL ATLETA ───────────────────────────────────────────── -->
+<!-- ══ MODAL ATLETA ══════════════════════════════════════════════ -->
 <div class="overlay" id="ovAtleta">
   <div class="modal" style="max-width:480px;max-height:90vh;overflow-y:auto;">
     <button class="modal-close" data-close="ovAtleta">×</button>
@@ -330,5 +758,99 @@
 
 <script src="assets/js/app.js"></script>
 <script src="assets/js/club.js"></script>
+<script>
+// ── GESTOR EXTRAS ─────────────────────────────────────────────
+var PLANTEL_CONV=[
+  {n:"Enzo Faria",p:"GR"},{n:"Rafael Delindro",p:"GR"},{n:"Diego Barbosa",p:"GR"},
+  {n:"Duarte Costa",p:"DEF"},{n:"Guilherme Barbosa",p:"DEF"},{n:"Santos",p:"DEF"},
+  {n:"Salvador Neves",p:"DEF"},{n:"Goncalo Brito",p:"DEF"},{n:"Gabriel Matos",p:"DEF"},
+  {n:"Rodrigo Rocha",p:"DEF"},{n:"Fernando Goncalves",p:"DEF"},
+  {n:"Pedro Sousa",p:"MED"},{n:"Jose Sousa",p:"MED"},{n:"Mateus Silva",p:"MED"},
+  {n:"Salvador Pinho",p:"MED"},{n:"Joao Vieira",p:"MED"},{n:"Santiago Goncalves",p:"MED"},
+  {n:"Vasco Coutinho",p:"MED"},
+  {n:"Rodrigo Batista",p:"AVA"},{n:"Dinis Soares",p:"AVA"},{n:"Rafael Rocha",p:"AVA"},
+  {n:"Dinis Duarte",p:"AVA"},{n:"Tomas Morais",p:"AVA"},{n:"Miguel Gaspar",p:"AVA"},
+  {n:"Rafael Cerqueira",p:"AVA"}
+];
+var PL2={GR:"Guarda-Redes",DEF:"Defesa",MED:"Médio",AVA:"Avançado"};
+var convState={};
+
+function renderConv(){
+  var h="";
+  PLANTEL_CONV.forEach(function(p){
+    var st=convState[p.n]||"";
+    h+='<div class="conv-card">';
+    h+='<div class="conv-av">'+p.n.charAt(0)+'</div>';
+    h+='<div style="flex:1;min-width:0"><div class="conv-name">'+p.n+'</div><div class="conv-pos">'+PL2[p.p]+'</div></div>';
+    h+='<div class="conv-sel">';
+    [['C','✓','Conv.'],['N','✗','N/Conv.'],['L','🏥','Lesão']].forEach(function(b){
+      h+='<button class="conv-btn'+(st===b[0]?' active-'+b[0]:'')+'" data-pn="'+p.n+'" data-st="'+b[0]+'">'+b[1]+' '+b[2]+'</button>';
+    });
+    h+='</div></div>';
+  });
+  document.getElementById('convList').innerHTML=h;
+  document.getElementById('convList').querySelectorAll('.conv-btn').forEach(function(b){
+    b.addEventListener('click',function(){
+      convState[b.dataset.pn]=b.dataset.st;
+      renderConv();updateConvCounts();
+    });
+  });
+}
+
+function updateConvCounts(){
+  var c=Object.values(convState).filter(function(v){return v==='C';}).length;
+  var n=Object.values(convState).filter(function(v){return v==='N';}).length;
+  var l=Object.values(convState).filter(function(v){return v==='L';}).length;
+  document.getElementById('convCount').textContent=c;
+  document.getElementById('nconvCount').textContent=n;
+  document.getElementById('lesCount').textContent=l;
+}
+
+document.getElementById('btnPartilharConv').addEventListener('click',function(){
+  var conv=PLANTEL_CONV.filter(function(p){return convState[p.n]==='C';}).map(function(p){return p.n;});
+  if(!conv.length){alert('Seleciona pelo menos um convocado.');return;}
+  var msg='⚽ *Gondomar SC Sub-12*\n📋 *Convocatória — Gondomar vs FC Porto B*\n📅 26 Abril · 10h30\n\n✅ *Convocados ('+conv.length+'):*\n'+conv.map(function(n,i){return (i+1)+'. '+n;}).join('\n')+'\n\n⏰ Concentração: 09h30 no Estádio Municipal\n🎽 Equipamento: Principal\n\n_YourTalentBase · Gestor_';
+  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+});
+
+// Humor
+document.querySelectorAll('.humor-btn').forEach(function(b){
+  b.addEventListener('click',function(){
+    document.querySelectorAll('.humor-btn').forEach(function(x){x.classList.remove('sel');});
+    b.classList.add('sel');
+  });
+});
+document.querySelectorAll('[data-msg]').forEach(function(b){
+  b.addEventListener('click',function(){
+    var msg=b.dataset.msg;
+    window.open('https://wa.me/?text='+encodeURIComponent('⚽ Gondomar SC Sub-12\n\n'+msg+'\n\nMister Teles'),'_blank');
+  });
+});
+
+// Init convocatória when switching to that module
+document.addEventListener('moduleChanged',function(e){
+  if(e.detail==='convocatoria'){renderConv();updateConvCounts();}
+});
+
+// Trigger moduleChanged event when switching
+(function(){
+  var orig=window.switchModule;
+  // Hook into existing module switch - dispatch event after switch
+  var allBtns=document.querySelectorAll('.snav-item[data-module],.qa-btn[data-module],.btn[data-module]');
+  allBtns.forEach(function(b){
+    b.addEventListener('click',function(){
+      var mod=b.dataset.module;
+      if(mod){
+        setTimeout(function(){
+          document.dispatchEvent(new CustomEvent('moduleChanged',{detail:mod}));
+        },50);
+      }
+    });
+  });
+})();
+
+// Init on load
+renderConv();
+</script>
 </body>
 </html>
