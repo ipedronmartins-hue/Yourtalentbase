@@ -212,7 +212,7 @@ document.addEventListener('click', function(e) {
   }
 
   // Inscricao triggers
-  if (['btnHeroInscricao','btnCtaInscricao','btnCardInscricao','btnPlanoBase'].includes(t.id)) {
+  if (['btnHeroInscricao','btnCtaInscricao','btnCardInscricao','btnPlanoBase','btnAtletaCta'].includes(t.id)) {
     YTB.openOverlay('ovInscricao'); return;
   }
 
