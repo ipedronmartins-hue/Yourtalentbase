@@ -9,6 +9,19 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/global.css">
 <style>
+.gate-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
+.gate-card{background:var(--bg2);border:1px solid var(--border);border-top:3px solid var(--gold);border-radius:14px;padding:32px 28px;width:100%;max-width:400px;}
+.gate-icon{font-size:38px;margin-bottom:12px;text-align:center;}
+.gate-eyebrow{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:4px;text-align:center;}
+.gate-title{font-family:var(--font-display);font-size:30px;font-weight:900;margin-bottom:6px;text-align:center;}
+.gate-sub{font-size:13px;color:var(--muted);font-weight:300;margin-bottom:22px;text-align:center;line-height:1.6;}
+.gate-inp{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--white);font-size:14px;padding:12px 13px;outline:none;margin-bottom:10px;font-family:var(--font-body);}
+.gate-inp:focus{border-color:var(--gold-border);}
+.gate-btn{width:100%;background:var(--gold);color:#000;border:none;padding:14px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;}
+.gate-btn:hover{background:#F0CC55;}
+.gate-err{color:var(--red);font-size:12px;text-align:center;margin-bottom:8px;display:none;}
+.gate-back{display:block;text-align:center;margin-top:14px;font-size:11px;color:var(--muted);text-decoration:none;}
+
 .db-header{background:var(--bg2);border-bottom:1px solid var(--border);padding:16px 16px 0;position:sticky;top:0;z-index:10;}
 .db-filters{display:flex;gap:8px;flex-wrap:wrap;padding-bottom:14px;}
 .db-inp{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r-md);padding:9px 12px;color:var(--white);font-size:13px;outline:none;font-family:var(--font-body);transition:border-color .2s;}
@@ -29,47 +42,95 @@
 </style>
 </head>
 <body>
-<nav class="nav">
-  <a href="/" class="nav-logo"><div class="nav-logo-badge">YTB</div>Your<span>Talent</span>Base</a>
-  <div class="nav-actions"><a href="/" class="btn btn-ghost btn-sm">← Início</a></div>
-</nav>
-<div class="db-header">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-    <div>
-      <div class="eyebrow">Base de dados</div>
-      <h1 style="font-family:var(--font-display);font-size:28px;font-weight:900;line-height:1;">Base de Talentos</h1>
+
+<!-- LOGIN GATE -->
+<div id="gateView" class="gate-wrap">
+  <div class="gate-card">
+    <div class="gate-icon">🔐</div>
+    <div class="gate-eyebrow">Acesso restrito</div>
+    <div class="gate-title">Base de Talentos</div>
+    <div class="gate-sub">Esta área é reservada à administração YTB e a parceiros autorizados.</div>
+    <input class="gate-inp" type="password" id="gatePass" placeholder="Password de acesso">
+    <div class="gate-err" id="gateErr">Password incorrecta.</div>
+    <button class="gate-btn" id="gateBtn">Entrar →</button>
+    <a href="/" class="gate-back">← Voltar ao YTB</a>
+  </div>
+</div>
+
+<!-- DATABASE VIEW -->
+<div id="dbView" style="display:none;">
+  <nav class="nav">
+    <a href="/" class="nav-logo"><div class="nav-logo-badge">YTB</div>Your<span>Talent</span>Base</a>
+    <div class="nav-actions">
+      <a href="/" class="btn btn-ghost btn-sm">← Início</a>
+      <button class="btn btn-ghost btn-sm" onclick="logout()">🔓 Sair</button>
     </div>
-    <a href="/" class="btn btn-primary btn-sm">+ Inscrever</a>
+  </nav>
+  <div class="db-header">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <div>
+        <div class="eyebrow" style="color:var(--gold);">🔐 Admin</div>
+        <h1 style="font-family:var(--font-display);font-size:28px;font-weight:900;line-height:1;">Base de Talentos</h1>
+      </div>
+    </div>
+    <div class="db-filters">
+      <input class="db-inp" id="search" placeholder="🔍 Nome ou clube..." style="flex:1;min-width:140px;" oninput="filterAtletas()">
+      <select class="db-sel" id="filtEscalao" onchange="filterAtletas()">
+        <option value="">Escalão</option>
+        <option>Sub-9</option><option>Sub-10</option><option>Sub-11</option>
+        <option>Sub-12</option><option>Sub-13</option><option>Sub-14</option>
+        <option>Sub-15</option><option>Sub-16</option><option>Sub-17</option>
+        <option>Sub-18</option><option>Sub-19</option>
+      </select>
+      <select class="db-sel" id="filtPos" onchange="filterAtletas()">
+        <option value="">Posição</option>
+        <option>Guarda-Redes</option><option>Defesa Central</option>
+        <option>Defesa Direito</option><option>Defesa Esquerdo</option>
+        <option>Médio Defensivo</option><option>Médio Centro</option>
+        <option>Médio Ofensivo</option><option>Extremo Direito</option>
+        <option>Extremo Esquerdo</option><option>Avançado</option>
+      </select>
+    </div>
+    <div class="db-count" id="dbCount">A carregar...</div>
   </div>
-  <div class="db-filters">
-    <input class="db-inp" id="search" placeholder="🔍 Nome ou clube..." style="flex:1;min-width:140px;" oninput="filterAtletas()">
-    <select class="db-sel" id="filtEscalao" onchange="filterAtletas()">
-      <option value="">Escalão</option>
-      <option>Sub-9</option><option>Sub-10</option><option>Sub-11</option>
-      <option>Sub-12</option><option>Sub-13</option><option>Sub-14</option>
-      <option>Sub-15</option><option>Sub-16</option><option>Sub-17</option>
-      <option>Sub-18</option><option>Sub-19</option>
-    </select>
-    <select class="db-sel" id="filtPos" onchange="filterAtletas()">
-      <option value="">Posição</option>
-      <option>Guarda-Redes</option><option>Defesa Central</option>
-      <option>Defesa Direito</option><option>Defesa Esquerdo</option>
-      <option>Médio Defensivo</option><option>Médio Centro</option>
-      <option>Médio Ofensivo</option><option>Extremo Direito</option>
-      <option>Extremo Esquerdo</option><option>Avançado</option>
-    </select>
+  <div style="padding:12px 16px 80px;" id="atletasList">
+    <div class="spin"></div>
   </div>
-  <div class="db-count" id="dbCount">A carregar...</div>
 </div>
-<div style="padding:12px 16px 80px;" id="atletasList">
-  <div class="spin"></div>
-</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+var ADMIN_PASS = "YTB#Admin2026";
 var SB_URL="https://nhshnplaiolxwcfuijfo.supabase.co";
 var SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oc2hucGxhaW9seHdjZnVpamZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NDQxNTAsImV4cCI6MjA4OTQyMDE1MH0.uyZiDun8495sjnHA6Wsk-Hou-3lubbNJfQqSYbMLSek";
 var db=supabase.createClient(SB_URL,SB_KEY);
 var allData=[];
+
+function gateLogin(){
+  var pass = document.getElementById("gatePass").value.trim();
+  var err = document.getElementById("gateErr");
+  if(pass !== ADMIN_PASS){
+    err.style.display = "block";
+    document.getElementById("gatePass").value = "";
+    return;
+  }
+  err.style.display = "none";
+  document.getElementById("gateView").style.display = "none";
+  document.getElementById("dbView").style.display = "block";
+  loadAtletas();
+}
+
+function logout(){
+  document.getElementById("gateView").style.display = "flex";
+  document.getElementById("dbView").style.display = "none";
+  document.getElementById("gatePass").value = "";
+}
+
+document.getElementById("gateBtn").addEventListener("click", gateLogin);
+document.getElementById("gatePass").addEventListener("keydown", function(e){
+  if(e.key === "Enter") gateLogin();
+});
+
 async function loadAtletas(){
   try{
     var res=await db.from("sugestoes").select("*").order("created_at",{ascending:false});
@@ -80,6 +141,7 @@ async function loadAtletas(){
     document.getElementById("dbCount").textContent="Erro ao carregar";
   }
 }
+
 function filterAtletas(){
   var s=(document.getElementById("search").value||"").toLowerCase().trim();
   var esc=document.getElementById("filtEscalao").value;
@@ -91,6 +153,7 @@ function filterAtletas(){
   document.getElementById("dbCount").textContent=f.length+" atleta"+(f.length!==1?"s":"")+" encontrado"+(f.length!==1?"s":"");
   renderAtletas(f);
 }
+
 function renderAtletas(lista){
   if(!lista.length){
     document.getElementById("atletasList").innerHTML='<div class="empty"><div class="empty-icon">🔍</div><p style="font-size:14px;font-weight:600;margin-bottom:6px;">Nenhum atleta encontrado</p><p style="font-size:13px;">Tenta ajustar os filtros.</p></div>';
@@ -103,8 +166,11 @@ function renderAtletas(lista){
     h+='<div class="atleta-card">';
     h+='<div class="atleta-av">'+ini+"</div>";
     h+='<div style="flex:1;min-width:0;">';
-    h+='<div class="atleta-nome">'+( a.nome||"—")+"</div>";
+    h+='<div class="atleta-nome">'+(a.nome||"—")+"</div>";
     h+='<div class="atleta-meta">'+[a.idade?a.idade+" anos":"",a.clube||"",a.escalao||""].filter(Boolean).join(" · ")+"</div>";
+    if(a.contacto){
+      h+='<div style="font-size:11px;color:var(--gold);font-weight:600;margin-top:4px;">📞 '+a.contacto+'</div>';
+    }
     h+='<div class="atleta-tags">';
     if(a.posicao)h+='<span class="badge badge-gray">'+a.posicao+"</span>";
     if(a.escalao)h+='<span class="badge badge-blue">'+a.escalao+"</span>";
@@ -115,7 +181,6 @@ function renderAtletas(lista){
   });
   document.getElementById("atletasList").innerHTML=h;
 }
-loadAtletas();
 </script>
 </body>
 </html>
