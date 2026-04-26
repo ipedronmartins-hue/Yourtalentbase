@@ -69,9 +69,9 @@ button,select,input,textarea{font-family:'Barlow',sans-serif;cursor:pointer;}
 .pdot-label{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);}
 
 /* PANELS CONTAINER */
-.panels{display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;flex:1;}
+.panels{display:flex;overflow:hidden;flex:1;}
 .panels::-webkit-scrollbar{display:none;}
-.panel{flex:0 0 100%;height:100%;scroll-snap-align:start;overflow-y:auto;overflow-x:hidden;}
+.panel{flex:0 0 100%;width:100%;min-width:100%;height:100%;overflow-y:auto;overflow-x:hidden;transition:none;}
 .panel::-webkit-scrollbar{width:3px;}
 .panel::-webkit-scrollbar-thumb{background:var(--b2);}
 
@@ -557,17 +557,13 @@ function doLogin(){
   el('vLogin').style.display='none';
   el('app').classList.add('on');
   el('navEsc').textContent = S.escalao;
-  // Wait for DOM to paint before placing players
-  requestAnimationFrame(function(){
-    requestAnimationFrame(function(){
-      buildPanel1();
-      drawPitch();
-      initZones();
-      applyFormation('A', S.formation);
-      placeAITeam();
-      updateP3Header();
-    });
-  });
+  goPanel(0);
+  buildPanel1();
+  drawPitch();
+  initZones();
+  applyFormation('A', S.formation);
+  placeAITeam();
+  updateP3Header();
 }
 
 // ════════════════════════════════════════════════
@@ -575,12 +571,14 @@ function doLogin(){
 // ════════════════════════════════════════════════
 function goPanel(idx){
   updateDots(idx);
-  requestAnimationFrame(function(){
-    var pw = el('panelsWrap');
-    if(!pw) return;
-    var w = pw.offsetWidth || window.innerWidth;
-    pw.scrollLeft = idx * w;
+  // Use display switching - most reliable across all mobile browsers
+  [0,1,2].forEach(function(i){
+    var p = el('panel'+i);
+    if(p) p.style.display = (i === idx) ? 'flex' : 'none';
   });
+  // Panel 1 needs flex-direction column for inner layout
+  var p1 = el('panel1');
+  if(p1 && idx === 1) p1.style.flexDirection = 'column';
 }
 
 function updateDots(idx){
@@ -593,14 +591,7 @@ function updateDots(idx){
 
 function goToAnalysis(){ goPanel(2); updateP3Header(); }
 
-// Update dots on manual scroll
-el('panelsWrap').addEventListener('scroll', function(){
-  var idx = Math.round(this.scrollLeft / this.offsetWidth);
-  if(idx !== S.currentPanel){
-    S.currentPanel = idx;
-    [0,1,2].forEach(function(i){ el('dot'+i).classList.toggle('active', i===idx); });
-  }
-}, {passive:true});
+// scroll listener removed - using display switching
 
 // ════════════════════════════════════════════════
 //  BUILD PANEL 1
@@ -1289,8 +1280,13 @@ function exportSVG(){
 //  INIT
 // ════════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', function(){
+  // Only show panel 0 initially
+  [0,1,2].forEach(function(i){
+    var p = el('panel'+i);
+    if(p) p.style.display = i === 0 ? 'flex' : 'none';
+    if(p && i === 0) p.style.flexDirection = 'column';
+  });
   initZones();
-  // Active toolbar defaults
   el('tZones').classList.add('active');
   el('tArrows').classList.add('active');
   el('tNums').classList.add('active');
