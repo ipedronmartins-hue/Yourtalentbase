@@ -40,6 +40,19 @@
       ]
     },
     {
+      "source": "/treinos/(.*).json",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=300, must-revalidate"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    },
+    {
       "source": "/assets/(.*)",
       "headers": [
         {
