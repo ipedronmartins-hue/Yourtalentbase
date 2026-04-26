@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YTB Youth Cup 2026 — Plano Diretor</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{--gold:#C9A84C;--gold-dim:#8B6F2E;--black:#0A0A0A;--dark:#111;--dark2:#181818;--dark3:#222;--white:#F5F5F0;--grey:#888;--gl:#BBBBBB;--green:#2ECC71;--red:#E74C3C;--orange:#F39C12;--blue:#3498DB;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--black);color:var(--white);font-family:'Barlow',sans-serif;font-size:15px;line-height:1.6;}
+  p{margin-bottom:10px;} strong{color:var(--white);}
+  h3{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin:22px 0 10px;}
+  ul{padding-left:20px;color:var(--gl);}ul li{margin-bottom:5px;}
+
+  .hero{background:var(--dark);padding:60px 40px 50px;text-align:center;border-bottom:3px solid var(--gold);position:relative;overflow:hidden;}
+  .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center top,rgba(201,168,76,0.12) 0%,transparent 70%);pointer-events:none;}
+  .hero-badge{display:inline-block;border:1px solid var(--gold-dim);color:var(--gold);font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:4px;text-transform:uppercase;padding:5px 18px;margin-bottom:24px;}
+  .hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(52px,8vw,96px);letter-spacing:4px;color:var(--white);line-height:0.9;margin-bottom:8px;}
+  .hero h1 span{color:var(--gold);}
+  .hero-sub{font-family:'Barlow Condensed',sans-serif;font-size:20px;letter-spacing:6px;color:var(--grey);text-transform:uppercase;margin-bottom:30px;}
+  .hero-meta{display:flex;justify-content:center;gap:40px;flex-wrap:wrap;}
+  .hmi{text-align:center;}
+  .hmi .lbl{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold-dim);display:block;}
+  .hmi .val{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;color:var(--white);}
+  .tg{color:var(--gold);}.tgr{color:var(--green);}.tr{color:var(--red);}
+
+  .container{max-width:1100px;margin:0 auto;padding:0 30px;}
+  .section{padding:50px 0 40px;border-bottom:1px solid #222;}
+  .sh{display:flex;align-items:baseline;gap:16px;margin-bottom:32px;}
+  .sn{font-family:'Bebas Neue',sans-serif;font-size:64px;color:var(--dark3);line-height:1;flex-shrink:0;}
+  .st{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;color:var(--white);line-height:1.1;}
+  .st span{color:var(--gold);}
+
+  .callout{background:var(--dark2);border-left:4px solid var(--gold);padding:18px 22px;margin:20px 0;border-radius:0 4px 4px 0;}
+  .callout.green{border-left-color:var(--green);}.callout.red{border-left-color:var(--red);}.callout.blue{border-left-color:var(--blue);}
+  .ct{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:6px;}
+  .callout.green .ct{color:var(--green);}.callout.red .ct{color:var(--red);}.callout.blue .ct{color:var(--blue);}
+
+  .tw{overflow-x:auto;margin:20px 0;}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;}
+  thead th{background:var(--dark3);color:var(--gold);font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:10px 14px;text-align:left;border-bottom:2px solid var(--gold-dim);}
+  tbody tr{border-bottom:1px solid #1e1e1e;}tbody tr:hover{background:rgba(201,168,76,0.04);}
+  tbody td{padding:9px 14px;color:var(--gl);}tbody td:first-child{color:var(--white);font-weight:500;}
+  .tdg{color:var(--gold)!important;font-weight:700!important;}.tdgr{color:var(--green)!important;font-weight:600!important;}.tdr{color:var(--red)!important;}
+
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px;margin:20px 0;}
+  .card{background:var(--dark2);border:1px solid #2a2a2a;border-radius:4px;padding:20px;}
+  .card-lbl{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold-dim);margin-bottom:4px;}
+  .card-val{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:700;color:var(--white);}
+  .card-val.g{color:var(--gold);}
+  .card-sub{font-size:12px;color:var(--grey);margin-top:4px;}
+
+  .scenarios{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:24px 0;}
+  @media(max-width:700px){.scenarios{grid-template-columns:1fr;}}
+  .scenario{background:var(--dark2);border:1px solid #2a2a2a;border-radius:4px;padding:22px;text-align:center;}
+  .scenario.bad{border-top:3px solid var(--red);}.scenario.normal{border-top:3px solid var(--orange);}.scenario.good{border-top:3px solid var(--green);}
+  .sc-lbl{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;}
+  .scenario.bad .sc-lbl{color:var(--red);}.scenario.normal .sc-lbl{color:var(--orange);}.scenario.good .sc-lbl{color:var(--green);}
+  .sc-val{font-family:'Bebas Neue',sans-serif;font-size:44px;color:var(--white);line-height:1;margin-bottom:8px;}
+  .sc-br{font-size:12px;color:var(--grey);line-height:1.8;}
+
+  /* SCHEDULE */
+  .sday{margin-bottom:30px;}
+  .sday-hdr{background:var(--dark3);border-left:4px solid var(--gold);padding:10px 18px;font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:2px;}
+  .sslot{display:grid;grid-template-columns:88px 1fr 1fr;border-bottom:1px solid #1a1a1a;}
+  .sslot:nth-child(even){background:rgba(255,255,255,0.01);}
+  .sslot.brk{background:rgba(201,168,76,0.04);}
+  .sslot.finals{background:rgba(201,168,76,0.08);}
+  .stime{padding:8px 12px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:var(--gold);border-right:1px solid #222;display:flex;align-items:center;}
+  .sf{padding:8px 12px;font-size:13px;color:var(--gl);border-right:1px solid #1a1a1a;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+  .sf.empty{color:#333;font-style:italic;}
+  .b{display:inline-block;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;padding:2px 6px;border-radius:2px;text-transform:uppercase;flex-shrink:0;}
+  .bs9{background:#1a3a5c;color:#5dade2;}
+  .bs10{background:#1a3a2a;color:#2ecc71;}
+  .bs11{background:#3a1a2a;color:#e74c3c;}
+  .bbr{background:#2a2a2a;color:#666;}
+  .bfin{background:#2a1e00;color:var(--gold);}
+  .bprat{background:#1a1a3a;color:#5dade2;}
+  .mn{font-weight:500;color:var(--white);}
+
+  /* MATCH MAP */
+  .esc-hdr{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:10px 16px;margin-top:28px;margin-bottom:8px;}
+  .esc-hdr.s9{background:rgba(26,58,92,0.5);color:#5dade2;border-left:4px solid #5dade2;}
+  .esc-hdr.s10{background:rgba(26,58,42,0.5);color:#2ecc71;border-left:4px solid #2ecc71;}
+  .esc-hdr.s11{background:rgba(58,26,42,0.5);color:#e74c3c;border-left:4px solid #e74c3c;}
+  .gr{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+  .gb{background:var(--dark2);border:1px solid #2a2a2a;border-radius:4px;padding:14px;}
+  .gb h4{font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
+  .mr{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #1e1e1e;font-size:13px;}
+  .mr:last-child{border-bottom:none;}
+  .mn2{font-family:'Barlow Condensed',sans-serif;font-size:11px;color:#555;width:26px;flex-shrink:0;}
+  .mt{flex:1;color:var(--white);font-weight:500;}
+  .mt em{color:var(--grey);font-style:normal;font-weight:400;margin:0 4px;}
+  .ew{background:var(--dark2);border:1px solid #333;border-radius:4px;margin-bottom:24px;overflow:hidden;}
+  .eh{background:var(--dark3);padding:8px 14px;font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);}
+  .eg{display:grid;grid-template-columns:1fr 1fr 1fr;}
+  .ec{padding:10px 14px;border-right:1px solid #222;}
+  .ec:last-child{border-right:none;}
+  .el{font-size:10px;color:#555;display:block;margin-bottom:3px;letter-spacing:1px;text-transform:uppercase;}
+  .em{color:var(--white);font-weight:500;font-size:13px;}
+  .em.g{color:var(--gold);}.em.s{color:#5dade2;}
+  .ediv{border-top:1px solid #222;}
+
+  /* FINANCIALS */
+  .fb2{background:var(--dark2);border:1px solid #2a2a2a;border-radius:4px;margin:18px 0;overflow:hidden;}
+  .fh2{background:var(--dark3);padding:10px 18px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);}
+  .frow{display:grid;grid-template-columns:1fr 100px 100px 100px;border-bottom:1px solid #1e1e1e;}
+  .frow:last-child{border-bottom:none;}
+  .frow.ftot{background:rgba(201,168,76,0.06);}
+  .frow.fcst{background:rgba(231,76,60,0.04);}
+  .frow.fpro{background:rgba(46,204,113,0.06);}
+  .fc{padding:9px 14px;font-size:13px;color:var(--gl);border-right:1px solid #1a1a1a;}
+  .fc:first-child{color:var(--white);}
+  .fc:last-child{border-right:none;}
+  .fc.fhd{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--grey);background:rgba(255,255,255,0.02);}
+  .fc.fba{color:var(--red)!important;font-weight:600;}
+  .fc.fno{color:var(--orange)!important;font-weight:600;}
+  .fc.fgo{color:var(--green)!important;font-weight:600;}
+  .fc.fau{color:var(--gold)!important;font-weight:700;}
+
+  .verdict{background:linear-gradient(135deg,#0d0d0d 0%,#1a1500 100%);border:2px solid var(--gold);border-radius:4px;padding:36px;margin:24px 0;text-align:center;}
+  .verdict-title{font-family:'Bebas Neue',sans-serif;font-size:48px;letter-spacing:4px;color:var(--gold);margin-bottom:16px;}
+  .verdict p{color:var(--gl);max-width:700px;margin:0 auto 12px;}
+
+  .footer{background:var(--dark2);padding:30px;text-align:center;border-top:1px solid #222;font-size:12px;color:var(--grey);letter-spacing:1px;}
+  .footer strong{color:var(--gold);}
+
+  @media(max-width:600px){
+    .hero{padding:40px 20px;}.container{padding:0 16px;}
+    .sslot{grid-template-columns:80px 1fr;}.sslot>.sf:last-child{display:none;}
+    .gr{grid-template-columns:1fr;}.eg{grid-template-columns:1fr;}
+    .frow{grid-template-columns:1fr 80px 80px;}.frow>.fc:nth-child(4){display:none;}
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">Plano Diretor · Versão Final · Sub-9 + Sub-10 + Sub-11</div>
+  <h1>YTB<br><span>YOUTH CUP</span></h1>
+  <div class="hero-sub">Portugal · Setembro 2026</div>
+  <div class="hero-meta">
+    <div class="hmi"><span class="lbl">Escalões</span><span class="val">3</span></div>
+    <div class="hmi"><span class="lbl">Total Equipas</span><span class="val">24</span></div>
+    <div class="hmi"><span class="lbl">Total Jogos</span><span class="val">54</span></div>
+    <div class="hmi"><span class="lbl">Atletas Est.</span><span class="val">~360</span></div>
+    
+    
+  </div>
+</div>
+
+<!-- ═══ 01 FORMATO -->
+<div class="section"><div class="container">
+  <div class="sh"><div class="sn">01</div><div class="st">FORMATO <span>COMPETITIVO</span></div></div>
+
+  <div class="callout">
+    <div class="ct">Modelo Final</div>
+    <strong>3 escalões · 8 equipas cada · 2 grupos de 4 · Taça Ouro + Taça Prata</strong><br>
+    Fase de grupos: cada equipa joga <strong>3 jogos</strong> (todos vs todos no grupo).<br>
+    Top 2 → Meias + Final <strong>Taça Ouro</strong> · 3.º e 4.º → Meias + Final <strong>Taça Prata</strong><br>
+    <strong>Mínimo 4 jogos garantidos · 5 jogos para os finalistas · nenhuma equipa fica sem eliminar</strong>
+  </div>
+
+  <div class="tw"><table>
+    <thead><tr><th>Fase</th><th>Quem joga</th><th>Jogos/escalão</th><th>Quando</th></tr></thead>
+    <tbody>
+      <tr><td>Grupos (2 × 6 jogos)</td><td>Todos vs todos no grupo</td><td>12</td><td>Sábado</td></tr>
+      <tr><td>Meias Taça Ouro</td><td>1.º Gr.A vs 2.º Gr.B · 1.º Gr.B vs 2.º Gr.A</td><td>2</td><td>Domingo manhã</td></tr>
+      <tr><td>Meias Taça Prata</td><td>3.º Gr.A vs 4.º Gr.B · 3.º Gr.B vs 4.º Gr.A</td><td>2</td><td>Domingo manhã</td></tr>
+      <tr><td>Final Taça Prata</td><td>Vencedores Meias Prata</td><td>1</td><td>Domingo tarde</td></tr>
+      <tr><td>Final Taça Ouro</td><td>Vencedores Meias Ouro</td><td>1</td><td>Domingo tarde</td></tr>
+      <tr><td class="tdg">Total por escalão</td><td></td><td class="tdg">18</td><td></td></tr>
+      <tr><td class="tdg">Total 3 escalões</td><td></td><td class="tdg">54</td><td></td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="cards">
+    <div class="card"><div class="card-lbl">Sub-9</div><div class="card-val">8 equipas</div><div class="card-sub">2 grupos × 4 · máx. 120 atletas</div></div>
+    <div class="card"><div class="card-lbl">Sub-10</div><div class="card-val">8 equipas</div><div class="card-sub">2 grupos × 4 · máx. 120 atletas</div></div>
+    <div class="card"><div class="card-lbl">Sub-11</div><div class="card-val">8 equipas</div><div class="card-sub">2 grupos × 4 · máx. 120 atletas</div></div>
+    <div class="card"><div class="card-lbl">Total</div><div class="card-val g">~360</div><div class="card-sub">atletas · ~900 visitantes/dia</div></div>
+  </div>
+
+  <div class="callout green">
+    <div class="ct">Rotação Inteligente</div>
+    Rotação <strong>S9 → S10 → S11</strong> contínua nos 2 campos. Cada equipa descansa <strong>~70 min entre jogos</strong> — tempo para ver outros escalões, ir ao bar, almoçar. Todas as famílias presentes o dia inteiro. Consumo no bar distribuído em ondas contínuas, sem pico de stress.
+  </div>
+</div></div>
+
+<!-- ═══ 02 MAPA DE JOGOS -->
+<div class="section"><div class="container">
+  <div class="sh"><div class="sn">02</div><div class="st">MAPA DE <span>JOGOS</span></div></div>
+  <div class="callout blue">
+    <div class="ct">Nomenclatura</div>
+    <strong>S9-A1</strong> = Sub-9, Grupo A, Equipa 1. Clubes reais atribuídos por sorteio após confirmação de inscrições.
+  </div>
+
+  <!-- SUB-9 -->
+  <div class="esc-hdr s9">⚽ Sub-9 — 18 Jogos Totais (12 grupos + 6 eliminatórias)</div>
+  <div class="gr">
+    <div class="gb"><h4>Grupo A — 6 jogos</h4>
+      <div class="mr"><span class="mn2">J1</span><span class="mt">S9-A1 <em>vs</em> S9-A2</span></div>
+      <div class="mr"><span class="mn2">J2</span><span class="mt">S9-A3 <em>vs</em> S9-A4</span></div>
+      <div class="mr"><span class="mn2">J3</span><span class="mt">S9-A1 <em>vs</em> S9-A3</span></div>
+      <div class="mr"><span class="mn2">J4</span><span class="mt">S9-A2 <em>vs</em> S9-A4</span></div>
+      <div class="mr"><span class="mn2">J5</span><span class="mt">S9-A1 <em>vs</em> S9-A4</span></div>
+      <div class="mr"><span class="mn2">J6</span><span class="mt">S9-A2 <em>vs</em> S9-A3</span></div>
+    </div>
+    <div class="gb"><h4>Grupo B — 6 jogos</h4>
+      <div class="mr"><span class="mn2">J7</span><span class="mt">S9-B1 <em>vs</em> S9-B2</span></div>
+      <div class="mr"><span class="mn2">J8</span><span class="mt">S9-B3 <em>vs</em> S9-B4</span></div>
+      <div class="mr"><span class="mn2">J9</span><span class="mt">S9-B1 <em>vs</em> S9-B3</span></div>
+      <div class="mr"><span class="mn2">J10</span><span class="mt">S9-B2 <em>vs</em> S9-B4</span></div>
+      <div class="mr"><span class="mn2">J11</span><span class="mt">S9-B1 <em>vs</em> S9-B4</span></div>
+      <div class="mr"><span class="mn2">J12</span><span class="mt">S9-B2 <em>vs</em> S9-B3</span></div>
+    </div>
+  </div>
+  <div class="ew">
+    <div class="eh">Sub-9 — Eliminatórias Domingo</div>
+    <div class="eg">
+      <div class="ec"><span class="el">Meia Final Ouro A</span><span class="em">1.º Gr.A vs 2.º Gr.B</span></div>
+      <div class="ec"><span class="el">Meia Final Ouro B</span><span class="em">1.º Gr.B vs 2.º Gr.A</span></div>
+      <div class="ec"><span class="el">🏆 Final Taça Ouro</span><span class="em g">Venc. MO-A vs Venc. MO-B</span></div>
+    </div>
+    <div class="ediv"><div class="eg">
+      <div class="ec"><span class="el">Meia Final Prata A</span><span class="em">3.º Gr.A vs 4.º Gr.B</span></div>
+      <div class="ec"><span class="el">Meia Final Prata B</span><span class="em">3.º Gr.B vs 4.º Gr.A</span></div>
+      <div class="ec"><span class="el">🥈 Final Taça Prata</span><span class="em s">Venc. MP-A vs Venc. MP-B</span></div>
+    </div></div>
+  </div>
+
+  <!-- SUB-10 -->
+  <div class="esc-hdr s10">⚽ Sub-10 — 18 Jogos Totais (12 grupos + 6 eliminatórias)</div>
+  <div class="gr">
+    <div class="gb"><h4>Grupo A — 6 jogos</h4>
+      <div class="mr"><span class="mn2">J1</span><span class="mt">S10-A1 <em>vs</em> S10-A2</span></div>
+      <div class="mr"><span class="mn2">J2</span><span class="mt">S10-A3 <em>vs</em> S10-A4</span></div>
+      <div class="mr"><span class="mn2">J3</span><span class="mt">S10-A1 <em>vs</em> S10-A3</span></div>
+      <div class="mr"><span class="mn2">J4</span><span class="mt">S10-A2 <em>vs</em> S10-A4</span></div>
+      <div class="mr"><span class="mn2">J5</span><span class="mt">S10-A1 <em>vs</em> S10-A4</span></div>
+      <div class="mr"><span class="mn2">J6</span><span class="mt">S10-A2 <em>vs</em> S10-A3</span></div>
+    </div>
+    <div class="gb"><h4>Grupo B — 6 jogos</h4>
+      <div class="mr"><span class="mn2">J7</span><span class="mt">S10-B1 <em>vs</em> S10-B2</span></div>
+      <div class="mr"><span class="mn2">J8</span><span class="mt">S10-B3 <em>vs</em> S10-B4</span></div>
+      <div class="mr"><span class="mn2">J9</span><span class="mt">S10-B1 <em>vs</em> S10-B3</span></div>
+      <div class="mr"><span class="mn2">J10</span><span class="mt">S10-B2 <em>vs</em> S10-B4</span></div>
+      <div class="mr"><span class="mn2">J11</span><span class="mt">S10-B1 <em>vs</em> S10-B4</span></div>
+      <div class="mr"><span class="mn2">J12</span><span class="mt">S10-B2 <em>vs</em> S10-B3</span></div>
+    </div>
+  </div>
+  <div class="ew">
+    <div class="eh">Sub-10 — Eliminatórias Domingo</div>
+    <div class="eg">
+      <div class="ec"><span class="el">Meia Final Ouro A</span><span class="em">1.º Gr.A vs 2.º Gr.B</span></div>
+      <div class="ec"><span class="el">Meia Final Ouro B</span><span class="em">1.º Gr.B vs 2.º Gr.A</span></div>
+      <div class="ec"><span class="el">🏆 Final Taça Ouro</span><span class="em g">Venc. MO-A vs Venc. MO-B</span></div>
+    </div>
+    <div class="ediv"><div class="eg">
+      <div class="ec"><span class="el">Meia Final Prata A</span><span class="em">3.º Gr.A vs 4.º Gr.B</span></div>
+      <div class="ec"><span class="el">Meia Final Prata B</span><span class="em">3.º Gr.B vs 4.º Gr.A</span></div>
+      <div class="ec"><span class="el">🥈 Final Taça Prata</span><span class="em s">Venc. MP-A vs Venc. MP-B</span></div>
+    </div></div>
+  </div>
+
+  <!-- SUB-11 -->
+  <div class="esc-hdr s11">⚽ Sub-11 — 18 Jogos Totais (12 grupos + 6 eliminatórias)</div>
+  <div class="gr">
+    <div class="gb"><h4>Grupo A — 6 jogos</h4>
+      <div class="mr"><span class="mn2">J1</span><span class="mt">S11-A1 <em>vs</em> S11-A2</span></div>
+      <div class="mr"><span class="mn2">J2</span><span class="mt">S11-A3 <em>vs</em> S11-A4</span></div>
+      <div class="mr"><span class="mn2">J3</span><span class="mt">S11-A1 <em>vs</em> S11-A3</span></div>
+      <div class="mr"><span class="mn2">J4</span><span class="mt">S11-A2 <em>vs</em> S11-A4</span></div>
+      <div class="mr"><span class="mn2">J5</span><span class="mt">S11-A1 <em>vs</em> S11-A4</span></div>
+      <div class="mr"><span class="mn2">J6</span><span class="mt">S11-A2 <em>vs</em> S11-A3</span></div>
+    </div>
+    <div class="gb"><h4>Grupo B — 6 jogos</h4>
+      <div class="mr"><span class="mn2">J7</span><span class="mt">S11-B1 <em>vs</em> S11-B2</span></div>
+      <div class="mr"><span class="mn2">J8</span><span class="mt">S11-B3 <em>vs</em> S11-B4</span></div>
+      <div class="mr"><span class="mn2">J9</span><span class="mt">S11-B1 <em>vs</em> S11-B3</span></div>
+      <div class="mr"><span class="mn2">J10</span><span class="mt">S11-B2 <em>vs</em> S11-B4</span></div>
+      <div class="mr"><span class="mn2">J11</span><span class="mt">S11-B1 <em>vs</em> S11-B4</span></div>
+      <div class="mr"><span class="mn2">J12</span><span class="mt">S11-B2 <em>vs</em> S11-B3</span></div>
+    </div>
+  </div>
+  <div class="ew">
+    <div class="eh">Sub-11 — Eliminatórias Domingo</div>
+    <div class="eg">
+      <div class="ec"><span class="el">Meia Final Ouro A</span><span class="em">1.º Gr.A vs 2.º Gr.B</span></div>
+      <div class="ec"><span class="el">Meia Final Ouro B</span><span class="em">1.º Gr.B vs 2.º Gr.A</span></div>
+      <div class="ec"><span class="el">🏆 Final Taça Ouro</span><span class="em g">Venc. MO-A vs Venc. MO-B</span></div>
+    </div>
+    <div class="ediv"><div class="eg">
+      <div class="ec"><span class="el">Meia Final Prata A</span><span class="em">3.º Gr.A vs 4.º Gr.B</span></div>
+      <div class="ec"><span class="el">Meia Final Prata B</span><span class="em">3.º Gr.B vs 4.º Gr.A</span></div>
+      <div class="ec"><span class="el">🥈 Final Taça Prata</span><span class="em s">Venc. MP-A vs Venc. MP-B</span></div>
+    </div></div>
+  </div>
+</div></div>
+
+<!-- ═══ 03 CALENDÁRIO -->
+<div class="section"><div class="container">
+  <div class="sh"><div class="sn">03</div><div class="st">CALENDÁRIO <span>COMPLETO</span></div></div>
+
+  <div class="callout blue">
+    <div class="ct">Lógica de Programação</div>
+    <strong>25 min jogo + 10 min rotação = 35 min por slot.</strong><br>
+    Rotação contínua <strong>S9 → S10 → S11</strong> nos 2 campos em simultâneo.<br>
+    Cada equipa descansa <strong>~70 min entre jogos</strong> (os outros 2 escalões jogam enquanto espera).<br>
+    Sem pausa formal de almoço — cada equipa almoça no seu intervalo natural de 70 min.<br>
+    <strong>Sábado:</strong> todos os 36 jogos de grupos (09:00–19:30).<br>
+    <strong>Domingo:</strong> 12 meias + 6 finais + cerimónia (09:00–15:05).
+  </div>
+
+  <!-- SÁBADO -->
+  <div class="sday">
+    <div class="sday-hdr">⚽ SÁBADO — 26 SETEMBRO · Fase de Grupos · 36 jogos · 09:00–19:30</div>
+
+    <div class="sslot brk">
+      <div class="stime">08:30</div>
+      <div class="sf"><span class="b bbr">SETUP</span> Abertura portões · credenciamento equipas · briefing árbitros · som</div>
+      <div class="sf empty">—</div>
+    </div>
+
+    <!-- Ciclo 1 — J1 -->
+    <div class="sslot"><div class="stime">09:00</div><div class="sf"><span class="b bs9">S9</span><span class="mn">Campo A — Gr.A: J1 (A1 vs A2)</span></div><div class="sf"><span class="b bs9">S9</span><span class="mn">Campo B — Gr.B: J7 (B1 vs B2)</span></div></div>
+    <div class="sslot"><div class="stime">09:35</div><div class="sf"><span class="b bs10">S10</span><span class="mn">Campo A — Gr.A: J1 (A1 vs A2)</span></div><div class="sf"><span class="b bs10">S10</span><span class="mn">Campo B — Gr.B: J7 (B1 vs B2)</span></div></div>
+    <div class="sslot"><div class="stime">10:10</div><div class="sf"><span class="b bs11">S11</span><span class="mn">Campo A — Gr.A: J1 (A1 vs A2)</span></div><div class="sf"><span class="b bs11">S11</span><span class="mn">Campo B — Gr.B: J7 (B1 vs B2)</span></div></div>
+
+    <!-- Ciclo 2 — J2 -->
+    <div class="sslot"><div class="stime">10:45</div><div class="sf"><span class="b bs9">S9</span> Campo A — Gr.A: J2 (A3 vs A4)</div><div class="sf"><span class="b bs9">S9</span> Campo B — Gr.B: J8 (B3 vs B4)</div></div>
+    <div class="sslot"><div class="stime">11:20</div><div class="sf"><span class="b bs10">S10</span> Campo A — Gr.A: J2 (A3 vs A4)</div><div class="sf"><span class="b bs10">S10</span> Campo B — Gr.B: J8 (B3 vs B4)</div></div>
+    <div class="sslot"><div class="stime">11:55</div><div class="sf"><span class="b bs11">S11</span> Campo A — Gr.A: J2 (A3 vs A4)</div><div class="sf"><span class="b bs11">S11</span> Campo B — Gr.B: J8 (B3 vs B4)</div></div>
+
+    <!-- Ciclo 3 — J3 -->
+    <div class="sslot"><div class="stime">12:30</div><div class="sf"><span class="b bs9">S9</span> Campo A — Gr.A: J3 (A1 vs A3)</div><div class="sf"><span class="b bs9">S9</span> Campo B — Gr.B: J9 (B1 vs B3)</div></div>
+    <div class="sslot"><div class="stime">13:05</div><div class="sf"><span class="b bs10">S10</span> Campo A — Gr.A: J3 (A1 vs A3)</div><div class="sf"><span class="b bs10">S10</span> Campo B — Gr.B: J9 (B1 vs B3)</div></div>
+    <div class="sslot"><div class="stime">13:40</div><div class="sf"><span class="b bs11">S11</span> Campo A — Gr.A: J3 (A1 vs A3)</div><div class="sf"><span class="b bs11">S11</span> Campo B — Gr.B: J9 (B1 vs B3)</div></div>
+
+    <!-- Ciclo 4 — J4 -->
+    <div class="sslot"><div class="stime">14:15</div><div class="sf"><span class="b bs9">S9</span> Campo A — Gr.A: J4 (A2 vs A4)</div><div class="sf"><span class="b bs9">S9</span> Campo B — Gr.B: J10 (B2 vs B4)</div></div>
+    <div class="sslot"><div class="stime">14:50</div><div class="sf"><span class="b bs10">S10</span> Campo A — Gr.A: J4 (A2 vs A4)</div><div class="sf"><span class="b bs10">S10</span> Campo B — Gr.B: J10 (B2 vs B4)</div></div>
+    <div class="sslot"><div class="stime">15:25</div><div class="sf"><span class="b bs11">S11</span> Campo A — Gr.A: J4 (A2 vs A4)</div><div class="sf"><span class="b bs11">S11</span> Campo B — Gr.B: J10 (B2 vs B4)</div></div>
+
+    <!-- Ciclo 5 — J5 -->
+    <div class="sslot"><div class="stime">16:00</div><div class="sf"><span class="b bs9">S9</span> Campo A — Gr.A: J5 (A1 vs A4)</div><div class="sf"><span class="b bs9">S9</span> Campo B — Gr.B: J11 (B1 vs B4)</div></div>
+    <div class="sslot"><div class="stime">16:35</div><div class="sf"><span class="b bs10">S10</span> Campo A — Gr.A: J5 (A1 vs A4)</div><div class="sf"><span class="b bs10">S10</span> Campo B — Gr.B: J11 (B1 vs B4)</div></div>
+    <div class="sslot"><div class="stime">17:10</div><div class="sf"><span class="b bs11">S11</span> Campo A — Gr.A: J5 (A1 vs A4)</div><div class="sf"><span class="b bs11">S11</span> Campo B — Gr.B: J11 (B1 vs B4)</div></div>
+
+    <!-- Ciclo 6 — J6 -->
+    <div class="sslot"><div class="stime">17:45</div><div class="sf"><span class="b bs9">S9</span> Campo A — Gr.A: J6 (A2 vs A3)</div><div class="sf"><span class="b bs9">S9</span> Campo B — Gr.B: J12 (B2 vs B3)</div></div>
+    <div class="sslot"><div class="stime">18:20</div><div class="sf"><span class="b bs10">S10</span> Campo A — Gr.A: J6 (A2 vs A3)</div><div class="sf"><span class="b bs10">S10</span> Campo B — Gr.B: J12 (B2 vs B3)</div></div>
+    <div class="sslot"><div class="stime">18:55</div><div class="sf"><span class="b bs11">S11</span> Campo A — Gr.A: J6 (A2 vs A3)</div><div class="sf"><span class="b bs11">S11</span> Campo B — Gr.B: J12 (B2 vs B3)</div></div>
+
+    <div class="sslot brk">
+      <div class="stime">19:30</div>
+      <div class="sf"><span class="b bbr">FIM DIA 1</span> Todos os grupos completos · classificações divulgadas · cruzamentos anunciados</div>
+      <div class="sf empty">—</div>
+    </div>
+  </div>
+
+  <!-- DOMINGO -->
+  <div class="sday">
+    <div class="sday-hdr">⚽ DOMINGO — 27 SETEMBRO · Eliminatórias + Finais · 18 jogos · 09:00–15:05</div>
+
+    <div class="sslot brk">
+      <div class="stime">08:30</div>
+      <div class="sf"><span class="b bbr">SETUP</span> Abertura portões · tabelas afixadas · cruzamentos confirmados</div>
+      <div class="sf empty">—</div>
+    </div>
+
+    <!-- Meias Ouro -->
+    <div class="sslot"><div class="stime">09:00</div><div class="sf"><span class="b bs9">S9</span><span class="mn">Campo A — Meia Ouro A (1.ºA vs 2.ºB)</span></div><div class="sf"><span class="b bs9">S9</span><span class="mn">Campo B — Meia Ouro B (1.ºB vs 2.ºA)</span></div></div>
+    <div class="sslot"><div class="stime">09:35</div><div class="sf"><span class="b bs10">S10</span><span class="mn">Campo A — Meia Ouro A (1.ºA vs 2.ºB)</span></div><div class="sf"><span class="b bs10">S10</span><span class="mn">Campo B — Meia Ouro B (1.ºB vs 2.ºA)</span></div></div>
+    <div class="sslot"><div class="stime">10:10</div><div class="sf"><span class="b bs11">S11</span><span class="mn">Campo A — Meia Ouro A (1.ºA vs 2.ºB)</span></div><div class="sf"><span class="b bs11">S11</span><span class="mn">Campo B — Meia Ouro B (1.ºB vs 2.ºA)</span></div></div>
+
+    <!-- Meias Prata -->
+    <div class="sslot"><div class="stime">10:45</div><div class="sf"><span class="b bs9">S9</span> Campo A — Meia Prata A (3.ºA vs 4.ºB)</div><div class="sf"><span class="b bs9">S9</span> Campo B — Meia Prata B (3.ºB vs 4.ºA)</div></div>
+    <div class="sslot"><div class="stime">11:20</div><div class="sf"><span class="b bs10">S10</span> Campo A — Meia Prata A (3.ºA vs 4.ºB)</div><div class="sf"><span class="b bs10">S10</span> Campo B — Meia Prata B (3.ºB vs 4.ºA)</div></div>
+    <div class="sslot"><div class="stime">11:55</div><div class="sf"><span class="b bs11">S11</span> Campo A — Meia Prata A (3.ºA vs 4.ºB)</div><div class="sf"><span class="b bs11">S11</span> Campo B — Meia Prata B (3.ºB vs 4.ºA)</div></div>
+
+    <!-- Pausa -->
+    <div class="sslot brk">
+      <div class="stime">12:30</div>
+      <div class="sf"><span class="b bbr">PAUSA</span> 20 min · classificações finais · sorteio patrocinado · música · apresentação finalistas</div>
+      <div class="sf empty">—</div>
+    </div>
+
+    <!-- Finais -->
+    <div class="sslot finals"><div class="stime">12:50</div><div class="sf"><span class="b bfin">🏆 FINAL</span><span class="mn">Campo A — Taça Ouro Sub-9</span></div><div class="sf"><span class="b bprat">🥈 FINAL</span><span class="mn">Campo B — Taça Prata Sub-9</span></div></div>
+    <div class="sslot finals"><div class="stime">13:25</div><div class="sf"><span class="b bfin">🏆 FINAL</span><span class="mn">Campo A — Taça Ouro Sub-10</span></div><div class="sf"><span class="b bprat">🥈 FINAL</span><span class="mn">Campo B — Taça Prata Sub-10</span></div></div>
+    <div class="sslot finals"><div class="stime">14:00</div><div class="sf"><span class="b bfin">🏆 GRANDE FINAL</span><span class="mn">Campo A — Taça Ouro Sub-11</span></div><div class="sf"><span class="b bprat">🥈 FINAL</span><span class="mn">Campo B — Taça Prata Sub-11</span></div></div>
+
+    <!-- Cerimónia -->
+    <div class="sslot brk">
+      <div class="stime">14:35</div>
+      <div class="sf"><span class="b bfin">CERIMÓNIA</span> Entrega de troféus Ouro + Prata · fotografia oficial · speaker · música · anúncio edição 2027</div>
+      <div class="sf empty">—</div>
+    </div>
+    <div class="sslot brk">
+      <div class="stime">15:05</div>
+      <div class="sf"><span class="b bbr">FIM</span> Encerramento oficial da <strong>YTB Youth Cup 2026</strong> &nbsp;🏆</div>
+      <div class="sf empty">—</div>
+    </div>
+  </div>
+
+  <div class="tw"><table>
+    <thead><tr><th>Resumo</th><th>Sábado</th><th>Domingo</th><th>Total</th></tr></thead>
+    <tbody>
+      <tr><td>Jogos de grupos</td><td class="tdg">36</td><td>0</td><td class="tdg">36</td></tr>
+      <tr><td>Meias-finais (Ouro + Prata)</td><td>0</td><td class="tdg">12</td><td class="tdg">12</td></tr>
+      <tr><td>Finais (Ouro + Prata)</td><td>0</td><td class="tdg">6</td><td class="tdg">6</td></tr>
+      <tr><td class="tdg">Total jogos</td><td class="tdg">36</td><td class="tdg">18</td><td class="tdg">54</td></tr>
+      <tr><td>Slot por jogo</td><td class="tdgr">35 min</td><td class="tdgr">35 min</td><td></td></tr>
+      <tr><td>Descanso entre jogos / equipa</td><td class="tdgr">~70 min</td><td class="tdgr">~70 min</td><td></td></tr>
+      <tr><td>Início</td><td>09:00</td><td>09:00</td><td></td></tr>
+      <tr><td>Fim</td><td>19:30</td><td class="tdgr">15:05 ✅</td><td></td></tr>
+    </tbody>
+  </table></div>
+</div></div>
+
+<!-- ═══ 04 FINANCEIRO -->
+<div class="section"><div class="container">
+  <div class="sh"><div class="sn">05</div><div class="st">VEREDICTO <span>FINAL</span></div></div>
+
+  <div class="verdict">
+    <div class="verdict-title">✅ Modelo definitivo. Avança.</div>
+    <p>54 jogos · 3 escalões · rotação perfeita · 70 min descanso entre jogos · sábado 09:00–19:30 · domingo 09:00–15:05.</p>
+    <p>Todas as famílias presentes o dia inteiro. Bar em ondas contínuas. Cerimónia épica ao domingo ao início da tarde.</p>
+  </div>
+
+  <h3>Próximos passos</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Ação</th><th>Prazo</th><th>Prioridade</th></tr></thead>
+    <tbody>
+      <tr><td>Contacto entidade local (apoio + ambulância)</td><td>Maio 2026</td><td class="tdr">Crítica</td></tr>
+      <tr><td>Confirmação local (datas + condições)</td><td>Maio 2026</td><td class="tdr">Crítica</td></tr>
+      <tr><td>Abertura inscrições clubes Sub-9/10/11 AF Porto</td><td>Mai/Jun 2026</td><td class="tdr">Crítica</td></tr>
+      <tr><td>Fecho 2–3 patrocinadores locais</td><td>Jun/Jul 2026</td><td class="tdgr">Alta</td></tr>
+      <tr><td>Encomenda troféus e medalhas</td><td>Agosto 2026</td><td class="tdgr">Alta</td></tr>
+      <tr><td>Página do evento no YourTalentBase</td><td>Agosto 2026</td><td class="tdgr">Alta</td></tr>
+      <tr><td>Briefing árbitros e staff</td><td>Set 2026</td><td class="tdg">Normal</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="callout blue">
+    <div class="ct">YourTalentBase × YTB Youth Cup</div>
+    QR codes em cada campo. Treinadores registam atletas durante o torneio. O evento é o maior funil de aquisição da plataforma — perante dirigentes e treinadores de toda a AF Porto, ao vivo, num único fim de semana.
+  </div>
+</div></div>
+
+<div class="footer">
+  <strong>YTB YOUTH CUP 2026</strong> · Plano Diretor — Versão Final<br>
+  Sub-9 · Sub-10 · Sub-11 · 24 Equipas · 54 Jogos · 2 Campos · A definir<br>
+  Documento de planeamento interno
+</div>
+
+</body>
+</html>
