@@ -517,6 +517,7 @@ function getSetPieceFormations(){
 }
 
 function getCounterFormation(formation, phase) {
+  var byPhase = COUNTER[phase] || COUNTER['Ataque Organizado'];
   return byPhase[formation] || formation;
 }
 
