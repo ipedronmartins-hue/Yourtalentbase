@@ -143,15 +143,17 @@ button,select,input,textarea{font-family:'Barlow',sans-serif;cursor:pointer;}
 .ai-loading{display:flex;flex-direction:column;align-items:center;padding:40px 20px;gap:12px;color:var(--dim);font-size:13px;}
 .spin{width:32px;height:32px;border:2px solid var(--b2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;}
 .ai-empty{padding:32px 16px;text-align:center;color:var(--muted);font-size:13px;font-weight:300;line-height:1.7;}
-.ai-block{margin-bottom:16px;background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:14px;}
-.ai-block-title{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.ai-block{margin-bottom:16px;background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:16px;}
+.ai-block-title{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:12px;display:flex;align-items:center;gap:6px;}
 .ai-block-title::before{content:'';width:12px;height:1px;background:var(--b2);}
-.ai-block-body{font-size:14px;color:var(--text);line-height:1.8;font-weight:400;}
-.ai-block-body strong{color:var(--text);font-weight:600;}
-.ai-block.highlight{background:var(--gd);border-color:var(--gg);}
+.ai-block-body{font-size:15px;color:#FFFFFF;line-height:1.85;font-weight:400;}
+.ai-block-body strong{color:#FFFFFF;font-weight:700;}
+.ai-block.highlight{background:rgba(212,175,55,.1);border-color:rgba(212,175,55,.3);}
 .ai-block.highlight .ai-block-title{color:var(--gold);}
-.ai-block.blue{background:var(--bd);border-color:var(--bg2);}
+.ai-block.highlight .ai-block-body{color:#FFFFFF;}
+.ai-block.blue{background:rgba(74,159,232,.1);border-color:rgba(74,159,232,.3);}
 .ai-block.blue .ai-block-title{color:var(--blue);}
+.ai-block.blue .ai-block-body{color:#FFFFFF;}
 .scenario-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
 .scenario-chip{background:var(--s2);border:1px solid var(--b2);border-radius:100px;padding:5px 12px;font-size:10px;font-weight:600;color:var(--dim);}
 
@@ -923,37 +925,37 @@ async function runAnalysis(){
   var arrowCount = aPlayers.filter(function(p){ return S.arrows[p.id]; }).length;
 
   var prompt = [
-    'Analista tático UEFA. Responde em português europeu. Escalão: '+S.escalao+'. Formato: '+(isFut7()?'Fut7 (7 jogadores)':'Fut11 (11 jogadores)')+'.',
-    'Formação do treinador: '+S.formation+'. Fase: '+S.phase+'.',
+    'És um analista tático sénior com formação UEFA A/B. Respondes exclusivamente a treinadores profissionais de futebol de formação. Linguagem técnica, precisa e sem condescendência. Português europeu.',
     '',
-    'EQUIPA DO TREINADOR (A):',
+    'CONTEXTO: Escalão '+S.escalao+' · Formato '+(isFut7()?'Futebol 7 (7 jogadores)':'Futebol 11 (11 jogadores)')+' · Fase de jogo: '+S.phase,
+    'Sistema ofensivo: '+S.formation,
+    '',
+    'EQUIPA A — ORGANIZAÇÃO TÁTICA:',
     aDesc,
     '',
-    'ADVERSÁRIO GERADO (B) — '+counterForm+':',
-    bDesc,
+    bPlayers.length > 0 ? 'EQUIPA B — BLOCO ADVERSÁRIO ('+counterForm+'):\n'+bDesc+'\n' : 'Equipa adversária: sem dados definidos — analisa com base no sistema da Equipa A.\n',
+    arrowCount > 0 ? 'Vetores de movimento identificados: '+arrowCount+' jogadores com intenção de deslocação definida.' : 'Sem vetores de movimento definidos — análise baseada no posicionamento estático.',
     '',
-    arrowCount>0 ? arrowCount+' jogadores com setas de movimento definidas.' : 'Sem setas de movimento definidas ainda.',
-    '',
-    'FORMATO DE RESPOSTA (usa exatamente estes títulos com **):',
+    'Responde com análise tática profissional usando EXATAMENTE estes títulos com **:',
     '',
     '**LEITURA TÁTICA**',
-    '[O que a táctica do treinador pretende impor, 2-3 frases específicas ao escalão '+S.escalao+']',
+    '[Análise da estrutura e intenção tática da Equipa A. Identifica o sistema de jogo, as referências posicionais, os corredores de progressão e os mecanismos de criação de superioridade. 3-4 frases técnicas.]',
     '',
     '**CONTRA-TÁTICA**',
-    '[Como o adversário com '+counterForm+' deve responder, movimentos concretos, 3-4 frases]',
+    '[Como o bloco adversário '+counterForm+' deve responder tacticamente. Especifica ajustes posicionais, compactação de linhas, marcações e basculações. 3-4 frases com referências a zonas do campo e linhas de pressão.]',
     '',
-    '**'+S.numPlayers+' AJUSTES PARA '+S.escalao.toUpperCase()+'**',
-    '1. [instrução concreta e simples adaptada à faixa etária]',
-    '2. [instrução concreta]',
-    '3. [instrução concreta]',
+    '**AJUSTES TÁTICOS — '+S.escalao.toUpperCase()+'**',
+    '1. [Instrução técnica concreta para o corredor de progressão principal]',
+    '2. [Ajuste posicional específico na fase de transição]',
+    '3. [Mecanismo de criação de superioridade numérica ou posicional]',
     '',
-    '**⚠ VULNERABILIDADE**',
-    '[O ponto mais fraco desta táctica em 1-2 frases]',
+    '**⚠ VULNERABILIDADE ESTRUTURAL**',
+    '[Ponto crítico de desequilíbrio tático — zona ou momento de maior exposição. 1-2 frases directas.]',
     '',
-    '**💡 DICA DO SCOUT**',
-    '[1 conselho premium que um treinador UEFA B daria neste cenário]',
+    '**💡 NOTA DO ANALISTA**',
+    '[Observação táctica de alto nível que um treinador com UEFA B valorizaria neste cenário específico. Pode referir tendências, contra-movimentos ou ajuste pontual ao perfil dos jogadores definidos.]',
     '',
-    'Máx 300 palavras. Direto, específico, adaptado a Sub-12.',
+    'Máx 320 palavras. Terminologia UEFA. Sem linguagem motivacional genérica.',
   ].join('\n');
 
   try {

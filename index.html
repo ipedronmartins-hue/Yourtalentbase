@@ -53,6 +53,17 @@
 .path-feat{font-size:13px;color:var(--slate);font-weight:300;display:flex;gap:var(--space-2);align-items:flex-start;line-height:1.5;}
 .path-feat span{color:var(--gold);font-weight:700;flex-shrink:0;}
 
+/* TESTIMONIAL CAROUSEL */
+.testimonial-wrap{position:relative;overflow:hidden;max-width:640px;margin:0 auto;}
+.testimonial-track{display:flex;transition:transform .45s cubic-bezier(.4,0,.2,1);}
+.testimonial-slide{flex:0 0 100%;padding:0 4px;}
+.quote-card-lg{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r-xl);padding:var(--space-6);text-align:center;}
+.quote-stars{color:var(--gold);font-size:18px;letter-spacing:3px;margin-bottom:var(--space-4);}
+.quote-text-lg{font-size:16px;color:var(--white);line-height:1.75;font-weight:400;font-style:italic;margin-bottom:var(--space-5);}
+.testimonial-dots{display:flex;justify-content:center;gap:8px;margin-top:var(--space-5);}
+.tdot{width:8px;height:8px;border-radius:50%;background:var(--border2);cursor:pointer;transition:all .2s;}
+.tdot.active{background:var(--gold);width:24px;border-radius:4px;}
+
 /* PROBLEM */
 .problem-section{padding:var(--space-16) var(--space-5);background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
 .problem-grid{display:grid;grid-template-columns:1fr;gap:var(--space-4);margin-top:var(--space-8);}
@@ -236,11 +247,7 @@
           <div class="eco-node-name">Base Talentos</div>
           <div class="eco-node-sub">Visibilidade</div>
         </a>
-        <a href="#planos" class="eco-node">
-          <div class="eco-node-icon">🤝</div>
-          <div class="eco-node-name">Representação</div>
-          <div class="eco-node-sub">Carreira</div>
-        </a>
+
         <div class="eco-node" id="btnTorneioEco">
           <div class="eco-node-icon">🏆</div>
           <div class="eco-node-name">Torneios</div>
@@ -265,7 +272,7 @@
           <div class="path-feat"><span>✓</span> Planeamento semanal com microciclo</div>
           <div class="path-feat"><span>✓</span> TacticsLab integrado com IA</div>
           <div class="path-feat"><span>✓</span> Gestão financeira e mensalidades</div>
-          <div class="path-feat"><span>✓</span> Certificação FPF Stars</div>
+
         </div>
         <a href="club-dashboard.html" class="btn btn-ghost btn-full" style="margin-top:var(--space-4);">Ver Gestor →</a>
       </div>
@@ -297,8 +304,8 @@
   <div class="container">
     <div class="section-header">
       <div class="eyebrow">Ecossistema completo</div>
-      <h2 class="display-md">Quatro armas.<br>Uma plataforma.</h2>
-      <p class="section-sub">Cada módulo resolve um problema real. Juntos criam um sistema que nenhuma ferramenta isolada consegue.</p>
+      <h2 class="display-md">Quatro módulos.<br><span class="text-gold">Uma plataforma.</span></h2>
+      <p class="section-sub">Cada módulo resolve um problema real e funciona hoje, no teu telemóvel, sem instalações.</p>
     </div>
     <div class="modules-grid">
       <a href="club-dashboard.html" class="module-card module-card-featured">
@@ -336,13 +343,7 @@
         <div class="module-tags"><span class="badge badge-gray">Gratuito</span><span class="badge badge-gold">Premium disponível</span></div>
         <div class="module-arrow">→</div>
       </a>
-      <a href="parents.html" class="module-card">
-        <div class="module-icon">👨‍👧</div><div class="module-label">Pais</div>
-        <h3 class="module-title">Área de Pais</h3>
-        <p class="module-desc">Progresso do filho, presenças, pagamentos, calendário e comunicação directa com o clube.</p>
-        <div class="module-tags"><span class="badge badge-gray">Incluído no plano</span></div>
-        <div class="module-arrow">→</div>
-      </a>
+
 
       <div class="module-card" id="btnTorneio" style="cursor:pointer;">
         <div class="module-icon">🏆</div><div class="module-label">Torneios</div>
@@ -492,9 +493,9 @@
 <section class="section" id="atletas" style="background:var(--bg2);">
   <div class="container">
     <div class="section-header">
-      <div class="eyebrow">Agenciados YTB</div>
-      <h2 class="display-md">Em Destaque</h2>
-      <p class="section-sub">Jovens talentos representados pela YourTalentBase.</p>
+      <div class="eyebrow">Representação · YTB</div>
+      <h2 class="display-md">Os nossos atletas.<br><span class="text-gold">Reais. Activos.</span></h2>
+      <p class="section-sub">Jovens talentos que a YourTalentBase representa, acompanha e expõe ao mercado. Cada perfil é acompanhado com dados reais de época.</p>
     </div>
   </div>
   <div class="athletes-scroll-wrap">
@@ -596,32 +597,52 @@
 </section>
 
 <!-- PROVA SOCIAL -->
-<section class="proof-section">
+<section class="proof-section" id="testemunhos">
   <div class="container">
-    <div class="eyebrow" style="margin-bottom:var(--space-2);">Números reais</div>
-    <h2 class="display-md">A plataforma que está<br>a mudar a formação.</h2>
-    <div class="proof-nums">
+    <div class="eyebrow" style="margin-bottom:var(--space-2);">O que dizem</div>
+    <h2 class="display-md" style="margin-bottom:var(--space-8);">Pessoas reais.<br><span class="text-gold">Palavras reais.</span></h2>
+
+    <!-- CAROUSEL -->
+    <div class="testimonial-wrap">
+      <div class="testimonial-track" id="testimonialTrack">
+
+        <div class="testimonial-slide">
+          <div class="quote-card quote-card-lg">
+            <div class="quote-stars">★★★★★</div>
+            <div class="quote-text-lg">"O Scout Report do meu filho foi uma surpresa. Pela primeira vez percebi realmente o nível dele e onde pode chegar. Vale cada cêntimo."</div>
+            <div class="quote-author"><div class="quote-av">P</div><div><div class="quote-name">Paulo M.</div><div class="quote-role">Pai de atleta Sub-13</div></div></div>
+          </div>
+        </div>
+
+        <div class="testimonial-slide">
+          <div class="quote-card quote-card-lg">
+            <div class="quote-stars">★★★★★</div>
+            <div class="quote-text-lg">"O Treino Extra criou competição dentro da equipa. Os miúdos chegam ao treino a falar do ranking. A adesão é brutal."</div>
+            <div class="quote-author"><div class="quote-av">T</div><div><div class="quote-name">Treinador T.</div><div class="quote-role">Treinador Sub-12</div></div></div>
+          </div>
+        </div>
+
+        <div class="testimonial-slide">
+          <div class="quote-card quote-card-lg">
+            <div class="quote-stars">★★★★★</div>
+            <div class="quote-text-lg">"O TacticsLab ajudou-me a preparar a sessão de forma visual. Consigo mostrar ao plantel o que quero antes de entrar em campo."</div>
+            <div class="quote-author"><div class="quote-av">R</div><div><div class="quote-name">Ricardo F.</div><div class="quote-role">Treinador Sub-15</div></div></div>
+          </div>
+        </div>
+
+      </div>
+      <div class="testimonial-dots" id="testimonialDots"></div>
+    </div>
+
+    <!-- NÚMEROS -->
+    <div class="proof-nums" style="margin-top:var(--space-10);">
       <div style="text-align:center;"><div class="proof-num">25+</div><div class="proof-label">Critérios Scout</div></div>
       <div class="proof-div"></div>
-      <div style="text-align:center;"><div class="proof-num">4</div><div class="proof-label">Módulos Ativos</div></div>
+      <div style="text-align:center;"><div class="proof-num">5</div><div class="proof-label">Atletas Representados</div></div>
       <div class="proof-div"></div>
       <div style="text-align:center;"><div class="proof-num">48h</div><div class="proof-label">Tempo de Resposta</div></div>
       <div class="proof-div"></div>
       <div style="text-align:center;"><div class="proof-num">100%</div><div class="proof-label">Mobile First</div></div>
-    </div>
-    <div class="quotes-grid">
-      <div class="quote-card">
-        <div class="quote-text">"O Scout Report do meu filho foi uma surpresa. Pela primeira vez percebi realmente o nível dele e onde pode chegar. Vale cada cêntimo."</div>
-        <div class="quote-author"><div class="quote-av">P</div><div><div class="quote-name">Paulo M.</div><div class="quote-role">Pai de atleta Sub-13</div></div></div>
-      </div>
-      <div class="quote-card">
-        <div class="quote-text">"O Treino Extra criou competição dentro da equipa. Os miúdos chegam ao treino a falar do ranking. A adesão é brutal."</div>
-        <div class="quote-author"><div class="quote-av">T</div><div><div class="quote-name">Treinador T.</div><div class="quote-role">Treinador Sub-12</div></div></div>
-      </div>
-      <div class="quote-card">
-        <div class="quote-text">"O TacticsLab ajudou-me a preparar a sessão de forma visual. Consigo mostrar ao plantel o que quero antes de entrar em campo."</div>
-        <div class="quote-author"><div class="quote-av">R</div><div><div class="quote-name">Ricardo F.</div><div class="quote-role">Treinador Sub-15</div></div></div>
-      </div>
     </div>
   </div>
 </section>
@@ -889,6 +910,47 @@ document.getElementById('ovTorneio').addEventListener('click', function(e){
 });
 </script>
 <script>
+/* TESTIMONIAL CAROUSEL */
+(function(){
+  var track = document.getElementById('testimonialTrack');
+  var dotsWrap = document.getElementById('testimonialDots');
+  if(!track) return;
+  var slides = track.querySelectorAll('.testimonial-slide');
+  var n = slides.length;
+  var cur = 0;
+  var auto;
+
+  // Build dots
+  for(var i=0;i<n;i++){
+    var d = document.createElement('div');
+    d.className = 'tdot' + (i===0?' active':'');
+    d.dataset.i = i;
+    d.addEventListener('click', function(){ goTo(parseInt(this.dataset.i)); resetAuto(); });
+    dotsWrap.appendChild(d);
+  }
+
+  function goTo(idx){
+    cur = (idx + n) % n;
+    track.style.transform = 'translateX(-' + (cur * 100) + '%)';
+    dotsWrap.querySelectorAll('.tdot').forEach(function(d,i){ d.classList.toggle('active', i===cur); });
+  }
+
+  function resetAuto(){
+    clearInterval(auto);
+    auto = setInterval(function(){ goTo(cur+1); }, 5000);
+  }
+
+  // Touch swipe
+  var tx = 0;
+  track.addEventListener('touchstart', function(e){ tx = e.touches[0].clientX; }, {passive:true});
+  track.addEventListener('touchend', function(e){
+    var dx = e.changedTouches[0].clientX - tx;
+    if(Math.abs(dx) > 40){ goTo(dx < 0 ? cur+1 : cur-1); resetAuto(); }
+  }, {passive:true});
+
+  resetAuto();
+})();
+
 /* DOOR & PATH CLICK HANDLERS */
 (function(){
   function on(id, fn){ var e = document.getElementById(id); if(e) e.addEventListener('click', fn); }
