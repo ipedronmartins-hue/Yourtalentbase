@@ -235,7 +235,7 @@ button,select,input,textarea{font-family:'Barlow',sans-serif;cursor:pointer;}
       <div class="p1-body">
 
         <div class="p1-section">
-          <div class="p1-title">① Formação</div>
+          <div class="p1-title" id="p1FormTitle">① Formação</div>
           <div id="formGrid" class="form-grid"></div>
         </div>
 
@@ -461,8 +461,61 @@ var COUNTER = {
   'Posse de Bola':{'4-3-3':'4-4-2','4-4-2':'4-4-2','4-2-3-1':'4-4-2'},
 };
 
+// Set piece formations — half pitch coordinates
+var SET_PIECE_FORMS = {
+  'Canto Ofensivo': {
+    'Zona Primeiro Poste': {
+      A:[[30,710],[170,560],[210,545],[250,555],[290,545],[330,560],[380,580],[420,600],[200,620],[300,620],[250,640]],
+      B:[[140,590],[200,580],[260,580],[320,580],[380,590],[250,610],[170,640],[330,640],[250,660],[200,680],[300,680]]
+    },
+    'Canto Curto': {
+      A:[[30,710],[80,680],[130,660],[250,580],[310,560],[370,550],[420,560],[460,580],[250,610],[200,630],[300,630]],
+      B:[[200,600],[270,595],[340,595],[400,600],[250,625],[180,645],[320,645],[250,665],[200,685],[300,685],[250,700]]
+    },
+    'Segundo Poste': {
+      A:[[30,710],[150,580],[200,565],[250,560],[300,565],[350,580],[400,590],[440,570],[200,615],[300,615],[250,640]],
+      B:[[160,595],[220,585],[280,585],[340,585],[400,595],[250,615],[170,640],[330,640],[250,660],[200,680],[300,680]]
+    },
+  },
+  'Canto Defensivo': {
+    'Zona + Marcação Individual': {
+      A:[[250,30],[150,120],[200,140],[250,155],[300,140],[350,120],[400,110],[180,85],[320,85],[250,70],[250,200]],
+      B:[[30,30],[170,160],[210,170],[250,165],[290,170],[330,160],[430,155],[250,185],[180,200],[320,200],[250,220]]
+    },
+  },
+  'Livre Direto': {
+    'Remate Direto': {
+      A:[[250,600],[160,570],[200,560],[300,560],[340,570],[380,580],[200,620],[300,620],[250,640],[170,640],[330,640]],
+      B:[[185,550],[215,545],[250,543],[285,545],[315,550],[250,520],[180,510],[320,510],[250,500],[200,490],[300,490]]
+    },
+    'Cruzamento': {
+      A:[[250,600],[200,560],[250,550],[300,560],[350,570],[390,575],[180,585],[320,585],[250,620],[200,640],[300,640]],
+      B:[[180,548],[215,544],[250,542],[285,544],[320,548],[250,515],[180,508],[320,508],[250,495],[200,485],[300,485]]
+    },
+  },
+  'Livre Indireto': {
+    'Passe + Remate': {
+      A:[[250,600],[200,570],[250,555],[300,570],[350,580],[390,585],[180,590],[320,590],[250,625],[200,640],[300,640]],
+      B:[[180,548],[215,544],[250,542],[285,544],[320,548],[250,515],[180,508],[320,508],[250,495],[200,485],[300,485]]
+    },
+  },
+  'Lançamento Lateral': {
+    'Curto': {
+      A:[[30,530],[100,510],[150,500],[100,555],[160,545],[200,530],[250,520],[300,525],[350,535],[400,545],[250,570]],
+      B:[[120,520],[170,510],[220,510],[270,515],[320,520],[200,545],[300,545],[250,565],[200,580],[300,580],[250,595]]
+    },
+    'Longo': {
+      A:[[30,530],[150,490],[200,480],[250,485],[300,490],[350,500],[400,510],[200,540],[300,540],[250,560],[250,580]],
+      B:[[160,505],[210,500],[260,498],[310,500],[360,505],[250,525],[180,540],[320,540],[250,560],[200,575],[300,575]]
+    },
+  },
+};
+
+function getSetPieceFormations(){
+  return SET_PIECE_FORMS[S.phase] || null;
+}
+
 function getCounterFormation(formation, phase) {
-  var byPhase = COUNTER[phase] || COUNTER['Ataque Organizado'];
   return byPhase[formation] || formation;
 }
 
@@ -542,6 +595,27 @@ function buildPanel1(){
 }
 
 function buildFormGrid(){
+  var spForms = getSetPieceFormations();
+  if(spForms){
+    // Show set piece variants instead of formations
+    var keys = Object.keys(spForms);
+    var h = '';
+    keys.forEach(function(k){
+      h += '<button class="form-btn" data-form="'+k+'" data-sp="1">';
+      h += k + '<span class="ft">Bola Parada</span></button>';
+    });
+    el('formGrid').innerHTML = h;
+    el('formGrid').querySelectorAll('.form-btn').forEach(function(b){
+      b.addEventListener('click', function(){
+        el('formGrid').querySelectorAll('.form-btn').forEach(function(x){ x.classList.remove('active'); });
+        b.classList.add('active');
+        applyFormation('A', b.dataset.form);
+      });
+    });
+    // Auto-apply first variant
+    if(keys.length) applyFormation('A', keys[0]);
+    return;
+  }
   var forms = getFormations();
   var keys = Object.keys(forms);
   var h = '';
@@ -602,13 +676,81 @@ el('phaseGrid').querySelectorAll('.phase-btn').forEach(function(b){
     el('phaseGrid').querySelectorAll('.phase-btn').forEach(function(x){ x.classList.remove('active'); });
     b.classList.add('active');
     el('phaseChip').textContent = S.phase;
+    // Update form grid title and options
+    var titleEl = el('p1FormTitle');
+    if(titleEl) titleEl.textContent = isHalfPitch() ? '① Variante' : '① Formação';
+    buildFormGrid();
+    updatePitchMode();
     updateP3Header();
   });
 });
 
+// Phases that use half-pitch
+var HALF_PHASES = ['Canto Ofensivo','Canto Defensivo','Livre Direto','Livre Indireto','Lançamento Lateral'];
+
+function isHalfPitch(phase){ return HALF_PHASES.indexOf(phase || S.phase) !== -1; }
+function isDefensiveHalf(phase){ return (phase||S.phase) === 'Canto Defensivo'; }
+
+function updatePitchMode(){
+  var svg = el('pitchSvg');
+  if(!svg) return;
+  if(isHalfPitch()){
+    // Defensive set piece: show top half (y 0–400), Offensive: show bottom half (y 340–740)
+    var vb = isDefensiveHalf() ? '0 0 500 400' : '0 340 500 400';
+    svg.setAttribute('viewBox', vb);
+  } else {
+    svg.setAttribute('viewBox', '0 0 500 740');
+  }
+  drawPitchMarkers();
+}
+
+function drawPitchMarkers(){
+  var g = el('gPitch');
+  if(!g) return;
+  drawPitch(); // redraw base
+  if(!isHalfPitch()) return;
+  var phase = S.phase;
+  var lines = [];
+  var isAtk = !isDefensiveHalf();
+  // Ball position marker
+  var ballY = isAtk ? 710 : 30;
+  var ballX = 250;
+  if(phase === 'Canto Ofensivo' || phase === 'Canto Defensivo'){
+    ballX = 30;  // left corner by default
+    ballY = isAtk ? 710 : 30;
+    // Corner arc
+    lines.push('<path d="M '+ballX+' '+(ballY+(isAtk?-30:30))+' A 30 30 0 0 '+(isAtk?'0':'1')+' '+(ballX+30)+' '+ballY+'" fill="none" stroke="rgba(212,175,55,0.5)" stroke-width="2" stroke-dasharray="4 3"/>');
+    lines.push('<circle cx="'+ballX+'" cy="'+ballY+'" r="6" fill="#FFFFFF" stroke="rgba(0,0,0,0.6)" stroke-width="1.5"/>');
+    lines.push('<text x="'+(ballX+12)+'" y="'+(ballY+(isAtk?-8:12))+'" font-family="Barlow" font-size="10" fill="rgba(255,255,255,0.85)" font-weight="700">CANTO</text>');
+    // Right corner too
+    lines.push('<path d="M '+(500-30)+' '+(ballY+(isAtk?-30:30))+' A 30 30 0 0 '+(isAtk?'1':'0')+' '+(500-30-30)+' '+ballY+'" fill="none" stroke="rgba(212,175,55,0.25)" stroke-width="1.5" stroke-dasharray="4 3"/>');
+    lines.push('<circle cx="'+(500-30)+'" cy="'+ballY+'" r="4" fill="rgba(212,175,55,0.4)"/>');
+  } else if(phase === 'Livre Direto' || phase === 'Livre Indireto'){
+    ballX = 250; ballY = isAtk ? 600 : 140;
+    // Ball
+    lines.push('<circle cx="'+ballX+'" cy="'+ballY+'" r="7" fill="#FFFFFF" stroke="rgba(0,0,0,0.6)" stroke-width="1.5"/>');
+    lines.push('<text x="'+(ballX+14)+'" y="'+(ballY+4)+'" font-family="Barlow" font-size="10" fill="rgba(255,255,255,0.85)" font-weight="700">LIVRE</text>');
+    // Barrier zone
+    var barrY = ballY + (isAtk?-50:50);
+    lines.push('<rect x="185" y="'+(barrY-10)+'" width="130" height="20" rx="4" fill="rgba(74,159,232,0.12)" stroke="rgba(74,159,232,0.4)" stroke-width="1.5" stroke-dasharray="4 3"/>');
+    lines.push('<text x="250" y="'+(barrY+4)+'" text-anchor="middle" font-family="Barlow" font-size="9" fill="rgba(74,159,232,0.8)" font-weight="700">BARREIRA</text>');
+    // 9.15m arc
+    lines.push('<circle cx="'+ballX+'" cy="'+ballY+'" r="68" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1.5" stroke-dasharray="5 4"/>');
+  } else if(phase === 'Lançamento Lateral'){
+    ballX = 30; ballY = isAtk ? 530 : 210;
+    lines.push('<circle cx="'+ballX+'" cy="'+ballY+'" r="7" fill="#FFFFFF" stroke="rgba(0,0,0,0.6)" stroke-width="1.5"/>');
+    lines.push('<text x="'+(ballX+14)+'" y="'+(ballY+4)+'" font-family="Barlow" font-size="10" fill="rgba(255,255,255,0.85)" font-weight="700">LANÇAMENTO</text>');
+    lines.push('<line x1="30" y1="'+(isAtk?490:250)+'" x2="30" y2="'+(isAtk?570:170)+'" stroke="rgba(212,175,55,0.5)" stroke-width="3" stroke-linecap="round"/>');
+    // Mirror right side
+    lines.push('<circle cx="470" cy="'+ballY+'" r="4" fill="rgba(212,175,55,0.25)"/>');
+  }
+  g.innerHTML += lines.join('\n');
+}
+
 function applyAndGoField(){
   applyFormation('A', S.formation);
   placeAITeam();
+  updatePitchMode();
   goPanel(1);
 }
 
@@ -676,15 +818,35 @@ function updateZones(){
 //  FORMATIONS APPLY
 // ════════════════════════════════════════════════
 function applyFormation(team, name){
+  // Check if we should use set piece positions
+  var spForms = getSetPieceFormations();
+  if(spForms && team === 'A'){
+    var spName = name || Object.keys(spForms)[0];
+    var spCoords = spForms[spName] && spForms[spName].A;
+    var bCoords  = spForms[spName] && spForms[spName].B;
+    if(spCoords){
+      S.players = S.players.filter(function(p){ return p.team !== 'A'; });
+      var posMap = getPosMap();
+      spCoords.forEach(function(pos,i){ S.players.push({id:S.nextId++,team:'A',x:pos[0],y:pos[1],num:i+1,pos:posMap[i+1]||'Campo'}); });
+      if(bCoords){
+        S.players = S.players.filter(function(p){ return p.team !== 'B'; });
+        bCoords.forEach(function(pos,i){ S.players.push({id:S.nextId++,team:'B',x:pos[0],y:pos[1],num:i+1,pos:posMap[i+1]||'Campo'}); });
+      }
+      renderPlayers();
+      updatePitchMode();
+      toast('⚽ '+S.phase+' — '+spName);
+      return;
+    }
+  }
+  // Normal formation
   var forms = getFormations();
   var coords = forms[name] && forms[name][team];
   if(!coords){ toast('Formação não encontrada para este formato'); return; }
   S.players = S.players.filter(function(p){ return p.team !== team; });
   var posMap = getPosMap();
-  coords.forEach(function(pos, i){
-    S.players.push({ id:S.nextId++, team:team, x:pos[0], y:pos[1], num:i+1, pos:posMap[i+1]||'Campo' });
-  });
+  coords.forEach(function(pos,i){ S.players.push({id:S.nextId++,team:team,x:pos[0],y:pos[1],num:i+1,pos:posMap[i+1]||'Campo'}); });
   renderPlayers();
+  updatePitchMode();
   toast((team==='A'?'⚽':'🤖')+' '+name+' aplicado');
 }
 
@@ -924,39 +1086,26 @@ async function runAnalysis(){
   var counterForm = getCounterFormation(S.formation, S.phase);
   var arrowCount = aPlayers.filter(function(p){ return S.arrows[p.id]; }).length;
 
+  var isSetPiece = isHalfPitch();
   var prompt = [
     'És um analista tático sénior com formação UEFA A/B. Respondes exclusivamente a treinadores profissionais de futebol de formação. Linguagem técnica, precisa e sem condescendência. Português europeu.',
     '',
-    'CONTEXTO: Escalão '+S.escalao+' · Formato '+(isFut7()?'Futebol 7 (7 jogadores)':'Futebol 11 (11 jogadores)')+' · Fase de jogo: '+S.phase,
-    'Sistema ofensivo: '+S.formation,
+    'CONTEXTO: Escalão '+S.escalao+' · Formato '+(isFut7()?'Futebol 7 (7 jogadores)':'Futebol 11 (11 jogadores)')+' · '+( isSetPiece ? 'BOLA PARADA — ' : 'Fase de jogo: ')+S.phase,
+    isSetPiece ? '' : 'Sistema ofensivo: '+S.formation,
     '',
-    'EQUIPA A — ORGANIZAÇÃO TÁTICA:',
+    'EQUIPA A — '+(isSetPiece ? 'ORGANIZAÇÃO NA BOLA PARADA' : 'ORGANIZAÇÃO TÁTICA')+':',
     aDesc,
     '',
-    bPlayers.length > 0 ? 'EQUIPA B — BLOCO ADVERSÁRIO ('+counterForm+'):\n'+bDesc+'\n' : 'Equipa adversária: sem dados definidos — analisa com base no sistema da Equipa A.\n',
-    arrowCount > 0 ? 'Vetores de movimento identificados: '+arrowCount+' jogadores com intenção de deslocação definida.' : 'Sem vetores de movimento definidos — análise baseada no posicionamento estático.',
+    bPlayers.length > 0 ? 'EQUIPA B — '+(isSetPiece?'ORGANIZAÇÃO DEFENSIVA':'BLOCO ADVERSÁRIO ('+counterForm+')')+' :\n'+bDesc+'\n' : 'Equipa adversária: sem dados definidos.\n',
+    arrowCount > 0 ? 'Vetores de movimento: '+arrowCount+' jogadores com intenção de deslocação definida.' : '',
     '',
-    'Responde com análise tática profissional usando EXATAMENTE estes títulos com **:',
+    isSetPiece ?
+    'Analisa esta situação de bola parada com rigor técnico usando EXATAMENTE estes títulos com **:\n\n**LEITURA DA SITUAÇÃO**\n[Identifica o tipo de bola parada, o posicionamento ofensivo, os pontos de referência e as intenções tácticas — zonas de finalização, tipo de entrega, corredores de movimento. 3-4 frases técnicas.]\n\n**ORGANIZAÇÃO DEFENSIVA**\n[Como o bloco defensivo deve responder — marcação zonal vs individual, posicionamento da barreira se aplicável, referências de cobertura. 3-4 frases.]\n\n**VARIANTES A EXPLORAR**\n1. [Variante tática alternativa para a mesma situação]\n2. [Ajuste posicional para criar desequilíbrio]\n3. [Mecanismo de segunda bola ou contra-ataque após recuperação]\n\n**⚠ RISCO TÁTICO**\n[Principal zona de exposição nesta organização. 1-2 frases directas.]\n\n**💡 NOTA DO ANALISTA**\n[Referência a tendências ou padrões relevantes neste tipo de situação em futebol de formação — UEFA ou metodologia reconhecida.]'
+    :
+    'Responde com análise tática profissional usando EXATAMENTE estes títulos com **:\n\n**LEITURA TÁTICA**\n[Análise da estrutura e intenção tática da Equipa A. Identifica o sistema de jogo, as referências posicionais, os corredores de progressão e os mecanismos de criação de superioridade. 3-4 frases técnicas.]\n\n**CONTRA-TÁTICA**\n[Como o bloco adversário '+counterForm+' deve responder tacticamente. Especifica ajustes posicionais, compactação de linhas, marcações e basculações. 3-4 frases com referências a zonas do campo e linhas de pressão.]\n\n**AJUSTES TÁTICOS — '+S.escalao.toUpperCase()+'**\n1. [Instrução técnica concreta para o corredor de progressão principal]\n2. [Ajuste posicional específico na fase de transição]\n3. [Mecanismo de criação de superioridade numérica ou posicional]\n\n**⚠ VULNERABILIDADE ESTRUTURAL**\n[Ponto crítico de desequilíbrio tático — zona ou momento de maior exposição. 1-2 frases directas.]\n\n**💡 NOTA DO ANALISTA**\n[Observação táctica de alto nível que um treinador com UEFA B valorizaria neste cenário específico.]',
     '',
-    '**LEITURA TÁTICA**',
-    '[Análise da estrutura e intenção tática da Equipa A. Identifica o sistema de jogo, as referências posicionais, os corredores de progressão e os mecanismos de criação de superioridade. 3-4 frases técnicas.]',
-    '',
-    '**CONTRA-TÁTICA**',
-    '[Como o bloco adversário '+counterForm+' deve responder tacticamente. Especifica ajustes posicionais, compactação de linhas, marcações e basculações. 3-4 frases com referências a zonas do campo e linhas de pressão.]',
-    '',
-    '**AJUSTES TÁTICOS — '+S.escalao.toUpperCase()+'**',
-    '1. [Instrução técnica concreta para o corredor de progressão principal]',
-    '2. [Ajuste posicional específico na fase de transição]',
-    '3. [Mecanismo de criação de superioridade numérica ou posicional]',
-    '',
-    '**⚠ VULNERABILIDADE ESTRUTURAL**',
-    '[Ponto crítico de desequilíbrio tático — zona ou momento de maior exposição. 1-2 frases directas.]',
-    '',
-    '**💡 NOTA DO ANALISTA**',
-    '[Observação táctica de alto nível que um treinador com UEFA B valorizaria neste cenário específico. Pode referir tendências, contra-movimentos ou ajuste pontual ao perfil dos jogadores definidos.]',
-    '',
-    'Máx 320 palavras. Terminologia UEFA. Sem linguagem motivacional genérica.',
-  ].join('\n');
+    'Máx 340 palavras. Terminologia UEFA. Sem linguagem motivacional genérica.',
+  ].filter(function(l){ return l !== undefined; }).join('\n');
 
   try {
     var res = await fetch('/api/claude', {
