@@ -290,6 +290,7 @@ button,select,input,textarea{font-family:'Barlow',sans-serif;cursor:pointer;}
           <svg id="pitchSvg" viewBox="0 0 500 740" preserveAspectRatio="xMidYMid meet">
             <g id="gPitch"></g>
             <g id="gZones"></g>
+            <g id="gMarkers"></g>
             <g id="gLines"></g>
             <g id="gArrows"></g>
             <g id="gPlayers"></g>
@@ -694,21 +695,25 @@ function isDefensiveHalf(phase){ return (phase||S.phase) === 'Canto Defensivo'; 
 function updatePitchMode(){
   var svg = el('pitchSvg');
   if(!svg) return;
+  var vb;
   if(isHalfPitch()){
-    // Defensive set piece: show top half (y 0–400), Offensive: show bottom half (y 340–740)
-    var vb = isDefensiveHalf() ? '0 0 500 400' : '0 340 500 400';
-    svg.setAttribute('viewBox', vb);
+    vb = isDefensiveHalf() ? '0 0 500 400' : '0 340 500 400';
   } else {
-    svg.setAttribute('viewBox', '0 0 500 740');
+    vb = '0 0 500 740';
   }
+  // Force viewBox update
+  svg.setAttribute('viewBox', vb);
+  svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+  // Force reflow
+  void svg.getBoundingClientRect();
   drawPitchMarkers();
 }
 
 function drawPitchMarkers(){
-  var g = el('gPitch');
-  if(!g) return;
-  drawPitch(); // redraw base
-  if(!isHalfPitch()) return;
+  var gm = el('gMarkers');
+  if(!gm){ return; }
+  drawPitch(); // redraw base pitch
+  if(!isHalfPitch()){ gm.innerHTML = ''; return; }
   var phase = S.phase;
   var lines = [];
   var isAtk = !isDefensiveHalf();
@@ -744,7 +749,7 @@ function drawPitchMarkers(){
     // Mirror right side
     lines.push('<circle cx="470" cy="'+ballY+'" r="4" fill="rgba(212,175,55,0.25)"/>');
   }
-  g.innerHTML += lines.join('\n');
+  gm.innerHTML = lines.join('\n');
 }
 
 function applyAndGoField(){
