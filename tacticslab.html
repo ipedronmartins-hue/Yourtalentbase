@@ -557,11 +557,17 @@ function doLogin(){
   el('vLogin').style.display='none';
   el('app').classList.add('on');
   el('navEsc').textContent = S.escalao;
-  buildPanel1();
-  drawPitch();
-  applyFormation('A', S.formation);
-  placeAITeam();
-  updateP3Header();
+  // Wait for DOM to paint before placing players
+  requestAnimationFrame(function(){
+    requestAnimationFrame(function(){
+      buildPanel1();
+      drawPitch();
+      initZones();
+      applyFormation('A', S.formation);
+      placeAITeam();
+      updateP3Header();
+    });
+  });
 }
 
 // ════════════════════════════════════════════════
@@ -569,14 +575,12 @@ function doLogin(){
 // ════════════════════════════════════════════════
 function goPanel(idx){
   updateDots(idx);
-  var pw = el('panelsWrap');
-  if(!pw) return;
-  var w = pw.offsetWidth || window.innerWidth;
-  try {
-    pw.scrollTo({ left: idx * w, behavior: 'auto' });
-  } catch(e) {
+  requestAnimationFrame(function(){
+    var pw = el('panelsWrap');
+    if(!pw) return;
+    var w = pw.offsetWidth || window.innerWidth;
     pw.scrollLeft = idx * w;
-  }
+  });
 }
 
 function updateDots(idx){
@@ -891,15 +895,14 @@ function placeAITeam(){
   var counterName = getCounterFormation(S.formation, S.phase);
   if(!forms[counterName]) counterName = formKeys[0];
   var coords = forms[counterName] && forms[counterName].B;
-  // Debug
-  toast('B: '+counterName+' coords:'+(coords?coords.length:'NULL'));
-  if(!coords) return;
+  if(!coords){ toast('Adversário não encontrado'); return; }
   S.players = S.players.filter(function(p){ return p.team !== 'B'; });
   var posMap = getPosMap();
   coords.forEach(function(pos,i){
     S.players.push({id:S.nextId++,team:'B',x:pos[0],y:pos[1],num:i+1,pos:posMap[i+1]||'Campo'});
   });
   renderPlayers();
+  toast('🤖 '+counterName+' colocado');
 }
 
 // ════════════════════════════════════════════════
