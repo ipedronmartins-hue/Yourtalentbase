@@ -568,13 +568,23 @@ function doLogin(){
 //  PANEL NAVIGATION
 // ════════════════════════════════════════════════
 function goPanel(idx){
-  S.currentPanel = idx;
+  updateDots(idx);
   var pw = el('panelsWrap');
-  pw.scrollTo({ left: idx * pw.offsetWidth, behavior:'smooth' });
+  if(!pw) return;
+  // Most reliable cross-browser method
+  var w = pw.offsetWidth || window.innerWidth;
+  pw.scrollLeft = idx * w;
+}
+
+function updateDots(idx){
+  S.currentPanel = idx;
   [0,1,2].forEach(function(i){
-    el('dot'+i).classList.toggle('active', i===idx);
+    var d = el('dot'+i);
+    if(d) d.classList.toggle('active', i===idx);
   });
 }
+
+function goToAnalysis(){ goPanel(2); updateP3Header(); }
 
 function goToAnalysis(){ goPanel(2); updateP3Header(); }
 
@@ -753,10 +763,29 @@ function drawPitchMarkers(){
 }
 
 function applyAndGoField(){
-  applyFormation('A', S.formation);
-  placeAITeam();
+  if(isHalfPitch()){
+    placeAITeamSetPiece();
+  } else {
+    applyFormation('A', S.formation);
+    placeAITeam();
+  }
   updatePitchMode();
   goPanel(1);
+}
+
+function placeAITeamSetPiece(){
+  var spForms = SET_PIECE_FORMS[S.phase];
+  if(!spForms) return placeAITeam();
+  var firstVariant = Object.keys(spForms)[0];
+  var bCoords = spForms[firstVariant] && spForms[firstVariant].B;
+  if(!bCoords || !bCoords.length) return placeAITeam();
+  S.players = S.players.filter(function(p){ return p.team !== 'B'; });
+  var posMap = getPosMap();
+  bCoords.forEach(function(pos,i){
+    S.players.push({id:S.nextId++,team:'B',x:pos[0],y:pos[1],num:i+1,pos:posMap[i+1]||'Campo'});
+  });
+  renderPlayers();
+  toast('🤖 Adversário posicionado para '+S.phase);
 }
 
 // ════════════════════════════════════════════════
@@ -856,11 +885,21 @@ function applyFormation(team, name){
 }
 
 function placeAITeam(){
-  var counterName = getCounterFormation(S.formation, S.phase);
   var forms = getFormations();
-  if(!forms[counterName]) counterName = Object.keys(forms)[0];
-  applyFormation('B', counterName);
-  toast('🤖 Adversário gerou '+counterName+' para contrariar');
+  var formKeys = Object.keys(forms);
+  var counterName = getCounterFormation(S.formation, S.phase);
+  // Defensive: if counterName doesn't exist, use first available
+  if(!forms[counterName]) counterName = formKeys[0];
+  // Remove existing B players and add new ones directly
+  S.players = S.players.filter(function(p){ return p.team !== 'B'; });
+  var coords = forms[counterName] && forms[counterName].B;
+  if(!coords){ toast('Formação adversária não encontrada'); return; }
+  var posMap = getPosMap();
+  coords.forEach(function(pos,i){
+    S.players.push({id:S.nextId++,team:'B',x:pos[0],y:pos[1],num:i+1,pos:posMap[i+1]||'Campo'});
+  });
+  renderPlayers();
+  toast('🤖 '+counterName+' — adversário colocado');
 }
 
 // ════════════════════════════════════════════════
