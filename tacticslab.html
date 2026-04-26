@@ -889,18 +889,17 @@ function placeAITeam(){
   var forms = getFormations();
   var formKeys = Object.keys(forms);
   var counterName = getCounterFormation(S.formation, S.phase);
-  // Defensive: if counterName doesn't exist, use first available
   if(!forms[counterName]) counterName = formKeys[0];
-  // Remove existing B players and add new ones directly
-  S.players = S.players.filter(function(p){ return p.team !== 'B'; });
   var coords = forms[counterName] && forms[counterName].B;
-  if(!coords){ toast('Formação adversária não encontrada'); return; }
+  // Debug
+  toast('B: '+counterName+' coords:'+(coords?coords.length:'NULL'));
+  if(!coords) return;
+  S.players = S.players.filter(function(p){ return p.team !== 'B'; });
   var posMap = getPosMap();
   coords.forEach(function(pos,i){
     S.players.push({id:S.nextId++,team:'B',x:pos[0],y:pos[1],num:i+1,pos:posMap[i+1]||'Campo'});
   });
   renderPlayers();
-  toast('🤖 '+counterName+' — adversário colocado');
 }
 
 // ════════════════════════════════════════════════
