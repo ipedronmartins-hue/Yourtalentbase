@@ -1,0 +1,564 @@
+{
+  "escalao": "sub12",
+  "versao": "1.0",
+  "data_criacao": "2026-04-26",
+  "validado_por": "Mister Teles · Gondomar SC",
+  "semanas": {
+    "1": {
+      "tema": "Bases — Controlo e Toque",
+      "foco": "Domínio de bola e relação com o pé",
+      "dica": "Esta é a primeira semana. Não corras. Concentra-te em cada toque, em cada passe. Qualidade sempre antes da quantidade.",
+      "treinos": [
+        {
+          "id": 1,
+          "titulo": "Toque e Domínio",
+          "emoji": "⚽",
+          "desc": "Sentir a bola com ambos os pés",
+          "exercicios": [
+            {
+              "nome": "Toques alternados",
+              "instrucoes": "De pé, alterna toques entre o pé direito e o esquerdo. A bola não pode tocar no chão. Conta o número máximo de toques seguidos numa só tentativa.",
+              "metrica": "Toques seguidos",
+              "tipo": "reps",
+              "ref": {
+                "GR": 50,
+                "DEF": 80,
+                "MED": 120,
+                "AVA": 100
+              }
+            },
+            {
+              "nome": "Condução em linha",
+              "instrucoes": "Marca dois pontos a 10 metros. Conduz a bola entre os dois, sempre com toques curtos, alternando os pés. Conta as voltas completas em 2 minutos.",
+              "metrica": "Voltas em 2 min",
+              "tipo": "reps",
+              "ref": {
+                "GR": 5,
+                "DEF": 6,
+                "MED": 7,
+                "AVA": 7
+              }
+            },
+            {
+              "nome": "Sola e arranque",
+              "instrucoes": "Põe o pé em cima da bola (sola). Faz um pequeno toque atrás com a sola e arranca em condução 5 metros. Repete 8 vezes. Conta as séries sem perder o controlo.",
+              "metrica": "Séries sem erro",
+              "tipo": "reps",
+              "ref": {
+                "GR": 6,
+                "DEF": 7,
+                "MED": 8,
+                "AVA": 7
+              }
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "titulo": "Passe Curto",
+          "emoji": "🎯",
+          "desc": "Precisão contra a parede",
+          "exercicios": [
+            {
+              "nome": "Passe interior",
+              "instrucoes": "A 4 metros de uma parede, passa com o interior do pé direito. A bola volta, controla, passa de novo. Conta os passes seguidos sem falhar em 1 minuto.",
+              "metrica": "Passes em 1 min",
+              "tipo": "reps",
+              "ref": {
+                "GR": 28,
+                "DEF": 35,
+                "MED": 42,
+                "AVA": 38
+              }
+            },
+            {
+              "nome": "Passe pé esquerdo",
+              "instrucoes": "Mesmo exercício, mas só com o pé esquerdo. Conta os passes em 1 minuto.",
+              "metrica": "Passes em 1 min",
+              "tipo": "reps",
+              "ref": {
+                "GR": 22,
+                "DEF": 28,
+                "MED": 34,
+                "AVA": 30
+              }
+            },
+            {
+              "nome": "Alvo na parede",
+              "instrucoes": "Marca um alvo na parede (uma marca, uma pedra, qualquer coisa). De 5 metros, tenta acertar 10 vezes. Conta os acertos.",
+              "metrica": "Acertos em 10",
+              "tipo": "reps",
+              "ref": {
+                "GR": 6,
+                "DEF": 7,
+                "MED": 8,
+                "AVA": 8
+              }
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "titulo": "Coordenação e Agilidade",
+          "emoji": "⚡",
+          "desc": "Trabalho sem bola",
+          "exercicios": [
+            {
+              "nome": "Skipping no sítio",
+              "instrucoes": "Joelhos à altura da cintura, alternados, durante 30 segundos. Conta as repetições (cada vez que o joelho direito sobe).",
+              "metrica": "Repetições em 30s",
+              "tipo": "reps",
+              "ref": {
+                "GR": 40,
+                "DEF": 45,
+                "MED": 48,
+                "AVA": 48
+              }
+            },
+            {
+              "nome": "Pé coxinho 10m",
+              "instrucoes": "Marca 10 metros. Faz pé coxinho com o pé direito até ao fim. Volta com o esquerdo. Cronometra o tempo total dos 20 metros.",
+              "metrica": "Tempo total em segundos",
+              "tipo": "tempo",
+              "ref": {
+                "GR": 10,
+                "DEF": 9,
+                "MED": 9,
+                "AVA": 9
+              }
+            },
+            {
+              "nome": "Burpees",
+              "instrucoes": "Em 1 minuto, faz o máximo de burpees possíveis (cócoras + flexão + salto). Conta-os.",
+              "metrica": "Burpees em 1 min",
+              "tipo": "reps",
+              "ref": {
+                "GR": 18,
+                "DEF": 22,
+                "MED": 22,
+                "AVA": 22
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "2": {
+      "tema": "Velocidade e Decisão",
+      "foco": "Aumentar ritmo e tomar decisões com bola",
+      "dica": "Esta semana acelera. Mantém a qualidade da semana 1 mas com mais intensidade. Decisão rápida é o que distingue um bom jogador.",
+      "treinos": [
+        {
+          "id": 1,
+          "titulo": "Condução com Mudança",
+          "emoji": "🏃",
+          "desc": "Velocidade em condução",
+          "exercicios": [
+            {
+              "nome": "Slalom de 5 cones",
+              "instrucoes": "Coloca 5 objectos em linha, espaçados 1 metro. Conduz a bola em zig-zag entre eles. Cronometra o tempo de ida e volta.",
+              "metrica": "Tempo total em segundos",
+              "tipo": "tempo",
+              "ref": {
+                "GR": 12,
+                "DEF": 10,
+                "MED": 9,
+                "AVA": 9
+              }
+            },
+            {
+              "nome": "Sprint com bola 15m",
+              "instrucoes": "Em 15 metros, conduz a bola em sprint máximo. Cronometra. Repete 3 vezes e regista o melhor tempo.",
+              "metrica": "Melhor tempo em segundos",
+              "tipo": "tempo",
+              "ref": {
+                "GR": 3.5,
+                "DEF": 3.2,
+                "MED": 2.8,
+                "AVA": 2.8
+              }
+            },
+            {
+              "nome": "Corte interior/exterior",
+              "instrucoes": "Conduz 5 metros, corta com o interior e arranca outros 5 metros. Repete cortando com o exterior. 6 séries no total. Conta as séries sem perder controlo.",
+              "metrica": "Séries sem erro",
+              "tipo": "reps",
+              "ref": {
+                "GR": 5,
+                "DEF": 6,
+                "MED": 7,
+                "AVA": 7
+              }
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "titulo": "Passe e Movimento",
+          "emoji": "🔄",
+          "desc": "Receber em movimento",
+          "exercicios": [
+            {
+              "nome": "Passe e sprint",
+              "instrucoes": "Passa a bola contra a parede, corre 5 metros, recebe em movimento, passa de novo. Sem parar. 2 minutos. Conta as repetições.",
+              "metrica": "Repetições em 2 min",
+              "tipo": "reps",
+              "ref": {
+                "GR": 18,
+                "DEF": 24,
+                "MED": 28,
+                "AVA": 26
+              }
+            },
+            {
+              "nome": "Passe diagonal",
+              "instrucoes": "Marca dois pontos em diagonal a 6 metros. Passa para um, recebe, passa para o outro. Sempre em movimento. 1 minuto. Conta os passes corretos.",
+              "metrica": "Passes em 1 min",
+              "tipo": "reps",
+              "ref": {
+                "GR": 22,
+                "DEF": 28,
+                "MED": 34,
+                "AVA": 30
+              }
+            },
+            {
+              "nome": "Receção orientada",
+              "instrucoes": "Recebe o passe da parede e, no mesmo movimento, orienta a bola para a esquerda. Repete 5 vezes. Depois 5 vezes para a direita. Conta acertos em 10.",
+              "metrica": "Receções limpas em 10",
+              "tipo": "reps",
+              "ref": {
+                "GR": 6,
+                "DEF": 7,
+                "MED": 8,
+                "AVA": 8
+              }
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "titulo": "Resistência",
+          "emoji": "💪",
+          "desc": "Capacidade aeróbica",
+          "exercicios": [
+            {
+              "nome": "Corrida contínua",
+              "instrucoes": "Corre 5 minutos sem parar, ritmo moderado. Avalia de 1 (muito difícil, parei) a 5 (consegui sem parar com facilidade).",
+              "metrica": "Avaliação 1-5",
+              "tipo": "nota",
+              "ref": {
+                "GR": 4,
+                "DEF": 4,
+                "MED": 4,
+                "AVA": 4
+              }
+            },
+            {
+              "nome": "30 abdominais",
+              "instrucoes": "Faz 30 abdominais. Cronometra o tempo total.",
+              "metrica": "Tempo em segundos",
+              "tipo": "tempo",
+              "ref": {
+                "GR": 50,
+                "DEF": 45,
+                "MED": 45,
+                "AVA": 45
+              }
+            },
+            {
+              "nome": "Agachamentos com salto",
+              "instrucoes": "Em 30 segundos, faz o máximo de agachamentos com salto vertical. Conta-os.",
+              "metrica": "Repetições em 30s",
+              "tipo": "reps",
+              "ref": {
+                "GR": 24,
+                "DEF": 28,
+                "MED": 28,
+                "AVA": 28
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "3": {
+      "tema": "Técnica em Pressão",
+      "foco": "Manter qualidade técnica sob fadiga",
+      "dica": "Esta semana é exigente. Vais sentir os músculos. É normal. O que separa um Sub-12 normal de um futuro jogador é manter a qualidade quando o corpo já dói.",
+      "treinos": [
+        {
+          "id": 1,
+          "titulo": "Combo Técnica + Físico",
+          "emoji": "🔥",
+          "desc": "Técnica entre séries físicas",
+          "exercicios": [
+            {
+              "nome": "10 burpees + 10 toques",
+              "instrucoes": "Faz 10 burpees, depois imediatamente 10 toques alternados sem deixar a bola cair. Repete 4 séries. Conta as séries em que conseguiste os 10 toques.",
+              "metrica": "Séries com 10 toques",
+              "tipo": "reps",
+              "ref": {
+                "GR": 2,
+                "DEF": 3,
+                "MED": 3,
+                "AVA": 3
+              }
+            },
+            {
+              "nome": "Sprint 20m + passe",
+              "instrucoes": "Sprint 20 metros, para, controla a bola, passa contra a parede, recebe. Repete 5 vezes. Conta as receções limpas.",
+              "metrica": "Receções limpas em 5",
+              "tipo": "reps",
+              "ref": {
+                "GR": 4,
+                "DEF": 4,
+                "MED": 5,
+                "AVA": 5
+              }
+            },
+            {
+              "nome": "Slalom sob fadiga",
+              "instrucoes": "Faz 30 polichinelos. Sem descansar, faz o slalom de 5 cones (semana 2). Cronometra o slalom.",
+              "metrica": "Tempo do slalom em segundos",
+              "tipo": "tempo",
+              "ref": {
+                "GR": 14,
+                "DEF": 12,
+                "MED": 11,
+                "AVA": 11
+              }
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "titulo": "Finalização",
+          "emoji": "🥅",
+          "desc": "Remate e precisão",
+          "exercicios": [
+            {
+              "nome": "Remate parado",
+              "instrucoes": "Marca uma 'baliza' de 1 metro de largura na parede. De 6 metros, remata 10 vezes. Conta os acertos.",
+              "metrica": "Acertos em 10",
+              "tipo": "reps",
+              "ref": {
+                "GR": 6,
+                "DEF": 7,
+                "MED": 8,
+                "AVA": 9
+              }
+            },
+            {
+              "nome": "Remate em condução",
+              "instrucoes": "Conduz 5 metros e remata para a baliza marcada. Repete 10 vezes. Conta os acertos.",
+              "metrica": "Acertos em 10",
+              "tipo": "reps",
+              "ref": {
+                "GR": 5,
+                "DEF": 6,
+                "MED": 7,
+                "AVA": 8
+              }
+            },
+            {
+              "nome": "Remate pé fraco",
+              "instrucoes": "Faz o remate parado mas só com o pé que usas menos. 10 tentativas. Conta os acertos.",
+              "metrica": "Acertos em 10",
+              "tipo": "reps",
+              "ref": {
+                "GR": 3,
+                "DEF": 4,
+                "MED": 5,
+                "AVA": 5
+              }
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "titulo": "Mental e Foco",
+          "emoji": "🧠",
+          "desc": "Concentração sob ritmo",
+          "exercicios": [
+            {
+              "nome": "Toques em série",
+              "instrucoes": "Faz 5 toques só pé direito, depois 5 só pé esquerdo, depois 5 alternados. Sem a bola tocar no chão. Conta as séries completas em 2 minutos.",
+              "metrica": "Séries completas em 2 min",
+              "tipo": "reps",
+              "ref": {
+                "GR": 4,
+                "DEF": 5,
+                "MED": 6,
+                "AVA": 5
+              }
+            },
+            {
+              "nome": "Plank 60 segundos",
+              "instrucoes": "Posição de prancha (apoio nos cotovelos e pontas dos pés). Tenta aguentar 60 segundos sem deixar cair as ancas. Conta o tempo aguentado.",
+              "metrica": "Segundos aguentados",
+              "tipo": "tempo",
+              "ref": {
+                "GR": 50,
+                "DEF": 55,
+                "MED": 55,
+                "AVA": 50
+              }
+            },
+            {
+              "nome": "Auto-avaliação",
+              "instrucoes": "Pensa no treino de hoje. De 1 a 5: Quanto deste? (1 = pouco, 5 = tudo o que tinha). Sê honesto.",
+              "metrica": "Auto-avaliação 1-5",
+              "tipo": "nota",
+              "ref": {
+                "GR": 4,
+                "DEF": 4,
+                "MED": 4,
+                "AVA": 4
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "4": {
+      "tema": "Aplicação ao Jogo",
+      "foco": "Movimentos do jogo real",
+      "dica": "Última semana do ciclo. Aplica tudo o que treinaste. Imagina que estás em jogo. Cada exercício tem propósito.",
+      "treinos": [
+        {
+          "id": 1,
+          "titulo": "1×1 Ofensivo",
+          "emoji": "⚔️",
+          "desc": "Drible e finta",
+          "exercicios": [
+            {
+              "nome": "Finta dupla",
+              "instrucoes": "Aprende uma finta (corte interior + corte exterior) numa direção e faz 10 vezes em condução. Conta as tentativas que ficaram fluidas (sem perder bola).",
+              "metrica": "Fintas fluidas em 10",
+              "tipo": "reps",
+              "ref": {
+                "GR": 5,
+                "DEF": 6,
+                "MED": 8,
+                "AVA": 9
+              }
+            },
+            {
+              "nome": "Drible em condução",
+              "instrucoes": "Conduz a bola e faz uma mudança de direção brusca a cada 3 segundos. Em 1 minuto, conta as mudanças sem perder controlo.",
+              "metrica": "Mudanças em 1 min",
+              "tipo": "reps",
+              "ref": {
+                "GR": 16,
+                "DEF": 18,
+                "MED": 20,
+                "AVA": 20
+              }
+            },
+            {
+              "nome": "Sprint com finta final",
+              "instrucoes": "Sprint de 10 metros. Para, faz uma finta para a esquerda e remata. Repete 5 vezes. Conta as fintas + remates limpos.",
+              "metrica": "Sequências completas em 5",
+              "tipo": "reps",
+              "ref": {
+                "GR": 3,
+                "DEF": 4,
+                "MED": 4,
+                "AVA": 4
+              }
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "titulo": "Posição-chave",
+          "emoji": "🎯",
+          "desc": "Trabalho específico da tua posição",
+          "exercicios": [
+            {
+              "nome": "Específico da posição",
+              "instrucoes": "GR: 10 mergulhos para cada lado, conta os 'agarrados'. DEF: corrida lateral 10m, 10 vezes, cronometra. MED: 30 passes alternados pé direito/esquerdo, cronometra. AVA: 10 remates em condução, conta acertos.",
+              "metrica": "Conforme posição",
+              "tipo": "reps",
+              "ref": {
+                "GR": 14,
+                "DEF": 32,
+                "MED": 60,
+                "AVA": 7
+              }
+            },
+            {
+              "nome": "Reação rápida",
+              "instrucoes": "Pede a alguém para gritar 'esquerda' ou 'direita'. Tens de saltar para o lado nomeado o mais rápido possível. 20 vezes. Conta as reações certas no primeiro tempo.",
+              "metrica": "Reações certas em 20",
+              "tipo": "reps",
+              "ref": {
+                "GR": 17,
+                "DEF": 18,
+                "MED": 18,
+                "AVA": 17
+              }
+            },
+            {
+              "nome": "Combo da posição",
+              "instrucoes": "Combina movimento da tua posição com bola. GR: pega a bola e atira longe 10x. DEF: passe longo contra a parede 10x. MED: condução + passe 10x. AVA: condução + remate 10x. Conta acertos.",
+              "metrica": "Acertos em 10",
+              "tipo": "reps",
+              "ref": {
+                "GR": 7,
+                "DEF": 6,
+                "MED": 7,
+                "AVA": 7
+              }
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "titulo": "Jogo Mental",
+          "emoji": "🏆",
+          "desc": "Resistência e cabeça forte",
+          "exercicios": [
+            {
+              "nome": "Sprint repetido",
+              "instrucoes": "Sprint 20m, anda 20m de volta. Faz 8 vezes seguidas. Avalia o esforço: 1 (fácil) a 5 (limite total).",
+              "metrica": "Esforço 1-5",
+              "tipo": "nota",
+              "ref": {
+                "GR": 4,
+                "DEF": 4,
+                "MED": 4,
+                "AVA": 4
+              }
+            },
+            {
+              "nome": "Plank lateral 30s+30s",
+              "instrucoes": "Prancha lateral 30 segundos de cada lado. Conta os segundos totais aguentados (máximo 60).",
+              "metrica": "Segundos totais",
+              "tipo": "tempo",
+              "ref": {
+                "GR": 55,
+                "DEF": 60,
+                "MED": 60,
+                "AVA": 55
+              }
+            },
+            {
+              "nome": "Visualização do jogo",
+              "instrucoes": "Fecha os olhos 1 minuto. Imagina-te a fazer o melhor lance da tua vida. De 1 a 5, quanto conseguiste 'ver' a jogada com clareza?",
+              "metrica": "Clareza 1-5",
+              "tipo": "nota",
+              "ref": {
+                "GR": 4,
+                "DEF": 4,
+                "MED": 4,
+                "AVA": 4
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
