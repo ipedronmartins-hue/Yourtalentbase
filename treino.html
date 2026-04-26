@@ -29,6 +29,7 @@ a{color:inherit;text-decoration:none}
 @keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes streakPulse{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(255,140,0,.4)}50%{transform:scale(1.04);box-shadow:0 0 0 8px rgba(255,140,0,0)}}
 @keyframes cf{0%{transform:translateY(-10px) rotate(0);opacity:1}100%{transform:translateY(110vh) rotate(var(--r,360deg));opacity:0}}
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 @keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.12)}100%{transform:scale(1)}}
@@ -431,16 +432,23 @@ function timerStart(){
   updateTimerUI();
   updateExCards();
   vibrate([30]);
+  beep(660,.1,.15); // Start chime
   S.timerRef=setInterval(function(){
     S.timerVal=S.timerVal-1;
     // Mini timer
     S.exMiniVal++;
     updateMiniTimer();
-    // Timed messages
+    // Timed messages with audio cue
     TIMER_MSGS.forEach(function(msg){
       if(!S.msgsFired[msg.t]&&S.timerVal<=msg.t&&S.timerVal>msg.t-3){
         S.msgsFired[msg.t]=true;
         showTimerMsg(msg.m,msg.cls);
+        if(msg.cls==="urgent"){
+          beepSeq([{f:440,d:.1,t:0},{f:440,d:.1,t:150}]);
+          vibrate([80,40,80]);
+        } else {
+          beep(550,.08,.12);
+        }
       }
     });
     updateTimerUI();
@@ -469,6 +477,41 @@ function timerToggle(){
 
 function vibrate(pattern){
   try{if(navigator.vibrate)navigator.vibrate(pattern);}catch(e){}
+}
+
+// Web Audio beep — works without files
+var _audioCtx;
+function beep(freq,dur,vol){
+  try{
+    if(!_audioCtx)_audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+    var ctx=_audioCtx;
+    var o=ctx.createOscillator();
+    var g=ctx.createGain();
+    o.connect(g);g.connect(ctx.destination);
+    o.frequency.value=freq||880;
+    o.type="sine";
+    g.gain.setValueAtTime(vol||.15,ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+(dur||.15));
+    o.start(ctx.currentTime);
+    o.stop(ctx.currentTime+(dur||.15));
+  }catch(e){}
+}
+function beepSeq(notes){
+  notes.forEach(function(n,i){
+    setTimeout(function(){beep(n.f,n.d,n.v)},n.t||(i*150));
+  });
+}
+
+function getRankAbove(){
+  // Returns the player ranked just above the current athlete
+  if(!S.lastRankData||!S.lastRankData.length)return null;
+  // If athlete has no current rank, target the leader
+  var idx=-1;
+  for(var i=0;i<S.lastRankData.length;i++){
+    if(S.lastRankData[i].atleta_nome===S.atleta){idx=i;break}
+  }
+  if(idx<=0)return S.lastRankData[0]; // top or not in list yet
+  return S.lastRankData[idx-1]; // person directly above
 }
 
 var _msgT;
@@ -564,46 +607,249 @@ var FALLBACK={
 };
 
 async function gerarTreino(nome,pos){
-  var prompt="Cria plano treino futebol jovem casa. So JSON sem markdown.\nAtleta:"+nome+"|Sub-12|"+PL[pos]+"|Semana:"+S.semana+"\n3 treinos 3 exercicios ~15min sem equipamento.\n{\"foco\":\"s\",\"dica\":\"2 frases\",\"treinos\":[{\"id\":1,\"titulo\":\"t\",\"emoji\":\"e\",\"desc\":\"d\",\"exercicios\":[{\"nome\":\"n\",\"instrucoes\":\"instrucoes completas\",\"metrica\":\"o que medir\",\"tipo\":\"reps\"}]}]}";
+  // Load curated library by escalão
+  var escalao = "sub12"; // hardcoded for now — will become dynamic when more escalões exist
   try{
-    var r=await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt:prompt,max_tokens:1600})});
-    var d=await r.json();
-    var raw=(d.content&&d.content[0]&&d.content[0].text)||"";
-    return JSON.parse(raw.replace(/```json|```/g,"").trim());
-  }catch(e){return FALLBACK}
+    var r = await fetch("treinos/"+escalao+".json", {cache:"no-cache"});
+    if(!r.ok) throw new Error("Library not found");
+    var lib = await r.json();
+    // Pick week — cycles through 4 weeks of the library
+    var weekKey = String(((S.semana - 1) % 4) + 1);
+    var week = lib.semanas[weekKey];
+    if(!week) throw new Error("Week not in library");
+
+    // Build training plan from library
+    var plan = {
+      foco: week.foco,
+      dica: week.dica,
+      treinos: week.treinos.map(function(t){
+        return {
+          id: t.id,
+          titulo: t.titulo,
+          emoji: t.emoji,
+          desc: t.desc,
+          exercicios: t.exercicios.map(function(ex){
+            return {
+              nome: ex.nome,
+              instrucoes: ex.instrucoes,
+              metrica: ex.metrica,
+              tipo: ex.tipo,
+              ref: ex.ref ? (ex.ref[pos] || ex.ref["MED"] || 10) : null
+            };
+          })
+        };
+      })
+    };
+
+    // Personalize the Mister's message via AI (lightweight call)
+    try{
+      var mPrompt = "Mister Teles do Gondomar SC Sub-12 escreve uma mensagem curta (max 2 frases) em portugues europeu para o jovem atleta " + first(nome) + " (posicao: " + PL[pos] + ") sobre o tema da semana: " + week.tema + ". Tom directo, motivador, sem condescendencia. Sem emoji.";
+      var mr = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt:mPrompt,max_tokens:120})});
+      var md = await mr.json();
+      var customMsg = ((md.content&&md.content[0]&&md.content[0].text)||"").trim();
+      if(customMsg && customMsg.length > 10 && customMsg.length < 300) {
+        plan.dica = customMsg;
+      }
+    }catch(e){ /* keep default dica from library */ }
+
+    return plan;
+  }catch(e){
+    return FALLBACK;
+  }
 }
 
+// HYBRID SCORING — formula-based, IA only for narrative
 async function avaliar(nome,pos,titulo,results,timerR,rpe){
-  var linhas=results.map(function(r,i){return(i+1)+". "+r.nome+" - "+r.resultado+(r.tempo?" ["+fmt(SECS-r.tempo)+" de sessao]":"")}).join("\n");
-  var prompt="Scout YTB. Avalia treino em portugues europeu, tom motivador Sub-12.\nAtleta:"+nome+"|"+PL[pos]+"|Treino:"+titulo+"\nDuracao:"+fmt(SECS-timerR)+" de 15:00|RPE:"+rpe+"/5\nResultados:\n"+linhas+"\nSo JSON:{\"score\":0-100,\"nivel\":\"Bom\",\"feedback\":\"2-3 frases\",\"destaque\":\"1 frase\"}";
-  try{
-    var r=await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt:prompt,max_tokens:350})});
-    var d=await r.json();
-    var raw=(d.content&&d.content[0]&&d.content[0].text)||"";
-    return JSON.parse(raw.replace(/```json|```/g,"").trim());
-  }catch(e){
-    var sc=Math.min(100,55+rpe*7+(timerR>0?12:0));
-    return{score:sc,nivel:sc>=80?"Muito Bom":sc>=60?"Bom":"Suficiente",feedback:"Treino concluido! "+first(nome)+", continua assim.",destaque:"Completaste os 3 exercicios!"}
+  // Calculate deterministic score
+  var totalEx = S.curTr.exercicios.length;
+  var doneEx = S.exDone.filter(Boolean).length;
+  var elapsed = SECS - timerR;
+  var timeRemaining = timerR;
+
+  // 1. CONCLUSAO (40 pts max) — % of exercises completed
+  var pConclusao = Math.round((doneEx / totalEx) * 40);
+
+  // 2. PONTUALIDADE (20 pts max) — finished within time + bonus for early
+  var pPontualidade = 0;
+  if(doneEx === totalEx) {
+    pPontualidade = 12; // base for finishing in time
+    if(timeRemaining > 60) pPontualidade += 4; // 1+ min early
+    if(timeRemaining > 180) pPontualidade += 4; // 3+ min early
+  } else {
+    pPontualidade = Math.round((elapsed / SECS) * 8); // partial credit for time invested
   }
+
+  // 3. ESFORCO (20 pts max) — based on RPE auto-evaluation
+  // RPE 1-2 = low effort (5-10 pts), 3 = medium (14), 4-5 = high (18-20)
+  var rpeMap = {1:5, 2:10, 3:14, 4:18, 5:20};
+  var pEsforco = rpeMap[rpe] || 12;
+
+  // 4. RESULTADOS (20 pts max) — compare against reference for the position
+  var pResultados = 0;
+  var totalRefs = 0;
+  var pointsEarned = 0;
+  results.forEach(function(r, idx){
+    if(!r.resultado) return;
+    var ex = S.curTr.exercicios[idx];
+    if(!ex || !ex.ref) return;
+    var ref = ex.ref;
+    var val = parseFloat(r.resultado);
+    if(isNaN(val) || ref <= 0) return;
+    totalRefs++;
+    // For tempo (lower is better), invert ratio
+    var ratio = (ex.tipo === "tempo") ? (ref / val) : (val / ref);
+    // 100% of ref = 14 pts, 130%+ = 20 pts, 70%- = 7 pts
+    var pts;
+    if(ratio >= 1.3) pts = 20;
+    else if(ratio >= 1.1) pts = 17;
+    else if(ratio >= 0.9) pts = 14;
+    else if(ratio >= 0.7) pts = 10;
+    else pts = 6;
+    pointsEarned += pts;
+  });
+  pResultados = totalRefs > 0 ? Math.round(pointsEarned / totalRefs) : 12;
+
+  var totalScore = Math.min(100, pConclusao + pPontualidade + pEsforco + pResultados);
+  var nivel = totalScore >= 85 ? "Excelente" : totalScore >= 70 ? "Muito Bom" : totalScore >= 55 ? "Bom" : "Em progresso";
+
+  // Determine highlight automatically
+  var destaque = "";
+  if(timeRemaining > 180 && doneEx === totalEx) destaque = "Terminaste 3 minutos antes do tempo!";
+  else if(rpe >= 4 && doneEx === totalEx) destaque = "Completaste tudo com esforço máximo!";
+  else if(pResultados >= 17) destaque = "Resultados acima da média do escalão!";
+  else if(doneEx === totalEx) destaque = "Completaste os 3 exercícios.";
+
+  // IA generates narrative feedback only
+  var linhas = results.map(function(r, i){
+    var ex = S.curTr.exercicios[i];
+    var ref = ex && ex.ref ? " (ref Sub-12 "+PL[pos]+": "+ex.ref+")" : "";
+    return (i+1)+". "+r.nome+" - "+r.resultado+ref;
+  }).join("\n");
+
+  var prompt = "És o Mister Teles do Gondomar SC Sub-12. Acabaste de avaliar um treino do " + first(nome) + " (" + PL[pos] + "). Score calculado: " + totalScore + "/100 (" + nivel + "). Resultados:\n" + linhas + "\nDuração: " + fmt(elapsed) + ". Esforço auto-reportado: " + rpe + "/5.\n\nEscreve UM feedback curto (3 frases max) em português europeu, tom directo de treinador. Identifica 1 ponto específico para melhorar. Sem condescendência.\n\nResposta SÓ em JSON: {\"feedback\":\"texto aqui\"}";
+
+  var feedback = "";
+  try{
+    var r = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt:prompt,max_tokens:250})});
+    var d = await r.json();
+    var raw = (d.content&&d.content[0]&&d.content[0].text)||"";
+    var parsed = JSON.parse(raw.replace(/```json|```/g,"").trim());
+    feedback = parsed.feedback || "";
+  }catch(e){ /* fallback below */ }
+
+  if(!feedback || feedback.length < 10) {
+    feedback = "Boa sessão, " + first(nome) + ". " +
+      (totalScore >= 80 ? "Estás num excelente nível para a tua idade. Continua assim." :
+       totalScore >= 60 ? "Resultados sólidos. Foca-te em aumentar a intensidade." :
+       "Cada treino conta. Foca-te na qualidade da execução.");
+  }
+
+  return {
+    score: totalScore,
+    nivel: nivel,
+    feedback: feedback,
+    destaque: destaque,
+    breakdown: {
+      conclusao: pConclusao,
+      pontualidade: pPontualidade,
+      esforco: pEsforco,
+      resultados: pResultados
+    }
+  };
 }
 
 function renderDash(){
   var t=S.treino;if(!t){el("dashP").innerHTML="<div style=\"padding:40px;text-align:center;color:var(--muted)\">A carregar...</div>";return}
   var done=S.hist.length,pct=Math.round(done/3*100);
+  var streak=getStreak();
+  var lastScores=getLastScores();
+  var bestScore=lastScores.length?Math.max.apply(null,lastScores):0;
+  var avgScore=lastScores.length?Math.round(lastScores.reduce(function(a,b){return a+b},0)/lastScores.length):0;
+  var badges=getBadges(done,streak,bestScore);
   var h="";
-  h+="<div style=\"margin-bottom:20px;animation:up .4s both\"><h1 class=\"h1\" style=\"margin-bottom:4px\">Ola, <span style=\"color:var(--gold)\">"+first(S.atleta)+"!</span></h1>";
+
+  // Header with greeting + streak
+  h+="<div style=\"margin-bottom:16px;animation:up .4s both;display:flex;justify-content:space-between;align-items:flex-start;gap:12px\">";
+  h+="<div><h1 class=\"h1\" style=\"margin-bottom:4px\">Ola, <span style=\"color:var(--gold)\">"+first(S.atleta)+"!</span></h1>";
   h+="<p style=\"font-size:11px;color:var(--muted);font-weight:300\">Sub-12 - Gondomar SC - Semana "+S.semana+"</p></div>";
-  h+="<div class=\"card\" style=\"margin-bottom:14px;position:relative;overflow:hidden;animation:up .35s .05s both\">";
+  if(streak>0){
+    h+="<div style=\"background:linear-gradient(135deg,rgba(255,107,0,.15),rgba(255,160,0,.05));border:1px solid rgba(255,140,0,.4);border-radius:14px;padding:10px 14px;text-align:center;flex-shrink:0;animation:streakPulse 2s ease-in-out infinite\">";
+    h+="<div style=\"font-size:22px;line-height:1\">&#128293;</div>";
+    h+="<div style=\"font-family:Barlow Condensed,sans-serif;font-size:24px;font-weight:900;color:#ff8c00;line-height:1;margin-top:2px\">"+streak+"</div>";
+    h+="<div style=\"font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:1px\">"+(streak===1?"dia":"dias")+"</div>";
+    h+="</div>";
+  }
+  h+="</div>";
+
+  // Mister's message - bigger, more visible
+  if(t.dica){
+    h+="<div style=\"background:linear-gradient(135deg,rgba(212,175,55,.1),rgba(212,175,55,.02));border-left:3px solid var(--gold);border-radius:0 12px 12px 0;padding:14px 16px;margin-bottom:14px;animation:up .35s .05s both\">";
+    h+="<div style=\"display:flex;align-items:center;gap:8px;margin-bottom:6px\">";
+    h+="<span style=\"font-size:16px\">&#128172;</span>";
+    h+="<div style=\"font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold)\">Mensagem do Mister</div></div>";
+    h+="<div style=\"font-size:13px;color:var(--white);line-height:1.6;font-weight:400;font-style:italic\">\""+t.dica+"\"</div>";
+    h+="</div>";
+  }
+
+  // Weekly progress card
+  h+="<div class=\"card\" style=\"margin-bottom:14px;position:relative;overflow:hidden;animation:up .35s .08s both\">";
   h+="<div style=\"position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--blue),var(--gold))\"></div>";
   h+="<div style=\"display:flex;justify-content:space-between;align-items:center;margin-bottom:10px\">";
   h+="<span class=\"ey\">Treinos esta semana</span><span class=\"num\" style=\"font-size:26px;font-weight:900;color:var(--gold)\">"+done+"/3</span></div>";
   h+="<div class=\"pbar\"><div class=\"pfill\" style=\"width:"+pct+"%\"></div></div></div>";
-  if(t.dica)h+="<div style=\"background:rgba(212,175,55,.06);border:1px solid var(--gb);border-radius:12px;padding:12px 14px;display:flex;gap:10px;margin-bottom:14px;animation:up .35s .08s both\"><div style=\"font-size:16px;flex-shrink:0\">&#128161;</div><div><div style=\"font-size:7px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:3px\">Nota do Mister</div><div style=\"font-size:11px;color:var(--slate);line-height:1.65;font-weight:300\">"+t.dica+"</div></div></div>";
-  h+="<div class=\"ey\" style=\"margin-bottom:10px;animation:up .35s .1s both\">Esta semana</div>";
+
+  // Stats trio
+  if(lastScores.length){
+    h+="<div style=\"display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;animation:up .35s .1s both\">";
+    h+="<div style=\"background:var(--bg2);border:1px solid var(--b1);border-radius:10px;padding:10px;text-align:center\">";
+    h+="<div style=\"font-family:Barlow Condensed,sans-serif;font-size:24px;font-weight:900;color:var(--gold);line-height:1\">"+bestScore+"</div>";
+    h+="<div style=\"font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:3px\">Melhor</div></div>";
+    h+="<div style=\"background:var(--bg2);border:1px solid var(--b1);border-radius:10px;padding:10px;text-align:center\">";
+    h+="<div style=\"font-family:Barlow Condensed,sans-serif;font-size:24px;font-weight:900;color:var(--white);line-height:1\">"+avgScore+"</div>";
+    h+="<div style=\"font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:3px\">Media</div></div>";
+    h+="<div style=\"background:var(--bg2);border:1px solid var(--b1);border-radius:10px;padding:10px;text-align:center\">";
+    h+="<div style=\"font-family:Barlow Condensed,sans-serif;font-size:24px;font-weight:900;color:var(--green);line-height:1\">"+lastScores.length+"</div>";
+    h+="<div style=\"font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:3px\">Total</div></div>";
+    h+="</div>";
+
+    // Mini history chart
+    if(lastScores.length>=2){
+      h+="<div style=\"background:var(--bg2);border:1px solid var(--b1);border-radius:12px;padding:12px;margin-bottom:14px;animation:up .35s .12s both\">";
+      h+="<div style=\"display:flex;justify-content:space-between;align-items:center;margin-bottom:10px\">";
+      h+="<span class=\"ey\" style=\"margin-bottom:0\">Evolucao</span>";
+      h+="<span style=\"font-size:11px;color:var(--muted)\">Ultimas "+lastScores.length+" sessoes</span></div>";
+      h+="<div style=\"display:flex;align-items:flex-end;gap:6px;height:54px\">";
+      var maxS=Math.max.apply(null,lastScores);
+      lastScores.forEach(function(s,i){
+        var heightPct=Math.max(15,(s/maxS)*100);
+        var color=s>=avgScore?"var(--gold)":"var(--blue)";
+        h+="<div style=\"flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:3px\">";
+        h+="<div style=\"font-family:Barlow Condensed,sans-serif;font-size:11px;font-weight:800;color:"+color+"\">"+s+"</div>";
+        h+="<div style=\"width:100%;background:"+color+";opacity:.7;border-radius:3px 3px 0 0;height:"+heightPct+"%;min-height:6px\"></div>";
+        h+="</div>";
+      });
+      h+="</div></div>";
+    }
+  }
+
+  // Badges
+  if(badges.length){
+    h+="<div style=\"display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;animation:up .35s .14s both\">";
+    badges.forEach(function(b){
+      h+="<div style=\"background:rgba(212,175,55,.08);border:1px solid var(--gb);border-radius:100px;padding:6px 12px;display:flex;align-items:center;gap:5px\">";
+      h+="<span style=\"font-size:13px\">"+b.icon+"</span>";
+      h+="<span style=\"font-size:10px;font-weight:700;color:var(--gold);letter-spacing:.5px\">"+b.label+"</span>";
+      h+="</div>";
+    });
+    h+="</div>";
+  }
+
+  // Sessions
+  h+="<div class=\"ey\" style=\"margin-bottom:10px;animation:up .35s .16s both\">Sessoes</div>";
   t.treinos.forEach(function(tr,i){
     var feito=S.hist.some(function(r){return r.treino_idx===i});
     var reg=feito?S.hist.find(function(r){return r.treino_idx===i}):null;
-    h+="<div class=\"sc"+(feito?" done":"")+"\" "+(feito?"":"data-ti=\""+i+"\"")+" style=\"animation:up .35s "+(0.12+i*.04)+"s both\">";
+    h+="<div class=\"sc"+(feito?" done":"")+"\" "+(feito?"":"data-ti=\""+i+"\"")+" style=\"animation:up .35s "+(0.18+i*.04)+"s both\">";
     h+="<div style=\"display:flex;align-items:center;gap:12px\">";
     h+="<span style=\"font-size:28px\">"+tr.emoji+"</span>";
     h+="<div style=\"flex:1\"><div style=\"font-size:14px;font-weight:700;color:"+(feito?"var(--green)":"var(--white)")+"\">"+tr.titulo+"</div>";
@@ -612,8 +858,48 @@ function renderDash(){
     else if(!feito)h+="<div style=\"background:var(--gold);color:#000;font-size:11px;font-weight:800;padding:7px 14px;border-radius:8px;flex-shrink:0\">&#9654; Iniciar</div>";
     h+="</div></div>";
   });
-  h+="<button id=\"bRank\" class=\"btn-gs\" style=\"width:100%;margin-top:16px;animation:up .35s .22s both\">&#127942; Ver Ranking da Equipa</button>";
+  h+="<button id=\"bRank\" class=\"btn-gs\" style=\"width:100%;margin-top:16px;animation:up .35s .26s both\">&#127942; Ver Ranking da Equipa</button>";
   el("dashP").innerHTML=h;
+}
+
+function getStreak(){
+  // Count consecutive days with at least one session
+  if(!S.hist.length)return 0;
+  var dias={};
+  S.hist.forEach(function(r){
+    if(r.created_at){
+      var d=new Date(r.created_at).toISOString().slice(0,10);
+      dias[d]=true;
+    }
+  });
+  var keys=Object.keys(dias).sort().reverse();
+  if(!keys.length)return 0;
+  var streak=1;
+  var today=new Date().toISOString().slice(0,10);
+  var yest=new Date(Date.now()-86400000).toISOString().slice(0,10);
+  if(keys[0]!==today&&keys[0]!==yest)return 0;
+  for(var i=1;i<keys.length;i++){
+    var prev=new Date(keys[i-1]);
+    var cur=new Date(keys[i]);
+    if((prev-cur)===86400000)streak++;
+    else break;
+  }
+  return streak;
+}
+
+function getLastScores(){
+  return S.hist.slice(-6).map(function(r){return r.ai_score||0}).filter(function(s){return s>0});
+}
+
+function getBadges(done,streak,best){
+  var b=[];
+  if(done>=1)b.push({icon:"\u2728",label:"Primeira Sessao"});
+  if(done>=3)b.push({icon:"\ud83d\udcaa",label:"Semana Completa"});
+  if(streak>=3)b.push({icon:"\ud83d\udd25",label:"Em Chamas"});
+  if(streak>=7)b.push({icon:"\ud83c\udfc6",label:"Lendario"});
+  if(best>=80)b.push({icon:"\u2b50",label:"Score 80+"});
+  if(best>=90)b.push({icon:"\ud83d\udc8e",label:"Score 90+"});
+  return b;
 }
 
 function renderPlay(idx){
@@ -653,7 +939,7 @@ function renderPlay(idx){
     h+="<div class=\"ex-n\">"+(i+1)+"</div>";
     h+="<div style=\"flex:1\"><div class=\"ex-title\">"+ex.nome+"</div>";
     h+="<div class=\"ex-info\">"+ex.instrucoes+"</div>";
-    h+="<div class=\"ex-metric\">&#128202; "+ex.metrica+"</div></div></div>";
+    h+="<div class=\"ex-metric\">&#128202; "+ex.metrica+(ex.ref?" &middot; meta Sub-12 "+PL[S.pos]+": <strong>"+ex.ref+"</strong>":"")+"</div></div></div>";
     h+="<div class=\"ex-dica\" id=\"exDica-"+i+"\" style=\"display:none\"></div>";
     h+="<div class=\"ex-mini-timer\" id=\"exMT-"+i+"\"></div>";
     var metricaPlaceholder=ex.tipo==="nota"?"Nota de 1 a 5 (ex: 4)":ex.tipo==="tempo"?"Tempo em segundos (ex: 45)":"Resultado de "+ex.metrica.toLowerCase()+" (ex: 12)";
@@ -754,6 +1040,8 @@ function completeEx(i){
   if(dc===n){
     toast("&#127881; Todos os exercicios concluidos! ELITE!");
     vibrate([100,50,100,50,200]);
+    // Victory chime
+    beepSeq([{f:660,d:.12,t:0},{f:880,d:.12,t:120},{f:1100,d:.2,t:240}]);
     timerStop();
     confetti();
     setTimeout(function(){
@@ -763,7 +1051,17 @@ function completeEx(i){
   } else {
     toast(celebMsgs[i%celebMsgs.length]);
     vibrate([60,30,60]);
-    showTimerMsg("&#9889; Ex."+(i+1)+" concluido em "+fmt(SECS-S.timerVal)+"! Segue!","gold");
+    // Success beep
+    beep(880,.12,.18);
+    setTimeout(function(){beep(1100,.1,.15)},100);
+    // Smart rank comparison — target the player above
+    var target=getRankAbove();
+    if(target&&target.atleta_nome!==S.atleta){
+      var msg="&#127942; "+first(target.atleta_nome)+" lidera com "+target.ai_score+" pts — vai apanha-lo!";
+      showTimerMsg(msg,"gold");
+    } else {
+      showTimerMsg("&#9889; Ex."+(i+1)+" concluido em "+fmt(SECS-S.timerVal)+"! Segue!","gold");
+    }
   }
   updateExCards();
 }
@@ -822,14 +1120,121 @@ function renderResult(av,titulo){
   if(av.destaque)h+="<div class=\"card gold\" style=\"margin-bottom:12px;text-align:center;animation:up .4s .1s both\"><div class=\"ey\" style=\"margin-bottom:6px\">Destaque</div><div style=\"font-size:14px;font-weight:700\">&#11088; "+av.destaque+"</div></div>";
   h+="<div class=\"card\" style=\"margin-bottom:14px;animation:up .4s .14s both\"><div class=\"ey\" style=\"margin-bottom:8px\">Avaliacao da IA</div>";
   h+="<p style=\"font-size:13px;color:var(--slate);line-height:1.8;font-weight:300\">"+av.feedback+"</p></div>";
-  h+="<div style=\"display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:18px;animation:up .4s .18s both\">";
+  h+="<div style=\"display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;animation:up .4s .18s both\">";
   [{n:fmt(elapsed),l:"Duracao"},{n:S.rpe+"/5",l:"Esforco"},{n:S.exDone.filter(Boolean).length+"/"+S.exDone.length,l:"Exercicios"}].forEach(function(s){h+="<div class=\"r-stat\"><div class=\"r-sn\">"+s.n+"</div><div class=\"r-sl\">"+s.l+"</div></div>"});
   h+="</div>";
+
+  // Score breakdown — transparency
+  if(av.breakdown){
+    h+="<div class=\"card\" style=\"margin-bottom:14px;animation:up .4s .2s both\"><div class=\"ey\" style=\"margin-bottom:10px\">Como foi calculado</div>";
+    var rows=[
+      {l:"Conclusão (3/3 exercícios)",p:av.breakdown.conclusao,m:40},
+      {l:"Pontualidade (timer)",p:av.breakdown.pontualidade,m:20},
+      {l:"Esforço (auto-avaliação)",p:av.breakdown.esforco,m:20},
+      {l:"Resultados vs média Sub-12",p:av.breakdown.resultados,m:20},
+    ];
+    rows.forEach(function(r){
+      var pct=Math.round((r.p/r.m)*100);
+      h+="<div style=\"display:flex;align-items:center;gap:10px;margin-bottom:8px\">";
+      h+="<div style=\"flex:1;font-size:11px;color:var(--slate);font-weight:500\">"+r.l+"</div>";
+      h+="<div style=\"width:80px;height:6px;background:rgba(255,255,255,.06);border-radius:100px;overflow:hidden\"><div style=\"height:100%;width:"+pct+"%;background:var(--gold);border-radius:100px\"></div></div>";
+      h+="<div style=\"font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;color:var(--gold);min-width:38px;text-align:right\">"+r.p+"/"+r.m+"</div>";
+      h+="</div>";
+    });
+    h+="</div>";
+  }
+
+  // SHARE SECTION
+  h+="<div class=\"card\" style=\"margin-bottom:14px;background:linear-gradient(135deg,rgba(212,175,55,.06),rgba(0,0,0,.2));animation:up .4s .2s both\">";
+  h+="<div class=\"ey\" style=\"margin-bottom:10px;text-align:center\">&#127867; Partilhar conquista</div>";
+  h+="<div style=\"display:grid;grid-template-columns:1fr 1fr;gap:8px\">";
+  h+="<button id=\"bShareWA\" style=\"background:#25D366;color:#fff;border:none;padding:12px;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px\">&#128241; WhatsApp</button>";
+  h+="<button id=\"bShareIG\" style=\"background:linear-gradient(135deg,#833AB4,#FD1D1D,#FCB045);color:#fff;border:none;padding:12px;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px\">&#128247; Instagram</button>";
+  h+="</div>";
+  h+="<div style=\"font-size:9px;color:var(--muted);text-align:center;margin-top:8px;font-weight:300\">Mostra o teu progresso a familia e amigos</div>";
+  h+="</div>";
+
   h+="<button id=\"bLdRes\" class=\"btn-g\" style=\"animation:up .4s .22s both\">&#127942; Ver Ranking</button>";
   h+="<button id=\"bDBRes\" class=\"btn-gs\" style=\"width:100%;margin-top:8px;animation:up .4s .26s both\">&#8592; Dashboard</button>";
   document.getElementById("resP").innerHTML=h;
   document.getElementById("bLdRes").addEventListener("click",loadLead);
   document.getElementById("bDBRes").addEventListener("click",function(){renderDash();show("vDash")});
+
+  // Share handlers
+  document.getElementById("bShareWA").addEventListener("click",function(){shareResult(av,titulo,"whatsapp")});
+  document.getElementById("bShareIG").addEventListener("click",function(){shareResult(av,titulo,"instagram")});
+}
+
+function shareResult(av,titulo,channel){
+  var atleta=first(S.atleta);
+  var msg="\u26bd *Treino Extra* \u2022 Gondomar SC Sub-12\n\n";
+  msg+="\ud83c\udfaf "+titulo+"\n";
+  msg+="\u2b50 *Score: "+av.score+"/100* "+av.nivel+"\n";
+  if(av.destaque)msg+="\ud83c\udfc6 "+av.destaque+"\n";
+  msg+="\n_Plataforma YourTalentBase_\nyourtalentbase.pt";
+
+  if(channel==="whatsapp"){
+    window.open("https://wa.me/?text="+encodeURIComponent(msg),"_blank");
+    return;
+  }
+  // Instagram doesn't support direct text share - generate image and download
+  generateShareImage(av,titulo,atleta);
+}
+
+function generateShareImage(av,titulo,atleta){
+  var canvas=document.createElement("canvas");
+  canvas.width=1080;canvas.height=1080;
+  var ctx=canvas.getContext("2d");
+  // Background gradient
+  var grad=ctx.createLinearGradient(0,0,1080,1080);
+  grad.addColorStop(0,"#09090C");grad.addColorStop(1,"#16161E");
+  ctx.fillStyle=grad;ctx.fillRect(0,0,1080,1080);
+  // Gold accent line
+  var goldGrad=ctx.createLinearGradient(0,0,1080,0);
+  goldGrad.addColorStop(0,"transparent");goldGrad.addColorStop(.5,"#D4AF37");goldGrad.addColorStop(1,"transparent");
+  ctx.fillStyle=goldGrad;ctx.fillRect(0,40,1080,3);
+  // YTB badge
+  ctx.fillStyle="#D4AF37";ctx.fillRect(80,80,80,80);
+  ctx.fillStyle="#000";ctx.font="900 32px Barlow Condensed,Arial";ctx.textAlign="center";
+  ctx.fillText("YTB",120,128);
+  // Brand text
+  ctx.textAlign="left";ctx.fillStyle="#fff";ctx.font="800 28px Barlow Condensed,Arial";
+  ctx.fillText("YOUR ",180,118);
+  ctx.fillStyle="#D4AF37";ctx.fillText("TALENT ",288,118);
+  ctx.fillStyle="#fff";ctx.fillText("BASE",430,118);
+  // Eyebrow
+  ctx.fillStyle="#D4AF37";ctx.font="700 18px Inter,Arial";
+  ctx.fillText("\u26bd TREINO EXTRA \u2022 SUB-12",80,300);
+  // Title (athlete name)
+  ctx.fillStyle="#fff";ctx.font="900 96px Barlow Condensed,Arial";
+  ctx.fillText(atleta.toUpperCase(),80,400);
+  // Session name
+  ctx.fillStyle="#aaa";ctx.font="500 28px Inter,Arial";
+  ctx.fillText(titulo,80,450);
+  // Score - massive
+  ctx.fillStyle="#D4AF37";ctx.font="900 320px Barlow Condensed,Arial";ctx.textAlign="center";
+  ctx.fillText(av.score,540,750);
+  // /100
+  ctx.fillStyle="#666";ctx.font="700 48px Barlow Condensed,Arial";
+  ctx.fillText("/ 100",540,810);
+  // Level
+  ctx.fillStyle=av.score>=80?"#00D46A":av.score>=60?"#D4AF37":"#aaa";
+  ctx.font="800 36px Barlow Condensed,Arial";
+  ctx.fillText(av.nivel.toUpperCase(),540,870);
+  // Footer
+  ctx.fillStyle="#666";ctx.font="600 22px Inter,Arial";
+  ctx.fillText("yourtalentbase.pt",540,1000);
+
+  // Trigger download
+  canvas.toBlob(function(blob){
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement("a");
+    a.href=url;a.download="treino-"+atleta.toLowerCase()+"-"+av.score+".png";
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    setTimeout(function(){URL.revokeObjectURL(url)},1000);
+    toast("\u2705 Imagem guardada! Carrega no Instagram.");
+    vibrate([30,40,30]);
+  },"image/png");
 }
 
 async function loadLead(){
