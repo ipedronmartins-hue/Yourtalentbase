@@ -185,6 +185,49 @@
 .a-stat-l { font-size:7px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; margin-top:1px; }
 .a-tags-row { display:flex; flex-wrap:wrap; gap:4px; }
 
+.a-palmares {
+  background:rgba(212,175,55,.05);
+  border:1px solid var(--gold-border);
+  border-radius:8px;
+  padding:8px 10px;
+  margin-bottom:8px;
+}
+.a-palmares-title {
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+  color:var(--gold);
+  margin-bottom:6px;
+}
+.a-palmares-item {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:3px 0;
+  font-size:10px;
+  line-height:1.3;
+}
+.a-palmares-item:not(:last-child) {
+  border-bottom:1px solid rgba(212,175,55,.08);
+  padding-bottom:5px;
+  margin-bottom:2px;
+}
+.apl-y {
+  font-family:var(--font-display);
+  font-weight:800;
+  font-size:10px;
+  color:var(--gold);
+  flex-shrink:0;
+  letter-spacing:.5px;
+}
+.apl-t {
+  color:var(--slate);
+  font-weight:500;
+  font-size:10px;
+  line-height:1.4;
+}
+
 .a-card-cta {
   display:flex; flex-direction:column; align-items:center;
   justify-content:center; gap:var(--space-3);
