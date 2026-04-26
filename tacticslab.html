@@ -1017,13 +1017,90 @@ document.querySelectorAll('.ap-btn').forEach(function(b){
       renderArrows();
       document.querySelectorAll('.ap-btn').forEach(function(x){ x.classList.toggle('sel', x.dataset.dir===dir); });
       toast(DIR_EMJ[dir]+' '+DIR_LBL[dir]);
+      // Visual AI reaction — move B players to counter
+      reactAI(S.selectedId, dir);
     }
   });
 });
 
 // ════════════════════════════════════════════════
-//  TOOLBAR TOGGLES
+//  VISUAL AI REACTION
 // ════════════════════════════════════════════════
+var COUNTER_VEC = {
+  N:[0,1], NE:[-1,1], E:[-1,0], SE:[-1,-1],
+  S:[0,-1], SW:[1,-1], W:[1,0], NW:[1,1]
+};
+
+function reactAI(playerId, dir){
+  var aP = S.players.find(function(p){ return p.id===playerId; });
+  if(!aP) return;
+
+  // Find nearest 2 B players to the A player's destination zone
+  var v = DIR_VEC[dir] || [0,0];
+  var destX = aP.x + v[0]*80;
+  var destY = aP.y + v[1]*80;
+
+  var bPlayers = S.players.filter(function(p){ return p.team==='B'; });
+  if(!bPlayers.length) return;
+
+  // Sort B players by distance to destination
+  bPlayers.sort(function(a,b){
+    var da = Math.hypot(a.x-destX, a.y-destY);
+    var db = Math.hypot(b.x-destX, b.y-destY);
+    return da-db;
+  });
+
+  // Counter vector — B players shift to block/cover
+  var cv = COUNTER_VEC[dir] || [0,-1];
+  var moved = 0;
+  var fieldH = isHalfPitch() ? 400 : 740;
+
+  bPlayers.slice(0, 2).forEach(function(p){
+    // Only move if reasonably close to the threat zone (within 200px)
+    var dist = Math.hypot(p.x-destX, p.y-destY);
+    if(dist > 220) return;
+
+    var step = 40 + Math.random()*25;
+    var nx = Math.max(R+5, Math.min(500-R-5, p.x + cv[0]*step));
+    var ny = Math.max(R+5, Math.min(fieldH-R-5, p.y + cv[1]*step));
+
+    // Animate movement
+    var el2 = document.getElementById('pp-'+p.id);
+    if(el2){
+      el2.style.transition = 'transform .45s cubic-bezier(.4,0,.2,1)';
+      p.x = nx; p.y = ny;
+      el2.setAttribute('transform','translate('+nx+','+ny+')');
+      setTimeout(function(){ if(el2) el2.style.transition=''; }, 500);
+      moved++;
+    }
+  });
+
+  if(moved > 0){
+    setTimeout(function(){ updateZones(); }, 50);
+    // Show brief indicator on pitch
+    showReactIndicator(destX, destY, dir);
+  }
+}
+
+var _reactTO;
+function showReactIndicator(x, y, dir){
+  var g = el('gMarkers');
+  if(!g) return;
+  var existingReact = g.querySelector('.react-indicator');
+  if(existingReact) existingReact.remove();
+
+  var elem = document.createElementNS('http://www.w3.org/2000/svg','g');
+  elem.setAttribute('class','react-indicator');
+  elem.innerHTML =
+    '<circle cx="'+x+'" cy="'+y+'" r="22" fill="rgba(74,159,232,.15)" stroke="rgba(74,159,232,.6)" stroke-width="1.5" stroke-dasharray="4 3"/>'+
+    '<text x="'+x+'" y="'+(y+4)+'" text-anchor="middle" font-family="Barlow" font-size="9" fill="rgba(74,159,232,.9)" font-weight="700">IA ↻</text>';
+  g.appendChild(elem);
+
+  clearTimeout(_reactTO);
+  _reactTO = setTimeout(function(){
+    if(elem && elem.parentNode) elem.parentNode.removeChild(elem);
+  }, 2000);
+}
 function setTeam(t){
   S.activeTeam=t;
   el('tTeamA').classList.toggle('active',t==='A');
@@ -1105,7 +1182,7 @@ async function runAnalysis(){
     arrowCount > 0 ? 'Vetores de movimento: '+arrowCount+' jogadores com intenção de deslocação definida.' : '',
     '',
     isSetPiece ?
-    'Analisa esta situação de bola parada com rigor técnico usando EXATAMENTE estes títulos com **:\n\n**LEITURA DA SITUAÇÃO**\n[Identifica o tipo de bola parada, o posicionamento ofensivo, os pontos de referência e as intenções tácticas — zonas de finalização, tipo de entrega, corredores de movimento. 3-4 frases técnicas.]\n\n**ORGANIZAÇÃO DEFENSIVA**\n[Como o bloco defensivo deve responder — marcação zonal vs individual, posicionamento da barreira se aplicável, referências de cobertura. 3-4 frases.]\n\n**VARIANTES A EXPLORAR**\n1. [Variante tática alternativa para a mesma situação]\n2. [Ajuste posicional para criar desequilíbrio]\n3. [Mecanismo de segunda bola ou contra-ataque após recuperação]\n\n**⚠ RISCO TÁTICO**\n[Principal zona de exposição nesta organização. 1-2 frases directas.]\n\n**💡 NOTA DO ANALISTA**\n[Referência a tendências ou padrões relevantes neste tipo de situação em futebol de formação — UEFA ou metodologia reconhecida.]'
+    'Analisa esta bola parada. Responde com EXATAMENTE estes 4 títulos com **:\n\n**LEITURA**\n[Intenção tática e referências posicionais. 2 frases.]\n\n**CONTRA-ORGANIZAÇÃO**\n[Como defender. Marcações, barreira, coberturas. 2-3 frases.]\n\n**VARIANTE**\n[1 alternativa tática para esta situação.]\n\n**⚠ RISCO**\n[Zona de maior exposição. 1 frase.]\n\nMáx 180 palavras. Terminologia UEFA.'
     :
     'Responde com análise tática profissional usando EXATAMENTE estes títulos com **:\n\n**LEITURA TÁTICA**\n[Análise da estrutura e intenção tática da Equipa A. Identifica o sistema de jogo, as referências posicionais, os corredores de progressão e os mecanismos de criação de superioridade. 3-4 frases técnicas.]\n\n**CONTRA-TÁTICA**\n[Como o bloco adversário '+counterForm+' deve responder tacticamente. Especifica ajustes posicionais, compactação de linhas, marcações e basculações. 3-4 frases com referências a zonas do campo e linhas de pressão.]\n\n**AJUSTES TÁTICOS — '+S.escalao.toUpperCase()+'**\n1. [Instrução técnica concreta para o corredor de progressão principal]\n2. [Ajuste posicional específico na fase de transição]\n3. [Mecanismo de criação de superioridade numérica ou posicional]\n\n**⚠ VULNERABILIDADE ESTRUTURAL**\n[Ponto crítico de desequilíbrio tático — zona ou momento de maior exposição. 1-2 frases directas.]\n\n**💡 NOTA DO ANALISTA**\n[Observação táctica de alto nível que um treinador com UEFA B valorizaria neste cenário específico.]',
     '',
@@ -1116,7 +1193,7 @@ async function runAnalysis(){
     var res = await fetch('/api/claude', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ prompt: prompt, max_tokens: 800 })
+      body: JSON.stringify({ prompt: prompt, max_tokens: isSetPiece ? 400 : 700 })
     });
     var data = await res.json();
     if(!res.ok) {
