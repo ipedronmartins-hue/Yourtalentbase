@@ -1,8 +1,8 @@
 {
   "id": "/tacticslab",
-  "name": "TacticsLab · YourTalentBase",
-  "short_name": "TacticsLab",
-  "description": "Simulador tático com análise por IA. Define movimentos, fases de jogo e recebe contra-táticas em tempo real.",
+  "name": "YTB Elite Coach — Advanced Tactical Intelligence",
+  "short_name": "Elite Coach",
+  "description": "Inteligência tática para treinadores. Modelo de jogo, contra-táticas e análise IA. Built on TacticsLab Engine.",
   "start_url": "/tacticslab.html",
   "scope": "/tacticslab.html",
   "display": "standalone",
