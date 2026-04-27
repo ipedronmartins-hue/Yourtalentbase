@@ -1,8 +1,8 @@
 {
-  "id": "/treino",
-  "name": "Treino Extra · YourTalentBase",
-  "short_name": "Treino Extra",
-  "description": "Treinos semanais prescritos pelo teu treinador. Compete com a tua equipa.",
+  "id": "/ytb-elite",
+  "name": "YTB Elite — Evolução diária para jovens futebolistas",
+  "short_name": "YTB Elite",
+  "description": "15 minutos por dia. Resultados reais. Sobe no ranking. Evolui mais rápido. A app nº1 de evolução para jovens futebolistas.",
   "start_url": "/treino.html",
   "scope": "/treino.html",
   "display": "standalone",
@@ -14,5 +14,5 @@
     { "src": "/icons/treino-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
     { "src": "/icons/treino-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ],
-  "categories": ["sports", "health"]
+  "categories": ["sports", "health", "lifestyle"]
 }

@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Treino Extra - YourTalentBase</title>
+<title>YTB Elite — A app nº1 para jovens futebolistas</title>
 <meta name="theme-color" content="#09090C">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Treino Extra">
+<meta name="apple-mobile-web-app-title" content="YTB Elite">
 <link rel="manifest" href="/manifest-treino.json">
 <link rel="apple-touch-icon" href="/icons/treino-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -203,10 +203,13 @@ a{color:inherit;text-decoration:none}
 <!-- IDENTITY -->
 <div id="vId" class="view">
 <div class="vc"><div class="inner">
-  <div style="margin-bottom:32px">
-    <div style="font-size:44px;margin-bottom:12px">&#9917;</div>
-    <h1 class="h1" style="margin-bottom:8px">Gondomar SC<br><span style="color:var(--gold)">Sub-12</span></h1>
-    <p style="font-size:13px;color:var(--muted);font-weight:300;line-height:1.6">Treino em Casa - Piloto Mister Teles</p>
+  <div style="margin-bottom:32px;animation:up .5s both">
+    <div style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,rgba(212,175,55,.15),rgba(212,175,55,.04));border:1px solid var(--gb);border-radius:100px;padding:6px 14px;margin-bottom:14px">
+      <span style="width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px var(--gold)"></span>
+      <span style="font-size:9px;font-weight:800;letter-spacing:3px;color:var(--gold);text-transform:uppercase">YTB Elite</span>
+    </div>
+    <h1 class="h1" style="margin-bottom:10px;font-size:44px;line-height:.95">15 minutos<br>por dia.<br><span style="color:var(--gold)">Resultados reais.</span></h1>
+    <p style="font-size:13px;color:var(--slate);font-weight:300;line-height:1.7">Sobe no ranking. Evolui mais r&aacute;pido. A app n&ordm;1 de evolu&ccedil;&atilde;o di&aacute;ria para jovens futebolistas.</p>
   </div>
   <div style="display:flex;flex-direction:column;gap:10px">
     <div class="id-opt" id="pickA">
@@ -766,22 +769,48 @@ function renderDash(){
   var bestScore=lastScores.length?Math.max.apply(null,lastScores):0;
   var avgScore=lastScores.length?Math.round(lastScores.reduce(function(a,b){return a+b},0)/lastScores.length):0;
   var badges=getBadges(done,streak,bestScore);
+  var xp=calcXP();
+  var lvl=calcLevel(xp);
   var h="";
 
-  // Header with greeting + streak
-  h+="<div style=\"margin-bottom:16px;animation:up .4s both;display:flex;justify-content:space-between;align-items:flex-start;gap:12px\">";
-  h+="<div><h1 class=\"h1\" style=\"margin-bottom:4px\">Ola, <span style=\"color:var(--gold)\">"+first(S.atleta)+"!</span></h1>";
-  h+="<p style=\"font-size:11px;color:var(--muted);font-weight:300\">Sub-12 - Gondomar SC - Semana "+S.semana+"</p></div>";
+  // ═══ HERO HEADER WITH LEVEL ═══
+  h+="<div style=\"position:relative;margin:-16px -14px 18px;padding:22px 18px 18px;background:linear-gradient(135deg,#0f0f15 0%,#16161E 50%,#0f0f15 100%);border-bottom:1px solid var(--border);overflow:hidden;animation:up .4s both\">";
+  // Decorative glow
+  h+="<div style=\"position:absolute;top:-40px;right:-40px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(212,175,55,.12),transparent 70%);pointer-events:none\"></div>";
+  // Brand chip
+  h+="<div style=\"display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;position:relative\">";
+  h+="<div style=\"display:inline-flex;align-items:center;gap:6px;background:rgba(212,175,55,.08);border:1px solid var(--gb);border-radius:100px;padding:4px 10px\">";
+  h+="<span style=\"width:5px;height:5px;border-radius:50%;background:var(--gold);box-shadow:0 0 6px var(--gold)\"></span>";
+  h+="<span style=\"font-size:8px;font-weight:800;letter-spacing:2.5px;color:var(--gold);text-transform:uppercase\">YTB Elite</span></div>";
   if(streak>0){
-    h+="<div style=\"background:linear-gradient(135deg,rgba(255,107,0,.15),rgba(255,160,0,.05));border:1px solid rgba(255,140,0,.4);border-radius:14px;padding:10px 14px;text-align:center;flex-shrink:0;animation:streakPulse 2s ease-in-out infinite\">";
-    h+="<div style=\"font-size:22px;line-height:1\">&#128293;</div>";
-    h+="<div style=\"font-family:Barlow Condensed,sans-serif;font-size:24px;font-weight:900;color:#ff8c00;line-height:1;margin-top:2px\">"+streak+"</div>";
-    h+="<div style=\"font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:1px\">"+(streak===1?"dia":"dias")+"</div>";
-    h+="</div>";
+    h+="<div style=\"display:flex;align-items:center;gap:5px;background:linear-gradient(135deg,rgba(255,107,0,.18),rgba(255,160,0,.05));border:1px solid rgba(255,140,0,.4);border-radius:100px;padding:5px 12px;animation:streakPulse 2s ease-in-out infinite\">";
+    h+="<span style=\"font-size:14px\">&#128293;</span>";
+    h+="<span style=\"font-family:Barlow Condensed,sans-serif;font-size:15px;font-weight:900;color:#ff8c00\">"+streak+"</span>";
+    h+="<span style=\"font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:1px\">"+(streak===1?"dia":"dias")+"</span></div>";
   }
   h+="</div>";
+  // Greeting
+  h+="<h1 class=\"h1\" style=\"margin-bottom:14px;position:relative;font-size:30px;line-height:1\">Ola, <span style=\"color:var(--gold)\">"+first(S.atleta)+"</span></h1>";
+  // LEVEL CARD
+  h+="<div style=\"background:linear-gradient(135deg,rgba(212,175,55,.08),rgba(0,0,0,.3));border:1px solid var(--gb);border-radius:14px;padding:14px;position:relative;overflow:hidden\">";
+  h+="<div style=\"display:flex;align-items:center;gap:14px;margin-bottom:12px\">";
+  h+="<div style=\"width:54px;height:54px;border-radius:14px;background:linear-gradient(135deg,var(--gold),#a08428);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;box-shadow:0 4px 16px rgba(212,175,55,.3)\">"+lvl.cur.icon+"</div>";
+  h+="<div style=\"flex:1;min-width:0\">";
+  h+="<div style=\"display:flex;align-items:baseline;gap:6px\">";
+  h+="<span style=\"font-size:9px;font-weight:700;letter-spacing:2px;color:var(--muted);text-transform:uppercase\">Lv "+lvl.cur.lv+"</span>";
+  h+="<span style=\"font-family:Barlow Condensed,sans-serif;font-size:22px;font-weight:900;color:var(--white);line-height:1\">"+lvl.cur.name+"</span></div>";
+  h+="<div style=\"font-size:11px;color:var(--slate);font-weight:300;margin-top:2px\">"+lvl.xp+" XP";
+  if(lvl.next)h+=" &middot; faltam <span style=\"color:var(--gold);font-weight:700\">"+lvl.xpToNext+"</span> para "+lvl.next.name;
+  else h+=" &middot; <span style=\"color:var(--gold);font-weight:700\">N&iacute;vel m&aacute;ximo!</span>";
+  h+="</div></div></div>";
+  // XP Progress bar
+  if(lvl.next){
+    h+="<div style=\"height:6px;background:rgba(255,255,255,.05);border-radius:100px;overflow:hidden;position:relative\">";
+    h+="<div style=\"height:100%;width:"+lvl.pctToNext+"%;background:linear-gradient(90deg,var(--gold),#f0cc55);border-radius:100px;box-shadow:0 0 8px rgba(212,175,55,.4);transition:width .8s\"></div></div>";
+  }
+  h+="</div></div>";
 
-  // Mister's message - bigger, more visible
+  // Mister's message
   if(t.dica){
     h+="<div style=\"background:linear-gradient(135deg,rgba(212,175,55,.1),rgba(212,175,55,.02));border-left:3px solid var(--gold);border-radius:0 12px 12px 0;padding:14px 16px;margin-bottom:14px;animation:up .35s .05s both\">";
     h+="<div style=\"display:flex;align-items:center;gap:8px;margin-bottom:6px\">";
@@ -860,6 +889,38 @@ function renderDash(){
   });
   h+="<button id=\"bRank\" class=\"btn-gs\" style=\"width:100%;margin-top:16px;animation:up .35s .26s both\">&#127942; Ver Ranking da Equipa</button>";
   el("dashP").innerHTML=h;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  YTB ELITE — XP & LEVEL SYSTEM
+// ═══════════════════════════════════════════════════════════
+// XP earned per session = score (0-100). Total XP = sum of all session scores.
+// Levels: progressive thresholds — feels rewarding early, challenging later.
+var LEVEL_THRESHOLDS = [
+  {lv:1, xp:0,    name:"Iniciante",  icon:"\u26bd"},
+  {lv:2, xp:150,  name:"Aprendiz",   icon:"\u26a1"},
+  {lv:3, xp:400,  name:"Promessa",   icon:"\u2728"},
+  {lv:4, xp:800,  name:"Talento",    icon:"\ud83d\udd25"},
+  {lv:5, xp:1400, name:"Estrela",    icon:"\u2b50"},
+  {lv:6, xp:2200, name:"Elite",      icon:"\ud83d\udc8e"},
+  {lv:7, xp:3200, name:"Lenda",      icon:"\ud83c\udfc6"},
+  {lv:8, xp:4500, name:"Pro",        icon:"\ud83d\udc51"}
+];
+function calcXP(){
+  if(!S.hist||!S.hist.length)return 0;
+  return S.hist.reduce(function(t,r){return t+(r.ai_score||0)},0);
+}
+function calcLevel(xp){
+  var cur=LEVEL_THRESHOLDS[0],next=LEVEL_THRESHOLDS[1];
+  for(var i=0;i<LEVEL_THRESHOLDS.length;i++){
+    if(xp>=LEVEL_THRESHOLDS[i].xp)cur=LEVEL_THRESHOLDS[i];
+    if(LEVEL_THRESHOLDS[i].xp>xp){next=LEVEL_THRESHOLDS[i];break}
+  }
+  if(cur.lv===LEVEL_THRESHOLDS[LEVEL_THRESHOLDS.length-1].lv)next=null;
+  var span=next?(next.xp-cur.xp):1;
+  var into=xp-cur.xp;
+  var pctToNext=next?Math.min(100,Math.round((into/span)*100)):100;
+  return{cur:cur,next:next,xp:xp,pctToNext:pctToNext,xpToNext:next?(next.xp-xp):0};
 }
 
 function getStreak(){
@@ -1110,13 +1171,50 @@ async function enviarIA(){
 
 function renderResult(av,titulo){
   var elapsed=SECS-S.timerVal,bon=S.timerVal>0;
+  // Level calculations: BEFORE this score (XP without this session) and AFTER
+  var xpBefore=calcXP()-(av.score||0); // hist already includes this session
+  var xpAfter=calcXP();
+  var lvlBefore=calcLevel(xpBefore);
+  var lvlAfter=calcLevel(xpAfter);
+  var leveledUp=lvlAfter.cur.lv>lvlBefore.cur.lv;
   var h="";
-  h+="<div style=\"text-align:center;margin-bottom:22px;animation:up .4s both\">";
+
+  // ═══ EPIC SCORE HEADER ═══
+  h+="<div style=\"text-align:center;margin-bottom:22px;animation:up .4s both;position:relative\">";
   h+="<div class=\"ey\" style=\"margin-bottom:6px\">"+titulo+"</div>";
   h+="<div class=\"r-score\">"+av.score+"</div>";
   h+="<div class=\"r-level\" style=\"color:"+(av.score>=80?"var(--green)":av.score>=60?"var(--gold)":"var(--muted)")+"\">"+av.nivel+"</div>";
   if(bon)h+="<div style=\"margin-top:8px;font-size:11px;color:var(--green);font-weight:700\">&#9889; "+fmt(S.timerVal)+" antes do tempo!</div>";
   h+="</div>";
+
+  // ═══ XP EARNED — bold and prominent ═══
+  h+="<div style=\"background:linear-gradient(135deg,rgba(212,175,55,.15),rgba(212,175,55,.04));border:1px solid var(--gb);border-radius:16px;padding:16px;margin-bottom:14px;animation:up .4s .08s both;position:relative;overflow:hidden\">";
+  h+="<div style=\"display:flex;align-items:center;justify-content:space-between;gap:14px\">";
+  h+="<div style=\"flex:1;min-width:0\">";
+  h+="<div style=\"font-size:8px;font-weight:800;letter-spacing:2.5px;color:var(--gold);text-transform:uppercase;margin-bottom:4px\">+ XP Ganho</div>";
+  h+="<div style=\"font-family:Barlow Condensed,sans-serif;font-size:48px;font-weight:900;color:var(--gold);line-height:.95\">+"+av.score+"</div>";
+  h+="<div style=\"font-size:11px;color:var(--slate);margin-top:4px\">Total: <strong style=\"color:var(--white)\">"+xpAfter+" XP</strong>";
+  if(lvlAfter.next)h+=" &middot; faltam "+lvlAfter.xpToNext+" para "+lvlAfter.next.name;
+  h+="</div></div>";
+  h+="<div style=\"width:54px;height:54px;border-radius:14px;background:linear-gradient(135deg,var(--gold),#a08428);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;box-shadow:0 4px 16px rgba(212,175,55,.3)\">"+lvlAfter.cur.icon+"</div>";
+  h+="</div>";
+  // XP progress bar
+  if(lvlAfter.next){
+    h+="<div style=\"height:6px;background:rgba(255,255,255,.05);border-radius:100px;overflow:hidden;margin-top:12px\">";
+    h+="<div style=\"height:100%;width:"+lvlAfter.pctToNext+"%;background:linear-gradient(90deg,var(--gold),#f0cc55);border-radius:100px;box-shadow:0 0 8px rgba(212,175,55,.4)\"></div></div>";
+  }
+  h+="</div>";
+
+  // ═══ LEVEL UP CELEBRATION ═══
+  if(leveledUp){
+    h+="<div style=\"background:linear-gradient(135deg,rgba(0,212,106,.18),rgba(212,175,55,.08));border:2px solid var(--green);border-radius:16px;padding:18px;margin-bottom:14px;text-align:center;animation:popBig .6s both;position:relative;overflow:hidden\">";
+    h+="<div style=\"font-size:36px;margin-bottom:6px\">\ud83c\udf89</div>";
+    h+="<div style=\"font-size:9px;font-weight:800;letter-spacing:3px;color:var(--green);text-transform:uppercase;margin-bottom:4px\">Subiste de N&iacute;vel!</div>";
+    h+="<div style=\"font-family:Barlow Condensed,sans-serif;font-size:30px;font-weight:900;color:var(--white);line-height:1\">"+lvlAfter.cur.icon+" "+lvlAfter.cur.name+"</div>";
+    h+="<div style=\"font-size:11px;color:var(--slate);margin-top:6px\">Lv "+lvlBefore.cur.lv+" &rarr; <strong style=\"color:var(--gold)\">Lv "+lvlAfter.cur.lv+"</strong></div>";
+    h+="</div>";
+  }
+
   if(av.destaque)h+="<div class=\"card gold\" style=\"margin-bottom:12px;text-align:center;animation:up .4s .1s both\"><div class=\"ey\" style=\"margin-bottom:6px\">Destaque</div><div style=\"font-size:14px;font-weight:700\">&#11088; "+av.destaque+"</div></div>";
   h+="<div class=\"card\" style=\"margin-bottom:14px;animation:up .4s .14s both\"><div class=\"ey\" style=\"margin-bottom:8px\">Avaliacao da IA</div>";
   h+="<p style=\"font-size:13px;color:var(--slate);line-height:1.8;font-weight:300\">"+av.feedback+"</p></div>";
@@ -1167,9 +1265,12 @@ function renderResult(av,titulo){
 
 function shareResult(av,titulo,channel){
   var atleta=first(S.atleta);
-  var msg="\u26bd *Treino Extra* \u2022 Gondomar SC Sub-12\n\n";
+  var lvl=calcLevel(calcXP());
+  var msg="\u26bd *YTB Elite* \u2022 Gondomar SC Sub-12\n\n";
   msg+="\ud83c\udfaf "+titulo+"\n";
   msg+="\u2b50 *Score: "+av.score+"/100* "+av.nivel+"\n";
+  msg+="\ud83d\udcc8 +"+av.score+" XP \u2022 Total: "+lvl.xp+"\n";
+  msg+=lvl.cur.icon+" Lv "+lvl.cur.lv+" \u2022 "+lvl.cur.name+"\n";
   if(av.destaque)msg+="\ud83c\udfc6 "+av.destaque+"\n";
   msg+="\n_Plataforma YourTalentBase_\nyourtalentbase.pt";
 
@@ -1182,14 +1283,15 @@ function shareResult(av,titulo,channel){
 }
 
 function generateShareImage(av,titulo,atleta){
+  var lvl=calcLevel(calcXP());
   var canvas=document.createElement("canvas");
   canvas.width=1080;canvas.height=1080;
   var ctx=canvas.getContext("2d");
   // Background gradient
   var grad=ctx.createLinearGradient(0,0,1080,1080);
-  grad.addColorStop(0,"#09090C");grad.addColorStop(1,"#16161E");
+  grad.addColorStop(0,"#09090C");grad.addColorStop(.5,"#16161E");grad.addColorStop(1,"#09090C");
   ctx.fillStyle=grad;ctx.fillRect(0,0,1080,1080);
-  // Gold accent line
+  // Gold accent line top
   var goldGrad=ctx.createLinearGradient(0,0,1080,0);
   goldGrad.addColorStop(0,"transparent");goldGrad.addColorStop(.5,"#D4AF37");goldGrad.addColorStop(1,"transparent");
   ctx.fillStyle=goldGrad;ctx.fillRect(0,40,1080,3);
@@ -1199,31 +1301,35 @@ function generateShareImage(av,titulo,atleta){
   ctx.fillText("YTB",120,128);
   // Brand text
   ctx.textAlign="left";ctx.fillStyle="#fff";ctx.font="800 28px Barlow Condensed,Arial";
-  ctx.fillText("YOUR ",180,118);
-  ctx.fillStyle="#D4AF37";ctx.fillText("TALENT ",288,118);
-  ctx.fillStyle="#fff";ctx.fillText("BASE",430,118);
+  ctx.fillText("YTB ",180,118);
+  ctx.fillStyle="#D4AF37";ctx.fillText("ELITE",260,118);
   // Eyebrow
   ctx.fillStyle="#D4AF37";ctx.font="700 18px Inter,Arial";
-  ctx.fillText("\u26bd TREINO EXTRA \u2022 SUB-12",80,300);
+  ctx.fillText("\u26bd " + titulo.toUpperCase() + " \u2022 SUB-12",80,300);
   // Title (athlete name)
   ctx.fillStyle="#fff";ctx.font="900 96px Barlow Condensed,Arial";
   ctx.fillText(atleta.toUpperCase(),80,400);
-  // Session name
-  ctx.fillStyle="#aaa";ctx.font="500 28px Inter,Arial";
-  ctx.fillText(titulo,80,450);
+  // Level chip
+  ctx.fillStyle="rgba(212,175,55,.15)";
+  ctx.fillRect(80,430,260,46);
+  ctx.fillStyle="#D4AF37";ctx.font="800 22px Barlow Condensed,Arial";
+  ctx.fillText("LV "+lvl.cur.lv+" \u2022 "+lvl.cur.name.toUpperCase(),100,461);
   // Score - massive
   ctx.fillStyle="#D4AF37";ctx.font="900 320px Barlow Condensed,Arial";ctx.textAlign="center";
-  ctx.fillText(av.score,540,750);
+  ctx.fillText(av.score,540,770);
   // /100
   ctx.fillStyle="#666";ctx.font="700 48px Barlow Condensed,Arial";
-  ctx.fillText("/ 100",540,810);
-  // Level
+  ctx.fillText("/ 100",540,830);
+  // Level/Nivel
   ctx.fillStyle=av.score>=80?"#00D46A":av.score>=60?"#D4AF37":"#aaa";
   ctx.font="800 36px Barlow Condensed,Arial";
-  ctx.fillText(av.nivel.toUpperCase(),540,870);
+  ctx.fillText(av.nivel.toUpperCase(),540,890);
+  // XP earned
+  ctx.fillStyle="#D4AF37";ctx.font="800 28px Barlow Condensed,Arial";
+  ctx.fillText("+ "+av.score+" XP \u2022 TOTAL "+lvl.xp,540,940);
   // Footer
   ctx.fillStyle="#666";ctx.font="600 22px Inter,Arial";
-  ctx.fillText("yourtalentbase.pt",540,1000);
+  ctx.fillText("yourtalentbase.pt",540,1010);
 
   // Trigger download
   canvas.toBlob(function(blob){
