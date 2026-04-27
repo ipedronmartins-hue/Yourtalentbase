@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>TacticsLab · YourTalentBase</title>
+<title>YTB Elite Coach — Advanced Tactical Intelligence</title>
 <meta name="theme-color" content="#080C08">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
-<meta name="apple-mobile-web-app-title" content="TacticsLab">
+<meta name="apple-mobile-web-app-title" content="Elite Coach">
 <link rel="manifest" href="/manifest-tactics.json">
 <link rel="apple-touch-icon" href="/icons/tactics-192.png">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -151,6 +151,9 @@ button,select,input,textarea{font-family:'Barlow',sans-serif;cursor:pointer;}
 .ai-block.highlight{background:rgba(212,175,55,.1);border-color:rgba(212,175,55,.3);}
 .ai-block.highlight .ai-block-title{color:var(--gold);}
 .ai-block.highlight .ai-block-body{color:#FFFFFF;}
+.ai-block.score{background:linear-gradient(135deg,rgba(212,175,55,.15),rgba(0,0,0,.3));border-color:rgba(212,175,55,.4);position:relative;overflow:hidden;}
+.ai-block.score::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+.ai-block.score .ai-block-title{color:var(--gold);}
 .ai-block.blue{background:rgba(74,159,232,.1);border-color:rgba(74,159,232,.3);}
 .ai-block.blue .ai-block-title{color:var(--blue);}
 .ai-block.blue .ai-block-body{color:#FFFFFF;}
@@ -176,10 +179,13 @@ button,select,input,textarea{font-family:'Barlow',sans-serif;cursor:pointer;}
 <!-- ══════════════════ LOGIN ══════════════════ -->
 <div id="vLogin">
   <div class="lbox">
-    <div style="font-size:36px;margin-bottom:12px;">🧠</div>
-    <div class="lbox-ey">YourTalentBase</div>
-    <div class="lbox-title">TacticsLab</div>
-    <div class="lbox-sub">Simulador tático com IA. Define a tua estratégia e recebe a contra-tática em segundos.</div>
+    <div style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,rgba(212,175,55,.15),rgba(212,175,55,.04));border:1px solid var(--gg);border-radius:100px;padding:6px 14px;margin-bottom:18px;">
+      <span style="width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px var(--gold);"></span>
+      <span style="font-size:9px;font-weight:800;letter-spacing:3px;color:var(--gold);text-transform:uppercase;">YTB Elite</span>
+    </div>
+    <div class="lbox-title" style="font-size:38px;margin-bottom:6px;">Elite Coach</div>
+    <div class="lbox-ey" style="margin-bottom:14px;">Advanced Tactical Intelligence</div>
+    <div class="lbox-sub">Inteligência tática para treinadores. Modelo de jogo, contra-táticas e análise IA — tudo no teu telemóvel.</div>
     <label class="lbox-ey" style="margin-bottom:6px;display:block;">Escalão</label>
     <select class="lsel" id="loginEsc">
       <option value="">Selecionar escalão...</option>
@@ -210,11 +216,11 @@ button,select,input,textarea{font-family:'Barlow',sans-serif;cursor:pointer;}
 
   <!-- NAV -->
   <div class="nav">
-    <div class="nav-logo"><div class="nav-badge">YT</div>Tactics<span>Lab</span></div>
+    <div class="nav-logo"><div class="nav-badge">YT</div>Elite<span>Coach</span></div>
     <div class="nav-right">
       <span id="navEsc" style="font-size:10px;color:var(--dim);font-weight:600;"></span>
       <button class="nbtn gold" id="btnAnalyzeNav" onclick="goToAnalysis()">⚡ IA →</button>
-      <button class="nbtn" onclick="exportSVG()">PNG</button>
+      <button class="nbtn" onclick="savePlay()">💾</button><button class="nbtn" onclick="loadPlays()">📋</button><button class="nbtn" onclick="exportSVG()">PNG</button>
     </div>
   </div>
 
@@ -303,16 +309,16 @@ button,select,input,textarea{font-family:'Barlow',sans-serif;cursor:pointer;}
     <div class="panel" id="panel2">
       <div class="p3-body">
         <div class="p3-header">
-          <div class="p3-eyebrow">Análise Tática · IA</div>
+          <div class="p3-eyebrow">Elite Analysis · powered by TacticsLab AI</div>
           <div class="p3-title" id="p3Title">Pronto para analisar</div>
-          <div class="p3-meta" id="p3Meta">Define a táctica no campo e carrega em Analisar</div>
+          <div class="p3-meta" id="p3Meta">Define o modelo de jogo no campo e corre a análise</div>
         </div>
         <div class="scenario-chips" id="scenarioChips"></div>
-        <button class="analyze-btn" onclick="runAnalysis()">⚡ Analisar Cenário com IA</button>
+        <button class="analyze-btn" onclick="runAnalysis()">⚡ Run Elite Analysis</button>
         <div id="aiOutput">
           <div class="ai-empty">
-            Posiciona os jogadores no campo,<br>define as setas de movimento<br>e carrega em <strong>Analisar</strong>.<br><br>
-            A IA lê a tua táctica e devolve<br>contra-tática + dicas específicas.
+            Posiciona os jogadores, define os vetores<br>e corre <strong>Elite Analysis</strong>.<br><br>
+            Recebes leitura tática, contra-movimento adversário<br>e ajuste recomendado para o teu escalão.
           </div>
         </div>
       </div>
@@ -1216,9 +1222,9 @@ async function runAnalysis(){
     arrowCount > 0 ? 'Vetores de movimento: '+arrowCount+' jogadores com intenção de deslocação definida.' : '',
     '',
     isSetPiece ?
-    'Analisa esta bola parada. Responde com EXATAMENTE estes 4 títulos com **:\n\n**LEITURA**\n[Intenção tática e referências posicionais. 2 frases.]\n\n**CONTRA-ORGANIZAÇÃO**\n[Como defender. Marcações, barreira, coberturas. 2-3 frases.]\n\n**VARIANTE**\n[1 alternativa tática para esta situação.]\n\n**⚠ RISCO**\n[Zona de maior exposição. 1 frase.]\n\nMáx 180 palavras. Terminologia UEFA.'
+    'Analisa esta bola parada. Responde EXATAMENTE neste formato com **:\n\n**TACTICAL SCORE**\n[Score 0-100 da execução desta bola parada considerando posicionamento, qualidade dos vetores e lógica tática. Apenas o número e 1 frase justificativa.]\n\n**BIGGEST RISK**\n[A maior fragilidade desta organização. 2 frases.]\n\n**BEST OPPORTUNITY**\n[Onde está a maior probabilidade de sucesso. 2 frases.]\n\n**RECOMMENDED TWEAK**\n[Um ajuste concreto e accionável. 1-2 frases.]\n\nMáx 200 palavras. Terminologia UEFA. Sem condescendência.'
     :
-    'Responde com análise tática profissional usando EXATAMENTE estes títulos com **:\n\n**LEITURA TÁTICA**\n[Análise da estrutura e intenção tática da Equipa A. Identifica o sistema de jogo, as referências posicionais, os corredores de progressão e os mecanismos de criação de superioridade. 3-4 frases técnicas.]\n\n**CONTRA-TÁTICA**\n[Como o bloco adversário '+counterForm+' deve responder tacticamente. Especifica ajustes posicionais, compactação de linhas, marcações e basculações. 3-4 frases com referências a zonas do campo e linhas de pressão.]\n\n**AJUSTES TÁTICOS — '+S.escalao.toUpperCase()+'**\n1. [Instrução técnica concreta para o corredor de progressão principal]\n2. [Ajuste posicional específico na fase de transição]\n3. [Mecanismo de criação de superioridade numérica ou posicional]\n\n**⚠ VULNERABILIDADE ESTRUTURAL**\n[Ponto crítico de desequilíbrio tático — zona ou momento de maior exposição. 1-2 frases directas.]\n\n**💡 NOTA DO ANALISTA**\n[Observação táctica de alto nível que um treinador com UEFA B valorizaria neste cenário específico.]',
+    'Análise tática Elite Coach. Responde EXATAMENTE neste formato com **:\n\n**TACTICAL SCORE**\n[Score 0-100 da estrutura defendida pela Equipa A — equilíbrio posicional, intenção tática e clareza dos vetores. Apenas o número e 1 frase justificativa.]\n\n**BIGGEST RISK**\n[Maior vulnerabilidade estrutural. Especifica zona e momento. 2 frases técnicas.]\n\n**BEST OPPORTUNITY**\n[Maior corredor de superioridade — onde a Equipa A pode criar vantagem. 2 frases com referências de zona.]\n\n**COUNTER MOVE — '+counterForm+'**\n[Como o bloco adversário deve responder. Compactação de linhas, marcações específicas, basculações. 2-3 frases.]\n\n**RECOMMENDED TWEAK — '+S.escalao.toUpperCase()+'**\n[Ajuste accionável adaptado ao escalão. Movimento, posicionamento ou perfil de jogador. 2 frases.]\n\nMáx 280 palavras. Terminologia UEFA. Sem linguagem motivacional.',
     '',
     'Máx 340 palavras. Terminologia UEFA. Sem linguagem motivacional genérica.',
   ].filter(function(l){ return l !== undefined; }).join('\n');
@@ -1243,24 +1249,69 @@ async function runAnalysis(){
 }
 
 function renderAIOutput(text){
-  var ICONS = {'LEITURA TÁTICA':'🔍','CONTRA-TÁTICA':'🛡️','⚠ VULNERABILIDADE':'⚠️','💡 DICA DO SCOUT':'💡'};
-  var STYLES = {'LEITURA TÁTICA':'','CONTRA-TÁTICA':'blue','⚠ VULNERABILIDADE':'','💡 DICA DO SCOUT':'highlight'};
+  var ICONS = {
+    'TACTICAL SCORE':'📊',
+    'BIGGEST RISK':'⚠️',
+    'BEST OPPORTUNITY':'🎯',
+    'COUNTER MOVE':'🛡️',
+    'RECOMMENDED TWEAK':'💡',
+    // Backwards compatible — old titles still work if API returns them
+    'LEITURA':'🔍',
+    'CONTRA-ORGANIZAÇÃO':'🛡️',
+    'VARIANTE':'🔄',
+    'RISCO':'⚠️'
+  };
+  var STYLES = {
+    'TACTICAL SCORE':'score',
+    'BIGGEST RISK':'',
+    'BEST OPPORTUNITY':'highlight',
+    'COUNTER MOVE':'blue',
+    'RECOMMENDED TWEAK':'highlight'
+  };
   var parts = text.split(/\*\*([^*]+)\*\*/g);
   var html = '';
   for(var i=0; i<parts.length; i+=2){
     var title = parts[i]?parts[i].trim():null;
     var body = parts[i+1]?parts[i+1].trim():'';
     if(!title||!body) continue;
-    // Check if title matches
-    var icon = Object.keys(ICONS).find(function(k){ return title.includes(k.replace('⚠ ','').replace('💡 ','')); });
-    var style = STYLES[title] || '';
-    var dispIcon = icon ? ICONS[icon] : '📌';
-    html += '<div class="ai-block '+(style||'')+'">';
-    html += '<div class="ai-block-title">'+dispIcon+' '+title+'</div>';
-    html += '<div class="ai-block-body">'+body.replace(/\n/g,'<br>').replace(/(\d+\. )/g,'<strong>$1</strong>')+'</div>';
-    html += '</div>';
+
+    // Match icon by partial title
+    var matchedKey = null;
+    Object.keys(ICONS).forEach(function(k){
+      if(title.toUpperCase().indexOf(k) !== -1) matchedKey = k;
+    });
+    var dispIcon = matchedKey ? ICONS[matchedKey] : '📌';
+    var style = matchedKey && STYLES[matchedKey] ? STYLES[matchedKey] : '';
+
+    // Special rendering for TACTICAL SCORE — extract number and highlight
+    if(matchedKey === 'TACTICAL SCORE'){
+      var scoreMatch = body.match(/(\d{1,3})/);
+      var scoreVal = scoreMatch ? parseInt(scoreMatch[1]) : null;
+      var scoreColor = scoreVal>=80?'var(--green)':scoreVal>=60?'var(--gold)':'var(--muted)';
+      var rest = body.replace(/^\d+[\s\.\:\-]*/,'').trim();
+      html += '<div class="ai-block ai-score-block">';
+      html += '<div class="ai-block-title">'+dispIcon+' '+title+'</div>';
+      if(scoreVal !== null){
+        html += '<div style="display:flex;align-items:center;gap:14px;margin-bottom:8px;">';
+        html += '<div style="font-family:Barlow Condensed,sans-serif;font-size:60px;font-weight:900;color:'+scoreColor+';line-height:.9;">'+scoreVal+'</div>';
+        html += '<div style="flex:1;font-size:14px;color:#fff;line-height:1.5;font-weight:400;">'+rest+'</div>';
+        html += '</div>';
+      } else {
+        html += '<div class="ai-block-body">'+body.replace(/\n/g,'<br>')+'</div>';
+      }
+      html += '</div>';
+    } else {
+      html += '<div class="ai-block '+style+'">';
+      html += '<div class="ai-block-title">'+dispIcon+' '+title+'</div>';
+      html += '<div class="ai-block-body">'+body.replace(/\n/g,'<br>').replace(/(\d+\. )/g,'<strong>$1</strong>')+'</div>';
+      html += '</div>';
+    }
   }
   if(!html) html = '<div class="ai-block"><div class="ai-block-body">'+text.replace(/\n/g,'<br>')+'</div></div>';
+
+  // Footer
+  html += '<div style="text-align:center;padding:14px 0 4px;font-size:9px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;font-weight:600;">Built on TacticsLab Engine</div>';
+
   el('aiOutput').innerHTML = html;
 }
 
@@ -1273,8 +1324,110 @@ function exportSVG(){
   var blob = new Blob([s],{type:'image/svg+xml'});
   var url = URL.createObjectURL(blob);
   var a = document.createElement('a');
-  a.href=url; a.download='tacticslab-'+S.formation+'.svg'; a.click();
+  a.href=url; a.download='elite-coach-'+S.formation+'.svg'; a.click();
   URL.revokeObjectURL(url); toast('PNG exportado');
+}
+
+// ════════════════════════════════════════════════
+//  SAVE / LOAD PLAYS (localStorage)
+// ════════════════════════════════════════════════
+var PLAYS_KEY = 'ytb_elite_plays_v1';
+function getPlays(){
+  try { return JSON.parse(localStorage.getItem(PLAYS_KEY)||'[]'); } catch(e){ return []; }
+}
+function savePlay(){
+  var name = prompt('Nome desta jogada:', S.formation+' '+S.phase);
+  if(!name) return;
+  var plays = getPlays();
+  plays.unshift({
+    id: Date.now(),
+    name: name.trim(),
+    formation: S.formation,
+    phase: S.phase,
+    escalao: S.escalao,
+    format: S.format,
+    numPlayers: S.numPlayers,
+    players: JSON.parse(JSON.stringify(S.players)),
+    arrows: JSON.parse(JSON.stringify(S.arrows)),
+    timestamp: new Date().toISOString()
+  });
+  // Keep last 30 plays
+  plays = plays.slice(0, 30);
+  try { localStorage.setItem(PLAYS_KEY, JSON.stringify(plays)); toast('💾 Jogada guardada'); }
+  catch(e){ toast('Erro ao guardar'); }
+}
+function loadPlays(){
+  var plays = getPlays();
+  if(!plays.length){
+    toast('Sem jogadas guardadas. Carrega 💾 para guardar.');
+    return;
+  }
+  // Build modal-like overlay
+  var existing = document.getElementById('playsOv');
+  if(existing) existing.remove();
+
+  var ov = document.createElement('div');
+  ov.id = 'playsOv';
+  ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:200;display:flex;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;backdrop-filter:blur(8px);';
+
+  var modal = document.createElement('div');
+  modal.style.cssText = 'background:var(--bg2);border:1px solid var(--b1);border-radius:14px;width:100%;max-width:420px;padding:18px;margin:auto;position:relative;';
+
+  var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">';
+  html += '<div><div style="font-size:9px;font-weight:800;letter-spacing:2.5px;color:var(--gold);text-transform:uppercase;margin-bottom:2px;">Jogadas Guardadas</div>';
+  html += '<div style="font-family:Barlow Condensed,sans-serif;font-size:22px;font-weight:900;color:#fff;line-height:1;">'+plays.length+' jogadas</div></div>';
+  html += '<button id="closePlays" style="background:none;border:none;color:#fff;font-size:24px;cursor:pointer;padding:4px 10px;">×</button></div>';
+
+  plays.forEach(function(p){
+    var d = new Date(p.timestamp);
+    var dStr = d.toLocaleDateString('pt-PT',{day:'2-digit',month:'short'})+' '+d.toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit'});
+    html += '<div class="play-row" data-id="'+p.id+'" style="background:var(--bg3);border:1px solid var(--b1);border-radius:10px;padding:12px;margin-bottom:8px;cursor:pointer;display:flex;align-items:center;gap:10px;">';
+    html += '<div style="flex:1;min-width:0;">';
+    html += '<div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:2px;">'+p.name+'</div>';
+    html += '<div style="font-size:10px;color:var(--muted);font-weight:300;">'+p.escalao+' · '+p.formation+' · '+p.phase+' · '+dStr+'</div></div>';
+    html += '<button class="del-play" data-id="'+p.id+'" style="background:none;border:none;color:var(--muted);font-size:14px;padding:6px 8px;cursor:pointer;">🗑</button>';
+    html += '</div>';
+  });
+
+  modal.innerHTML = html;
+  ov.appendChild(modal);
+  document.body.appendChild(ov);
+
+  document.getElementById('closePlays').onclick = function(){ ov.remove(); };
+  ov.onclick = function(e){ if(e.target===ov) ov.remove(); };
+
+  modal.querySelectorAll('.play-row').forEach(function(row){
+    row.onclick = function(e){
+      if(e.target.classList.contains('del-play')) return;
+      var id = parseInt(row.dataset.id);
+      var play = plays.find(function(x){ return x.id===id; });
+      if(!play) return;
+      // Restore state
+      S.formation = play.formation;
+      S.phase = play.phase;
+      S.players = JSON.parse(JSON.stringify(play.players));
+      S.arrows = JSON.parse(JSON.stringify(play.arrows));
+      renderPlayers();
+      renderArrows();
+      updatePitchMode();
+      updateP3Header();
+      // Update UI selectors
+      el('phaseChip').textContent = S.phase;
+      ov.remove();
+      toast('📋 '+play.name);
+    };
+  });
+
+  modal.querySelectorAll('.del-play').forEach(function(btn){
+    btn.onclick = function(e){
+      e.stopPropagation();
+      var id = parseInt(btn.dataset.id);
+      var newPlays = plays.filter(function(x){ return x.id!==id; });
+      localStorage.setItem(PLAYS_KEY, JSON.stringify(newPlays));
+      ov.remove();
+      loadPlays();
+    };
+  });
 }
 
 // ════════════════════════════════════════════════
