@@ -29,7 +29,26 @@
 .db-inp::placeholder{color:var(--dim);}
 .db-sel{appearance:none;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r-md);padding:9px 12px;color:var(--white);font-size:13px;outline:none;font-family:var(--font-body);}
 .db-count{font-size:11px;color:var(--muted);font-weight:600;padding:0 0 10px;}
-.atleta-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:8px;display:flex;align-items:center;gap:14px;}
+.atleta-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;margin-bottom:8px;overflow:hidden;transition:all .2s;}
+.atleta-card.expanded{border-color:var(--gold-border);background:var(--bg3);}
+.atleta-row{padding:16px;display:flex;align-items:center;gap:14px;cursor:pointer;}
+.atleta-row:hover{background:rgba(255,255,255,.02);}
+.atleta-chev{color:var(--muted);font-size:14px;transition:transform .2s;flex-shrink:0;}
+.atleta-card.expanded .atleta-chev{transform:rotate(90deg);color:var(--gold);}
+.atleta-detail{padding:0 16px 16px 78px;border-top:1px solid var(--border);background:rgba(0,0,0,.15);display:none;}
+.atleta-card.expanded .atleta-detail{display:block;animation:fadeIn .25s both;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.detail-row{padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px;display:flex;justify-content:space-between;gap:14px;}
+.detail-row:last-of-type{border-bottom:none;}
+.detail-label{color:var(--muted);font-weight:600;letter-spacing:.5px;text-transform:uppercase;font-size:9px;flex-shrink:0;padding-top:2px;}
+.detail-value{color:var(--white);text-align:right;font-weight:500;line-height:1.5;flex:1;min-width:0;word-break:break-word;}
+.detail-actions{display:flex;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);}
+.act-btn{flex:1;padding:11px 12px;border-radius:9px;font-size:12px;font-weight:700;letter-spacing:.5px;text-decoration:none;text-align:center;cursor:pointer;border:none;display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit;}
+.act-zerozero{background:var(--gold);color:#000;}
+.act-zerozero:hover{background:#F0CC55;}
+.act-call{background:rgba(0,212,106,.12);color:var(--green);border:1px solid rgba(0,212,106,.3);}
+.act-delete{background:rgba(239,68,68,.1);color:#ef4444;border:1px solid rgba(239,68,68,.3);}
+.act-delete:hover{background:rgba(239,68,68,.18);}
 .atleta-av{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#1A237E,#283593);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:900;font-size:20px;color:var(--gold);flex-shrink:0;}
 .atleta-nome{font-size:15px;font-weight:700;margin-bottom:2px;}
 .atleta-meta{font-size:11px;color:var(--muted);font-weight:300;}
@@ -105,6 +124,7 @@ var SB_URL="https://nhshnplaiolxwcfuijfo.supabase.co";
 var SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oc2hucGxhaW9seHdjZnVpamZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NDQxNTAsImV4cCI6MjA4OTQyMDE1MH0.uyZiDun8495sjnHA6Wsk-Hou-3lubbNJfQqSYbMLSek";
 var db=supabase.createClient(SB_URL,SB_KEY);
 var allData=[];
+var isAdmin=false;
 
 function gateLogin(){
   var pass = document.getElementById("gatePass").value.trim();
@@ -115,12 +135,14 @@ function gateLogin(){
     return;
   }
   err.style.display = "none";
+  isAdmin = true;
   document.getElementById("gateView").style.display = "none";
   document.getElementById("dbView").style.display = "block";
   loadAtletas();
 }
 
 function logout(){
+  isAdmin = false;
   document.getElementById("gateView").style.display = "flex";
   document.getElementById("dbView").style.display = "none";
   document.getElementById("gatePass").value = "";
@@ -163,23 +185,83 @@ function renderAtletas(lista){
   lista.forEach(function(a){
     var ini=(a.nome||"?").charAt(0).toUpperCase();
     var dt=a.created_at?new Date(a.created_at).toLocaleDateString("pt-PT",{day:"2-digit",month:"short",year:"numeric"}):"";
-    h+='<div class="atleta-card">';
+    var dtFull=a.created_at?new Date(a.created_at).toLocaleString("pt-PT",{day:"2-digit",month:"long",year:"numeric",hour:"2-digit",minute:"2-digit"}):"—";
+
+    h+='<div class="atleta-card" data-id="'+a.id+'">';
+    // Clickable header row
+    h+='<div class="atleta-row" onclick="toggleCard(\''+a.id+'\')">';
     h+='<div class="atleta-av">'+ini+"</div>";
     h+='<div style="flex:1;min-width:0;">';
     h+='<div class="atleta-nome">'+(a.nome||"—")+"</div>";
     h+='<div class="atleta-meta">'+[a.idade?a.idade+" anos":"",a.clube||"",a.escalao||""].filter(Boolean).join(" · ")+"</div>";
-    if(a.contacto){
-      h+='<div style="font-size:11px;color:var(--gold);font-weight:600;margin-top:4px;">📞 '+a.contacto+'</div>';
-    }
     h+='<div class="atleta-tags">';
     if(a.posicao)h+='<span class="badge badge-gray">'+a.posicao+"</span>";
     if(a.escalao)h+='<span class="badge badge-blue">'+a.escalao+"</span>";
-    if(a.zerozero)h+='<a href="'+a.zerozero+'" target="_blank" class="badge badge-gold" style="text-decoration:none;">ZeroZero ↗</a>';
+    if(a.zerozero)h+='<span class="badge badge-gold">ZeroZero ✓</span>';
     h+="</div></div>";
-    h+='<div class="atleta-date">'+dt+"</div>";
-    h+="</div>";
+    h+='<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;">';
+    h+='<div class="atleta-date">'+dt+'</div>';
+    h+='<div class="atleta-chev">▶</div>';
+    h+='</div>';
+    h+='</div>'; // /atleta-row
+
+    // Expandable detail
+    h+='<div class="atleta-detail">';
+    if(a.completo) h+='<div class="detail-row"><span class="detail-label">Nome completo</span><span class="detail-value">'+a.completo+'</span></div>';
+    if(a.idade) h+='<div class="detail-row"><span class="detail-label">Idade</span><span class="detail-value">'+a.idade+' anos</span></div>';
+    if(a.posicao) h+='<div class="detail-row"><span class="detail-label">Posição</span><span class="detail-value">'+a.posicao+'</span></div>';
+    if(a.clube) h+='<div class="detail-row"><span class="detail-label">Clube</span><span class="detail-value">'+a.clube+'</span></div>';
+    if(a.escalao) h+='<div class="detail-row"><span class="detail-label">Escalão</span><span class="detail-value">'+a.escalao+'</span></div>';
+    if(a.contacto) h+='<div class="detail-row"><span class="detail-label">Contacto</span><span class="detail-value" style="color:var(--gold);">📞 '+a.contacto+'</span></div>';
+    if(a.zerozero) h+='<div class="detail-row"><span class="detail-label">ZeroZero</span><span class="detail-value" style="font-size:11px;">'+a.zerozero+'</span></div>';
+    if(typeof a.autorizacao !== "undefined") h+='<div class="detail-row"><span class="detail-label">Autorização</span><span class="detail-value">'+(a.autorizacao?'✓ Concedida':'✗ Não concedida')+'</span></div>';
+    h+='<div class="detail-row"><span class="detail-label">Inscrito em</span><span class="detail-value" style="font-size:11px;">'+dtFull+'</span></div>';
+
+    // Actions
+    h+='<div class="detail-actions">';
+    if(a.zerozero){
+      h+='<a href="'+a.zerozero+'" target="_blank" rel="noopener" class="act-btn act-zerozero">⚽ ZeroZero ↗</a>';
+    }
+    if(a.contacto){
+      var phoneClean = a.contacto.replace(/[^0-9+]/g,'');
+      h+='<a href="tel:'+phoneClean+'" class="act-btn act-call">📞 Ligar</a>';
+    }
+    h+='<button class="act-btn act-delete" onclick="event.stopPropagation();deleteAtleta(\''+a.id+'\',\''+(a.nome||'').replace(/\'/g,"\\\'")+'\')">🗑 Apagar</button>';
+    h+='</div>';
+
+    h+='</div>'; // /atleta-detail
+    h+="</div>"; // /atleta-card
   });
   document.getElementById("atletasList").innerHTML=h;
+}
+
+function toggleCard(id){
+  var card = document.querySelector('.atleta-card[data-id="'+id+'"]');
+  if(!card) return;
+  // Close other expanded cards
+  document.querySelectorAll('.atleta-card.expanded').forEach(function(c){
+    if(c !== card) c.classList.remove('expanded');
+  });
+  card.classList.toggle('expanded');
+}
+
+async function deleteAtleta(id, nome){
+  if(!isAdmin){ alert('Só admin pode apagar.'); return; }
+  if(!confirm('Apagar definitivamente o atleta "'+nome+'"?\n\nEsta ação não pode ser desfeita.')) return;
+  try{
+    var res = await db.from("sugestoes").delete().eq("id", id);
+    if(res.error) throw res.error;
+    allData = allData.filter(function(a){ return a.id !== id; });
+    filterAtletas();
+    // Toast
+    var toast = document.createElement('div');
+    toast.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:var(--bg2);border:1px solid rgba(0,212,106,.4);color:var(--green);padding:12px 22px;border-radius:10px;font-size:13px;font-weight:700;z-index:1000;box-shadow:0 8px 24px rgba(0,0,0,.5);';
+    toast.textContent = '✓ Atleta apagado';
+    document.body.appendChild(toast);
+    setTimeout(function(){ toast.remove(); }, 2200);
+  }catch(e){
+    alert('Erro ao apagar: '+(e.message||'tenta de novo'));
+  }
 }
 </script>
 </body>
