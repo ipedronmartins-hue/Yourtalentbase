@@ -8,8 +8,8 @@
 <meta name="theme-color" content="#09090C">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/global.css?v=20260428">
-<link rel="stylesheet" href="assets/css/home.css?v=20260428">
+<link rel="stylesheet" href="assets/css/global.css?v=20260429">
+<link rel="stylesheet" href="assets/css/home.css?v=20260429">
 <style>
 #graphCanvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:.85;}
 .hero-section{padding-bottom:80px;min-height:100vh;}
@@ -168,39 +168,41 @@
     <div class="hero-glow hero-glow-2"></div>
   </div>
   <div class="container-sm hero-content">
-    <div class="eyebrow anim-up">Portugal · Futebol de Formação</div>
+    <div class="eyebrow anim-up" style="display:inline-flex;align-items:center;gap:8px;">
+      <span style="width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px var(--gold);display:inline-block;"></span>
+      Acompanhamos atletas em <span class="text-gold" style="font-weight:800;">5 clubes</span> · Norte de Portugal
+    </div>
     <h1 class="display-xl hero-title anim-up-1">
-      O talento não<br>precisa de<br><span class="text-gold">sorte.</span>
+      O teu filho<br>vale mais do que<br><span class="text-gold">um número</span><br>de camisola.
     </h1>
     <p class="hero-sub anim-up-2">
-      Precisa do ecossistema certo.<br>
-      Plataforma completa para clubes, treinadores, atletas e famílias.
+      Acompanhamos jovens futebolistas com relatórios profissionais, treino diário em casa e visibilidade junto de clubes. Tudo numa só plataforma.
     </p>
 
     <!-- DUAS PORTAS -->
     <div class="hero-doors anim-up-3">
-      <div class="door-card" id="doorClube">
-        <div class="door-icon">🏟️</div>
-        <div class="door-label">Sou Clube</div>
-        <div class="door-sub">Quero gerir melhor.</div>
-        <div class="door-arrow">→</div>
-      </div>
       <div class="door-card" id="doorFamilia">
         <div class="door-icon">👨‍👧</div>
         <div class="door-label">Sou Família</div>
-        <div class="door-sub">Quero desenvolver e expor talento.</div>
+        <div class="door-sub">Quero acompanhar o meu filho.</div>
+        <div class="door-arrow">→</div>
+      </div>
+      <div class="door-card" id="doorClube">
+        <div class="door-icon">🏟️</div>
+        <div class="door-label">Sou Clube</div>
+        <div class="door-sub">Quero gerir e dar visibilidade.</div>
         <div class="door-arrow">→</div>
       </div>
     </div>
 
     <div class="hero-stats anim-up-3">
+      <div class="hstat"><div class="hstat-n">5</div><div class="hstat-l">Atletas Activos</div></div>
+      <div class="hstat-div"></div>
       <div class="hstat"><div class="hstat-n">25+</div><div class="hstat-l">Critérios Scout</div></div>
       <div class="hstat-div"></div>
-      <div class="hstat"><div class="hstat-n">7</div><div class="hstat-l">Módulos</div></div>
+      <div class="hstat"><div class="hstat-n">48h</div><div class="hstat-l">Entrega Relatório</div></div>
       <div class="hstat-div"></div>
-      <div class="hstat"><div class="hstat-n">48h</div><div class="hstat-l">Resposta</div></div>
-      <div class="hstat-div"></div>
-      <div class="hstat"><div class="hstat-n">100%</div><div class="hstat-l">Mobile</div></div>
+      <div class="hstat"><div class="hstat-n">39€</div><div class="hstat-l">Scout Report</div></div>
     </div>
   </div>
 </section>
@@ -477,26 +479,30 @@
 <section class="section" style="background:var(--bg2);border-top:1px solid var(--border);">
   <div class="container">
     <div class="section-header">
-      <div class="eyebrow">Processo simples</div>
-      <h2 class="display-md">Começar é fácil.</h2>
-      <p class="section-sub">Em menos de 48 horas o teu clube está operacional.</p>
+      <div class="eyebrow">Como funciona</div>
+      <h2 class="display-md">3 passos. <span class="text-gold">Sem complicações.</span></h2>
+      <p class="section-sub">Da inscrição ao relatório profissional do teu filho — em menos de 48 horas.</p>
     </div>
     <div class="steps-row">
       <div class="step">
         <div class="step-num">1</div>
-        <div class="step-title">Inscreve o atleta</div>
-        <div class="step-text">Preenche o formulário com os dados básicos. Respondemos em 48h com o perfil criado e acesso à plataforma.</div>
+        <div class="step-title">Inscreve o teu filho</div>
+        <div class="step-text">Preenches um formulário curto com dados básicos: nome, idade, posição e clube. Demora 2 minutos. Pagas online de forma segura.</div>
       </div>
       <div class="step">
         <div class="step-num">2</div>
-        <div class="step-title">Ativa os módulos</div>
-        <div class="step-text">Escolhe o que precisas — YTB Elite, Scout Report ou Gestor. Cada módulo funciona de forma independente.</div>
+        <div class="step-title">Recebes o Scout Report em 48h</div>
+        <div class="step-text">Avaliamos 25+ critérios técnicos, físicos, táticos e mentais. Recebes um PDF profissional por email com nota global, perfil de posição e recomendações.</div>
       </div>
       <div class="step">
         <div class="step-num">3</div>
-        <div class="step-title">Vê a evolução</div>
-        <div class="step-text">Treinos registados, rankings semanais, relatórios de scouting e dados táticos. Tudo num só lugar.</div>
+        <div class="step-title">Acompanhamos a evolução</div>
+        <div class="step-text">Acesso a treino diário gamificado em casa, ranking entre amigos e visibilidade junto de clubes parceiros. Relatórios trimestrais para subscritores Elite.</div>
       </div>
+    </div>
+    <div style="text-align:center;margin-top:48px;">
+      <a href="#planos" class="btn btn-primary btn-lg" style="margin-right:12px;">Ver Planos →</a>
+      <a href="https://wa.me/351913695846?text=Ol%C3%A1%2C%20gostaria%20de%20saber%20mais%20sobre%20o%20YTB" target="_blank" rel="noopener" class="btn btn-ghost btn-lg" style="background:rgba(37,211,102,.08);border-color:rgba(37,211,102,.4);color:#25D366;">📱 Tenho dúvidas</a>
     </div>
   </div>
 </section>
@@ -605,8 +611,9 @@
 <!-- PROVA SOCIAL -->
 <section class="proof-section" id="testemunhos">
   <div class="container">
-    <div class="eyebrow" style="margin-bottom:var(--space-2);">O que dizem</div>
-    <h2 class="display-md" style="margin-bottom:var(--space-8);">Pessoas reais.<br><span class="text-gold">Palavras reais.</span></h2>
+    <div class="eyebrow" style="margin-bottom:var(--space-2);">Resultados reais</div>
+    <h2 class="display-md" style="margin-bottom:var(--space-3);">Histórias dos<br><span class="text-gold">nossos atletas.</span></h2>
+    <p class="section-sub" style="margin-bottom:var(--space-8);text-align:center;">Cinco jovens. Cinco clubes diferentes. Cinco caminhos que estamos a acompanhar.</p>
 
     <!-- CAROUSEL -->
     <div class="testimonial-wrap">
@@ -614,25 +621,25 @@
 
         <div class="testimonial-slide">
           <div class="quote-card quote-card-lg">
-            <div class="quote-stars">★★★★★</div>
-            <div class="quote-text-lg">"O Scout Report do meu filho foi uma surpresa. Pela primeira vez percebi realmente o nível dele e onde pode chegar. Vale cada cêntimo."</div>
-            <div class="quote-author"><div class="quote-av">P</div><div><div class="quote-name">Paulo M.</div><div class="quote-role">Pai de atleta Sub-13</div></div></div>
+            <div class="quote-stars">🏆</div>
+            <div class="quote-text-lg">"Aos 11 anos, o Coutinho sagrou-se Campeão da Série 3 do Distrital Sub-13. A disputar agora a Fase de Campeão contra a Dragon Force."</div>
+            <div class="quote-author"><div class="quote-av">C</div><div><div class="quote-name">Vasco Coutinho</div><div class="quote-role">Médio · Gondomar SC Sub-13</div></div></div>
           </div>
         </div>
 
         <div class="testimonial-slide">
           <div class="quote-card quote-card-lg">
-            <div class="quote-stars">★★★★★</div>
-            <div class="quote-text-lg">"O YTB Elite criou competição dentro da equipa. Os miúdos chegam ao treino a falar do ranking. A adesão é brutal."</div>
-            <div class="quote-author"><div class="quote-av">T</div><div><div class="quote-name">Treinador T.</div><div class="quote-role">Treinador Sub-12</div></div></div>
+            <div class="quote-stars">©</div>
+            <div class="quote-text-lg">"Aos 17 anos, capitão do Gondomar SC Sub-19 na II Divisão Nacional. 17 jogos, 1390 minutos. Liderou a vitória de 3-0 ao Nacional da Madeira."</div>
+            <div class="quote-author"><div class="quote-av">N</div><div><div class="quote-name">Guilherme Neto</div><div class="quote-role">Médio · Gondomar SC Sub-19</div></div></div>
           </div>
         </div>
 
         <div class="testimonial-slide">
           <div class="quote-card quote-card-lg">
-            <div class="quote-stars">★★★★★</div>
-            <div class="quote-text-lg">"O Elite Coach ajudou-me a preparar a sessão de forma visual. Consigo mostrar ao plantel o que quero antes de entrar em campo."</div>
-            <div class="quote-author"><div class="quote-av">R</div><div><div class="quote-name">Ricardo F.</div><div class="quote-role">Treinador Sub-15</div></div></div>
+            <div class="quote-stars">⚡</div>
+            <div class="quote-text-lg">"Aos 12 anos, joga dois escalões acima — guarda-redes titular do FC Famalicão Sub-15 na 2ª Divisão da AF Braga. 1080 minutos esta época."</div>
+            <div class="quote-author"><div class="quote-av">D</div><div><div class="quote-name">Duarte Almeida</div><div class="quote-role">Guarda-Redes · FC Famalicão Sub-15</div></div></div>
           </div>
         </div>
 
@@ -644,7 +651,7 @@
     <div class="proof-nums" style="margin-top:var(--space-10);">
       <div style="text-align:center;"><div class="proof-num">25+</div><div class="proof-label">Critérios Scout</div></div>
       <div class="proof-div"></div>
-      <div style="text-align:center;"><div class="proof-num">5</div><div class="proof-label">Atletas Representados</div></div>
+      <div style="text-align:center;"><div class="proof-num">5</div><div class="proof-label">Atletas Acompanhados</div></div>
       <div class="proof-div"></div>
       <div style="text-align:center;"><div class="proof-num">48h</div><div class="proof-label">Tempo de Resposta</div></div>
       <div class="proof-div"></div>
@@ -837,8 +844,8 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="assets/js/app.js?v=20260428"></script>
-<script src="assets/js/home.js?v=20260428"></script>
+<script src="assets/js/app.js?v=20260429"></script>
+<script src="assets/js/home.js?v=20260429"></script>
 
 <!-- TOURNAMENT MODAL -->
 <div id="ovTorneio" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:500;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px);">
