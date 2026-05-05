@@ -1,0 +1,360 @@
+/* ============================================
+   YTB PUBLIC - Cards Rotativos + Destaque
+   Cola em assets/css/ytb-public.css
+   ============================================ */
+
+/* Variáveis (se ainda não tiveres) */
+:root {
+  --ytb-bg: #080C08;
+  --ytb-bg2: #0F1410;
+  --ytb-bg3: #161D17;
+  --ytb-gold: #D4AF37;
+  --ytb-gold-soft: rgba(212, 175, 55, 0.15);
+  --ytb-gold-border: rgba(212, 175, 55, 0.3);
+  --ytb-border: #1F2520;
+  --ytb-white: #fff;
+  --ytb-slate: #aaa;
+  --ytb-muted: #666;
+}
+
+/* ============================================
+   ATLETA EM DESTAQUE
+   ============================================ */
+.destaque-section {
+  padding: 30px 18px;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.destaque-eyebrow {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  color: var(--ytb-gold);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  text-align: center;
+}
+
+.destaque-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  background: linear-gradient(135deg, rgba(212,175,55,0.06), rgba(0,0,0,0.4));
+  border: 1px solid var(--ytb-gold-border);
+  border-radius: 16px;
+  padding: 18px;
+}
+
+.destaque-video-wrap {
+  position: relative;
+  width: 100%;
+  background: #000;
+  border-radius: 12px;
+  overflow: hidden;
+  aspect-ratio: 16/9;
+}
+
+.destaque-video-wrap video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.video-controls {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 5px;
+  border-radius: 100px;
+  backdrop-filter: blur(8px);
+}
+
+.vid-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 6px 14px;
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.vid-btn.active {
+  background: var(--ytb-gold);
+  color: #000;
+}
+
+.destaque-info {
+  text-align: center;
+}
+
+.destaque-nome {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: 36px;
+  color: var(--ytb-white);
+  line-height: 1;
+  letter-spacing: -1px;
+  margin-bottom: 4px;
+}
+
+.destaque-completo {
+  font-size: 13px;
+  color: var(--ytb-slate);
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.destaque-meta {
+  font-size: 11px;
+  color: var(--ytb-gold);
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+.destaque-quote {
+  font-size: 14px;
+  color: var(--ytb-white);
+  font-style: italic;
+  font-weight: 300;
+  line-height: 1.55;
+  border-left: 2px solid var(--ytb-gold);
+  padding: 6px 0 6px 14px;
+  text-align: left;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+/* ============================================
+   CARROSSEL DE ATLETAS
+   ============================================ */
+.atletas-section {
+  padding: 30px 18px 40px;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.atletas-section-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: 32px;
+  color: var(--ytb-white);
+  line-height: 1;
+  letter-spacing: -1px;
+  margin-bottom: 4px;
+  text-align: center;
+}
+
+.atletas-section-title span {
+  color: var(--ytb-gold);
+}
+
+.atletas-section-sub {
+  font-size: 12px;
+  color: var(--ytb-slate);
+  text-align: center;
+  margin-bottom: 24px;
+  letter-spacing: 0.5px;
+}
+
+#atletas-carousel {
+  position: relative;
+  min-height: 420px;
+}
+
+.atleta-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transform: translateX(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  pointer-events: none;
+}
+
+.atleta-slide.active {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+.atleta-card-pub {
+  background: linear-gradient(135deg, var(--ytb-bg2), var(--ytb-bg3));
+  border: 1px solid var(--ytb-border);
+  border-radius: 16px;
+  overflow: hidden;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.atleta-foto {
+  position: relative;
+  aspect-ratio: 4/3;
+  background: linear-gradient(135deg, var(--ytb-bg3), #000);
+  overflow: hidden;
+}
+
+.atleta-foto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.atleta-avatar {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: 80px;
+  color: var(--ytb-gold);
+  background: linear-gradient(135deg, rgba(212,175,55,0.1), rgba(0,0,0,0.5));
+}
+
+.atleta-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: var(--ytb-gold);
+  color: #000;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 5px 10px;
+  border-radius: 100px;
+}
+
+.atleta-info {
+  padding: 18px 18px 22px;
+}
+
+.atleta-nome-curto {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: 32px;
+  color: var(--ytb-white);
+  line-height: 1;
+  letter-spacing: -0.5px;
+  margin-bottom: 2px;
+}
+
+.atleta-nome-completo {
+  font-size: 11px;
+  color: var(--ytb-muted);
+  font-weight: 400;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.atleta-meta {
+  font-size: 12px;
+  color: var(--ytb-gold);
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.atleta-clube {
+  font-size: 13px;
+  color: var(--ytb-white);
+  font-weight: 500;
+  margin-bottom: 14px;
+}
+
+.atleta-historico,
+.atleta-palmares {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--ytb-border);
+}
+
+.atleta-label {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: var(--ytb-gold);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.atleta-clubes-lista {
+  font-size: 12px;
+  color: var(--ytb-slate);
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.atleta-clubes-lista span {
+  color: var(--ytb-white);
+}
+
+.palmares-item {
+  font-size: 12px;
+  color: var(--ytb-slate);
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+
+.palmares-item strong {
+  color: var(--ytb-white);
+  font-weight: 700;
+}
+
+/* Dots */
+#atletas-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ytb-border);
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 0;
+}
+
+.dot.active {
+  background: var(--ytb-gold);
+  width: 24px;
+  border-radius: 4px;
+}
+
+@media (min-width: 720px) {
+  .destaque-grid {
+    flex-direction: row;
+    align-items: center;
+  }
+  .destaque-video-wrap {
+    flex: 1;
+  }
+  .destaque-info {
+    flex: 1;
+    text-align: left;
+  }
+  .destaque-quote {
+    margin-left: 0;
+  }
+}
