@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inscrever Atleta · YourTalentBase</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#080C08; --bg2:#0F1410; --bg3:#161D17;
+  --gold:#D4AF37; --gold-soft:rgba(212,175,55,.15); --gold-border:rgba(212,175,55,.3);
+  --green:#00D46A; --border:#1F2520; --white:#fff; --slate:#aaa; --muted:#666;
+}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--white);min-height:100vh;padding:20px}
+.wrap{max-width:520px;margin:0 auto}
+.header{text-align:center;margin-bottom:24px}
+.logo{display:inline-flex;align-items:center;gap:10px;margin-bottom:18px}
+.logo-badge{width:32px;height:32px;background:var(--gold);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:900;font-size:13px;color:#000}
+.logo-name{font-family:'Barlow Condensed';font-weight:800;font-size:18px;letter-spacing:1.5px}
+.logo-name span{color:var(--gold)}
+.title{font-family:'Barlow Condensed';font-weight:900;font-size:36px;line-height:1;letter-spacing:-1px;margin-bottom:6px}
+.title span{color:var(--gold)}
+.sub{font-size:13px;color:var(--slate);font-weight:300}
+
+.form{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:22px;margin-bottom:18px}
+.form-section{margin-bottom:24px}
+.form-section:last-child{margin-bottom:0}
+.section-title{font-size:10px;font-weight:800;letter-spacing:2.5px;color:var(--gold);text-transform:uppercase;margin-bottom:14px}
+
+.field{margin-bottom:14px}
+.label{display:block;font-size:11px;font-weight:700;letter-spacing:1px;color:var(--white);margin-bottom:6px;text-transform:uppercase}
+.label small{color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px;font-size:10px}
+.input,.select,.textarea{
+  width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;
+  padding:12px 14px;font-size:14px;color:var(--white);font-family:inherit;outline:none;
+  transition:border-color .15s
+}
+.input:focus,.select:focus,.textarea:focus{border-color:var(--gold)}
+.textarea{resize:vertical;min-height:80px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+.upload-area{
+  background:var(--bg3);border:2px dashed var(--border);border-radius:10px;
+  padding:28px 14px;text-align:center;cursor:pointer;transition:all .15s
+}
+.upload-area:hover{border-color:var(--gold);background:rgba(212,175,55,.04)}
+.upload-area.has-file{border-color:var(--gold);border-style:solid;background:rgba(212,175,55,.06)}
+.upload-icon{font-size:32px;margin-bottom:8px}
+.upload-text{font-size:13px;color:var(--white);font-weight:600;margin-bottom:3px}
+.upload-hint{font-size:11px;color:var(--muted)}
+#foto-input{display:none}
+.foto-preview{max-width:140px;max-height:140px;border-radius:10px;margin:8px auto;display:none}
+.foto-preview.show{display:block}
+
+/* Plano cards */
+.plano-cards{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+.plano-card{
+  background:var(--bg3);border:2px solid var(--border);border-radius:12px;
+  padding:14px 16px;cursor:pointer;transition:all .15s
+}
+.plano-card.active{border-color:var(--gold);background:rgba(212,175,55,.08)}
+.plano-card-header{display:flex;justify-content:space-between;align-items:start;margin-bottom:6px}
+.plano-name{font-family:'Barlow Condensed';font-weight:900;font-size:18px;color:var(--white)}
+.plano-price{font-family:'Barlow Condensed';font-weight:900;font-size:18px;color:var(--gold)}
+.plano-desc{font-size:12px;color:var(--slate);line-height:1.5}
+.plano-radio{display:none}
+
+.btn{
+  width:100%;background:var(--gold);color:#000;border:none;
+  padding:15px;border-radius:10px;font-size:14px;font-weight:800;
+  letter-spacing:1px;text-transform:uppercase;cursor:pointer;
+  font-family:inherit;transition:all .15s
+}
+.btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(212,175,55,.3)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+
+.success{
+  background:linear-gradient(135deg,rgba(0,212,106,.1),rgba(0,212,106,.04));
+  border:1px solid rgba(0,212,106,.3);border-radius:12px;
+  padding:24px;text-align:center;display:none
+}
+.success.show{display:block}
+.success-icon{font-size:48px;margin-bottom:14px}
+.success-title{font-family:'Barlow Condensed';font-weight:900;font-size:24px;color:var(--green);margin-bottom:8px}
+.success-text{font-size:13px;color:var(--white);line-height:1.6;margin-bottom:14px}
+.wa-btn{display:inline-flex;align-items:center;gap:8px;background:#25D366;color:#000;padding:12px 22px;border-radius:100px;text-decoration:none;font-weight:700;font-size:13px}
+
+.error-msg{
+  background:rgba(255,80,80,.1);border:1px solid rgba(255,80,80,.3);
+  color:#ff8080;padding:10px 14px;border-radius:8px;font-size:12px;margin-bottom:14px;display:none
+}
+.error-msg.show{display:block}
+
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(0,0,0,.3);border-top-color:#000;border-radius:50%;animation:spin .6s linear infinite;margin-right:8px;vertical-align:-2px}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="header">
+  <div class="logo">
+    <div class="logo-badge">YT</div>
+    <div class="logo-name">Your<span>Talent</span>Base</div>
+  </div>
+  <div class="title">Inscrever <span>Atleta</span></div>
+  <div class="sub">Preenche os dados do teu filho. Nós tratamos do resto.</div>
+</div>
+
+<div id="form-view">
+<form class="form" id="form-inscricao">
+
+  <div class="error-msg" id="error-box"></div>
+
+  <div class="form-section">
+    <div class="section-title">⚽ Sobre o atleta</div>
+    
+    <div class="field">
+      <label class="label">Nome completo</label>
+      <input class="input" id="atleta_nome" type="text" required>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label class="label">Data nascimento</label>
+        <input class="input" id="atleta_data_nascimento" type="date" required>
+      </div>
+      <div class="field">
+        <label class="label">Pé dominante</label>
+        <select class="select" id="atleta_pe">
+          <option value="">--</option>
+          <option value="D">Direito</option>
+          <option value="E">Esquerdo</option>
+          <option value="A">Ambidestro</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="label">Posição habitual</label>
+      <select class="select" id="atleta_posicao">
+        <option value="">Selecciona...</option>
+        <option value="GR">Guarda-Redes</option>
+        <option value="DC">Defesa Central</option>
+        <option value="DLD">Defesa Lateral Direito</option>
+        <option value="DLE">Defesa Lateral Esquerdo</option>
+        <option value="MD">Médio Defensivo</option>
+        <option value="MI">Médio Interior</option>
+        <option value="MO">Médio Ofensivo</option>
+        <option value="ED">Extremo Direito</option>
+        <option value="EE">Extremo Esquerdo</option>
+        <option value="AV">Avançado</option>
+      </select>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label class="label">Clube actual</label>
+        <input class="input" id="atleta_clube" type="text">
+      </div>
+      <div class="field">
+        <label class="label">Escalão</label>
+        <select class="select" id="atleta_escalao">
+          <option value="">--</option>
+          <option value="Sub-9">Sub-9</option>
+          <option value="Sub-10">Sub-10</option>
+          <option value="Sub-11">Sub-11</option>
+          <option value="Sub-12">Sub-12</option>
+          <option value="Sub-13">Sub-13</option>
+          <option value="Sub-14">Sub-14</option>
+          <option value="Sub-15">Sub-15</option>
+          <option value="Sub-16">Sub-16</option>
+          <option value="Sub-17">Sub-17</option>
+          <option value="Sub-19">Sub-19</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="label">Foto do atleta <small>(opcional, max 5MB)</small></label>
+      <label class="upload-area" id="upload-area" for="foto-input">
+        <div class="upload-icon">📸</div>
+        <div class="upload-text" id="upload-text">Toca para escolher foto</div>
+        <div class="upload-hint">JPG ou PNG · Tamanho ideal 800x800</div>
+        <img class="foto-preview" id="foto-preview" alt="Pré-visualização">
+      </label>
+      <input id="foto-input" type="file" accept="image/jpeg,image/png,image/webp">
+    </div>
+  </div>
+
+  <div class="form-section">
+    <div class="section-title">👨‍👧 Encarregado de educação</div>
+    
+    <div class="field">
+      <label class="label">O teu nome</label>
+      <input class="input" id="enc_nome" type="text" required>
+    </div>
+
+    <div class="field">
+      <label class="label">Email</label>
+      <input class="input" id="enc_email" type="email" required>
+    </div>
+
+    <div class="field">
+      <label class="label">Telefone <small>(WhatsApp)</small></label>
+      <input class="input" id="enc_telefone" type="tel" placeholder="912 345 678">
+    </div>
+  </div>
+
+  <div class="form-section">
+    <div class="section-title">💼 Plano</div>
+    
+    <div class="plano-cards">
+      <label class="plano-card active" data-plano="sem_visibilidade">
+        <input class="plano-radio" type="radio" name="plano" value="sem_visibilidade" checked>
+        <div class="plano-card-header">
+          <div class="plano-name">Plataforma</div>
+          <div class="plano-price">9,90€/mês</div>
+        </div>
+        <div class="plano-desc">Acesso ao Scout Report, Elite Coach e treinos personalizados. Sem exposição pública.</div>
+      </label>
+
+      <label class="plano-card" data-plano="com_visibilidade">
+        <input class="plano-radio" type="radio" name="plano" value="com_visibilidade">
+        <div class="plano-card-header">
+          <div class="plano-name">Plataforma + Visibilidade</div>
+          <div class="plano-price">14,90€/mês</div>
+        </div>
+        <div class="plano-desc">Tudo o anterior + atleta aparece nos cards públicos da página principal. Maior exposição.</div>
+      </label>
+    </div>
+  </div>
+
+  <button type="submit" class="btn" id="submit-btn">
+    Submeter Inscrição →
+  </button>
+
+</form>
+</div>
+
+<div class="success" id="success-view">
+  <div class="success-icon">✅</div>
+  <div class="success-title">Inscrição Recebida!</div>
+  <div class="success-text">
+    Recebemos os dados do teu filho.<br>
+    Para confirmar a inscrição:<br><br>
+    <strong>1.</strong> Paga 39€ (Scout Report inicial) via MB Way para <strong>913 695 846</strong><br>
+    <strong>2.</strong> Envia o comprovativo para WhatsApp com o nome do atleta<br><br>
+    Resposta em 48h com acesso à plataforma.
+  </div>
+  <a class="wa-btn" id="wa-link" href="#" target="_blank">
+    📱 Enviar WhatsApp
+  </a>
+</div>
+
+</div>
+
+<script>
+const SUPABASE_URL = 'https://nhshnplaiolxwcfuijfo.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oc2hucGxhaW9seHdjZnVpamZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NDQxNTAsImV4cCI6MjA4OTQyMDE1MH0.uyZiDun8495sjnHA6Wsk-Hou-3lubbNJfQqSYbMLSek';
+const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// Plano selection
+document.querySelectorAll('.plano-card').forEach(card => {
+  card.addEventListener('click', () => {
+    document.querySelectorAll('.plano-card').forEach(c => c.classList.remove('active'));
+    card.classList.add('active');
+    card.querySelector('input[type=radio]').checked = true;
+  });
+});
+
+// Foto preview
+const fotoInput = document.getElementById('foto-input');
+const fotoPreview = document.getElementById('foto-preview');
+const uploadText = document.getElementById('upload-text');
+const uploadArea = document.getElementById('upload-area');
+
+fotoInput.addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) {
+    alert('Foto demasiado grande. Máximo 5MB.');
+    fotoInput.value = '';
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = ev => {
+    fotoPreview.src = ev.target.result;
+    fotoPreview.classList.add('show');
+    uploadText.textContent = file.name;
+    uploadArea.classList.add('has-file');
+  };
+  reader.readAsDataURL(file);
+});
+
+// Submit
+document.getElementById('form-inscricao').addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn = document.getElementById('submit-btn');
+  const errorBox = document.getElementById('error-box');
+  errorBox.classList.remove('show');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>A enviar...';
+
+  try {
+    let fotoUrl = null;
+
+    // Upload foto se houver
+    const fotoFile = fotoInput.files[0];
+    if (fotoFile) {
+      const ext = fotoFile.name.split('.').pop();
+      const fileName = `inscricao-${Date.now()}.${ext}`;
+      const { data: upData, error: upErr } = await supa.storage
+        .from('atletas-fotos')
+        .upload(fileName, fotoFile, { cacheControl: '3600', upsert: false });
+      
+      if (upErr) throw upErr;
+      
+      const { data: urlData } = supa.storage
+        .from('atletas-fotos')
+        .getPublicUrl(fileName);
+      fotoUrl = urlData.publicUrl;
+    }
+
+    // Submeter inscrição
+    const { error } = await supa.from('inscricoes').insert({
+      atleta_nome: document.getElementById('atleta_nome').value.trim(),
+      atleta_data_nascimento: document.getElementById('atleta_data_nascimento').value || null,
+      atleta_posicao: document.getElementById('atleta_posicao').value || null,
+      atleta_pe: document.getElementById('atleta_pe').value || null,
+      atleta_clube: document.getElementById('atleta_clube').value.trim() || null,
+      atleta_escalao: document.getElementById('atleta_escalao').value || null,
+      atleta_foto_url: fotoUrl,
+      encarregado_nome: document.getElementById('enc_nome').value.trim(),
+      encarregado_email: document.getElementById('enc_email').value.trim(),
+      encarregado_telefone: document.getElementById('enc_telefone').value.trim() || null,
+      plano: document.querySelector('input[name=plano]:checked').value,
+      estado: 'pendente'
+    });
+
+    if (error) throw error;
+
+    // Mostrar sucesso
+    document.getElementById('form-view').style.display = 'none';
+    const successView = document.getElementById('success-view');
+    successView.classList.add('show');
+
+    const nome = document.getElementById('atleta_nome').value.trim();
+    const wa = `https://wa.me/351913695846?text=${encodeURIComponent('Olá! Acabei de inscrever o ' + nome + ' e vou enviar o comprovativo do pagamento de 39€.')}`;
+    document.getElementById('wa-link').href = wa;
+
+  } catch (err) {
+    console.error(err);
+    errorBox.textContent = 'Erro: ' + (err.message || 'tenta de novo');
+    errorBox.classList.add('show');
+    btn.disabled = false;
+    btn.innerHTML = 'Submeter Inscrição →';
+  }
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin · YourTalentBase</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#080C08; --bg2:#0F1410; --bg3:#161D17;
+  --gold:#D4AF37; --gold-soft:rgba(212,175,55,.15); --gold-border:rgba(212,175,55,.3);
+  --green:#00D46A; --red:#ff5050; --orange:#FFA500;
+  --border:#1F2520; --white:#fff; --slate:#aaa; --muted:#666;
+}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--white);min-height:100vh;padding:20px}
+.wrap{max-width:1100px;margin:0 auto}
+
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:14px}
+.title{font-family:'Barlow Condensed';font-weight:900;font-size:36px;letter-spacing:-1px}
+.title span{color:var(--gold)}
+.user-info{font-size:12px;color:var(--slate)}
+.user-info strong{color:var(--gold)}
+
+/* Login */
+.login-box{max-width:380px;margin:80px auto;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:32px}
+.login-title{font-family:'Barlow Condensed';font-weight:900;font-size:28px;text-align:center;margin-bottom:18px}
+.login-title span{color:var(--gold)}
+.field{margin-bottom:14px}
+.label{display:block;font-size:11px;font-weight:700;letter-spacing:1px;color:var(--white);margin-bottom:6px;text-transform:uppercase}
+.input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-size:14px;color:var(--white);font-family:inherit;outline:none}
+.input:focus{border-color:var(--gold)}
+.btn{width:100%;background:var(--gold);color:#000;border:none;padding:14px;border-radius:10px;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;cursor:pointer;font-family:inherit}
+.btn-small{padding:8px 14px;font-size:11px;width:auto;border-radius:8px}
+.btn-secondary{background:var(--bg3);color:var(--white);border:1px solid var(--border)}
+.btn-success{background:var(--green);color:#000}
+.btn-danger{background:transparent;color:var(--red);border:1px solid rgba(255,80,80,.3)}
+
+/* Tabs */
+.tabs{display:flex;gap:4px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:4px;margin-bottom:18px;overflow-x:auto}
+.tab{flex:1;min-width:max-content;background:transparent;border:none;color:var(--slate);font-size:12px;font-weight:700;padding:10px 16px;border-radius:8px;cursor:pointer;font-family:inherit;letter-spacing:.5px;white-space:nowrap}
+.tab.active{background:var(--gold);color:#000}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:18px}
+.stat{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px}
+.stat-num{font-family:'Barlow Condensed';font-weight:900;font-size:32px;color:var(--gold);line-height:1}
+.stat-label{font-size:10px;color:var(--slate);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-top:4px}
+
+/* Cards */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px}
+.card-row{display:flex;align-items:flex-start;gap:14px}
+.card-foto{width:60px;height:60px;border-radius:10px;background:var(--bg3);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:900;font-size:24px;color:var(--gold)}
+.card-foto img{width:100%;height:100%;object-fit:cover}
+.card-info{flex:1;min-width:0}
+.card-nome{font-size:15px;font-weight:700;color:var(--white);margin-bottom:2px}
+.card-meta{font-size:11px;color:var(--slate);margin-bottom:4px;line-height:1.5}
+.card-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.tag{font-size:9px;font-weight:700;letter-spacing:1.5px;padding:3px 8px;border-radius:100px;text-transform:uppercase}
+.tag-pendente{background:rgba(255,165,0,.15);color:var(--orange);border:1px solid rgba(255,165,0,.3)}
+.tag-pago{background:rgba(74,159,232,.15);color:#4A9FE8;border:1px solid rgba(74,159,232,.3)}
+.tag-activo{background:rgba(0,212,106,.15);color:var(--green);border:1px solid rgba(0,212,106,.3)}
+.tag-recusado{background:rgba(255,80,80,.15);color:var(--red);border:1px solid rgba(255,80,80,.3)}
+.tag-plano{background:var(--gold-soft);color:var(--gold);border:1px solid var(--gold-border)}
+.card-actions{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+
+.empty{text-align:center;padding:60px 20px;color:var(--muted);font-size:13px}
+.error-msg{background:rgba(255,80,80,.1);border:1px solid rgba(255,80,80,.3);color:#ff8080;padding:10px 14px;border-radius:8px;font-size:12px;margin-bottom:14px}
+
+#main-view{display:none}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.2);border-top-color:var(--gold);border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- LOGIN VIEW -->
+<div id="login-view">
+<div class="login-box">
+  <div class="login-title">Admin <span>YTB</span></div>
+  <div id="login-error" style="color:#ff8080;font-size:12px;margin-bottom:10px;display:none"></div>
+  <div class="field">
+    <label class="label">Email</label>
+    <input class="input" id="login-email" type="email" autocomplete="email">
+  </div>
+  <div class="field">
+    <label class="label">Password</label>
+    <input class="input" id="login-pass" type="password" autocomplete="current-password">
+  </div>
+  <button class="btn" onclick="fazerLogin()">Entrar</button>
+</div>
+</div>
+
+<!-- MAIN VIEW -->
+<div id="main-view">
+
+<div class="header">
+  <div class="title">YTB <span>Admin</span></div>
+  <div class="user-info">
+    <strong id="user-name">...</strong> · 
+    <a href="#" onclick="logout();return false" style="color:var(--gold)">Sair</a>
+  </div>
+</div>
+
+<div class="stats" id="stats">
+  <div class="stat"><div class="stat-num" id="stat-pendentes">-</div><div class="stat-label">Pendentes</div></div>
+  <div class="stat"><div class="stat-num" id="stat-activos">-</div><div class="stat-label">Activos</div></div>
+  <div class="stat"><div class="stat-num" id="stat-atletas">-</div><div class="stat-label">Atletas Públicos</div></div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-tab="inscricoes">📋 Inscrições</button>
+  <button class="tab" data-tab="atletas">⚽ Atletas Públicos</button>
+</div>
+
+<div id="tab-inscricoes">
+  <div id="inscricoes-list"></div>
+</div>
+
+<div id="tab-atletas" style="display:none">
+  <div id="atletas-list"></div>
+</div>
+
+</div>
+
+</div>
+
+<script>
+const SUPABASE_URL = 'https://nhshnplaiolxwcfuijfo.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oc2hucGxhaW9seHdjZnVpamZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NDQxNTAsImV4cCI6MjA4OTQyMDE1MH0.uyZiDun8495sjnHA6Wsk-Hou-3lubbNJfQqSYbMLSek';
+const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let currentUser = null;
+
+async function check() {
+  const { data: { session } } = await supa.auth.getSession();
+  if (session) {
+    const { data: profile } = await supa.from('profiles').select('*').eq('id', session.user.id).single();
+    if (profile && profile.role === 'superuser') {
+      currentUser = profile;
+      mostrarMain();
+    } else {
+      await supa.auth.signOut();
+      mostrarErro('Acesso restrito a admin');
+    }
+  }
+}
+check();
+
+async function fazerLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  const err = document.getElementById('login-error');
+  err.style.display = 'none';
+
+  const { data, error } = await supa.auth.signInWithPassword({ email, password: pass });
+  if (error) {
+    err.textContent = error.message;
+    err.style.display = 'block';
+    return;
+  }
+
+  const { data: profile } = await supa.from('profiles').select('*').eq('id', data.user.id).single();
+  if (!profile || profile.role !== 'superuser') {
+    err.textContent = 'Acesso restrito a admin';
+    err.style.display = 'block';
+    await supa.auth.signOut();
+    return;
+  }
+
+  currentUser = profile;
+  mostrarMain();
+}
+
+async function logout() {
+  await supa.auth.signOut();
+  location.reload();
+}
+
+function mostrarMain() {
+  document.getElementById('login-view').style.display = 'none';
+  document.getElementById('main-view').style.display = 'block';
+  document.getElementById('user-name').textContent = currentUser.full_name || currentUser.email;
+  carregarTudo();
+}
+
+function mostrarErro(msg) {
+  const err = document.getElementById('login-error');
+  err.textContent = msg;
+  err.style.display = 'block';
+}
+
+// Tabs
+document.querySelectorAll('.tab').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById('tab-inscricoes').style.display = t.dataset.tab === 'inscricoes' ? 'block' : 'none';
+    document.getElementById('tab-atletas').style.display = t.dataset.tab === 'atletas' ? 'block' : 'none';
+  });
+});
+
+async function carregarTudo() {
+  await Promise.all([carregarInscricoes(), carregarAtletas()]);
+}
+
+async function carregarInscricoes() {
+  const { data, error } = await supa.from('inscricoes').select('*').order('created_at', { ascending: false });
+  if (error) { console.error(error); return; }
+
+  const pendentes = data.filter(i => i.estado === 'pendente').length;
+  const activos = data.filter(i => i.estado === 'activo').length;
+  document.getElementById('stat-pendentes').textContent = pendentes;
+  document.getElementById('stat-activos').textContent = activos;
+
+  const list = document.getElementById('inscricoes-list');
+  if (!data.length) { list.innerHTML = '<div class="empty">Sem inscrições</div>'; return; }
+
+  list.innerHTML = data.map(i => {
+    const dt = new Date(i.created_at).toLocaleString('pt-PT', {day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+    const idade = i.atleta_data_nascimento ? Math.floor((Date.now() - new Date(i.atleta_data_nascimento).getTime()) / 31557600000) : null;
+    return `
+      <div class="card">
+        <div class="card-row">
+          <div class="card-foto">
+            ${i.atleta_foto_url ? `<img src="${i.atleta_foto_url}">` : (i.atleta_nome[0] || '?')}
+          </div>
+          <div class="card-info">
+            <div class="card-nome">${i.atleta_nome}</div>
+            <div class="card-meta">
+              ${idade ? idade + ' anos · ' : ''}${i.atleta_posicao || '?'} · ${i.atleta_clube || '?'} ${i.atleta_escalao ? '· '+i.atleta_escalao : ''}
+            </div>
+            <div class="card-meta">
+              👨‍👧 ${i.encarregado_nome} · 📧 ${i.encarregado_email}${i.encarregado_telefone ? ' · 📱 '+i.encarregado_telefone : ''}
+            </div>
+            <div class="card-tags">
+              <span class="tag tag-${i.estado}">${i.estado}</span>
+              <span class="tag tag-plano">${i.plano === 'sem_visibilidade' ? 'Plataforma 9,90€' : 'Plataforma + Visibilidade 14,90€'}</span>
+              <span class="tag" style="background:transparent;color:var(--muted);border:1px solid var(--border)">${dt}</span>
+            </div>
+            <div class="card-actions">
+              ${i.estado === 'pendente' ? `<button class="btn btn-small btn-success" onclick="atualizarEstado('${i.id}','pago')">Marcar como Pago</button>` : ''}
+              ${i.estado === 'pago' ? `<button class="btn btn-small btn-success" onclick="ativarAtleta('${i.id}')">Ativar Atleta</button>` : ''}
+              ${i.estado !== 'recusado' && i.estado !== 'activo' ? `<button class="btn btn-small btn-danger" onclick="atualizarEstado('${i.id}','recusado')">Recusar</button>` : ''}
+              ${i.encarregado_telefone ? `<a class="btn btn-small btn-secondary" href="https://wa.me/351${i.encarregado_telefone.replace(/[^0-9]/g,'')}" target="_blank">📱 WhatsApp</a>` : ''}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+async function carregarAtletas() {
+  const { data, error } = await supa.from('atletas').select('*').order('created_at', { ascending: false });
+  if (error) { console.error(error); return; }
+
+  document.getElementById('stat-atletas').textContent = data.filter(a => a.visivel_publico).length;
+
+  const list = document.getElementById('atletas-list');
+  if (!data.length) { list.innerHTML = '<div class="empty">Sem atletas</div>'; return; }
+
+  list.innerHTML = data.map(a => {
+    const palmares = (a.palmares || []).length;
+    return `
+      <div class="card">
+        <div class="card-row">
+          <div class="card-foto">
+            ${a.foto_url ? `<img src="${a.foto_url}">` : (a.nome_curto || a.nome[0])}
+          </div>
+          <div class="card-info">
+            <div class="card-nome">${a.nome_curto || a.nome}</div>
+            <div class="card-meta">${a.posicao_principal || '?'} · ${a.clube_actual || '?'} · ${a.escalao_actual || '?'}</div>
+            <div class="card-tags">
+              <span class="tag tag-plano">${a.plano}</span>
+              <span class="tag ${a.visivel_publico ? 'tag-activo' : 'tag-pendente'}">${a.visivel_publico ? 'Visível' : 'Oculto'}</span>
+              ${palmares ? `<span class="tag" style="background:transparent;color:var(--gold);border:1px solid var(--gold-border)">🏆 ${palmares}</span>` : ''}
+            </div>
+            <div class="card-actions">
+              <button class="btn btn-small btn-secondary" onclick="toggleVisibilidade('${a.id}',${!a.visivel_publico})">
+                ${a.visivel_publico ? 'Ocultar' : 'Tornar Visível'}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+async function atualizarEstado(id, estado) {
+  const { error } = await supa.from('inscricoes').update({ estado }).eq('id', id);
+  if (error) alert('Erro: ' + error.message);
+  else carregarInscricoes();
+}
+
+async function ativarAtleta(inscricaoId) {
+  const { data: insc } = await supa.from('inscricoes').select('*').eq('id', inscricaoId).single();
+  if (!insc) return;
+
+  const { error: insertErr } = await supa.from('atletas').insert({
+    nome: insc.atleta_nome,
+    nome_curto: insc.atleta_nome.split(' ')[0],
+    data_nascimento: insc.atleta_data_nascimento,
+    posicao_principal: insc.atleta_posicao,
+    pe_dominante: insc.atleta_pe,
+    clube_actual: insc.atleta_clube,
+    escalao_actual: insc.atleta_escalao,
+    foto_url: insc.atleta_foto_url,
+    plano: insc.plano,
+    visivel_publico: insc.plano === 'com_visibilidade'
+  });
+
+  if (insertErr) { alert('Erro: ' + insertErr.message); return; }
+
+  await supa.from('inscricoes').update({ estado: 'activo' }).eq('id', inscricaoId);
+  carregarTudo();
+}
+
+async function toggleVisibilidade(id, visivel) {
+  const { error } = await supa.from('atletas').update({ visivel_publico: visivel }).eq('id', id);
+  if (error) alert('Erro: ' + error.message);
+  else carregarAtletas();
+}
+
+// Enter key on login
+document.getElementById('login-pass').addEventListener('keypress', e => {
+  if (e.key === 'Enter') fazerLogin();
+});
+</script>
+</body>
+</html>
