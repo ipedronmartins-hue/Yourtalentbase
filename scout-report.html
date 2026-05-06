@@ -3,1047 +3,183 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Scout Report · YourTalentBase</title>
-<meta name="theme-color" content="#09090C">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Scout Report">
-<link rel="manifest" href="/manifest-scout.json">
-<link rel="apple-touch-icon" href="/icons/scout-192.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<title>Scout Report Profissional · 39€ · YourTalentBase</title>
+<meta name="description" content="Scout Report profissional para o teu filho. Avaliação em 25+ critérios, perfil de posição, plano de desenvolvimento. Resposta em 48h.">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-/* ================================================================
-   SCOUT REPORT ELITE · YourTalentBase
-================================================================ */
-*{margin:0;padding:0;box-sizing:border-box;}
+*{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --gold:#D4AF37;--gs:rgba(212,175,55,.10);--gb:rgba(212,175,55,.22);
-  --bg:#09090C;--bg2:#0F0F14;--bg3:#16161E;
-  --border:#1E1E2A;--border2:#2A2A3A;
-  --white:#EEEEF5;--slate:#A8A8C0;--muted:#72728A;--dim:#4A4A62;
+  --bg:#080C08;--bg2:#0F1410;--bg3:#161D17;
+  --gold:#D4AF37;--gold-soft:rgba(212,175,55,.15);--gold-border:rgba(212,175,55,.3);
+  --green:#00D46A;--border:#1F2520;--white:#fff;--slate:#aaa;--muted:#666;
 }
-html,body{background:var(--bg);color:var(--white);font-family:'Plus Jakarta Sans',sans-serif;-webkit-text-size-adjust:100%;}
-button,input,select,textarea{font-family:inherit;}
-a{color:inherit;text-decoration:none;}
-@keyframes spin{to{transform:rotate(360deg)}}
-@keyframes up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--white);min-height:100vh;max-width:520px;margin:0 auto;padding-bottom:40px}
 
-/* NAV */
-.nav{position:sticky;top:0;z-index:100;height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:rgba(9,9,12,.97);border-bottom:1px solid var(--border);backdrop-filter:blur(20px);}
-.logo{display:flex;align-items:center;gap:10px;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;letter-spacing:2px;text-transform:uppercase;}
-.logo-b{width:28px;height:28px;background:var(--gold);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;color:#000;}
-.logo span{color:var(--gold);}
-.btn-ghost{background:none;color:var(--white);border:1px solid var(--border2);padding:8px 16px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;}
+.nav{position:sticky;top:0;z-index:50;background:rgba(8,12,8,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:14px 18px;display:flex;align-items:center;justify-content:space-between}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-badge{width:32px;height:32px;background:var(--gold);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:900;font-size:13px;color:#000}
+.nav-name{font-family:'Barlow Condensed';font-weight:800;font-size:18px;letter-spacing:1.5px;color:#fff}
+.nav-name span{color:var(--gold)}
+.nav-back{font-size:12px;color:var(--slate);text-decoration:none}
 
-/* LOGIN */
-#vLogin{min-height:calc(100vh - 58px);display:flex;align-items:center;justify-content:center;padding:40px 20px;background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(212,175,55,.07) 0%,transparent 70%);}
-.lcard{background:var(--bg2);border:1px solid var(--border);border-top:3px solid var(--gold);border-radius:14px;padding:32px 28px;width:100%;max-width:380px;animation:up .4s both;}
-.eyebrow{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:4px;}
-.ltitle{font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:900;margin-bottom:6px;}
-.lsub{font-size:13px;color:var(--muted);font-weight:300;margin-bottom:24px;line-height:1.65;}
-.inp{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:11px 13px;color:var(--white);font-size:13px;outline:none;transition:border-color .2s;}
-.inp:focus{border-color:rgba(212,175,55,.45);}
-.inp::placeholder{color:var(--dim);}
-.sel{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:11px 13px;color:var(--white);font-size:13px;outline:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2372728A' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:34px;}
-.sel:focus{border-color:rgba(212,175,55,.45);}
-.sel option{background:var(--bg3);}
-.lerr{color:#ef4444;font-size:12px;text-align:center;display:none;margin-top:6px;}
-.btn-p{background:var(--gold);color:#000;border:none;padding:13px;border-radius:8px;font-size:13px;font-weight:800;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;}
-.btn-p:hover{background:#e0bc3d;box-shadow:0 6px 24px rgba(212,175,55,.3);}
-.btn-p:disabled{background:var(--border2);color:var(--muted);cursor:default;}
-.hint{font-size:11px;color:var(--muted);text-align:center;margin-top:12px;}
+.hero{padding:32px 22px 24px;text-align:center}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:10px;font-weight:800;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:14px;background:var(--gold-soft);border:1px solid var(--gold-border);padding:6px 14px;border-radius:100px}
+.title{font-family:'Barlow Condensed';font-weight:900;font-size:42px;line-height:1;letter-spacing:-1.5px;margin-bottom:14px}
+.title span{color:var(--gold)}
+.sub{font-size:14px;color:var(--slate);font-weight:300;line-height:1.55;margin-bottom:22px;padding:0 8px}
 
-/* SCOUT AREA */
-#vScout{display:none;}
-#vScout.on{display:block;animation:up .25s both;}
-.topbar{position:sticky;top:58px;z-index:50;height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:rgba(9,9,12,.96);border-bottom:1px solid var(--border);backdrop-filter:blur(16px);}
-.sc-badge{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:4px 12px;border-radius:100px;background:var(--gs);color:var(--gold);border:1px solid var(--gb);}
-.btn-sair{font-size:11px;color:var(--muted);background:none;border:1px solid var(--border);padding:5px 14px;border-radius:6px;cursor:pointer;}
+.price-display{background:linear-gradient(135deg,rgba(212,175,55,.15),rgba(0,0,0,.4));border:2px solid var(--gold);border-radius:16px;padding:24px;text-align:center;margin:0 18px 24px}
+.price-num{font-family:'Barlow Condensed';font-weight:900;font-size:80px;color:var(--gold);line-height:1}
+.price-label{font-size:11px;font-weight:800;letter-spacing:3px;color:#fff;text-transform:uppercase;margin-top:4px}
 
-/* FORM */
-.sc-form{max-width:700px;margin:0 auto;padding:24px 20px 80px;}
-.sec{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:12px;}
-.sec-t{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:16px;}
-.lbl{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:5px;}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
-.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;}
-@media(max-width:480px){.g2,.g3,.g4{grid-template-columns:1fr 1fr;}}
+.section{padding:8px 18px 24px}
+.section-title{font-family:'Barlow Condensed';font-weight:900;font-size:24px;color:#fff;letter-spacing:-.5px;margin-bottom:14px}
+.section-title span{color:var(--gold)}
 
-/* CRITERIA ROWS */
-.crit-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(30,33,40,.7);gap:6px;flex-wrap:wrap;}
-.crit-row:last-child{border-bottom:none;}
-.crit-lbl{font-size:11px;color:var(--slate);flex:1;min-width:100px;}
-.crit-btns{display:flex;gap:4px;}
-.cb{width:34px;height:30px;border-radius:5px;border:1px solid var(--border2);background:none;color:var(--muted);font-size:11px;font-weight:700;cursor:pointer;transition:all .15s;}
-.cb:hover{border-color:var(--gold);color:var(--gold);}
-.cb.on.s1{background:#ef4444;border-color:#ef4444;color:#fff;}
-.cb.on.s2{background:#f97316;border-color:#f97316;color:#fff;}
-.cb.on.s3{background:#eab308;border-color:#eab308;color:#fff;}
-.cb.on.s4{background:#22c55e;border-color:#22c55e;color:#fff;}
-.cb.on.s5{background:#3b82f6;border-color:#3b82f6;color:#fff;}
-.cb.on.sna{background:var(--muted);border-color:var(--muted);color:#fff;}
-.cv{font-size:9px;font-weight:700;min-width:72px;text-align:right;color:var(--dim);}
+.what-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.what-item{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:4px}
+.what-icon{font-size:24px;margin-bottom:4px}
+.what-title{font-size:12px;font-weight:700;color:#fff}
+.what-text{font-size:11px;color:var(--slate);line-height:1.4}
 
-/* CLASSIFICATION */
-.cls-btn{padding:9px 14px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;min-height:48px;}
-.cls-btn.on{background:var(--gs);color:var(--gold);border-color:var(--gb);}
+.criteria-list{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:18px}
+.criteria-cat{margin-bottom:14px}
+.criteria-cat:last-child{margin-bottom:0}
+.criteria-cat-title{font-size:10px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:6px}
+.criteria-items{font-size:12px;color:#fff;line-height:1.6}
 
-/* POSITION VISUAL */
-#scPerfilPos{display:none;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:14px;margin-top:10px;}
-.campo-wrap{flex-shrink:0;width:90px;height:128px;background:#1c3a1c;border:1px solid #2d4a2d;border-radius:5px;position:relative;overflow:hidden;}
-.zona{position:absolute;left:6px;right:6px;height:26px;border-radius:2px;transition:all .25s;pointer-events:none;}
+.cta-section{padding:24px 18px}
+.cta-card{background:linear-gradient(135deg,rgba(212,175,55,.08),rgba(0,0,0,.3));border:2px solid var(--gold-border);border-radius:14px;padding:22px;text-align:center}
+.cta-title{font-family:'Barlow Condensed';font-weight:900;font-size:24px;color:#fff;line-height:1;margin-bottom:8px}
+.cta-title span{color:var(--gold)}
+.cta-text{font-size:13px;color:var(--slate);line-height:1.55;margin-bottom:18px}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:16px 22px;border-radius:10px;font-size:14px;font-weight:800;letter-spacing:.5px;text-decoration:none;border:none;cursor:pointer;font-family:inherit;width:100%;margin-bottom:8px}
+.btn-primary{background:var(--gold);color:#000}
+.btn-wa{background:rgba(37,211,102,.12);color:#25D366;border:1px solid rgba(37,211,102,.4)}
 
-/* LOADING */
-.sc-loading{display:none;text-align:center;padding:80px 20px;}
-.sc-spin{width:40px;height:40px;border:3px solid var(--border);border-top:3px solid var(--gold);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px;}
-
-/* RESULT */
-.sc-result{display:none;max-width:700px;margin:0 auto;padding:20px 20px 80px;}
-.res-header{background:linear-gradient(135deg,rgba(212,175,55,.08),rgba(212,175,55,.02));border:1px solid var(--gb);border-radius:14px;padding:22px;margin-bottom:14px;position:relative;overflow:hidden;}
-.res-header::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#1A56DB,var(--gold));}
-.elite-seal{position:absolute;top:18px;right:18px;background:linear-gradient(135deg,#D4AF37,#f0cc5e);color:#000;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:900;letter-spacing:2px;text-transform:uppercase;padding:6px 14px;border-radius:6px;display:none;box-shadow:0 4px 20px rgba(212,175,55,.4);}
-.res-nome{font-family:'Barlow Condensed',sans-serif;font-size:44px;font-weight:900;line-height:1;margin-bottom:4px;}
-.res-sub{font-size:12px;color:var(--muted);font-weight:300;}
-.media-box{background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:10px;padding:12px 20px;text-align:center;min-width:90px;}
-.media-n{font-family:'Barlow Condensed',sans-serif;font-size:40px;font-weight:900;color:var(--gold);line-height:1;}
-.media-l{font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px;}
-.rbox{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:12px;}
-.rbox-t{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:12px;}
-.ferr{color:#ef4444;font-size:12px;display:none;margin-bottom:10px;text-align:center;padding:10px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:6px;}
-
-/* RADAR CHART CONTAINER */
-.radar-wrap{display:flex;justify-content:center;margin-bottom:16px;}
-
-/* SKILLS GRID */
-.skills-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;}
-.skill-item{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center;}
-.skill-n{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:900;line-height:1.2;}
-.skill-l{font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:3px;}
+.process{display:flex;flex-direction:column;gap:10px}
+.step{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;display:flex;gap:14px;align-items:flex-start}
+.step-num{width:30px;height:30px;background:var(--gold);color:#000;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:900;font-size:15px;flex-shrink:0}
+.step-content{flex:1}
+.step-title{font-size:13px;font-weight:700;color:#fff;margin-bottom:3px}
+.step-text{font-size:12px;color:var(--slate);line-height:1.5}
 </style>
 </head>
 <body>
 
-<!-- NAV -->
 <nav class="nav">
-  <div class="logo"><div class="logo-b">YTB</div>Scout<span>Report</span></div>
-  <a href="/" class="btn-ghost">← Início</a>
+  <a href="/" class="nav-logo">
+    <div class="nav-badge">YT</div>
+    <div class="nav-name">Your<span>Talent</span>Base</div>
+  </a>
+  <a href="/" class="nav-back">← Voltar</a>
 </nav>
 
-<!-- LOGIN -->
-<div id="vLogin">
-  <div class="lcard">
-    <div style="font-size:42px;margin-bottom:14px;">📋</div>
-    <span class="eyebrow">Acesso Profissional</span>
-    <div class="ltitle">Scout Report</div>
-    <p class="lsub">25 critérios · Radar Chart · Análise posicional · PDF A4 premium</p>
-    <input class="inp" type="password" id="scPass" placeholder="Password de acesso" autocomplete="current-password" style="margin-bottom:8px;">
-    <div class="lerr" id="scErr">Password incorrecta.</div>
-    <button class="btn-p" id="btnLogin" style="margin-top:8px;">Entrar →</button>
-    <div class="hint">Scouts YTB · Clubes Parceiros</div>
-  </div>
+<section class="hero">
+  <div class="eyebrow">★ Scout Report Profissional</div>
+  <div class="title">Onde está<br>o teu <span>filho?</span></div>
+  <div class="sub">Avaliação profissional em 25+ critérios. Perfil de posição. Plano de desenvolvimento. Resposta em 48h.</div>
+</section>
+
+<div class="price-display">
+  <div class="price-num">39€</div>
+  <div class="price-label">Scout Report Único</div>
 </div>
 
-<!-- SCOUT AREA -->
-<div id="vScout">
-
-  <div class="topbar">
-    <span class="sc-badge" id="scBadge">Scout</span>
-    <button class="btn-sair" id="btnSair">Sair</button>
-  </div>
-
-  <!-- FORM -->
-  <div class="sc-form" id="scForm">
-
-    <!-- 01 IDENTIFICAÇÃO -->
-    <div class="sec">
-      <div class="sec-t">01 · Identificação do Atleta</div>
-      <div style="display:flex;flex-direction:column;gap:10px;">
-        <div><label class="lbl">Nome Completo *</label><input class="inp" id="sc-nome" placeholder="Nome completo do atleta"></div>
-        <div class="g2">
-          <div><label class="lbl">Data de Nascimento</label><input class="inp" id="sc-nasc" type="date"></div>
-          <div><label class="lbl">Época *</label><input class="inp" id="sc-epoca" placeholder="2025/26"></div>
-        </div>
-        <div class="g2">
-          <div><label class="lbl">Clube *</label><input class="inp" id="sc-clube" placeholder="Clube actual"></div>
-          <div><label class="lbl">Escalão *</label>
-            <select class="sel" id="sc-cat">
-              <option value="">Selecionar...</option>
-              <option>Sub-9</option><option>Sub-10</option><option>Sub-11</option><option>Sub-12</option>
-              <option>Sub-13</option><option>Sub-14</option><option>Sub-15</option><option>Sub-16</option>
-              <option>Sub-17</option><option>Sub-18</option><option>Sub-19</option>
-            </select>
-          </div>
-        </div>
-        <div class="g2">
-          <div><label class="lbl">Formato</label>
-            <select class="sel" id="sc-formato">
-              <option value="">Selecionar...</option>
-              <option>Fut5</option><option>Fut7</option><option>Fut9</option><option>Fut11</option>
-            </select>
-          </div>
-          <div><label class="lbl">Pé Preferido</label>
-            <select class="sel" id="sc-pe">
-              <option value="">Selecionar...</option>
-              <option>Direito</option><option>Esquerdo</option><option>Ambidestro</option>
-            </select>
-          </div>
-        </div>
-        <div>
-          <label class="lbl">Posição *</label>
-          <select class="sel" id="sc-pos" style="margin-bottom:0;">
-            <option value="">Seleciona o formato primeiro...</option>
-          </select>
-          <div id="scPerfilPos">
-            <div style="font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;">Perfil de Posição</div>
-            <div style="display:flex;gap:14px;align-items:flex-start;">
-              <div class="campo-wrap">
-                <svg width="90" height="128" viewBox="0 0 90 128" style="position:absolute;inset:0;">
-                  <rect x="6" y="6" width="78" height="116" rx="2" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="1"/>
-                  <line x1="6" y1="64" x2="84" y2="64" stroke="rgba(255,255,255,.1)" stroke-width="1"/>
-                  <circle cx="45" cy="64" r="11" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="1"/>
-                  <rect x="27" y="6" width="36" height="18" rx="1" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="1"/>
-                  <rect x="27" y="104" width="36" height="18" rx="1" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="1"/>
-                  <rect x="36" y="6" width="18" height="9" rx="1" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="1"/>
-                  <rect x="36" y="113" width="18" height="9" rx="1" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="1"/>
-                </svg>
-                <div id="zona-gr"  class="zona" style="bottom:6px;"></div>
-                <div id="zona-def" class="zona" style="bottom:36px;"></div>
-                <div id="zona-med" class="zona" style="top:50%;transform:translateY(-50%);"></div>
-                <div id="zona-ata" class="zona" style="top:36px;"></div>
-              </div>
-              <div style="flex:1;">
-                <div id="scPosNome" style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;color:var(--gold);line-height:1;margin-bottom:3px;">—</div>
-                <div id="scPosZona" style="font-size:8px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:7px;"></div>
-                <div id="scPosDesc" style="font-size:11px;color:var(--slate);line-height:1.6;font-weight:300;"></div>
-                <div id="scPosAtrib" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+<section class="section">
+  <div class="section-title">O que <span>recebes</span></div>
+  <div class="what-grid">
+    <div class="what-item">
+      <div class="what-icon">📊</div>
+      <div class="what-title">Avaliação 25+ Critérios</div>
+      <div class="what-text">Técnica, físico, táctica, mental</div>
     </div>
-
-    <!-- 02 BIOMETRIA -->
-    <div class="sec">
-      <div class="sec-t">02 · Biometria e Contexto</div>
-      <div style="display:flex;flex-direction:column;gap:10px;">
-        <div class="g4">
-          <div><label class="lbl">Altura cm</label><input class="inp" id="sc-alt" type="number" placeholder="155"></div>
-          <div><label class="lbl">Peso kg</label><input class="inp" id="sc-peso" type="number" placeholder="45"></div>
-          <div><label class="lbl">Nº Camisola</label><input class="inp" id="sc-camisa" type="number" placeholder="10"></div>
-          <div><label class="lbl">Data Obs.</label><input class="inp" id="sc-dobs" type="date"></div>
-        </div>
-        <div class="g2">
-          <div><label class="lbl">Estrutura Táctica</label>
-            <select class="sel" id="sc-estrutura">
-              <option value="">Selecionar...</option>
-              <option>1-4-3-3</option><option>1-4-4-2</option><option>1-4-2-3-1</option>
-              <option>1-3-5-2</option><option>1-3-4-3</option><option>1-4-1-4-1</option>
-              <option>1-5-3-2</option><option>Outro</option>
-            </select>
-          </div>
-          <div><label class="lbl">Maturação Física</label>
-            <select class="sel" id="sc-maturacao">
-              <option value="">Selecionar...</option>
-              <option>Precoce (avançada para a idade)</option>
-              <option>Normal (dentro da média)</option>
-              <option>Tardia (atrasada para a idade)</option>
-            </select>
-          </div>
-        </div>
-      </div>
+    <div class="what-item">
+      <div class="what-icon">🎯</div>
+      <div class="what-title">Perfil de Posição</div>
+      <div class="what-text">Até 3 posições adequadas</div>
     </div>
-
-    <!-- 03 DADOS COMPETITIVOS -->
-    <div class="sec">
-      <div class="sec-t">03 · Dados Competitivos <span style="font-weight:300;color:var(--dim);letter-spacing:0;text-transform:none;">(fonte: ZeroZero)</span></div>
-      <div class="g4">
-        <div><label class="lbl">Jogos</label><input class="inp" id="sc-jogos" type="number" placeholder="18"></div>
-        <div><label class="lbl">Minutos</label><input class="inp" id="sc-minutos" type="number" placeholder="593"></div>
-        <div><label class="lbl">Golos</label><input class="inp" id="sc-golos" type="number" placeholder="2"></div>
-        <div><label class="lbl">Assistências</label><input class="inp" id="sc-assist" type="number" placeholder="6"></div>
-      </div>
-      <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-        <div><label class="lbl">Classificação da Equipa</label><input class="inp" id="sc-classif" placeholder="Ex: 1º lugar, zona descida..."></div>
-        <div><label class="lbl">Link ZeroZero</label><input class="inp" id="sc-zz" type="text" placeholder="https://www.zerozero.pt/..."></div>
-      </div>
+    <div class="what-item">
+      <div class="what-icon">💡</div>
+      <div class="what-title">Pontos Fortes & Fracos</div>
+      <div class="what-text">Identificação clara de áreas</div>
     </div>
-
-    <!-- CRITÉRIOS (04-07) inseridos dinamicamente -->
-    <div id="scCrit"></div>
-
-    <!-- 08 CLASSIFICAÇÃO -->
-    <div class="sec">
-      <div class="sec-t">08 · Classificação</div>
-      <div style="margin-bottom:16px;">
-        <div style="font-size:11px;color:var(--muted);margin-bottom:8px;font-weight:300;">Rendimento vs. Escalão</div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;" id="grpRendimento">
-          <button class="cls-btn" data-grp="rendimento" data-val="R1 — Acima da categoria">R1 · Acima da categoria</button>
-          <button class="cls-btn" data-grp="rendimento" data-val="R2 — Dentro da categoria">R2 · Dentro da categoria</button>
-          <button class="cls-btn" data-grp="rendimento" data-val="R3 — Abaixo da categoria">R3 · Abaixo da categoria</button>
-        </div>
-      </div>
-      <div>
-        <div style="font-size:11px;color:var(--muted);margin-bottom:8px;font-weight:300;">Horizonte de Projeção</div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;" id="grpPrazo">
-          <button class="cls-btn" data-grp="prazo" data-val="Curto Prazo — Pronto para escalão acima">Curto Prazo · Pronto</button>
-          <button class="cls-btn" data-grp="prazo" data-val="Médio Prazo — 1 a 2 épocas">Médio Prazo · 1-2 épocas</button>
-          <button class="cls-btn" data-grp="prazo" data-val="Longo Prazo — Potencial a confirmar">Longo Prazo · Potencial</button>
-        </div>
-      </div>
+    <div class="what-item">
+      <div class="what-icon">📋</div>
+      <div class="what-title">Plano 30 Dias</div>
+      <div class="what-text">Exercícios prescritos</div>
     </div>
-
-    <!-- 09 DECISÃO -->
-    <div class="sec">
-      <div class="sec-t">09 · Decisão Final</div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;" id="grpDecisao">
-        <button class="cls-btn" data-grp="decisao" data-val="CONTRATAR" style="color:#22c55e;border-color:rgba(34,197,94,.3);">✓ Contratar</button>
-        <button class="cls-btn" data-grp="decisao" data-val="ACOMPANHAR">● Acompanhar</button>
-        <button class="cls-btn" data-grp="decisao" data-val="NOVA OBSERVAÇÃO">↺ Nova Obs.</button>
-        <button class="cls-btn" data-grp="decisao" data-val="SEM INTERESSE" style="color:#ef4444;border-color:rgba(239,68,68,.25);">✕ Sem Interesse</button>
-      </div>
+    <div class="what-item">
+      <div class="what-icon">📄</div>
+      <div class="what-title">PDF Profissional</div>
+      <div class="what-text">Documento partilhável</div>
     </div>
-
-    <!-- 10 OBSERVAÇÕES -->
-    <div class="sec">
-      <div class="sec-t">10 · Observações do Scout</div>
-      <textarea class="inp" id="sc-obs" rows="4" placeholder="Contexto do jogo, condições, notas adicionais, contexto familiar, EIR..."></textarea>
-    </div>
-
-    <div class="ferr" id="scErr2"></div>
-    <button class="btn-p" id="btnGerar" style="font-size:14px;padding:16px;letter-spacing:1px;text-transform:uppercase;">⚡ Gerar Scout Report Elite</button>
-  </div>
-
-  <!-- LOADING -->
-  <div class="sc-loading" id="scLoad">
-    <div class="sc-spin"></div>
-    <div style="font-size:13px;color:var(--slate);margin-bottom:8px;">A gerar Scout Report...</div>
-    <div style="font-size:11px;color:var(--dim);">A analisar 25 critérios + perfil posicional</div>
-  </div>
-
-  <!-- RESULTADO -->
-  <div class="sc-result" id="scRes">
-
-    <!-- Header -->
-    <div class="res-header">
-      <div id="eliteSeal" class="elite-seal">⭐ POTENCIAL ELITE</div>
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap;">
-        <div style="flex:1;">
-          <span class="eyebrow" id="resEpoca"></span>
-          <div id="resNumRel" style="font-size:9px;color:var(--dim);margin-bottom:3px;"></div>
-          <div id="resNome" class="res-nome"></div>
-          <div id="resSub" class="res-sub" style="margin-bottom:6px;"></div>
-          <div id="resMeta" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;"></div>
-        </div>
-        <div class="media-box">
-          <div id="resMed" class="media-n"></div>
-          <div class="media-l">Média Geral</div>
-          <div id="resMedLbl" style="font-size:10px;color:var(--muted);margin-top:3px;"></div>
-        </div>
-      </div>
-      <!-- Dados competitivos -->
-      <div id="resDadosComp" style="display:none;margin-top:14px;"></div>
-    </div>
-
-    <!-- Radar Chart -->
-    <div class="rbox">
-      <div class="rbox-t">Análise por Área — Radar Chart</div>
-      <div class="radar-wrap">
-        <svg id="radarSvg" viewBox="0 0 300 260" width="300" height="260"></svg>
-      </div>
-      <div id="radarLegend" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;"></div>
-    </div>
-
-    <!-- Top Skills + Pontos de Melhoria -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
-      <div class="rbox" style="margin-bottom:0;">
-        <div class="rbox-t" style="color:#22c55e;">🏆 Top 3 Skills</div>
-        <div id="topSkills"></div>
-      </div>
-      <div class="rbox" style="margin-bottom:0;">
-        <div class="rbox-t" style="color:#f97316;">⚠ 3 Pontos de Melhoria</div>
-        <div id="melhoriaSkills"></div>
-      </div>
-    </div>
-
-    <!-- Áreas detalhadas -->
-    <div id="resAreas" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px;"></div>
-
-    <!-- Decisão + Horizonte -->
-    <div id="resDecisao" style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px 18px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;"></div>
-
-    <!-- Relatório narrativo IA -->
-    <div class="rbox">
-      <div class="rbox-t">Relatório de Observação</div>
-      <div id="resTexto" style="font-size:13px;color:var(--slate);line-height:1.9;"></div>
-    </div>
-
-    <!-- Perfil de Posicionamento IA -->
-    <div class="rbox" id="resPerfil" style="display:none;">
-      <div class="rbox-t">Perfil de Posicionamento</div>
-      <div id="resPerfilContent" style="font-size:13px;color:var(--slate);line-height:1.9;"></div>
-    </div>
-
-    <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <button class="btn-p" id="btnPDF" style="flex:1;">📄 Download PDF A4</button>
-      <button id="btnNovo" class="btn-ghost" style="padding:13px 18px;min-height:48px;">Novo Relatório</button>
+    <div class="what-item">
+      <div class="what-icon">⚡</div>
+      <div class="what-title">48 Horas</div>
+      <div class="what-text">Entrega rápida</div>
     </div>
   </div>
+</section>
 
-</div>
+<section class="section">
+  <div class="section-title">Critérios <span>avaliados</span></div>
+  <div class="criteria-list">
+    <div class="criteria-cat">
+      <div class="criteria-cat-title">⚽ Técnica</div>
+      <div class="criteria-items">Toque · Primeiro toque · Passe curto · Passe longo · Drible · Finalização</div>
+    </div>
+    <div class="criteria-cat">
+      <div class="criteria-cat-title">💪 Físico</div>
+      <div class="criteria-items">Velocidade · Resistência · Força · Agilidade · Coordenação</div>
+    </div>
+    <div class="criteria-cat">
+      <div class="criteria-cat-title">🧠 Táctica</div>
+      <div class="criteria-items">Leitura de jogo · Posicionamento · Decisão · 1×1 ofensivo · 1×1 defensivo · Visão de jogo</div>
+    </div>
+    <div class="criteria-cat">
+      <div class="criteria-cat-title">🎯 Mental</div>
+      <div class="criteria-items">Foco · Esforço · Atitude · Liderança · Reacção a adversidade · Compromisso</div>
+    </div>
+  </div>
+</section>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-(function(){
-'use strict';
+<section class="section">
+  <div class="section-title">Como <span>funciona</span></div>
+  <div class="process">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <div class="step-title">Inscreves o teu filho</div>
+        <div class="step-text">Preenches dados básicos e pagas 39€ via MB Way</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <div class="step-title">Avaliamos em 48h</div>
+        <div class="step-text">Equipa técnica produz Scout Report profissional</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <div class="step-title">Recebes PDF por email</div>
+        <div class="step-text">Documento completo + plano de desenvolvimento</div>
+      </div>
+    </div>
+  </div>
+</section>
 
-var SB_URL="https://nhshnplaiolxwcfuijfo.supabase.co";
-var SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oc2hucGxhaW9seHdjZnVpamZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NDQxNTAsImV4cCI6MjA4OTQyMDE1MH0.uyZiDun8495sjnHA6Wsk-Hou-3lubbNJfQqSYbMLSek";
-var db=supabase.createClient(SB_URL,SB_KEY);
+<section class="cta-section">
+  <div class="cta-card">
+    <div class="cta-title">Pronto para <span>começar?</span></div>
+    <div class="cta-text">Inscreve o teu atleta e recebe o Scout Report em 48h.</div>
+    <a href="inscrever.html" class="btn btn-primary">Inscrever Atleta · 39€ →</a>
+    <a href="https://wa.me/351913695846?text=Ol%C3%A1%2C%20gostaria%20de%20saber%20mais%20sobre%20o%20Scout%20Report" target="_blank" rel="noopener" class="btn btn-wa">📱 Tirar dúvidas no WhatsApp</a>
+  </div>
+</section>
 
-var CREDS=[
-  {pass:"YTB#Super2026",role:"super",nome:"Admin"},
-  {pass:"YTB#Admin2026",role:"admin",nome:"Admin"},
-  {pass:"YTB#Clube2026",role:"clube",nome:"Clube"},
-  {pass:"YTB#Miro#3ozkUuLO6D",role:"scout",nome:"Miro"},
-  {pass:"YTB#Jonas#gLWjfiu6LG",role:"scout",nome:"Jonas"},
-  {pass:"YTB#Paulo",role:"scout",nome:"Paulo"},
-];
-
-var S={role:null,nome:"",scores:{},rendimento:"",prazo:"",decisao:"",texto:"",perfil:"",dados:{}};
-
-/* ── 25 CRITÉRIOS EXACTOS ─────────────────────────── */
-var SC_CRIT={
-  tec:{label:"Técnicos",cor:"#3b82f6",items:[
-    {id:"t1",l:"Passe Curto"},
-    {id:"t2",l:"Passe Longo"},
-    {id:"t3",l:"Receção Orientada"},
-    {id:"t4",l:"Dribbling / 1x1"},
-    {id:"t5",l:"Remate"},
-    {id:"t6",l:"Cruzamento"},
-    {id:"t7",l:"Jogo de Cabeça"},
-  ]},
-  tac:{label:"Táticos",cor:"#a78bfa",items:[
-    {id:"ta1",l:"Posicionamento Defensivo"},
-    {id:"ta2",l:"Leitura de Jogo"},
-    {id:"ta3",l:"Transição Def/Of"},
-    {id:"ta4",l:"Reação à Perda"},
-    {id:"ta5",l:"Cobertura"},
-    {id:"ta6",l:"Inteligência Posicional"},
-  ]},
-  fis:{label:"Físicos",cor:"#22c55e",items:[
-    {id:"f1",l:"Velocidade de Ponta"},
-    {id:"f2",l:"Explosão (0-5m)"},
-    {id:"f3",l:"Resistência"},
-    {id:"f4",l:"Força / Duelo"},
-    {id:"f5",l:"Agilidade"},
-    {id:"f6",l:"Equilíbrio"},
-  ]},
-  men:{label:"Mentais",cor:"#f97316",items:[
-    {id:"m1",l:"Liderança"},
-    {id:"m2",l:"Foco / Concentração"},
-    {id:"m3",l:"Resiliência"},
-    {id:"m4",l:"Tomada de Decisão"},
-    {id:"m5",l:"Comunicação"},
-    {id:"m6",l:"Compromisso"},
-  ]},
-};
-// Verify: 7+6+6+6 = 25
-var SC_LEG={1:"Insuficiente",2:"Fraco",3:"Satisfatório",4:"Bom",5:"Muito Bom"};
-var SC_COR={1:"#ef4444",2:"#f97316",3:"#eab308",4:"#22c55e",5:"#3b82f6"};
-
-/* ── POSITION PROFILES ────────────────────────────── */
-var SC_FORMATOS={
-  'Fut5':[
-    {pos:'Guarda-Redes',zona:'GR',desc:'Último recurso e organizador defensivo.',atrib:['Reflexos','Saída a pé','Posicionamento']},
-    {pos:'Defesa',zona:'DEF',desc:'Cobertura defensiva e início de construção.',atrib:['Marcação','Interceção','Passe curto']},
-    {pos:'Ala',zona:'MED',desc:'Liga defesa ao ataque com mobilidade e 1v1.',atrib:['Velocidade','Drible','Cruzamento']},
-    {pos:'Pivô',zona:'ATA',desc:'Referência ofensiva. Jogo de costas.',atrib:['Jogo de costas','Finalização','Proteção']},
-  ],
-  'Fut7':[
-    {pos:'Guarda-Redes',zona:'GR',desc:'Domina a área e dirige a defesa.',atrib:['Reflexos','Saída de bola','Comunicação']},
-    {pos:'Defesa Central',zona:'DEF',desc:'Eixo defensivo. Antecipação e jogo aéreo.',atrib:['Cabeceamento','Antecipação','Marcação']},
-    {pos:'Defesa Lateral',zona:'DEF',desc:'Equilíbrio defesa-projeção na faixa.',atrib:['Velocidade','Cruzamento','Duelação']},
-    {pos:'Médio',zona:'MED',desc:'Coração do jogo. Distribui e equilibra.',atrib:['Passe','Leitura de jogo','Recuperação']},
-    {pos:'Extremo',zona:'ATA',desc:'Desequilíbrio pelas faixas.',atrib:['Drible','Velocidade','Remate']},
-    {pos:'Avançado',zona:'ATA',desc:'Referência ofensiva. Finalização.',atrib:['Finalização','Movimentos','Jogo aéreo']},
-  ],
-  'Fut9':[
-    {pos:'Guarda-Redes',zona:'GR',desc:'Protege a baliza e inicia o jogo.',atrib:['Reflexos','Distribuição','Posicionamento']},
-    {pos:'Defesa Central',zona:'DEF',desc:'Organiza a linha defensiva.',atrib:['Cabeceamento','Antecipação','Saída de bola']},
-    {pos:'Defesa Lateral',zona:'DEF',desc:'Faixa com projeção e cobertura.',atrib:['Velocidade','1v1 def.','Assistências']},
-    {pos:'Médio Defensivo',zona:'MED',desc:'Sentinela. Recupera e protege.',atrib:['Recuperação','Pressing','Passe simples']},
-    {pos:'Médio Centro',zona:'MED',desc:'Distribuição e transição.',atrib:['Passe longo','Leitura','Transições']},
-    {pos:'Extremo',zona:'ATA',desc:'Largura e 1v1.',atrib:['Drible','Velocidade','Cruzamento']},
-    {pos:'Avançado',zona:'ATA',desc:'Referência ofensiva.',atrib:['Finalização','Jogo aéreo','Movimentos']},
-  ],
-  'Fut11':[
-    {pos:'Guarda-Redes',zona:'GR',desc:'Defende e inicia o jogo posicional.',atrib:['Reflexos','Posicionamento','Saída de bola']},
-    {pos:'Defesa Central',zona:'DEF',desc:'Liderança e antecipação.',atrib:['Cabeceamento','Antecipação','Liderança']},
-    {pos:'Defesa Direito',zona:'DEF',desc:'Projeção e cruzamento pela direita.',atrib:['Velocidade','Cruzamento','1v1 def.']},
-    {pos:'Defesa Esquerdo',zona:'DEF',desc:'Mesma função pela esquerda.',atrib:['Velocidade','Cruzamento','Duelação']},
-    {pos:'Médio Defensivo',zona:'MED',desc:'Proteção da defesa.',atrib:['Recuperação','Pressing','Passe']},
-    {pos:'Médio Centro',zona:'MED',desc:'Liga todos os setores.',atrib:['Passe longo','Leitura','Transições']},
-    {pos:'Médio Ofensivo',zona:'MED',desc:'Criatividade entre linhas.',atrib:['Criatividade','Visão','Remate']},
-    {pos:'Extremo Direito',zona:'ATA',desc:'Desequilíbrio pela direita.',atrib:['Drible','Velocidade','Finalização']},
-    {pos:'Extremo Esquerdo',zona:'ATA',desc:'Inversão pela esquerda.',atrib:['Drible','Inversão','Remate']},
-    {pos:'Avançado',zona:'ATA',desc:'Referência ofensiva máxima.',atrib:['Finalização','Movimentos','Jogo aéreo']},
-  ],
-};
-var SC_ZONA_COR={GR:'#ef4444',DEF:'#3b82f6',MED:'#eab308',ATA:'#22c55e'};
-
-/* ── UTILS ────────────────────────────────────────── */
-function el(id){return document.getElementById(id);}
-function v(id){var e=el(id);return e?e.value:'';}
-function mediaGeral(){var vals=Object.values(S.scores).filter(function(x){return x>0;});if(!vals.length)return null;return vals.reduce(function(a,b){return a+b;},0)/vals.length;}
-function mediaArea(ids){var vals=ids.map(function(id){return S.scores[id];}).filter(function(x){return x&&x>0;});if(!vals.length)return null;return(vals.reduce(function(a,b){return a+b;},0)/vals.length).toFixed(1);}
-function calcEIR(nascStr,cat){if(!nascStr||!cat)return null;var m=new Date(nascStr).getMonth();return{tri:m<3?"Q1":m<6?"Q2":m<9?"Q3":"Q4",van:m<3?"Vantagem máxima (+11 meses)":m<6?"Vantagem moderada":m<9?"Ligeira desvantagem":"EIR relevante — desvantagem máxima"};}
-function gerarNumRel(){return'YTB-'+new Date().getFullYear()+'-'+String(Math.floor(Math.random()*90000+10000));}
-function fmt(txt){return txt.replace(/\*\*(.+?)\*\*/g,'<strong style="color:var(--white);font-weight:700;">$1</strong>').split('\n').filter(function(l){return l.trim();}).map(function(l){return'<p style="margin-bottom:10px;">'+l+'</p>';}).join('');}
-
-/* ── POSITION UI ──────────────────────────────────── */
-function atualizarPosicoes(){
-  var fmt=v('sc-formato'),sel=el('sc-pos');
-  sel.innerHTML='<option value="">Selecionar...</option>';
-  if(fmt&&SC_FORMATOS[fmt])SC_FORMATOS[fmt].forEach(function(p){var o=document.createElement('option');o.value=p.pos;o.textContent=p.pos;sel.appendChild(o);});
-  el('scPerfilPos').style.display='none';
-  ['zona-gr','zona-def','zona-med','zona-ata'].forEach(function(id){var z=el(id);if(z){z.style.background='transparent';z.style.boxShadow='none';}});
-}
-function renderPerfil(){
-  var fmt=v('sc-formato'),pos=v('sc-pos');
-  if(!fmt||!pos||!SC_FORMATOS[fmt]){el('scPerfilPos').style.display='none';return;}
-  var info=SC_FORMATOS[fmt].find(function(p){return p.pos===pos;});
-  if(!info){el('scPerfilPos').style.display='none';return;}
-  el('scPerfilPos').style.display='block';
-  el('scPosNome').textContent=pos;
-  el('scPosZona').textContent={GR:'Guarda-Redes',DEF:'Linha Defensiva',MED:'Setor Médio',ATA:'Linha de Ataque'}[info.zona]||info.zona;
-  el('scPosDesc').textContent=info.desc;
-  el('scPosAtrib').innerHTML=info.atrib.map(function(a){return'<span style="font-size:9px;font-weight:600;padding:2px 8px;border-radius:100px;background:rgba(212,175,55,.1);color:var(--gold);border:1px solid rgba(212,175,55,.22);">'+a+'</span>';}).join('');
-  var zonas={GR:'zona-gr',DEF:'zona-def',MED:'zona-med',ATA:'zona-ata'};
-  Object.keys(zonas).forEach(function(z){var cor=SC_ZONA_COR[z],r=parseInt(cor.slice(1,3),16),g=parseInt(cor.slice(3,5),16),b=parseInt(cor.slice(5,7),16);var zEl=el(zonas[z]);if(!zEl)return;zEl.style.background=z===info.zona?'rgba('+r+','+g+','+b+',.35)':'transparent';zEl.style.boxShadow=z===info.zona?'inset 0 0 0 1px '+cor+'88':'none';});
-}
-
-/* ── BUILD CRITERIA ───────────────────────────────── */
-function buildCriterios(){
-  var cont=el('scCrit');if(!cont)return;
-  var html='',num=4;
-  Object.keys(SC_CRIT).forEach(function(key){
-    var area=SC_CRIT[key];
-    html+='<div class="sec"><div class="sec-t" style="color:'+area.cor+'">0'+num+' · '+area.label+' <span style="font-weight:300;letter-spacing:0;text-transform:none;font-size:9px;color:var(--dim);">('+area.items.length+' critérios)</span></div>';
-    area.items.forEach(function(it){
-      html+='<div class="crit-row"><span class="crit-lbl">'+it.l+'</span>';
-      html+='<div class="crit-btns" data-cid="'+it.id+'">';
-      [1,2,3,4,5].forEach(function(n){html+='<button class="cb s'+n+'" data-id="'+it.id+'" data-val="'+n+'">'+n+'</button>';});
-      html+='<button class="cb sna" data-id="'+it.id+'" data-val="0" style="font-size:8px;" title="N/A">N/A</button>';
-      html+='</div><span class="cv" id="cv-'+it.id+'">—</span></div>';
-    });
-    html+='</div>';num++;
-  });
-  el('scCrit').innerHTML=html;
-}
-
-/* ── RADAR CHART (SVG Pentágono) ──────────────────── */
-function drawRadar(areas){
-  // 5 pontos: Técnico, Tático, Físico, Mental + Geral no centro
-  // Usar 4 áreas nos 4 cantos de um losango mais círculo central para Geral
-  // Layout: N=Técnico, E=Físico, S=Mental, W=Tático + centro=Geral
-  var svg=el('radarSvg');
-  if(!svg)return;
-  var W=300,H=260,cx=150,cy=130,R=95;
-  var labels=Object.keys(SC_CRIT).map(function(k){return SC_CRIT[k].label;});
-  var values=Object.keys(SC_CRIT).map(function(k){return parseFloat(mediaArea(SC_CRIT[k].items.map(function(i){return i.id;}))||0);});
-  var colors=Object.keys(SC_CRIT).map(function(k){return SC_CRIT[k].cor;});
-  var n=values.length;
-  // Pentagon with 4+1 (we'll do 4-point diamond since we have 4 areas)
-  // Actually do a proper polygon with n points
-  var step=Math.PI*2/n;
-  var offset=-Math.PI/2; // start at top
-
-  var pts=values.map(function(val,i){
-    var angle=offset+step*i;
-    var r=(val/5)*R;
-    return{x:cx+Math.cos(angle)*r, y:cy+Math.sin(angle)*r};
-  });
-  var grid=[0.2,0.4,0.6,0.8,1.0];
-  var axisEnds=values.map(function(_,i){
-    var angle=offset+step*i;
-    return{x:cx+Math.cos(angle)*R, y:cy+Math.sin(angle)*R, lx:cx+Math.cos(angle)*(R+18), ly:cy+Math.sin(angle)*(R+18), angle:angle};
-  });
-
-  var html='';
-  // Background grid
-  grid.forEach(function(g){
-    var gpts=axisEnds.map(function(a){return(cx+Math.cos(Math.atan2(a.y-cy,a.x-cx))*R*g)+','+(cy+Math.sin(Math.atan2(a.y-cy,a.x-cx))*R*g);}).join(' ');
-    html+='<polygon points="'+gpts+'" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="1"/>';
-  });
-  // Axes
-  axisEnds.forEach(function(a){
-    html+='<line x1="'+cx+'" y1="'+cy+'" x2="'+a.x+'" y2="'+a.y+'" stroke="rgba(255,255,255,.08)" stroke-width="1"/>';
-  });
-  // Filled polygon
-  var polyPts=pts.map(function(p){return p.x+','+p.y;}).join(' ');
-  html+='<polygon points="'+polyPts+'" fill="rgba(212,175,55,.15)" stroke="#D4AF37" stroke-width="2" stroke-linejoin="round"/>';
-  // Data points
-  pts.forEach(function(p,i){
-    html+='<circle cx="'+p.x+'" cy="'+p.y+'" r="5" fill="'+colors[i]+'" stroke="#09090C" stroke-width="2"/>';
-  });
-  // Labels
-  axisEnds.forEach(function(a,i){
-    var anchor=Math.cos(a.angle)>0.1?'start':Math.cos(a.angle)<-0.1?'end':'middle';
-    html+='<text x="'+a.lx+'" y="'+(a.ly+4)+'" text-anchor="'+anchor+'" fill="'+colors[i]+'" font-family="Plus Jakarta Sans,sans-serif" font-size="10" font-weight="700">'+labels[i]+'</text>';
-    html+='<text x="'+a.lx+'" y="'+(a.ly+15)+'" text-anchor="'+anchor+'" fill="rgba(255,255,255,.5)" font-family="Plus Jakarta Sans,sans-serif" font-size="9">'+(values[i]?values[i].toFixed(1):'—')+'</text>';
-  });
-  svg.innerHTML=html;
-
-  // Legend
-  var legend=el('radarLegend');
-  if(legend){
-    legend.innerHTML=Object.keys(SC_CRIT).map(function(k,i){
-      var a=SC_CRIT[k],m=mediaArea(a.items.map(function(i){return i.id;}));
-      return'<div style="display:flex;align-items:center;gap:5px;font-size:10px;"><span style="width:8px;height:8px;border-radius:2px;background:'+a.cor+';flex-shrink:0;"></span><span style="color:var(--muted);">'+a.label+'</span><strong style="color:'+a.cor+';">'+(m||'—')+'</strong></div>';
-    }).join('');
-  }
-}
-
-/* ── TOP SKILLS + MELHORIAS ───────────────────────── */
-function calcTopSkills(){
-  var all=[];
-  Object.keys(SC_CRIT).forEach(function(k){
-    SC_CRIT[k].items.forEach(function(it){
-      var val=S.scores[it.id];
-      if(val&&val>0) all.push({label:it.l,val:val,area:SC_CRIT[k].label,cor:SC_CRIT[k].cor});
-    });
-  });
-  all.sort(function(a,b){return b.val-a.val;});
-  return{top:all.slice(0,3),bot:all.slice(-3).reverse()};
-}
-
-/* ── LOGIN ────────────────────────────────────────── */
-function loginScout(){
-  var pass=(v('scPass')||'').trim();
-  var found=CREDS.find(function(c){return c.pass===pass;});
-  if(found){
-    el('scErr').style.display='none';
-    el('scPass').value='';
-    S.role=found.role;S.nome=found.nome;
-    el('scBadge').textContent='Scout · '+S.nome;
-    el('vLogin').style.display='none';
-    buildCriterios();
-    el('vScout').classList.add('on');
-  } else {
-    el('scErr').style.display='block';
-    el('scPass').value='';el('scPass').focus();
-  }
-}
-
-/* ── GENERATE ─────────────────────────────────────── */
-async function gerarRelatorio(){
-  var nome=v('sc-nome').trim(),cat=v('sc-cat'),pos=v('sc-pos'),clube=v('sc-clube').trim();
-  var errEl=el('scErr2');
-  if(!nome||!cat||!pos||!clube){errEl.textContent='Preenche Nome, Clube, Escalão e Posição.';errEl.style.display='block';return;}
-  errEl.style.display='none';
-
-  var nasc=v('sc-nasc'),alt=v('sc-alt'),peso=v('sc-peso'),pe=v('sc-pe'),formato=v('sc-formato');
-  var camisa=v('sc-camisa'),estrutura=v('sc-estrutura'),maturacao=v('sc-maturacao');
-  var dobs=v('sc-dobs'),epoca=v('sc-epoca')||'2025/26';
-  var jogos=v('sc-jogos'),minutos=v('sc-minutos'),golos=v('sc-golos'),assist=v('sc-assist');
-  var classif=v('sc-classif'),zz=v('sc-zz'),obs=v('sc-obs').trim();
-  var eir=nasc?calcEIR(nasc,cat):null;
-  var numRel=gerarNumRel();
-
-  S.dados={nome,clube,cat,pos,formato,pe,alt,peso,camisa,estrutura,maturacao,epoca,scout:S.nome,nasc,dobs,numRel,jogos,minutos,golos,assist,classif,zz};
-
-  var notas='';
-  Object.keys(SC_CRIT).forEach(function(k){
-    var a=SC_CRIT[k];notas+=a.label+':\n';
-    a.items.forEach(function(it){var val=S.scores[it.id];notas+='  '+it.l+': '+(val&&val>0?val+'/5 ('+SC_LEG[val]+')':'N/A')+'\n';});
-  });
-
-  var mg=mediaGeral();
-  var prompt=[
-    "Scout sénior da YourTalentBase. Escreve Scout Report em português europeu com tom profissional de analista de alta performance.",
-    "ATLETA: "+nome+" | POSIÇÃO: "+pos+(pe?" · Pé "+pe:"")+(formato?" | FORMATO: "+formato:"")+(estrutura?" | ESTRUTURA: "+estrutura:""),
-    "ESCALÃO: "+cat+" · "+clube+(classif?" · "+classif:"")+((camisa)?" · Nº "+camisa:""),
-    "ÉPOCA: "+epoca+(alt?" | ALTURA: "+alt+"cm":"")+(peso?" | PESO: "+peso+"kg":"")+(maturacao?" | MATURAÇÃO: "+maturacao:""),
-    eir?"EIR: "+eir.tri+" — "+eir.van:"",
-    (jogos||minutos||golos||assist)?"DADOS ZeroZero: "+[jogos?"Jogos: "+jogos:"",minutos?"Min: "+minutos:"",golos?"Golos: "+golos:"",assist?"Ast: "+assist:""].filter(Boolean).join(" | "):"",
-    "SCOUT: "+S.nome+(dobs?" | DATA OBS: "+dobs:""),
-    "",
-    "AVALIAÇÃO (25 CRITÉRIOS):\n"+notas,
-    "MÉDIA GERAL: "+(mg?mg.toFixed(2)+"/5 ("+SC_LEG[Math.round(mg)]+")":"—"),
-    "RENDIMENTO: "+(S.rendimento||"—"),
-    "HORIZONTE: "+(S.prazo||"—"),
-    "DECISÃO: "+(S.decisao||"—"),
-    obs?"NOTAS DO SCOUT:\n"+obs:"",
-    "",
-    "Gera DUAS secções separadas exatamente por ###PERFIL###:",
-    "",
-    "SECÇÃO 1 — RELATÓRIO DE OBSERVAÇÃO:",
-    "**Estilo de Jogo** — como o atleta joga, características dominantes",
-    "**Pontos Fortes** — 3 pontos fortes com análise específica (usa os dados de avaliação)",
-    "**Áreas a Desenvolver** — 2 áreas com plano de ação concreto",
-    "**Recomendação Final** — conclusão e projeção fundamentada",
-    "Máx 380 palavras. Tom analítico e direto.",
-    "",
-    "###PERFIL###",
-    "",
-    "SECÇÃO 2 — PERFIL DE POSICIONAMENTO:",
-    "**Posição Principal:** [nome] — porque encaixa neste perfil",
-    "**Posição Alternativa:** [nome] — como pode ser utilizado",
-    "**Com Desenvolvimento:** [nome] — o que precisa desenvolver para chegar aí",
-    "Máx 250 palavras. Foco em características táticas observadas.",
-  ].filter(function(l){return l!=="";}).join("\n");
-
-  el('scForm').style.display='none';
-  el('scLoad').style.display='block';
-  el('scRes').style.display='none';
-
-  try{
-    var res=await fetch('/api/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'user',content:prompt}]})});
-    if(!res.ok){var er=await res.json();throw new Error(er.error||'Erro API');}
-    var data=await res.json();
-    if(!data.content) throw new Error('Resposta inválida da API');
-    var full=data.content.map(function(b){return b.text||'';}).join('\n');
-    var partes=full.split('###PERFIL###');
-    S.texto=partes[0]?partes[0].trim():'';
-    S.perfil=partes[1]?partes[1].trim():'';
-
-    try{
-      await db.from('relatorios').insert([{scout:S.nome,atleta:nome,clube,categoria:cat,posicao:pos,epoca,scores:S.scores,dados:S.dados,relatorio_texto:full,decisao:S.decisao,rendimento:S.rendimento,prazo:S.prazo,media_geral:mg?parseFloat(mg.toFixed(2)):null}]);
-    }catch(es){console.warn('Supabase:',es);}
-
-    mostrarResultado();
-  }catch(err){
-    el('scLoad').style.display='none';
-    el('scForm').style.display='block';
-    errEl.textContent='Erro: '+(err.message||'Tenta novamente.');
-    errEl.style.display='block';
-  }
-}
-
-/* ── SHOW RESULT ──────────────────────────────────── */
-function mostrarResultado(){
-  el('scLoad').style.display='none';
-  el('scRes').style.display='block';
-
-  var mg=mediaGeral();
-  var isElite=mg&&mg>4.2;
-
-  // Elite seal
-  el('eliteSeal').style.display=isElite?'block':'none';
-
-  // Header
-  el('resEpoca').textContent='Scout Report · '+S.dados.epoca;
-  el('resNumRel').textContent='Nº '+S.dados.numRel+' · '+new Date().toLocaleDateString('pt-PT',{day:'numeric',month:'long',year:'numeric'})+' · Scout: '+S.nome;
-  el('resNome').textContent=S.dados.nome||'—';
-  el('resSub').textContent=[S.dados.cat,S.dados.pos+(S.dados.pe?' · Pé '+S.dados.pe:''),S.dados.clube].filter(Boolean).join(' · ')+(S.dados.estrutura?' · '+S.dados.estrutura:'');
-  el('resMed').textContent=mg?mg.toFixed(1):'—';
-  el('resMedLbl').textContent=mg?SC_LEG[Math.round(mg)]:'';
-
-  // Meta chips
-  var metaEl=el('resMeta');
-  var chips=[];
-  if(S.dados.alt&&S.dados.peso) chips.push(S.dados.alt+'cm / '+S.dados.peso+'kg');
-  if(S.dados.camisa) chips.push('Nº '+S.dados.camisa);
-  if(S.dados.maturacao) chips.push(S.dados.maturacao.split(' ')[0]);
-  metaEl.innerHTML=chips.map(function(c){return'<span style="font-size:10px;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:3px 10px;color:var(--muted);">'+c+'</span>';}).join('');
-
-  // Dados competitivos
-  var dcEl=el('resDadosComp');
-  if(S.dados.jogos||S.dados.minutos||S.dados.golos||S.dados.assist){
-    dcEl.style.display='grid';
-    dcEl.style.gridTemplateColumns='repeat(4,1fr)';
-    dcEl.style.gap='8px';
-    dcEl.style.borderTop='1px solid var(--border)';
-    dcEl.style.paddingTop='14px';
-    dcEl.style.marginTop='14px';
-    dcEl.innerHTML=[{n:S.dados.jogos,l:'Jogos'},{n:S.dados.minutos,l:'Min'},{n:S.dados.golos,l:'Golos'},{n:S.dados.assist,l:'Ast'}].filter(function(d){return d.n;}).map(function(d){return'<div style="text-align:center;"><div style="font-family:\'Barlow Condensed\',sans-serif;font-size:24px;font-weight:900;line-height:1;">'+d.n+'</div><div style="font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px;">'+d.l+'</div></div>';}).join('');
-    if(S.dados.classif){dcEl.innerHTML+='<div style="grid-column:1/-1;font-size:10px;color:var(--muted);text-align:center;padding-top:6px;">Classificação: <strong style="color:var(--white);">'+S.dados.classif+'</strong></div>';}
-  } else {dcEl.style.display='none';}
-
-  // Radar
-  drawRadar();
-
-  // Top Skills + Melhorias
-  var skills=calcTopSkills();
-  el('topSkills').innerHTML=skills.top.map(function(s,i){return'<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);">'+'<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:16px;font-weight:900;color:#22c55e;">'+s.val+'/5</span>'+'<div><div style="font-size:12px;font-weight:600;">'+s.label+'</div><div style="font-size:9px;color:var(--muted);">'+s.area+'</div></div>'+'</div>';}).join('');
-  el('melhoriaSkills').innerHTML=skills.bot.map(function(s){return'<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);">'+'<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:16px;font-weight:900;color:#f97316;">'+s.val+'/5</span>'+'<div><div style="font-size:12px;font-weight:600;">'+s.label+'</div><div style="font-size:9px;color:var(--muted);">'+s.area+'</div></div>'+'</div>';}).join('');
-
-  // Áreas
-  var areasEl=el('resAreas');areasEl.innerHTML='';
-  Object.keys(SC_CRIT).forEach(function(k){
-    var a=SC_CRIT[k],m=mediaArea(a.items.map(function(i){return i.id;}));
-    var pct=parseFloat(m)?parseFloat(m)/5*100:0;
-    var div=document.createElement('div');
-    div.style.cssText='background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px;';
-    div.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">'+'<div style="font-size:10px;font-weight:700;color:'+a.cor+';">'+a.label+'</div>'+'<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:22px;font-weight:900;color:'+a.cor+';">'+(m||'—')+'</div>'+'</div>'+'<div style="background:var(--border);border-radius:2px;height:5px;overflow:hidden;">'+'<div style="height:100%;width:'+pct+'%;background:'+a.cor+';border-radius:2px;transition:width 1s;"></div>'+'</div>'+'<div style="font-size:8px;color:var(--muted);margin-top:5px;">'+a.items.length+' critérios avaliados</div>';
-    areasEl.appendChild(div);
-  });
-
-  // Decisão
-  el('resDecisao').innerHTML=(S.rendimento?'<div><div style="font-size:8px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:2px;">Rendimento</div><div style="font-size:13px;font-weight:600;">'+S.rendimento+'</div></div>':'')+(S.prazo?'<div><div style="font-size:8px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:2px;">Horizonte</div><div style="font-size:13px;font-weight:600;">'+S.prazo+'</div></div>':'')+(S.decisao?'<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:26px;font-weight:900;color:var(--gold);">'+S.decisao+'</div>':'');
-
-  // Textos IA
-  el('resTexto').innerHTML=fmt(S.texto);
-  if(S.perfil){el('resPerfil').style.display='block';el('resPerfilContent').innerHTML=fmt(S.perfil);}
-  else{el('resPerfil').style.display='none';}
-}
-
-/* ── RESET ────────────────────────────────────────── */
-function resetSc(){
-  S.scores={};S.rendimento='';S.prazo='';S.decisao='';S.texto='';S.perfil='';S.dados={};
-  el('scForm').style.display='block';el('scLoad').style.display='none';el('scRes').style.display='none';el('scErr2').style.display='none';
-  ['sc-nome','sc-clube','sc-epoca','sc-alt','sc-peso','sc-obs','sc-camisa','sc-jogos','sc-minutos','sc-golos','sc-assist','sc-classif','sc-zz'].forEach(function(id){var x=el(id);if(x)x.value='';});
-  ['sc-nasc','sc-dobs'].forEach(function(id){var x=el(id);if(x)x.value='';});
-  ['sc-cat','sc-pos','sc-pe','sc-formato','sc-estrutura','sc-maturacao'].forEach(function(id){var x=el(id);if(x)x.selectedIndex=0;});
-  el('scPerfilPos').style.display='none';
-  document.querySelectorAll('.cb').forEach(function(b){b.classList.remove('on');});
-  document.querySelectorAll('.cv').forEach(function(l){l.textContent='—';l.style.color='var(--dim)';});
-  document.querySelectorAll('.cls-btn').forEach(function(b){b.classList.remove('on');});
-}
-
-/* ── PDF ELITE ────────────────────────────────────── */
-function gerarPDF(){
-  var nome=S.dados.nome||'—',mg=mediaGeral(),numRel=S.dados.numRel||'YTB-????-?????';
-  var data=new Date().toLocaleDateString('pt-PT',{day:'2-digit',month:'long',year:'numeric'});
-  var isElite=mg&&mg>4.2;
-
-  // Build radar SVG for print (black bg version)
-  var n=Object.keys(SC_CRIT).length;
-  var step=Math.PI*2/n,offset=-Math.PI/2,W=220,H=200,cx=110,cy=100,R=75;
-  var values=Object.keys(SC_CRIT).map(function(k){return parseFloat(mediaArea(SC_CRIT[k].items.map(function(i){return i.id;}))||0);});
-  var colors=Object.keys(SC_CRIT).map(function(k){return SC_CRIT[k].cor;});
-  var labels=Object.keys(SC_CRIT).map(function(k){return SC_CRIT[k].label;});
-  var pts=values.map(function(val,i){var angle=offset+step*i,r=(val/5)*R;return{x:cx+Math.cos(angle)*r,y:cy+Math.sin(angle)*r};});
-  var axisEnds=values.map(function(_,i){var angle=offset+step*i;return{x:cx+Math.cos(angle)*R,y:cy+Math.sin(angle)*R,lx:cx+Math.cos(angle)*(R+16),ly:cy+Math.sin(angle)*(R+16),angle:angle};});
-  var gridSvg='';
-  [.2,.4,.6,.8,1].forEach(function(g){var gp=axisEnds.map(function(a){return(cx+Math.cos(Math.atan2(a.y-cy,a.x-cx))*R*g)+','+(cy+Math.sin(Math.atan2(a.y-cy,a.x-cx))*R*g);}).join(' ');gridSvg+='<polygon points="'+gp+'" fill="none" stroke="#ddd" stroke-width=".5"/>';});
-  axisEnds.forEach(function(a){gridSvg+='<line x1="'+cx+'" y1="'+cy+'" x2="'+a.x+'" y2="'+a.y+'" stroke="#ddd" stroke-width=".5"/>';});
-  var polyPts=pts.map(function(p){return p.x+','+p.y;}).join(' ');
-  gridSvg+='<polygon points="'+polyPts+'" fill="rgba(212,175,55,.2)" stroke="#D4AF37" stroke-width="2" stroke-linejoin="round"/>';
-  pts.forEach(function(p,i){gridSvg+='<circle cx="'+p.x+'" cy="'+p.y+'" r="4" fill="'+colors[i]+'" stroke="#fff" stroke-width="1.5"/>';});
-  axisEnds.forEach(function(a,i){var anchor=Math.cos(a.angle)>0.1?'start':Math.cos(a.angle)<-0.1?'end':'middle';gridSvg+='<text x="'+a.lx+'" y="'+(a.ly+4)+'" text-anchor="'+anchor+'" fill="'+colors[i]+'" font-family="Arial,sans-serif" font-size="9" font-weight="700">'+labels[i]+'</text>';gridSvg+='<text x="'+a.lx+'" y="'+(a.ly+14)+'" text-anchor="'+anchor+'" fill="#888" font-family="Arial,sans-serif" font-size="8">'+(values[i]?values[i].toFixed(1):'—')+'</text>';});
-  var radarSvgStr='<svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'">'+gridSvg+'</svg>';
-
-  // HTML
-  var h='<!DOCTYPE html><html lang="pt"><head><meta charset="UTF-8"><title>Scout Report — '+nome+'</title>';
-  h+='<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">';
-  h+='<style>';
-  h+='*{margin:0;padding:0;box-sizing:border-box;}';
-  h+='body{font-family:"Plus Jakarta Sans",sans-serif;background:#fff;color:#111;font-size:11.5px;line-height:1.5;}';
-  // Header
-  h+='.hdr{background:#09090C;padding:18px 28px;display:flex;justify-content:space-between;align-items:flex-start;}';
-  h+='.hdr-logo{display:flex;align-items:center;gap:10px;}';
-  h+='.hdr-badge{width:40px;height:40px;background:#D4AF37;border-radius:5px;display:flex;align-items:center;justify-content:center;font-family:"Barlow Condensed",sans-serif;font-size:11px;font-weight:900;color:#000;}';
-  h+='.hdr-name{font-family:"Barlow Condensed",sans-serif;font-size:20px;font-weight:900;color:#fff;letter-spacing:1px;text-transform:uppercase;}';
-  h+='.hdr-name span{color:#D4AF37;}';
-  h+='.hdr-sub{font-size:8px;color:#888;letter-spacing:2px;text-transform:uppercase;margin-top:2px;}';
-  h+='.hdr-right{text-align:right;color:#888;}';
-  h+='.hdr-right .scout-name{font-size:11px;font-weight:700;color:#D4AF37;margin-bottom:2px;}';
-  h+='.hdr-right .rep-num{font-size:9px;color:#666;}';
-  h+='.elite-badge{display:inline-block;background:linear-gradient(135deg,#D4AF37,#f0cc5e);color:#000;font-family:"Barlow Condensed",sans-serif;font-size:10px;font-weight:900;letter-spacing:2px;text-transform:uppercase;padding:3px 10px;border-radius:3px;margin-top:4px;}';
-  h+='.strip{height:3px;background:linear-gradient(90deg,#1A56DB,#D4AF37);}';
-  h+='.body{padding:18px 28px;}';
-  // Atleta section
-  h+='.atleta-row{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:14px;border-bottom:2px solid #eee;margin-bottom:16px;}';
-  h+='.atleta-nome{font-family:"Barlow Condensed",sans-serif;font-size:38px;font-weight:900;line-height:1;}';
-  h+='.atleta-meta{font-size:10px;color:#666;margin-top:4px;}';
-  h+='.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;}';
-  h+='.chip{background:#f5f5f5;border:1px solid #e0e0e0;border-radius:3px;padding:4px 8px;text-align:center;}';
-  h+='.chip-n{font-family:"Barlow Condensed",sans-serif;font-size:15px;font-weight:900;line-height:1;}';
-  h+='.chip-l{font-size:7px;color:#999;text-transform:uppercase;letter-spacing:1px;margin-top:1px;}';
-  h+='.media-col{text-align:center;background:#09090C;border-radius:6px;padding:10px 18px;min-width:80px;}';
-  h+='.media-n{font-family:"Barlow Condensed",sans-serif;font-size:40px;font-weight:900;color:#D4AF37;line-height:1;}';
-  h+='.media-l{font-size:7px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-top:2px;}';
-  h+='.media-lbl{font-size:10px;color:#aaa;margin-top:2px;}';
-  // Stats
-  h+='.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;}';
-  h+='.stat{background:#f9f9f9;border:1px solid #eee;border-radius:4px;padding:8px;text-align:center;}';
-  h+='.stat-n{font-family:"Barlow Condensed",sans-serif;font-size:20px;font-weight:900;line-height:1;}';
-  h+='.stat-l{font-size:7px;color:#999;text-transform:uppercase;letter-spacing:1px;margin-top:1px;}';
-  // Radar + areas
-  h+='.radar-areas{display:grid;grid-template-columns:220px 1fr;gap:16px;margin-bottom:14px;align-items:start;}';
-  h+='.areas-list{display:flex;flex-direction:column;gap:8px;}';
-  h+='.area-item{display:flex;align-items:center;gap:8px;}';
-  h+='.area-label{font-size:9px;font-weight:700;width:70px;text-transform:uppercase;letter-spacing:.5px;}';
-  h+='.area-bar-wrap{flex:1;background:#eee;border-radius:2px;height:6px;overflow:hidden;}';
-  h+='.area-bar-fill{height:100%;border-radius:2px;}';
-  h+='.area-val{font-family:"Barlow Condensed",sans-serif;font-size:16px;font-weight:900;min-width:28px;text-align:right;}';
-  // Skills
-  h+='.skills-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}';
-  h+='.skills-box{border:1px solid #eee;border-radius:4px;padding:10px;}';
-  h+='.skills-title{font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid #eee;}';
-  h+='.skill-row{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:10px;}';
-  h+='.skill-val{font-family:"Barlow Condensed",sans-serif;font-size:15px;font-weight:900;min-width:24px;}';
-  // Decisão
-  h+='.decisao-row{background:#f9f9f9;border:1px solid #eee;border-radius:4px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;}';
-  h+='.dec-block{} .dec-label{font-size:7px;color:#999;text-transform:uppercase;letter-spacing:1px;margin-bottom:1px;} .dec-val{font-size:12px;font-weight:600;}';
-  h+='.dec-decisao{font-family:"Barlow Condensed",sans-serif;font-size:22px;font-weight:900;color:#D4AF37;}';
-  // Relatório
-  h+='.section-hdr{background:#09090C;color:#D4AF37;padding:7px 14px;border-radius:3px 3px 0 0;font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;}';
-  h+='.section-body{border:1px solid #ddd;border-top:none;border-radius:0 0 3px 3px;padding:12px 14px;margin-bottom:14px;font-size:11px;color:#333;line-height:1.85;}';
-  h+='.section-body strong{font-weight:700;color:#111;}';
-  // Critérios tabela
-  h+='.crit-table{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:9.5px;}';
-  h+='.crit-table th{background:#f0f0f0;padding:5px 8px;text-align:left;font-weight:700;letter-spacing:.5px;font-size:8px;text-transform:uppercase;border:1px solid #ddd;}';
-  h+='.crit-table td{padding:4px 8px;border:1px solid #e8e8e8;}';
-  h+='.crit-table tr:nth-child(even) td{background:#fafafa;}';
-  h+='.crit-group-hdr td{background:#222!important;color:#D4AF37;font-weight:700;font-size:8px;letter-spacing:1px;text-transform:uppercase;}';
-  // Footer
-  h+='.wm{font-size:8px;color:#bbb;text-align:center;padding:12px 0 4px;border-top:1px solid #eee;margin-top:10px;line-height:1.8;}';
-  h+='.wm strong{color:#999;}';
-  h+='@media print{body{margin:0;}#pbtn{display:none!important;}.page-break{page-break-before:always;padding-top:16px;}}';
-  h+='</style></head><body>';
-
-  // ── HEADER
-  h+='<div class="hdr">';
-  h+='<div class="hdr-logo"><div class="hdr-badge">YTB</div><div><div class="hdr-name">Your<span>Talent</span>Base</div><div class="hdr-sub">Scouting · Porto · Portugal</div>'+(isElite?'<div class="elite-badge">⭐ Potencial Elite</div>':'')+'</div></div>';
-  h+='<div class="hdr-right"><div class="scout-name">Scout: '+S.nome+'</div><div class="rep-num">Nº '+numRel+'</div><div class="rep-num">'+S.dados.epoca+' · '+data+'</div></div>';
-  h+='</div><div class="strip"></div>';
-
-  // ── BODY
-  h+='<div class="body">';
-
-  // Atleta
-  h+='<div class="atleta-row">';
-  h+='<div><div class="atleta-nome">'+nome+'</div>';
-  h+='<div class="atleta-meta">'+[S.dados.cat,S.dados.pos+(S.dados.pe?' · Pé '+S.dados.pe:''),S.dados.clube].filter(Boolean).join(' · ')+(S.dados.estrutura?' · '+S.dados.estrutura:'')+'</div>';
-  var pchips=[];
-  if(S.dados.alt&&S.dados.peso)pchips.push({n:S.dados.alt+'/'+S.dados.peso,l:'cm / kg'});
-  if(S.dados.camisa)pchips.push({n:'Nº'+S.dados.camisa,l:'Camisola'});
-  if(S.dados.maturacao)pchips.push({n:S.dados.maturacao.split(' ')[0],l:'Maturação'});
-  if(pchips.length){h+='<div class="chips">'+pchips.map(function(c){return'<div class="chip"><div class="chip-n">'+c.n+'</div><div class="chip-l">'+c.l+'</div></div>';}).join('')+'</div>';}
-  h+='</div>';
-  h+='<div class="media-col"><div class="media-n">'+(mg?mg.toFixed(1):'—')+'</div><div class="media-l">Média</div><div class="media-lbl">'+(mg?SC_LEG[Math.round(mg)]:'—')+'</div></div>';
-  h+='</div>';
-
-  // Stats ZZ
-  if(S.dados.jogos||S.dados.minutos||S.dados.golos||S.dados.assist){
-    h+='<div style="font-size:7px;color:#999;letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;">Dados Competitivos · ZeroZero'+(S.dados.classif?' <span style="color:#D4AF37;">'+S.dados.classif+'</span>':'')+'</div>';
-    h+='<div class="stats-row">';
-    [{n:S.dados.jogos,l:'Jogos'},{n:S.dados.minutos,l:'Minutos'},{n:S.dados.golos,l:'Golos'},{n:S.dados.assist,l:'Assist.'}].forEach(function(d){if(d.n)h+='<div class="stat"><div class="stat-n">'+d.n+'</div><div class="stat-l">'+d.l+'</div></div>';});
-    h+='</div>';
-  }
-
-  // Radar + áreas
-  h+='<div class="radar-areas">';
-  h+='<div>'+radarSvgStr+'</div>';
-  h+='<div class="areas-list">';
-  Object.keys(SC_CRIT).forEach(function(k){
-    var a=SC_CRIT[k],m=mediaArea(a.items.map(function(i){return i.id;}));
-    var pct=parseFloat(m)?parseFloat(m)/5*100:0;
-    h+='<div class="area-item"><div class="area-label" style="color:'+a.cor+';">'+a.label+'</div><div class="area-bar-wrap"><div class="area-bar-fill" style="width:'+pct+'%;background:'+a.cor+';"></div></div><div class="area-val" style="color:'+a.cor+';">'+(m||'—')+'</div></div>';
-  });
-  h+='</div></div>';
-
-  // Top skills + melhorias
-  var sk=calcTopSkills();
-  h+='<div class="skills-row">';
-  h+='<div class="skills-box"><div class="skills-title" style="color:#22c55e;">🏆 Top 3 Skills</div>';
-  sk.top.forEach(function(s){h+='<div class="skill-row"><span class="skill-val" style="color:#22c55e;">'+s.val+'</span><span style="font-weight:600;">'+s.label+'</span><span style="color:#999;margin-left:auto;font-size:9px;">'+s.area+'</span></div>';});
-  h+='</div>';
-  h+='<div class="skills-box"><div class="skills-title" style="color:#f97316;">⚠ Pontos de Melhoria</div>';
-  sk.bot.forEach(function(s){h+='<div class="skill-row"><span class="skill-val" style="color:#f97316;">'+s.val+'</span><span style="font-weight:600;">'+s.label+'</span><span style="color:#999;margin-left:auto;font-size:9px;">'+s.area+'</span></div>';});
-  h+='</div></div>';
-
-  // Decisão
-  h+='<div class="decisao-row">';
-  if(S.rendimento)h+='<div class="dec-block"><div class="dec-label">Rendimento</div><div class="dec-val">'+S.rendimento+'</div></div>';
-  if(S.prazo)h+='<div class="dec-block"><div class="dec-label">Horizonte</div><div class="dec-val">'+S.prazo+'</div></div>';
-  if(S.decisao)h+='<div class="dec-decisao">'+S.decisao+'</div>';
-  h+='</div>';
-
-  // Relatório
-  if(S.texto){
-    h+='<div class="section-hdr">Relatório de Observação · YourTalentBase</div>';
-    h+='<div class="section-body">'+S.texto.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>')+'</div>';
-  }
-
-  // PAGE 2
-  h+='<div class="page-break">';
-  h+='<div style="font-size:8px;color:#999;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">Grelha de Avaliação Detalhada · 25 Critérios</div>';
-  h+='<table class="crit-table"><tr><th>Critério</th><th>Nota</th><th>Classificação</th><th>Área</th></tr>';
-  Object.keys(SC_CRIT).forEach(function(k){
-    var a=SC_CRIT[k],m=mediaArea(a.items.map(function(i){return i.id;}));
-    h+='<tr class="crit-group-hdr"><td colspan="4">'+a.label+' · Média: '+(m||'—')+'/5</td></tr>';
-    a.items.forEach(function(it){
-      var val=S.scores[it.id];
-      h+='<tr><td>'+it.l+'</td><td style="font-weight:700;color:'+(val&&val>0?SC_COR[val]:'#999')+';">'+(val&&val>0?val+'/5':'N/A')+'</td><td>'+(val&&val>0?SC_LEG[val]:'—')+'</td><td style="color:'+a.cor+';">'+a.label+'</td></tr>';
-    });
-  });
-  h+='</table>';
-
-  // Perfil posicionamento
-  if(S.perfil){
-    h+='<div class="section-hdr">Perfil de Posicionamento · YourTalentBase</div>';
-    h+='<div class="section-body">'+S.perfil.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>')+'</div>';
-  }
-
-  h+='</div>'; // page-break
-
-  // Footer
-  h+='<div class="wm">YourTalentBase · yourtalentbase.pt · yourtalentbase@gmail.com · Porto, Portugal<br>';
-  h+=numRel+' · Scout: '+S.nome+' · '+data+'<br>';
-  h+='<strong>DOCUMENTO CONFIDENCIAL · PROPRIEDADE DA YOURTALENTBASE · NÃO REPRODUZIR SEM AUTORIZAÇÃO</strong></div>';
-  h+='</div>'; // body
-
-  h+='<button id="pbtn" onclick="window.print()" style="position:fixed;bottom:20px;right:20px;background:#D4AF37;color:#000;padding:12px 24px;border:none;border-radius:6px;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 4px 20px rgba(212,175,55,.4);z-index:999;">🖨 Imprimir / PDF</button>';
-  h+='</body></html>';
-
-  var w=window.open('','_blank','width=960,height=720');
-  if(w){w.document.write(h);w.document.close();}
-  else{alert('Permite popups para gerar o PDF.');}
-}
-
-/* ── EVENTS ───────────────────────────────────────── */
-document.addEventListener('click',function(e){
-  var t=e.target;
-  if(t.id==='btnLogin'){loginScout();return;}
-  if(t.id==='btnSair'){el('vScout').classList.remove('on');el('vLogin').style.display='';resetSc();S.role=null;S.nome='';return;}
-  if(t.id==='btnGerar'){gerarRelatorio();return;}
-  if(t.id==='btnPDF'){gerarPDF();return;}
-  if(t.id==='btnNovo'){resetSc();window.scrollTo(0,0);return;}
-  if(t.classList.contains('cb')){
-    var sid=t.dataset.id,sval=parseInt(t.dataset.val);
-    if(sval===0){delete S.scores[sid];}else{S.scores[sid]=sval;}
-    var lbl=el('cv-'+sid);
-    if(lbl){if(sval===0){lbl.textContent='N/A';lbl.style.color='var(--dim)';}else{lbl.textContent=sval+' · '+SC_LEG[sval];lbl.style.color=SC_COR[sval];}}
-    var grp=t.closest('[data-cid]');
-    if(grp)grp.querySelectorAll('.cb').forEach(function(b){b.classList.remove('on');});
-    t.classList.add('on');return;
-  }
-  if(t.classList.contains('cls-btn')){
-    var gn=t.dataset.grp,val=t.dataset.val;
-    if(gn==='rendimento')S.rendimento=val;else if(gn==='prazo')S.prazo=val;else if(gn==='decisao')S.decisao=val;
-    var ge=el('grp'+gn.charAt(0).toUpperCase()+gn.slice(1));
-    if(ge){ge.querySelectorAll('.cls-btn').forEach(function(b){b.classList.remove('on');});t.classList.add('on');}
-    return;
-  }
-});
-
-document.addEventListener('keydown',function(e){if(e.key==='Enter'&&document.activeElement===el('scPass'))loginScout();});
-
-document.addEventListener('DOMContentLoaded',function(){
-  var fmtSel=el('sc-formato'),posSel=el('sc-pos');
-  if(fmtSel)fmtSel.addEventListener('change',atualizarPosicoes);
-  if(posSel)posSel.addEventListener('change',renderPerfil);
-  var today=new Date().toISOString().slice(0,10);
-  if(el('sc-dobs'))el('sc-dobs').value=today;
-  if(el('sc-epoca'))el('sc-epoca').value='2025/26';
-});
-
-})();
-
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function() {
-    navigator.serviceWorker.register('/sw-scout.js', { scope: '/scout-report.html' })
-      .catch(function(e) { console.warn('SW scout:', e); });
-  });
-}
-</script>
 </body>
 </html>

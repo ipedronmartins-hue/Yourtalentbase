@@ -8,128 +8,75 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{
-  --bg:#080C08; --bg2:#0F1410; --bg3:#161D17;
-  --gold:#D4AF37; --gold-soft:rgba(212,175,55,.15); --gold-border:rgba(212,175,55,.3);
-  --green:#00D46A; --border:#1F2520; --white:#fff; --slate:#aaa; --muted:#666;
-}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--white);min-height:100vh;padding:20px}
-.wrap{max-width:520px;margin:0 auto}
-.header{text-align:center;margin-bottom:24px}
-.logo{display:inline-flex;align-items:center;gap:10px;margin-bottom:18px}
-.logo-badge{width:32px;height:32px;background:var(--gold);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:900;font-size:13px;color:#000}
-.logo-name{font-family:'Barlow Condensed';font-weight:800;font-size:18px;letter-spacing:1.5px}
-.logo-name span{color:var(--gold)}
-.title{font-family:'Barlow Condensed';font-weight:900;font-size:36px;line-height:1;letter-spacing:-1px;margin-bottom:6px}
+:root{--bg:#080C08;--bg2:#0F1410;--bg3:#161D17;--gold:#D4AF37;--gold-soft:rgba(212,175,55,.15);--gold-border:rgba(212,175,55,.3);--green:#00D46A;--border:#1F2520;--white:#fff;--slate:#aaa;--muted:#666}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--white);min-height:100vh;max-width:520px;margin:0 auto;padding-bottom:40px}
+.nav{position:sticky;top:0;z-index:50;background:rgba(8,12,8,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:14px 18px;display:flex;align-items:center;justify-content:space-between}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-badge{width:32px;height:32px;background:var(--gold);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:900;font-size:13px;color:#000}
+.nav-name{font-family:'Barlow Condensed';font-weight:800;font-size:18px;letter-spacing:1.5px;color:#fff}
+.nav-name span{color:var(--gold)}
+.nav-back{font-size:12px;color:var(--slate);text-decoration:none}
+.hero{padding:28px 22px 20px;text-align:center}
+.title{font-family:'Barlow Condensed';font-weight:900;font-size:38px;line-height:1;letter-spacing:-1px;margin-bottom:8px}
 .title span{color:var(--gold)}
-.sub{font-size:13px;color:var(--slate);font-weight:300}
-
-.form{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:22px;margin-bottom:18px}
-.form-section{margin-bottom:24px}
-.form-section:last-child{margin-bottom:0}
-.section-title{font-size:10px;font-weight:800;letter-spacing:2.5px;color:var(--gold);text-transform:uppercase;margin-bottom:14px}
-
-.field{margin-bottom:14px}
-.label{display:block;font-size:11px;font-weight:700;letter-spacing:1px;color:var(--white);margin-bottom:6px;text-transform:uppercase}
+.sub{font-size:13px;color:var(--slate);line-height:1.55}
+.form{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;margin:16px 18px}
+.section-title{font-size:9px;font-weight:800;letter-spacing:2.5px;color:var(--gold);text-transform:uppercase;margin-bottom:14px}
+.field{margin-bottom:12px}
+.label{display:block;font-size:10px;font-weight:700;letter-spacing:1px;color:#fff;margin-bottom:5px;text-transform:uppercase}
 .label small{color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px;font-size:10px}
-.input,.select,.textarea{
-  width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;
-  padding:12px 14px;font-size:14px;color:var(--white);font-family:inherit;outline:none;
-  transition:border-color .15s
-}
-.input:focus,.select:focus,.textarea:focus{border-color:var(--gold)}
-.textarea{resize:vertical;min-height:80px}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-
-.upload-area{
-  background:var(--bg3);border:2px dashed var(--border);border-radius:10px;
-  padding:28px 14px;text-align:center;cursor:pointer;transition:all .15s
-}
-.upload-area:hover{border-color:var(--gold);background:rgba(212,175,55,.04)}
-.upload-area.has-file{border-color:var(--gold);border-style:solid;background:rgba(212,175,55,.06)}
-.upload-icon{font-size:32px;margin-bottom:8px}
-.upload-text{font-size:13px;color:var(--white);font-weight:600;margin-bottom:3px}
-.upload-hint{font-size:11px;color:var(--muted)}
-#foto-input{display:none}
-.foto-preview{max-width:140px;max-height:140px;border-radius:10px;margin:8px auto;display:none}
-.foto-preview.show{display:block}
-
-/* Plano cards */
-.plano-cards{display:flex;flex-direction:column;gap:10px;margin-top:6px}
-.plano-card{
-  background:var(--bg3);border:2px solid var(--border);border-radius:12px;
-  padding:14px 16px;cursor:pointer;transition:all .15s
-}
-.plano-card.active{border-color:var(--gold);background:rgba(212,175,55,.08)}
-.plano-card-header{display:flex;justify-content:space-between;align-items:start;margin-bottom:6px}
-.plano-name{font-family:'Barlow Condensed';font-weight:900;font-size:18px;color:var(--white)}
-.plano-price{font-family:'Barlow Condensed';font-weight:900;font-size:18px;color:var(--gold)}
-.plano-desc{font-size:12px;color:var(--slate);line-height:1.5}
-.plano-radio{display:none}
-
-.btn{
-  width:100%;background:var(--gold);color:#000;border:none;
-  padding:15px;border-radius:10px;font-size:14px;font-weight:800;
-  letter-spacing:1px;text-transform:uppercase;cursor:pointer;
-  font-family:inherit;transition:all .15s
-}
-.btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(212,175,55,.3)}
-.btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
-
-.success{
-  background:linear-gradient(135deg,rgba(0,212,106,.1),rgba(0,212,106,.04));
-  border:1px solid rgba(0,212,106,.3);border-radius:12px;
-  padding:24px;text-align:center;display:none
-}
-.success.show{display:block}
-.success-icon{font-size:48px;margin-bottom:14px}
+.input,.select{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:11px 13px;font-size:14px;color:#fff;font-family:inherit;outline:none;transition:border-color .15s}
+.input:focus,.select:focus{border-color:var(--gold)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.plano-cards{display:flex;flex-direction:column;gap:8px}
+.plano-card{background:var(--bg3);border:2px solid var(--border);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all .15s}
+.plano-card.active{border-color:var(--gold);background:rgba(212,175,55,.06)}
+.plano-name{font-family:'Barlow Condensed';font-weight:900;font-size:17px;color:#fff}
+.plano-price{font-family:'Barlow Condensed';font-weight:900;font-size:17px;color:var(--gold)}
+.plano-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.plano-desc{font-size:11px;color:var(--slate);line-height:1.45}
+.btn{width:100%;background:var(--gold);color:#000;border:none;padding:15px;border-radius:10px;font-size:14px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;font-family:inherit;transition:all .15s;margin:0 18px;width:calc(100% - 36px)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.error-box{background:rgba(255,80,80,.1);border:1px solid rgba(255,80,80,.3);color:#ff8080;padding:10px 14px;border-radius:8px;font-size:12px;margin:0 18px 12px;display:none}
+.success{background:linear-gradient(135deg,rgba(0,212,106,.1),rgba(0,212,106,.04));border:1px solid rgba(0,212,106,.3);border-radius:12px;padding:24px;margin:16px 18px;text-align:center;display:none}
+.success-icon{font-size:48px;margin-bottom:12px}
 .success-title{font-family:'Barlow Condensed';font-weight:900;font-size:24px;color:var(--green);margin-bottom:8px}
-.success-text{font-size:13px;color:var(--white);line-height:1.6;margin-bottom:14px}
-.wa-btn{display:inline-flex;align-items:center;gap:8px;background:#25D366;color:#000;padding:12px 22px;border-radius:100px;text-decoration:none;font-weight:700;font-size:13px}
-
-.error-msg{
-  background:rgba(255,80,80,.1);border:1px solid rgba(255,80,80,.3);
-  color:#ff8080;padding:10px 14px;border-radius:8px;font-size:12px;margin-bottom:14px;display:none
-}
-.error-msg.show{display:block}
-
-.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(0,0,0,.3);border-top-color:#000;border-radius:50%;animation:spin .6s linear infinite;margin-right:8px;vertical-align:-2px}
+.success-text{font-size:13px;color:#fff;line-height:1.6;margin-bottom:16px}
+.wa-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:#25D366;color:#000;padding:12px 22px;border-radius:100px;text-decoration:none;font-weight:800;font-size:13px}
+.spinner{display:inline-block;width:12px;height:12px;border:2px solid rgba(0,0,0,.3);border-top-color:#000;border-radius:50%;animation:spin .6s linear infinite;margin-right:6px}
 @keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
-<div class="wrap">
 
-<div class="header">
-  <div class="logo">
-    <div class="logo-badge">YT</div>
-    <div class="logo-name">Your<span>Talent</span>Base</div>
-  </div>
+<nav class="nav">
+  <a href="/" class="nav-logo">
+    <div class="nav-badge">YT</div>
+    <div class="nav-name">Your<span>Talent</span>Base</div>
+  </a>
+  <a href="/" class="nav-back">← Voltar</a>
+</nav>
+
+<div class="hero">
   <div class="title">Inscrever <span>Atleta</span></div>
-  <div class="sub">Preenche os dados do teu filho. Nós tratamos do resto.</div>
+  <div class="sub">Preenche os dados. Tratamos do resto em 48h.</div>
 </div>
 
 <div id="form-view">
-<form class="form" id="form-inscricao">
-
-  <div class="error-msg" id="error-box"></div>
-
-  <div class="form-section">
+  <div class="form">
     <div class="section-title">⚽ Sobre o atleta</div>
-    
     <div class="field">
       <label class="label">Nome completo</label>
-      <input class="input" id="atleta_nome" type="text" required>
+      <input class="input" id="f_nome" type="text" placeholder="Nome do atleta">
     </div>
-
     <div class="row">
       <div class="field">
         <label class="label">Data nascimento</label>
-        <input class="input" id="atleta_data_nascimento" type="date" required>
+        <input class="input" id="f_nasc" type="date">
       </div>
       <div class="field">
         <label class="label">Pé dominante</label>
-        <select class="select" id="atleta_pe">
+        <select class="select" id="f_pe">
           <option value="">--</option>
           <option value="D">Direito</option>
           <option value="E">Esquerdo</option>
@@ -137,15 +84,14 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
         </select>
       </div>
     </div>
-
     <div class="field">
-      <label class="label">Posição habitual</label>
-      <select class="select" id="atleta_posicao">
+      <label class="label">Posição</label>
+      <select class="select" id="f_pos">
         <option value="">Selecciona...</option>
         <option value="GR">Guarda-Redes</option>
         <option value="DC">Defesa Central</option>
-        <option value="DLD">Defesa Lateral Direito</option>
-        <option value="DLE">Defesa Lateral Esquerdo</option>
+        <option value="DLD">Lateral Direito</option>
+        <option value="DLE">Lateral Esquerdo</option>
         <option value="MD">Médio Defensivo</option>
         <option value="MI">Médio Interior</option>
         <option value="MO">Médio Ofensivo</option>
@@ -154,107 +100,74 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
         <option value="AV">Avançado</option>
       </select>
     </div>
-
     <div class="row">
       <div class="field">
-        <label class="label">Clube actual</label>
-        <input class="input" id="atleta_clube" type="text">
+        <label class="label">Clube</label>
+        <input class="input" id="f_clube" type="text">
       </div>
       <div class="field">
         <label class="label">Escalão</label>
-        <select class="select" id="atleta_escalao">
+        <select class="select" id="f_esc">
           <option value="">--</option>
-          <option value="Sub-9">Sub-9</option>
-          <option value="Sub-10">Sub-10</option>
-          <option value="Sub-11">Sub-11</option>
-          <option value="Sub-12">Sub-12</option>
-          <option value="Sub-13">Sub-13</option>
-          <option value="Sub-14">Sub-14</option>
-          <option value="Sub-15">Sub-15</option>
-          <option value="Sub-16">Sub-16</option>
-          <option value="Sub-17">Sub-17</option>
-          <option value="Sub-19">Sub-19</option>
+          <option>Sub-9</option><option>Sub-10</option><option>Sub-11</option>
+          <option>Sub-12</option><option>Sub-13</option><option>Sub-14</option>
+          <option>Sub-15</option><option>Sub-16</option><option>Sub-17</option><option>Sub-19</option>
         </select>
       </div>
     </div>
-
-    <div class="field">
-      <label class="label">Foto do atleta <small>(opcional, max 5MB)</small></label>
-      <label class="upload-area" id="upload-area" for="foto-input">
-        <div class="upload-icon">📸</div>
-        <div class="upload-text" id="upload-text">Toca para escolher foto</div>
-        <div class="upload-hint">JPG ou PNG · Tamanho ideal 800x800</div>
-        <img class="foto-preview" id="foto-preview" alt="Pré-visualização">
-      </label>
-      <input id="foto-input" type="file" accept="image/jpeg,image/png,image/webp">
-    </div>
   </div>
 
-  <div class="form-section">
-    <div class="section-title">👨‍👧 Encarregado de educação</div>
-    
+  <div class="form" style="margin-top:0">
+    <div class="section-title">👨‍👧 Encarregado</div>
     <div class="field">
       <label class="label">O teu nome</label>
-      <input class="input" id="enc_nome" type="text" required>
+      <input class="input" id="f_enc_nome" type="text">
     </div>
-
     <div class="field">
       <label class="label">Email</label>
-      <input class="input" id="enc_email" type="email" required>
+      <input class="input" id="f_email" type="email">
     </div>
-
     <div class="field">
-      <label class="label">Telefone <small>(WhatsApp)</small></label>
-      <input class="input" id="enc_telefone" type="tel" placeholder="912 345 678">
+      <label class="label">Telefone <small>WhatsApp</small></label>
+      <input class="input" id="f_tel" type="tel" placeholder="9XX XXX XXX">
     </div>
   </div>
 
-  <div class="form-section">
+  <div class="form" style="margin-top:0">
     <div class="section-title">💼 Plano</div>
-    
     <div class="plano-cards">
-      <label class="plano-card active" data-plano="sem_visibilidade">
-        <input class="plano-radio" type="radio" name="plano" value="sem_visibilidade" checked>
-        <div class="plano-card-header">
+      <div class="plano-card active" data-plano="sem_visibilidade">
+        <div class="plano-header">
           <div class="plano-name">Plataforma</div>
           <div class="plano-price">9,90€/mês</div>
         </div>
-        <div class="plano-desc">Acesso ao Scout Report, Elite Coach e treinos personalizados. Sem exposição pública.</div>
-      </label>
-
-      <label class="plano-card" data-plano="com_visibilidade">
-        <input class="plano-radio" type="radio" name="plano" value="com_visibilidade">
-        <div class="plano-card-header">
+        <div class="plano-desc">Scout Report + Elite Coach + Treino. Sem exposição pública.</div>
+      </div>
+      <div class="plano-card" data-plano="com_visibilidade">
+        <div class="plano-header">
           <div class="plano-name">Plataforma + Visibilidade</div>
           <div class="plano-price">14,90€/mês</div>
         </div>
-        <div class="plano-desc">Tudo o anterior + atleta aparece nos cards públicos da página principal. Maior exposição.</div>
-      </label>
+        <div class="plano-desc">Tudo + atleta aparece nos cards públicos do site.</div>
+      </div>
     </div>
   </div>
 
-  <button type="submit" class="btn" id="submit-btn">
-    Submeter Inscrição →
-  </button>
-
-</form>
+  <div class="error-box" id="error-box"></div>
+  <button class="btn" id="submit-btn" onclick="submeter()">Submeter Inscrição →</button>
 </div>
 
 <div class="success" id="success-view">
   <div class="success-icon">✅</div>
   <div class="success-title">Inscrição Recebida!</div>
   <div class="success-text">
-    Recebemos os dados do teu filho.<br>
-    Para confirmar a inscrição:<br><br>
-    <strong>1.</strong> Paga 39€ (Scout Report inicial) via MB Way para <strong>913 695 846</strong><br>
-    <strong>2.</strong> Envia o comprovativo para WhatsApp com o nome do atleta<br><br>
-    Resposta em 48h com acesso à plataforma.
+    Para confirmar:<br><br>
+    <strong>Paga 39€ (Scout Report)</strong><br>
+    MB Way para <strong>913 695 846</strong><br><br>
+    Envia comprovativo com nome do atleta.<br>
+    Resposta em 48h.
   </div>
-  <a class="wa-btn" id="wa-link" href="#" target="_blank">
-    📱 Enviar WhatsApp
-  </a>
-</div>
-
+  <a class="wa-btn" id="wa-link" href="#">📱 Enviar WhatsApp</a>
 </div>
 
 <script>
@@ -262,104 +175,63 @@ const SUPABASE_URL = 'https://nhshnplaiolxwcfuijfo.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oc2hucGxhaW9seHdjZnVpamZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NDQxNTAsImV4cCI6MjA4OTQyMDE1MH0.uyZiDun8495sjnHA6Wsk-Hou-3lubbNJfQqSYbMLSek';
 const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Plano selection
-document.querySelectorAll('.plano-card').forEach(card => {
-  card.addEventListener('click', () => {
-    document.querySelectorAll('.plano-card').forEach(c => c.classList.remove('active'));
-    card.classList.add('active');
-    card.querySelector('input[type=radio]').checked = true;
+let planoEscolhido = 'sem_visibilidade';
+
+document.querySelectorAll('.plano-card').forEach(c => {
+  c.addEventListener('click', () => {
+    document.querySelectorAll('.plano-card').forEach(x => x.classList.remove('active'));
+    c.classList.add('active');
+    planoEscolhido = c.dataset.plano;
   });
 });
 
-// Foto preview
-const fotoInput = document.getElementById('foto-input');
-const fotoPreview = document.getElementById('foto-preview');
-const uploadText = document.getElementById('upload-text');
-const uploadArea = document.getElementById('upload-area');
+function v(id){ return document.getElementById(id).value.trim(); }
 
-fotoInput.addEventListener('change', e => {
-  const file = e.target.files[0];
-  if (!file) return;
-  if (file.size > 5 * 1024 * 1024) {
-    alert('Foto demasiado grande. Máximo 5MB.');
-    fotoInput.value = '';
-    return;
-  }
-  const reader = new FileReader();
-  reader.onload = ev => {
-    fotoPreview.src = ev.target.result;
-    fotoPreview.classList.add('show');
-    uploadText.textContent = file.name;
-    uploadArea.classList.add('has-file');
-  };
-  reader.readAsDataURL(file);
-});
-
-// Submit
-document.getElementById('form-inscricao').addEventListener('submit', async e => {
-  e.preventDefault();
+async function submeter() {
   const btn = document.getElementById('submit-btn');
-  const errorBox = document.getElementById('error-box');
-  errorBox.classList.remove('show');
+  const err = document.getElementById('error-box');
+  err.style.display = 'none';
+
+  const nome = v('f_nome');
+  const encNome = v('f_enc_nome');
+  const email = v('f_email');
+
+  if (!nome) { err.textContent = 'Preenche o nome do atleta.'; err.style.display = 'block'; return; }
+  if (!encNome) { err.textContent = 'Preenche o teu nome.'; err.style.display = 'block'; return; }
+  if (!email || !email.includes('@')) { err.textContent = 'Email inválido.'; err.style.display = 'block'; return; }
+
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span>A enviar...';
 
-  try {
-    let fotoUrl = null;
+  const { error } = await supa.from('inscricoes').insert({
+    atleta_nome: nome,
+    atleta_data_nascimento: v('f_nasc') || null,
+    atleta_posicao: v('f_pos') || null,
+    atleta_pe: v('f_pe') || null,
+    atleta_clube: v('f_clube') || null,
+    atleta_escalao: v('f_esc') || null,
+    encarregado_nome: encNome,
+    encarregado_email: email,
+    encarregado_telefone: v('f_tel') || null,
+    plano: planoEscolhido,
+    estado: 'pendente'
+  });
 
-    // Upload foto se houver
-    const fotoFile = fotoInput.files[0];
-    if (fotoFile) {
-      const ext = fotoFile.name.split('.').pop();
-      const fileName = `inscricao-${Date.now()}.${ext}`;
-      const { data: upData, error: upErr } = await supa.storage
-        .from('atletas-fotos')
-        .upload(fileName, fotoFile, { cacheControl: '3600', upsert: false });
-      
-      if (upErr) throw upErr;
-      
-      const { data: urlData } = supa.storage
-        .from('atletas-fotos')
-        .getPublicUrl(fileName);
-      fotoUrl = urlData.publicUrl;
-    }
-
-    // Submeter inscrição
-    const { error } = await supa.from('inscricoes').insert({
-      atleta_nome: document.getElementById('atleta_nome').value.trim(),
-      atleta_data_nascimento: document.getElementById('atleta_data_nascimento').value || null,
-      atleta_posicao: document.getElementById('atleta_posicao').value || null,
-      atleta_pe: document.getElementById('atleta_pe').value || null,
-      atleta_clube: document.getElementById('atleta_clube').value.trim() || null,
-      atleta_escalao: document.getElementById('atleta_escalao').value || null,
-      atleta_foto_url: fotoUrl,
-      encarregado_nome: document.getElementById('enc_nome').value.trim(),
-      encarregado_email: document.getElementById('enc_email').value.trim(),
-      encarregado_telefone: document.getElementById('enc_telefone').value.trim() || null,
-      plano: document.querySelector('input[name=plano]:checked').value,
-      estado: 'pendente'
-    });
-
-    if (error) throw error;
-
-    // Mostrar sucesso
-    document.getElementById('form-view').style.display = 'none';
-    const successView = document.getElementById('success-view');
-    successView.classList.add('show');
-
-    const nome = document.getElementById('atleta_nome').value.trim();
-    const wa = `https://wa.me/351913695846?text=${encodeURIComponent('Olá! Acabei de inscrever o ' + nome + ' e vou enviar o comprovativo do pagamento de 39€.')}`;
-    document.getElementById('wa-link').href = wa;
-
-  } catch (err) {
-    console.error(err);
-    errorBox.textContent = 'Erro: ' + (err.message || 'tenta de novo');
-    errorBox.classList.add('show');
+  if (error) {
+    console.error(error);
+    err.textContent = 'Erro ao enviar: ' + error.message;
+    err.style.display = 'block';
     btn.disabled = false;
     btn.innerHTML = 'Submeter Inscrição →';
+    return;
   }
-});
-</script>
 
+  document.getElementById('form-view').style.display = 'none';
+  const sv = document.getElementById('success-view');
+  sv.style.display = 'block';
+  const msg = `Olá! Inscrevi o ${nome} no YTB. Vou enviar comprovativo do pagamento de 39€.`;
+  document.getElementById('wa-link').href = `https://wa.me/351913695846?text=${encodeURIComponent(msg)}`;
+}
+</script>
 </body>
 </html>

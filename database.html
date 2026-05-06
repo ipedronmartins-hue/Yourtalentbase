@@ -4,265 +4,271 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Base de Talentos · YourTalentBase</title>
-<meta name="theme-color" content="#09090C">
-<link rel="preconnect" href="https://fonts.googleapis.com">
+<meta name="description" content="Base de dados de jovens talentos do futebol português. Filtra por escalão, posição, clube.">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/global.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-.gate-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
-.gate-card{background:var(--bg2);border:1px solid var(--border);border-top:3px solid var(--gold);border-radius:14px;padding:32px 28px;width:100%;max-width:400px;}
-.gate-icon{font-size:38px;margin-bottom:12px;text-align:center;}
-.gate-eyebrow{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:4px;text-align:center;}
-.gate-title{font-family:var(--font-display);font-size:30px;font-weight:900;margin-bottom:6px;text-align:center;}
-.gate-sub{font-size:13px;color:var(--muted);font-weight:300;margin-bottom:22px;text-align:center;line-height:1.6;}
-.gate-inp{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--white);font-size:14px;padding:12px 13px;outline:none;margin-bottom:10px;font-family:var(--font-body);}
-.gate-inp:focus{border-color:var(--gold-border);}
-.gate-btn{width:100%;background:var(--gold);color:#000;border:none;padding:14px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;}
-.gate-btn:hover{background:#F0CC55;}
-.gate-err{color:var(--red);font-size:12px;text-align:center;margin-bottom:8px;display:none;}
-.gate-back{display:block;text-align:center;margin-top:14px;font-size:11px;color:var(--muted);text-decoration:none;}
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#080C08;--bg2:#0F1410;--bg3:#161D17;
+  --gold:#D4AF37;--gold-soft:rgba(212,175,55,.15);--gold-border:rgba(212,175,55,.3);
+  --green:#00D46A;--border:#1F2520;--white:#fff;--slate:#aaa;--muted:#666;
+}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--white);min-height:100vh;max-width:520px;margin:0 auto;padding-bottom:40px}
 
-.db-header{background:var(--bg2);border-bottom:1px solid var(--border);padding:16px 16px 0;position:sticky;top:0;z-index:10;}
-.db-filters{display:flex;gap:8px;flex-wrap:wrap;padding-bottom:14px;}
-.db-inp{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r-md);padding:9px 12px;color:var(--white);font-size:13px;outline:none;font-family:var(--font-body);transition:border-color .2s;}
-.db-inp:focus{border-color:var(--gold-border);}
-.db-inp::placeholder{color:var(--dim);}
-.db-sel{appearance:none;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r-md);padding:9px 12px;color:var(--white);font-size:13px;outline:none;font-family:var(--font-body);}
-.db-count{font-size:11px;color:var(--muted);font-weight:600;padding:0 0 10px;}
-.atleta-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;margin-bottom:8px;overflow:hidden;transition:all .2s;}
-.atleta-card.expanded{border-color:var(--gold-border);background:var(--bg3);}
-.atleta-row{padding:16px;display:flex;align-items:center;gap:14px;cursor:pointer;}
-.atleta-row:hover{background:rgba(255,255,255,.02);}
-.atleta-chev{color:var(--muted);font-size:14px;transition:transform .2s;flex-shrink:0;}
-.atleta-card.expanded .atleta-chev{transform:rotate(90deg);color:var(--gold);}
-.atleta-detail{padding:0 16px 16px 78px;border-top:1px solid var(--border);background:rgba(0,0,0,.15);display:none;}
-.atleta-card.expanded .atleta-detail{display:block;animation:fadeIn .25s both;}
-@keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
-.detail-row{padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px;display:flex;justify-content:space-between;gap:14px;}
-.detail-row:last-of-type{border-bottom:none;}
-.detail-label{color:var(--muted);font-weight:600;letter-spacing:.5px;text-transform:uppercase;font-size:9px;flex-shrink:0;padding-top:2px;}
-.detail-value{color:var(--white);text-align:right;font-weight:500;line-height:1.5;flex:1;min-width:0;word-break:break-word;}
-.detail-actions{display:flex;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);}
-.act-btn{flex:1;padding:11px 12px;border-radius:9px;font-size:12px;font-weight:700;letter-spacing:.5px;text-decoration:none;text-align:center;cursor:pointer;border:none;display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit;}
-.act-zerozero{background:var(--gold);color:#000;}
-.act-zerozero:hover{background:#F0CC55;}
-.act-call{background:rgba(0,212,106,.12);color:var(--green);border:1px solid rgba(0,212,106,.3);}
-.act-delete{background:rgba(239,68,68,.1);color:#ef4444;border:1px solid rgba(239,68,68,.3);}
-.act-delete:hover{background:rgba(239,68,68,.18);}
-.atleta-av{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#1A237E,#283593);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:900;font-size:20px;color:var(--gold);flex-shrink:0;}
-.atleta-nome{font-size:15px;font-weight:700;margin-bottom:2px;}
-.atleta-meta{font-size:11px;color:var(--muted);font-weight:300;}
-.atleta-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px;}
-.atleta-date{font-size:10px;color:var(--dim);margin-left:auto;text-align:right;flex-shrink:0;}
-.empty{text-align:center;padding:60px 20px;color:var(--muted);}
-.empty-icon{font-size:44px;margin-bottom:12px;opacity:.4;}
-.spin{width:28px;height:28px;border:2px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;margin:40px auto;}
+.nav{position:sticky;top:0;z-index:50;background:rgba(8,12,8,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:14px 18px;display:flex;align-items:center;justify-content:space-between}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-badge{width:32px;height:32px;background:var(--gold);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:900;font-size:13px;color:#000}
+.nav-name{font-family:'Barlow Condensed';font-weight:800;font-size:18px;letter-spacing:1.5px;color:#fff}
+.nav-name span{color:var(--gold)}
+.nav-back{font-size:12px;color:var(--slate);text-decoration:none}
+
+.header{padding:24px 18px 16px;text-align:center}
+.title{font-family:'Barlow Condensed';font-weight:900;font-size:34px;line-height:1;letter-spacing:-1px;margin-bottom:6px}
+.title span{color:var(--gold)}
+.sub{font-size:12px;color:var(--slate);margin-bottom:18px}
+
+.search-wrap{padding:0 18px 14px}
+.search-input{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:14px;color:#fff;font-family:inherit;outline:none}
+.search-input:focus{border-color:var(--gold)}
+
+.filters{padding:0 18px 14px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.filters::-webkit-scrollbar{display:none}
+.filter{flex-shrink:0;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:11px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit}
+.filter.active{background:var(--gold);color:#000;border-color:var(--gold)}
+
+.count{padding:0 18px 14px;font-size:11px;color:var(--muted);letter-spacing:.5px}
+
+.athletes-list{padding:0 18px;display:flex;flex-direction:column;gap:8px}
+.athlete-card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:10px;
+  padding:14px;display:flex;gap:14px;align-items:flex-start;cursor:pointer;
+  transition:all .15s
+}
+.athlete-card:active{transform:scale(.99)}
+.athlete-card.expanded{border-color:var(--gold-border);background:var(--bg3)}
+
+.athlete-foto{width:64px;height:64px;border-radius:10px;background:var(--bg3);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:900;font-size:24px;color:var(--gold)}
+.athlete-foto img{width:100%;height:100%;object-fit:cover}
+
+.athlete-info{flex:1;min-width:0}
+.athlete-nome{font-size:15px;font-weight:700;color:#fff;margin-bottom:2px;line-height:1.2}
+.athlete-meta{font-size:11px;color:var(--slate);margin-bottom:4px;line-height:1.4}
+.athlete-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+.tag{font-size:8px;font-weight:800;letter-spacing:1px;padding:3px 7px;border-radius:100px;text-transform:uppercase}
+.tag-gold{background:var(--gold-soft);color:var(--gold);border:1px solid var(--gold-border)}
+.tag-grey{background:var(--bg3);color:var(--slate);border:1px solid var(--border)}
+
+.athlete-chev{color:var(--muted);font-size:14px;transition:transform .2s;flex-shrink:0;margin-top:18px}
+.athlete-card.expanded .athlete-chev{transform:rotate(90deg);color:var(--gold)}
+
+.athlete-detail{display:none;padding:14px 0 0;margin-top:14px;border-top:1px solid var(--border);width:100%}
+.athlete-card.expanded .athlete-detail{display:block;animation:fadeIn .2s both}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+.detail-row{display:flex;justify-content:space-between;gap:14px;padding:6px 0;font-size:11px;border-bottom:1px solid rgba(255,255,255,.04)}
+.detail-row:last-of-type{border-bottom:none}
+.detail-label{color:var(--muted);font-weight:600;letter-spacing:.5px;text-transform:uppercase;font-size:9px;flex-shrink:0;padding-top:2px}
+.detail-value{color:#fff;text-align:right;font-weight:500;flex:1;line-height:1.4}
+.palmares-list{margin-top:8px;font-size:11px;color:#fff;line-height:1.5}
+.palmares-item{padding:3px 0;color:var(--slate)}
+.palmares-item strong{color:var(--gold);font-weight:700;display:block;margin-bottom:2px}
+
+.empty{text-align:center;padding:60px 20px;color:var(--muted);font-size:13px}
+.loading{text-align:center;padding:40px;color:var(--muted)}
+.spinner{display:inline-block;width:20px;height:20px;border:2px solid rgba(212,175,55,.2);border-top-color:var(--gold);border-radius:50%;animation:spin .6s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
+
+.cta-bottom{margin:30px 18px 0;padding:18px;background:linear-gradient(135deg,rgba(212,175,55,.08),rgba(0,0,0,.3));border:1px solid var(--gold-border);border-radius:12px;text-align:center}
+.cta-bottom-title{font-family:'Barlow Condensed';font-weight:900;font-size:20px;color:#fff;margin-bottom:6px}
+.cta-bottom-text{font-size:11px;color:var(--slate);margin-bottom:12px}
+.cta-bottom-btn{display:inline-block;background:var(--gold);color:#000;padding:10px 18px;border-radius:8px;font-size:11px;font-weight:800;letter-spacing:.5px;text-decoration:none;text-transform:uppercase}
 </style>
 </head>
 <body>
 
-<!-- LOGIN GATE -->
-<div id="gateView" class="gate-wrap">
-  <div class="gate-card">
-    <div class="gate-icon">🔐</div>
-    <div class="gate-eyebrow">Acesso restrito</div>
-    <div class="gate-title">Base de Talentos</div>
-    <div class="gate-sub">Esta área é reservada à administração YTB e a parceiros autorizados.</div>
-    <input class="gate-inp" type="password" id="gatePass" placeholder="Password de acesso">
-    <div class="gate-err" id="gateErr">Password incorrecta.</div>
-    <button class="gate-btn" id="gateBtn">Entrar →</button>
-    <a href="/" class="gate-back">← Voltar ao YTB</a>
-  </div>
+<nav class="nav">
+  <a href="/" class="nav-logo">
+    <div class="nav-badge">YT</div>
+    <div class="nav-name">Your<span>Talent</span>Base</div>
+  </a>
+  <a href="/" class="nav-back">← Voltar</a>
+</nav>
+
+<div class="header">
+  <div class="title">Base de <span>Talentos</span></div>
+  <div class="sub">Jovens promessas do futebol português</div>
 </div>
 
-<!-- DATABASE VIEW -->
-<div id="dbView" style="display:none;">
-  <nav class="nav">
-    <a href="/" class="nav-logo"><div class="nav-logo-badge">YTB</div>Your<span>Talent</span>Base</a>
-    <div class="nav-actions">
-      <a href="/" class="btn btn-ghost btn-sm">← Início</a>
-      <button class="btn btn-ghost btn-sm" onclick="logout()">🔓 Sair</button>
-    </div>
-  </nav>
-  <div class="db-header">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-      <div>
-        <div class="eyebrow" style="color:var(--gold);">🔐 Admin</div>
-        <h1 style="font-family:var(--font-display);font-size:28px;font-weight:900;line-height:1;">Base de Talentos</h1>
-      </div>
-    </div>
-    <div class="db-filters">
-      <input class="db-inp" id="search" placeholder="🔍 Nome ou clube..." style="flex:1;min-width:140px;" oninput="filterAtletas()">
-      <select class="db-sel" id="filtEscalao" onchange="filterAtletas()">
-        <option value="">Escalão</option>
-        <option>Sub-9</option><option>Sub-10</option><option>Sub-11</option>
-        <option>Sub-12</option><option>Sub-13</option><option>Sub-14</option>
-        <option>Sub-15</option><option>Sub-16</option><option>Sub-17</option>
-        <option>Sub-18</option><option>Sub-19</option>
-      </select>
-      <select class="db-sel" id="filtPos" onchange="filterAtletas()">
-        <option value="">Posição</option>
-        <option>Guarda-Redes</option><option>Defesa Central</option>
-        <option>Defesa Direito</option><option>Defesa Esquerdo</option>
-        <option>Médio Defensivo</option><option>Médio Centro</option>
-        <option>Médio Ofensivo</option><option>Extremo Direito</option>
-        <option>Extremo Esquerdo</option><option>Avançado</option>
-      </select>
-    </div>
-    <div class="db-count" id="dbCount">A carregar...</div>
-  </div>
-  <div style="padding:12px 16px 80px;" id="atletasList">
-    <div class="spin"></div>
-  </div>
+<div class="search-wrap">
+  <input class="search-input" id="search" type="search" placeholder="🔍 Procurar nome ou clube...">
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<div class="filters" id="filter-escalao">
+  <div class="filter active" data-filter="all">Todos</div>
+  <div class="filter" data-filter="Sub-9">Sub-9</div>
+  <div class="filter" data-filter="Sub-10">Sub-10</div>
+  <div class="filter" data-filter="Sub-11">Sub-11</div>
+  <div class="filter" data-filter="Sub-12">Sub-12</div>
+  <div class="filter" data-filter="Sub-13">Sub-13</div>
+  <div class="filter" data-filter="Sub-14">Sub-14</div>
+  <div class="filter" data-filter="Sub-15">Sub-15</div>
+  <div class="filter" data-filter="Sub-17">Sub-17</div>
+  <div class="filter" data-filter="Sub-19">Sub-19</div>
+</div>
+
+<div class="count" id="count">A carregar...</div>
+
+<div id="loading" class="loading"><div class="spinner"></div></div>
+<div id="athletes-list" class="athletes-list"></div>
+
+<div class="cta-bottom">
+  <div class="cta-bottom-title">Queres ver o teu filho aqui?</div>
+  <div class="cta-bottom-text">Inscreve-o no plano com Visibilidade</div>
+  <a href="inscrever.html" class="cta-bottom-btn">Inscrever →</a>
+</div>
+
 <script>
-var ADMIN_PASS = "YTB#Admin2026";
-var SB_URL="https://nhshnplaiolxwcfuijfo.supabase.co";
-var SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oc2hucGxhaW9seHdjZnVpamZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NDQxNTAsImV4cCI6MjA4OTQyMDE1MH0.uyZiDun8495sjnHA6Wsk-Hou-3lubbNJfQqSYbMLSek";
-var db=supabase.createClient(SB_URL,SB_KEY);
-var allData=[];
-var isAdmin=false;
+const SUPABASE_URL = 'https://nhshnplaiolxwcfuijfo.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oc2hucGxhaW9seHdjZnVpamZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NDQxNTAsImV4cCI6MjA4OTQyMDE1MH0.uyZiDun8495sjnHA6Wsk-Hou-3lubbNJfQqSYbMLSek';
+const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-function gateLogin(){
-  var pass = document.getElementById("gatePass").value.trim();
-  var err = document.getElementById("gateErr");
-  if(pass !== ADMIN_PASS){
-    err.style.display = "block";
-    document.getElementById("gatePass").value = "";
+let allAtletas = [];
+let filterEscalao = 'all';
+let searchTerm = '';
+
+function calcIdade(d) {
+  if (!d) return null;
+  const n = new Date(d), h = new Date();
+  let i = h.getFullYear() - n.getFullYear();
+  const m = h.getMonth() - n.getMonth();
+  if (m < 0 || (m === 0 && h.getDate() < n.getDate())) i--;
+  return i;
+}
+
+async function load() {
+  const { data, error } = await supa
+    .from('atletas')
+    .select('*')
+    .eq('visivel_publico', true)
+    .order('created_at', { ascending: false });
+
+  document.getElementById('loading').style.display = 'none';
+  
+  if (error) {
+    console.error('Erro:', error);
+    document.getElementById('athletes-list').innerHTML = '<div class="empty">Erro a carregar. Tenta novamente.</div>';
     return;
   }
-  err.style.display = "none";
-  isAdmin = true;
-  document.getElementById("gateView").style.display = "none";
-  document.getElementById("dbView").style.display = "block";
-  loadAtletas();
+
+  allAtletas = data || [];
+  render();
 }
 
-function logout(){
-  isAdmin = false;
-  document.getElementById("gateView").style.display = "flex";
-  document.getElementById("dbView").style.display = "none";
-  document.getElementById("gatePass").value = "";
+function render() {
+  let filtered = allAtletas;
+  
+  if (filterEscalao !== 'all') {
+    filtered = filtered.filter(a => a.escalao_actual === filterEscalao);
+  }
+  
+  if (searchTerm) {
+    const term = searchTerm.toLowerCase();
+    filtered = filtered.filter(a => 
+      (a.nome || '').toLowerCase().includes(term) ||
+      (a.nome_curto || '').toLowerCase().includes(term) ||
+      (a.clube_actual || '').toLowerCase().includes(term)
+    );
+  }
+  
+  document.getElementById('count').textContent = `${filtered.length} ${filtered.length === 1 ? 'atleta' : 'atletas'}`;
+  
+  const list = document.getElementById('athletes-list');
+  if (!filtered.length) {
+    list.innerHTML = '<div class="empty">Nenhum atleta encontrado</div>';
+    return;
+  }
+  
+  list.innerHTML = filtered.map(a => {
+    const idade = calcIdade(a.data_nascimento);
+    const isYTB = a.plano === 'ytb_acompanhado';
+    const palmares = a.palmares || [];
+    const historico = a.historico_clubes || [];
+    
+    return `
+      <div class="athlete-card" data-id="${a.id}">
+        <div class="athlete-foto">
+          ${a.foto_url ? `<img src="${a.foto_url}" alt="${a.nome_curto}">` : ((a.nome_curto || a.nome || '?')[0])}
+        </div>
+        <div class="athlete-info">
+          <div class="athlete-nome">${a.nome_curto || a.nome}</div>
+          <div class="athlete-meta">
+            ${idade ? idade + ' anos · ' : ''}${a.posicao_principal || ''}
+            <br>${a.clube_actual || ''} ${a.escalao_actual ? '· ' + a.escalao_actual : ''}
+          </div>
+          <div class="athlete-tags">
+            ${a.posicao_principal ? `<span class="tag tag-grey">${a.posicao_principal}</span>` : ''}
+            ${a.escalao_actual ? `<span class="tag tag-grey">${a.escalao_actual}</span>` : ''}
+            ${isYTB ? '<span class="tag tag-gold">YTB</span>' : ''}
+          </div>
+          
+          <div class="athlete-detail">
+            ${a.nome !== a.nome_curto ? `<div class="detail-row"><span class="detail-label">Nome completo</span><span class="detail-value">${a.nome}</span></div>` : ''}
+            ${a.pe_dominante ? `<div class="detail-row"><span class="detail-label">Pé dominante</span><span class="detail-value">${a.pe_dominante === 'D' ? 'Direito' : a.pe_dominante === 'E' ? 'Esquerdo' : 'Ambidestro'}</span></div>` : ''}
+            ${a.data_nascimento ? `<div class="detail-row"><span class="detail-label">Data nascimento</span><span class="detail-value">${new Date(a.data_nascimento).toLocaleDateString('pt-PT')}</span></div>` : ''}
+            
+            ${historico.length > 1 ? `
+              <div style="margin-top:10px">
+                <div class="detail-label" style="margin-bottom:4px">Histórico de clubes</div>
+                <div class="detail-value" style="text-align:left;font-size:11px">
+                  ${historico.map(h => `${h.clube}${h.anos ? ' (' + h.anos + ')' : ''}`).join(' · ')}
+                </div>
+              </div>
+            ` : ''}
+            
+            ${palmares.length ? `
+              <div style="margin-top:10px">
+                <div class="detail-label" style="margin-bottom:4px">🏆 Palmarés</div>
+                <div class="palmares-list">
+                  ${palmares.map(p => `<div class="palmares-item"><strong>${p.titulo}</strong>${p.ano ? ' · ' + p.ano : ''}</div>`).join('')}
+                </div>
+              </div>
+            ` : ''}
+            
+            ${a.zerozero_url ? `<div style="margin-top:10px"><a href="${a.zerozero_url}" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none;font-size:11px;font-weight:700">Ver no ZeroZero ↗</a></div>` : ''}
+          </div>
+        </div>
+        <div class="athlete-chev">▶</div>
+      </div>
+    `;
+  }).join('');
+  
+  list.querySelectorAll('.athlete-card').forEach(card => {
+    card.addEventListener('click', () => {
+      list.querySelectorAll('.athlete-card.expanded').forEach(c => {
+        if (c !== card) c.classList.remove('expanded');
+      });
+      card.classList.toggle('expanded');
+    });
+  });
 }
 
-document.getElementById("gateBtn").addEventListener("click", gateLogin);
-document.getElementById("gatePass").addEventListener("keydown", function(e){
-  if(e.key === "Enter") gateLogin();
+document.querySelectorAll('.filter').forEach(f => {
+  f.addEventListener('click', () => {
+    document.querySelectorAll('.filter').forEach(x => x.classList.remove('active'));
+    f.classList.add('active');
+    filterEscalao = f.dataset.filter;
+    render();
+  });
 });
 
-async function loadAtletas(){
-  try{
-    var res=await db.from("sugestoes").select("*").order("created_at",{ascending:false});
-    allData=res.data||[];
-    filterAtletas();
-  }catch(e){
-    document.getElementById("atletasList").innerHTML='<div class="empty"><div class="empty-icon">⚠️</div><p>Erro ao carregar dados.</p></div>';
-    document.getElementById("dbCount").textContent="Erro ao carregar";
-  }
-}
+document.getElementById('search').addEventListener('input', e => {
+  searchTerm = e.target.value;
+  render();
+});
 
-function filterAtletas(){
-  var s=(document.getElementById("search").value||"").toLowerCase().trim();
-  var esc=document.getElementById("filtEscalao").value;
-  var pos=document.getElementById("filtPos").value;
-  var f=allData.filter(function(a){
-    return(!s||((a.nome&&a.nome.toLowerCase().includes(s))||(a.clube&&a.clube.toLowerCase().includes(s))))
-      &&(!esc||a.escalao===esc)&&(!pos||a.posicao===pos);
-  });
-  document.getElementById("dbCount").textContent=f.length+" atleta"+(f.length!==1?"s":"")+" encontrado"+(f.length!==1?"s":"");
-  renderAtletas(f);
-}
-
-function renderAtletas(lista){
-  if(!lista.length){
-    document.getElementById("atletasList").innerHTML='<div class="empty"><div class="empty-icon">🔍</div><p style="font-size:14px;font-weight:600;margin-bottom:6px;">Nenhum atleta encontrado</p><p style="font-size:13px;">Tenta ajustar os filtros.</p></div>';
-    return;
-  }
-  var h="";
-  lista.forEach(function(a){
-    var ini=(a.nome||"?").charAt(0).toUpperCase();
-    var dt=a.created_at?new Date(a.created_at).toLocaleDateString("pt-PT",{day:"2-digit",month:"short",year:"numeric"}):"";
-    var dtFull=a.created_at?new Date(a.created_at).toLocaleString("pt-PT",{day:"2-digit",month:"long",year:"numeric",hour:"2-digit",minute:"2-digit"}):"—";
-
-    h+='<div class="atleta-card" data-id="'+a.id+'">';
-    // Clickable header row
-    h+='<div class="atleta-row" onclick="toggleCard(\''+a.id+'\')">';
-    h+='<div class="atleta-av">'+ini+"</div>";
-    h+='<div style="flex:1;min-width:0;">';
-    h+='<div class="atleta-nome">'+(a.nome||"—")+"</div>";
-    h+='<div class="atleta-meta">'+[a.idade?a.idade+" anos":"",a.clube||"",a.escalao||""].filter(Boolean).join(" · ")+"</div>";
-    h+='<div class="atleta-tags">';
-    if(a.posicao)h+='<span class="badge badge-gray">'+a.posicao+"</span>";
-    if(a.escalao)h+='<span class="badge badge-blue">'+a.escalao+"</span>";
-    if(a.zerozero)h+='<span class="badge badge-gold">ZeroZero ✓</span>';
-    h+="</div></div>";
-    h+='<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;">';
-    h+='<div class="atleta-date">'+dt+'</div>';
-    h+='<div class="atleta-chev">▶</div>';
-    h+='</div>';
-    h+='</div>'; // /atleta-row
-
-    // Expandable detail
-    h+='<div class="atleta-detail">';
-    if(a.completo) h+='<div class="detail-row"><span class="detail-label">Nome completo</span><span class="detail-value">'+a.completo+'</span></div>';
-    if(a.idade) h+='<div class="detail-row"><span class="detail-label">Idade</span><span class="detail-value">'+a.idade+' anos</span></div>';
-    if(a.posicao) h+='<div class="detail-row"><span class="detail-label">Posição</span><span class="detail-value">'+a.posicao+'</span></div>';
-    if(a.clube) h+='<div class="detail-row"><span class="detail-label">Clube</span><span class="detail-value">'+a.clube+'</span></div>';
-    if(a.escalao) h+='<div class="detail-row"><span class="detail-label">Escalão</span><span class="detail-value">'+a.escalao+'</span></div>';
-    if(a.contacto) h+='<div class="detail-row"><span class="detail-label">Contacto</span><span class="detail-value" style="color:var(--gold);">📞 '+a.contacto+'</span></div>';
-    if(a.zerozero) h+='<div class="detail-row"><span class="detail-label">ZeroZero</span><span class="detail-value" style="font-size:11px;">'+a.zerozero+'</span></div>';
-    if(typeof a.autorizacao !== "undefined") h+='<div class="detail-row"><span class="detail-label">Autorização</span><span class="detail-value">'+(a.autorizacao?'✓ Concedida':'✗ Não concedida')+'</span></div>';
-    h+='<div class="detail-row"><span class="detail-label">Inscrito em</span><span class="detail-value" style="font-size:11px;">'+dtFull+'</span></div>';
-
-    // Actions
-    h+='<div class="detail-actions">';
-    if(a.zerozero){
-      h+='<a href="'+a.zerozero+'" target="_blank" rel="noopener" class="act-btn act-zerozero">⚽ ZeroZero ↗</a>';
-    }
-    if(a.contacto){
-      var phoneClean = a.contacto.replace(/[^0-9+]/g,'');
-      h+='<a href="tel:'+phoneClean+'" class="act-btn act-call">📞 Ligar</a>';
-    }
-    h+='<button class="act-btn act-delete" onclick="event.stopPropagation();deleteAtleta(\''+a.id+'\',\''+(a.nome||'').replace(/\'/g,"\\\'")+'\')">🗑 Apagar</button>';
-    h+='</div>';
-
-    h+='</div>'; // /atleta-detail
-    h+="</div>"; // /atleta-card
-  });
-  document.getElementById("atletasList").innerHTML=h;
-}
-
-function toggleCard(id){
-  var card = document.querySelector('.atleta-card[data-id="'+id+'"]');
-  if(!card) return;
-  // Close other expanded cards
-  document.querySelectorAll('.atleta-card.expanded').forEach(function(c){
-    if(c !== card) c.classList.remove('expanded');
-  });
-  card.classList.toggle('expanded');
-}
-
-async function deleteAtleta(id, nome){
-  if(!isAdmin){ alert('Só admin pode apagar.'); return; }
-  if(!confirm('Apagar definitivamente o atleta "'+nome+'"?\n\nEsta ação não pode ser desfeita.')) return;
-  try{
-    var res = await db.from("sugestoes").delete().eq("id", id);
-    if(res.error) throw res.error;
-    allData = allData.filter(function(a){ return a.id !== id; });
-    filterAtletas();
-    // Toast
-    var toast = document.createElement('div');
-    toast.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:var(--bg2);border:1px solid rgba(0,212,106,.4);color:var(--green);padding:12px 22px;border-radius:10px;font-size:13px;font-weight:700;z-index:1000;box-shadow:0 8px 24px rgba(0,0,0,.5);';
-    toast.textContent = '✓ Atleta apagado';
-    document.body.appendChild(toast);
-    setTimeout(function(){ toast.remove(); }, 2200);
-  }catch(e){
-    alert('Erro ao apagar: '+(e.message||'tenta de novo'));
-  }
-}
+load();
 </script>
+
 </body>
 </html>
