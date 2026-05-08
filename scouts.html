@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Área Scout · YTB</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#080C08;--bg2:#0F1410;--bg3:#161D17;--gold:#D4AF37;--gold-soft:rgba(212,175,55,.15);--gold-border:rgba(212,175,55,.3);--green:#00D46A;--blue:#4A9FE8;--red:#ff5050;--border:#1F2520;--white:#fff;--slate:#aaa;--muted:#666}
+html,body{background:var(--bg);color:var(--white);font-family:'Plus Jakarta Sans',sans-serif;min-height:100vh}
+body{max-width:520px;margin:0 auto;padding-bottom:60px}
+.nav{position:sticky;top:0;z-index:100;background:rgba(8,12,8,.97);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:13px 18px;display:flex;align-items:center;justify-content:space-between}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-badge{width:32px;height:32px;background:var(--gold);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:900;font-size:13px;color:#000}
+.nav-name{font-family:'Barlow Condensed';font-weight:800;font-size:18px;letter-spacing:1.5px;color:#fff}
+.nav-name span{color:var(--gold)}
+.nav-back{font-size:12px;color:var(--slate);text-decoration:none}
+.nav-logout{font-size:11px;color:var(--red);cursor:pointer;background:none;border:none;font-family:inherit;display:none}
+
+/* LOGIN */
+.login-wrap{padding:50px 22px 0;text-align:center}
+.login-icon{font-size:56px;margin-bottom:14px}
+.login-title{font-family:'Barlow Condensed';font-weight:900;font-size:36px;line-height:1;letter-spacing:-1px;margin-bottom:6px}
+.login-title span{color:var(--gold)}
+.login-sub{font-size:13px;color:var(--slate);margin-bottom:24px}
+.login-box{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:22px;margin:0 18px 16px}
+.label{display:block;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;color:#fff}
+.input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:11px 13px;font-size:14px;color:#fff;font-family:inherit;outline:none}
+.input:focus{border-color:var(--gold)}
+.field{margin-bottom:12px}
+.btn{width:100%;padding:14px;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit}
+.btn-primary{background:var(--gold);color:#000}
+.btn-secondary{background:var(--bg3);color:#fff;border:1px solid var(--border)}
+.err{color:#ff8080;font-size:12px;margin-bottom:10px;display:none}
+.contact-link{font-size:12px;color:var(--slate);text-align:center;margin-top:12px}
+.contact-link a{color:var(--gold);text-decoration:none}
+
+#main-view{display:none;padding:18px}
+.welcome-bar{background:linear-gradient(135deg,rgba(212,175,55,.08),rgba(0,0,0,.3));border:1px solid var(--gold-border);border-radius:12px;padding:14px 16px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center}
+.credits{background:var(--gold);color:#000;font-family:'Barlow Condensed';font-weight:900;font-size:22px;padding:6px 14px;border-radius:8px}
+.section-title{font-family:'Barlow Condensed';font-weight:900;font-size:24px;color:#fff;margin-bottom:6px}
+.section-sub{font-size:12px;color:var(--slate);margin-bottom:18px;line-height:1.5}
+.form-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:12px}
+.form-section-title{font-size:9px;font-weight:800;letter-spacing:2.5px;color:var(--gold);text-transform:uppercase;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.slider-row{margin-bottom:14px}
+.slider-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.slider-name{font-size:12px;font-weight:600;color:#fff}
+.slider-val{font-family:'Barlow Condensed';font-weight:900;font-size:18px;color:var(--gold);min-width:22px;text-align:right}
+.slider{width:100%;-webkit-appearance:none;appearance:none;height:4px;border-radius:4px;background:var(--border);outline:none}
+.slider::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--gold);cursor:pointer;border:2px solid #000}
+.result-card{background:linear-gradient(135deg,rgba(212,175,55,.08),rgba(0,0,0,.3));border:2px solid var(--gold-border);border-radius:14px;padding:20px;margin-bottom:12px}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.bar-name{font-size:11px;color:#fff;width:80px;flex-shrink:0}
+.bar-track{flex:1;height:6px;background:var(--border);border-radius:6px;overflow:hidden}
+.bar-fill{height:100%;border-radius:6px;background:var(--gold)}
+.bar-score{font-family:'Barlow Condensed';font-weight:900;font-size:14px;color:var(--gold);min-width:24px;text-align:right}
+.rel-hist{margin-top:16px}
+.rel-item{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:8px;cursor:pointer}
+.rel-nome{font-size:14px;font-weight:700;color:#fff;margin-bottom:2px}
+.rel-meta{font-size:11px;color:var(--slate)}
+.rel-score{font-family:'Barlow Condensed';font-weight:900;font-size:22px;color:var(--gold)}
+.no-credits{background:rgba(255,80,80,.08);border:1px solid rgba(255,80,80,.2);border-radius:12px;padding:24px;text-align:center}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(212,175,55,.3);border-top-color:var(--gold);border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="plataforma.html" class="nav-logo">
+    <div class="nav-badge">YT</div>
+    <div class="nav-name">Your<span>Talent</span>Base</div>
+  </a>
+  <div style="display:flex;align-items:center;gap:12px">
+    <a href="plataforma.html" class="nav-back">← Áreas</a>
+    <button class="nav-logout" id="nav-logout" onclick="logout()">Sair</button>
+  </div>
+</nav>
+
+<!-- LOGIN -->
+<div id="login-view">
+  <div class="login-wrap">
+    <div class="login-icon">🔍</div>
+    <div class="login-title">Área <span>Scout</span></div>
+    <div class="login-sub">Acesso para scouts credenciados YTB. 3 relatórios profissionais por 39€.</div>
+  </div>
+  <div>
+    <div class="login-box">
+      <div class="err" id="err">Credenciais inválidas.</div>
+      <div class="field">
+        <label class="label">Username / Código</label>
+        <input class="input" id="user" type="text" autocomplete="username">
+      </div>
+      <div class="field">
+        <label class="label">Password</label>
+        <input class="input" id="pass" type="password" autocomplete="current-password">
+      </div>
+      <button class="btn btn-primary" onclick="login()">Entrar →</button>
+    </div>
+    <div class="contact-link">Ainda não tens acesso? <a href="https://wa.me/351913695846" target="_blank">Fala connosco →</a></div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div id="main-view">
+  <div class="welcome-bar">
+    <div>
+      <div style="font-size:14px;font-weight:700;color:#fff" id="nome-scout">Scout</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:2px">3 relatórios por 39€</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:9px;font-weight:800;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:4px">Créditos</div>
+      <div class="credits" id="creditos-display">?</div>
+    </div>
+  </div>
+
+  <div id="area-com-creditos">
+    <div class="section-title">Novo <span style="color:var(--gold)">Scout Report</span></div>
+    <div class="section-sub">Avaliação profissional com 24 critérios. Resultado imediato.</div>
+
+    <div class="form-card">
+      <div class="field">
+        <label class="label">Nome do Atleta</label>
+        <input class="input" id="sr_nome" type="text">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div class="field">
+          <label class="label">Posição</label>
+          <select class="input" id="sr_pos">
+            <option value="">--</option>
+            <option value="GR">Guarda-Redes</option>
+            <option value="DC">Defesa Central</option>
+            <option value="DLD">Lateral Direito</option>
+            <option value="DLE">Lateral Esquerdo</option>
+            <option value="MD">Médio Defensivo</option>
+            <option value="MI">Médio Interior</option>
+            <option value="MO">Médio Ofensivo</option>
+            <option value="ED">Extremo Direito</option>
+            <option value="EE">Extremo Esquerdo</option>
+            <option value="AV">Avançado</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="label">Clube</label>
+          <input class="input" id="sr_clube" type="text">
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div class="field">
+          <label class="label">Escalão</label>
+          <select class="input" id="sr_esc">
+            <option>Sub-12</option><option selected>Sub-13</option><option>Sub-14</option>
+            <option>Sub-15</option><option>Sub-16</option><option>Sub-17</option><option>Sub-19</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="label">Data obs.</label>
+          <input class="input" id="sr_data" type="date">
+        </div>
+      </div>
+      <div class="field">
+        <label class="label">Notas de observação (opcional)</label>
+        <textarea class="input" id="sr_notas" rows="3" placeholder="Observações do campo..."></textarea>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-section-title">⚽ Técnica</div>
+      <div id="sl-tecnica"></div>
+    </div>
+    <div class="form-card">
+      <div class="form-section-title">💪 Físico</div>
+      <div id="sl-fisico"></div>
+    </div>
+    <div class="form-card">
+      <div class="form-section-title">🧠 Táctica</div>
+      <div id="sl-tatica"></div>
+    </div>
+    <div class="form-card">
+      <div class="form-section-title">🎯 Mental</div>
+      <div id="sl-mental"></div>
+    </div>
+
+    <button class="btn btn-primary" id="gerar-btn" onclick="gerarReport()">⚡ Gerar Scout Report</button>
+  </div>
+
+  <div id="area-sem-creditos" style="display:none">
+    <div class="no-credits">
+      <div style="font-size:48px;margin-bottom:14px">🔒</div>
+      <div style="font-family:'Barlow Condensed';font-weight:900;font-size:24px;color:#fff;margin-bottom:8px">Créditos Esgotados</div>
+      <div style="font-size:13px;color:var(--slate);line-height:1.55;margin-bottom:18px">Utilizaste os 3 relatórios incluídos. Para mais créditos, contacta a equipa YTB.</div>
+      <a href="https://wa.me/351913695846?text=Ol%C3%A1%2C%20preciso%20de%20mais%20cr%C3%A9ditos%20de%20Scout%20Report" target="_blank" class="btn btn-primary" style="text-decoration:none;display:block">📱 Pedir Mais Créditos</a>
+    </div>
+  </div>
+
+  <div id="result-area" style="display:none;margin-top:16px"></div>
+
+  <div style="margin-top:24px">
+    <div class="section-title">Histórico de <span style="color:var(--gold)">Relatórios</span></div>
+    <div id="historico-area"><div style="text-align:center;padding:20px;color:var(--muted)"><div class="spinner"></div></div></div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://nhshnplaiolxwcfuijfo.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oc2hucGxhaW9seHdjZnVpamZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NDQxNTAsImV4cCI6MjA4OTQyMDE1MH0.uyZiDun8495sjnHA6Wsk-Hou-3lubbNJfQqSYbMLSek';
+const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const SCOUTS = {
+  'Miro': {pass:'YTB#Miro#3ozkUuLO6D', nome:'Scout Miro', creditos:3},
+  'Jonas': {pass:'YTB#Jonas#gLWjfiu6LG', nome:'Scout Jonas', creditos:3},
+};
+
+const CRITERIOS = {
+  tecnica:['Toque','Primeiro toque','Passe curto','Passe longo','Drible','Finalização'],
+  fisico:['Velocidade','Resistência','Força','Agilidade'],
+  tatica:['Leitura de jogo','Posicionamento','Decisão','1×1 ofensivo','1×1 defensivo','Visão'],
+  mental:['Foco','Esforço','Atitude','Liderança']
+};
+
+let scoutAtual = null;
+let creditosUsados = 0;
+
+function login() {
+  const u = document.getElementById('user').value.trim();
+  const p = document.getElementById('pass').value;
+  const err = document.getElementById('err');
+  const scout = SCOUTS[u];
+  if (!scout || scout.pass !== p) { err.style.display = 'block'; return; }
+  err.style.display = 'none';
+  scoutAtual = {username: u, ...scout};
+  sessionStorage.setItem('ytb_scout', JSON.stringify({username: u, pass: p}));
+  mostrarMain();
+}
+
+function logout() {
+  sessionStorage.removeItem('ytb_scout');
+  location.reload();
+}
+
+function mostrarMain() {
+  document.getElementById('login-view').style.display = 'none';
+  document.getElementById('main-view').style.display = 'block';
+  document.getElementById('nav-logout').style.display = 'block';
+  document.getElementById('nome-scout').textContent = scoutAtual.nome;
+  buildSliders();
+  carregarHistorico();
+  document.getElementById('sr_data').value = new Date().toISOString().split('T')[0];
+}
+
+const saved = sessionStorage.getItem('ytb_scout');
+if (saved) {
+  const s = JSON.parse(saved);
+  const scout = SCOUTS[s.username];
+  if (scout && scout.pass === s.pass) {
+    scoutAtual = {username: s.username, ...scout};
+    document.addEventListener('DOMContentLoaded', mostrarMain);
+  }
+}
+
+document.getElementById('pass').addEventListener('keypress', e => { if (e.key === 'Enter') login(); });
+
+function buildSliders() {
+  Object.entries(CRITERIOS).forEach(([cat, items]) => {
+    const el = document.getElementById('sl-' + cat);
+    if (!el) return;
+    el.innerHTML = items.map(name => {
+      const id = 'sc_' + name.replace(/[^a-z]/gi,'_').toLowerCase();
+      return `<div class="slider-row">
+        <div class="slider-label">
+          <span class="slider-name">${name}</span>
+          <span class="slider-val" id="v_${id}">6</span>
+        </div>
+        <input class="slider" type="range" id="${id}" min="1" max="10" value="6"
+          oninput="document.getElementById('v_${id}').textContent=this.value">
+      </div>`;
+    }).join('');
+  });
+}
+
+async function carregarHistorico() {
+  const { data } = await supa.from('relatorios')
+    .select('*')
+    .eq('treinador', scoutAtual?.nome || '')
+    .order('created_at', {ascending: false})
+    .limit(10);
+
+  creditosUsados = data ? data.length : 0;
+  const creditosRestantes = Math.max(0, 3 - creditosUsados);
+  document.getElementById('creditos-display').textContent = creditosRestantes + '/3';
+
+  if (creditosRestantes <= 0) {
+    document.getElementById('area-com-creditos').style.display = 'none';
+    document.getElementById('area-sem-creditos').style.display = 'block';
+  }
+
+  const hist = document.getElementById('historico-area');
+  if (!data || !data.length) {
+    hist.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:12px">Sem relatórios ainda.</div>';
+    return;
+  }
+
+  hist.innerHTML = data.map(r => {
+    const dt = new Date(r.created_at).toLocaleDateString('pt-PT');
+    const scoreColor = r.global_score >= 70 ? 'var(--green)' : r.global_score >= 50 ? 'var(--gold)' : 'var(--slate)';
+    return `<div class="rel-item">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div class="rel-nome">${r.nome_atleta}</div>
+          <div class="rel-meta">${r.posicao||'?'} · ${r.escalao||'?'} · ${dt}</div>
+        </div>
+        <div class="rel-score" style="color:${scoreColor}">${r.global_score}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function gerarReport() {
+  const nome = document.getElementById('sr_nome').value.trim();
+  if (!nome) { alert('Insere o nome do atleta'); return; }
+
+  const creditosRestantes = Math.max(0, 3 - creditosUsados);
+  if (creditosRestantes <= 0) { alert('Sem créditos disponíveis.'); return; }
+
+  const scores = {};
+  let totalCats = 0;
+  let numCats = 0;
+
+  Object.entries(CRITERIOS).forEach(([cat, items]) => {
+    let catTotal = 0;
+    items.forEach(name => {
+      const id = 'sc_' + name.replace(/[^a-z]/gi,'_').toLowerCase();
+      const val = parseInt(document.getElementById(id)?.value || 6);
+      scores[name] = val;
+      catTotal += val;
+    });
+    scores['_cat_' + cat] = Math.round(catTotal / items.length * 10) / 10;
+    totalCats += catTotal / items.length;
+    numCats++;
+  });
+
+  const globalScore = Math.round(totalCats / numCats * 10);
+  const pos = document.getElementById('sr_pos').value;
+  const esc = document.getElementById('sr_esc').value;
+  const clube = document.getElementById('sr_clube').value;
+  const notas = document.getElementById('sr_notas').value;
+
+  // Guardar
+  supa.from('relatorios').insert({
+    nome_atleta: nome,
+    posicao: pos,
+    escalao: esc,
+    scores,
+    global_score: globalScore,
+    treinador: scoutAtual.nome,
+    tipo: 'scout'
+  }).then(() => { carregarHistorico(); });
+
+  // Mostrar resultado
+  const cats = ['tecnica','fisico','tatica','mental'];
+  const catLabels = {tecnica:'Técnica',fisico:'Físico',tatica:'Táctica',mental:'Mental'};
+  const catIcons = {tecnica:'⚽',fisico:'💪',tatica:'🧠',mental:'🎯'};
+  const scoreColor = globalScore >= 70 ? 'var(--green)' : globalScore >= 50 ? 'var(--gold)' : 'var(--slate)';
+
+  const barsHTML = cats.map(c => {
+    const v = scores['_cat_' + c];
+    const pct = Math.round(v * 10);
+    return `<div class="bar-row">
+      <div class="bar-name">${catIcons[c]} ${catLabels[c]}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+      <div class="bar-score">${v}</div>
+    </div>`;
+  }).join('');
+
+  const fraquezas = Object.entries(scores).filter(([k,v]) => !k.startsWith('_cat_') && v < 5);
+  const forcas = Object.entries(scores).filter(([k,v]) => !k.startsWith('_cat_') && v >= 8);
+
+  const area = document.getElementById('result-area');
+  area.style.display = 'block';
+  area.innerHTML = `
+    <div class="result-card">
+      <div style="font-size:11px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:10px">
+        🔍 Scout Report · ${nome} · ${pos} · ${esc}${clube ? ' · ' + clube : ''}
+      </div>
+      <div style="text-align:center;margin-bottom:16px">
+        <div style="font-family:'Barlow Condensed';font-weight:900;font-size:72px;color:${scoreColor};line-height:1">${globalScore}</div>
+        <div style="font-size:10px;font-weight:800;letter-spacing:2px;color:#fff;text-transform:uppercase;margin-top:4px">Score Global /100</div>
+      </div>
+      ${barsHTML}
+      ${fraquezas.length ? `<div style="font-size:9px;font-weight:800;letter-spacing:2px;color:var(--red);text-transform:uppercase;margin:14px 0 8px">⚠ Áreas críticas</div>
+        ${fraquezas.slice(0,5).map(([k,v]) => `<div style="background:rgba(255,80,80,.08);border:1px solid rgba(255,80,80,.2);border-radius:8px;padding:8px 12px;margin-bottom:6px;font-size:12px;color:#fff">⚠️ ${k} (${v}/10)</div>`).join('')}` : ''}
+      ${forcas.length ? `<div style="font-size:9px;font-weight:800;letter-spacing:2px;color:var(--green);text-transform:uppercase;margin:14px 0 8px">✅ Pontos fortes</div>
+        ${forcas.slice(0,4).map(([k,v]) => `<div style="background:rgba(0,212,106,.08);border:1px solid rgba(0,212,106,.2);border-radius:8px;padding:8px 12px;margin-bottom:6px;font-size:12px;color:#fff">✅ ${k} (${v}/10)</div>`).join('')}` : ''}
+      ${notas ? `<div style="margin-top:14px;padding:12px;background:var(--bg3);border-radius:8px;font-size:12px;color:var(--slate);line-height:1.55">📝 ${notas}</div>` : ''}
+    </div>
+    <button class="btn btn-secondary" onclick="document.getElementById('result-area').style.display='none';document.getElementById('sr_nome').value=''">← Novo Relatório</button>`;
+
+  area.scrollIntoView({behavior:'smooth'});
+}
+</script>
+</body>
+</html>

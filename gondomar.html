@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Gondomar SC · Base de Scouting · YTB</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#060A12;--bg2:#0B1220;--bg3:#101A2E;
+  --gsc-blue:#1A3A6B;--gsc-gold:#C9A227;
+  --gold:#D4AF37;--gold-soft:rgba(212,175,55,.15);--gold-border:rgba(212,175,55,.3);
+  --green:#00D46A;--red:#ff5050;--border:#1A2540;--white:#fff;--slate:#8899BB;--muted:#445577
+}
+html,body{background:var(--bg);color:var(--white);font-family:'Plus Jakarta Sans',sans-serif;min-height:100vh}
+body{max-width:520px;margin:0 auto;padding-bottom:80px}
+
+/* NAV GSC */
+.nav{position:sticky;top:0;z-index:100;background:rgba(6,10,18,.97);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:13px 18px;display:flex;align-items:center;justify-content:space-between}
+.nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none}
+.nav-club{width:36px;height:36px;background:var(--gsc-blue);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:900;font-size:13px;color:var(--gsc-gold);letter-spacing:-1px;border:1px solid rgba(201,162,39,.3)}
+.nav-name{display:flex;flex-direction:column}
+.nav-club-name{font-family:'Barlow Condensed';font-weight:900;font-size:17px;letter-spacing:.5px;color:#fff;line-height:1}
+.nav-sub{font-size:9px;font-weight:700;letter-spacing:2.5px;color:var(--gsc-gold);text-transform:uppercase;margin-top:1px}
+.nav-ytb{font-size:9px;color:var(--slate);letter-spacing:1px}
+.nav-right{display:flex;align-items:center;gap:10px}
+.nav-back{font-size:11px;color:var(--slate);text-decoration:none}
+.nav-logout{font-size:11px;color:var(--red);cursor:pointer;background:none;border:none;font-family:inherit;display:none}
+
+/* LOGIN */
+.login-wrap{padding:40px 22px 0;text-align:center}
+.login-badge{width:80px;height:80px;background:var(--gsc-blue);border-radius:16px;border:2px solid rgba(201,162,39,.4);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:900;font-size:28px;color:var(--gsc-gold);margin:0 auto 16px;letter-spacing:-1px}
+.login-club{font-family:'Barlow Condensed';font-weight:900;font-size:28px;color:#fff;line-height:1;margin-bottom:2px}
+.login-dept{font-size:12px;font-weight:700;letter-spacing:3px;color:var(--gsc-gold);text-transform:uppercase;margin-bottom:6px}
+.login-sub{font-size:12px;color:var(--slate);margin-bottom:24px;line-height:1.5}
+.login-box{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:22px;margin:0 18px 16px}
+.label{display:block;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;color:#fff}
+.input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:11px 13px;font-size:14px;color:#fff;font-family:inherit;outline:none;transition:border-color .15s}
+.input:focus{border-color:var(--gsc-gold)}
+.field{margin-bottom:12px}
+.btn{width:100%;padding:14px;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit}
+.btn-gsc{background:var(--gsc-blue);color:var(--gsc-gold);border:1px solid rgba(201,162,39,.4)}
+.btn-secondary{background:var(--bg3);color:#fff;border:1px solid var(--border)}
+.btn-gold{background:var(--gsc-gold);color:#000}
+.btn-sm{padding:8px 14px;font-size:11px;width:auto;font-weight:700;border-radius:8px}
+.err{color:#ff8080;font-size:12px;margin-bottom:10px;display:none}
+.contact-link{font-size:12px;color:var(--slate);text-align:center;margin-top:12px}
+.contact-link a{color:var(--gsc-gold);text-decoration:none}
+
+/* MAIN */
+#main-view{display:none;padding:16px}
+.header-bar{background:linear-gradient(135deg,var(--gsc-blue),rgba(26,58,107,.5));border:1px solid rgba(201,162,39,.3);border-radius:12px;padding:16px;margin-bottom:16px;display:flex;align-items:center;gap:14px}
+.header-badge{width:48px;height:48px;background:var(--gsc-blue);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:900;font-size:18px;color:var(--gsc-gold);border:1px solid rgba(201,162,39,.4);flex-shrink:0}
+.header-info{flex:1;min-width:0}
+.header-title{font-family:'Barlow Condensed';font-weight:900;font-size:20px;color:#fff;line-height:1;margin-bottom:2px}
+.header-sub{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--gsc-gold);text-transform:uppercase}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.stat{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
+.stat-n{font-family:'Barlow Condensed';font-weight:900;font-size:26px;color:var(--gsc-gold)}
+.stat-l{font-size:9px;color:var(--slate);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-top:2px}
+
+/* TABS */
+.tabs{display:flex;gap:3px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:3px;margin-bottom:16px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex-shrink:0;background:transparent;border:none;color:var(--slate);font-size:10px;font-weight:700;padding:9px 12px;border-radius:8px;cursor:pointer;font-family:inherit;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+.tab.active{background:var(--gsc-blue);color:var(--gsc-gold);border:1px solid rgba(201,162,39,.3)}
+.tab-panel{display:none}.tab-panel.active{display:block}
+
+/* SEARCH + FILTERS */
+.search-input{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:11px 13px;font-size:14px;color:#fff;font-family:inherit;outline:none;margin-bottom:10px}
+.search-input:focus{border-color:var(--gsc-gold)}
+.filters{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;margin-bottom:12px}
+.filters::-webkit-scrollbar{display:none}
+.filter{flex-shrink:0;background:var(--bg2);border:1px solid var(--border);border-radius:7px;padding:7px 12px;font-size:10px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit;letter-spacing:.5px;text-transform:uppercase}
+.filter.active{background:var(--gsc-blue);color:var(--gsc-gold);border-color:rgba(201,162,39,.3)}
+.count{font-size:11px;color:var(--slate);margin-bottom:10px;letter-spacing:.5px}
+
+/* ATLETA CARDS */
+.atleta-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;overflow:hidden}
+.atleta-row{padding:14px;display:flex;align-items:flex-start;gap:12px;cursor:pointer}
+.atleta-row:active{background:var(--bg3)}
+.atleta-av{width:44px;height:44px;border-radius:10px;background:var(--gsc-blue);border:1px solid rgba(201,162,39,.3);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:900;font-size:20px;color:var(--gsc-gold);flex-shrink:0}
+.atleta-nome{font-size:14px;font-weight:700;color:#fff;margin-bottom:2px}
+.atleta-meta{font-size:11px;color:var(--slate);line-height:1.45;margin-bottom:4px}
+.atleta-tags{display:flex;gap:5px;flex-wrap:wrap}
+.tag{font-size:8px;font-weight:800;letter-spacing:1.5px;padding:3px 7px;border-radius:100px;text-transform:uppercase}
+.tag-pos{background:var(--bg3);color:#fff;border:1px solid var(--border)}
+.tag-esc{background:rgba(26,58,107,.5);color:var(--gsc-gold);border:1px solid rgba(201,162,39,.3)}
+.atleta-chev{color:var(--muted);font-size:14px;transition:transform .2s;flex-shrink:0;margin-top:14px}
+.atleta-card.expanded .atleta-chev{transform:rotate(90deg);color:var(--gsc-gold)}
+.atleta-detail{display:none;padding:14px;border-top:1px solid var(--border);background:rgba(0,0,0,.2);animation:fadeIn .2s both}
+.atleta-card.expanded .atleta-detail{display:block}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.detail-row{display:flex;justify-content:space-between;gap:14px;padding:6px 0;font-size:11px;border-bottom:1px solid rgba(255,255,255,.04)}
+.detail-row:last-of-type{border-bottom:none}
+.detail-label{color:var(--muted);font-weight:700;letter-spacing:.5px;text-transform:uppercase;font-size:9px;flex-shrink:0;padding-top:1px}
+.detail-value{color:#fff;text-align:right;font-weight:500;flex:1;line-height:1.4}
+.detail-notas{margin-top:10px;background:var(--bg3);border-radius:8px;padding:10px;font-size:11px;color:var(--slate);line-height:1.55}
+.score-bar{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.score-label{font-size:9px;color:var(--slate);width:70px;flex-shrink:0}
+.score-track{flex:1;height:4px;background:var(--border);border-radius:4px;overflow:hidden}
+.score-fill{height:100%;border-radius:4px;background:var(--gsc-gold)}
+.score-num{font-family:'Barlow Condensed';font-weight:900;font-size:13px;color:var(--gsc-gold);min-width:22px;text-align:right}
+.detail-actions{display:flex;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+.dact-btn{flex:1;padding:10px;border-radius:8px;font-size:11px;font-weight:700;border:none;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:5px}
+.dact-edit{background:var(--bg3);color:#fff;border:1px solid var(--border)}
+.dact-delete{background:rgba(255,80,80,.1);color:var(--red);border:1px solid rgba(255,80,80,.3)}
+
+/* FORM ADD */
+.form-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:12px}
+.form-title{font-size:9px;font-weight:800;letter-spacing:2.5px;color:var(--gsc-gold);text-transform:uppercase;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.textarea{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:11px 13px;font-size:13px;color:#fff;font-family:inherit;outline:none;resize:vertical;min-height:80px}
+.textarea:focus{border-color:var(--gsc-gold)}
+.slider-row{margin-bottom:12px}
+.slider-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.slider-name{font-size:11px;font-weight:600;color:#fff}
+.slider-val{font-family:'Barlow Condensed';font-weight:900;font-size:16px;color:var(--gsc-gold)}
+.slider{width:100%;-webkit-appearance:none;appearance:none;height:4px;border-radius:4px;background:var(--border);outline:none}
+.slider::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--gsc-gold);cursor:pointer;border:2px solid #000}
+.empty{text-align:center;padding:40px;color:var(--muted);font-size:13px}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(201,162,39,.2);border-top-color:var(--gsc-gold);border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.success-toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--bg2);border:1px solid rgba(0,212,106,.4);color:var(--green);padding:12px 22px;border-radius:10px;font-size:13px;font-weight:700;z-index:1000;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="plataforma.html" class="nav-logo">
+    <div class="nav-club">GSC</div>
+    <div class="nav-name">
+      <div class="nav-club-name">Gondomar SC</div>
+      <div class="nav-sub">Dept. Scouting</div>
+    </div>
+  </a>
+  <div class="nav-right">
+    <a href="plataforma.html" class="nav-back">← YTB</a>
+    <button class="nav-logout" id="nav-logout" onclick="logout()">Sair</button>
+  </div>
+</nav>
+
+<!-- LOGIN -->
+<div id="login-view">
+  <div class="login-wrap">
+    <div class="login-badge">GSC</div>
+    <div class="login-club">Gondomar SC</div>
+    <div class="login-dept">Departamento de Scouting</div>
+    <div class="login-sub">Área reservada. Acesso exclusivo para coordenadores e scouts do clube.</div>
+  </div>
+  <div>
+    <div class="login-box">
+      <div class="err" id="err">Password incorrecta.</div>
+      <div class="field">
+        <label class="label">Password</label>
+        <input class="input" id="pass" type="password" placeholder="••••••••••" autocomplete="current-password">
+      </div>
+      <button class="btn btn-gsc" onclick="login()">Entrar no Sistema →</button>
+    </div>
+    <div class="contact-link">Problemas de acesso? <a href="https://wa.me/351913695846" target="_blank">Contactar YTB →</a></div>
+  </div>
+</div>
+
+<!-- MAIN VIEW -->
+<div id="main-view">
+
+  <div class="header-bar">
+    <div class="header-badge">GSC</div>
+    <div class="header-info">
+      <div class="header-title">Gondomar SC</div>
+      <div class="header-sub">Base de Scouting · Powered by YTB</div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-n" id="s-total">-</div><div class="stat-l">Atletas</div></div>
+    <div class="stat"><div class="stat-n" id="s-esc">-</div><div class="stat-l">Escalões</div></div>
+    <div class="stat"><div class="stat-n" id="s-pos">-</div><div class="stat-l">Posições</div></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" id="tab-base" onclick="setTab('base')">📊 Base</button>
+    <button class="tab" id="tab-add" onclick="setTab('add')">➕ Adicionar</button>
+    <button class="tab" id="tab-eval" onclick="setTab('eval')">📋 Avaliar</button>
+  </div>
+
+  <!-- BASE DE DADOS -->
+  <div class="tab-panel active" id="panel-base">
+    <input class="search-input" id="search" type="search" placeholder="🔍 Nome, clube ou posição...">
+    <div class="filters" id="filter-esc">
+      <button class="filter active" data-f="all">Todos</button>
+      <button class="filter" data-f="Sub-9">Sub-9</button>
+      <button class="filter" data-f="Sub-10">Sub-10</button>
+      <button class="filter" data-f="Sub-11">Sub-11</button>
+      <button class="filter" data-f="Sub-12">Sub-12</button>
+      <button class="filter" data-f="Sub-13">Sub-13</button>
+      <button class="filter" data-f="Sub-14">Sub-14</button>
+      <button class="filter" data-f="Sub-15">Sub-15</button>
+      <button class="filter" data-f="Sub-17">Sub-17</button>
+      <button class="filter" data-f="Sub-19">Sub-19</button>
+    </div>
+    <div class="count" id="count">A carregar...</div>
+    <div id="loading" style="text-align:center;padding:30px"><div class="spinner"></div></div>
+    <div id="lista-atletas"></div>
+  </div>
+
+  <!-- ADICIONAR ATLETA -->
+  <div class="tab-panel" id="panel-add">
+    <div class="form-card">
+      <div class="form-title">📋 Dados do Atleta</div>
+      <div class="field"><label class="label">Nome Completo</label><input class="input" id="a_nome" type="text"></div>
+      <div class="row">
+        <div class="field"><label class="label">Data Nascimento</label><input class="input" id="a_nasc" type="date"></div>
+        <div class="field"><label class="label">Pé Dominante</label>
+          <select class="input" id="a_pe"><option value="">--</option><option value="D">Direito</option><option value="E">Esquerdo</option><option value="A">Ambidestro</option></select>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field"><label class="label">Posição</label>
+          <select class="input" id="a_pos">
+            <option value="">--</option>
+            <option value="GR">Guarda-Redes</option><option value="DC">Defesa Central</option>
+            <option value="DLD">Lateral Direito</option><option value="DLE">Lateral Esquerdo</option>
+            <option value="MD">Médio Defensivo</option><option value="MI">Médio Interior</option>
+            <option value="MO">Médio Ofensivo</option><option value="ED">Extremo Direito</option>
+            <option value="EE">Extremo Esquerdo</option><option value="AV">Avançado</option>
+          </select>
+        </div>
+        <div class="field"><label class="label">Escalão</label>
+          <select class="input" id="a_esc">
+            <option>Sub-9</option><option>Sub-10</option><option>Sub-11</option>
+            <option selected>Sub-12</option><option>Sub-13</option><option>Sub-14</option>
+            <option>Sub-15</option><option>Sub-16</option><option>Sub-17</option><option>Sub-19</option>
+          </select>
+        </div>
+      </div>
+      <div class="field"><label class="label">Clube de Origem</label><input class="input" id="a_clube" type="text" placeholder="Clube onde joga actualmente"></div>
+    </div>
+    <div class="form-card">
+      <div class="form-title">📝 Notas de Observação</div>
+      <div class="field"><textarea class="textarea" id="a_notas" placeholder="Observações do scout, contexto do jogo, potencial..."></textarea></div>
+    </div>
+    <button class="btn btn-gold" onclick="adicionarAtleta()">💾 Guardar Atleta</button>
+  </div>
+
+  <!-- AVALIAR ATLETA -->
+  <div class="tab-panel" id="panel-eval">
+    <div id="eval-choose">
+      <div style="font-size:13px;color:var(--slate);margin-bottom:14px;line-height:1.5">Selecciona um atleta da base de dados para fazer avaliação técnica detalhada, ou adiciona novo:</div>
+      <div class="field"><input class="input" id="eval_nome" type="text" placeholder="Nome do atleta a avaliar"></div>
+      <div class="row" style="margin-bottom:14px">
+        <div class="field">
+          <select class="input" id="eval_pos">
+            <option value="">Posição</option>
+            <option value="GR">GR</option><option value="DC">DC</option>
+            <option value="MD">MD</option><option value="MI">MI</option>
+            <option value="AV">AV</option><option value="EXT">EXT</option>
+          </select>
+        </div>
+        <div class="field">
+          <select class="input" id="eval_esc">
+            <option>Sub-12</option><option>Sub-13</option><option>Sub-14</option>
+            <option>Sub-15</option><option>Sub-17</option><option>Sub-19</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <div class="form-title">⚽ Técnica</div>
+        <div id="ev-tecnica"></div>
+      </div>
+      <div class="form-card">
+        <div class="form-title">💪 Físico</div>
+        <div id="ev-fisico"></div>
+      </div>
+      <div class="form-card">
+        <div class="form-title">🧠 Táctica</div>
+        <div id="ev-tatica"></div>
+      </div>
+      <div class="form-card">
+        <div class="form-title">🎯 Mental</div>
+        <div id="ev-mental"></div>
+      </div>
+      <div class="form-card">
+        <div class="form-title">📝 Parecer Final</div>
+        <div class="field"><textarea class="textarea" id="eval_notas" placeholder="Parecer do scout — potencial, limitações, recomendação..."></textarea></div>
+      </div>
+      <button class="btn btn-gold" onclick="gerarAvaliacao()">⚡ Gerar Avaliação</button>
+    </div>
+
+    <div id="eval-result" style="display:none"></div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://nhshnplaiolxwcfuijfo.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oc2hucGxhaW9seHdjZnVpamZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NDQxNTAsImV4cCI6MjA4OTQyMDE1MH0.uyZiDun8495sjnHA6Wsk-Hou-3lubbNJfQqSYbMLSek';
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const PASS = 'Gondomar#Coordenador2026';
+let allAtletas = [];
+let filterEsc = 'all';
+let searchTerm = '';
+
+const CRITERIOS = {
+  tecnica: ['Toque', 'Primeiro toque', 'Passe curto', 'Passe longo', 'Drible', 'Finalização'],
+  fisico: ['Velocidade', 'Resistência', 'Força', 'Agilidade'],
+  tatica: ['Leitura de jogo', 'Posicionamento', 'Decisão', '1×1 ofensivo', 'Visão'],
+  mental: ['Foco', 'Esforço', 'Atitude', 'Liderança']
+};
+
+// LOGIN
+function login() {
+  const p = document.getElementById('pass').value;
+  const err = document.getElementById('err');
+  if (p !== PASS) { err.style.display = 'block'; return; }
+  err.style.display = 'none';
+  sessionStorage.setItem('ytb_gsc', '1');
+  mostrarMain();
+}
+function logout() { sessionStorage.removeItem('ytb_gsc'); location.reload(); }
+function mostrarMain() {
+  document.getElementById('login-view').style.display = 'none';
+  document.getElementById('main-view').style.display = 'block';
+  document.getElementById('nav-logout').style.display = 'block';
+  buildSliders();
+  carregarAtletas();
+}
+if (sessionStorage.getItem('ytb_gsc') === '1') document.addEventListener('DOMContentLoaded', mostrarMain);
+document.getElementById('pass').addEventListener('keypress', e => { if (e.key === 'Enter') login(); });
+
+// TABS
+function setTab(t) {
+  ['base','add','eval'].forEach(n => {
+    document.getElementById('tab-' + n).classList.toggle('active', n === t);
+    document.getElementById('panel-' + n).classList.toggle('active', n === t);
+  });
+}
+
+// FILTERS
+document.querySelectorAll('.filter').forEach(f => {
+  f.addEventListener('click', () => {
+    document.querySelectorAll('.filter').forEach(x => x.classList.remove('active'));
+    f.classList.add('active');
+    filterEsc = f.dataset.f;
+    render();
+  });
+});
+document.getElementById('search').addEventListener('input', e => { searchTerm = e.target.value; render(); });
+
+// LOAD
+async function carregarAtletas() {
+  const { data, error } = await db.from('gondomar_atletas').select('*').order('created_at', { ascending: false });
+  document.getElementById('loading').style.display = 'none';
+  if (error) { document.getElementById('lista-atletas').innerHTML = '<div class="empty">Erro ao carregar: ' + error.message + '</div>'; return; }
+  allAtletas = data || [];
+  atualizarStats();
+  render();
+}
+
+function atualizarStats() {
+  document.getElementById('s-total').textContent = allAtletas.length;
+  const escaloes = new Set(allAtletas.map(a => a.escalao).filter(Boolean));
+  document.getElementById('s-esc').textContent = escaloes.size;
+  const posicoes = new Set(allAtletas.map(a => a.posicao).filter(Boolean));
+  document.getElementById('s-pos').textContent = posicoes.size;
+}
+
+function render() {
+  let filtered = allAtletas;
+  if (filterEsc !== 'all') filtered = filtered.filter(a => a.escalao === filterEsc);
+  if (searchTerm) {
+    const t = searchTerm.toLowerCase();
+    filtered = filtered.filter(a =>
+      (a.nome || '').toLowerCase().includes(t) ||
+      (a.clube_origem || '').toLowerCase().includes(t) ||
+      (a.posicao || '').toLowerCase().includes(t)
+    );
+  }
+
+  document.getElementById('count').textContent = `${filtered.length} atleta${filtered.length !== 1 ? 's' : ''}`;
+
+  const list = document.getElementById('lista-atletas');
+  if (!filtered.length) {
+    list.innerHTML = '<div class="empty">Nenhum atleta encontrado.<br>Usa o separador ➕ para adicionar.</div>';
+    return;
+  }
+
+  list.innerHTML = filtered.map(a => {
+    const ini = (a.nome || '?')[0].toUpperCase();
+    const dt = a.data_nascimento ? new Date(a.data_nascimento).toLocaleDateString('pt-PT', {day:'2-digit', month:'2-digit', year:'numeric'}) : null;
+    const idade = a.data_nascimento ? Math.floor((Date.now() - new Date(a.data_nascimento)) / 31557600000) : null;
+    const scores = a.avaliacao || {};
+    const hasScore = scores.global_score;
+    const scoreColor = hasScore ? (scores.global_score >= 70 ? 'var(--green)' : scores.global_score >= 50 ? 'var(--gsc-gold)' : 'var(--slate)') : '';
+
+    return `
+      <div class="atleta-card" data-id="${a.id}">
+        <div class="atleta-row" onclick="toggleCard('${a.id}')">
+          <div class="atleta-av">${ini}</div>
+          <div style="flex:1;min-width:0">
+            <div class="atleta-nome">${a.nome}</div>
+            <div class="atleta-meta">
+              ${idade ? idade + ' anos · ' : ''}${a.clube_origem || 'Clube não definido'}
+            </div>
+            <div class="atleta-tags">
+              ${a.posicao ? `<span class="tag tag-pos">${a.posicao}</span>` : ''}
+              ${a.escalao ? `<span class="tag tag-esc">${a.escalao}</span>` : ''}
+              ${hasScore ? `<span class="tag" style="background:rgba(201,162,39,.15);color:var(--gsc-gold);border:1px solid rgba(201,162,39,.3)">Score: ${scores.global_score}</span>` : ''}
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0">
+            ${hasScore ? `<div style="font-family:'Barlow Condensed';font-weight:900;font-size:22px;color:${scoreColor}">${scores.global_score}</div>` : ''}
+            <div class="atleta-chev">▶</div>
+          </div>
+        </div>
+
+        <div class="atleta-detail">
+          ${a.posicao ? `<div class="detail-row"><span class="detail-label">Posição</span><span class="detail-value">${a.posicao}</span></div>` : ''}
+          ${a.pe_dominante ? `<div class="detail-row"><span class="detail-label">Pé</span><span class="detail-value">${a.pe_dominante === 'D' ? 'Direito' : a.pe_dominante === 'E' ? 'Esquerdo' : 'Ambidestro'}</span></div>` : ''}
+          ${dt ? `<div class="detail-row"><span class="detail-label">Nascimento</span><span class="detail-value">${dt}${idade ? ' (' + idade + ' anos)' : ''}</span></div>` : ''}
+          ${a.clube_origem ? `<div class="detail-row"><span class="detail-label">Clube</span><span class="detail-value">${a.clube_origem}</span></div>` : ''}
+
+          ${hasScore ? `
+            <div style="margin-top:12px;margin-bottom:8px;font-size:9px;font-weight:800;letter-spacing:2px;color:var(--gsc-gold);text-transform:uppercase">Avaliação Técnica</div>
+            ${['tecnica','fisico','tatica','mental'].map(cat => {
+              const v = scores['_cat_' + cat];
+              if (!v) return '';
+              const labels = {tecnica:'Técnica',fisico:'Físico',tatica:'Táctica',mental:'Mental'};
+              return `<div class="score-bar">
+                <span class="score-label">${labels[cat]}</span>
+                <div class="score-track"><div class="score-fill" style="width:${Math.round(v*10)}%"></div></div>
+                <span class="score-num">${v}</span>
+              </div>`;
+            }).join('')}` : ''}
+
+          ${a.notas ? `<div class="detail-notas">📝 ${a.notas}</div>` : ''}
+
+          <div class="detail-actions">
+            <button class="dact-btn dact-edit" onclick="event.stopPropagation();preencherAvaliacao('${a.id}','${a.nome.replace(/'/g,"\\'")}','${a.posicao||''}','${a.escalao||''}')">📋 Avaliar</button>
+            <button class="dact-btn dact-delete" onclick="event.stopPropagation();eliminarAtleta('${a.id}','${a.nome.replace(/'/g,"\\'")}')">🗑 Eliminar</button>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function toggleCard(id) {
+  const card = document.querySelector(`.atleta-card[data-id="${id}"]`);
+  if (!card) return;
+  document.querySelectorAll('.atleta-card.expanded').forEach(c => { if (c !== card) c.classList.remove('expanded'); });
+  card.classList.toggle('expanded');
+}
+
+// ADD ATLETA
+async function adicionarAtleta() {
+  const nome = document.getElementById('a_nome').value.trim();
+  if (!nome) { alert('Insere o nome do atleta'); return; }
+
+  const { error } = await db.from('gondomar_atletas').insert({
+    nome,
+    data_nascimento: document.getElementById('a_nasc').value || null,
+    posicao: document.getElementById('a_pos').value || null,
+    pe_dominante: document.getElementById('a_pe').value || null,
+    escalao: document.getElementById('a_esc').value || null,
+    clube_origem: document.getElementById('a_clube').value.trim() || null,
+    notas: document.getElementById('a_notas').value.trim() || null,
+  });
+
+  if (error) { alert('Erro: ' + error.message); return; }
+
+  ['a_nome','a_nasc','a_clube','a_notas'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  document.getElementById('a_pos').value = '';
+  document.getElementById('a_pe').value = '';
+
+  showToast('✓ Atleta adicionado');
+  carregarAtletas();
+  setTab('base');
+}
+
+// DELETE ATLETA
+async function eliminarAtleta(id, nome) {
+  if (!confirm(`Eliminar "${nome}" da base de dados?\n\nEsta acção não pode ser desfeita.`)) return;
+  const { error } = await db.from('gondomar_atletas').delete().eq('id', id);
+  if (error) { alert('Erro: ' + error.message); return; }
+  showToast('✓ Atleta eliminado');
+  carregarAtletas();
+}
+
+// SLIDERS
+function buildSliders() {
+  Object.entries(CRITERIOS).forEach(([cat, items]) => {
+    const el = document.getElementById('ev-' + cat);
+    if (!el) return;
+    el.innerHTML = items.map(name => {
+      const id = 'ev_' + name.replace(/[^a-z]/gi, '_').toLowerCase();
+      return `<div class="slider-row">
+        <div class="slider-label">
+          <span class="slider-name">${name}</span>
+          <span class="slider-val" id="vv_${id}">6</span>
+        </div>
+        <input class="slider" type="range" id="${id}" min="1" max="10" value="6"
+          oninput="document.getElementById('vv_${id}').textContent=this.value">
+      </div>`;
+    }).join('');
+  });
+}
+
+function preencherAvaliacao(id, nome, pos, esc) {
+  document.getElementById('eval_nome').value = nome;
+  if (pos) document.getElementById('eval_pos').value = pos;
+  if (esc) document.getElementById('eval_esc').value = esc;
+  setTab('eval');
+  document.getElementById('eval-choose').dataset.atletaId = id;
+}
+
+// GERAR AVALIAÇÃO
+async function gerarAvaliacao() {
+  const nome = document.getElementById('eval_nome').value.trim();
+  if (!nome) { alert('Insere o nome do atleta'); return; }
+
+  const scores = {};
+  let totalCats = 0, numCats = 0;
+
+  Object.entries(CRITERIOS).forEach(([cat, items]) => {
+    let catTotal = 0;
+    items.forEach(name => {
+      const id = 'ev_' + name.replace(/[^a-z]/gi, '_').toLowerCase();
+      const val = parseInt(document.getElementById(id)?.value || 6);
+      scores[name] = val;
+      catTotal += val;
+    });
+    scores['_cat_' + cat] = Math.round(catTotal / items.length * 10) / 10;
+    totalCats += catTotal / items.length;
+    numCats++;
+  });
+
+  const globalScore = Math.round(totalCats / numCats * 10);
+  scores.global_score = globalScore;
+
+  const notas = document.getElementById('eval_notas').value.trim();
+  const pos = document.getElementById('eval_pos').value;
+  const esc = document.getElementById('eval_esc').value;
+
+  // Guardar na avaliação do atleta
+  const atletaId = document.getElementById('eval-choose').dataset.atletaId;
+  if (atletaId) {
+    await db.from('gondomar_atletas').update({ avaliacao: scores, notas: notas || undefined }).eq('id', atletaId);
+  }
+
+  // Guardar nos relatorios globais
+  await db.from('relatorios').insert({
+    nome_atleta: nome,
+    posicao: pos,
+    escalao: esc,
+    scores,
+    global_score: globalScore,
+    treinador: 'Gondomar SC',
+    tipo: 'scout'
+  });
+
+  // Mostrar resultado
+  const scoreColor = globalScore >= 70 ? 'var(--green)' : globalScore >= 50 ? 'var(--gsc-gold)' : 'var(--slate)';
+  const fraquezas = Object.entries(scores).filter(([k,v]) => !k.startsWith('_') && !k.includes('score') && v < 5);
+  const forcas = Object.entries(scores).filter(([k,v]) => !k.startsWith('_') && !k.includes('score') && v >= 8);
+
+  const cats = ['tecnica','fisico','tatica','mental'];
+  const catLabels = {tecnica:'Técnica',fisico:'Físico',tatica:'Táctica',mental:'Mental'};
+
+  const result = document.getElementById('eval-result');
+  result.style.display = 'block';
+  document.getElementById('eval-choose').style.display = 'none';
+
+  result.innerHTML = `
+    <div style="background:linear-gradient(135deg,rgba(26,58,107,.2),rgba(0,0,0,.4));border:2px solid rgba(201,162,39,.3);border-radius:14px;padding:20px;margin-bottom:12px">
+      <div style="font-size:10px;font-weight:800;letter-spacing:2px;color:var(--gsc-gold);text-transform:uppercase;margin-bottom:10px">
+        🔍 Gondomar SC · Avaliação Técnica · ${nome}
+      </div>
+      <div style="text-align:center;margin-bottom:16px">
+        <div style="font-family:'Barlow Condensed';font-weight:900;font-size:72px;color:${scoreColor};line-height:1">${globalScore}</div>
+        <div style="font-size:10px;font-weight:800;letter-spacing:2px;color:#fff;text-transform:uppercase;margin-top:4px">Score Global /100</div>
+      </div>
+      ${cats.map(cat => {
+        const v = scores['_cat_' + cat];
+        const pct = Math.round(v * 10);
+        return `<div class="score-bar">
+          <span class="score-label">${catLabels[cat]}</span>
+          <div class="score-track"><div class="score-fill" style="width:${pct}%"></div></div>
+          <span class="score-num">${v}</span>
+        </div>`;
+      }).join('')}
+      ${fraquezas.length ? `
+        <div style="font-size:9px;font-weight:800;letter-spacing:2px;color:var(--red);text-transform:uppercase;margin:14px 0 8px">⚠ Áreas críticas</div>
+        ${fraquezas.slice(0,5).map(([k,v]) => `<div style="background:rgba(255,80,80,.08);border:1px solid rgba(255,80,80,.2);border-radius:7px;padding:8px 12px;margin-bottom:5px;font-size:12px;color:#fff">⚠️ ${k} (${v}/10)</div>`).join('')}` : ''}
+      ${forcas.length ? `
+        <div style="font-size:9px;font-weight:800;letter-spacing:2px;color:var(--green);text-transform:uppercase;margin:14px 0 8px">✅ Destaques</div>
+        ${forcas.slice(0,4).map(([k,v]) => `<div style="background:rgba(0,212,106,.08);border:1px solid rgba(0,212,106,.2);border-radius:7px;padding:8px 12px;margin-bottom:5px;font-size:12px;color:#fff">✅ ${k} (${v}/10)</div>`).join('')}` : ''}
+      ${notas ? `<div style="margin-top:14px;padding:12px;background:var(--bg3);border-radius:8px;font-size:12px;color:var(--slate);line-height:1.55;border-left:2px solid var(--gsc-gold)">📝 ${notas}</div>` : ''}
+    </div>
+    <button class="btn btn-secondary" onclick="document.getElementById('eval-choose').style.display='block';document.getElementById('eval-result').style.display='none';carregarAtletas()">← Nova Avaliação</button>`;
+
+  showToast('✓ Avaliação guardada');
+}
+
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.className = 'success-toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2500);
+}
+</script>
+</body>
+</html>

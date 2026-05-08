@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Área Família · YTB</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#080C08;--bg2:#0F1410;--bg3:#161D17;--gold:#D4AF37;--gold-soft:rgba(212,175,55,.15);--gold-border:rgba(212,175,55,.3);--green:#00D46A;--blue:#4A9FE8;--border:#1F2520;--white:#fff;--slate:#aaa;--muted:#666}
+html,body{background:var(--bg);color:var(--white);font-family:'Plus Jakarta Sans',sans-serif;min-height:100vh}
+body{max-width:520px;margin:0 auto;padding-bottom:60px}
+.nav{position:sticky;top:0;z-index:100;background:rgba(8,12,8,.97);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:13px 18px;display:flex;align-items:center;justify-content:space-between}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-badge{width:32px;height:32px;background:var(--gold);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:900;font-size:13px;color:#000}
+.nav-name{font-family:'Barlow Condensed';font-weight:800;font-size:18px;letter-spacing:1.5px;color:#fff}
+.nav-name span{color:var(--gold)}
+.nav-back{font-size:12px;color:var(--slate);text-decoration:none}
+.nav-logout{font-size:11px;color:#ff5050;cursor:pointer;background:none;border:none;font-family:inherit;display:none}
+
+/* LOGIN */
+.login-wrap{padding:50px 22px 0;text-align:center}
+.login-icon{font-size:56px;margin-bottom:14px}
+.login-title{font-family:'Barlow Condensed';font-weight:900;font-size:36px;line-height:1;letter-spacing:-1px;margin-bottom:6px}
+.login-title span{color:var(--gold)}
+.login-sub{font-size:13px;color:var(--slate);margin-bottom:24px;line-height:1.5}
+.login-box{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:22px;margin:0 18px 16px}
+.label{display:block;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;color:#fff}
+.input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:11px 13px;font-size:14px;color:#fff;font-family:inherit;outline:none}
+.input:focus{border-color:var(--gold)}
+.field{margin-bottom:12px}
+.btn{width:100%;padding:14px;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit}
+.btn-primary{background:var(--gold);color:#000}
+.btn-secondary{background:var(--bg3);color:#fff;border:1px solid var(--border)}
+.err{color:#ff8080;font-size:12px;margin-bottom:10px;display:none}
+.contact-link{font-size:12px;color:var(--slate);text-align:center;margin-top:12px}
+.contact-link a{color:var(--gold);text-decoration:none}
+
+#main-view{display:none;padding:18px}
+.welcome-bar{background:linear-gradient(135deg,rgba(74,159,232,.08),rgba(0,0,0,.3));border:1px solid rgba(74,159,232,.3);border-radius:12px;padding:14px 16px;margin-bottom:18px}
+.tabs{display:flex;gap:3px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:3px;margin-bottom:18px}
+.tab{flex:1;background:transparent;border:none;color:var(--slate);font-size:10px;font-weight:700;padding:9px 4px;border-radius:8px;cursor:pointer;font-family:inherit;text-transform:uppercase;letter-spacing:.5px}
+.tab.active{background:var(--gold);color:#000}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.section-title{font-family:'Barlow Condensed';font-weight:900;font-size:24px;color:#fff;margin-bottom:6px}
+.section-sub{font-size:12px;color:var(--slate);margin-bottom:18px;line-height:1.5}
+
+/* QUESTIONNAIRE */
+.quest-progress{background:var(--border);border-radius:100px;height:4px;margin-bottom:24px;overflow:hidden}
+.quest-progress-fill{background:var(--gold);height:100%;border-radius:100px;transition:width .4s ease}
+.quest-step{animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.quest-num{font-size:10px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:8px}
+.quest-q{font-size:18px;font-weight:700;color:#fff;line-height:1.4;margin-bottom:6px}
+.quest-hint{font-size:12px;color:var(--muted);margin-bottom:18px}
+.quest-options{display:flex;flex-direction:column;gap:8px}
+.quest-opt{background:var(--bg2);border:2px solid var(--border);border-radius:10px;padding:14px 16px;cursor:pointer;font-size:13px;font-weight:600;color:#fff;text-align:left;font-family:inherit;transition:all .15s}
+.quest-opt:hover,.quest-opt:active{border-color:var(--gold-border);background:var(--bg3)}
+.quest-opt.selected{border-color:var(--gold);background:var(--gold-soft);color:var(--gold)}
+.quest-nav{display:flex;justify-content:space-between;margin-top:18px;gap:8px}
+.quest-nav .btn{width:auto;padding:12px 20px;font-size:12px}
+
+/* RESULTADO */
+.result-card{background:linear-gradient(135deg,rgba(212,175,55,.08),rgba(0,0,0,.3));border:2px solid var(--gold-border);border-radius:14px;padding:20px;margin-bottom:12px}
+.score-big{font-family:'Barlow Condensed';font-weight:900;font-size:72px;color:var(--gold);text-align:center;line-height:1}
+.pos-card{background:var(--gold-soft);border:1px solid var(--gold-border);border-radius:10px;padding:14px;text-align:center;margin-top:12px}
+.pos-titulo{font-size:9px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:4px}
+.pos-nome{font-family:'Barlow Condensed';font-weight:900;font-size:28px;color:#fff}
+.debilidades-list{margin-top:14px;display:flex;flex-direction:column;gap:6px}
+.deb-item{background:rgba(255,80,80,.08);border:1px solid rgba(255,80,80,.2);border-radius:8px;padding:10px 12px;font-size:12px;color:#fff;display:flex;gap:8px}
+.card-treino{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:8px;display:flex;gap:12px}
+.card-num{width:34px;height:34px;border-radius:8px;background:var(--gold-soft);border:1px solid var(--gold-border);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:900;font-size:13px;color:var(--gold);flex-shrink:0}
+.card-nome{font-size:13px;font-weight:700;color:#fff;margin-bottom:3px}
+.card-desc{font-size:11px;color:var(--slate);line-height:1.5}
+.action-row{display:flex;gap:8px;margin-top:14px}
+.action-btn{flex:1;padding:12px;border-radius:9px;font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;text-align:center;border:none;cursor:pointer;font-family:inherit;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px}
+.ab-blue{background:rgba(74,159,232,.15);color:var(--blue);border:1px solid rgba(74,159,232,.3)}
+.ab-green{background:rgba(0,212,106,.12);color:var(--green);border:1px solid rgba(0,212,106,.3)}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="plataforma.html" class="nav-logo">
+    <div class="nav-badge">YT</div>
+    <div class="nav-name">Your<span>Talent</span>Base</div>
+  </a>
+  <div style="display:flex;align-items:center;gap:12px">
+    <a href="plataforma.html" class="nav-back">← Áreas</a>
+    <button class="nav-logout" id="nav-logout" onclick="logout()">Sair</button>
+  </div>
+</nav>
+
+<!-- LOGIN -->
+<div id="login-view">
+  <div class="login-wrap">
+    <div class="login-icon">👨‍👧</div>
+    <div class="login-title">Área <span>Família</span></div>
+    <div class="login-sub">Entra com o código que recebeste quando inscreveste o teu filho.</div>
+  </div>
+  <div>
+    <div class="login-box">
+      <div class="err" id="err">Código inválido. Verifica o email ou WhatsApp que recebeste.</div>
+      <div class="field">
+        <label class="label">Código de Acesso</label>
+        <input class="input" id="pass" type="password" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <div class="field">
+        <label class="label">Nome do Atleta</label>
+        <input class="input" id="nome-atleta-input" type="text" placeholder="Ex: Coutinho">
+      </div>
+      <button class="btn btn-primary" style="margin-top:4px" onclick="login()">Entrar →</button>
+    </div>
+    <div class="contact-link">Não tens código? <a href="https://wa.me/351913695846" target="_blank">Fala connosco →</a></div>
+    <div class="contact-link" style="margin-top:8px">Ainda não inscreveste? <a href="inscrever.html">Inscreve aqui →</a></div>
+  </div>
+</div>
+
+<!-- MAIN VIEW -->
+<div id="main-view">
+  <div class="welcome-bar">
+    <div style="font-size:14px;font-weight:700;color:#fff">Bem-vindo, <span style="color:var(--blue)" id="nome-atleta-show">Atleta</span> 👋</div>
+    <div style="font-size:11px;color:var(--muted);margin-top:2px">Plataforma Família · YTB</div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="setTab('avaliar')">Avaliar</button>
+    <button class="tab" onclick="setTab('treino')">Treino</button>
+    <button class="tab" onclick="setTab('tatica')">Táctica</button>
+    <button class="tab" onclick="setTab('relatorio')">Relatório</button>
+  </div>
+
+  <!-- AVALIAR -->
+  <div class="tab-panel active" id="tab-avaliar">
+    <div class="section-title">Avaliação <span style="color:var(--gold)">do Atleta</span></div>
+    <div class="section-sub">Responde às perguntas sobre o teu filho. Sê honesto — é o que torna a avaliação útil.</div>
+    <div id="quest-area"></div>
+    <div id="quest-result" style="display:none"></div>
+  </div>
+
+  <!-- TREINO -->
+  <div class="tab-panel" id="tab-treino">
+    <div class="section-title">Treino <span style="color:var(--gold)">em Casa</span></div>
+    <div class="section-sub" id="treino-sub">Faz a avaliação primeiro para receberes treinos personalizados</div>
+    <div id="treino-area"></div>
+  </div>
+
+  <!-- TÁCTICA -->
+  <div class="tab-panel" id="tab-tatica">
+    <div class="section-title">Elite <span style="color:var(--gold)">Coach</span></div>
+    <div class="section-sub">Aprende os padrões táticos mais importantes para a posição do teu filho</div>
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:12px">
+      <iframe src="tacticslab.html" style="width:100%;height:580px;border:none;display:block" title="Elite Coach"></iframe>
+    </div>
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px">
+      <div id="tatica-contexto" style="font-size:12px;color:var(--slate);line-height:1.6">
+        Faz a avaliação para ver padrões táticos específicos para o teu filho.
+      </div>
+    </div>
+  </div>
+
+  <!-- RELATÓRIO -->
+  <div class="tab-panel" id="tab-relatorio">
+    <div class="section-title">Relatório <span style="color:var(--gold)">Completo</span></div>
+    <div id="relatorio-area">
+      <div style="text-align:center;padding:40px;color:var(--muted);font-size:13px">Completa a avaliação para ver o relatório.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://nhshnplaiolxwcfuijfo.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oc2hucGxhaW9seHdjZnVpamZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NDQxNTAsImV4cCI6MjA4OTQyMDE1MH0.uyZiDun8495sjnHA6Wsk-Hou-3lubbNJfQqSYbMLSek';
+const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const FAMILIA_PASS = 'YTB#Familia2026';
+let nomeAtleta = '';
+let respostas = {};
+let resultadoFinal = null;
+let questStep = 0;
+
+const PERGUNTAS = [
+  {id:'posicao', q:'Em que posição joga habitualmente?', hint:'Escolhe a posição principal dele/dela.',
+   opts:[['GR','Guarda-Redes'],['DC','Defesa Central'],['LAT','Lateral'],['MD','Médio Defensivo'],['MI','Médio Interior'],['MO','Médio Ofensivo'],['EXT','Extremo'],['AV','Avançado']]},
+  {id:'pe', q:'Qual é o pé dominante?', hint:'',
+   opts:[['D','Pé Direito'],['E','Pé Esquerdo'],['A','Ambidestro']]},
+  {id:'velocidade', q:'Como descreveria a velocidade do teu filho?', hint:'Em relação aos colegas da mesma idade.',
+   opts:[['alta','Está entre os mais rápidos da equipa'],['media','Velocidade média, semelhante aos colegas'],['baixa','Não é o ponto forte, compensa noutras áreas']]},
+  {id:'tecnica', q:'Como é o toque de bola e técnica individual?', hint:'',
+   opts:[['boa','Excelente — muito à vontade com bola'],['media','Razoável — cumpre mas pode melhorar'],['fraca','Perde a bola frequentemente sob pressão']]},
+  {id:'decisao', q:'Como decide quando tem bola pressionado?', hint:'A situação mais frequente em jogo.',
+   opts:[['vertical','Arrisca passe vertical / progressão'],['seguro','Joga seguro, passa para trás'],['longo','Bate longo para a frente'],['perde','Demora muito e perde a bola']]},
+  {id:'posicionamento', q:'Como é o posicionamento sem bola?', hint:'',
+   opts:[['bom','Está sempre no sítio certo — pede a bola bem'],['medio','Às vezes está bem posicionado'],['fraco','Perde-se frequentemente, difícil de encontrar']]},
+  {id:'mental', q:'Como reage quando a equipa está a perder?', hint:'',
+   opts:[['lider','Anima os colegas, tenta mudar o jogo'],['esforco','Esforça-se mais individualmente'],['baixa','Fica mais nervoso ou desliga']]},
+  {id:'forca', q:'Como é fisicamente em duelos e bola dividida?', hint:'',
+   opts:[['forte','Ganha a maioria dos duelos físicos'],['medio','Equilibrado'],['fraco','Evita duelos, prefere antecipar']]},
+];
+
+// PONTOS para calcular perfil
+const PESOS_POSICAO = {
+  GR:   {velocidade:{alta:2,media:1,baixa:0}, tecnica:{boa:3,media:2,fraca:0}, forca:{forte:2,medio:1,fraco:0}},
+  DEF:  {velocidade:{alta:2,media:1,baixa:0}, forca:{forte:3,medio:2,fraco:0}, posicionamento:{bom:3,medio:1,fraco:0}},
+  MED:  {tecnica:{boa:3,media:2,fraca:0}, decisao:{vertical:3,seguro:1,longo:0,perde:0}, posicionamento:{bom:3,medio:1,fraco:0}},
+  AV:   {velocidade:{alta:3,media:1,baixa:0}, tecnica:{boa:2,media:1,fraca:0}, decisao:{vertical:3,seguro:0,longo:1,perde:0}},
+};
+
+const DEBILIDADES_MAP = {
+  tecnica_fraca: {label:'Técnica individual', area:'Técnica'},
+  velocidade_baixa: {label:'Velocidade e explosão', area:'Físico'},
+  decisao_perde: {label:'Decisão sob pressão', area:'Táctica'},
+  posicionamento_fraco: {label:'Posicionamento sem bola', area:'Táctica'},
+  forca_fraco: {label:'Duelos físicos', area:'Físico'},
+  mental_baixa: {label:'Resiliência mental', area:'Mental'},
+};
+
+const TREINOS_MAP = {
+  tecnica_fraca: [{n:'Toques Alternados',d:'Alternar toques com ambos os pés sem deixar cair. 3 séries de 2 minutos.'},{n:'Domínio Orientado',d:'Lança bola ao ar, domina e orienta para frente. 10 reps.'}],
+  velocidade_baixa: [{n:'Sprints 10m',d:'5 sprints de 10m com 30s de pausa. Foco na saída.'},{n:'Saltos Explosivos',d:'3 séries de 10 saltos verticais. Aterragem controlada.'}],
+  decisao_perde: [{n:'Passe de 1 toque à parede',d:'Passe contínuo à parede. 1 toque. 1 minuto sem parar.'},{n:'Decisão 2 Toques',d:'Recebe, olha, decide, passa. Treinar o scanning antes de receber.'}],
+  posicionamento_fraco: [{n:'Receber Entre Linhas',d:'Simula movimentos de desmarcação. Recebe e roda.'}],
+  forca_fraco: [{n:'Core Básico',d:'Prancha 3x30s. Abdominais 3x20. Base para duelos.'},{n:'Saltos + Aterragem',d:'3x10 saltos com aterragem equilibrada sobre 1 pé.'}],
+  mental_baixa: [{n:'Desafio 7 Dias',d:'Compromete-te a fazer 1 exercício por dia durante 7 dias. Regista no telemóvel.'}],
+};
+
+function login() {
+  const p = document.getElementById('pass').value;
+  const n = document.getElementById('nome-atleta-input').value.trim();
+  const err = document.getElementById('err');
+  if (p !== FAMILIA_PASS) { err.style.display = 'block'; return; }
+  if (!n) { err.style.display = 'block'; err.textContent = 'Insere o nome do atleta'; return; }
+  err.style.display = 'none';
+  nomeAtleta = n;
+  sessionStorage.setItem('ytb_familia', JSON.stringify({nome: n}));
+  mostrarMain();
+}
+
+function logout() {
+  sessionStorage.removeItem('ytb_familia');
+  location.reload();
+}
+
+function mostrarMain() {
+  document.getElementById('login-view').style.display = 'none';
+  document.getElementById('main-view').style.display = 'block';
+  document.getElementById('nav-logout').style.display = 'block';
+  document.getElementById('nome-atleta-show').textContent = nomeAtleta;
+  buildQuestionario();
+}
+
+const saved = sessionStorage.getItem('ytb_familia');
+if (saved) {
+  const s = JSON.parse(saved);
+  nomeAtleta = s.nome;
+  document.addEventListener('DOMContentLoaded', mostrarMain);
+}
+
+document.getElementById('pass').addEventListener('keypress', e => { if (e.key === 'Enter') login(); });
+
+function setTab(name) {
+  const names = ['avaliar','treino','tatica','relatorio'];
+  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', names[i] === name));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+function buildQuestionario() {
+  renderPergunta();
+}
+
+function renderPergunta() {
+  const total = PERGUNTAS.length;
+  const pct = Math.round((questStep / total) * 100);
+  const p = PERGUNTAS[questStep];
+
+  const area = document.getElementById('quest-area');
+  area.innerHTML = `
+    <div class="quest-progress"><div class="quest-progress-fill" style="width:${pct}%"></div></div>
+    <div class="quest-step">
+      <div class="quest-num">Pergunta ${questStep + 1} de ${total}</div>
+      <div class="quest-q">${p.q}</div>
+      ${p.hint ? `<div class="quest-hint">${p.hint}</div>` : ''}
+      <div class="quest-options">
+        ${p.opts.map(([val, label]) => `
+          <button class="quest-opt ${respostas[p.id] === val ? 'selected' : ''}"
+            onclick="selecionarResposta('${p.id}','${val}',this)">
+            ${label}
+          </button>`).join('')}
+      </div>
+      <div class="quest-nav">
+        ${questStep > 0 ? `<button class="btn btn-secondary" style="width:auto;padding:11px 18px;font-size:12px" onclick="prevPergunta()">← Anterior</button>` : '<div></div>'}
+        <button class="btn btn-primary" style="width:auto;padding:11px 22px;font-size:12px" onclick="nextPergunta()">
+          ${questStep < total - 1 ? 'Próxima →' : 'Ver Resultado →'}
+        </button>
+      </div>
+    </div>`;
+}
+
+function selecionarResposta(id, val, el) {
+  respostas[id] = val;
+  el.closest('.quest-options').querySelectorAll('.quest-opt').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function nextPergunta() {
+  const p = PERGUNTAS[questStep];
+  if (!respostas[p.id]) { alert('Selecciona uma opção'); return; }
+  if (questStep < PERGUNTAS.length - 1) { questStep++; renderPergunta(); }
+  else { gerarResultado(); }
+}
+
+function prevPergunta() { if (questStep > 0) { questStep--; renderPergunta(); } }
+
+function gerarResultado() {
+  // Detectar posição recomendada
+  const pos = respostas.posicao || 'MED';
+  const posLabel = {GR:'Guarda-Redes',DC:'Defesa Central',LAT:'Lateral',MD:'Médio Defensivo',MI:'Médio Interior',MO:'Médio Ofensivo',EXT:'Extremo',AV:'Avançado'}[pos] || pos;
+
+  // Calcular score global (0-100)
+  let pts = 0;
+  if (respostas.velocidade === 'alta') pts += 20; else if (respostas.velocidade === 'media') pts += 12;
+  if (respostas.tecnica === 'boa') pts += 25; else if (respostas.tecnica === 'media') pts += 15;
+  if (respostas.decisao === 'vertical') pts += 20; else if (respostas.decisao === 'seguro') pts += 12;
+  if (respostas.posicionamento === 'bom') pts += 20; else if (respostas.posicionamento === 'medio') pts += 12;
+  if (respostas.mental === 'lider') pts += 15; else if (respostas.mental === 'esforco') pts += 10;
+  const score = Math.min(95, pts);
+
+  // Detectar debilidades
+  const debs = [];
+  if (respostas.tecnica === 'fraca') debs.push('tecnica_fraca');
+  if (respostas.velocidade === 'baixa') debs.push('velocidade_baixa');
+  if (respostas.decisao === 'perde') debs.push('decisao_perde');
+  if (respostas.posicionamento === 'fraco') debs.push('posicionamento_fraco');
+  if (respostas.forca === 'fraco') debs.push('forca_fraco');
+  if (respostas.mental === 'baixa') debs.push('mental_baixa');
+
+  resultadoFinal = { pos, posLabel, score, debs };
+
+  // Guardar no Supabase
+  supa.from('relatorios').insert({
+    nome_atleta: nomeAtleta,
+    posicao: pos,
+    escalao: 'Família',
+    scores: respostas,
+    global_score: score,
+    treinador: 'Auto-avaliação família',
+    tipo: 'familia'
+  }).then(() => {});
+
+  // Mostrar resultado
+  const debsHTML = debs.map(d => {
+    const info = DEBILIDADES_MAP[d];
+    return `<div class="deb-item">⚠️ ${info.label} <span style="margin-left:auto;font-size:9px;color:var(--muted)">${info.area}</span></div>`;
+  }).join('');
+
+  const scoreColor = score >= 70 ? 'var(--green)' : score >= 50 ? 'var(--gold)' : 'var(--slate)';
+
+  document.getElementById('quest-area').style.display = 'none';
+  const result = document.getElementById('quest-result');
+  result.style.display = 'block';
+  result.innerHTML = `
+    <div class="result-card">
+      <div style="font-size:11px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:10px">Avaliação de ${nomeAtleta}</div>
+      <div class="score-big" style="color:${scoreColor}">${score}</div>
+      <div style="text-align:center;font-size:10px;font-weight:800;letter-spacing:2px;color:#fff;text-transform:uppercase;margin-top:4px;margin-bottom:14px">Perfil Estimado /100</div>
+      <div class="pos-card">
+        <div class="pos-titulo">Posição Declarada</div>
+        <div class="pos-nome">${posLabel}</div>
+        <div style="font-size:11px;color:var(--slate);margin-top:4px">Pé ${respostas.pe === 'D' ? 'Direito' : respostas.pe === 'E' ? 'Esquerdo' : 'Ambidestro'}</div>
+      </div>
+      ${debs.length ? `
+        <div style="font-size:9px;font-weight:800;letter-spacing:2px;color:#ff8080;text-transform:uppercase;margin:14px 0 8px">⚠ Áreas a trabalhar</div>
+        <div class="debilidades-list">${debsHTML}</div>` : '<div style="color:var(--green);font-size:13px;margin-top:14px;text-align:center">✅ Perfil forte! Mantém consistência.</div>'}
+    </div>
+    <div class="action-row">
+      <button class="action-btn ab-green" onclick="setTab('treino');gerarTreino()">⚽ Ver Treino</button>
+      <button class="action-btn ab-blue" onclick="setTab('tatica')">🧠 Táctica</button>
+    </div>
+    <div style="margin-top:12px">
+      <button class="btn btn-secondary" onclick="resetQuest()">← Refazer avaliação</button>
+    </div>`;
+
+  gerarTreino();
+  gerarRelatorio();
+  atualizarContextoTatica();
+}
+
+function gerarTreino() {
+  if (!resultadoFinal) return;
+  const area = document.getElementById('treino-area');
+  document.getElementById('treino-sub').textContent = `Plano personalizado para ${nomeAtleta} · ${resultadoFinal.debs.length} áreas de foco`;
+
+  const cards = [];
+  resultadoFinal.debs.forEach(d => {
+    const treinos = TREINOS_MAP[d] || [];
+    treinos.forEach(t => { if (!cards.find(c => c.n === t.n)) cards.push(t); });
+  });
+
+  if (!cards.length) {
+    area.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)">Perfil forte! Mantém treino regular.</div>';
+    return;
+  }
+
+  area.innerHTML = `
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px">
+      <div style="font-size:10px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:6px">📅 Plano 30 dias · 3x semana</div>
+      <div style="font-size:12px;color:var(--slate);line-height:1.55">Focado nas áreas detectadas na avaliação. Pratica em casa com espaço mínimo de 5m².</div>
+    </div>
+    ${cards.slice(0,6).map((c,i) => `
+      <div class="card-treino">
+        <div class="card-num">${String(i+1).padStart(2,'0')}</div>
+        <div>
+          <div class="card-nome">${c.n}</div>
+          <div class="card-desc">${c.d}</div>
+        </div>
+      </div>`).join('')}`;
+}
+
+function gerarRelatorio() {
+  if (!resultadoFinal) return;
+  const area = document.getElementById('relatorio-area');
+  const {pos, posLabel, score, debs} = resultadoFinal;
+  const scoreColor = score >= 70 ? 'var(--green)' : score >= 50 ? 'var(--gold)' : 'var(--slate)';
+
+  area.innerHTML = `
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:12px">
+      <div style="font-size:11px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:10px">📋 Relatório Familiar — ${nomeAtleta}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+        <div style="background:var(--bg3);border-radius:8px;padding:12px;text-align:center">
+          <div style="font-family:'Barlow Condensed';font-weight:900;font-size:40px;color:${scoreColor}">${score}</div>
+          <div style="font-size:9px;font-weight:800;letter-spacing:1.5px;color:var(--slate);text-transform:uppercase;margin-top:2px">Score /100</div>
+        </div>
+        <div style="background:var(--bg3);border-radius:8px;padding:12px;text-align:center">
+          <div style="font-family:'Barlow Condensed';font-weight:900;font-size:20px;color:#fff">${posLabel}</div>
+          <div style="font-size:9px;font-weight:800;letter-spacing:1.5px;color:var(--slate);text-transform:uppercase;margin-top:2px">Posição</div>
+        </div>
+      </div>
+      ${debs.length ? `
+        <div style="font-size:9px;font-weight:800;letter-spacing:2px;color:#ff8080;text-transform:uppercase;margin-bottom:8px">Áreas a desenvolver</div>
+        ${debs.map(d => `<div style="font-size:12px;color:#fff;padding:6px 0;border-bottom:1px solid var(--border)">⚠️ ${DEBILIDADES_MAP[d].label}</div>`).join('')}
+      ` : `<div style="color:var(--green);font-size:13px;text-align:center">✅ Sem debilidades críticas detectadas</div>`}
+      <div style="margin-top:14px;font-size:11px;color:var(--slate);line-height:1.6">
+        ⚠️ Esta avaliação é baseada no questionário preenchido pelo encarregado. Para uma avaliação profissional com 25+ critérios, 
+        <a href="scout-report.html" style="color:var(--gold)">consulta o Scout Report →</a>
+      </div>
+    </div>`;
+}
+
+function atualizarContextoTatica() {
+  if (!resultadoFinal) return;
+  const padroes = {
+    tecnica_fraca: 'Foca em jogadas simples — 1-2 toques. Evitar driblar onde não é necessário.',
+    decisao_perde: 'Scanning: olhar 2-3 vezes antes de receber. Decidir antes da bola chegar.',
+    posicionamento_fraco: 'Posição sem bola — estar no espaço certo antes de pedir a bola.',
+    velocidade_baixa: 'Compensar com antecipação — chegar primeiro ao espaço, não ao adversário.',
+    forca_fraco: 'Jogar antes do contacto — antecipar, não disputar o duelo.',
+  };
+
+  const ctx = document.getElementById('tatica-contexto');
+  const sugestoes = resultadoFinal.debs.filter(d => padroes[d]).map(d =>
+    `<div style="margin-bottom:8px">⚡ <strong>${DEBILIDADES_MAP[d].label}:</strong> ${padroes[d]}</div>`
+  );
+
+  ctx.innerHTML = sugestoes.length
+    ? `<div style="font-size:10px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:10px">Padrões para ${nomeAtleta}</div>${sugestoes.join('')}`
+    : 'Avaliação completa. Usa o Elite Coach para explorar padrões táticos da posição.';
+}
+
+function resetQuest() {
+  questStep = 0;
+  respostas = {};
+  resultadoFinal = null;
+  document.getElementById('quest-area').style.display = 'block';
+  document.getElementById('quest-result').style.display = 'none';
+  renderPergunta();
+}
+</script>
+</body>
+</html>

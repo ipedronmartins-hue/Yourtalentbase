@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>YourTalentBase · Plataforma</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#080C08;--bg2:#0F1410;--bg3:#161D17;--gold:#D4AF37;--gold-soft:rgba(212,175,55,.15);--gold-border:rgba(212,175,55,.3);--green:#00D46A;--blue:#4A9FE8;--border:#1F2520;--white:#fff;--slate:#aaa;--muted:#666}
+html,body{background:var(--bg);color:var(--white);font-family:'Plus Jakarta Sans',sans-serif;min-height:100vh;overflow-x:hidden}
+body{max-width:520px;margin:0 auto;padding-bottom:80px}
+
+.nav{position:sticky;top:0;z-index:100;background:rgba(8,12,8,.97);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:13px 18px;display:flex;align-items:center;justify-content:space-between}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-badge{width:32px;height:32px;background:var(--gold);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:900;font-size:13px;color:#000}
+.nav-name{font-family:'Barlow Condensed';font-weight:800;font-size:18px;letter-spacing:1.5px;color:#fff}
+.nav-name span{color:var(--gold)}
+.nav-home{font-size:12px;color:var(--slate);text-decoration:none}
+
+/* HERO */
+.hero{padding:30px 22px 24px;text-align:center}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:10px;font-weight:800;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:12px;background:var(--gold-soft);border:1px solid var(--gold-border);padding:5px 12px;border-radius:100px}
+.hero-title{font-family:'Barlow Condensed';font-weight:900;font-size:38px;line-height:1;letter-spacing:-1px;margin-bottom:8px}
+.hero-title span{color:var(--gold)}
+.hero-sub{font-size:13px;color:var(--slate);line-height:1.5;padding:0 8px}
+
+/* AREA CARDS */
+.areas{padding:16px 18px;display:flex;flex-direction:column;gap:10px}
+.area-card{background:var(--bg2);border:2px solid var(--border);border-radius:14px;padding:20px;cursor:pointer;transition:all .2s;text-decoration:none;display:block}
+.area-card:hover,.area-card:active{border-color:var(--gold-border);background:var(--bg3)}
+.area-header{display:flex;align-items:center;gap:14px;margin-bottom:10px}
+.area-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.area-icon.verde{background:rgba(0,212,106,.15);border:1px solid rgba(0,212,106,.3)}
+.area-icon.azul{background:rgba(74,159,232,.15);border:1px solid rgba(74,159,232,.3)}
+.area-icon.dourado{background:var(--gold-soft);border:1px solid var(--gold-border)}
+.area-icon.roxo{background:rgba(160,100,255,.15);border:1px solid rgba(160,100,255,.3)}
+.area-title{font-family:'Barlow Condensed';font-weight:900;font-size:24px;letter-spacing:-.5px;color:#fff;line-height:1;margin-bottom:2px}
+.area-sub{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
+.area-desc{font-size:12px;color:var(--slate);line-height:1.55;margin-bottom:12px}
+.area-features{display:flex;flex-wrap:wrap;gap:6px}
+.feature-pill{font-size:9px;font-weight:700;letter-spacing:1px;padding:4px 9px;border-radius:100px;text-transform:uppercase}
+.fp-gold{background:var(--gold-soft);color:var(--gold);border:1px solid var(--gold-border)}
+.fp-green{background:rgba(0,212,106,.12);color:var(--green);border:1px solid rgba(0,212,106,.3)}
+.fp-blue{background:rgba(74,159,232,.12);color:var(--blue);border:1px solid rgba(74,159,232,.3)}
+.fp-grey{background:var(--bg3);color:#fff;border:1px solid var(--border)}
+.area-arrow{display:flex;align-items:center;justify-content:flex-end;margin-top:12px;padding-top:10px;border-top:1px solid var(--border)}
+.area-arrow-text{font-size:11px;font-weight:800;letter-spacing:1.5px;color:var(--gold);text-transform:uppercase}
+
+/* FREE badge */
+.free-badge{background:rgba(0,212,106,.12);color:var(--green);border:1px solid rgba(0,212,106,.3);font-size:9px;font-weight:800;letter-spacing:2px;padding:3px 8px;border-radius:100px;text-transform:uppercase;margin-left:auto}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="nav-logo">
+    <div class="nav-badge">YT</div>
+    <div class="nav-name">Your<span>Talent</span>Base</div>
+  </a>
+  <a href="/" class="nav-home">← Início</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-eyebrow">★ Plataforma YTB</div>
+  <div class="hero-title">Escolhe<br>a tua <span>área.</span></div>
+  <div class="hero-sub">Cada área tem ferramentas específicas para o teu papel no futebol de formação.</div>
+</div>
+
+<div class="areas">
+
+  <!-- TREINADOR -->
+  <a href="treinador.html" class="area-card">
+    <div class="area-header">
+      <div class="area-icon verde">🧑‍🏫</div>
+      <div>
+        <div class="area-title">Treinador</div>
+        <div class="area-sub">Sistema integrado completo</div>
+      </div>
+    </div>
+    <div class="area-desc">Scout Report dos teus atletas, análise tática personalizada no Elite Coach e prescrição de treinos com base nas fraquezas detectadas.</div>
+    <div class="area-features">
+      <span class="feature-pill fp-gold">Scout Report</span>
+      <span class="feature-pill fp-blue">Elite Coach</span>
+      <span class="feature-pill fp-green">Treino Prescrito</span>
+      <span class="feature-pill fp-grey">Dashboard</span>
+    </div>
+    <div class="area-arrow"><span class="area-arrow-text">Entrar →</span></div>
+  </a>
+
+  <!-- PAIS -->
+  <a href="pais.html" class="area-card">
+    <div class="area-header">
+      <div class="area-icon azul">👨‍👧</div>
+      <div>
+        <div class="area-title">Família</div>
+        <div class="area-sub">Plataforma com questionário</div>
+      </div>
+    </div>
+    <div class="area-desc">Avalia o teu filho com um questionário simples. Recebe análise tática adaptada ao perfil dele e plano de treino em casa.</div>
+    <div class="area-features">
+      <span class="feature-pill fp-gold">Questionário</span>
+      <span class="feature-pill fp-blue">Perfil de Posição</span>
+      <span class="feature-pill fp-green">Treino Personalizado</span>
+    </div>
+    <div class="area-arrow"><span class="area-arrow-text">Entrar →</span></div>
+  </a>
+
+  <!-- SCOUT -->
+  <a href="scouts.html" class="area-card">
+    <div class="area-header">
+      <div class="area-icon dourado">🔍</div>
+      <div>
+        <div class="area-title">Scout</div>
+        <div class="area-sub">Scout Reports profissionais</div>
+      </div>
+    </div>
+    <div class="area-desc">Gera Scout Reports profissionais com 25+ critérios. Acesso a 3 relatórios por 39€. Ideal para observação de campo.</div>
+    <div class="area-features">
+      <span class="feature-pill fp-gold">3 Reports · 39€</span>
+      <span class="feature-pill fp-grey">PDF Profissional</span>
+    </div>
+    <div class="area-arrow"><span class="area-arrow-text">Entrar →</span></div>
+  </a>
+
+  <!-- BASE DE DADOS -->
+  <a href="database.html" class="area-card">
+    <div class="area-header">
+      <div class="area-icon roxo">📊</div>
+      <div>
+        <div class="area-title">Base de Talentos</div>
+        <div class="area-sub">Área reservada</div>
+      </div>
+      <span class="free-badge">Livre</span>
+    </div>
+    <div class="area-desc">Base de dados de atletas YTB. Filtra por escalão, posição e clube. Perfis completos com histórico e palmarés.</div>
+    <div class="area-features">
+      <span class="feature-pill fp-grey">Filtros</span>
+      <span class="feature-pill fp-grey">Palmarés</span>
+      <span class="feature-pill fp-grey">Histórico</span>
+    </div>
+    <div class="area-arrow"><span class="area-arrow-text">Ver Base →</span></div>
+  </a>
+
+  <!-- ELITE COACH (TÁCTICS - FREE) -->
+  <a href="tacticslab.html" class="area-card">
+    <div class="area-header">
+      <div class="area-icon verde">🧠</div>
+      <div>
+        <div class="area-title">Elite Coach</div>
+        <div class="area-sub">Análise tática gratuita</div>
+      </div>
+      <span class="free-badge">Grátis</span>
+    </div>
+    <div class="area-desc">Ferramenta tática completa. Desenha jogadas, analisa formações com IA e aprende padrões táticos por posição. Para todos.</div>
+    <div class="area-features">
+      <span class="feature-pill fp-blue">Animações</span>
+      <span class="feature-pill fp-blue">Análise IA</span>
+      <span class="feature-pill fp-gold">Biblioteca Jogadas</span>
+      <span class="feature-pill fp-grey">Grátis</span>
+    </div>
+    <div class="area-arrow"><span class="area-arrow-text">Abrir →</span></div>
+  </a>
+
+  <!-- CLUBES PARCEIROS -->
+  <div style="padding:8px 0 4px;font-size:9px;font-weight:800;letter-spacing:3px;color:var(--muted);text-transform:uppercase;text-align:center">Clubes Parceiros</div>
+
+  <a href="gondomar.html" class="area-card" style="border-color:rgba(201,162,39,.2)">
+    <div class="area-header">
+      <div class="area-icon" style="background:rgba(26,58,107,.3);border:1px solid rgba(201,162,39,.3);font-family:'Barlow Condensed';font-weight:900;font-size:16px;color:#C9A227">GSC</div>
+      <div>
+        <div class="area-title">Gondomar SC</div>
+        <div class="area-sub">Departamento de Scouting</div>
+      </div>
+      <span class="free-badge">Parceiro</span>
+    </div>
+    <div class="area-desc">Base de dados interna de scouting do Gondomar SC. Adiciona atletas, avaliações técnicas e notas de observação. Acesso reservado ao clube.</div>
+    <div class="area-features">
+      <span class="feature-pill fp-gold">Base de Dados</span>
+      <span class="feature-pill fp-grey">Avaliações</span>
+      <span class="feature-pill fp-grey">Reservado</span>
+    </div>
+    <div class="area-arrow"><span class="area-arrow-text" style="color:#C9A227">Entrar →</span></div>
+  </a>
+
+</div>
+
+</body>
+</html>

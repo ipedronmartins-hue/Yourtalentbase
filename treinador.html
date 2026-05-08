@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Área Treinador · YTB</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#080C08;--bg2:#0F1410;--bg3:#161D17;--gold:#D4AF37;--gold-soft:rgba(212,175,55,.15);--gold-border:rgba(212,175,55,.3);--green:#00D46A;--blue:#4A9FE8;--red:#ff5050;--border:#1F2520;--white:#fff;--slate:#aaa;--muted:#666}
+html,body{background:var(--bg);color:var(--white);font-family:'Plus Jakarta Sans',sans-serif;min-height:100vh}
+body{max-width:520px;margin:0 auto;padding-bottom:60px}
+
+.nav{position:sticky;top:0;z-index:100;background:rgba(8,12,8,.97);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:13px 18px;display:flex;align-items:center;justify-content:space-between}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-badge{width:32px;height:32px;background:var(--gold);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:900;font-size:13px;color:#000}
+.nav-name{font-family:'Barlow Condensed';font-weight:800;font-size:18px;letter-spacing:1.5px;color:#fff}
+.nav-name span{color:var(--gold)}
+.nav-right{display:flex;align-items:center;gap:12px}
+.nav-back{font-size:12px;color:var(--slate);text-decoration:none}
+.nav-logout{font-size:11px;color:var(--red);cursor:pointer;background:none;border:none;font-family:inherit;display:none}
+
+/* LOGIN */
+.login-wrap{padding:60px 22px 0;text-align:center}
+.login-icon{font-size:56px;margin-bottom:14px}
+.login-title{font-family:'Barlow Condensed';font-weight:900;font-size:36px;line-height:1;letter-spacing:-1px;margin-bottom:6px}
+.login-title span{color:var(--gold)}
+.login-sub{font-size:13px;color:var(--slate);margin-bottom:28px}
+.login-box{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:22px;margin:0 0 16px}
+.field{margin-bottom:12px}
+.label{display:block;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;color:#fff}
+.input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:11px 13px;font-size:14px;color:#fff;font-family:inherit;outline:none;transition:border-color .15s}
+.input:focus{border-color:var(--gold)}
+.btn{width:100%;padding:14px;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;transition:all .15s}
+.btn-primary{background:var(--gold);color:#000}
+.btn-secondary{background:var(--bg3);color:#fff;border:1px solid var(--border)}
+.btn-sm{padding:9px 16px;font-size:11px;width:auto;font-weight:700;border-radius:8px;border:none;cursor:pointer;font-family:inherit}
+.err{color:#ff8080;font-size:12px;margin-bottom:10px;display:none;text-align:left}
+.contact-link{font-size:12px;color:var(--slate);text-align:center;margin-top:12px}
+.contact-link a{color:var(--gold);text-decoration:none}
+
+/* MAIN AREA */
+#main-view{display:none;padding:18px}
+.welcome-bar{background:linear-gradient(135deg,rgba(0,212,106,.08),rgba(0,0,0,.3));border:1px solid rgba(0,212,106,.3);border-radius:12px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.welcome-text{font-size:14px;font-weight:600;color:#fff}
+.welcome-text span{color:var(--green)}
+
+/* TABS */
+.tabs{display:flex;gap:3px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:3px;margin-bottom:18px}
+.tab{flex:1;background:transparent;border:none;color:var(--slate);font-size:10px;font-weight:700;padding:9px 6px;border-radius:8px;cursor:pointer;font-family:inherit;letter-spacing:.5px;text-transform:uppercase;text-align:center}
+.tab.active{background:var(--gold);color:#000}
+
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* ATLETAS */
+.section-title{font-family:'Barlow Condensed';font-weight:900;font-size:24px;letter-spacing:-.5px;color:#fff;margin-bottom:6px}
+.section-sub{font-size:12px;color:var(--slate);margin-bottom:16px}
+.atleta-row{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;cursor:pointer}
+.atleta-row:active{background:var(--bg3)}
+.atleta-av{width:40px;height:40px;border-radius:50%;background:var(--gold-soft);border:1px solid var(--gold-border);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:900;font-size:18px;color:var(--gold);flex-shrink:0}
+.atleta-nome{font-size:14px;font-weight:700;color:#fff}
+.atleta-meta{font-size:11px;color:var(--slate)}
+.atleta-arrow{margin-left:auto;color:var(--muted);font-size:14px}
+
+/* SCOUT FORM */
+.form-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:12px}
+.form-section{margin-bottom:18px}
+.form-section-title{font-size:9px;font-weight:800;letter-spacing:2.5px;color:var(--gold);text-transform:uppercase;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.slider-row{margin-bottom:14px}
+.slider-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.slider-name{font-size:12px;font-weight:600;color:#fff}
+.slider-val{font-family:'Barlow Condensed';font-weight:900;font-size:18px;color:var(--gold);min-width:24px;text-align:right}
+.slider{width:100%;-webkit-appearance:none;appearance:none;height:4px;border-radius:4px;background:var(--border);outline:none}
+.slider::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--gold);cursor:pointer;border:2px solid #000}
+
+/* RESULTADOS SCOUT */
+.result-card{background:linear-gradient(135deg,rgba(212,175,55,.08),rgba(0,0,0,.3));border:2px solid var(--gold-border);border-radius:14px;padding:20px;margin-bottom:12px}
+.result-score{text-align:center;margin-bottom:16px}
+.result-num{font-family:'Barlow Condensed';font-weight:900;font-size:80px;color:var(--gold);line-height:1}
+.result-label{font-size:10px;font-weight:800;letter-spacing:2px;color:#fff;text-transform:uppercase;margin-top:4px}
+.result-bars{margin-bottom:16px}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.bar-name{font-size:11px;color:#fff;width:80px;flex-shrink:0}
+.bar-track{flex:1;height:6px;background:var(--border);border-radius:6px;overflow:hidden}
+.bar-fill{height:100%;border-radius:6px;background:var(--gold);transition:width .8s ease}
+.bar-score{font-family:'Barlow Condensed';font-weight:900;font-size:14px;color:var(--gold);min-width:28px;text-align:right}
+.fraquezas-list{margin-top:14px}
+.fraqueza-item{background:rgba(255,80,80,.08);border:1px solid rgba(255,80,80,.2);border-radius:8px;padding:10px 12px;margin-bottom:6px;font-size:12px;color:#fff;display:flex;align-items:center;gap:8px}
+.fraqueza-icon{font-size:14px;flex-shrink:0}
+.forcas-list{margin-top:12px}
+.forca-item{background:rgba(0,212,106,.08);border:1px solid rgba(0,212,106,.2);border-radius:8px;padding:10px 12px;margin-bottom:6px;font-size:12px;color:#fff}
+.posicao-recomendada{background:var(--gold-soft);border:1px solid var(--gold-border);border-radius:10px;padding:14px;text-align:center;margin-top:14px}
+.posicao-label{font-size:9px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:4px}
+.posicao-nome{font-family:'Barlow Condensed';font-weight:900;font-size:28px;color:#fff}
+.posicao-subs{font-size:11px;color:var(--slate);margin-top:4px}
+.action-row{display:flex;gap:8px;margin-top:16px}
+.action-btn{flex:1;padding:12px;border-radius:9px;font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;text-align:center;border:none;cursor:pointer;font-family:inherit;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px}
+.ab-gold{background:var(--gold);color:#000}
+.ab-blue{background:rgba(74,159,232,.15);color:var(--blue);border:1px solid rgba(74,159,232,.3)}
+.ab-green{background:rgba(0,212,106,.12);color:var(--green);border:1px solid rgba(0,212,106,.3)}
+
+/* TREINO PRESCRITO */
+.treino-intro{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px}
+.card-grid{display:flex;flex-direction:column;gap:8px}
+.card-treino{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;display:flex;gap:12px;align-items:flex-start}
+.card-num{width:36px;height:36px;border-radius:8px;background:var(--gold-soft);border:1px solid var(--gold-border);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:900;font-size:14px;color:var(--gold);flex-shrink:0}
+.card-content{flex:1}
+.card-nome{font-size:13px;font-weight:700;color:#fff;margin-bottom:3px}
+.card-desc{font-size:11px;color:var(--slate);line-height:1.5;margin-bottom:4px}
+.card-meta{font-size:9px;font-weight:800;letter-spacing:1.5px;color:var(--green);text-transform:uppercase}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(212,175,55,.3);border-top-color:var(--gold);border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="plataforma.html" class="nav-logo">
+    <div class="nav-badge">YT</div>
+    <div class="nav-name">Your<span>Talent</span>Base</div>
+  </a>
+  <div class="nav-right">
+    <a href="plataforma.html" class="nav-back">← Áreas</a>
+    <button class="nav-logout" id="nav-logout" onclick="logout()">Sair</button>
+  </div>
+</nav>
+
+<!-- LOGIN VIEW -->
+<div id="login-view">
+  <div class="login-wrap">
+    <div class="login-icon">🧑‍🏫</div>
+    <div class="login-title">Área <span>Treinador</span></div>
+    <div class="login-sub">Acesso exclusivo para treinadores YTB</div>
+  </div>
+  <div style="padding:18px">
+    <div class="login-box">
+      <div class="err" id="err">Password incorrecta.</div>
+      <div class="field">
+        <label class="label">Password de Treinador</label>
+        <input class="input" id="pass" type="password" placeholder="••••••••••" autocomplete="current-password">
+      </div>
+      <button class="btn btn-primary" onclick="login()">Entrar →</button>
+    </div>
+    <div class="contact-link">Ainda não tens acesso? <a href="https://wa.me/351913695846" target="_blank">Fala connosco →</a></div>
+  </div>
+</div>
+
+<!-- MAIN VIEW -->
+<div id="main-view">
+  <div class="welcome-bar">
+    <div>
+      <div class="welcome-text">Bem-vindo, <span id="nome-treinador">Mister</span> 👋</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:2px">Área de Treinador · YTB Elite Coach</div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="setTab('atletas')">Atletas</button>
+    <button class="tab" onclick="setTab('scout')">Scout</button>
+    <button class="tab" onclick="setTab('treino')">Treino</button>
+    <button class="tab" onclick="setTab('tactics')">Táctics</button>
+  </div>
+
+  <!-- TAB: ATLETAS -->
+  <div class="tab-panel active" id="tab-atletas">
+    <div class="section-title">Os teus <span style="color:var(--gold)">atletas</span></div>
+    <div class="section-sub">Selecciona um atleta para ver o perfil ou fazer Scout Report</div>
+    <div id="atletas-lista">
+      <div style="text-align:center;padding:30px;color:var(--muted)"><div class="spinner"></div></div>
+    </div>
+    <div style="margin-top:16px">
+      <button class="btn btn-secondary" onclick="setTab('scout')">+ Adicionar novo atleta</button>
+    </div>
+  </div>
+
+  <!-- TAB: SCOUT REPORT -->
+  <div class="tab-panel" id="tab-scout">
+    <div class="section-title">Scout <span style="color:var(--gold)">Report</span></div>
+    <div class="section-sub">Avalia o atleta em 4 categorias. O sistema gera perfil e plano automático.</div>
+
+    <div id="scout-form-area">
+      <div class="form-card">
+        <div class="field">
+          <label class="label">Nome do Atleta</label>
+          <input class="input" id="sr_nome" type="text" placeholder="Nome completo">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div class="field">
+            <label class="label">Posição</label>
+            <select class="input" id="sr_pos">
+              <option value="">Selecciona</option>
+              <option value="GR">Guarda-Redes</option>
+              <option value="DC">Defesa Central</option>
+              <option value="DLD">Lateral Direito</option>
+              <option value="DLE">Lateral Esquerdo</option>
+              <option value="MD">Médio Defensivo</option>
+              <option value="MI">Médio Interior</option>
+              <option value="MO">Médio Ofensivo</option>
+              <option value="ED">Extremo Direito</option>
+              <option value="EE">Extremo Esquerdo</option>
+              <option value="AV">Avançado</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="label">Escalão</label>
+            <select class="input" id="sr_esc">
+              <option value="">--</option>
+              <option>Sub-9</option><option>Sub-10</option><option>Sub-11</option>
+              <option>Sub-12</option><option selected>Sub-13</option><option>Sub-14</option>
+              <option>Sub-15</option><option>Sub-16</option><option>Sub-17</option><option>Sub-19</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- TÉCNICA -->
+      <div class="form-card">
+        <div class="form-section-title">⚽ Técnica</div>
+        <div id="sliders-tecnica"></div>
+      </div>
+
+      <!-- FÍSICO -->
+      <div class="form-card">
+        <div class="form-section-title">💪 Físico</div>
+        <div id="sliders-fisico"></div>
+      </div>
+
+      <!-- TÁCTICA -->
+      <div class="form-card">
+        <div class="form-section-title">🧠 Táctica</div>
+        <div id="sliders-tatica"></div>
+      </div>
+
+      <!-- MENTAL -->
+      <div class="form-card">
+        <div class="form-section-title">🎯 Mental</div>
+        <div id="sliders-mental"></div>
+      </div>
+
+      <button class="btn btn-primary" onclick="gerarScoutReport()">
+        ⚡ Gerar Scout Report
+      </button>
+    </div>
+
+    <div id="scout-result-area" style="display:none"></div>
+  </div>
+
+  <!-- TAB: TREINO -->
+  <div class="tab-panel" id="tab-treino">
+    <div class="section-title">Treino <span style="color:var(--gold)">Prescrito</span></div>
+    <div class="section-sub" id="treino-intro-text">Faz primeiro o Scout Report para ver treinos personalizados</div>
+    <div id="treino-cards-area"></div>
+  </div>
+
+  <!-- TAB: TÁCTICS -->
+  <div class="tab-panel" id="tab-tactics">
+    <div class="section-title">Elite <span style="color:var(--gold)">Coach</span></div>
+    <div class="section-sub">Análise tática com base no perfil do atleta</div>
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:12px">
+      <iframe src="tacticslab.html" style="width:100%;height:600px;border:none;display:block" title="Elite Coach"></iframe>
+    </div>
+    <div style="background:var(--bg2);border:1px solid var(--gold-border);border-radius:10px;padding:14px">
+      <div id="tactics-context" style="font-size:12px;color:var(--slate);line-height:1.6">
+        Faz o Scout Report primeiro. Aqui vais ver os padrões táticos mais importantes para o atleta com base nas fraquezas detectadas.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://nhshnplaiolxwcfuijfo.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oc2hucGxhaW9seHdjZnVpamZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NDQxNTAsImV4cCI6MjA4OTQyMDE1MH0.uyZiDun8495sjnHA6Wsk-Hou-3lubbNJfQqSYbMLSek';
+const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// Passwords por treinador
+const TREINADORES = {
+  'YTB#Teles2026': {nome: 'Mister Teles', clube: 'Gondomar SC', escalao: 'Sub-12'},
+  'YTB#Tactics2026': {nome: 'Treinador Elite', clube: 'YTB', escalao: 'Todos'},
+};
+
+const CRITERIOS = {
+  tecnica: ['Toque', 'Primeiro toque', 'Passe curto', 'Passe longo', 'Drible', 'Finalização'],
+  fisico: ['Velocidade', 'Resistência', 'Força', 'Agilidade'],
+  tatica: ['Leitura de jogo', 'Posicionamento', 'Decisão', '1×1 ofensivo', '1×1 defensivo', 'Visão'],
+  mental: ['Foco', 'Esforço', 'Atitude', 'Liderança']
+};
+
+let treinadorAtual = null;
+let ultimoScout = null;
+
+// LOGIN
+function login() {
+  const p = document.getElementById('pass').value;
+  const t = TREINADORES[p];
+  const err = document.getElementById('err');
+  if (!t) { err.style.display = 'block'; return; }
+  err.style.display = 'none';
+  treinadorAtual = t;
+  sessionStorage.setItem('ytb_treinador', JSON.stringify({pass: p, ...t}));
+  mostrarMain();
+}
+
+function logout() {
+  sessionStorage.removeItem('ytb_treinador');
+  location.reload();
+}
+
+function mostrarMain() {
+  document.getElementById('login-view').style.display = 'none';
+  document.getElementById('main-view').style.display = 'block';
+  document.getElementById('nav-logout').style.display = 'block';
+  document.getElementById('nome-treinador').textContent = treinadorAtual.nome;
+  buildSliders();
+  carregarAtletas();
+}
+
+document.getElementById('pass').addEventListener('keypress', e => { if (e.key === 'Enter') login(); });
+
+// Check session
+const saved = sessionStorage.getItem('ytb_treinador');
+if (saved) {
+  const s = JSON.parse(saved);
+  treinadorAtual = s;
+  document.addEventListener('DOMContentLoaded', mostrarMain);
+}
+
+// TABS
+function setTab(name) {
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    const names = ['atletas', 'scout', 'treino', 'tactics'];
+    t.classList.toggle('active', names[i] === name);
+  });
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+// BUILD SLIDERS
+function buildSliders() {
+  Object.entries(CRITERIOS).forEach(([cat, items]) => {
+    const container = document.getElementById('sliders-' + cat);
+    if (!container) return;
+    container.innerHTML = items.map(name => {
+      const id = 'cr_' + name.replace(/[^a-z]/gi, '_').toLowerCase();
+      return `
+        <div class="slider-row">
+          <div class="slider-label">
+            <span class="slider-name">${name}</span>
+            <span class="slider-val" id="v_${id}">5</span>
+          </div>
+          <input class="slider" type="range" id="${id}" min="1" max="10" value="5"
+            oninput="document.getElementById('v_${id}').textContent=this.value">
+        </div>`;
+    }).join('');
+  });
+}
+
+// LOAD ATLETAS
+async function carregarAtletas() {
+  const { data } = await supa.from('atletas').select('*').order('created_at');
+  const list = document.getElementById('atletas-lista');
+  if (!data || !data.length) {
+    list.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted);font-size:13px">Sem atletas inscritos ainda.</div>';
+    return;
+  }
+  list.innerHTML = data.map(a => `
+    <div class="atleta-row" onclick="selecionarAtleta('${a.nome_curto||a.nome}','${a.posicao_principal||''}','${a.escalao_actual||''}')">
+      <div class="atleta-av">${(a.nome_curto||a.nome||'?')[0]}</div>
+      <div>
+        <div class="atleta-nome">${a.nome_curto || a.nome}</div>
+        <div class="atleta-meta">${a.posicao_principal||'?'} · ${a.clube_actual||'?'} · ${a.escalao_actual||'?'}</div>
+      </div>
+      <div class="atleta-arrow">▶</div>
+    </div>`).join('');
+}
+
+function selecionarAtleta(nome, pos, esc) {
+  document.getElementById('sr_nome').value = nome;
+  if (pos) document.getElementById('sr_pos').value = pos;
+  if (esc) document.getElementById('sr_esc').value = esc;
+  setTab('scout');
+}
+
+// GERAR SCOUT REPORT
+function gerarScoutReport() {
+  const nome = document.getElementById('sr_nome').value.trim();
+  if (!nome) { alert('Insere o nome do atleta'); return; }
+
+  const scores = {};
+  let totalCategorias = 0;
+  let numCategorias = 0;
+
+  Object.entries(CRITERIOS).forEach(([cat, items]) => {
+    let catTotal = 0;
+    items.forEach(name => {
+      const id = 'cr_' + name.replace(/[^a-z]/gi, '_').toLowerCase();
+      const val = parseInt(document.getElementById(id)?.value || 5);
+      scores[name] = val;
+      catTotal += val;
+    });
+    scores['_cat_' + cat] = Math.round(catTotal / items.length * 10) / 10;
+    totalCategorias += catTotal / items.length;
+    numCategorias++;
+  });
+
+  const globalScore = Math.round(totalCategorias / numCategorias * 10);
+  const pos = document.getElementById('sr_pos').value || 'MD';
+  const esc = document.getElementById('sr_esc').value || 'Sub-13';
+
+  // Detectar fraquezas (< 5) e forças (>= 7)
+  const fraquezas = Object.entries(scores).filter(([k, v]) => !k.startsWith('_cat_') && v < 5);
+  const forcas = Object.entries(scores).filter(([k, v]) => !k.startsWith('_cat_') && v >= 7);
+
+  // Perfil de posição
+  const posicoes = sugerirPosicoes(scores, pos);
+
+  ultimoScout = { nome, pos, esc, scores, fraquezas, forcas, globalScore, posicoes };
+
+  // Guardar no Supabase
+  supa.from('relatorios').insert({
+    nome_atleta: nome,
+    posicao: pos,
+    escalao: esc,
+    scores: scores,
+    global_score: globalScore,
+    treinador: treinadorAtual?.nome || 'Desconhecido',
+    tipo: 'treinador'
+  }).then(({error}) => { if (error) console.log('Supabase save:', error.message); });
+
+  mostrarResultado(ultimoScout);
+  prescreverTreino(ultimoScout);
+  atualizarTactics(ultimoScout);
+}
+
+function sugerirPosicoes(scores, posAtual) {
+  const primaria = posAtual;
+  const leitura = scores['Leitura de jogo'] || 5;
+  const velocidade = scores['Velocidade'] || 5;
+  const tecnica = scores['Toque'] || 5;
+  const forca = scores['Força'] || 5;
+
+  let alternativas = [];
+  if (leitura >= 7 && (posAtual === 'MD' || posAtual === 'MI')) alternativas.push('Médio Interior');
+  if (velocidade >= 7) alternativas.push('Extremo');
+  if (forca >= 7 && (posAtual === 'DC' || posAtual === 'MD')) alternativas.push('Defesa Central');
+  if (tecnica >= 7) alternativas.push('Médio Ofensivo');
+  if (!alternativas.length) alternativas.push('Manter posição actual');
+
+  return { primaria, alternativas: alternativas.slice(0, 2) };
+}
+
+function mostrarResultado(r) {
+  const scoreColor = r.globalScore >= 70 ? 'var(--green)' : r.globalScore >= 50 ? 'var(--gold)' : 'var(--slate)';
+
+  const categorias = ['tecnica', 'fisico', 'tatica', 'mental'];
+  const catLabels = {'tecnica':'Técnica','fisico':'Físico','tatica':'Táctica','mental':'Mental'};
+  const catIcons = {'tecnica':'⚽','fisico':'💪','tatica':'🧠','mental':'🎯'};
+
+  const barsHTML = categorias.map(cat => {
+    const v = r.scores['_cat_' + cat];
+    const pct = Math.round(v * 10);
+    return `
+      <div class="bar-row">
+        <div class="bar-name">${catIcons[cat]} ${catLabels[cat]}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+        <div class="bar-score">${v}</div>
+      </div>`;
+  }).join('');
+
+  const fraquezasHTML = r.fraquezas.slice(0, 5).map(([k, v]) =>
+    `<div class="fraqueza-item"><span class="fraqueza-icon">⚠️</span>${k} (${v}/10)</div>`
+  ).join('');
+
+  const forcasHTML = r.forcas.slice(0, 4).map(([k, v]) =>
+    `<div class="forca-item">✅ ${k} (${v}/10)</div>`
+  ).join('');
+
+  document.getElementById('scout-form-area').style.display = 'none';
+  const result = document.getElementById('scout-result-area');
+  result.style.display = 'block';
+  result.innerHTML = `
+    <div class="result-card">
+      <div style="font-size:11px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:12px">${r.nome} · ${r.pos} · ${r.esc}</div>
+      <div class="result-score">
+        <div class="result-num" style="color:${scoreColor}">${r.globalScore}</div>
+        <div class="result-label">Avaliação Global /100</div>
+      </div>
+      <div class="result-bars">${barsHTML}</div>
+      ${r.fraquezas.length ? `<div style="font-size:9px;font-weight:800;letter-spacing:2px;color:var(--red);text-transform:uppercase;margin-bottom:8px">⚠ Áreas a desenvolver</div>${fraquezasHTML}` : ''}
+      ${r.forcas.length ? `<div style="font-size:9px;font-weight:800;letter-spacing:2px;color:var(--green);text-transform:uppercase;margin:12px 0 8px">✅ Pontos fortes</div>${forcasHTML}` : ''}
+      <div class="posicao-recomendada">
+        <div class="posicao-label">Posição Recomendada</div>
+        <div class="posicao-nome">${r.posicoes.primaria}</div>
+        <div class="posicao-subs">${r.posicoes.alternativas.join(' · ')}</div>
+      </div>
+    </div>
+    <div class="action-row">
+      <button class="action-btn ab-green" onclick="setTab('treino')">⚽ Ver Treino</button>
+      <button class="action-btn ab-blue" onclick="setTab('tactics')">🧠 Ver Táctics</button>
+    </div>
+    <div style="margin-top:12px">
+      <button class="btn btn-secondary" onclick="document.getElementById('scout-form-area').style.display='block';document.getElementById('scout-result-area').style.display='none'">← Nova Avaliação</button>
+    </div>`;
+}
+
+function prescreverTreino(r) {
+  // Mapa fraqueza → cards de treino
+  const MAPA = {
+    'Toque': [{n:'Toques Alternados',d:'Alternar toques com ambos os pés sem deixar cair',m:'Nº de toques seguidos',t:'Técnica'},
+              {n:'Domínio Orientado',d:'Lança bola ao ar e domina já orientando para frente',m:'% controlos limpos (10 reps)',t:'Técnica'}],
+    'Passe curto': [{n:'Passe à Parede (1 toque)',d:'Passe contínuo à parede com 1 toque',m:'Passes certos em 1 min',t:'Passe'},
+                   {n:'Alvo Marcado',d:'Acertar num alvo específico na parede',m:'Acertos em 10',t:'Passe'}],
+    'Passe longo': [{n:'Passe Longo Controlado',d:'Passe longo + domínio',m:'Controlos limpos',t:'Passe'}],
+    'Drible': [{n:'Slalom Curto',d:'Conduzir entre obstáculos próximos',m:'Tempo + erros',t:'Condução'},
+               {n:'1v1 Simulado',d:'Mudanças de direção rápidas',m:'Execuções eficazes',t:'Condução'}],
+    'Finalização': [{n:'Remate Frontal',d:'Bola parada, remate direto ao alvo',m:'Golos em 10',t:'Finalização'},
+                   {n:'Condução + Remate',d:'Conduz e finaliza',m:'Eficácia',t:'Finalização'}],
+    'Velocidade': [{n:'Sprints 10m',d:'Arranques curtos explosivos',m:'Tempo',t:'Físico'},
+                  {n:'Mudança de Direção',d:'Sprint com cortes',m:'Tempo',t:'Físico'}],
+    'Resistência': [{n:'Sprints Repetidos',d:'5x sprints com pausa curta',m:'Tempo médio',t:'Físico'}],
+    'Força': [{n:'Saltos Explosivos',d:'Saltos verticais',m:'Altura/reps',t:'Físico'},
+              {n:'Core Básico',d:'Prancha 30-60s',m:'Tempo',t:'Físico'}],
+    'Leitura de jogo': [{n:'Receber Entre Linhas',d:'Recebe e roda rápido',m:'Execuções limpas',t:'Decisão'},
+                       {n:'Transição Ofensiva',d:'Recuperação + ataque rápido',m:'Eficácia',t:'Decisão'}],
+    'Decisão': [{n:'Decisão 2 Toques',d:'Recebe, decide e passa em 2 toques',m:'Execuções corretas',t:'Decisão'}],
+    '1×1 ofensivo': [{n:'Slalom + Aceleração',d:'Slalom + sprint final',m:'Tempo total',t:'Condução'}],
+  };
+
+  const cardsGerados = [];
+  r.fraquezas.forEach(([fraqueza]) => {
+    const cards = MAPA[fraqueza] || [];
+    cards.forEach(c => {
+      if (!cardsGerados.find(x => x.n === c.n)) cardsGerados.push(c);
+    });
+  });
+
+  // Sempre adicionar 1 card de físico base
+  if (!cardsGerados.find(c => c.t === 'Físico')) {
+    cardsGerados.push({n:'Core Básico',d:'Prancha 30-60s para estabilidade geral',m:'Tempo máximo',t:'Físico'});
+  }
+
+  const area = document.getElementById('treino-cards-area');
+  document.getElementById('treino-intro-text').textContent =
+    `Plano prescrito para ${r.nome} · ${cardsGerados.length} exercícios · Foco: ${r.fraquezas.slice(0,3).map(([k])=>k).join(', ')||'Manutenção'}`;
+
+  if (!cardsGerados.length) {
+    area.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)">Nenhuma fraqueza detectada! Mantém o ritmo de treino.</div>';
+    return;
+  }
+
+  area.innerHTML = `
+    <div class="treino-intro">
+      <div style="font-size:11px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:6px">📅 Plano 30 dias · 3 sessões/semana</div>
+      <div style="font-size:12px;color:var(--slate);line-height:1.55">Cada sessão foca nas áreas de desenvolvimento detectadas no Scout Report. Resultados visíveis em 4-6 semanas com treino consistente.</div>
+    </div>
+    <div class="card-grid">
+      ${cardsGerados.slice(0, 8).map((c, i) => `
+        <div class="card-treino">
+          <div class="card-num">${String(i+1).padStart(2,'0')}</div>
+          <div class="card-content">
+            <div class="card-nome">${c.n}</div>
+            <div class="card-desc">${c.d}</div>
+            <div class="card-meta">📊 ${c.m}</div>
+          </div>
+        </div>`).join('')}
+    </div>`;
+}
+
+function atualizarTactics(r) {
+  const padroes = {
+    'Leitura de jogo': 'Trabalhar scanning antes de receber — olhar 2-3 vezes antes da bola chegar.',
+    'Decisão': 'Treinar situações de 2 toques: recebe, decide, passa. Sem pausas.',
+    '1×1 ofensivo': 'Simular 1×1 com obstáculo — arranque lateral, aceleração, finalização.',
+    'Posicionamento': 'Exercícios de posição sem bola — estar no sítio certo antes da bola chegar.',
+    'Passe curto': 'Triângulos curtos de 3 jogadores — 1 toque cada, ritmo alto.',
+    'Passe longo': 'Passe de 30m + domínio orientado — qualidade > quantidade.',
+  };
+
+  const ctx = document.getElementById('tactics-context');
+  const sugestoes = r.fraquezas
+    .filter(([k]) => padroes[k])
+    .map(([k]) => `<div style="margin-bottom:8px">⚡ <strong>${k}:</strong> ${padroes[k]}</div>`);
+
+  ctx.innerHTML = sugestoes.length
+    ? `<div style="font-size:11px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:10px">Padrões táticos para ${r.nome}</div>${sugestoes.join('')}`
+    : 'Faz o Scout Report primeiro para ver padrões táticos personalizados.';
+}
+</script>
+</body>
+</html>
