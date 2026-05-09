@@ -41,6 +41,14 @@ function calcularIdade(dataNasc) {
   return idade;
 }
 
+function formatarData(dataIso) {
+  if (!dataIso) return '';
+  const d = new Date(dataIso);
+  const dia = String(d.getDate()).padStart(2,'0');
+  const mes = String(d.getMonth()+1).padStart(2,'0');
+  return `${dia}/${mes}/${d.getFullYear()}`;
+}
+
 // ============================================
 // 3. RENDERIZAR CARDS ROTATIVOS
 // ============================================
@@ -76,6 +84,7 @@ function renderCards(atletas) {
             <div class="atleta-meta">
               ${idade ? idade + ' anos · ' : ''}${a.posicao_principal || ''}${a.pe_dominante ? ' · ' + (a.pe_dominante === 'D' ? 'Pé Direito' : a.pe_dominante === 'E' ? 'Pé Esquerdo' : 'Ambidestro') : ''}
             </div>
+            ${a.data_nascimento ? `<div class="atleta-nasc">📅 ${formatarData(a.data_nascimento)}</div>` : ''}
             <div class="atleta-clube">${a.clube_actual || ''} · ${a.escalao_actual || ''}</div>
             
             ${historico.length > 1 ? `
