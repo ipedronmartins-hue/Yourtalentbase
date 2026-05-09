@@ -257,15 +257,29 @@ body{max-width:520px;margin:0 auto;padding-bottom:60px}
   <!-- TAB: TÁCTICS -->
   <div class="tab-panel" id="tab-tactics">
     <div class="section-title">Elite <span style="color:var(--gold)">Coach</span></div>
-    <div class="section-sub">Análise tática com base no perfil do atleta</div>
-    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:12px">
-      <iframe src="tacticslab.html" style="width:100%;height:600px;border:none;display:block" title="Elite Coach"></iframe>
+    <div class="section-sub">Cenários recomendados com base no perfil do atleta</div>
+
+    <div id="cenarios-recomendados" style="margin-bottom:14px">
+      <div style="background:var(--bg2);border:1px dashed var(--border);border-radius:12px;padding:30px 18px;text-align:center;color:var(--muted);font-size:13px;line-height:1.55">
+        🎯<br><br>
+        Faz primeiro o <strong style="color:var(--gold)">Scout Report</strong>.<br>
+        Vais ver aqui os cenários mais importantes para trabalhar com este atleta — ligados directamente às fraquezas detectadas.
+      </div>
     </div>
-    <div style="background:var(--bg2);border:1px solid var(--gold-border);border-radius:10px;padding:14px">
+
+    <div style="background:var(--bg2);border:1px solid var(--gold-border);border-radius:10px;padding:14px;margin-bottom:12px">
       <div id="tactics-context" style="font-size:12px;color:var(--slate);line-height:1.6">
         Faz o Scout Report primeiro. Aqui vais ver os padrões táticos mais importantes para o atleta com base nas fraquezas detectadas.
       </div>
     </div>
+
+    <a href="tacticslab.html" target="_blank" style="display:flex;align-items:center;justify-content:space-between;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:13px 16px;text-decoration:none;color:#fff">
+      <div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:2px">⚙️ Editor Livre</div>
+        <div style="font-size:11px;color:var(--slate)">Quadro táctico para desenhar jogadas próprias</div>
+      </div>
+      <div style="color:var(--gold);font-size:18px">→</div>
+    </a>
   </div>
 </div>
 
@@ -564,8 +578,76 @@ function prescreverTreino(r) {
             <div class="card-meta">📊 ${c.m}</div>
           </div>
         </div>`).join('')}
-    </div>`;
+    </div>
+    ${(() => {
+      // Cenários ligados às fraquezas
+      const cenIds = new Set();
+      r.fraquezas.forEach(([f]) => {
+        const ids = (typeof MAPA_FRAQUEZA_CENARIO !== 'undefined' && MAPA_FRAQUEZA_CENARIO[f]) || [];
+        ids.forEach(id => cenIds.add(id));
+      });
+      if (cenIds.size === 0) return '';
+      const arr = Array.from(cenIds).sort((a,b)=>a-b).slice(0, 4);
+      return `
+        <div style="margin-top:18px;background:linear-gradient(135deg,rgba(212,175,55,.06),transparent);border:1px solid var(--gold-border);border-radius:12px;padding:14px">
+          <div style="font-size:9px;font-weight:800;letter-spacing:2.5px;color:var(--gold);text-transform:uppercase;margin-bottom:4px">⚡ Praticar também</div>
+          <div style="font-size:12px;color:var(--slate);margin-bottom:12px">Cenários do Elite Coach ligados às fraquezas — 4-5 min cada, decisão guiada com feedback.</div>
+          <div style="display:grid;gap:6px">
+            ${arr.map(id => {
+              const c = (typeof CENARIOS_INFO !== 'undefined') ? CENARIOS_INFO[id] : null;
+              if (!c) return '';
+              return `<a href="cenarios.html?c=${id}" target="_blank" style="display:flex;align-items:center;gap:10px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;text-decoration:none;color:#fff">
+                <span style="font-size:18px">${c.icon}</span>
+                <span style="flex:1;font-size:12px;font-weight:600">${c.titulo}</span>
+                <span style="color:var(--gold);font-size:11px;font-weight:800">▶ ABRIR</span>
+              </a>`;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    })()}`;
 }
+
+// MAPA: fraqueza do Scout Report → cenários do Elite Coach
+const MAPA_FRAQUEZA_CENARIO = {
+  'Decisão sob pressão': [1, 7],
+  'Decisão': [1, 7],
+  'Leitura de jogo': [2, 8],
+  'Posicionamento': [6],
+  'Posicionamento defensivo': [6],
+  '1×1 ofensivo': [3],
+  '1v1 ofensivo': [3],
+  'Drible': [3],
+  'Finalização': [4],
+  'Remate': [4],
+  'Reação à perda': [5],
+  'Transição': [5],
+  'Inteligência sem bola': [10],
+  'Apoio ao portador': [10],
+  'Movimentação sem bola': [10],
+  'Timing de movimento': [9],
+  'Desmarcação': [9],
+  'Cruzamento': [8],
+  'Passe curto': [1, 7],
+  'Passe longo': [2],
+  'Controlo orientado': [7],
+  'Primeiro toque': [7],
+  'Visão de jogo': [10]
+};
+
+// Catálogo dos 10 cenários (sumário)
+const CENARIOS_INFO = {
+  1: { titulo: 'Receber entre linhas pressionado', icon: '🧠', posicao: 'Médio' },
+  2: { titulo: 'Saída de bola com pressão alta', icon: '⚽', posicao: 'GR / Central' },
+  3: { titulo: 'Extremo em 1×1 na ala', icon: '🏃', posicao: 'Extremo' },
+  4: { titulo: 'Finalização à entrada da área', icon: '🎯', posicao: 'Avançado' },
+  5: { titulo: 'Transição defensiva', icon: '🔁', posicao: 'Todos' },
+  6: { titulo: 'Defesa em inferioridade (2v1)', icon: '🧱', posicao: 'Defesa' },
+  7: { titulo: 'Médio a sair de pressão', icon: '🔄', posicao: 'Médio' },
+  8: { titulo: 'Cruzamento na ala', icon: '📐', posicao: 'Extremo / Lateral' },
+  9: { titulo: 'Desmarcação em profundidade', icon: '🚀', posicao: 'Avançado' },
+  10: { titulo: 'Apoio ao portador', icon: '🧭', posicao: 'Todos' }
+};
 
 function atualizarTactics(r) {
   const padroes = {
@@ -585,6 +667,52 @@ function atualizarTactics(r) {
   ctx.innerHTML = sugestoes.length
     ? `<div style="font-size:11px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:10px">Padrões táticos para ${r.nome}</div>${sugestoes.join('')}`
     : 'Faz o Scout Report primeiro para ver padrões táticos personalizados.';
+
+  // GERAR CENÁRIOS RECOMENDADOS
+  const cenariosArea = document.getElementById('cenarios-recomendados');
+  const cenariosIds = new Set();
+
+  r.fraquezas.forEach(([fraq]) => {
+    const ids = MAPA_FRAQUEZA_CENARIO[fraq] || [];
+    ids.forEach(id => cenariosIds.add(id));
+  });
+
+  if (cenariosIds.size === 0) {
+    cenariosArea.innerHTML = `
+      <div style="background:rgba(0,212,106,.06);border:1px solid rgba(0,212,106,.2);border-radius:12px;padding:18px;text-align:center;color:#00D46A;font-size:13px">
+        ✅ Sem fraquezas críticas detectadas. Trabalhar manutenção com cenários gerais.
+        <div style="margin-top:12px">
+          <a href="cenarios.html" target="_blank" style="display:inline-block;background:var(--gold);color:#000;padding:9px 18px;border-radius:8px;font-weight:800;font-size:12px;text-decoration:none;letter-spacing:.5px">Ver os 10 cenários →</a>
+        </div>
+      </div>`;
+    return;
+  }
+
+  const cenariosArr = Array.from(cenariosIds).sort((a, b) => a - b);
+
+  cenariosArea.innerHTML = `
+    <div style="font-size:9px;font-weight:800;letter-spacing:2.5px;color:var(--gold);text-transform:uppercase;margin-bottom:10px">
+      🎯 ${cenariosArr.length} cenário${cenariosArr.length>1?'s':''} recomendado${cenariosArr.length>1?'s':''} para ${r.nome}
+    </div>
+    ${cenariosArr.map(id => {
+      const c = CENARIOS_INFO[id];
+      if (!c) return '';
+      return `
+        <a href="cenarios.html?c=${id}" target="_blank" style="display:flex;align-items:center;gap:12px;background:var(--bg2);border:1px solid var(--gold-border);border-radius:11px;padding:12px 14px;margin-bottom:8px;text-decoration:none;color:#fff;transition:all .15s">
+          <div style="width:42px;height:42px;border-radius:10px;background:rgba(212,175,55,.12);border:1px solid var(--gold-border);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">${c.icon}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:9px;font-weight:800;letter-spacing:1.5px;color:var(--gold);text-transform:uppercase;margin-bottom:2px">Cenário ${String(id).padStart(2,'0')}</div>
+            <div style="font-size:13px;font-weight:700;color:#fff;line-height:1.3;margin-bottom:2px">${c.titulo}</div>
+            <div style="font-size:11px;color:var(--slate)">${c.posicao}</div>
+          </div>
+          <div style="color:var(--gold);font-size:18px;flex-shrink:0">▶</div>
+        </a>
+      `;
+    }).join('')}
+    <div style="text-align:center;margin-top:10px">
+      <a href="cenarios.html" target="_blank" style="font-size:11px;color:var(--slate);text-decoration:none;letter-spacing:.5px">Ver todos os 10 cenários →</a>
+    </div>
+  `;
 }
 </script>
 </body>
