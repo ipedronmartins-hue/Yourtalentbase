@@ -273,6 +273,14 @@
   margin-bottom: 4px;
 }
 
+.atleta-nasc {
+  font-size: 11px;
+  color: var(--ytb-slate);
+  font-weight: 500;
+  margin-bottom: 6px;
+  letter-spacing: 0.3px;
+}
+
 .atleta-clube {
   font-size: 13px;
   color: var(--ytb-white);
