@@ -115,6 +115,10 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
         </select>
       </div>
     </div>
+    <div class="field">
+      <label class="label">Link ZeroZero <small>(opcional)</small></label>
+      <input class="input" id="f_zerozero" type="url" placeholder="https://www.zerozero.pt/jogador/...">
+    </div>
   </div>
 
   <div class="form" style="margin-top:0">
@@ -227,6 +231,7 @@ async function submeter() {
     atleta_pe: v('f_pe') || null,
     atleta_clube: v('f_clube') || null,
     atleta_escalao: v('f_esc') || null,
+    atleta_zerozero: v('f_zerozero') || null,
     encarregado_nome: encNome,
     encarregado_email: email,
     encarregado_telefone: v('f_tel') || null,

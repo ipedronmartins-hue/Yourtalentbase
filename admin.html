@@ -57,7 +57,7 @@ async function load(){
     return`<div class="card"><span class="tag tp">${i.estado}</span><span class="tag tg">${i.plano==='com_visibilidade'?'14,90€':'9,90€'}</span>
     <div style="font-size:14px;font-weight:700;margin:6px 0">${i.atleta_nome}</div>
     <div style="font-size:11px;color:#aaa;margin-bottom:8px">${i.atleta_posicao||'?'} · ${i.atleta_clube||'?'} · ${i.atleta_escalao||'?'}<br>
-    👤 ${i.encarregado_nome} · ${i.encarregado_email}${i.encarregado_telefone?' · '+i.encarregado_telefone:''}<br>🕐 ${dt}</div>
+    👤 ${i.encarregado_nome} · ${i.encarregado_email}${i.encarregado_telefone?' · '+i.encarregado_telefone:''}<br>${i.atleta_zerozero?`🔗 <a href="${i.atleta_zerozero}" target="_blank" style="color:#D4AF37">ZeroZero</a><br>`:''}🕐 ${dt}</div>
     ${i.estado==='pendente'?`<button class="btn-sm ok" onclick="upd('${i.id}','pago')">✓ Pago</button>`:''}
     ${i.estado==='pago'?`<button class="btn-sm ok" onclick="ativar('${i.id}')">⚡ Ativar</button>`:''}
     ${i.estado!=='activo'&&i.estado!=='recusado'?`<button class="btn-sm danger" onclick="upd('${i.id}','recusado')">✗ Recusar</button>`:''}
@@ -76,7 +76,7 @@ async function upd(id,estado){await db.from('inscricoes').update({estado}).eq('i
 async function ativar(id){
   const{data:i}=await db.from('inscricoes').select('*').eq('id',id).single();
   if(!i)return;
-  const{error}=await db.from('atletas').insert({nome:i.atleta_nome,nome_curto:i.atleta_nome.split(' ')[0],posicao_principal:i.atleta_posicao,pe_dominante:i.atleta_pe,clube_actual:i.atleta_clube,escalao_actual:i.atleta_escalao,plano:i.plano,visivel_publico:i.plano==='com_visibilidade'});
+  const{error}=await db.from('atletas').insert({nome:i.atleta_nome,nome_curto:i.atleta_nome.split(' ')[0],posicao_principal:i.atleta_posicao,pe_dominante:i.atleta_pe,clube_actual:i.atleta_clube,escalao_actual:i.atleta_escalao,zerozero_url:i.atleta_zerozero,plano:i.plano,visivel_publico:i.plano==='com_visibilidade'||i.plano==='visibilidade'});
   if(error){alert('Erro: '+error.message);return;}
   await db.from('inscricoes').update({estado:'activo'}).eq('id',id);load();
 }
