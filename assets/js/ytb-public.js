@@ -172,8 +172,12 @@ document.addEventListener('DOMContentLoaded', () => {
   if (carousel) {
     carousel.addEventListener('mouseenter', () => rotacaoPausada = true);
     carousel.addEventListener('mouseleave', () => rotacaoPausada = false);
-    carousel.addEventListener('touchstart', () => rotacaoPausada = true, {passive: true});
-    setTimeout(() => rotacaoPausada = false, 8000);
+    let touchTimer = null;
+    carousel.addEventListener('touchstart', () => {
+      rotacaoPausada = true;
+      if (touchTimer) clearTimeout(touchTimer);
+      touchTimer = setTimeout(() => { rotacaoPausada = false; }, 4000);
+    }, {passive: true});
   }
 });
 
