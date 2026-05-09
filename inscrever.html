@@ -136,19 +136,36 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
   <div class="form" style="margin-top:0">
     <div class="section-title">💼 Plano</div>
     <div class="plano-cards">
-      <div class="plano-card active" data-plano="sem_visibilidade">
+      <div class="plano-card active" data-plano="treinador">
         <div class="plano-header">
-          <div class="plano-name">Plataforma</div>
+          <div class="plano-name">Com Treinador</div>
+          <div class="plano-price">39€ + 9,90€/mês</div>
+        </div>
+        <div class="plano-desc">Plataforma integrada com Scout Report profissional pelo treinador. Acompanhamento contínuo.</div>
+      </div>
+
+      <div class="plano-card" data-plano="familia">
+        <div class="plano-header">
+          <div class="plano-name">Com Família</div>
+          <div class="plano-price">14,90€ + 9,90€/mês</div>
+        </div>
+        <div class="plano-desc">Plataforma com questionário comportamental do encarregado. Sem Scout Report profissional.</div>
+      </div>
+
+      <div class="plano-card" data-plano="visibilidade">
+        <div class="plano-header">
+          <div class="plano-name">Visibilidade nos Cards</div>
           <div class="plano-price">9,90€/mês</div>
         </div>
-        <div class="plano-desc">Scout Report + Elite Coach + Treino. Sem exposição pública.</div>
+        <div class="plano-desc">Atleta aparece nos cards do site + 2 publicações Instagram mensais. Sem plataforma.</div>
       </div>
-      <div class="plano-card" data-plano="com_visibilidade">
+
+      <div class="plano-card" data-plano="agenciado_pendente">
         <div class="plano-header">
-          <div class="plano-name">Plataforma + Visibilidade</div>
-          <div class="plano-price">14,90€/mês</div>
+          <div class="plano-name">Inscrição Livre</div>
+          <div class="plano-price">Grátis</div>
         </div>
-        <div class="plano-desc">Tudo + atleta aparece nos cards públicos do site.</div>
+        <div class="plano-desc">Submete o atleta à nossa BD interna. Avaliamos em 48h se faz match para agenciamento.</div>
       </div>
     </div>
   </div>
@@ -175,7 +192,7 @@ const SUPABASE_URL = 'https://nhshnplaiolxwcfuijfo.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oc2hucGxhaW9seHdjZnVpamZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NDQxNTAsImV4cCI6MjA4OTQyMDE1MH0.uyZiDun8495sjnHA6Wsk-Hou-3lubbNJfQqSYbMLSek';
 const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-let planoEscolhido = 'sem_visibilidade';
+let planoEscolhido = 'treinador';
 
 document.querySelectorAll('.plano-card').forEach(c => {
   c.addEventListener('click', () => {
