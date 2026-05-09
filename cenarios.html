@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Cenários · YTB Elite Coach</title>
+<meta name="theme-color" content="#080C08">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="YTB Cenários">
+<meta name="description" content="10 cenários de treino mental para futebol jovem. Decisões reais. Feedback imediato.">
+<link rel="manifest" href="manifest-cenarios.json">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#080C08;--bg2:#0F140F;--bg3:#141C14;--bg4:#1A241A;
+  --border:#1E2B1E;--border2:#253325;
+  --gold:#D4AF37;--gold2:#F0CC55;--gold-soft:rgba(212,175,55,.12);--gold-border:rgba(212,175,55,.35);
+  --green:#4AE87A;--green-soft:rgba(74,232,122,.12);
+  --red:#E05050;--red-soft:rgba(224,80,80,.12);
+  --blue:#4A9FE8;--blue-soft:rgba(74,159,232,.12);
+  --orange:#FFA500;--orange-soft:rgba(255,165,0,.12);
+  --pitch:#1F4A28;--pitch2:#1A3D22;--pitch-line:#88AA88;
+  --white:#fff;--text:#DDE8DD;--slate:#88A088;--muted:#5A705A
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;overflow:hidden;-webkit-text-size-adjust:100%}
+body{display:flex;flex-direction:column;height:100vh;height:100dvh}
+
+/* TOP BAR */
+.topbar{flex-shrink:0;background:rgba(8,12,8,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:max(10px,env(safe-area-inset-top))}
+.topbar-logo{display:flex;align-items:center;gap:8px;text-decoration:none}
+.tb-badge{width:28px;height:28px;background:var(--gold);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:900;font-size:11px;color:#000}
+.tb-name{font-family:'Barlow Condensed';font-weight:800;font-size:14px;letter-spacing:1.5px;color:#fff}
+.tb-name span{color:var(--gold)}
+.tb-back{background:none;border:none;color:var(--slate);font-size:11px;cursor:pointer;padding:6px 10px;border-radius:6px;font-family:inherit}
+.tb-back:hover{background:var(--bg2)}
+.tb-title{flex:1;text-align:center;font-size:12px;color:var(--slate);font-weight:700;letter-spacing:1.5px;text-transform:uppercase}
+
+/* === LIST VIEW === */
+.list-view{flex:1;overflow-y:auto;padding:18px;-webkit-overflow-scrolling:touch}
+.list-hero{margin-bottom:20px;text-align:center}
+.list-eyebrow{display:inline-block;font-size:9px;font-weight:800;letter-spacing:3px;color:var(--gold);text-transform:uppercase;background:var(--gold-soft);border:1px solid var(--gold-border);padding:5px 12px;border-radius:100px;margin-bottom:10px}
+.list-title{font-family:'Barlow Condensed';font-weight:900;font-size:36px;line-height:1;letter-spacing:-1px;margin-bottom:4px}
+.list-title span{color:var(--gold)}
+.list-sub{font-size:12px;color:var(--slate);line-height:1.55;max-width:420px;margin:0 auto}
+.cenarios-grid{display:flex;flex-direction:column;gap:8px;max-width:520px;margin:0 auto}
+.cen-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:all .15s;text-align:left}
+.cen-card:hover,.cen-card:active{background:var(--bg3);border-color:var(--gold-border);transform:translateY(-1px)}
+.cen-icon{width:44px;height:44px;border-radius:10px;background:var(--gold-soft);border:1px solid var(--gold-border);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.cen-info{flex:1;min-width:0}
+.cen-num{font-size:9px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:2px}
+.cen-titulo{font-size:14px;font-weight:700;color:var(--white);margin-bottom:2px;line-height:1.3}
+.cen-meta{font-size:11px;color:var(--slate)}
+.cen-arrow{color:var(--muted);font-size:18px;flex-shrink:0}
+.cen-card:hover .cen-arrow{color:var(--gold)}
+
+/* === SCENARIO VIEW === */
+.scenario-view{display:none;flex:1;flex-direction:column;overflow:hidden;background:var(--bg)}
+.scenario-view.active{display:flex}
+
+/* PITCH FULL SCREEN */
+.pitch-area{flex:1;position:relative;background:linear-gradient(180deg,var(--pitch) 0%,var(--pitch2) 100%);overflow:hidden;min-height:0}
+.pitch-svg{width:100%;height:100%;display:block}
+
+.scen-overlay-top{position:absolute;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none;z-index:10}
+.scen-info-pill{background:rgba(0,0,0,.75);backdrop-filter:blur(10px);border:1px solid var(--gold-border);border-radius:8px;padding:8px 12px;max-width:75%;pointer-events:auto}
+.scen-info-num{font-size:9px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:2px}
+.scen-info-titulo{font-size:13px;font-weight:700;color:var(--white);line-height:1.2}
+.scen-close{background:rgba(0,0,0,.75);backdrop-filter:blur(10px);border:1px solid var(--border2);color:var(--white);width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;pointer-events:auto;font-family:inherit}
+.scen-close:hover{background:var(--red-soft);border-color:var(--red);color:var(--red)}
+
+.scen-indica{position:absolute;top:60px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.85);backdrop-filter:blur(10px);border:1px solid var(--gold-border);border-radius:100px;padding:8px 18px;font-size:13px;font-weight:700;color:var(--gold);letter-spacing:.5px;z-index:10;animation:fadeInDown .3s both;max-width:90%;text-align:center}
+@keyframes fadeInDown{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+/* BOTTOM PANEL */
+.bottom-panel{flex-shrink:0;background:var(--bg2);border-top:2px solid var(--gold-border);max-height:50vh;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:env(safe-area-inset-bottom)}
+
+/* Stage 1: situação + play */
+.panel-situacao{padding:14px}
+.sit-label{font-size:9px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:6px}
+.sit-text{font-size:13px;color:var(--white);line-height:1.5;margin-bottom:12px}
+.controls-row{display:flex;gap:8px;align-items:center}
+.ctrl-btn{flex:1;background:var(--gold);color:#000;border:none;padding:13px;border-radius:9px;font-size:13px;font-weight:800;letter-spacing:.5px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px}
+.ctrl-btn-secondary{background:var(--bg3);color:#fff;border:1px solid var(--border2);flex:0 0 auto;padding:13px 16px}
+.ctrl-btn:active{transform:scale(.97)}
+
+/* Stage 2: opções de decisão */
+.panel-opcoes{padding:14px;display:none}
+.panel-opcoes.show{display:block;animation:slideUp .3s both}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+.opcoes-titulo{font-size:9px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:10px;text-align:center}
+.opcoes-grid{display:flex;flex-direction:column;gap:8px}
+.opcao-btn{background:var(--bg3);border:2px solid var(--border2);border-radius:10px;padding:13px 14px;text-align:left;cursor:pointer;color:var(--white);font-family:inherit;font-size:13px;font-weight:600;display:flex;align-items:center;gap:10px;transition:all .15s}
+.opcao-btn:hover{background:var(--bg4);border-color:var(--gold-border);transform:translateY(-1px)}
+.opcao-letra{width:28px;height:28px;border-radius:50%;background:var(--gold-soft);border:1px solid var(--gold-border);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:900;font-size:14px;color:var(--gold);flex-shrink:0}
+
+/* Stage 3: feedback */
+.panel-feedback{padding:14px;display:none}
+.panel-feedback.show{display:block;animation:slideUp .3s both}
+.fb-result{display:flex;align-items:center;gap:10px;margin-bottom:10px;padding:10px;border-radius:10px}
+.fb-result.sucesso{background:var(--green-soft);border:1px solid var(--green)}
+.fb-result.perda{background:var(--red-soft);border:1px solid var(--red)}
+.fb-result.neutro{background:var(--orange-soft);border:1px solid var(--orange)}
+.fb-icon{font-size:24px}
+.fb-label{font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase}
+.sucesso .fb-label{color:var(--green)}
+.perda .fb-label{color:var(--red)}
+.neutro .fb-label{color:var(--orange)}
+.fb-texto{font-size:13px;color:var(--white);line-height:1.55;margin-bottom:14px;background:var(--bg3);border-left:3px solid var(--gold);border-radius:6px;padding:10px 12px}
+.fb-section{margin-bottom:12px}
+.fb-section-title{font-size:9px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:6px}
+.fb-dica{background:var(--gold-soft);border:1px solid var(--gold-border);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--white);line-height:1.5}
+.fb-treinos{display:flex;flex-direction:column;gap:5px}
+.fb-treino{background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:8px 12px;font-size:11px;color:var(--white);display:flex;align-items:center;gap:8px}
+.fb-treino::before{content:'•';color:var(--gold);font-size:16px}
+.fb-actions{display:flex;gap:8px;margin-top:14px}
+.fb-actions .ctrl-btn{flex:1}
+
+/* SHARE MODAL */
+.share-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(6px);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px}
+.share-modal.show{display:flex;animation:fadeIn .2s both}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.share-box{background:var(--bg2);border:1px solid var(--gold-border);border-radius:14px;padding:20px;max-width:340px;width:100%;text-align:center}
+.share-title{font-family:'Barlow Condensed';font-weight:900;font-size:22px;margin-bottom:6px}
+.share-title span{color:var(--gold)}
+.share-sub{font-size:12px;color:var(--slate);line-height:1.55;margin-bottom:16px}
+.share-options{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.share-opt{background:var(--bg3);border:1px solid var(--border2);border-radius:9px;padding:12px;color:var(--white);text-decoration:none;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;font-family:inherit}
+.share-opt-wa{background:#25D366;color:#000;border:none}
+.share-cancel{background:none;border:none;color:var(--slate);font-size:12px;cursor:pointer;padding:8px;font-family:inherit}
+
+/* TOAST */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--bg3);border:1px solid var(--gold-border);border-radius:100px;padding:9px 18px;font-size:12px;color:var(--white);opacity:0;pointer-events:none;transition:all .3s;z-index:9999;font-weight:700}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* BACKGROUND PATTERN ON LIST */
+.list-view{background:radial-gradient(circle at 30% 0%,rgba(212,175,55,.04),transparent 50%),var(--bg)}
+
+/* SVG specifics */
+.player{cursor:default}
+.player-circle{transition:filter .2s}
+.player.highlight .player-circle{filter:drop-shadow(0 0 10px var(--gold))}
+.ball{filter:drop-shadow(0 2px 4px rgba(0,0,0,.4))}
+.indica-line{stroke:var(--gold);stroke-dasharray:6,4;animation:dash 1s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-20}}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <a href="tacticslab.html" class="topbar-logo">
+    <div class="tb-badge">YT</div>
+    <div class="tb-name">Elite <span>Coach</span></div>
+  </a>
+  <div class="tb-title" id="topTitle">10 Cenários</div>
+  <button class="tb-back" id="btnBackList" onclick="showList()" style="display:none">← Lista</button>
+</div>
+
+<!-- ═══════ LIST VIEW ═══════ -->
+<div class="list-view" id="listView">
+  <div class="list-hero">
+    <div class="list-eyebrow">★ 10 Cenários · Free</div>
+    <div class="list-title">Decisões <span>de jogo</span></div>
+    <div class="list-sub">Situações reais que se repetem milhares de vezes por época. Decide. Vê o feedback. Treina. Evolui.</div>
+  </div>
+  <div class="cenarios-grid" id="cenariosGrid"></div>
+</div>
+
+<!-- ═══════ SCENARIO VIEW ═══════ -->
+<div class="scenario-view" id="scenarioView">
+
+  <!-- Pitch full screen -->
+  <div class="pitch-area">
+    <div class="scen-overlay-top">
+      <div class="scen-info-pill">
+        <div class="scen-info-num" id="scNumLabel">CENÁRIO 01</div>
+        <div class="scen-info-titulo" id="scTitulo">—</div>
+      </div>
+      <button class="scen-close" onclick="showList()" aria-label="Fechar">×</button>
+    </div>
+    <div class="scen-indica" id="scIndica">A iniciar...</div>
+    <svg class="pitch-svg" id="pitchSvg" viewBox="0 0 500 740" preserveAspectRatio="xMidYMid meet">
+      <g id="gPitch"></g>
+      <g id="gPlayers"></g>
+      <g id="gBall"></g>
+    </svg>
+  </div>
+
+  <!-- Bottom panel -->
+  <div class="bottom-panel">
+    <!-- Stage 1: Situação inicial -->
+    <div class="panel-situacao" id="panelSituacao">
+      <div class="sit-label">Situação</div>
+      <div class="sit-text" id="sitText">—</div>
+      <div class="controls-row">
+        <button class="ctrl-btn" onclick="reproducir()">▶ Reproduzir</button>
+        <button class="ctrl-btn ctrl-btn-secondary" onclick="mostrarOpcoes()">Decidir →</button>
+      </div>
+    </div>
+
+    <!-- Stage 2: Opções -->
+    <div class="panel-opcoes" id="panelOpcoes">
+      <div class="opcoes-titulo">⚡ O que fazes?</div>
+      <div class="opcoes-grid" id="opcoesGrid"></div>
+    </div>
+
+    <!-- Stage 3: Feedback -->
+    <div class="panel-feedback" id="panelFeedback">
+      <div class="fb-result" id="fbResult">
+        <div class="fb-icon" id="fbIcon">—</div>
+        <div class="fb-label" id="fbLabel">—</div>
+      </div>
+      <div class="fb-texto" id="fbTexto">—</div>
+      <div class="fb-section">
+        <div class="fb-section-title">💡 Dica do treinador</div>
+        <div class="fb-dica" id="fbDica">—</div>
+      </div>
+      <div class="fb-section">
+        <div class="fb-section-title">⚽ Treino prescrito</div>
+        <div class="fb-treinos" id="fbTreinos"></div>
+      </div>
+      <div class="fb-actions">
+        <button class="ctrl-btn ctrl-btn-secondary" onclick="resetarCenario()">↺ Tentar Outra</button>
+        <button class="ctrl-btn" onclick="abrirShare()">📤 Partilhar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Share Modal -->
+<div class="share-modal" id="shareModal">
+  <div class="share-box">
+    <div class="share-title">Partilhar <span>Cenário</span></div>
+    <div class="share-sub">Envia este cenário para outros treinadores ou para o teu grupo.</div>
+    <div class="share-options">
+      <a class="share-opt share-opt-wa" id="shareWA" target="_blank">📱 Enviar via WhatsApp</a>
+      <button class="share-opt" onclick="copiarLink()">🔗 Copiar Link</button>
+      <button class="share-opt" onclick="downloadPNG()">💾 Guardar Imagem</button>
+    </div>
+    <button class="share-cancel" onclick="fecharShare()">Cancelar</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">—</div>
+
+<!-- DATA + ENGINE -->
+<script src="cenarios-data.js"></script>
+<script>
+// ═══════════════════════════════════════════════════════
+// YTB ELITE COACH · CENÁRIOS ENGINE
+// ═══════════════════════════════════════════════════════
+
+let activeCenario = null;
+let animationId = null;
+let animStartTime = 0;
+let isAnimating = false;
+
+const SVG_NS = 'http://www.w3.org/2000/svg';
+
+// === DRAW PITCH ===
+function drawPitch() {
+  const g = document.getElementById('gPitch');
+  g.innerHTML = `
+    <!-- Pitch bg with stripes -->
+    <defs>
+      <pattern id="grass" patternUnits="userSpaceOnUse" width="500" height="40">
+        <rect x="0" y="0" width="500" height="40" fill="#1F4A28"/>
+        <rect x="0" y="0" width="500" height="20" fill="#234F2D" opacity="0.5"/>
+      </pattern>
+    </defs>
+    <rect x="0" y="0" width="500" height="740" fill="url(#grass)"/>
+    
+    <!-- Outer line -->
+    <rect x="20" y="20" width="460" height="700" fill="none" stroke="#88AA88" stroke-width="2.5"/>
+    
+    <!-- Halfway line -->
+    <line x1="20" y1="370" x2="480" y2="370" stroke="#88AA88" stroke-width="2"/>
+    <circle cx="250" cy="370" r="55" fill="none" stroke="#88AA88" stroke-width="2"/>
+    <circle cx="250" cy="370" r="2" fill="#88AA88"/>
+    
+    <!-- Top penalty area -->
+    <rect x="120" y="20" width="260" height="115" fill="none" stroke="#88AA88" stroke-width="2"/>
+    <rect x="190" y="20" width="120" height="40" fill="none" stroke="#88AA88" stroke-width="2"/>
+    <circle cx="250" cy="100" r="2" fill="#88AA88"/>
+    <path d="M 195 135 Q 250 175 305 135" fill="none" stroke="#88AA88" stroke-width="2"/>
+    
+    <!-- Bottom penalty area -->
+    <rect x="120" y="605" width="260" height="115" fill="none" stroke="#88AA88" stroke-width="2"/>
+    <rect x="190" y="680" width="120" height="40" fill="none" stroke="#88AA88" stroke-width="2"/>
+    <circle cx="250" cy="640" r="2" fill="#88AA88"/>
+    <path d="M 195 605 Q 250 565 305 605" fill="none" stroke="#88AA88" stroke-width="2"/>
+    
+    <!-- Goals -->
+    <rect x="225" y="14" width="50" height="6" fill="#88AA88"/>
+    <rect x="225" y="720" width="50" height="6" fill="#88AA88"/>
+    
+    <!-- Corners (small arcs) -->
+    <path d="M 20 27 Q 27 20 27 20" fill="none" stroke="#88AA88" stroke-width="1.5"/>
+    <path d="M 480 27 Q 473 20 473 20" fill="none" stroke="#88AA88" stroke-width="1.5"/>
+    <path d="M 20 713 Q 27 720 27 720" fill="none" stroke="#88AA88" stroke-width="1.5"/>
+    <path d="M 480 713 Q 473 720 473 720" fill="none" stroke="#88AA88" stroke-width="1.5"/>
+  `;
+}
+
+// === RENDER LIST ===
+function renderList() {
+  const grid = document.getElementById('cenariosGrid');
+  grid.innerHTML = CENARIOS.map((c, i) => `
+    <button class="cen-card" onclick="abrirCenario(${i})">
+      <div class="cen-icon" style="background:${c.cor}22;border-color:${c.cor}55">${c.icon}</div>
+      <div class="cen-info">
+        <div class="cen-num">Cenário ${String(i+1).padStart(2,'0')}</div>
+        <div class="cen-titulo">${c.titulo}</div>
+        <div class="cen-meta">${c.posicao} · ${c.debilidade}</div>
+      </div>
+      <div class="cen-arrow">▶</div>
+    </button>
+  `).join('');
+}
+
+// === ABRIR CENÁRIO ===
+function abrirCenario(idx) {
+  activeCenario = CENARIOS[idx];
+  document.getElementById('listView').style.display = 'none';
+  document.getElementById('scenarioView').classList.add('active');
+  document.getElementById('btnBackList').style.display = 'inline-block';
+  document.getElementById('topTitle').textContent = `${idx+1}/10`;
+  document.getElementById('scNumLabel').textContent = `Cenário ${String(idx+1).padStart(2,'0')}`;
+  document.getElementById('scTitulo').textContent = activeCenario.titulo;
+  document.getElementById('sitText').textContent = activeCenario.situacao;
+  document.getElementById('scIndica').textContent = activeCenario.frames[0].indica || 'Pronto.';
+
+  drawPitch();
+  renderFrame(activeCenario.frames[0]);
+
+  document.getElementById('panelSituacao').style.display = 'block';
+  document.getElementById('panelOpcoes').classList.remove('show');
+  document.getElementById('panelFeedback').classList.remove('show');
+
+  // Auto-play após 600ms
+  setTimeout(() => reproducir(), 600);
+}
+
+// === SHOW LIST ===
+function showList() {
+  pararAnimacao();
+  document.getElementById('listView').style.display = 'block';
+  document.getElementById('scenarioView').classList.remove('active');
+  document.getElementById('btnBackList').style.display = 'none';
+  document.getElementById('topTitle').textContent = '10 Cenários';
+  activeCenario = null;
+}
+
+// === ANIMATION ENGINE ===
+function lerp(a, b, t) { return a + (b - a) * t; }
+
+function getInterpolatedFrame(time) {
+  const frames = activeCenario.frames;
+  let f1 = frames[0], f2 = frames[0];
+  for (let i = 0; i < frames.length - 1; i++) {
+    if (time >= frames[i].t && time <= frames[i+1].t) {
+      f1 = frames[i];
+      f2 = frames[i+1];
+      break;
+    }
+    if (time > frames[frames.length-1].t) {
+      return frames[frames.length-1];
+    }
+  }
+  if (f1 === f2) return f1;
+
+  const ratio = f2.t === f1.t ? 0 : (time - f1.t) / (f2.t - f1.t);
+  const players = {};
+  Object.keys(f1.players).forEach(id => {
+    const p1 = f1.players[id];
+    const p2 = f2.players[id] || p1;
+    players[id] = {
+      x: lerp(p1.x, p2.x, ratio),
+      y: lerp(p1.y, p2.y, ratio),
+      team: p1.team,
+      label: p1.label,
+      highlight: p1.highlight
+    };
+  });
+
+  // Ball interpolation
+  let ball = null;
+  if (f2.ball) {
+    if (f2.ball.owner && players[f2.ball.owner]) {
+      const o = players[f2.ball.owner];
+      ball = { x: o.x, y: o.y - 18 };
+    } else if (f2.ball.x !== undefined) {
+      // Direct position
+      const b1 = f1.ball || { x: 0, y: 0 };
+      const b2 = f2.ball;
+      const b1x = b1.owner && players[b1.owner] ? players[b1.owner].x : (b1.x || b2.x);
+      const b1y = b1.owner && players[b1.owner] ? (players[b1.owner].y - 18) : (b1.y || b2.y);
+      ball = { x: lerp(b1x, b2.x, ratio), y: lerp(b1y, b2.y, ratio) };
+    }
+  }
+  if (!ball && f1.ball) {
+    if (f1.ball.owner && players[f1.ball.owner]) {
+      const o = players[f1.ball.owner];
+      ball = { x: o.x, y: o.y - 18 };
+    } else if (f1.ball.x !== undefined) {
+      ball = { x: f1.ball.x, y: f1.ball.y };
+    }
+  }
+
+  // Update indica text
+  const indica = f2.indica || f1.indica;
+  if (indica) document.getElementById('scIndica').textContent = indica;
+
+  return { players, ball };
+}
+
+function renderFrame(frame) {
+  const gP = document.getElementById('gPlayers');
+  const gB = document.getElementById('gBall');
+  
+  // Players
+  let html = '';
+  Object.entries(frame.players).forEach(([id, p]) => {
+    const colorBase = p.team === 'us' ? '#D4AF37' : '#E05050';
+    const colorStroke = p.team === 'us' ? '#F0CC55' : '#FF7878';
+    const colorText = p.team === 'us' ? '#000' : '#FFF';
+    const highlightClass = p.highlight ? 'highlight' : '';
+    const r = p.highlight ? 18 : 16;
+    
+    html += `
+      <g class="player ${highlightClass}" transform="translate(${p.x},${p.y})">
+        ${p.highlight ? `<circle r="${r+6}" fill="${colorBase}22"/>` : ''}
+        <circle class="player-circle" r="${r}" fill="${colorBase}" stroke="${colorStroke}" stroke-width="2"/>
+        <text y="5" text-anchor="middle" font-size="14" font-weight="900" fill="${colorText}" font-family="Barlow Condensed">${(p.label||'').substring(0,2).toUpperCase()}</text>
+      </g>
+    `;
+  });
+  gP.innerHTML = html;
+
+  // Ball
+  if (frame.ball) {
+    gB.innerHTML = `
+      <circle class="ball" cx="${frame.ball.x}" cy="${frame.ball.y}" r="6" fill="#fff" stroke="#222" stroke-width="1.5"/>
+      <circle class="ball" cx="${frame.ball.x}" cy="${frame.ball.y}" r="3" fill="#222" opacity="0.6"/>
+    `;
+  } else {
+    gB.innerHTML = '';
+  }
+}
+
+function reproducir() {
+  if (!activeCenario) return;
+  pararAnimacao();
+  isAnimating = true;
+  animStartTime = performance.now();
+
+  function loop(now) {
+    if (!isAnimating) return;
+    const elapsed = now - animStartTime;
+    const frame = getInterpolatedFrame(elapsed);
+    renderFrame(frame);
+    if (elapsed < activeCenario.duracao) {
+      animationId = requestAnimationFrame(loop);
+    } else {
+      isAnimating = false;
+      // Mostra opções automaticamente
+      setTimeout(() => mostrarOpcoes(), 400);
+    }
+  }
+  animationId = requestAnimationFrame(loop);
+}
+
+function pararAnimacao() {
+  isAnimating = false;
+  if (animationId) cancelAnimationFrame(animationId);
+}
+
+// === OPÇÕES ===
+function mostrarOpcoes() {
+  pararAnimacao();
+  // Render frame final
+  if (activeCenario) {
+    renderFrame(activeCenario.frames[activeCenario.frames.length-1]);
+  }
+  document.getElementById('panelSituacao').style.display = 'none';
+  document.getElementById('panelFeedback').classList.remove('show');
+  const grid = document.getElementById('opcoesGrid');
+  grid.innerHTML = activeCenario.opcoes.map(o => `
+    <button class="opcao-btn" onclick="escolher('${o.id}')">
+      <div class="opcao-letra">${o.id}</div>
+      <div>${o.texto}</div>
+    </button>
+  `).join('');
+  document.getElementById('panelOpcoes').classList.add('show');
+}
+
+function escolher(opcaoId) {
+  const opcao = activeCenario.opcoes.find(o => o.id === opcaoId);
+  if (!opcao) return;
+
+  document.getElementById('panelOpcoes').classList.remove('show');
+  
+  const fb = document.getElementById('panelFeedback');
+  const fbResult = document.getElementById('fbResult');
+  const fbIcon = document.getElementById('fbIcon');
+  const fbLabel = document.getElementById('fbLabel');
+  
+  // Reset classes
+  fbResult.className = 'fb-result ' + opcao.consequencia;
+  
+  if (opcao.certa) {
+    fbIcon.textContent = '✅';
+    fbLabel.textContent = 'Decisão Acertada';
+  } else if (opcao.consequencia === 'perda') {
+    fbIcon.textContent = '❌';
+    fbLabel.textContent = 'Bola Perdida';
+  } else {
+    fbIcon.textContent = '⚠️';
+    fbLabel.textContent = 'Decisão Subóptima';
+  }
+
+  document.getElementById('fbTexto').textContent = opcao.feedback;
+  document.getElementById('fbDica').textContent = activeCenario.dica;
+  document.getElementById('fbTreinos').innerHTML = activeCenario.treino.map(t => `<div class="fb-treino">${t}</div>`).join('');
+  
+  fb.classList.add('show');
+}
+
+function resetarCenario() {
+  document.getElementById('panelFeedback').classList.remove('show');
+  document.getElementById('panelOpcoes').classList.remove('show');
+  document.getElementById('panelSituacao').style.display = 'block';
+  if (activeCenario) {
+    renderFrame(activeCenario.frames[0]);
+    document.getElementById('scIndica').textContent = activeCenario.frames[0].indica || 'Pronto.';
+    setTimeout(reproducir, 400);
+  }
+}
+
+// === SHARE ===
+function abrirShare() {
+  const idx = CENARIOS.indexOf(activeCenario);
+  const url = window.location.origin + window.location.pathname + '?c=' + (idx+1);
+  const msg = `⚽ Cenário ${idx+1}: ${activeCenario.titulo}\n\n${activeCenario.situacao}\n\n💡 ${activeCenario.dica}\n\n${url}`;
+  document.getElementById('shareWA').href = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+  document.getElementById('shareModal').classList.add('show');
+}
+
+function fecharShare() {
+  document.getElementById('shareModal').classList.remove('show');
+}
+
+function copiarLink() {
+  const idx = CENARIOS.indexOf(activeCenario);
+  const url = window.location.origin + window.location.pathname + '?c=' + (idx+1);
+  navigator.clipboard.writeText(url).then(() => {
+    showToast('🔗 Link copiado');
+    fecharShare();
+  });
+}
+
+function downloadPNG() {
+  // Convert SVG to PNG via canvas
+  const svg = document.getElementById('pitchSvg');
+  const svgData = new XMLSerializer().serializeToString(svg);
+  const canvas = document.createElement('canvas');
+  canvas.width = 500;
+  canvas.height = 740;
+  const ctx = canvas.getContext('2d');
+  const img = new Image();
+  const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  img.onload = function() {
+    ctx.drawImage(img, 0, 0);
+    URL.revokeObjectURL(url);
+    canvas.toBlob(blob => {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      const idx = CENARIOS.indexOf(activeCenario);
+      a.download = `ytb-cenario-${String(idx+1).padStart(2,'0')}.png`;
+      a.click();
+      showToast('💾 Imagem guardada');
+      fecharShare();
+    });
+  };
+  img.src = url;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// === INIT ===
+renderList();
+
+// Direct link to specific scenario
+const params = new URLSearchParams(window.location.search);
+const cParam = parseInt(params.get('c'));
+if (cParam && cParam >= 1 && cParam <= CENARIOS.length) {
+  setTimeout(() => abrirCenario(cParam - 1), 100);
+}
+
+// PWA
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw-cenarios.js').catch(() => {});
+  });
+}
+</script>
+</body>
+</html>

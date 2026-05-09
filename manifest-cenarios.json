@@ -1,0 +1,22 @@
+{
+  "name": "YTB Cenários · Elite Coach",
+  "short_name": "YTB Cenários",
+  "description": "10 cenários de decisão para futebol jovem",
+  "start_url": "/cenarios.html",
+  "display": "standalone",
+  "background_color": "#080C08",
+  "theme_color": "#080C08",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icons/tactics-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "icons/tactics-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
