@@ -198,6 +198,25 @@ const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let planoEscolhido = 'treinador';
 
+// Ler ?plano= da URL para pré-seleccionar
+(function() {
+  const params = new URLSearchParams(window.location.search);
+  const planoParam = params.get('plano');
+  const validos = ['treinador','familia','visibilidade','agenciado_pendente'];
+  if (planoParam && validos.includes(planoParam)) {
+    planoEscolhido = planoParam;
+    // Aplica visualmente assim que o DOM estiver pronto
+    setTimeout(() => {
+      document.querySelectorAll('.plano-card').forEach(x => x.classList.remove('active'));
+      const target = document.querySelector(`.plano-card[data-plano="${planoParam}"]`);
+      if (target) {
+        target.classList.add('active');
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 100);
+  }
+})();
+
 document.querySelectorAll('.plano-card').forEach(c => {
   c.addEventListener('click', () => {
     document.querySelectorAll('.plano-card').forEach(x => x.classList.remove('active'));

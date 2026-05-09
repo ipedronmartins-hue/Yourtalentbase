@@ -65,16 +65,27 @@ body{max-width:520px;margin:0 auto;padding-bottom:40px}
 .step-text{font-size:12px;color:var(--slate);line-height:1.55}
 
 /* PLANS */
-.plans{display:flex;flex-direction:column;gap:10px}
-.plan{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:18px}
-.plan.featured{border-color:var(--gold);background:linear-gradient(135deg,rgba(212,175,55,.06),rgba(0,0,0,.3))}
-.plan-header{display:flex;justify-content:space-between;align-items:start;margin-bottom:8px}
-.plan-name{font-family:'Barlow Condensed';font-weight:900;font-size:22px;color:#fff;line-height:1}
-.plan-price{font-family:'Barlow Condensed';font-weight:900;font-size:22px;color:var(--gold);line-height:1}
+.plans{display:flex;flex-direction:column;gap:12px}
+.plan{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px;position:relative;display:flex;flex-direction:column}
+.plan.featured{border-color:var(--gold);background:linear-gradient(135deg,rgba(212,175,55,.08),rgba(0,0,0,.3))}
+.plan.featured::before{content:'★ MAIS POPULAR';position:absolute;top:-9px;left:18px;background:var(--gold);color:#000;font-size:9px;font-weight:900;letter-spacing:1.5px;padding:3px 9px;border-radius:100px}
+.plan-tag{display:inline-block;font-size:9px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:8px;background:rgba(212,175,55,.12);padding:4px 10px;border-radius:100px;border:1px solid var(--gold-border);align-self:flex-start}
+.plan-tag.tag-blue{color:#4A9FE8;background:rgba(74,159,232,.12);border-color:rgba(74,159,232,.3)}
+.plan-tag.tag-grey{color:var(--slate);background:rgba(255,255,255,.04);border-color:var(--border)}
+.plan-tag.tag-orange{color:#FFA500;background:rgba(255,165,0,.12);border-color:rgba(255,165,0,.3)}
+.plan-header{display:flex;justify-content:space-between;align-items:start;gap:8px;margin-bottom:6px}
+.plan-name{font-family:'Barlow Condensed';font-weight:900;font-size:24px;color:#fff;line-height:1}
+.plan-price{font-family:'Barlow Condensed';font-weight:900;font-size:22px;color:var(--gold);line-height:1;text-align:right;flex-shrink:0}
 .plan-desc{font-size:12px;color:var(--slate);line-height:1.55;margin-bottom:14px}
-.plan-features{list-style:none;font-size:12px;color:#fff}
-.plan-features li{padding:4px 0;display:flex;align-items:flex-start;gap:8px}
+.plan-quem{font-size:11px;color:#fff;line-height:1.5;background:rgba(255,255,255,.03);border-left:2px solid var(--gold);padding:9px 12px;border-radius:0 8px 8px 0;margin-bottom:14px}
+.plan-quem strong{color:var(--gold);font-weight:700;letter-spacing:.5px;text-transform:uppercase;font-size:9px;display:block;margin-bottom:3px}
+.plan-features{list-style:none;font-size:12px;color:#fff;margin-bottom:14px}
+.plan-features li{padding:4px 0;display:flex;align-items:flex-start;gap:8px;line-height:1.4}
 .plan-features li::before{content:'✓';color:var(--gold);font-weight:900;flex-shrink:0}
+.plan-cta{display:block;background:var(--gold);color:#000;text-align:center;padding:12px;border-radius:9px;text-decoration:none;font-weight:800;font-size:13px;letter-spacing:.3px;margin-top:auto;transition:all .15s}
+.plan-cta:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(212,175,55,.3)}
+.plan-cta.cta-secondary{background:var(--bg3);color:#fff;border:1px solid var(--border)}
+.plan-cta.cta-wa{background:#25D366;color:#000}
 
 /* FAQ */
 .faq-item{background:var(--bg2);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;overflow:hidden}
@@ -184,6 +195,7 @@ body{max-width:520px;margin:0 auto;padding-bottom:40px}
   <div class="section-title">Atletas <span>YTB</span></div>
   <div class="section-sub">Acompanhamos jovens promessas em clubes do Norte de Portugal</div>
   <div id="atletas-carousel"></div>
+  <div class="carousel-hint">👈 Arrasta · toca para trocar</div>
   <div id="atletas-dots"></div>
 </section>
 
@@ -215,70 +227,114 @@ body{max-width:520px;margin:0 auto;padding-bottom:40px}
   </div>
 </section>
 
-<section class="section">
-  <div class="section-title"><span>Planos</span></div>
-  <div class="section-sub">3 caminhos para evolução</div>
+<section class="section" id="produtos">
+  <div class="section-title">Os nossos <span>produtos</span></div>
+  <div class="section-sub">4 caminhos consoante o que precisas</div>
   <div class="plans">
 
+    <!-- 1. PLATAFORMA COM TREINADOR (mais popular) -->
     <div class="plan featured">
+      <span class="plan-tag">★ Plataforma · YTB Pro</span>
       <div class="plan-header">
         <div class="plan-name">Com Treinador</div>
-        <div class="plan-price">39€ + 9,90€<span style="font-size:11px;color:var(--slate);font-weight:400">/mês</span></div>
+        <div class="plan-price">39€<br><span style="font-size:11px;color:var(--slate);font-weight:400">+ 9,90€/mês</span></div>
       </div>
-      <div class="plan-desc">Plataforma integrada acompanhada por treinador certificado.</div>
+      <div class="plan-desc">A solução completa. Atleta acompanhado por treinador certificado YTB através de Scout Report profissional inicial e plataforma integrada.</div>
+      <div class="plan-quem">
+        <strong>Para quem é</strong>
+        Atletas Sub-12 a Sub-19 que querem desenvolvimento sério com avaliação por treinador, plano táctico e treino prescrito mensalmente.
+      </div>
       <ul class="plan-features">
-        <li>Scout Report profissional inicial (39€)</li>
-        <li>Elite Coach com 10 cenários</li>
-        <li>Treino diário prescrito</li>
-        <li>Reavaliação trimestral</li>
-        <li>Acompanhamento por treinador</li>
+        <li><strong>Scout Report profissional</strong> (39€ inicial · 25+ critérios)</li>
+        <li>Elite Coach com 10 cenários táticos personalizados</li>
+        <li>Treino diário em casa, ligado às fraquezas detectadas</li>
+        <li>Reavaliação trimestral (90 dias)</li>
+        <li>Acompanhamento contínuo por treinador YTB</li>
       </ul>
+      <a href="inscrever.html?plano=treinador" class="plan-cta">Inscrever com Treinador →</a>
     </div>
 
+    <!-- 2. PLATAFORMA COM PAIS -->
     <div class="plan">
+      <span class="plan-tag tag-blue">Plataforma · YTB Pro</span>
       <div class="plan-header">
         <div class="plan-name">Com Família</div>
-        <div class="plan-price">14,90€ + 9,90€<span style="font-size:11px;color:var(--slate);font-weight:400">/mês</span></div>
+        <div class="plan-price">14,90€<br><span style="font-size:11px;color:var(--slate);font-weight:400">+ 9,90€/mês</span></div>
       </div>
-      <div class="plan-desc">Plataforma com avaliação por questionário comportamental do encarregado.</div>
+      <div class="plan-desc">Solução acessível para famílias autónomas. Avaliação por questionário comportamental do encarregado, plataforma e treino prescrito.</div>
+      <div class="plan-quem">
+        <strong>Para quem é</strong>
+        Pais que conhecem bem o filho e querem trabalhar a evolução em casa, sem necessitar de avaliação técnica presencial por treinador.
+      </div>
       <ul class="plan-features">
-        <li>Questionário comportamental (14,90€)</li>
-        <li>Elite Coach com 10 cenários</li>
-        <li>Treino diário prescrito</li>
-        <li>Reavaliação trimestral</li>
-        <li>Sem Scout Report profissional</li>
+        <li>Questionário comportamental detalhado (14,90€ inicial)</li>
+        <li>Elite Coach com 10 cenários táticos</li>
+        <li>Treino diário em casa, baseado nas debilidades</li>
+        <li>Reavaliação trimestral (90 dias)</li>
+        <li><span style="color:var(--slate)">Sem Scout Report profissional</span></li>
       </ul>
+      <a href="inscrever.html?plano=familia" class="plan-cta">Inscrever com Família →</a>
     </div>
 
+    <!-- 3. VISIBILIDADE NOS CARDS -->
     <div class="plan">
+      <span class="plan-tag tag-grey">Visibilidade</span>
       <div class="plan-header">
-        <div class="plan-name">Visibilidade nos Cards</div>
-        <div class="plan-price">9,90€<span style="font-size:11px;color:var(--slate);font-weight:400">/mês</span></div>
+        <div class="plan-name">Cards no Site</div>
+        <div class="plan-price">9,90€<br><span style="font-size:11px;color:var(--slate);font-weight:400">/mês</span></div>
       </div>
-      <div class="plan-desc">Para atletas que pretendem exposição mas não foram seleccionados como agenciados.</div>
+      <div class="plan-desc">Exposição directa aos clubes e observadores que consultam a plataforma. Para atletas que não foram seleccionados como agenciados YTB mas merecem ser vistos.</div>
+      <div class="plan-quem">
+        <strong>Para quem é</strong>
+        Atletas que querem ser vistos. Aparecem no carrossel principal do site juntamente com os atletas YTB, mas sem o símbolo "YTB Acompanhado".
+      </div>
       <ul class="plan-features">
-        <li>Card no carrossel principal</li>
-        <li>2 publicações Instagram/mês</li>
+        <li>Card no carrossel principal da homepage</li>
+        <li>Foto, biografia e palmarés</li>
+        <li>2 publicações Instagram dedicadas/mês</li>
         <li>Maior exposição a observadores</li>
-        <li>Sem símbolo "YTB Acompanhado"</li>
+        <li><span style="color:var(--slate)">Sem plataforma · Sem treino prescrito</span></li>
       </ul>
+      <a href="inscrever.html?plano=visibilidade" class="plan-cta cta-secondary">Subscrever Cards →</a>
     </div>
 
-    <div class="plan" style="border-color:var(--gold-border);background:linear-gradient(135deg,rgba(212,175,55,.04),rgba(0,0,0,.3))">
+    <!-- 4. SCOUT REPORT AVULSO -->
+    <div class="plan" style="border-color:var(--gold-border)">
+      <span class="plan-tag tag-orange">Avulso · Sem subscrição</span>
       <div class="plan-header">
-        <div class="plan-name">Scout Report Avulso</div>
-        <div class="plan-price">39€<span style="font-size:11px;color:var(--slate);font-weight:400"> · único</span></div>
+        <div class="plan-name">Scout Report Único</div>
+        <div class="plan-price">39€<br><span style="font-size:11px;color:var(--slate);font-weight:400">único</span></div>
       </div>
-      <div class="plan-desc">Avaliação profissional única sem subscrição. PDF entregue em 48h.</div>
+      <div class="plan-desc">Avaliação profissional pontual, sem compromisso mensal. PDF completo entregue em 48h por email.</div>
+      <div class="plan-quem">
+        <strong>Para quem é</strong>
+        Pais que querem saber objectivamente onde está o filho — pontos fortes, áreas a desenvolver e potencial — sem subscrever plataforma. Ideal para decisões de clube ou início de época.
+      </div>
       <ul class="plan-features">
-        <li>25+ critérios técnicos, físicos, tácticos, mentais</li>
-        <li>Perfil de posição (até 3 adequadas)</li>
+        <li>25+ critérios técnicos, físicos, tácticos e mentais</li>
+        <li>Perfil de posição (até 3 posições adequadas)</li>
         <li>Pontos fortes e áreas de desenvolvimento</li>
         <li>Plano sugerido de 30 dias</li>
-        <li>Sem subscrição mensal</li>
+        <li>PDF profissional entregue em 48h</li>
       </ul>
+      <a href="scout-report.html" class="plan-cta">Encomendar Scout Report →</a>
     </div>
 
+  </div>
+
+  <div style="text-align:center;margin-top:18px;font-size:11px;color:var(--slate);line-height:1.6">
+    Pagamento via MB Way para 913 695 846. Comprovativo pelo WhatsApp.<br>
+    Em fase pilot. Stripe automático em breve.
+  </div>
+</section>
+
+<!-- INSCRIÇÃO LIVRE GRATUITA -->
+<section class="section" style="padding-top:0">
+  <div style="background:linear-gradient(135deg,rgba(74,159,232,.08),rgba(0,0,0,.3));border:1px solid rgba(74,159,232,.3);border-radius:14px;padding:20px;text-align:center">
+    <div style="font-size:9px;font-weight:800;letter-spacing:2.5px;color:#4A9FE8;text-transform:uppercase;margin-bottom:8px">★ Inscrição Livre · Grátis</div>
+    <div style="font-family:'Barlow Condensed';font-weight:900;font-size:24px;color:#fff;line-height:1.1;margin-bottom:8px">Achas que o teu filho<br>tem potencial?</div>
+    <div style="font-size:12px;color:var(--slate);line-height:1.55;margin-bottom:14px">Inscreve gratuitamente. Avaliamos em 48h se faz match para agenciamento. Sem custos, sem compromisso.</div>
+    <a href="inscrever.html?plano=agenciado_pendente" style="display:inline-block;background:#4A9FE8;color:#000;padding:11px 22px;border-radius:9px;text-decoration:none;font-weight:800;font-size:13px;letter-spacing:.3px">Inscrição Gratuita →</a>
   </div>
 </section>
 
