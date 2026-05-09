@@ -174,7 +174,11 @@ const SUPABASE_URL = 'https://nhshnplaiolxwcfuijfo.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oc2hucGxhaW9seHdjZnVpamZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NDQxNTAsImV4cCI6MjA4OTQyMDE1MH0.uyZiDun8495sjnHA6Wsk-Hou-3lubbNJfQqSYbMLSek';
 const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const FAMILIA_PASS = 'YTB#Familia2026';
+const FAMILIA_PASS_LIST = [
+  'YTB#Familia2026',
+  'YTB#Familia01','YTB#Familia02','YTB#Familia03','YTB#Familia04','YTB#Familia05',
+  'YTB#Familia06','YTB#Familia07','YTB#Familia08','YTB#Familia09','YTB#Familia10'
+];
 let nomeAtleta = '';
 let respostas = {};
 let resultadoFinal = null;
@@ -229,7 +233,7 @@ function login() {
   const p = document.getElementById('pass').value;
   const n = document.getElementById('nome-atleta-input').value.trim();
   const err = document.getElementById('err');
-  if (p !== FAMILIA_PASS) { err.style.display = 'block'; return; }
+  if (!FAMILIA_PASS_LIST.includes(p)) { err.style.display = 'block'; return; }
   if (!n) { err.style.display = 'block'; err.textContent = 'Insere o nome do atleta'; return; }
   err.style.display = 'none';
   nomeAtleta = n;
