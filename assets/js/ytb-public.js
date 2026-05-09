@@ -175,19 +175,62 @@ function atualizarDots() {
   });
 }
 
-// Pausar em hover/touch
+// Pausar em hover/touch + suporte de swipe
 document.addEventListener('DOMContentLoaded', () => {
   const carousel = document.getElementById('atletas-carousel');
-  if (carousel) {
-    carousel.addEventListener('mouseenter', () => rotacaoPausada = true);
-    carousel.addEventListener('mouseleave', () => rotacaoPausada = false);
-    let touchTimer = null;
-    carousel.addEventListener('touchstart', () => {
-      rotacaoPausada = true;
-      if (touchTimer) clearTimeout(touchTimer);
-      touchTimer = setTimeout(() => { rotacaoPausada = false; }, 4000);
-    }, {passive: true});
-  }
+  if (!carousel) return;
+
+  // Hover (desktop)
+  carousel.addEventListener('mouseenter', () => rotacaoPausada = true);
+  carousel.addEventListener('mouseleave', () => rotacaoPausada = false);
+
+  // Swipe (mobile)
+  let touchStartX = 0;
+  let touchStartY = 0;
+  let touchTimer = null;
+
+  carousel.addEventListener('touchstart', e => {
+    touchStartX = e.changedTouches[0].screenX;
+    touchStartY = e.changedTouches[0].screenY;
+    rotacaoPausada = true;
+  }, { passive: true });
+
+  carousel.addEventListener('touchend', e => {
+    const touchEndX = e.changedTouches[0].screenX;
+    const touchEndY = e.changedTouches[0].screenY;
+    const deltaX = touchEndX - touchStartX;
+    const deltaY = touchEndY - touchStartY;
+
+    // Só considera swipe se for movimento mais horizontal que vertical
+    if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY)) {
+      const slides = carousel.querySelectorAll('.atleta-slide');
+      if (slides.length < 2) return;
+
+      if (deltaX < 0) {
+        // Swipe esquerda → próximo
+        const nextIdx = (rotacaoIndex + 1) % slides.length;
+        irParaSlide(nextIdx, slides);
+      } else {
+        // Swipe direita → anterior
+        const prevIdx = (rotacaoIndex - 1 + slides.length) % slides.length;
+        irParaSlide(prevIdx, slides);
+      }
+    }
+
+    // Retoma rotação automática 5s depois
+    if (touchTimer) clearTimeout(touchTimer);
+    touchTimer = setTimeout(() => { rotacaoPausada = false; }, 5000);
+  }, { passive: true });
+
+  // Click direto no card também salta para o próximo
+  carousel.addEventListener('click', () => {
+    const slides = carousel.querySelectorAll('.atleta-slide');
+    if (slides.length < 2) return;
+    const nextIdx = (rotacaoIndex + 1) % slides.length;
+    irParaSlide(nextIdx, slides);
+    if (touchTimer) clearTimeout(touchTimer);
+    touchTimer = setTimeout(() => { rotacaoPausada = false; }, 5000);
+  });
 });
 
 // ============================================
