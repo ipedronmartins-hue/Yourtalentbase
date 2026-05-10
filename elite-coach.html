@@ -44,10 +44,13 @@ body{display:flex;flex-direction:column;height:100vh;height:100dvh;width:100vw;p
 .tb-icon-btn{background:none;border:1px solid var(--border);color:#fff;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:12px;font-family:inherit}
 .pro-badge{background:var(--bg3);color:#fff;border:1px solid var(--gold-border);padding:5px 11px;border-radius:100px;font-size:10px;font-weight:800;cursor:pointer;font-family:inherit;letter-spacing:1px}
 
-/* SWIPER CONTAINER — 3 modes side by side */
-.swiper-container{flex:1;overflow:hidden;position:relative;min-height:0}
-.swiper{display:flex;flex-direction:row;width:300vw;height:100%;transform:translateX(0);transition:transform .35s cubic-bezier(.2,.8,.2,1);will-change:transform}
-.swiper-page{flex:0 0 100vw;width:100vw;min-width:100vw;height:100%;display:flex;flex-direction:column;overflow:hidden;position:relative}
+/* SWIPER CONTAINER — abordagem com position absolute (à prova de falhas) */
+.swiper-container{flex:1;overflow:hidden;position:relative;min-height:0;width:100%}
+.swiper{position:absolute;top:0;left:0;bottom:0;width:300%;display:block;transform:translateX(0);transition:transform .35s cubic-bezier(.2,.8,.2,1);will-change:transform}
+.swiper-page{position:absolute;top:0;bottom:0;width:33.3333%;display:flex;flex-direction:column;overflow:hidden}
+.swiper-page[id="page-0"]{left:0}
+.swiper-page[id="page-1"]{left:33.3333%}
+.swiper-page[id="page-2"]{left:66.6666%}
 
 /* PITCH AREA — campo grande full-screen */
 .pitch-area{flex:1;position:relative;background:linear-gradient(180deg,var(--pitch) 0%,var(--pitch2) 100%);overflow:hidden;min-height:0}
@@ -530,7 +533,7 @@ function goToMode(mode) {
   if (currentMode === 1 && activeSim) voltarLista('sim');
 
   currentMode = mode;
-  swiper.style.transform = `translateX(-${mode * 100}vw)`;
+  swiper.style.transform = `translateX(-${mode * 33.3333}%)`;
   document.querySelectorAll('.mode-tab').forEach(t => {
     t.classList.toggle('active', parseInt(t.dataset.mode) === mode);
   });
