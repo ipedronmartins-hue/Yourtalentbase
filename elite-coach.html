@@ -42,6 +42,7 @@ body{display:flex;flex-direction:column;height:100vh;height:100dvh;position:rela
 
 .tb-right{display:flex;align-items:center;gap:6px}
 .tb-icon-btn{background:none;border:1px solid var(--border);color:#fff;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:12px;font-family:inherit}
+.pro-badge{background:var(--bg3);color:#fff;border:1px solid var(--gold-border);padding:5px 11px;border-radius:100px;font-size:10px;font-weight:800;cursor:pointer;font-family:inherit;letter-spacing:1px}
 
 /* SWIPER CONTAINER — 3 modes side by side */
 .swiper{flex:1;display:flex;width:300%;transform:translateX(0);transition:transform .35s cubic-bezier(.2,.8,.2,1);min-height:0;will-change:transform}
@@ -64,9 +65,10 @@ body{display:flex;flex-direction:column;height:100vh;height:100dvh;position:rela
 .scen-indica{position:absolute;top:50px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.85);backdrop-filter:blur(10px);border:1px solid var(--gold-border);border-radius:100px;padding:6px 14px;font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.5px;z-index:10;max-width:90%;text-align:center;animation:fadeInDown .3s both}
 @keyframes fadeInDown{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 
-/* DICA POPUP — aparece durante simulação */
-.dica-popup{position:absolute;bottom:90px;left:14px;right:14px;background:rgba(0,0,0,.92);backdrop-filter:blur(12px);border:2px solid var(--gold);border-radius:11px;padding:10px 14px;z-index:15;animation:slideUpFade .35s both;display:none}
+/* DICA POPUP — aparece NO TOPO durante simulação (debaixo do pill) */
+.dica-popup{position:absolute;top:54px;left:14px;right:14px;background:rgba(0,0,0,.92);backdrop-filter:blur(12px);border:2px solid var(--gold);border-radius:11px;padding:10px 14px;z-index:15;animation:slideDownFade .35s both;display:none}
 .dica-popup.show{display:block}
+@keyframes slideDownFade{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
 @keyframes slideUpFade{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 .dica-popup-tag{font-size:8px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:3px}
 .dica-popup-text{font-size:13px;color:#fff;font-weight:600;line-height:1.4}
@@ -140,10 +142,10 @@ body{display:flex;flex-direction:column;height:100vh;height:100dvh;position:rela
 .sim-info-dica{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-size:11px;color:#fff;line-height:1.4}
 .sim-info-dica::before{content:'💡 ';margin-right:3px}
 
-/* === MODE 3: EDITOR === */
-.editor-toolbar{position:absolute;top:48px;left:8px;right:8px;display:flex;gap:5px;flex-wrap:wrap;z-index:10;pointer-events:auto}
-.tool-btn{background:rgba(0,0,0,.75);backdrop-filter:blur(10px);border:1px solid var(--border2);color:#fff;padding:6px 10px;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.3px}
-.tool-btn.active{background:var(--gold);color:#000;border-color:var(--gold)}
+/* === MODE 2: EDITOR via iframe === */
+.editor-host{flex:1;position:relative;background:var(--bg);overflow:hidden;display:flex;flex-direction:column}
+.editor-host iframe{flex:1;width:100%;border:none;background:var(--bg)}
+.editor-loading{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg);z-index:5}
 
 /* MODE INDICATOR DOTS */
 .mode-dots{position:absolute;bottom:64px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:50;pointer-events:none}
@@ -191,6 +193,7 @@ body{display:flex;flex-direction:column;height:100vh;height:100dvh;position:rela
     <button class="mode-tab" data-mode="2" onclick="goToMode(2)">Editor</button>
   </div>
   <div class="tb-right">
+    <button class="pro-badge" id="proBadge" onclick="showProLogin()" title="Análise IA grátis · Clica para activar Pro">3/3</button>
   </div>
 </div>
 
@@ -321,35 +324,14 @@ body{display:flex;flex-direction:column;height:100vh;height:100dvh;position:rela
     </div>
   </div>
 
-  <!-- ═══════ MODE 2: EDITOR ═══════ -->
+  <!-- ═══════ MODE 2: EDITOR (Tactics Lab) ═══════ -->
   <div class="swiper-page" id="page-2">
-    <div class="pitch-area">
-      <div class="scen-overlay-top">
-        <div class="scen-info-pill">
-          <div class="scen-info-num">EDITOR LIVRE</div>
-          <div class="scen-info-titulo" id="edTitle">Toca no campo para colocar jogadores</div>
-        </div>
-        <div class="scen-actions-top">
-          <button class="action-btn-top" onclick="edClear()" title="Limpar">🗑</button>
-          <button class="action-btn-top" onclick="abrirShare('ed')" title="Partilhar">📤</button>
-        </div>
+    <div class="editor-host" id="editorHost">
+      <div class="editor-loading" id="editorLoading">
+        <div class="spinner"></div>
+        <div style="font-size:12px;color:var(--slate);margin-top:10px">A carregar Tactics Lab...</div>
       </div>
-      <div class="editor-toolbar">
-        <button class="tool-btn active" id="edToolPlayer" onclick="edSetTool('player-us')">🟡 Jogador</button>
-        <button class="tool-btn" id="edToolAdv" onclick="edSetTool('player-them')">🔴 Adversário</button>
-        <button class="tool-btn" id="edToolBall" onclick="edSetTool('ball')">⚽ Bola</button>
-        <button class="tool-btn" id="edToolArrow" onclick="edSetTool('arrow')">➡️ Seta</button>
-        <button class="tool-btn" id="edToolMove" onclick="edSetTool('move')">✋ Mover</button>
-        <button class="tool-btn" onclick="edFormation('433')">4-3-3</button>
-        <button class="tool-btn" onclick="edFormation('442')">4-4-2</button>
-        <button class="tool-btn" onclick="edFormation('4231')">4-2-3-1</button>
-      </div>
-      <svg class="pitch-svg" id="edPitchSvg" viewBox="0 0 500 740" preserveAspectRatio="xMidYMid meet">
-        <g id="edGPitch"></g>
-        <g id="edGArrows"></g>
-        <g id="edGPlayers"></g>
-        <g id="edGBall"></g>
-      </svg>
+      <iframe id="editorFrame" src="" frameborder="0" style="display:none"></iframe>
     </div>
   </div>
 
@@ -373,6 +355,51 @@ body{display:flex;flex-direction:column;height:100vh;height:100dvh;position:rela
       <button class="share-opt" onclick="downloadPNG()">💾 Guardar PNG</button>
     </div>
     <button class="share-cancel" onclick="fecharShare()">Cancelar</button>
+  </div>
+</div>
+
+<!-- Pro Login Modal -->
+<div class="share-modal" id="proLoginModal">
+  <div class="share-box">
+    <div class="share-title">Elite Coach <span>Pro</span></div>
+    <div class="share-sub">Análise IA UEFA ilimitada · Save plays · Exportação</div>
+    <div style="background:var(--gold-soft);border:1px solid var(--gold-border);border-radius:8px;padding:11px;margin-bottom:12px">
+      <div style="font-size:9px;font-weight:800;letter-spacing:2px;color:var(--gold);margin-bottom:3px">PREÇO</div>
+      <div style="font-family:'Barlow Condensed';font-weight:900;font-size:22px;color:#fff">4,90€/mês</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:11px">
+      <input id="proUser" placeholder="Utilizador (ex: Elite01)" style="background:var(--bg3);border:1px solid var(--border2);color:#fff;border-radius:8px;padding:11px;font-family:inherit;font-size:13px">
+      <input id="proPass" type="password" placeholder="Password" style="background:var(--bg3);border:1px solid var(--border2);color:#fff;border-radius:8px;padding:11px;font-family:inherit;font-size:13px">
+      <div id="proLoginErr" style="font-size:11px;color:var(--red);display:none;text-align:center">Credenciais incorrectas.</div>
+    </div>
+    <div class="share-options">
+      <button class="share-opt share-opt-wa" onclick="tryProLogin()">⚡ Entrar como Pro</button>
+      <a class="share-opt" href="https://wa.me/351913695846?text=Quero%20subscrever%20Elite%20Coach%20Pro" target="_blank">📱 Quero subscrever (WhatsApp)</a>
+    </div>
+    <button class="share-cancel" onclick="closeProLogin()">Cancelar</button>
+  </div>
+</div>
+
+<!-- Upgrade modal (3/3 atingido) -->
+<div class="share-modal" id="upgradeModal">
+  <div class="share-box">
+    <div style="font-size:38px;margin-bottom:6px">⚡</div>
+    <div class="share-title">Limite <span>atingido</span></div>
+    <div class="share-sub">Já fizeste 3 análises IA grátis este mês.<br>Para continuar com IA UEFA, activa Pro:</div>
+    <div style="background:var(--gold-soft);border:1px solid var(--gold-border);border-radius:8px;padding:11px;margin-bottom:12px;text-align:left">
+      <div style="font-size:9px;font-weight:800;letter-spacing:2px;color:var(--gold);margin-bottom:6px">⚡ ELITE COACH PRO · 4,90€/mês</div>
+      <div style="font-size:11px;color:var(--text);line-height:1.6">
+        ✓ Análise IA UEFA ilimitada<br>
+        ✓ Save plays no servidor<br>
+        ✓ Exportação avançada<br>
+        ✓ Acesso prioritário a novos cenários
+      </div>
+    </div>
+    <div class="share-options">
+      <button class="share-opt share-opt-wa" onclick="closeUpgradeModal();showProLogin()">⚡ Já sou Pro · Entrar</button>
+      <a class="share-opt" href="https://wa.me/351913695846?text=Quero%20subscrever%20Elite%20Coach%20Pro%20por%204%2C90%E2%82%AC%2Fm%C3%AAs" target="_blank">📱 Subscrever via WhatsApp</a>
+    </div>
+    <button class="share-cancel" onclick="closeUpgradeModal()">Voltar mais tarde</button>
   </div>
 </div>
 
@@ -402,6 +429,11 @@ function goToMode(mode) {
   pararAnimacaoCen();
   pararAnimacaoSim();
   document.getElementById('simInfoModal').classList.remove('show');
+
+  // Lazy load editor when entering mode 2
+  if (mode === 2) loadEditor();
+
+  updateProBadge();
 }
 
 // Swipe gestures across whole body
@@ -770,180 +802,150 @@ function toggleInfoModal() {
 }
 
 // ═══════════════════════════════════════════════════════
-// MODE 2: EDITOR
+// MODE 2: EDITOR (Tactics Lab via iframe)
 // ═══════════════════════════════════════════════════════
-let edTool = 'player-us';
-let edPlayers = [];
-let edBall = null;
-let edArrows = [];
-let edArrowStart = null;
+const TACTICS_PASS = 'YTB#Tactics2026';
+let editorLoaded = false;
+let editorReady = false;
 
-const FORMACOES = {
-  '433': [
-    {x:250,y:680,label:'GR'},{x:120,y:580,label:'LE'},{x:200,y:600,label:'DC'},
-    {x:300,y:600,label:'DC'},{x:380,y:580,label:'LD'},{x:170,y:460,label:'MC'},
-    {x:250,y:480,label:'MC'},{x:330,y:460,label:'MC'},{x:120,y:280,label:'EE'},
-    {x:250,y:240,label:'AV'},{x:380,y:280,label:'ED'}
-  ],
-  '442': [
-    {x:250,y:680,label:'GR'},{x:120,y:580,label:'LE'},{x:200,y:600,label:'DC'},
-    {x:300,y:600,label:'DC'},{x:380,y:580,label:'LD'},{x:120,y:420,label:'MEs'},
-    {x:200,y:440,label:'MC'},{x:300,y:440,label:'MC'},{x:380,y:420,label:'MD'},
-    {x:200,y:240,label:'AV'},{x:300,y:240,label:'AV'}
-  ],
-  '4231': [
-    {x:250,y:680,label:'GR'},{x:120,y:580,label:'LE'},{x:200,y:600,label:'DC'},
-    {x:300,y:600,label:'DC'},{x:380,y:580,label:'LD'},{x:200,y:480,label:'MD'},
-    {x:300,y:480,label:'MD'},{x:120,y:340,label:'MEs'},{x:250,y:360,label:'MO'},
-    {x:380,y:340,label:'MD'},{x:250,y:220,label:'AV'}
-  ]
+// 10 Elite Coach Pro logins
+const ELITE_LOGINS = {
+  'Elite01': 'YTB#Elite#bmQW5SCZpI',
+  'Elite02': 'YTB#Elite#A6MMyjfOqC',
+  'Elite03': 'YTB#Elite#nwCyZWcHqW',
+  'Elite04': 'YTB#Elite#BfvkFXQwaJ',
+  'Elite05': 'YTB#Elite#yyYwkTzFiw',
+  'Elite06': 'YTB#Elite#srKfuuQIcM',
+  'Elite07': 'YTB#Elite#CApb8epFAA',
+  'Elite08': 'YTB#Elite#uODoMrgFpF',
+  'Elite09': 'YTB#Elite#sF74IkXM2A',
+  'Elite10': 'YTB#Elite#XwTora7eZ2'
 };
 
-function edSetTool(tool) {
-  edTool = tool;
-  document.querySelectorAll('#page-2 .tool-btn').forEach(b => b.classList.remove('active'));
-  const map = {'player-us':'edToolPlayer','player-them':'edToolAdv','ball':'edToolBall','arrow':'edToolArrow','move':'edToolMove'};
-  if (map[tool]) document.getElementById(map[tool])?.classList.add('active');
-  edArrowStart = null;
+// IA usage tracking — cookie based
+function getIAUsage() {
+  const month = new Date().toISOString().slice(0, 7); // YYYY-MM
+  const data = JSON.parse(localStorage.getItem('ytb-ia-usage') || '{}');
+  if (data.month !== month) {
+    return { month, count: 0 };
+  }
+  return data;
+}
+function incIAUsage() {
+  const u = getIAUsage();
+  u.count = (u.count || 0) + 1;
+  localStorage.setItem('ytb-ia-usage', JSON.stringify(u));
+  return u;
+}
+function isPro() {
+  return localStorage.getItem('ytb-elite-pro') === 'true';
+}
+const IA_FREE_LIMIT = 3;
+
+function loadEditor() {
+  if (editorLoaded) return;
+  editorLoaded = true;
+  const frame = document.getElementById('editorFrame');
+  frame.src = 'tacticslab.html';
+  frame.style.display = 'block';
+  frame.addEventListener('load', () => {
+    document.getElementById('editorLoading').style.display = 'none';
+  });
 }
 
-function edFormation(form) {
-  edPlayers = FORMACOES[form].map(p => ({...p, team: 'us'}));
-  edBall = {x: 250, y: 690};
-  edArrows = [];
-  edRender();
-}
-
-function edClear() {
-  edPlayers = [];
-  edBall = null;
-  edArrows = [];
-  edRender();
-}
-
-function edRender() {
-  const gP = document.getElementById('edGPlayers');
-  const gB = document.getElementById('edGBall');
-  const gA = document.getElementById('edGArrows');
-
-  gP.innerHTML = edPlayers.map((p, i) => {
-    const cb = p.team === 'us' ? '#D4AF37' : '#E05050';
-    const cs = p.team === 'us' ? '#F0CC55' : '#FF7878';
-    const ct = p.team === 'us' ? '#000' : '#FFF';
-    return `<g class="player" data-i="${i}" transform="translate(${p.x},${p.y})">
-      <circle r="16" fill="${cb}" stroke="${cs}" stroke-width="2"/>
-      <text y="5" text-anchor="middle" font-size="12" font-weight="900" fill="${ct}" font-family="Barlow Condensed">${(p.label||'').substring(0,2).toUpperCase()}</text>
-    </g>`;
-  }).join('');
-
-  gB.innerHTML = edBall ? `
-    <circle cx="${edBall.x}" cy="${edBall.y}" r="6" fill="#fff" stroke="#222" stroke-width="1.5"/>
-    <circle cx="${edBall.x}" cy="${edBall.y}" r="3" fill="#222" opacity="0.6"/>` : '';
-
-  gA.innerHTML = edArrows.map(a => `
-    <defs>
-      <marker id="arrow-${a.id}" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-        <path d="M0,0 L0,6 L9,3 z" fill="#D4AF37"/>
-      </marker>
-    </defs>
-    <line x1="${a.x1}" y1="${a.y1}" x2="${a.x2}" y2="${a.y2}" stroke="#D4AF37" stroke-width="3" stroke-dasharray="6,4" marker-end="url(#arrow-${a.id})"/>
-  `).join('');
-}
-
-function edSvgPoint(e) {
-  const svg = document.getElementById('edPitchSvg');
-  const pt = svg.createSVGPoint();
-  const ev = e.touches ? e.touches[0] : e;
-  pt.x = ev.clientX;
-  pt.y = ev.clientY;
-  const ctm = svg.getScreenCTM().inverse();
-  const p = pt.matrixTransform(ctm);
-  return { x: p.x, y: p.y };
-}
-
-let edDragging = null;
-function edInit() {
-  drawPitchInto('edGPitch');
-  edFormation('433');
-  const svg = document.getElementById('edPitchSvg');
-
-  // Track if it's a real tap (no movement) or a swipe
-  let tapStart = null;
-  let tapMoved = false;
-
-  svg.addEventListener('touchstart', e => {
-    const t = e.touches[0];
-    tapStart = { x: t.clientX, y: t.clientY };
-    tapMoved = false;
-  }, { passive: true });
-
-  svg.addEventListener('touchmove', e => {
-    if (!tapStart) return;
-    const t = e.touches[0];
-    if (Math.abs(t.clientX - tapStart.x) > 8 || Math.abs(t.clientY - tapStart.y) > 8) {
-      tapMoved = true;
+// Listen for tacticslab signals
+window.addEventListener('message', e => {
+  if (!e.data || typeof e.data !== 'object') return;
+  if (e.data.type === 'tacticslab-ready') {
+    // Auto-login + check IA limit
+    const frame = document.getElementById('editorFrame');
+    if (frame && frame.contentWindow) {
+      frame.contentWindow.postMessage({
+        type: 'tacticslab-autologin',
+        pass: TACTICS_PASS,
+        esc: 'Sub-12|fut11|11'
+      }, '*');
+      // Set IA block based on Pro status / usage
+      const u = getIAUsage();
+      const allow = isPro() || u.count < IA_FREE_LIMIT;
+      frame.contentWindow.postMessage({
+        type: allow ? 'tacticslab-allow-ia' : 'tacticslab-block-ia'
+      }, '*');
     }
-  }, { passive: true });
-
-  svg.addEventListener('click', e => {
-    if (currentMode !== 2) return; // Só processa clicks em modo Editor
-    if (tapMoved) { tapMoved = false; return; } // Foi swipe, ignora
-    if (edDragging) { edDragging = null; return; }
-    const p = edSvgPoint(e);
-    if (edTool === 'player-us' || edTool === 'player-them') {
-      const team = edTool === 'player-us' ? 'us' : 'them';
-      edPlayers.push({ x: p.x, y: p.y, team, label: '' });
-      edRender();
-    } else if (edTool === 'ball') {
-      edBall = { x: p.x, y: p.y };
-      edRender();
-    } else if (edTool === 'arrow') {
-      if (!edArrowStart) {
-        edArrowStart = p;
-        document.getElementById('edTitle').textContent = 'Toca no destino da seta';
-      } else {
-        edArrows.push({ id: Date.now(), x1: edArrowStart.x, y1: edArrowStart.y, x2: p.x, y2: p.y });
-        edArrowStart = null;
-        document.getElementById('edTitle').textContent = 'Editor Livre';
-        edRender();
+  }
+  if (e.data.type === 'tacticslab-ia-used') {
+    if (!isPro()) {
+      const u = incIAUsage();
+      updateProBadge();
+      // Re-check after increment
+      const remaining = IA_FREE_LIMIT - u.count;
+      if (remaining <= 0) {
+        // Block subsequent calls
+        const frame = document.getElementById('editorFrame');
+        if (frame && frame.contentWindow) {
+          frame.contentWindow.postMessage({ type: 'tacticslab-block-ia' }, '*');
+        }
+      } else if (remaining === 1) {
+        showToast('⚠️ Última análise IA grátis deste mês');
       }
     }
-  });
-
-  // Move tool — drag jogadores
-  let dragIdx = null;
-
-  function startDrag(e) {
-    if (edTool !== 'move' || currentMode !== 2) return;
-    const tgt = e.target.closest('.player');
-    if (!tgt) return;
-    e.preventDefault();
-    dragIdx = parseInt(tgt.dataset.i);
-    edDragging = true;
   }
-
-  function doDrag(e) {
-    if (dragIdx === null || currentMode !== 2) return;
-    e.preventDefault();
-    const p = edSvgPoint(e);
-    if (edPlayers[dragIdx]) {
-      edPlayers[dragIdx].x = Math.max(20, Math.min(480, p.x));
-      edPlayers[dragIdx].y = Math.max(20, Math.min(720, p.y));
-      edRender();
-    }
+  if (e.data.type === 'tacticslab-ia-blocked') {
+    showUpgradeModal();
   }
+});
 
-  function endDrag() {
-    dragIdx = null;
-    setTimeout(() => { edDragging = false; }, 50);
+// Pro login modal
+function showProLogin() {
+  document.getElementById('proLoginModal').classList.add('show');
+}
+function closeProLogin() {
+  document.getElementById('proLoginModal').classList.remove('show');
+}
+function tryProLogin() {
+  const u = document.getElementById('proUser').value.trim();
+  const p = document.getElementById('proPass').value.trim();
+  if (ELITE_LOGINS[u] && ELITE_LOGINS[u] === p) {
+    localStorage.setItem('ytb-elite-pro', 'true');
+    localStorage.setItem('ytb-elite-pro-user', u);
+    closeProLogin();
+    showToast('✅ Elite Coach Pro activado · IA ilimitada');
+    updateProBadge();
+  } else {
+    document.getElementById('proLoginErr').style.display = 'block';
   }
+}
+function logoutPro() {
+  localStorage.removeItem('ytb-elite-pro');
+  localStorage.removeItem('ytb-elite-pro-user');
+  updateProBadge();
+  showToast('Sessão Elite Coach Pro terminada');
+}
+function updateProBadge() {
+  const badge = document.getElementById('proBadge');
+  if (isPro()) {
+    badge.textContent = '⚡ Pro';
+    badge.style.background = 'var(--gold)';
+    badge.style.color = '#000';
+    badge.onclick = logoutPro;
+    badge.title = 'Pro activo · clica para sair';
+  } else {
+    const u = getIAUsage();
+    const remaining = Math.max(0, IA_FREE_LIMIT - u.count);
+    badge.textContent = remaining + '/' + IA_FREE_LIMIT;
+    badge.style.background = 'var(--bg3)';
+    badge.style.color = '#fff';
+    badge.onclick = showProLogin;
+    badge.title = remaining + ' análises IA grátis este mês';
+  }
+}
 
-  svg.addEventListener('mousedown', startDrag);
-  svg.addEventListener('touchstart', startDrag, {passive: false});
-  document.addEventListener('mousemove', doDrag);
-  document.addEventListener('touchmove', doDrag, {passive: false});
-  document.addEventListener('mouseup', endDrag);
-  document.addEventListener('touchend', endDrag);
+// Upgrade modal
+function showUpgradeModal() {
+  document.getElementById('upgradeModal').classList.add('show');
+}
+function closeUpgradeModal() {
+  document.getElementById('upgradeModal').classList.remove('show');
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1020,7 +1022,7 @@ function showToast(msg) {
 // ═══════════════════════════════════════════════════════
 renderCenarios();
 renderSimulacoes();
-edInit();
+updateProBadge();
 
 // PWA
 if ('serviceWorker' in navigator) {

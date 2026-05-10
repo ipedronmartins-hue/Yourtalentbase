@@ -282,8 +282,6 @@ button,select,input,textarea{font-family:'Barlow',sans-serif;cursor:pointer;}
     <div class="panel" id="panel1" style="overflow:hidden;display:flex;flex-direction:column;">
       <div class="p2-inner" style="flex:1;overflow:hidden;">
         <div class="p2-toolbar" id="toolbar">
-          <a href="cenarios.html" class="tbtn" style="text-decoration:none;background:var(--gold);color:#000;font-weight:800;border-color:var(--gold);">🎯 10 Cenários</a>
-          <div style="width:1px;height:20px;background:var(--b2);flex-shrink:0;"></div>
           <button class="tbtn active" id="tTeamA" onclick="setTeam('A')">⚽ Minha Equipa</button>
           <button class="tbtn" id="tTeamB" onclick="setTeam('B')">🤖 IA / Adversário</button>
           <div style="width:1px;height:20px;background:var(--b2);flex-shrink:0;"></div>
@@ -1455,6 +1453,57 @@ if('serviceWorker' in navigator){
       .catch(function(e){ console.warn('SW:',e); });
   });
 }
-</script>
-</body>
+// ─── AUTO-LOGIN via postMessage (para integração elite-coach.html) ───
+window.addEventListener('message', function(e) {
+  try {
+    if (e.data && e.data.type === 'tacticslab-autologin') {
+      var pass = e.data.pass || '';
+      var esc = e.data.esc || 'Sub-12|fut11|11';
+      var passInput = el('loginPass');
+      var escSelect = el('loginEsc');
+      if (passInput && escSelect) {
+        passInput.value = pass;
+        escSelect.value = esc;
+        if (typeof doLogin === 'function') doLogin();
+      }
+    }
+    if (e.data && e.data.type === 'tacticslab-block-ia') {
+      window.__IA_BLOCKED = true;
+    }
+    if (e.data && e.data.type === 'tacticslab-allow-ia') {
+      window.__IA_BLOCKED = false;
+    }
+  } catch (err) { /* silent */ }
+});
+
+// Intercept fetch /api/claude para reportar uso ao parent
+var __originalFetch = window.fetch;
+window.fetch = function(url, opts) {
+  if (typeof url === 'string' && url.indexOf('/api/claude') !== -1) {
+    if (window.__IA_BLOCKED) {
+      // Bloquear chamada e avisar parent
+      try {
+        if (window.parent !== window) {
+          window.parent.postMessage({ type: 'tacticslab-ia-blocked' }, '*');
+        }
+      } catch(e){}
+      return Promise.reject(new Error('Limite IA atingido'));
+    }
+    // Avisar parent que vai usar IA (para incrementar contador)
+    try {
+      if (window.parent !== window) {
+        window.parent.postMessage({ type: 'tacticslab-ia-used' }, '*');
+      }
+    } catch(e){}
+  }
+  return __originalFetch.apply(this, arguments);
+};
+
+// Notify parent that we're ready for autologin
+try {
+  if (window.parent !== window) {
+    window.parent.postMessage({ type: 'tacticslab-ready' }, '*');
+  }
+} catch (e) {}
+</script></body>
 </html>
