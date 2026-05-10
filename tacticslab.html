@@ -1193,6 +1193,35 @@ function updateP3Header(){
 // ════════════════════════════════════════════════
 //  AI ANALYSIS
 // ════════════════════════════════════════════════
+// MAPEAMENTO DE COORDENADAS PARA ZONAS DO CAMPO (PT do Porto)
+// Sistema: x 0-500, y 0-740. Y=0 é golo adversário, Y=740 é nossa baliza.
+// ════════════════════════════════════════════════
+function zonaJogador(x, y) {
+  // Faixa horizontal
+  var faixa;
+  if (x < 167) faixa = 'faixa esquerda';
+  else if (x > 333) faixa = 'faixa direita';
+  else faixa = 'corredor central';
+
+  // Zona vertical
+  var zonaV;
+  if (y < 80) zonaV = 'à porta da baliza adversária';
+  else if (y < 200) zonaV = 'último terço (zona de criação)';
+  else if (y < 370) zonaV = 'miolo ofensivo';
+  else if (y < 490) zonaV = 'miolo defensivo';
+  else if (y < 620) zonaV = 'meio-campo defensivo';
+  else zonaV = 'reduto (área defensiva)';
+
+  // Zonas específicas (precedência)
+  if (x > 175 && x < 325) {
+    if (y < 135) return 'grande área adversária · ' + faixa;
+    if (y > 605) return 'nossa grande área · ' + faixa;
+  }
+
+  return faixa + ' · ' + zonaV;
+}
+
+// ════════════════════════════════════════════════
 async function runAnalysis(){
   updateP3Header();
   var aPlayers = S.players.filter(function(p){ return p.team==='A'; });
@@ -1204,13 +1233,13 @@ async function runAnalysis(){
   var aDesc = aPlayers.map(function(p){
     var prof = S.profiles[p.num] || {};
     var arrow = S.arrows[p.id];
-    var arrowStr = arrow ? ' → '+DIR_EMJ[arrow]+' '+DIR_LBL[arrow] : '';
+    var arrowStr = arrow ? ' → '+DIR_LBL[arrow] : '';
     var profStr = prof.speed ? ' ('+prof.speed+')' : '';
-    return p.num+'. '+p.pos+profStr+' [x:'+Math.round(p.x)+',y:'+Math.round(p.y)+']'+arrowStr;
+    return p.num+'. '+p.pos+profStr+' — '+zonaJogador(p.x, p.y)+arrowStr;
   }).join('\n');
 
   var bDesc = bPlayers.length ? bPlayers.map(function(p){
-    return p.num+'. [x:'+Math.round(p.x)+',y:'+Math.round(p.y)+']';
+    return p.num+'. '+(p.pos||'Adv')+' — '+zonaJogador(p.x, p.y);
   }).join('\n') : 'Não definida';
 
   var counterForm = getCounterFormation(S.formation, S.phase);
@@ -1218,23 +1247,36 @@ async function runAnalysis(){
 
   var isSetPiece = isHalfPitch();
   var prompt = [
-    'És um analista tático sénior com formação UEFA A/B. Respondes exclusivamente a treinadores profissionais de futebol de formação. Linguagem técnica, precisa e sem condescendência. Português europeu.',
+    'És um analista táctico sénior com formação UEFA A/B, mas falas como um treinador do Porto a explicar a outro treinador do Porto. Português europeu carregado, com expressões e termos do Norte. Tom directo, incisivo, sem floreados.',
+    '',
+    'GLOSSÁRIO OBRIGATÓRIO (usa estes termos sempre que possível):',
+    '- "a malta" = a equipa | "o gajo" / "o homem" = o jogador adversário',
+    '- "faixa" = corredor lateral | "miolo" = meio-campo | "reduto" / "gaiola" = área defensiva | "buraco" = espaço entre linhas | "quina" = canto da área',
+    '- "morder" = pressionar | "varrer" / "limpar" = afastar bola | "estoiro" = remate forte | "ruptura" = passe que rasga | "dobra" = cobertura defensiva',
+    '- "bloco baixinho" = bloco baixo | "tirar a linha" = subir linha defensiva | "fechar o buraco" = compactar entrelinhas',
+    '- "comer a faixa" = atacar pelo flanco | "amortecer" = controlar bola | "apoio" = linha de passe',
+    '',
+    'REGRAS CRÍTICAS:',
+    '- NUNCA uses coordenadas x:y. Refere-te SEMPRE a zonas (faixa esquerda, miolo, reduto, etc).',
+    '- Refere-te aos jogadores pela POSIÇÃO (GR, DC, LE, LD, MD, MC, MO, ED, EE, PL) e número quando útil.',
+    '- Tom firme mas profissional. Sem palavrões. Sem "carago" / "merda" / etc na análise técnica.',
+    '- Se for um Sub-12 ou Sub-13, adapta linguagem (mais paciente, menos exigências de execução perfeita).',
     '',
     'CONTEXTO: Escalão '+S.escalao+' · Formato '+(isFut7()?'Futebol 7 (7 jogadores)':'Futebol 11 (11 jogadores)')+' · '+( isSetPiece ? 'BOLA PARADA — ' : 'Fase de jogo: ')+S.phase,
     isSetPiece ? '' : 'Sistema ofensivo: '+S.formation,
     '',
-    'EQUIPA A — '+(isSetPiece ? 'ORGANIZAÇÃO NA BOLA PARADA' : 'ORGANIZAÇÃO TÁTICA')+':',
+    'EQUIPA A — '+(isSetPiece ? 'ORGANIZAÇÃO NA BOLA PARADA' : 'ORGANIZAÇÃO TÁCTICA')+':',
     aDesc,
     '',
-    bPlayers.length > 0 ? 'EQUIPA B — '+(isSetPiece?'ORGANIZAÇÃO DEFENSIVA':'BLOCO ADVERSÁRIO ('+counterForm+')')+' :\n'+bDesc+'\n' : 'Equipa adversária: sem dados definidos.\n',
+    bPlayers.length > 0 ? 'EQUIPA B — '+(isSetPiece?'ORGANIZAÇÃO DEFENSIVA':'BLOCO ADVERSÁRIO ('+counterForm+')')+':\n'+bDesc+'\n' : 'Equipa adversária: sem dados definidos.\n',
     arrowCount > 0 ? 'Vetores de movimento: '+arrowCount+' jogadores com intenção de deslocação definida.' : '',
     '',
     isSetPiece ?
-    'Analisa esta bola parada. Responde EXATAMENTE neste formato com **:\n\n**TACTICAL SCORE**\n[Score 0-100 da execução desta bola parada considerando posicionamento, qualidade dos vetores e lógica tática. Apenas o número e 1 frase justificativa.]\n\n**BIGGEST RISK**\n[A maior fragilidade desta organização. 2 frases.]\n\n**BEST OPPORTUNITY**\n[Onde está a maior probabilidade de sucesso. 2 frases.]\n\n**RECOMMENDED TWEAK**\n[Um ajuste concreto e accionável. 1-2 frases.]\n\nMáx 200 palavras. Terminologia UEFA. Sem condescendência.'
+    'Analisa esta bola parada. Responde EXACTAMENTE neste formato com **:\n\n**TACTICAL SCORE**\n[Score 0-100. Apenas o número e 1 frase justificativa em PT do Porto.]\n\n**BIGGEST RISK**\n[A maior fragilidade. 2 frases. Refere zona e jogador (posição). Sem coordenadas.]\n\n**BEST OPPORTUNITY**\n[Onde está a maior probabilidade de sucesso. 2 frases.]\n\n**RECOMMENDED TWEAK**\n[Um ajuste concreto. 1-2 frases.]\n\nMáx 200 palavras. PT do Porto carregado.'
     :
-    'Análise tática Elite Coach. Responde EXATAMENTE neste formato com **:\n\n**TACTICAL SCORE**\n[Score 0-100 da estrutura defendida pela Equipa A — equilíbrio posicional, intenção tática e clareza dos vetores. Apenas o número e 1 frase justificativa.]\n\n**BIGGEST RISK**\n[Maior vulnerabilidade estrutural. Especifica zona e momento. 2 frases técnicas.]\n\n**BEST OPPORTUNITY**\n[Maior corredor de superioridade — onde a Equipa A pode criar vantagem. 2 frases com referências de zona.]\n\n**COUNTER MOVE — '+counterForm+'**\n[Como o bloco adversário deve responder. Compactação de linhas, marcações específicas, basculações. 2-3 frases.]\n\n**RECOMMENDED TWEAK — '+S.escalao.toUpperCase()+'**\n[Ajuste accionável adaptado ao escalão. Movimento, posicionamento ou perfil de jogador. 2 frases.]\n\nMáx 280 palavras. Terminologia UEFA. Sem linguagem motivacional.',
+    'Análise táctica Elite Coach. Responde EXACTAMENTE neste formato com **:\n\n**TACTICAL SCORE**\n[Score 0-100 da estrutura defendida pela Equipa A. Apenas o número e 1 frase justificativa em PT do Porto.]\n\n**BIGGEST RISK**\n[Maior vulnerabilidade. Refere zona (faixa, miolo, reduto, etc) e jogador (posição). 2 frases técnicas em PT do Porto. SEM coordenadas.]\n\n**BEST OPPORTUNITY**\n[Onde a Equipa A pode "comer a faixa" ou "morder" no buraco. 2 frases com referências de zona.]\n\n**COUNTER MOVE — '+counterForm+'**\n[Como o bloco adversário deve responder. "Tirar a linha", "fazer dobra", "bloco baixinho", etc. 2-3 frases.]\n\n**RECOMMENDED TWEAK — '+S.escalao.toUpperCase()+'**\n[Ajuste accionável. Exemplo: "O LE está a comer demasiada faixa, baixa-o 8 metros para a malta fechar o miolo." 2 frases.]\n\nMáx 280 palavras. PT do Porto carregado, sem palavrões. Sem coordenadas. Refere posições (GR, MD, LE) e zonas (faixa, miolo, reduto).',
     '',
-    'Máx 340 palavras. Terminologia UEFA. Sem linguagem motivacional genérica.',
+    'Lembrete final: zero coordenadas x:y. Zero PT-BR. Termos do Porto sempre que natural.',
   ].filter(function(l){ return l !== undefined; }).join('\n');
 
   try {
