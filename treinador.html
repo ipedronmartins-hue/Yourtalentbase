@@ -519,94 +519,200 @@ function mostrarResultado(r) {
 }
 
 function prescreverTreino(r) {
-  // Mapa fraqueza → cards de treino
+  // ═══════════════════════════════════════════════════════
+  // BIBLIOTECA · 20 critérios × 3-4 exercícios cada
+  // ═══════════════════════════════════════════════════════
   const MAPA = {
-    'Toque': [{n:'Toques Alternados',d:'Alternar toques com ambos os pés sem deixar cair',m:'Nº de toques seguidos',t:'Técnica'},
-              {n:'Domínio Orientado',d:'Lança bola ao ar e domina já orientando para frente',m:'% controlos limpos (10 reps)',t:'Técnica'}],
-    'Passe curto': [{n:'Passe à Parede (1 toque)',d:'Passe contínuo à parede com 1 toque',m:'Passes certos em 1 min',t:'Passe'},
-                   {n:'Alvo Marcado',d:'Acertar num alvo específico na parede',m:'Acertos em 10',t:'Passe'}],
-    'Passe longo': [{n:'Passe Longo Controlado',d:'Passe longo + domínio',m:'Controlos limpos',t:'Passe'}],
-    'Drible': [{n:'Slalom Curto',d:'Conduzir entre obstáculos próximos',m:'Tempo + erros',t:'Condução'},
-               {n:'1v1 Simulado',d:'Mudanças de direção rápidas',m:'Execuções eficazes',t:'Condução'}],
-    'Finalização': [{n:'Remate Frontal',d:'Bola parada, remate direto ao alvo',m:'Golos em 10',t:'Finalização'},
-                   {n:'Condução + Remate',d:'Conduz e finaliza',m:'Eficácia',t:'Finalização'}],
-    'Velocidade': [{n:'Sprints 10m',d:'Arranques curtos explosivos',m:'Tempo',t:'Físico'},
-                  {n:'Mudança de Direção',d:'Sprint com cortes',m:'Tempo',t:'Físico'}],
-    'Resistência': [{n:'Sprints Repetidos',d:'5x sprints com pausa curta',m:'Tempo médio',t:'Físico'}],
-    'Força': [{n:'Saltos Explosivos',d:'Saltos verticais',m:'Altura/reps',t:'Físico'},
-              {n:'Core Básico',d:'Prancha 30-60s',m:'Tempo',t:'Físico'}],
-    'Leitura de jogo': [{n:'Receber Entre Linhas',d:'Recebe e roda rápido',m:'Execuções limpas',t:'Decisão'},
-                       {n:'Transição Ofensiva',d:'Recuperação + ataque rápido',m:'Eficácia',t:'Decisão'}],
-    'Decisão': [{n:'Decisão 2 Toques',d:'Recebe, decide e passa em 2 toques',m:'Execuções corretas',t:'Decisão'}],
-    '1×1 ofensivo': [{n:'Slalom + Aceleração',d:'Slalom + sprint final',m:'Tempo total',t:'Condução'}],
+    'Toque': [
+      {n:'Toques Alternados',d:'Alternar toques com ambos os pés sem deixar cair. 3 séries de 1 min',m:'Nº toques seguidos',t:'Técnica'},
+      {n:'Toques no Ar',d:'Pé, coxa, peito, cabeça. 4 séries de 30s',m:'Tempo sem cair',t:'Técnica'},
+      {n:'Domínio Orientado',d:'Lança bola ao ar e domina já orientado. 10 reps × 3',m:'% controlos limpos',t:'Técnica'}
+    ],
+    'Primeiro toque': [
+      {n:'Recepção em Movimento',d:'Recebe passe e domina enquanto te deslocas. 15 reps × 3',m:'% recepções limpas',t:'Técnica'},
+      {n:'Domínio com Pressão',d:'Recebe com colega a aproximar. 10 reps × 3',m:'% sem perder bola',t:'Técnica'},
+      {n:'Primeiro Toque + Passe',d:'Domina e passa em 2 toques. 20 reps cada pé',m:'Tempo médio',t:'Técnica'}
+    ],
+    'Passe curto': [
+      {n:'Passe à Parede 1 Toque',d:'Passe contínuo à parede com 1 toque. 3 séries de 1 min',m:'Passes certos em 1 min',t:'Passe'},
+      {n:'Alvo Marcado',d:'Acertar num alvo na parede. 10 tentativas × 3',m:'Acertos em 10',t:'Passe'},
+      {n:'Triângulo de Passes',d:'Com 2 colegas em triângulo, alta intensidade. 5 min × 2',m:'Passes consecutivos',t:'Passe'},
+      {n:'Passe + Movimento',d:'Passa e desloca-te imediatamente. 15 reps',m:'Velocidade transição',t:'Passe'}
+    ],
+    'Passe longo': [
+      {n:'Passe Longo Controlado',d:'Passe de 25-30m + domínio. 10 reps × 3',m:'Controlos limpos',t:'Passe'},
+      {n:'Passe Longo c/ Alvo',d:'Acertar num alvo a 30m. 10 tentativas',m:'Acertos próximos',t:'Passe'},
+      {n:'Trocar de Lado',d:'Passe diagonal entre alas. 8 reps × 3',m:'Precisão',t:'Passe'}
+    ],
+    'Drible': [
+      {n:'Slalom Curto',d:'Conduzir entre obstáculos a 1m. 4 séries',m:'Tempo + erros',t:'Condução'},
+      {n:'1v1 com Finta',d:'Mudanças de direcção rápidas. 8 reps × 3',m:'Execuções eficazes',t:'Condução'},
+      {n:'Drible em Velocidade',d:'Conduzir à velocidade máxima entre cones',m:'Tempo',t:'Condução'},
+      {n:'Finta Aprendida',d:'Repetir uma finta específica até dominar. 30 reps',m:'Execução natural',t:'Condução'}
+    ],
+    'Finalização': [
+      {n:'Remate Frontal',d:'Bola parada, remate ao alvo. 20 remates',m:'Golos em 20',t:'Finalização'},
+      {n:'Condução + Remate',d:'Conduz 5m e finaliza. 15 reps cada pé',m:'Eficácia',t:'Finalização'},
+      {n:'Remate de Primeira',d:'Finaliza sem dominar. 15 reps',m:'On target',t:'Finalização'},
+      {n:'Remate em Movimento',d:'Recebe em deslocamento e finaliza',m:'Eficácia',t:'Finalização'}
+    ],
+    'Velocidade': [
+      {n:'Sprints 10m',d:'Arranques curtos explosivos. 8 sprints × 2 séries, 30s pausa',m:'Tempo médio',t:'Físico'},
+      {n:'Sprints 20m',d:'Aceleração + manutenção. 6 sprints × 2 séries',m:'Tempo médio',t:'Físico'},
+      {n:'Sprint Reactivo',d:'Sprint após sinal visual/sonoro. 10 reps',m:'Tempo de reacção',t:'Físico'}
+    ],
+    'Resistência': [
+      {n:'Sprints Repetidos',d:'5 sprints de 30m com 30s pausa. 3 séries',m:'Queda de tempo',t:'Físico'},
+      {n:'Corrida Intervalada',d:'4× (1 min rápido + 1 min lento). Total 8 min',m:'Distância coberta',t:'Físico'},
+      {n:'Corrida Contínua',d:'20-30 min ritmo moderado',m:'Distância',t:'Físico'}
+    ],
+    'Força': [
+      {n:'Saltos Explosivos',d:'Saltos verticais com travagem. 3 séries × 8 reps',m:'Altura/reps',t:'Físico'},
+      {n:'Core Forte',d:'Prancha 45-90s, 3 séries. Plus laterais 30s/lado',m:'Tempo máximo',t:'Físico'},
+      {n:'Agachamento c/ Salto',d:'15 reps × 3 séries',m:'Reps + qualidade',t:'Físico'},
+      {n:'Lunges Dinâmicos',d:'Avanço alternado. 12 reps cada lado × 3',m:'Qualidade técnica',t:'Físico'}
+    ],
+    'Agilidade': [
+      {n:'Escada de Agilidade',d:'Padrões variados na escada. 5 min',m:'Velocidade + erros',t:'Físico'},
+      {n:'Mudanças de Direcção',d:'Sprint + corte 90°. 10 reps cada lado',m:'Tempo',t:'Físico'},
+      {n:'T-Drill',d:'Sprint em T com cortes laterais. 6 reps',m:'Tempo',t:'Físico'}
+    ],
+    'Leitura de jogo': [
+      {n:'Receber Entre Linhas',d:'Recebe e roda rápido lendo a pressão. 10 reps × 3',m:'Execuções limpas',t:'Decisão'},
+      {n:'Scanning Antes de Receber',d:'Olhar 2-3× antes da bola chegar',m:'Nº scans/recepção',t:'Decisão'},
+      {n:'Análise Vídeo',d:'Ver 10 min do próprio jogo identificando boas/más decisões',m:'Decisões correctas',t:'Mental'}
+    ],
+    'Posicionamento': [
+      {n:'Posição Sem Bola',d:'Treino posicional 5v3 com foco em ocupação de espaço',m:'Espaços ocupados',t:'Decisão'},
+      {n:'Coberturas Defensivas',d:'Triângulo defensivo. Quem cobre quem?',m:'Tempo de reacção',t:'Decisão'},
+      {n:'Rotações Posicionais',d:'Praticar trocas de posição entre linhas',m:'Fluidez',t:'Decisão'}
+    ],
+    'Decisão': [
+      {n:'Decisão 2 Toques',d:'Recebe, decide e passa em 2 toques. 20 reps × 3',m:'Execuções correctas',t:'Decisão'},
+      {n:'1v1+1 (apoio)',d:'Sob pressão decide passar ou conduzir. 10 reps',m:'Decisões acertadas',t:'Decisão'},
+      {n:'Cenários Tactics',d:'Praticar cenários 1, 5, 7 do Elite Coach',m:'Decisão certa',t:'Decisão'}
+    ],
+    '1×1 ofensivo': [
+      {n:'Slalom + Aceleração',d:'Slalom + sprint final. 6 reps × 3',m:'Tempo total',t:'Condução'},
+      {n:'1v1 Real',d:'Contra defensor activo. 10 duelos por sessão',m:'% sucesso',t:'Condução'},
+      {n:'Cenário Elite Coach 03',d:'Extremo em 1×1 na ala — cenarios.html?c=3',m:'Decisão',t:'Decisão'}
+    ],
+    '1×1 defensivo': [
+      {n:'Postura Defensiva',d:'Treinar posição corporal. 10 min com colega',m:'Postura correcta',t:'Físico'},
+      {n:'1v1 Defensivo',d:'Contra atacante activo. 10 duelos',m:'% bolas roubadas',t:'Decisão'},
+      {n:'Antecipação',d:'Treino de leitura para antecipar passe',m:'Intercepções',t:'Decisão'}
+    ],
+    'Visão': [
+      {n:'Scanning Drill',d:'Toques de bola com cabeça erguida + colega mostra cores',m:'Cores identificadas',t:'Decisão'},
+      {n:'Passe Cego',d:'Passe sem olhar para colega após scan inicial. 15 reps',m:'% passes precisos',t:'Decisão'},
+      {n:'Cabeça Levantada',d:'5v5 onde só vale passe se receptor for visto antes',m:'Qualidade passes',t:'Decisão'}
+    ],
+    'Foco': [
+      {n:'Diário de Treino',d:'Anotar 1 objectivo antes do treino + reflexão depois',m:'Consistência diária',t:'Mental'},
+      {n:'Visualização',d:'5 min antes da sessão visualizar execução perfeita',m:'Hábito diário',t:'Mental'},
+      {n:'Atenção Plena',d:'Respiração 5 min antes do treino',m:'Hábito diário',t:'Mental'}
+    ],
+    'Esforço': [
+      {n:'Compromisso Diário',d:'1 sessão extra individual por semana',m:'Sessões cumpridas',t:'Mental'},
+      {n:'Ficar Para Trás',d:'No fim do treino ficar 10 min a treinar fraqueza pessoal',m:'Frequência',t:'Mental'}
+    ],
+    'Atitude': [
+      {n:'Liderar Aquecimento',d:'Tomar iniciativa no aquecimento ou jogo reduzido',m:'Frequência',t:'Mental'},
+      {n:'Aprender Posições',d:'Estudar 1 posição diferente da habitual por mês',m:'Posições dominadas',t:'Mental'}
+    ],
+    'Liderança': [
+      {n:'Comunicar em Campo',d:'Falar com colegas durante exercícios. Direccionar',m:'Volume comunicação',t:'Mental'},
+      {n:'Apoiar Colegas',d:'Identificar 1 colega com dificuldades e ajudar',m:'Acções de apoio',t:'Mental'}
+    ]
   };
 
   const cardsGerados = [];
+  const fraquezasUsadas = [];
+
   r.fraquezas.forEach(([fraqueza]) => {
     const cards = MAPA[fraqueza] || [];
+    if (cards.length) fraquezasUsadas.push(fraqueza);
     cards.forEach(c => {
-      if (!cardsGerados.find(x => x.n === c.n)) cardsGerados.push(c);
+      if (!cardsGerados.find(x => x.n === c.n)) cardsGerados.push({...c, fraqueza});
     });
   });
 
-  // Sempre adicionar 1 card de físico base
-  if (!cardsGerados.find(c => c.t === 'Físico')) {
-    cardsGerados.push({n:'Core Básico',d:'Prancha 30-60s para estabilidade geral',m:'Tempo máximo',t:'Físico'});
+  const blocosPresentes = new Set(cardsGerados.map(c => c.t));
+  if (!blocosPresentes.has('Físico')) {
+    cardsGerados.push({n:'Core + Velocidade',d:'Prancha 60s + 6 sprints 10m. Base física para todos',m:'Tempo + Velocidade',t:'Físico'});
+    cardsGerados.push({n:'Saltos Explosivos',d:'Saltos verticais 3×8 reps',m:'Altura',t:'Físico'});
   }
+  if (!blocosPresentes.has('Decisão') && !blocosPresentes.has('Mental')) {
+    cardsGerados.push({n:'Decisão 2 Toques',d:'Recebe, decide, passa em 2 toques. Base mental para todos',m:'Execuções correctas',t:'Decisão'});
+  }
+  if (!blocosPresentes.has('Técnica') && !blocosPresentes.has('Passe')) {
+    cardsGerados.push({n:'Domínio + Passe',d:'Recepção orientada + passe à parede. Manutenção técnica',m:'Qualidade',t:'Técnica'});
+  }
+
+  const grupos = {};
+  cardsGerados.forEach(c => {
+    const bloco = ['Técnica','Passe','Condução','Finalização'].includes(c.t) ? 'TÉCNICA' :
+                  c.t === 'Físico' ? 'FÍSICO' :
+                  c.t === 'Decisão' ? 'DECISÃO' :
+                  c.t === 'Mental' ? 'MENTAL' : 'OUTROS';
+    if (!grupos[bloco]) grupos[bloco] = [];
+    grupos[bloco].push(c);
+  });
+
+  const ordemBlocos = ['TÉCNICA','FÍSICO','DECISÃO','MENTAL'];
+  const coresBloco = {'TÉCNICA':'#D4AF37','FÍSICO':'#E05050','DECISÃO':'#4A9FE8','MENTAL':'#9F7AEA'};
 
   const area = document.getElementById('treino-cards-area');
   document.getElementById('treino-intro-text').textContent =
-    `Plano prescrito para ${r.nome} · ${cardsGerados.length} exercícios · Foco: ${r.fraquezas.slice(0,3).map(([k])=>k).join(', ')||'Manutenção'}`;
+    `Plano para ${r.nome} · ${cardsGerados.length} exercícios em ${Object.keys(grupos).length} blocos`;
 
   if (!cardsGerados.length) {
-    area.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)">Nenhuma fraqueza detectada! Mantém o ritmo de treino.</div>';
+    area.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)">Sem fraquezas críticas detectadas. Trabalho de manutenção geral recomendado.</div>';
     return;
   }
 
-  area.innerHTML = `
-    <div class="treino-intro">
-      <div style="font-size:11px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:6px">📅 Plano 30 dias · 3 sessões/semana</div>
-      <div style="font-size:12px;color:var(--slate);line-height:1.55">Cada sessão foca nas áreas de desenvolvimento detectadas no Scout Report. Resultados visíveis em 4-6 semanas com treino consistente.</div>
-    </div>
-    <div class="card-grid">
-      ${cardsGerados.slice(0, 8).map((c, i) => `
-        <div class="card-treino">
-          <div class="card-num">${String(i+1).padStart(2,'0')}</div>
-          <div class="card-content">
-            <div class="card-nome">${c.n}</div>
-            <div class="card-desc">${c.d}</div>
-            <div class="card-meta">📊 ${c.m}</div>
-          </div>
-        </div>`).join('')}
-    </div>
-    ${(() => {
-      // Cenários ligados às fraquezas
-      const cenIds = new Set();
-      r.fraquezas.forEach(([f]) => {
-        const ids = (typeof MAPA_FRAQUEZA_CENARIO !== 'undefined' && MAPA_FRAQUEZA_CENARIO[f]) || [];
-        ids.forEach(id => cenIds.add(id));
-      });
-      if (cenIds.size === 0) return '';
-      const arr = Array.from(cenIds).sort((a,b)=>a-b).slice(0, 4);
-      return `
-        <div style="margin-top:18px;background:linear-gradient(135deg,rgba(212,175,55,.06),transparent);border:1px solid var(--gold-border);border-radius:12px;padding:14px">
-          <div style="font-size:9px;font-weight:800;letter-spacing:2.5px;color:var(--gold);text-transform:uppercase;margin-bottom:4px">⚡ Praticar também</div>
-          <div style="font-size:12px;color:var(--slate);margin-bottom:12px">Cenários do Elite Coach ligados às fraquezas — 4-5 min cada, decisão guiada com feedback.</div>
-          <div style="display:grid;gap:6px">
-            ${arr.map(id => {
-              const c = (typeof CENARIOS_INFO !== 'undefined') ? CENARIOS_INFO[id] : null;
-              if (!c) return '';
-              return `<a href="cenarios.html?c=${id}" target="_blank" style="display:flex;align-items:center;gap:10px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;text-decoration:none;color:#fff">
-                <span style="font-size:18px">${c.icon}</span>
-                <span style="flex:1;font-size:12px;font-weight:600">${c.titulo}</span>
-                <span style="color:var(--gold);font-size:11px;font-weight:800">▶ ABRIR</span>
-              </a>`;
-            }).join('')}
-          </div>
-        </div>
-      `;
-    })()}`;
+  let html = '<div class="treino-intro">' +
+    '<div style="font-size:11px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:6px">📅 Plano 30 dias · 3 sessões/semana</div>' +
+    `<div style="font-size:12px;color:var(--slate);line-height:1.55;margin-bottom:8px">${fraquezasUsadas.length ? 'Foco: <strong style="color:#fff">'+fraquezasUsadas.slice(0,3).join(', ')+'</strong>.' : 'Plano de manutenção.'} Resultados em 4-6 semanas com consistência.</div>` +
+    '<div style="font-size:10px;color:var(--muted);line-height:1.5">⏱ Sessão tipo: 5min aquecimento · 15min técnica · 10min físico · 10min decisão · 5min cooldown</div>' +
+    '</div>';
+
+  let counter = 0;
+  ordemBlocos.forEach(bloco => {
+    const lista = grupos[bloco];
+    if (!lista || !lista.length) return;
+    const cor = coresBloco[bloco];
+    html += `<div style="margin-top:14px;margin-bottom:8px;display:flex;align-items:center;gap:10px"><div style="width:6px;height:18px;background:${cor};border-radius:3px"></div><div style="font-size:10px;font-weight:800;letter-spacing:2.5px;color:${cor};text-transform:uppercase">${bloco} · ${lista.length} exercício${lista.length>1?'s':''}</div></div><div class="card-grid">`;
+    lista.forEach(c => {
+      counter++;
+      html += `<div class="card-treino" style="border-left:3px solid ${cor}"><div class="card-num" style="background:${cor}22;border-color:${cor}55;color:${cor}">${String(counter).padStart(2,'0')}</div><div class="card-content"><div class="card-nome">${c.n}</div><div class="card-desc">${c.d}</div><div class="card-meta">📊 ${c.m}${c.fraqueza?` · 🎯 ${c.fraqueza}`:''}</div></div></div>`;
+    });
+    html += '</div>';
+  });
+
+  // Cenários ligados às fraquezas
+  const cenIds = new Set();
+  r.fraquezas.forEach(([f]) => {
+    const ids = (typeof MAPA_FRAQUEZA_CENARIO !== 'undefined' && MAPA_FRAQUEZA_CENARIO[f]) || [];
+    ids.forEach(id => cenIds.add(id));
+  });
+  if (cenIds.size > 0) {
+    const arr = Array.from(cenIds).sort((a,b)=>a-b).slice(0, 4);
+    html += '<div style="margin-top:18px;background:linear-gradient(135deg,rgba(212,175,55,.06),transparent);border:1px solid var(--gold-border);border-radius:12px;padding:14px">' +
+      '<div style="font-size:9px;font-weight:800;letter-spacing:2.5px;color:var(--gold);text-transform:uppercase;margin-bottom:4px">⚡ Praticar também</div>' +
+      '<div style="font-size:12px;color:var(--slate);margin-bottom:12px">Cenários do Elite Coach ligados às fraquezas — 4-5 min cada, decisão guiada com feedback.</div>' +
+      '<div style="display:grid;gap:6px">' +
+      arr.map(id => {
+        const c = (typeof CENARIOS_INFO !== 'undefined') ? CENARIOS_INFO[id] : null;
+        if (!c) return '';
+        return `<a href="cenarios.html?c=${id}" target="_blank" style="display:flex;align-items:center;gap:10px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;text-decoration:none;color:#fff"><span style="font-size:18px">${c.icon}</span><span style="flex:1;font-size:12px;font-weight:600">${c.titulo}</span><span style="color:var(--gold);font-size:11px;font-weight:800">▶ ABRIR</span></a>`;
+      }).join('') +
+      '</div></div>';
+  }
+
+  area.innerHTML = html;
 }
+
 
 // MAPA: fraqueza do Scout Report → cenários do Elite Coach
 const MAPA_FRAQUEZA_CENARIO = {
