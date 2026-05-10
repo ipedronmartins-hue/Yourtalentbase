@@ -44,13 +44,11 @@ body{margin:0;padding:0;height:100vh;height:100dvh;width:100vw;position:relative
 .tb-icon-btn{background:none;border:1px solid var(--border);color:#fff;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:12px;font-family:inherit}
 .pro-badge{background:var(--bg3);color:#fff;border:1px solid var(--gold-border);padding:5px 11px;border-radius:100px;font-size:10px;font-weight:800;cursor:pointer;font-family:inherit;letter-spacing:1px}
 
-/* SWIPER CONTAINER — position fixed para garantir dimensões */
+/* PÁGINAS DE MODO — abordagem simples display none/flex */
 .swiper-container{position:fixed;top:calc(54px + env(safe-area-inset-top));left:0;right:0;bottom:0;overflow:hidden;width:100%}
-.swiper{position:absolute;top:0;left:0;bottom:0;width:300%;display:block;transform:translateX(0);transition:transform .35s cubic-bezier(.2,.8,.2,1);will-change:transform}
-.swiper-page{position:absolute;top:0;bottom:0;width:33.3333%;display:flex;flex-direction:column;overflow:hidden}
-.swiper-page[id="page-0"]{left:0}
-.swiper-page[id="page-1"]{left:33.3333%}
-.swiper-page[id="page-2"]{left:66.6666%}
+.swiper{position:absolute;inset:0}
+.swiper-page{position:absolute;top:0;left:0;right:0;bottom:0;width:100%;display:none;flex-direction:column;overflow:hidden}
+.swiper-page.active{display:flex}
 
 /* PITCH AREA — campo grande full-screen */
 .pitch-area{flex:1;position:relative;background:linear-gradient(180deg,var(--pitch) 0%,var(--pitch2) 100%);overflow:hidden;min-height:0}
@@ -314,7 +312,7 @@ body{margin:0;padding:0;height:100vh;height:100dvh;width:100vw;position:relative
 <div class="swiper" id="swiper">
 
   <!-- ═══════ MODE 0: EDITOR (Tactics Lab) ═══════ -->
-  <div class="swiper-page" id="page-0">
+  <div class="swiper-page active" id="page-0">
     <div class="editor-host" id="editorHost">
       <div class="editor-loading" id="editorLoading">
         <div class="spinner"></div>
@@ -533,7 +531,10 @@ function goToMode(mode) {
   if (currentMode === 1 && activeSim) voltarLista('sim');
 
   currentMode = mode;
-  swiper.style.transform = `translateX(-${mode * 33.3333}%)`;
+  // Mostrar apenas a página activa, esconder as outras
+  document.querySelectorAll('.swiper-page').forEach((p, i) => {
+    p.classList.toggle('active', i === mode);
+  });
   document.querySelectorAll('.mode-tab').forEach(t => {
     t.classList.toggle('active', parseInt(t.dataset.mode) === mode);
   });
