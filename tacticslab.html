@@ -31,8 +31,16 @@ button,select,input,textarea{font-family:'Barlow',sans-serif;cursor:pointer;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
 
 /* ── TOAST ────────────────────────────────────────────── */
-#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--s3);border:1px solid var(--b2);border-radius:100px;padding:9px 18px;font-size:12px;color:var(--text);opacity:0;pointer-events:none;transition:all .3s;z-index:9999;white-space:nowrap;}
+#toast{position:fixed;top:60px;left:50%;transform:translateX(-50%) translateY(-20px);background:var(--s3);border:1px solid var(--b2);border-radius:100px;padding:9px 18px;font-size:12px;color:var(--text);opacity:0;pointer-events:none;transition:all .3s;z-index:9999;white-space:nowrap;}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* Modo embedded (dentro de iframe do elite-coach.html) — mais compacto */
+body.embedded .nav-logo{display:none;}
+body.embedded .nav{height:42px;justify-content:flex-end;padding:0 10px;}
+body.embedded .nav-right{margin-left:auto;}
+body.embedded .panel-nav{padding:5px 0;height:28px;}
+body.embedded .p2-toolbar{padding:6px 10px;}
+body.embedded #navEsc{display:none;}
 
 /* ── LOGIN ────────────────────────────────────────────── */
 #vLogin{position:fixed;inset:0;z-index:3000;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px;}
@@ -1459,13 +1467,22 @@ window.addEventListener('message', function(e) {
     if (e.data && e.data.type === 'tacticslab-autologin') {
       var pass = e.data.pass || '';
       var esc = e.data.esc || 'Sub-12|fut11|11';
-      var passInput = el('loginPass');
-      var escSelect = el('loginEsc');
-      if (passInput && escSelect) {
-        passInput.value = pass;
-        escSelect.value = esc;
-        if (typeof doLogin === 'function') doLogin();
-      }
+      // Esperar pelo DOM caso ainda não esteja pronto
+      var attemptLogin = function(retries) {
+        var passInput = el('loginPass');
+        var escSelect = el('loginEsc');
+        if (passInput && escSelect && typeof doLogin === 'function') {
+          // Se já está logado (login screen escondido), não faz nada
+          var loginScreen = el('vLogin');
+          if (loginScreen && loginScreen.style.display === 'none') return;
+          passInput.value = pass;
+          escSelect.value = esc;
+          doLogin();
+        } else if (retries > 0) {
+          setTimeout(function(){ attemptLogin(retries - 1); }, 200);
+        }
+      };
+      attemptLogin(10);
     }
     if (e.data && e.data.type === 'tacticslab-block-ia') {
       window.__IA_BLOCKED = true;
@@ -1502,6 +1519,7 @@ window.fetch = function(url, opts) {
 // Notify parent that we're ready for autologin
 try {
   if (window.parent !== window) {
+    document.body.classList.add('embedded');
     window.parent.postMessage({ type: 'tacticslab-ready' }, '*');
   }
 } catch (e) {}

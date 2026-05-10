@@ -147,6 +147,47 @@ body{display:flex;flex-direction:column;height:100vh;height:100dvh;position:rela
 .editor-host iframe{flex:1;width:100%;border:none;background:var(--bg)}
 .editor-loading{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg);z-index:5}
 
+/* === DASHBOARD (entrada da app) === */
+.dashboard{position:fixed;inset:0;background:var(--bg);z-index:200;display:flex;flex-direction:column;padding:max(20px,env(safe-area-inset-top)) 16px max(20px,env(safe-area-inset-bottom));overflow-y:auto;-webkit-overflow-scrolling:touch}
+.dashboard.hidden{display:none}
+.dash-greeting{margin-bottom:24px;text-align:left;flex-shrink:0;padding-top:8px}
+.dash-eyebrow{font-size:9px;font-weight:800;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.dash-eyebrow::before{content:'';display:inline-block;width:24px;height:1px;background:var(--gold)}
+.dash-title{font-family:'Barlow Condensed';font-weight:900;font-size:36px;line-height:.95;letter-spacing:-1.5px;margin-bottom:6px;color:#fff}
+.dash-title span{color:var(--gold)}
+.dash-subtitle{font-size:13px;color:var(--slate);line-height:1.5;font-weight:400}
+
+.dash-context{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:24px;flex-shrink:0}
+.dash-context-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px}
+.dash-context-row:last-child{border-bottom:none}
+.dash-context-label{color:var(--muted);font-weight:600;letter-spacing:.5px;font-size:10px;text-transform:uppercase}
+.dash-context-value{color:#fff;font-weight:700;font-size:12px;text-align:right}
+
+.dash-cards{display:grid;grid-template-columns:1fr;gap:11px;flex:1;align-content:start}
+.dash-card{background:var(--bg2);border:1px solid var(--border);border-left-width:4px;border-radius:13px;padding:18px 16px;cursor:pointer;display:flex;align-items:center;gap:14px;text-align:left;font-family:inherit;color:#fff;transition:all .15s}
+.dash-card:active{background:var(--bg3);transform:scale(.98)}
+.dash-card-icon{width:46px;height:46px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.dash-card-info{flex:1;min-width:0}
+.dash-card-eyebrow{font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:3px}
+.dash-card-title{font-family:'Barlow Condensed';font-weight:900;font-size:20px;line-height:1;letter-spacing:-.5px;margin-bottom:3px}
+.dash-card-desc{font-size:11px;color:var(--slate);line-height:1.4}
+.dash-card-arrow{color:var(--muted);font-size:20px;flex-shrink:0}
+
+/* Name setup modal */
+.name-setup{position:fixed;inset:0;background:var(--bg);z-index:300;display:flex;flex-direction:column;justify-content:center;padding:30px 20px;align-items:center}
+.name-setup.hidden{display:none}
+.name-setup-box{max-width:340px;width:100%;text-align:center}
+.name-setup-eyebrow{font-size:9px;font-weight:800;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:10px}
+.name-setup-title{font-family:'Barlow Condensed';font-weight:900;font-size:32px;line-height:1;margin-bottom:8px}
+.name-setup-title span{color:var(--gold)}
+.name-setup-sub{font-size:13px;color:var(--slate);line-height:1.5;margin-bottom:20px}
+.name-setup-input{width:100%;background:var(--bg2);border:1px solid var(--border2);color:#fff;border-radius:10px;padding:14px 16px;font-family:inherit;font-size:15px;text-align:center;font-weight:700;margin-bottom:12px}
+.name-setup-input:focus{outline:none;border-color:var(--gold)}
+.name-setup-btn{width:100%;background:var(--gold);color:#000;border:none;padding:14px;border-radius:10px;font-size:14px;font-weight:800;letter-spacing:.5px;cursor:pointer;font-family:inherit}
+
+/* Home button */
+.tb-home{background:var(--bg3);border:1px solid var(--border2);color:#fff;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:14px;font-family:inherit;display:flex;align-items:center;justify-content:center}
+
 /* MODE INDICATOR DOTS */
 .mode-dots{position:absolute;bottom:64px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:50;pointer-events:none}
 .mode-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.3);transition:all .3s}
@@ -182,26 +223,162 @@ body{display:flex;flex-direction:column;height:100vh;height:100dvh;position:rela
 <body>
 
 <!-- TOP BAR -->
-<div class="topbar">
+<div class="topbar" id="topbar" style="display:none">
   <div class="tb-left">
-    <button class="tb-back" onclick="window.location.href='index.html'" title="Voltar">←</button>
+    <button class="tb-home" onclick="showDashboard()" title="Início">🏠</button>
     <div class="tb-name">Elite <span>Coach</span></div>
   </div>
   <div class="mode-tabs">
-    <button class="mode-tab active" data-mode="0" onclick="goToMode(0)">Cenários</button>
+    <button class="mode-tab active" data-mode="0" onclick="goToMode(0)">Editor</button>
     <button class="mode-tab" data-mode="1" onclick="goToMode(1)">Simulações</button>
-    <button class="mode-tab" data-mode="2" onclick="goToMode(2)">Editor</button>
+    <button class="mode-tab" data-mode="2" onclick="goToMode(2)">Cenários</button>
   </div>
   <div class="tb-right">
     <button class="pro-badge" id="proBadge" onclick="showProLogin()" title="Análise IA grátis · Clica para activar Pro">3/3</button>
   </div>
 </div>
 
+<!-- Name Setup (1ª vez) -->
+<div class="name-setup" id="nameSetup">
+  <div class="name-setup-box">
+    <div class="name-setup-eyebrow">YTB · Elite Coach</div>
+    <div class="name-setup-title">Como te <span>chamamos</span>?</div>
+    <div class="name-setup-sub">Para que te receba sempre como deve ser. Pode ser o teu nome, alcunha, ou nome do clube.</div>
+    <input class="name-setup-input" id="nameInput" type="text" placeholder="Mister Teles" maxlength="30" autocomplete="off">
+    <button class="name-setup-btn" onclick="saveName()">Continuar →</button>
+  </div>
+</div>
+
+<!-- Dashboard (entrada) -->
+<div class="dashboard" id="dashboard">
+  <div class="dash-greeting">
+    <div class="dash-eyebrow">YTB · Elite Coach</div>
+    <div class="dash-title" id="dashGreeting">Bom dia, <span>Mister</span></div>
+    <div class="dash-subtitle">Onde queres começar?</div>
+  </div>
+
+  <div class="dash-context" id="dashContext" style="display:none">
+    <div class="dash-context-row">
+      <div class="dash-context-label">Última táctica</div>
+      <div class="dash-context-value" id="dashLastTactic">—</div>
+    </div>
+    <div class="dash-context-row">
+      <div class="dash-context-label">Último cenário</div>
+      <div class="dash-context-value" id="dashLastCen">—</div>
+    </div>
+    <div class="dash-context-row">
+      <div class="dash-context-label">Análises IA este mês</div>
+      <div class="dash-context-value" id="dashIAUsage">0/3</div>
+    </div>
+  </div>
+
+  <div class="dash-cards">
+    <button class="dash-card" style="border-left-color:var(--gold)" onclick="enterMode(0)">
+      <div class="dash-card-icon" style="background:var(--gold-soft);color:var(--gold)">📋</div>
+      <div class="dash-card-info">
+        <div class="dash-card-eyebrow" style="color:var(--gold)">Core · Preparar</div>
+        <div class="dash-card-title">Preparar Jogo</div>
+        <div class="dash-card-desc">Editor táctico + IA UEFA · monta a equipa, define a tática</div>
+      </div>
+      <div class="dash-card-arrow">›</div>
+    </button>
+
+    <button class="dash-card" style="border-left-color:var(--blue)" onclick="enterMode(1)">
+      <div class="dash-card-icon" style="background:var(--blue-soft);color:var(--blue)">🎮</div>
+      <div class="dash-card-info">
+        <div class="dash-card-eyebrow" style="color:var(--blue)">Padrões</div>
+        <div class="dash-card-title">Padrões Tácticos</div>
+        <div class="dash-card-desc">12 simulações com dicas em tempo real · estuda situações</div>
+      </div>
+      <div class="dash-card-arrow">›</div>
+    </button>
+
+    <button class="dash-card" style="border-left-color:var(--purple)" onclick="enterMode(2)">
+      <div class="dash-card-icon" style="background:var(--purple-soft);color:var(--purple)">🧠</div>
+      <div class="dash-card-info">
+        <div class="dash-card-eyebrow" style="color:var(--purple)">Decisão</div>
+        <div class="dash-card-title">Cenários de Decisão</div>
+        <div class="dash-card-desc">10 situações com escolhas e feedback · ensina a ler o jogo</div>
+      </div>
+      <div class="dash-card-arrow">›</div>
+    </button>
+  </div>
+</div>
+
 <!-- SWIPER 3 PÁGINAS -->
 <div class="swiper" id="swiper">
 
-  <!-- ═══════ MODE 0: CENÁRIOS ═══════ -->
+  <!-- ═══════ MODE 0: EDITOR (Tactics Lab) ═══════ -->
   <div class="swiper-page" id="page-0">
+    <div class="editor-host" id="editorHost">
+      <div class="editor-loading" id="editorLoading">
+        <div class="spinner"></div>
+        <div style="font-size:12px;color:var(--slate);margin-top:10px">A carregar Tactics Lab...</div>
+      </div>
+      <iframe id="editorFrame" src="" frameborder="0" style="display:none"></iframe>
+    </div>
+  <!-- ═══════ MODE 1: SIMULAÇÕES ═══════ -->
+  <div class="swiper-page" id="page-1">
+    <!-- LIST -->
+    <div class="list-view" id="simList">
+      <div class="list-hero">
+        <div class="list-eyebrow">🎮 12 Simulações · Padrões Tácticos</div>
+        <div class="list-title">Padrões <span>de equipa</span></div>
+        <div class="list-sub">Animações de situações de jogo com dicas em tempo real.</div>
+      </div>
+      <div class="cenarios-grid" id="simulacoesGrid"></div>
+    </div>
+    <!-- ACTIVE -->
+    <div class="scenario-active" id="simActive">
+      <div class="pitch-area">
+        <div class="scen-overlay-top">
+          <div class="scen-info-pill">
+            <div class="scen-info-num" id="simNumLabel">SIMULAÇÃO 01</div>
+            <div class="scen-info-titulo" id="simTitulo">—</div>
+          </div>
+          <div class="scen-actions-top">
+            <button class="action-btn-top" onclick="abrirShare('sim')" title="Partilhar">📤</button>
+            <button class="action-btn-top" onclick="voltarLista('sim')" title="Voltar">×</button>
+          </div>
+        </div>
+        <div class="dica-popup" id="simDicaPopup">
+          <div class="dica-popup-tag">💡 Observa</div>
+          <div class="dica-popup-text" id="simDicaText">—</div>
+        </div>
+        <svg class="pitch-svg" id="simPitchSvg" viewBox="0 0 500 740" preserveAspectRatio="xMidYMid meet">
+          <g id="simGPitch"></g>
+          <g id="simGPlayers"></g>
+          <g id="simGBall"></g>
+        </svg>
+        <!-- Modal info aparece sobre o campo -->
+        <div class="sim-info-modal" id="simInfoModal">
+          <div class="sim-info-tag" id="simInfoTag">CONTEXTO</div>
+          <div class="sim-info-title" id="simInfoTitle">—</div>
+          <div class="sim-info-desc" id="simInfoDesc">—</div>
+          <div class="sim-info-section">
+            <div class="sim-info-section-title">📋 Relatório</div>
+            <div class="sim-info-desc" id="simInfoRelatorio">—</div>
+          </div>
+          <div class="sim-info-section">
+            <div class="sim-info-section-title">💡 Pontos chave</div>
+            <div class="sim-info-dicas" id="simInfoDicas"></div>
+          </div>
+          <div class="sim-info-section">
+            <div class="sim-info-section-title">⚽ Treino sugerido</div>
+            <div class="fb-treinos" id="simInfoTreino"></div>
+          </div>
+        </div>
+      </div>
+      <div class="bottom-panel">
+        <button class="btn-play" id="simPlayBtn" onclick="toggleSimPlay()">▶ Reproduzir</button>
+        <button class="btn-icon-side" onclick="toggleInfoModal()" title="Pedir Dica / Info">💡</button>
+        <button class="btn-icon-side" onclick="abrirShare('sim')" title="Partilhar">📤</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ MODE 2: CENÁRIOS ═══════ -->
+  <div class="swiper-page" id="page-2">
     <!-- LIST -->
     <div class="list-view" id="cenList">
       <div class="list-hero">
@@ -264,75 +441,6 @@ body{display:flex;flex-direction:column;height:100vh;height:100dvh;position:rela
     </div>
   </div>
 
-  <!-- ═══════ MODE 1: SIMULAÇÕES ═══════ -->
-  <div class="swiper-page" id="page-1">
-    <!-- LIST -->
-    <div class="list-view" id="simList">
-      <div class="list-hero">
-        <div class="list-eyebrow">🎮 12 Simulações · Padrões Tácticos</div>
-        <div class="list-title">Padrões <span>de equipa</span></div>
-        <div class="list-sub">Animações de situações de jogo com dicas em tempo real.</div>
-      </div>
-      <div class="cenarios-grid" id="simulacoesGrid"></div>
-    </div>
-    <!-- ACTIVE -->
-    <div class="scenario-active" id="simActive">
-      <div class="pitch-area">
-        <div class="scen-overlay-top">
-          <div class="scen-info-pill">
-            <div class="scen-info-num" id="simNumLabel">SIMULAÇÃO 01</div>
-            <div class="scen-info-titulo" id="simTitulo">—</div>
-          </div>
-          <div class="scen-actions-top">
-            <button class="action-btn-top" onclick="abrirShare('sim')" title="Partilhar">📤</button>
-            <button class="action-btn-top" onclick="voltarLista('sim')" title="Voltar">×</button>
-          </div>
-        </div>
-        <div class="dica-popup" id="simDicaPopup">
-          <div class="dica-popup-tag">💡 Observa</div>
-          <div class="dica-popup-text" id="simDicaText">—</div>
-        </div>
-        <svg class="pitch-svg" id="simPitchSvg" viewBox="0 0 500 740" preserveAspectRatio="xMidYMid meet">
-          <g id="simGPitch"></g>
-          <g id="simGPlayers"></g>
-          <g id="simGBall"></g>
-        </svg>
-        <!-- Modal info aparece sobre o campo -->
-        <div class="sim-info-modal" id="simInfoModal">
-          <div class="sim-info-tag" id="simInfoTag">CONTEXTO</div>
-          <div class="sim-info-title" id="simInfoTitle">—</div>
-          <div class="sim-info-desc" id="simInfoDesc">—</div>
-          <div class="sim-info-section">
-            <div class="sim-info-section-title">📋 Relatório</div>
-            <div class="sim-info-desc" id="simInfoRelatorio">—</div>
-          </div>
-          <div class="sim-info-section">
-            <div class="sim-info-section-title">💡 Pontos chave</div>
-            <div class="sim-info-dicas" id="simInfoDicas"></div>
-          </div>
-          <div class="sim-info-section">
-            <div class="sim-info-section-title">⚽ Treino sugerido</div>
-            <div class="fb-treinos" id="simInfoTreino"></div>
-          </div>
-        </div>
-      </div>
-      <div class="bottom-panel">
-        <button class="btn-play" id="simPlayBtn" onclick="toggleSimPlay()">▶ Reproduzir</button>
-        <button class="btn-icon-side" onclick="toggleInfoModal()" title="Pedir Dica / Info">💡</button>
-        <button class="btn-icon-side" onclick="abrirShare('sim')" title="Partilhar">📤</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══════ MODE 2: EDITOR (Tactics Lab) ═══════ -->
-  <div class="swiper-page" id="page-2">
-    <div class="editor-host" id="editorHost">
-      <div class="editor-loading" id="editorLoading">
-        <div class="spinner"></div>
-        <div style="font-size:12px;color:var(--slate);margin-top:10px">A carregar Tactics Lab...</div>
-      </div>
-      <iframe id="editorFrame" src="" frameborder="0" style="display:none"></iframe>
-    </div>
   </div>
 
 </div>
@@ -415,7 +523,7 @@ const swiper = document.getElementById('swiper');
 
 function goToMode(mode) {
   // Voltar à lista do mode actual antes de mudar
-  if (currentMode === 0 && activeCenario) voltarLista('cen');
+  if (currentMode === 2 && activeCenario) voltarLista('cen');
   if (currentMode === 1 && activeSim) voltarLista('sim');
 
   currentMode = mode;
@@ -430,8 +538,8 @@ function goToMode(mode) {
   pararAnimacaoSim();
   document.getElementById('simInfoModal').classList.remove('show');
 
-  // Lazy load editor when entering mode 2
-  if (mode === 2) loadEditor();
+  // Lazy load editor when entering mode 0 (Editor)
+  if (mode === 0) loadEditor();
 
   updateProBadge();
 }
@@ -850,6 +958,27 @@ function loadEditor() {
   frame.style.display = 'block';
   frame.addEventListener('load', () => {
     document.getElementById('editorLoading').style.display = 'none';
+    // Tentar auto-login com retry (caso postMessage falhe por timing)
+    let tries = 0;
+    const tryLogin = () => {
+      if (!frame.contentWindow) return;
+      try {
+        frame.contentWindow.postMessage({
+          type: 'tacticslab-autologin',
+          pass: TACTICS_PASS,
+          esc: 'Sub-12|fut11|11'
+        }, '*');
+        // Set IA permission
+        const u = getIAUsage();
+        const allow = isPro() || u.count < IA_FREE_LIMIT;
+        frame.contentWindow.postMessage({
+          type: allow ? 'tacticslab-allow-ia' : 'tacticslab-block-ia'
+        }, '*');
+      } catch(e) {}
+      tries++;
+      if (tries < 5) setTimeout(tryLogin, 400);
+    };
+    tryLogin();
   });
 }
 
@@ -1024,6 +1153,83 @@ renderCenarios();
 renderSimulacoes();
 updateProBadge();
 
+// ═══════════════════════════════════════════════════════
+// DASHBOARD + NAME SETUP
+// ═══════════════════════════════════════════════════════
+function getMisterName() {
+  return localStorage.getItem('ytb-mister-name') || '';
+}
+function getGreeting() {
+  const h = new Date().getHours();
+  if (h < 12) return 'Bom dia';
+  if (h < 19) return 'Boa tarde';
+  return 'Boa noite';
+}
+function updateGreeting() {
+  const name = getMisterName();
+  const greeting = getGreeting();
+  const el = document.getElementById('dashGreeting');
+  if (name) {
+    el.innerHTML = `${greeting}, <span>${name}</span>`;
+  } else {
+    el.innerHTML = `${greeting}, <span>Mister</span>`;
+  }
+}
+function updateDashContext() {
+  const u = getIAUsage();
+  document.getElementById('dashIAUsage').textContent = isPro() ? '⚡ Pro · ilimitado' : `${u.count}/${IA_FREE_LIMIT}`;
+  const lastTactic = localStorage.getItem('ytb-last-tactic');
+  const lastCen = localStorage.getItem('ytb-last-cen');
+  if (lastTactic || lastCen) {
+    document.getElementById('dashContext').style.display = 'block';
+    document.getElementById('dashLastTactic').textContent = lastTactic || '—';
+    document.getElementById('dashLastCen').textContent = lastCen || '—';
+  } else {
+    document.getElementById('dashContext').style.display = 'block';
+    document.getElementById('dashLastTactic').textContent = 'Sem registo';
+    document.getElementById('dashLastCen').textContent = 'Sem registo';
+  }
+}
+function showDashboard() {
+  // Voltar à lista de cada modo (limpa estado)
+  if (activeCenario) voltarLista('cen');
+  if (activeSim) voltarLista('sim');
+  pararAnimacaoCen();
+  pararAnimacaoSim();
+  document.getElementById('dashboard').classList.remove('hidden');
+  document.getElementById('topbar').style.display = 'none';
+  updateGreeting();
+  updateDashContext();
+}
+function enterMode(mode) {
+  document.getElementById('dashboard').classList.add('hidden');
+  document.getElementById('topbar').style.display = 'flex';
+  goToMode(mode);
+}
+function saveName() {
+  const v = document.getElementById('nameInput').value.trim();
+  if (!v) return;
+  localStorage.setItem('ytb-mister-name', v);
+  document.getElementById('nameSetup').classList.add('hidden');
+  showDashboard();
+}
+document.getElementById('nameInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') saveName();
+});
+
+// Init flow
+const savedName = getMisterName();
+if (!savedName) {
+  // 1ª vez: mostrar setup
+  document.getElementById('dashboard').classList.add('hidden');
+  document.getElementById('nameSetup').classList.remove('hidden');
+  setTimeout(() => document.getElementById('nameInput').focus(), 300);
+} else {
+  // Já tem nome, ir para dashboard
+  document.getElementById('nameSetup').classList.add('hidden');
+  showDashboard();
+}
+
 // PWA
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -1031,15 +1237,15 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-// Direct link via ?c=N or ?s=N
+// Direct link via ?c=N (cenário) ou ?s=N (simulação)
 const params = new URLSearchParams(window.location.search);
 const cParam = parseInt(params.get('c'));
 const sParam = parseInt(params.get('s'));
 if (cParam && cParam >= 1 && cParam <= CENARIOS.length) {
-  setTimeout(() => abrirCenario(cParam - 1), 100);
+  setTimeout(() => { enterMode(2); abrirCenario(cParam - 1); }, 100);
 }
 if (sParam && sParam >= 1 && sParam <= SIMULACOES.length) {
-  setTimeout(() => { goToMode(1); abrirSim(sParam - 1); }, 100);
+  setTimeout(() => { enterMode(1); abrirSim(sParam - 1); }, 100);
 }
 </script>
 </body>
