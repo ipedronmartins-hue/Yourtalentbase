@@ -595,7 +595,7 @@ function prescreverTreino(r) {
     '1×1 ofensivo': [
       {n:'Slalom + Aceleração',d:'Slalom + sprint final. 6 reps × 3',m:'Tempo total',t:'Condução'},
       {n:'1v1 Real',d:'Contra defensor activo. 10 duelos por sessão',m:'% sucesso',t:'Condução'},
-      {n:'Cenário Elite Coach 03',d:'Extremo em 1×1 na ala — cenarios.html?c=3',m:'Decisão',t:'Decisão'}
+      {n:'Cenário Elite Coach 03',d:'Extremo em 1×1 na ala — elite-coach.html?c=3',m:'Decisão',t:'Decisão'}
     ],
     '1×1 defensivo': [
       {n:'Postura Defensiva',d:'Treinar posição corporal. 10 min com colega',m:'Postura correcta',t:'Físico'},
@@ -705,7 +705,7 @@ function prescreverTreino(r) {
       arr.map(id => {
         const c = (typeof CENARIOS_INFO !== 'undefined') ? CENARIOS_INFO[id] : null;
         if (!c) return '';
-        return `<a href="cenarios.html?c=${id}" target="_blank" style="display:flex;align-items:center;gap:10px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;text-decoration:none;color:#fff"><span style="font-size:18px">${c.icon}</span><span style="flex:1;font-size:12px;font-weight:600">${c.titulo}</span><span style="color:var(--gold);font-size:11px;font-weight:800">▶ ABRIR</span></a>`;
+        return `<a href="elite-coach.html?c=${id}" target="_blank" style="display:flex;align-items:center;gap:10px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;text-decoration:none;color:#fff"><span style="font-size:18px">${c.icon}</span><span style="flex:1;font-size:12px;font-weight:600">${c.titulo}</span><span style="color:var(--gold);font-size:11px;font-weight:800">▶ ABRIR</span></a>`;
       }).join('') +
       '</div></div>';
   }
@@ -788,7 +788,7 @@ function atualizarTactics(r) {
       <div style="background:rgba(0,212,106,.06);border:1px solid rgba(0,212,106,.2);border-radius:12px;padding:18px;text-align:center;color:#00D46A;font-size:13px">
         ✅ Sem fraquezas críticas detectadas. Trabalhar manutenção com cenários gerais.
         <div style="margin-top:12px">
-          <a href="cenarios.html" target="_blank" style="display:inline-block;background:var(--gold);color:#000;padding:9px 18px;border-radius:8px;font-weight:800;font-size:12px;text-decoration:none;letter-spacing:.5px">Ver os 10 cenários →</a>
+          <a href="elite-coach.html" target="_blank" style="display:inline-block;background:var(--gold);color:#000;padding:9px 18px;border-radius:8px;font-weight:800;font-size:12px;text-decoration:none;letter-spacing:.5px">Ver os 10 cenários →</a>
         </div>
       </div>`;
     return;
@@ -804,7 +804,7 @@ function atualizarTactics(r) {
       const c = CENARIOS_INFO[id];
       if (!c) return '';
       return `
-        <a href="cenarios.html?c=${id}" target="_blank" style="display:flex;align-items:center;gap:12px;background:var(--bg2);border:1px solid var(--gold-border);border-radius:11px;padding:12px 14px;margin-bottom:8px;text-decoration:none;color:#fff;transition:all .15s">
+        <a href="elite-coach.html?c=${id}" target="_blank" style="display:flex;align-items:center;gap:12px;background:var(--bg2);border:1px solid var(--gold-border);border-radius:11px;padding:12px 14px;margin-bottom:8px;text-decoration:none;color:#fff;transition:all .15s">
           <div style="width:42px;height:42px;border-radius:10px;background:rgba(212,175,55,.12);border:1px solid var(--gold-border);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">${c.icon}</div>
           <div style="flex:1;min-width:0">
             <div style="font-size:9px;font-weight:800;letter-spacing:1.5px;color:var(--gold);text-transform:uppercase;margin-bottom:2px">Cenário ${String(id).padStart(2,'0')}</div>
@@ -816,7 +816,7 @@ function atualizarTactics(r) {
       `;
     }).join('')}
     <div style="text-align:center;margin-top:10px">
-      <a href="cenarios.html" target="_blank" style="font-size:11px;color:var(--slate);text-decoration:none;letter-spacing:.5px">Ver todos os 10 cenários →</a>
+      <a href="elite-coach.html" target="_blank" style="font-size:11px;color:var(--slate);text-decoration:none;letter-spacing:.5px">Ver todos os 10 cenários →</a>
     </div>
   `;
 }

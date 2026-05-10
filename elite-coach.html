@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Elite Coach · YTB</title>
+<meta name="theme-color" content="#080C08">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="YTB Elite Coach">
+<link rel="manifest" href="manifest-elite-coach.json">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#080C08;--bg2:#0F140F;--bg3:#141C14;--bg4:#1A241A;
+  --border:#1E2B1E;--border2:#253325;
+  --gold:#D4AF37;--gold2:#F0CC55;--gold-soft:rgba(212,175,55,.12);--gold-border:rgba(212,175,55,.35);
+  --green:#4AE87A;--green-soft:rgba(74,232,122,.12);
+  --red:#E05050;--red-soft:rgba(224,80,80,.12);
+  --blue:#4A9FE8;--blue-soft:rgba(74,159,232,.12);
+  --purple:#9F7AEA;--purple-soft:rgba(159,122,234,.12);
+  --orange:#FFA500;--orange-soft:rgba(255,165,0,.12);
+  --pitch:#1F4A28;--pitch2:#1A3D22;--pitch-line:#88AA88;
+  --white:#fff;--text:#DDE8DD;--slate:#88A088;--muted:#5A705A
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;overflow:hidden;-webkit-text-size-adjust:100%}
+body{display:flex;flex-direction:column;height:100vh;height:100dvh;position:relative}
+
+/* TOP BAR ─ slim */
+.topbar{flex-shrink:0;background:rgba(8,12,8,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:8px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:max(8px,env(safe-area-inset-top));z-index:100;position:relative}
+.tb-left{display:flex;align-items:center;gap:8px}
+.tb-back{background:none;border:none;color:var(--slate);font-size:18px;cursor:pointer;padding:4px 8px;font-family:inherit}
+.tb-name{font-family:'Barlow Condensed';font-weight:800;font-size:15px;letter-spacing:1px;color:#fff}
+.tb-name span{color:var(--gold)}
+
+/* MODE TABS — 3 botões */
+.mode-tabs{display:flex;gap:4px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:3px}
+.mode-tab{background:transparent;border:none;color:var(--slate);font-size:10px;font-weight:800;padding:5px 10px;border-radius:6px;cursor:pointer;font-family:inherit;letter-spacing:1px;text-transform:uppercase;transition:all .2s}
+.mode-tab.active{background:var(--gold);color:#000}
+
+.tb-right{display:flex;align-items:center;gap:6px}
+.tb-icon-btn{background:none;border:1px solid var(--border);color:#fff;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:12px;font-family:inherit}
+
+/* SWIPER CONTAINER — 3 modes side by side */
+.swiper{flex:1;display:flex;width:300%;transform:translateX(0);transition:transform .35s cubic-bezier(.2,.8,.2,1);min-height:0;will-change:transform}
+.swiper-page{width:33.333%;display:flex;flex-direction:column;overflow:hidden;position:relative}
+
+/* PITCH AREA — campo grande full-screen */
+.pitch-area{flex:1;position:relative;background:linear-gradient(180deg,var(--pitch) 0%,var(--pitch2) 100%);overflow:hidden;min-height:0}
+.pitch-svg{width:100%;height:100%;display:block}
+
+/* OVERLAY pequeno em cima do campo */
+.scen-overlay-top{position:absolute;top:8px;left:8px;right:8px;display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none;z-index:10}
+.scen-info-pill{background:rgba(0,0,0,.78);backdrop-filter:blur(10px);border:1px solid var(--gold-border);border-radius:8px;padding:6px 11px;max-width:75%;pointer-events:auto}
+.scen-info-num{font-size:8px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:1px}
+.scen-info-titulo{font-size:12px;font-weight:700;color:var(--white);line-height:1.2}
+.scen-actions-top{display:flex;gap:6px;pointer-events:auto}
+.action-btn-top{background:rgba(0,0,0,.78);backdrop-filter:blur(10px);border:1px solid var(--border2);color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;font-family:inherit}
+.action-btn-top:active{background:var(--gold-soft);border-color:var(--gold)}
+
+/* INDICATOR text */
+.scen-indica{position:absolute;top:50px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.85);backdrop-filter:blur(10px);border:1px solid var(--gold-border);border-radius:100px;padding:6px 14px;font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.5px;z-index:10;max-width:90%;text-align:center;animation:fadeInDown .3s both}
+@keyframes fadeInDown{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+/* DICA POPUP — aparece durante simulação */
+.dica-popup{position:absolute;bottom:90px;left:14px;right:14px;background:rgba(0,0,0,.92);backdrop-filter:blur(12px);border:2px solid var(--gold);border-radius:11px;padding:10px 14px;z-index:15;animation:slideUpFade .35s both;display:none}
+.dica-popup.show{display:block}
+@keyframes slideUpFade{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.dica-popup-tag{font-size:8px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:3px}
+.dica-popup-text{font-size:13px;color:#fff;font-weight:600;line-height:1.4}
+
+/* BOTTOM PANEL — controlos minimalistas */
+.bottom-panel{flex-shrink:0;background:var(--bg2);border-top:1px solid var(--gold-border);padding:10px 12px;padding-bottom:max(10px,env(safe-area-inset-bottom));display:flex;gap:8px;align-items:center}
+.btn-play{flex:1;background:var(--gold);color:#000;border:none;padding:11px;border-radius:9px;font-size:13px;font-weight:800;letter-spacing:.5px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px}
+.btn-play:active{transform:scale(.97)}
+.btn-icon-side{flex:0 0 auto;background:var(--bg3);color:#fff;border:1px solid var(--border2);padding:11px 13px;border-radius:9px;font-size:14px;cursor:pointer;font-family:inherit}
+
+/* === MODE 1: CENÁRIOS LIST === */
+.list-view{flex:1;overflow-y:auto;padding:14px;-webkit-overflow-scrolling:touch}
+.list-hero{margin-bottom:14px;text-align:center}
+.list-eyebrow{display:inline-block;font-size:9px;font-weight:800;letter-spacing:3px;color:var(--gold);text-transform:uppercase;background:var(--gold-soft);border:1px solid var(--gold-border);padding:4px 10px;border-radius:100px;margin-bottom:8px}
+.list-title{font-family:'Barlow Condensed';font-weight:900;font-size:28px;line-height:1;letter-spacing:-1px;margin-bottom:4px}
+.list-title span{color:var(--gold)}
+.list-sub{font-size:11px;color:var(--slate);line-height:1.5;max-width:380px;margin:0 auto}
+.cenarios-grid{display:flex;flex-direction:column;gap:7px;max-width:520px;margin:0 auto}
+.cen-card{background:var(--bg2);border:1px solid var(--border);border-radius:11px;padding:12px;cursor:pointer;display:flex;align-items:center;gap:11px;transition:all .15s;text-align:left;font-family:inherit;border-left:3px solid var(--border)}
+.cen-card:active{background:var(--bg3);border-color:var(--gold-border);border-left-color:var(--gold)}
+.cen-icon{width:40px;height:40px;border-radius:10px;background:var(--gold-soft);border:1px solid var(--gold-border);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.cen-info{flex:1;min-width:0}
+.cen-num{font-size:8px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:2px}
+.cen-titulo{font-size:13px;font-weight:700;color:var(--white);margin-bottom:2px;line-height:1.25}
+.cen-meta{font-size:10px;color:var(--slate)}
+.cen-arrow{color:var(--muted);font-size:16px;flex-shrink:0}
+
+/* === MODE 1: CENÁRIO ACTIVE === */
+.scenario-active{flex:1;display:none;flex-direction:column}
+.scenario-active.active{display:flex}
+
+.opcoes-panel{display:none;background:var(--bg2);padding:12px;border-top:1px solid var(--gold-border);padding-bottom:max(12px,env(safe-area-inset-bottom))}
+.opcoes-panel.show{display:block;animation:slideUpFade .3s both}
+.opcoes-titulo{font-size:9px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:8px;text-align:center}
+.opcoes-grid{display:flex;flex-direction:column;gap:6px}
+.opcao-btn{background:var(--bg3);border:2px solid var(--border2);border-radius:10px;padding:11px 12px;text-align:left;cursor:pointer;color:var(--white);font-family:inherit;font-size:13px;font-weight:600;display:flex;align-items:center;gap:9px;transition:all .15s}
+.opcao-btn:active{background:var(--bg4);border-color:var(--gold-border)}
+.opcao-letra{width:26px;height:26px;border-radius:50%;background:var(--gold-soft);border:1px solid var(--gold-border);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:900;font-size:13px;color:var(--gold);flex-shrink:0}
+
+.feedback-panel{display:none;background:var(--bg2);padding:12px;border-top:1px solid var(--gold-border);padding-bottom:max(12px,env(safe-area-inset-bottom));max-height:55vh;overflow-y:auto}
+.feedback-panel.show{display:block;animation:slideUpFade .3s both}
+.fb-result{display:flex;align-items:center;gap:9px;margin-bottom:9px;padding:9px;border-radius:9px}
+.fb-result.sucesso{background:var(--green-soft);border:1px solid var(--green)}
+.fb-result.perda{background:var(--red-soft);border:1px solid var(--red)}
+.fb-result.neutro{background:var(--orange-soft);border:1px solid var(--orange)}
+.fb-icon{font-size:22px}
+.fb-label{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase}
+.sucesso .fb-label{color:var(--green)}
+.perda .fb-label{color:var(--red)}
+.neutro .fb-label{color:var(--orange)}
+.fb-texto{font-size:12px;color:var(--white);line-height:1.5;margin-bottom:11px;background:var(--bg3);border-left:3px solid var(--gold);border-radius:6px;padding:9px 11px}
+.fb-section{margin-bottom:10px}
+.fb-section-title{font-size:9px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:5px}
+.fb-dica{background:var(--gold-soft);border:1px solid var(--gold-border);border-radius:8px;padding:9px 11px;font-size:12px;color:var(--white);line-height:1.45}
+.fb-treinos{display:flex;flex-direction:column;gap:4px}
+.fb-treino{background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:7px 11px;font-size:11px;color:var(--white);display:flex;align-items:center;gap:7px}
+.fb-treino::before{content:'•';color:var(--gold);font-size:14px}
+.fb-actions{display:flex;gap:6px;margin-top:10px}
+.fb-actions .btn-play{flex:1;padding:10px;font-size:12px}
+.fb-actions .btn-icon-side{padding:10px 12px;font-size:13px}
+
+/* === MODE 2: SIMULAÇÕES — same UI but no decision === */
+.sim-info-modal{position:absolute;bottom:65px;left:10px;right:10px;background:rgba(15,20,15,.96);backdrop-filter:blur(14px);border:1px solid var(--gold-border);border-radius:12px;padding:12px;z-index:20;display:none;max-height:50vh;overflow-y:auto;padding-bottom:14px}
+.sim-info-modal.show{display:block;animation:slideUpFade .3s both}
+.sim-info-tag{font-size:8px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:5px}
+.sim-info-title{font-size:14px;font-weight:700;color:#fff;margin-bottom:6px;line-height:1.2}
+.sim-info-desc{font-size:12px;color:var(--slate);line-height:1.5;margin-bottom:10px}
+.sim-info-section{margin-bottom:9px}
+.sim-info-section-title{font-size:8px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:4px}
+.sim-info-dicas{display:flex;flex-direction:column;gap:4px}
+.sim-info-dica{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-size:11px;color:#fff;line-height:1.4}
+.sim-info-dica::before{content:'💡 ';margin-right:3px}
+
+/* === MODE 3: EDITOR === */
+.editor-toolbar{position:absolute;top:48px;left:8px;right:8px;display:flex;gap:5px;flex-wrap:wrap;z-index:10;pointer-events:auto}
+.tool-btn{background:rgba(0,0,0,.75);backdrop-filter:blur(10px);border:1px solid var(--border2);color:#fff;padding:6px 10px;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.3px}
+.tool-btn.active{background:var(--gold);color:#000;border-color:var(--gold)}
+
+/* MODE INDICATOR DOTS */
+.mode-dots{position:absolute;bottom:64px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:50;pointer-events:none}
+.mode-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.3);transition:all .3s}
+.mode-dot.active{background:var(--gold);width:20px;border-radius:3px}
+
+/* SHARE MODAL */
+.share-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(6px);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px}
+.share-modal.show{display:flex;animation:fade .2s both}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.share-box{background:var(--bg2);border:1px solid var(--gold-border);border-radius:14px;padding:18px;max-width:320px;width:100%;text-align:center}
+.share-title{font-family:'Barlow Condensed';font-weight:900;font-size:20px;margin-bottom:5px}
+.share-title span{color:var(--gold)}
+.share-sub{font-size:11px;color:var(--slate);line-height:1.5;margin-bottom:14px}
+.share-options{display:flex;flex-direction:column;gap:7px;margin-bottom:12px}
+.share-opt{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:11px;color:var(--white);text-decoration:none;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:7px;cursor:pointer;font-family:inherit}
+.share-opt-wa{background:#25D366;color:#000;border:none}
+.share-cancel{background:none;border:none;color:var(--slate);font-size:11px;cursor:pointer;padding:6px;font-family:inherit}
+
+/* TOAST */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--bg3);border:1px solid var(--gold-border);border-radius:100px;padding:8px 16px;font-size:11px;color:var(--white);opacity:0;pointer-events:none;transition:all .3s;z-index:9999;font-weight:700}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* SVG specifics */
+.player{cursor:default}
+.player-circle{transition:filter .2s}
+.player.highlight .player-circle{filter:drop-shadow(0 0 12px var(--gold))}
+.ball{filter:drop-shadow(0 2px 4px rgba(0,0,0,.5))}
+
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(212,175,55,.2);border-top-color:var(--gold);border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="tb-left">
+    <button class="tb-back" onclick="window.location.href='index.html'" title="Voltar">←</button>
+    <div class="tb-name">Elite <span>Coach</span></div>
+  </div>
+  <div class="mode-tabs">
+    <button class="mode-tab active" data-mode="0" onclick="goToMode(0)">Cenários</button>
+    <button class="mode-tab" data-mode="1" onclick="goToMode(1)">Simulações</button>
+    <button class="mode-tab" data-mode="2" onclick="goToMode(2)">Editor</button>
+  </div>
+  <div class="tb-right">
+  </div>
+</div>
+
+<!-- SWIPER 3 PÁGINAS -->
+<div class="swiper" id="swiper">
+
+  <!-- ═══════ MODE 0: CENÁRIOS ═══════ -->
+  <div class="swiper-page" id="page-0">
+    <!-- LIST -->
+    <div class="list-view" id="cenList">
+      <div class="list-hero">
+        <div class="list-eyebrow">⚡ 10 Cenários · Decisão</div>
+        <div class="list-title">Decisões <span>de jogo</span></div>
+        <div class="list-sub">Situações que se repetem na época. Decide. Vê o feedback. Aprende.</div>
+      </div>
+      <div class="cenarios-grid" id="cenariosGrid"></div>
+    </div>
+    <!-- ACTIVE -->
+    <div class="scenario-active" id="cenActive">
+      <div class="pitch-area">
+        <div class="scen-overlay-top">
+          <div class="scen-info-pill">
+            <div class="scen-info-num" id="cenNumLabel">CENÁRIO 01</div>
+            <div class="scen-info-titulo" id="cenTitulo">—</div>
+          </div>
+          <div class="scen-actions-top">
+            <button class="action-btn-top" onclick="abrirShare('cen')" title="Partilhar">📤</button>
+            <button class="action-btn-top" onclick="voltarLista('cen')" title="Voltar">×</button>
+          </div>
+        </div>
+        <div class="scen-indica" id="cenIndica">A iniciar...</div>
+        <svg class="pitch-svg" id="cenPitchSvg" viewBox="0 0 500 740" preserveAspectRatio="xMidYMid meet">
+          <g id="cenGPitch"></g>
+          <g id="cenGPlayers"></g>
+          <g id="cenGBall"></g>
+        </svg>
+      </div>
+      <!-- Bottom controls (initial) -->
+      <div class="bottom-panel" id="cenBottomInit">
+        <button class="btn-play" onclick="reproduzirCen()">▶ Reproduzir</button>
+        <button class="btn-icon-side" onclick="mostrarOpcoes()" title="Decidir">→</button>
+      </div>
+      <!-- Opções -->
+      <div class="opcoes-panel" id="opcoesPanel">
+        <div class="opcoes-titulo">⚡ O que fazes?</div>
+        <div class="opcoes-grid" id="opcoesGrid"></div>
+      </div>
+      <!-- Feedback -->
+      <div class="feedback-panel" id="feedbackPanel">
+        <div class="fb-result" id="fbResult">
+          <div class="fb-icon" id="fbIcon">—</div>
+          <div class="fb-label" id="fbLabel">—</div>
+        </div>
+        <div class="fb-texto" id="fbTexto">—</div>
+        <div class="fb-section">
+          <div class="fb-section-title">💡 Dica</div>
+          <div class="fb-dica" id="fbDica">—</div>
+        </div>
+        <div class="fb-section">
+          <div class="fb-section-title">⚽ Treino</div>
+          <div class="fb-treinos" id="fbTreinos"></div>
+        </div>
+        <div class="fb-actions">
+          <button class="btn-play" onclick="resetarCen()">↺ Tentar Outra</button>
+          <button class="btn-icon-side" onclick="abrirShare('cen')">📤</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ MODE 1: SIMULAÇÕES ═══════ -->
+  <div class="swiper-page" id="page-1">
+    <!-- LIST -->
+    <div class="list-view" id="simList">
+      <div class="list-hero">
+        <div class="list-eyebrow">🎮 12 Simulações · Padrões Tácticos</div>
+        <div class="list-title">Padrões <span>de equipa</span></div>
+        <div class="list-sub">Animações de situações de jogo com dicas em tempo real.</div>
+      </div>
+      <div class="cenarios-grid" id="simulacoesGrid"></div>
+    </div>
+    <!-- ACTIVE -->
+    <div class="scenario-active" id="simActive">
+      <div class="pitch-area">
+        <div class="scen-overlay-top">
+          <div class="scen-info-pill">
+            <div class="scen-info-num" id="simNumLabel">SIMULAÇÃO 01</div>
+            <div class="scen-info-titulo" id="simTitulo">—</div>
+          </div>
+          <div class="scen-actions-top">
+            <button class="action-btn-top" onclick="abrirShare('sim')" title="Partilhar">📤</button>
+            <button class="action-btn-top" onclick="voltarLista('sim')" title="Voltar">×</button>
+          </div>
+        </div>
+        <div class="dica-popup" id="simDicaPopup">
+          <div class="dica-popup-tag">💡 Observa</div>
+          <div class="dica-popup-text" id="simDicaText">—</div>
+        </div>
+        <svg class="pitch-svg" id="simPitchSvg" viewBox="0 0 500 740" preserveAspectRatio="xMidYMid meet">
+          <g id="simGPitch"></g>
+          <g id="simGPlayers"></g>
+          <g id="simGBall"></g>
+        </svg>
+        <!-- Modal info aparece sobre o campo -->
+        <div class="sim-info-modal" id="simInfoModal">
+          <div class="sim-info-tag" id="simInfoTag">CONTEXTO</div>
+          <div class="sim-info-title" id="simInfoTitle">—</div>
+          <div class="sim-info-desc" id="simInfoDesc">—</div>
+          <div class="sim-info-section">
+            <div class="sim-info-section-title">📋 Relatório</div>
+            <div class="sim-info-desc" id="simInfoRelatorio">—</div>
+          </div>
+          <div class="sim-info-section">
+            <div class="sim-info-section-title">💡 Pontos chave</div>
+            <div class="sim-info-dicas" id="simInfoDicas"></div>
+          </div>
+          <div class="sim-info-section">
+            <div class="sim-info-section-title">⚽ Treino sugerido</div>
+            <div class="fb-treinos" id="simInfoTreino"></div>
+          </div>
+        </div>
+      </div>
+      <div class="bottom-panel">
+        <button class="btn-play" id="simPlayBtn" onclick="toggleSimPlay()">▶ Reproduzir</button>
+        <button class="btn-icon-side" onclick="toggleInfoModal()" title="Pedir Dica / Info">💡</button>
+        <button class="btn-icon-side" onclick="abrirShare('sim')" title="Partilhar">📤</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ MODE 2: EDITOR ═══════ -->
+  <div class="swiper-page" id="page-2">
+    <div class="pitch-area">
+      <div class="scen-overlay-top">
+        <div class="scen-info-pill">
+          <div class="scen-info-num">EDITOR LIVRE</div>
+          <div class="scen-info-titulo" id="edTitle">Toca no campo para colocar jogadores</div>
+        </div>
+        <div class="scen-actions-top">
+          <button class="action-btn-top" onclick="edClear()" title="Limpar">🗑</button>
+          <button class="action-btn-top" onclick="abrirShare('ed')" title="Partilhar">📤</button>
+        </div>
+      </div>
+      <div class="editor-toolbar">
+        <button class="tool-btn active" id="edToolPlayer" onclick="edSetTool('player-us')">🟡 Jogador</button>
+        <button class="tool-btn" id="edToolAdv" onclick="edSetTool('player-them')">🔴 Adversário</button>
+        <button class="tool-btn" id="edToolBall" onclick="edSetTool('ball')">⚽ Bola</button>
+        <button class="tool-btn" id="edToolArrow" onclick="edSetTool('arrow')">➡️ Seta</button>
+        <button class="tool-btn" id="edToolMove" onclick="edSetTool('move')">✋ Mover</button>
+        <button class="tool-btn" onclick="edFormation('433')">4-3-3</button>
+        <button class="tool-btn" onclick="edFormation('442')">4-4-2</button>
+        <button class="tool-btn" onclick="edFormation('4231')">4-2-3-1</button>
+      </div>
+      <svg class="pitch-svg" id="edPitchSvg" viewBox="0 0 500 740" preserveAspectRatio="xMidYMid meet">
+        <g id="edGPitch"></g>
+        <g id="edGArrows"></g>
+        <g id="edGPlayers"></g>
+        <g id="edGBall"></g>
+      </svg>
+    </div>
+  </div>
+
+</div>
+
+<!-- Mode dots indicator -->
+<div class="mode-dots">
+  <div class="mode-dot active" data-mode="0"></div>
+  <div class="mode-dot" data-mode="1"></div>
+  <div class="mode-dot" data-mode="2"></div>
+</div>
+
+<!-- Share Modal -->
+<div class="share-modal" id="shareModal">
+  <div class="share-box">
+    <div class="share-title">Partilhar <span>Jogada</span></div>
+    <div class="share-sub">Envia esta jogada via WhatsApp ou guarda como imagem.</div>
+    <div class="share-options">
+      <a class="share-opt share-opt-wa" id="shareWA" target="_blank">📱 WhatsApp · texto + imagem</a>
+      <button class="share-opt" onclick="copiarLink()">🔗 Copiar Link</button>
+      <button class="share-opt" onclick="downloadPNG()">💾 Guardar PNG</button>
+    </div>
+    <button class="share-cancel" onclick="fecharShare()">Cancelar</button>
+  </div>
+</div>
+
+<div class="toast" id="toast">—</div>
+
+<script src="elite-coach-data.js"></script>
+<script>
+// ═══════════════════════════════════════════════════════
+// MODE NAVIGATION + SWIPE
+// ═══════════════════════════════════════════════════════
+let currentMode = 0;
+const swiper = document.getElementById('swiper');
+
+function goToMode(mode) {
+  // Voltar à lista do mode actual antes de mudar
+  if (currentMode === 0 && activeCenario) voltarLista('cen');
+  if (currentMode === 1 && activeSim) voltarLista('sim');
+
+  currentMode = mode;
+  swiper.style.transform = `translateX(-${mode * 33.333}%)`;
+  document.querySelectorAll('.mode-tab').forEach(t => {
+    t.classList.toggle('active', parseInt(t.dataset.mode) === mode);
+  });
+  document.querySelectorAll('.mode-dot').forEach(d => {
+    d.classList.toggle('active', parseInt(d.dataset.mode) === mode);
+  });
+  pararAnimacaoCen();
+  pararAnimacaoSim();
+  document.getElementById('simInfoModal').classList.remove('show');
+}
+
+// Swipe gestures across whole body
+let touchStartX = 0, touchStartY = 0, touchActive = false;
+
+document.body.addEventListener('touchstart', e => {
+  if (e.target.closest('.bottom-panel, .opcoes-panel, .feedback-panel, .sim-info-modal, .share-modal, button, a, input, select, textarea')) return;
+  touchStartX = e.changedTouches[0].screenX;
+  touchStartY = e.changedTouches[0].screenY;
+  touchActive = true;
+}, { passive: true });
+
+document.body.addEventListener('touchend', e => {
+  if (!touchActive) return;
+  touchActive = false;
+  const deltaX = e.changedTouches[0].screenX - touchStartX;
+  const deltaY = e.changedTouches[0].screenY - touchStartY;
+  if (Math.abs(deltaX) > 60 && Math.abs(deltaX) > Math.abs(deltaY) * 1.5) {
+    if (deltaX < 0 && currentMode < 2) goToMode(currentMode + 1);
+    else if (deltaX > 0 && currentMode > 0) goToMode(currentMode - 1);
+  }
+}, { passive: true });
+
+// ═══════════════════════════════════════════════════════
+// PITCH DRAW
+// ═══════════════════════════════════════════════════════
+function drawPitchInto(groupId) {
+  const g = document.getElementById(groupId);
+  g.innerHTML = `
+    <defs>
+      <pattern id="grass-${groupId}" patternUnits="userSpaceOnUse" width="500" height="40">
+        <rect x="0" y="0" width="500" height="40" fill="#1F4A28"/>
+        <rect x="0" y="0" width="500" height="20" fill="#234F2D" opacity="0.5"/>
+      </pattern>
+    </defs>
+    <rect x="0" y="0" width="500" height="740" fill="url(#grass-${groupId})"/>
+    <rect x="20" y="20" width="460" height="700" fill="none" stroke="#88AA88" stroke-width="2.5"/>
+    <line x1="20" y1="370" x2="480" y2="370" stroke="#88AA88" stroke-width="2"/>
+    <circle cx="250" cy="370" r="55" fill="none" stroke="#88AA88" stroke-width="2"/>
+    <circle cx="250" cy="370" r="2" fill="#88AA88"/>
+    <rect x="120" y="20" width="260" height="115" fill="none" stroke="#88AA88" stroke-width="2"/>
+    <rect x="190" y="20" width="120" height="40" fill="none" stroke="#88AA88" stroke-width="2"/>
+    <circle cx="250" cy="100" r="2" fill="#88AA88"/>
+    <path d="M 195 135 Q 250 175 305 135" fill="none" stroke="#88AA88" stroke-width="2"/>
+    <rect x="120" y="605" width="260" height="115" fill="none" stroke="#88AA88" stroke-width="2"/>
+    <rect x="190" y="680" width="120" height="40" fill="none" stroke="#88AA88" stroke-width="2"/>
+    <circle cx="250" cy="640" r="2" fill="#88AA88"/>
+    <path d="M 195 605 Q 250 565 305 605" fill="none" stroke="#88AA88" stroke-width="2"/>
+    <rect x="225" y="14" width="50" height="6" fill="#88AA88"/>
+    <rect x="225" y="720" width="50" height="6" fill="#88AA88"/>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════
+// SHARED ANIMATION HELPERS
+// ═══════════════════════════════════════════════════════
+function lerp(a, b, t) { return a + (b - a) * t; }
+
+function getInterpolatedFrame(frames, time, indicaCallback) {
+  let f1 = frames[0], f2 = frames[0];
+  for (let i = 0; i < frames.length - 1; i++) {
+    if (time >= frames[i].t && time <= frames[i+1].t) {
+      f1 = frames[i]; f2 = frames[i+1]; break;
+    }
+    if (time > frames[frames.length-1].t) return frames[frames.length-1];
+  }
+  if (f1 === f2) return f1;
+
+  const ratio = f2.t === f1.t ? 0 : (time - f1.t) / (f2.t - f1.t);
+  const players = {};
+  Object.keys(f1.players).forEach(id => {
+    const p1 = f1.players[id];
+    const p2 = f2.players[id] || p1;
+    players[id] = {
+      x: lerp(p1.x, p2.x, ratio),
+      y: lerp(p1.y, p2.y, ratio),
+      team: p1.team, label: p1.label, highlight: p1.highlight
+    };
+  });
+
+  let ball = null;
+  if (f2.ball) {
+    if (f2.ball.owner && players[f2.ball.owner]) {
+      const o = players[f2.ball.owner];
+      ball = { x: o.x, y: o.y - 18 };
+    } else if (f2.ball.x !== undefined) {
+      const b1 = f1.ball || { x: 0, y: 0 };
+      const b1x = b1.owner && players[b1.owner] ? players[b1.owner].x : (b1.x ?? f2.ball.x);
+      const b1y = b1.owner && players[b1.owner] ? (players[b1.owner].y - 18) : (b1.y ?? f2.ball.y);
+      ball = { x: lerp(b1x, f2.ball.x, ratio), y: lerp(b1y, f2.ball.y, ratio) };
+    }
+  }
+  if (!ball && f1.ball) {
+    if (f1.ball.owner && players[f1.ball.owner]) {
+      const o = players[f1.ball.owner];
+      ball = { x: o.x, y: o.y - 18 };
+    } else if (f1.ball.x !== undefined) {
+      ball = { x: f1.ball.x, y: f1.ball.y };
+    }
+  }
+
+  if (indicaCallback) {
+    if (f2.indica) indicaCallback(f2.indica, 'indica');
+    if (f2.dica) indicaCallback(f2.dica, 'dica');
+  }
+
+  return { players, ball };
+}
+
+function renderFrameInto(playersGroupId, ballGroupId, frame) {
+  const gP = document.getElementById(playersGroupId);
+  const gB = document.getElementById(ballGroupId);
+  let html = '';
+  Object.entries(frame.players).forEach(([id, p]) => {
+    const colorBase = p.team === 'us' ? '#D4AF37' : '#E05050';
+    const colorStroke = p.team === 'us' ? '#F0CC55' : '#FF7878';
+    const colorText = p.team === 'us' ? '#000' : '#FFF';
+    const r = p.highlight ? 18 : 16;
+    html += `
+      <g class="player ${p.highlight ? 'highlight' : ''}" transform="translate(${p.x},${p.y})">
+        ${p.highlight ? `<circle r="${r+6}" fill="${colorBase}22"/>` : ''}
+        <circle class="player-circle" r="${r}" fill="${colorBase}" stroke="${colorStroke}" stroke-width="2"/>
+        <text y="5" text-anchor="middle" font-size="13" font-weight="900" fill="${colorText}" font-family="Barlow Condensed">${(p.label||'').substring(0,2).toUpperCase()}</text>
+      </g>`;
+  });
+  gP.innerHTML = html;
+  if (frame.ball) {
+    gB.innerHTML = `
+      <circle class="ball" cx="${frame.ball.x}" cy="${frame.ball.y}" r="6" fill="#fff" stroke="#222" stroke-width="1.5"/>
+      <circle class="ball" cx="${frame.ball.x}" cy="${frame.ball.y}" r="3" fill="#222" opacity="0.6"/>`;
+  } else {
+    gB.innerHTML = '';
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// MODE 0: CENÁRIOS
+// ═══════════════════════════════════════════════════════
+let activeCenario = null;
+let cenAnimId = null, cenAnimStart = 0, cenAnimating = false;
+
+function renderCenarios() {
+  const grid = document.getElementById('cenariosGrid');
+  grid.innerHTML = CENARIOS.map((c, i) => `
+    <button class="cen-card" style="border-left-color:${c.cor}" onclick="abrirCenario(${i})">
+      <div class="cen-icon" style="background:${c.cor}22;border-color:${c.cor}55">${c.icon}</div>
+      <div class="cen-info">
+        <div class="cen-num">Cenário ${String(i+1).padStart(2,'0')}</div>
+        <div class="cen-titulo">${c.titulo}</div>
+        <div class="cen-meta">${c.posicao} · ${c.debilidade}</div>
+      </div>
+      <div class="cen-arrow">▶</div>
+    </button>`).join('');
+}
+
+function abrirCenario(idx) {
+  activeCenario = CENARIOS[idx];
+  document.getElementById('cenList').style.display = 'none';
+  document.getElementById('cenActive').classList.add('active');
+  document.getElementById('cenNumLabel').textContent = `Cenário ${String(idx+1).padStart(2,'0')}`;
+  document.getElementById('cenTitulo').textContent = activeCenario.titulo;
+  document.getElementById('cenIndica').textContent = activeCenario.frames[0].indica || 'Pronto.';
+  drawPitchInto('cenGPitch');
+  renderFrameInto('cenGPlayers','cenGBall', activeCenario.frames[0]);
+  document.getElementById('cenBottomInit').style.display = 'flex';
+  document.getElementById('opcoesPanel').classList.remove('show');
+  document.getElementById('feedbackPanel').classList.remove('show');
+  setTimeout(() => reproduzirCen(), 500);
+}
+
+function voltarLista(prefix) {
+  if (prefix === 'cen') {
+    pararAnimacaoCen();
+    document.getElementById('cenList').style.display = '';
+    document.getElementById('cenActive').classList.remove('active');
+    document.getElementById('opcoesPanel').classList.remove('show');
+    document.getElementById('feedbackPanel').classList.remove('show');
+    activeCenario = null;
+  } else if (prefix === 'sim') {
+    pararAnimacaoSim();
+    document.getElementById('simList').style.display = '';
+    document.getElementById('simActive').classList.remove('active');
+    document.getElementById('simInfoModal').classList.remove('show');
+    document.getElementById('simDicaPopup').classList.remove('show');
+    activeSim = null;
+  }
+}
+
+function reproduzirCen() {
+  if (!activeCenario) return;
+  pararAnimacaoCen();
+  cenAnimating = true;
+  cenAnimStart = performance.now();
+  function loop(now) {
+    if (!cenAnimating) return;
+    const elapsed = now - cenAnimStart;
+    const f = getInterpolatedFrame(activeCenario.frames, elapsed, (txt, type) => {
+      if (type === 'indica') document.getElementById('cenIndica').textContent = txt;
+    });
+    renderFrameInto('cenGPlayers','cenGBall', f);
+    if (elapsed < activeCenario.duracao) {
+      cenAnimId = requestAnimationFrame(loop);
+    } else {
+      cenAnimating = false;
+      setTimeout(() => mostrarOpcoes(), 400);
+    }
+  }
+  cenAnimId = requestAnimationFrame(loop);
+}
+
+function pararAnimacaoCen() {
+  cenAnimating = false;
+  if (cenAnimId) cancelAnimationFrame(cenAnimId);
+}
+
+function mostrarOpcoes() {
+  pararAnimacaoCen();
+  if (activeCenario) renderFrameInto('cenGPlayers','cenGBall', activeCenario.frames[activeCenario.frames.length-1]);
+  document.getElementById('cenBottomInit').style.display = 'none';
+  document.getElementById('feedbackPanel').classList.remove('show');
+  const grid = document.getElementById('opcoesGrid');
+  grid.innerHTML = activeCenario.opcoes.map(o => `
+    <button class="opcao-btn" onclick="escolher('${o.id}')">
+      <div class="opcao-letra">${o.id}</div><div>${o.texto}</div>
+    </button>`).join('');
+  document.getElementById('opcoesPanel').classList.add('show');
+}
+
+function escolher(opcaoId) {
+  const o = activeCenario.opcoes.find(x => x.id === opcaoId);
+  if (!o) return;
+  document.getElementById('opcoesPanel').classList.remove('show');
+  const fb = document.getElementById('feedbackPanel');
+  document.getElementById('fbResult').className = 'fb-result ' + o.consequencia;
+  if (o.certa) { document.getElementById('fbIcon').textContent = '✅'; document.getElementById('fbLabel').textContent = 'Decisão Acertada'; }
+  else if (o.consequencia === 'perda') { document.getElementById('fbIcon').textContent = '❌'; document.getElementById('fbLabel').textContent = 'Bola Perdida'; }
+  else { document.getElementById('fbIcon').textContent = '⚠️'; document.getElementById('fbLabel').textContent = 'Decisão Subóptima'; }
+  document.getElementById('fbTexto').textContent = o.feedback;
+  document.getElementById('fbDica').textContent = activeCenario.dica;
+  document.getElementById('fbTreinos').innerHTML = activeCenario.treino.map(t => `<div class="fb-treino">${t}</div>`).join('');
+  fb.classList.add('show');
+}
+
+function resetarCen() {
+  document.getElementById('feedbackPanel').classList.remove('show');
+  document.getElementById('opcoesPanel').classList.remove('show');
+  document.getElementById('cenBottomInit').style.display = 'flex';
+  if (activeCenario) {
+    renderFrameInto('cenGPlayers','cenGBall', activeCenario.frames[0]);
+    document.getElementById('cenIndica').textContent = activeCenario.frames[0].indica || 'Pronto.';
+    setTimeout(reproduzirCen, 400);
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// MODE 1: SIMULAÇÕES
+// ═══════════════════════════════════════════════════════
+let activeSim = null;
+let simAnimId = null, simAnimStart = 0, simAnimating = false;
+let simDicaTimeout = null;
+
+function renderSimulacoes() {
+  const grid = document.getElementById('simulacoesGrid');
+  grid.innerHTML = SIMULACOES.map((s, i) => `
+    <button class="cen-card" style="border-left-color:${s.cor}" onclick="abrirSim(${i})">
+      <div class="cen-icon" style="background:${s.cor}22;border-color:${s.cor}55">${s.icon}</div>
+      <div class="cen-info">
+        <div class="cen-num">Simulação ${String(i+1).padStart(2,'0')}</div>
+        <div class="cen-titulo">${s.titulo}</div>
+        <div class="cen-meta">${s.nivel}</div>
+      </div>
+      <div class="cen-arrow">▶</div>
+    </button>`).join('');
+}
+
+function abrirSim(idx) {
+  activeSim = SIMULACOES[idx];
+  document.getElementById('simList').style.display = 'none';
+  document.getElementById('simActive').classList.add('active');
+  document.getElementById('simNumLabel').textContent = `Simulação ${String(idx+1).padStart(2,'0')}`;
+  document.getElementById('simTitulo').textContent = activeSim.titulo;
+  drawPitchInto('simGPitch');
+  renderFrameInto('simGPlayers','simGBall', activeSim.frames[0]);
+  document.getElementById('simInfoModal').classList.remove('show');
+  document.getElementById('simDicaPopup').classList.remove('show');
+  document.getElementById('simPlayBtn').textContent = '▶ Reproduzir';
+  setTimeout(() => reproduzirSim(), 500);
+}function reproduzirSim() {
+  if (!activeSim) return;
+  pararAnimacaoSim();
+  simAnimating = true;
+  simAnimStart = performance.now();
+  document.getElementById('simPlayBtn').textContent = '⏸ Pausa';
+  let lastDicaShown = -1;
+
+  function loop(now) {
+    if (!simAnimating) return;
+    const elapsed = now - simAnimStart;
+    const f = getInterpolatedFrame(activeSim.frames, elapsed);
+    renderFrameInto('simGPlayers','simGBall', f);
+
+    // Show dicas at frame boundaries
+    for (let i = 0; i < activeSim.frames.length; i++) {
+      const fr = activeSim.frames[i];
+      if (fr.dica && elapsed >= fr.t && i > lastDicaShown) {
+        showDicaPopup(fr.dica);
+        lastDicaShown = i;
+      }
+    }
+
+    if (elapsed < activeSim.duracao) {
+      simAnimId = requestAnimationFrame(loop);
+    } else {
+      simAnimating = false;
+      document.getElementById('simPlayBtn').textContent = '↺ Repetir';
+      // Show info modal at end
+      setTimeout(() => mostrarInfoSim(), 500);
+    }
+  }
+  simAnimId = requestAnimationFrame(loop);
+}
+
+function pararAnimacaoSim() {
+  simAnimating = false;
+  if (simAnimId) cancelAnimationFrame(simAnimId);
+  if (simDicaTimeout) clearTimeout(simDicaTimeout);
+  document.getElementById('simDicaPopup').classList.remove('show');
+}
+
+function toggleSimPlay() {
+  if (simAnimating) {
+    pararAnimacaoSim();
+    document.getElementById('simPlayBtn').textContent = '▶ Continuar';
+  } else {
+    reproduzirSim();
+  }
+}
+
+function showDicaPopup(text) {
+  const popup = document.getElementById('simDicaPopup');
+  document.getElementById('simDicaText').textContent = text;
+  popup.classList.add('show');
+  if (simDicaTimeout) clearTimeout(simDicaTimeout);
+  simDicaTimeout = setTimeout(() => popup.classList.remove('show'), 2400);
+}
+
+function mostrarInfoSim() {
+  if (!activeSim) return;
+  document.getElementById('simInfoTag').textContent = 'CONTEXTO · ' + activeSim.nivel;
+  document.getElementById('simInfoTitle').textContent = activeSim.titulo;
+  document.getElementById('simInfoDesc').textContent = activeSim.contexto;
+  document.getElementById('simInfoRelatorio').textContent = activeSim.relatorio;
+  document.getElementById('simInfoDicas').innerHTML = activeSim.dicas.map(d => `<div class="sim-info-dica">${d}</div>`).join('');
+  document.getElementById('simInfoTreino').innerHTML = activeSim.treino.map(t => `<div class="fb-treino">${t}</div>`).join('');
+  document.getElementById('simInfoModal').classList.add('show');
+}
+
+function toggleInfoModal() {
+  if (currentMode !== 1 || !activeSim) {
+    showToast('Abre uma simulação primeiro');
+    return;
+  }
+  const m = document.getElementById('simInfoModal');
+  if (m.classList.contains('show')) m.classList.remove('show');
+  else mostrarInfoSim();
+}
+
+// ═══════════════════════════════════════════════════════
+// MODE 2: EDITOR
+// ═══════════════════════════════════════════════════════
+let edTool = 'player-us';
+let edPlayers = [];
+let edBall = null;
+let edArrows = [];
+let edArrowStart = null;
+
+const FORMACOES = {
+  '433': [
+    {x:250,y:680,label:'GR'},{x:120,y:580,label:'LE'},{x:200,y:600,label:'DC'},
+    {x:300,y:600,label:'DC'},{x:380,y:580,label:'LD'},{x:170,y:460,label:'MC'},
+    {x:250,y:480,label:'MC'},{x:330,y:460,label:'MC'},{x:120,y:280,label:'EE'},
+    {x:250,y:240,label:'AV'},{x:380,y:280,label:'ED'}
+  ],
+  '442': [
+    {x:250,y:680,label:'GR'},{x:120,y:580,label:'LE'},{x:200,y:600,label:'DC'},
+    {x:300,y:600,label:'DC'},{x:380,y:580,label:'LD'},{x:120,y:420,label:'MEs'},
+    {x:200,y:440,label:'MC'},{x:300,y:440,label:'MC'},{x:380,y:420,label:'MD'},
+    {x:200,y:240,label:'AV'},{x:300,y:240,label:'AV'}
+  ],
+  '4231': [
+    {x:250,y:680,label:'GR'},{x:120,y:580,label:'LE'},{x:200,y:600,label:'DC'},
+    {x:300,y:600,label:'DC'},{x:380,y:580,label:'LD'},{x:200,y:480,label:'MD'},
+    {x:300,y:480,label:'MD'},{x:120,y:340,label:'MEs'},{x:250,y:360,label:'MO'},
+    {x:380,y:340,label:'MD'},{x:250,y:220,label:'AV'}
+  ]
+};
+
+function edSetTool(tool) {
+  edTool = tool;
+  document.querySelectorAll('#page-2 .tool-btn').forEach(b => b.classList.remove('active'));
+  const map = {'player-us':'edToolPlayer','player-them':'edToolAdv','ball':'edToolBall','arrow':'edToolArrow','move':'edToolMove'};
+  if (map[tool]) document.getElementById(map[tool])?.classList.add('active');
+  edArrowStart = null;
+}
+
+function edFormation(form) {
+  edPlayers = FORMACOES[form].map(p => ({...p, team: 'us'}));
+  edBall = {x: 250, y: 690};
+  edArrows = [];
+  edRender();
+}
+
+function edClear() {
+  edPlayers = [];
+  edBall = null;
+  edArrows = [];
+  edRender();
+}
+
+function edRender() {
+  const gP = document.getElementById('edGPlayers');
+  const gB = document.getElementById('edGBall');
+  const gA = document.getElementById('edGArrows');
+
+  gP.innerHTML = edPlayers.map((p, i) => {
+    const cb = p.team === 'us' ? '#D4AF37' : '#E05050';
+    const cs = p.team === 'us' ? '#F0CC55' : '#FF7878';
+    const ct = p.team === 'us' ? '#000' : '#FFF';
+    return `<g class="player" data-i="${i}" transform="translate(${p.x},${p.y})">
+      <circle r="16" fill="${cb}" stroke="${cs}" stroke-width="2"/>
+      <text y="5" text-anchor="middle" font-size="12" font-weight="900" fill="${ct}" font-family="Barlow Condensed">${(p.label||'').substring(0,2).toUpperCase()}</text>
+    </g>`;
+  }).join('');
+
+  gB.innerHTML = edBall ? `
+    <circle cx="${edBall.x}" cy="${edBall.y}" r="6" fill="#fff" stroke="#222" stroke-width="1.5"/>
+    <circle cx="${edBall.x}" cy="${edBall.y}" r="3" fill="#222" opacity="0.6"/>` : '';
+
+  gA.innerHTML = edArrows.map(a => `
+    <defs>
+      <marker id="arrow-${a.id}" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L9,3 z" fill="#D4AF37"/>
+      </marker>
+    </defs>
+    <line x1="${a.x1}" y1="${a.y1}" x2="${a.x2}" y2="${a.y2}" stroke="#D4AF37" stroke-width="3" stroke-dasharray="6,4" marker-end="url(#arrow-${a.id})"/>
+  `).join('');
+}
+
+function edSvgPoint(e) {
+  const svg = document.getElementById('edPitchSvg');
+  const pt = svg.createSVGPoint();
+  const ev = e.touches ? e.touches[0] : e;
+  pt.x = ev.clientX;
+  pt.y = ev.clientY;
+  const ctm = svg.getScreenCTM().inverse();
+  const p = pt.matrixTransform(ctm);
+  return { x: p.x, y: p.y };
+}
+
+let edDragging = null;
+function edInit() {
+  drawPitchInto('edGPitch');
+  edFormation('433');
+  const svg = document.getElementById('edPitchSvg');
+
+  // Track if it's a real tap (no movement) or a swipe
+  let tapStart = null;
+  let tapMoved = false;
+
+  svg.addEventListener('touchstart', e => {
+    const t = e.touches[0];
+    tapStart = { x: t.clientX, y: t.clientY };
+    tapMoved = false;
+  }, { passive: true });
+
+  svg.addEventListener('touchmove', e => {
+    if (!tapStart) return;
+    const t = e.touches[0];
+    if (Math.abs(t.clientX - tapStart.x) > 8 || Math.abs(t.clientY - tapStart.y) > 8) {
+      tapMoved = true;
+    }
+  }, { passive: true });
+
+  svg.addEventListener('click', e => {
+    if (currentMode !== 2) return; // Só processa clicks em modo Editor
+    if (tapMoved) { tapMoved = false; return; } // Foi swipe, ignora
+    if (edDragging) { edDragging = null; return; }
+    const p = edSvgPoint(e);
+    if (edTool === 'player-us' || edTool === 'player-them') {
+      const team = edTool === 'player-us' ? 'us' : 'them';
+      edPlayers.push({ x: p.x, y: p.y, team, label: '' });
+      edRender();
+    } else if (edTool === 'ball') {
+      edBall = { x: p.x, y: p.y };
+      edRender();
+    } else if (edTool === 'arrow') {
+      if (!edArrowStart) {
+        edArrowStart = p;
+        document.getElementById('edTitle').textContent = 'Toca no destino da seta';
+      } else {
+        edArrows.push({ id: Date.now(), x1: edArrowStart.x, y1: edArrowStart.y, x2: p.x, y2: p.y });
+        edArrowStart = null;
+        document.getElementById('edTitle').textContent = 'Editor Livre';
+        edRender();
+      }
+    }
+  });
+
+  // Move tool — drag jogadores
+  let dragIdx = null;
+
+  function startDrag(e) {
+    if (edTool !== 'move' || currentMode !== 2) return;
+    const tgt = e.target.closest('.player');
+    if (!tgt) return;
+    e.preventDefault();
+    dragIdx = parseInt(tgt.dataset.i);
+    edDragging = true;
+  }
+
+  function doDrag(e) {
+    if (dragIdx === null || currentMode !== 2) return;
+    e.preventDefault();
+    const p = edSvgPoint(e);
+    if (edPlayers[dragIdx]) {
+      edPlayers[dragIdx].x = Math.max(20, Math.min(480, p.x));
+      edPlayers[dragIdx].y = Math.max(20, Math.min(720, p.y));
+      edRender();
+    }
+  }
+
+  function endDrag() {
+    dragIdx = null;
+    setTimeout(() => { edDragging = false; }, 50);
+  }
+
+  svg.addEventListener('mousedown', startDrag);
+  svg.addEventListener('touchstart', startDrag, {passive: false});
+  document.addEventListener('mousemove', doDrag);
+  document.addEventListener('touchmove', doDrag, {passive: false});
+  document.addEventListener('mouseup', endDrag);
+  document.addEventListener('touchend', endDrag);
+}
+
+// ═══════════════════════════════════════════════════════
+// SHARE
+// ═══════════════════════════════════════════════════════
+function abrirShare(prefix) {
+  let titulo = '', desc = '', svgId = '';
+  if (prefix === 'cen' && activeCenario) {
+    titulo = activeCenario.titulo;
+    desc = `${activeCenario.situacao}\n\n💡 ${activeCenario.dica}`;
+    svgId = 'cenPitchSvg';
+  } else if (prefix === 'sim' && activeSim) {
+    titulo = activeSim.titulo;
+    desc = `${activeSim.contexto}\n\n📋 ${activeSim.relatorio}`;
+    svgId = 'simPitchSvg';
+  } else if (prefix === 'ed') {
+    titulo = 'Jogada do Editor';
+    desc = 'Jogada criada no Elite Coach';
+    svgId = 'edPitchSvg';
+  } else { showToast('Nada para partilhar'); return; }
+
+  document.getElementById('shareModal').dataset.titulo = titulo;
+  document.getElementById('shareModal').dataset.desc = desc;
+  document.getElementById('shareModal').dataset.svg = svgId;
+
+  const url = window.location.origin + window.location.pathname;
+  const msg = `⚽ ${titulo}\n\n${desc}\n\nVê em: ${url}`;
+  document.getElementById('shareWA').href = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+  document.getElementById('shareModal').classList.add('show');
+}
+
+function fecharShare() { document.getElementById('shareModal').classList.remove('show'); }
+
+function copiarLink() {
+  navigator.clipboard.writeText(window.location.href).then(() => {
+    showToast('🔗 Link copiado'); fecharShare();
+  });
+}
+
+function downloadPNG() {
+  const svgId = document.getElementById('shareModal').dataset.svg;
+  if (!svgId) return;
+  const svg = document.getElementById(svgId);
+  const data = new XMLSerializer().serializeToString(svg);
+  const canvas = document.createElement('canvas');
+  canvas.width = 500; canvas.height = 740;
+  const ctx = canvas.getContext('2d');
+  const img = new Image();
+  const blob = new Blob([data], { type: 'image/svg+xml;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  img.onload = function() {
+    ctx.drawImage(img, 0, 0);
+    URL.revokeObjectURL(url);
+    canvas.toBlob(blob => {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'ytb-jogada.png';
+      a.click();
+      showToast('💾 Imagem guardada'); fecharShare();
+    });
+  };
+  img.src = url;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+renderCenarios();
+renderSimulacoes();
+edInit();
+
+// PWA
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw-elite-coach.js').catch(() => {});
+  });
+}
+
+// Direct link via ?c=N or ?s=N
+const params = new URLSearchParams(window.location.search);
+const cParam = parseInt(params.get('c'));
+const sParam = parseInt(params.get('s'));
+if (cParam && cParam >= 1 && cParam <= CENARIOS.length) {
+  setTimeout(() => abrirCenario(cParam - 1), 100);
+}
+if (sParam && sParam >= 1 && sParam <= SIMULACOES.length) {
+  setTimeout(() => { goToMode(1); abrirSim(sParam - 1); }, 100);
+}
+</script>
+</body>
+</html>
