@@ -477,51 +477,287 @@ var COUNTER = {
 };
 
 // Set piece formations — half pitch coordinates
+// ════════════════════════════════════════════════
+// COORDENADAS DAS BOLAS PARADAS
+// Sistema: campo 500x740. Y=20 é golo ADVERSÁRIO (topo, atacamos).
+// Y=720 é a NOSSA baliza (fundo, defendemos).
+// Cada array tem [x, y]. 11 jogadores por equipa.
+// A = nossa equipa | B = adversário
+// ════════════════════════════════════════════════
 var SET_PIECE_FORMS = {
   'Canto Ofensivo': {
+    // Atacamos a baliza adversária (Y=20). Bandeirinha no canto superior.
     'Zona Primeiro Poste': {
-      A:[[30,710],[170,560],[210,545],[250,555],[290,545],[330,560],[380,580],[420,600],[200,620],[300,620],[250,640]],
-      B:[[140,590],[200,580],[260,580],[320,580],[380,590],[250,610],[170,640],[330,640],[250,660],[200,680],[300,680]]
+      // A (nós): batedor no canto esq, atacantes a fechar 1º poste
+      A:[
+        [25,30],     // 1. Batedor (canto esquerdo)
+        [200,55],    // 2. Atacante 1º poste
+        [320,55],    // 3. Atacante 2º poste
+        [250,95],    // 4. Ponto de penalty
+        [200,135],   // 5. Entrada pequena área esq
+        [300,135],   // 6. Entrada pequena área dir
+        [180,195],   // 7. Reforço esq (entrada da grande área)
+        [320,195],   // 8. Reforço dir
+        [250,225],   // 9. Entrada grande área
+        [250,330],   // 10. Contenção (cobertura contra-ataque)
+        [250,700]    // 11. GR (nosso, recuado)
+      ],
+      // B (eles): GR defende, marcações na pequena área
+      B:[
+        [250,32],    // 1. GR adversário
+        [220,35],    // 2. Defesa no 1º poste (sobre a linha)
+        [280,35],    // 3. Defesa no 2º poste
+        [225,65],    // 4. Zona p.área esq
+        [275,65],    // 5. Zona p.área dir
+        [250,80],    // 6. Zona p.área central
+        [200,105],   // 7. Marcação individual 1
+        [250,115],   // 8. Marcação individual 2
+        [300,105],   // 9. Marcação individual 3
+        [225,150],   // 10. Marcação na entrada da pequena área
+        [250,280]    // 11. Avante deles (contra-ataque)
+      ]
     },
     'Canto Curto': {
-      A:[[30,710],[80,680],[130,660],[250,580],[310,560],[370,550],[420,560],[460,580],[250,610],[200,630],[300,630]],
-      B:[[200,600],[270,595],[340,595],[400,600],[250,625],[180,645],[320,645],[250,665],[200,685],[300,685],[250,700]]
+      // Variante: batedor + apoio próximo para combinação curta
+      A:[
+        [25,30],     // 1. Batedor (canto esquerdo)
+        [80,75],     // 2. Apoio curto (sai do canto para receber)
+        [150,140],   // 3. Médio em recuo (linha de passe)
+        [200,55],    // 4. Atacante 1º poste
+        [320,55],    // 5. Atacante 2º poste
+        [250,100],   // 6. Ponto de penalty
+        [280,140],   // 7. Pronto a receber cruzamento
+        [200,200],   // 8. Entrada da grande área
+        [320,200],   // 9. Reforço dir
+        [250,330],   // 10. Contenção
+        [250,700]    // 11. GR
+      ],
+      B:[
+        [250,32],    // 1. GR
+        [220,35],    // 2. Poste esq
+        [280,35],    // 3. Poste dir
+        [100,90],    // 4. Defesa que sai à curva (curto)
+        [225,65],    // 5. Zona p.área esq
+        [275,65],    // 6. Zona p.área dir
+        [200,105],   // 7. Marcação 1
+        [250,115],   // 8. Marcação 2
+        [300,105],   // 9. Marcação 3
+        [225,150],   // 10. Entrada p.área
+        [250,280]    // 11. Avante (contra-ataque)
+      ]
     },
     'Segundo Poste': {
-      A:[[30,710],[150,580],[200,565],[250,560],[300,565],[350,580],[400,590],[440,570],[200,615],[300,615],[250,640]],
-      B:[[160,595],[220,585],[280,585],[340,585],[400,595],[250,615],[170,640],[330,640],[250,660],[200,680],[300,680]]
+      // Atacamos o 2º poste (lado direito)
+      A:[
+        [25,30],     // 1. Batedor (canto esquerdo, cruza para o 2º poste)
+        [200,90],    // 2. Falso movimento no 1º poste
+        [320,55],    // 3. Atacante principal no 2º poste
+        [340,75],    // 4. Reforço 2º poste
+        [250,110],   // 5. Ponto de penalty
+        [300,140],   // 6. Entrada p.área dir
+        [180,195],   // 7. Recuado esq
+        [320,195],   // 8. Recuado dir
+        [250,235],   // 9. Entrada grande área
+        [250,330],   // 10. Contenção
+        [250,700]    // 11. GR
+      ],
+      B:[
+        [250,32],    // 1. GR
+        [220,35],    // 2. Poste esq
+        [285,35],    // 3. Poste dir (marca atacante principal)
+        [225,65],    // 4. Zona p.área esq
+        [280,65],    // 5. Zona p.área dir
+        [250,80],    // 6. Zona p.área central
+        [200,105],   // 7. Marcação 1
+        [300,105],   // 8. Marcação 2 (no 2º poste reforço)
+        [325,80],    // 9. Marcação extra 2º poste
+        [225,150],   // 10. Entrada p.área
+        [250,280]    // 11. Avante contra-ataque
+      ]
     },
   },
   'Canto Defensivo': {
+    // Defendemos a nossa baliza (Y=720). Eles atacam.
     'Zona + Marcação Individual': {
-      A:[[250,30],[150,120],[200,140],[250,155],[300,140],[350,120],[400,110],[180,85],[320,85],[250,70],[250,200]],
-      B:[[30,30],[170,160],[210,170],[250,165],[290,170],[330,160],[430,155],[250,185],[180,200],[320,200],[250,220]]
+      // A (nós, defendemos): postes, zona p.área, marcação
+      A:[
+        [250,708],   // 1. GR (nosso)
+        [220,712],   // 2. Defesa 1º poste
+        [280,712],   // 3. Defesa 2º poste
+        [225,680],   // 4. Zona p.área esq
+        [275,680],   // 5. Zona p.área dir
+        [250,665],   // 6. Zona p.área central
+        [200,640],   // 7. Marcação 1
+        [250,628],   // 8. Marcação 2
+        [300,640],   // 9. Marcação 3
+        [225,595],   // 10. Marcação na entrada
+        [250,460]    // 11. Avante nosso (contra-ataque)
+      ],
+      // B (eles, atacam): bandeirinha + atacantes
+      B:[
+        [25,712],    // 1. Batedor (canto inferior esquerdo, deles)
+        [200,690],   // 2. Atacante 1º poste
+        [320,690],   // 3. Atacante 2º poste
+        [250,648],   // 4. Ponto de penalty
+        [200,610],   // 5. Entrada p.área esq
+        [300,610],   // 6. Entrada p.área dir
+        [180,550],   // 7. Reforço esq
+        [320,550],   // 8. Reforço dir
+        [250,515],   // 9. Entrada grande área
+        [250,410],   // 10. Contenção
+        [250,50]     // 11. GR adversário (lá longe)
+      ]
     },
   },
   'Livre Direto': {
+    // Livre a ~25m da baliza adversária. Bola em Y≈180.
     'Remate Direto': {
-      A:[[250,600],[160,570],[200,560],[300,560],[340,570],[380,580],[200,620],[300,620],[250,640],[170,640],[330,640]],
-      B:[[185,550],[215,545],[250,543],[285,545],[315,550],[250,520],[180,510],[320,510],[250,500],[200,490],[300,490]]
+      A:[
+        [250,185],   // 1. Batedor (bola na linha do remate)
+        [225,180],   // 2. Companheiro à frente (engana barreira)
+        [275,180],   // 3. Companheiro à frente
+        [200,90],    // 4. Avançado primeiro poste
+        [300,90],    // 5. Avançado segundo poste
+        [250,110],   // 6. Avançado ponto de penalty
+        [150,220],   // 7. Médio à esq (recolhe bola perdida)
+        [350,220],   // 8. Médio à dir
+        [200,320],   // 9. Médio recuado esq
+        [300,320],   // 10. Médio recuado dir
+        [250,700]    // 11. GR
+      ],
+      B:[
+        [250,32],    // 1. GR adversário
+        [220,140],   // 2. Barreira esq
+        [240,140],   // 3. Barreira
+        [260,140],   // 4. Barreira
+        [280,140],   // 5. Barreira dir
+        [200,80],    // 6. Marca o atacante esq
+        [300,80],    // 7. Marca o atacante dir
+        [250,100],   // 8. Marca atacante central
+        [180,160],   // 9. Defesa lateral esq
+        [320,160],   // 10. Defesa lateral dir
+        [250,260]    // 11. Médio adversário fora (contra-ataque)
+      ]
     },
     'Cruzamento': {
-      A:[[250,600],[200,560],[250,550],[300,560],[350,570],[390,575],[180,585],[320,585],[250,620],[200,640],[300,640]],
-      B:[[180,548],[215,544],[250,542],[285,544],[320,548],[250,515],[180,508],[320,508],[250,495],[200,485],[300,485]]
+      // Bola não vai directo, é cruzada para a área
+      A:[
+        [250,185],   // 1. Batedor
+        [180,80],    // 2. Avançado 1º poste
+        [320,80],    // 3. Avançado 2º poste
+        [250,105],   // 4. Ponto de penalty
+        [200,140],   // 5. Entrada p.área esq
+        [300,140],   // 6. Entrada p.área dir
+        [150,220],   // 7. Apoio esq
+        [350,220],   // 8. Apoio dir
+        [200,320],   // 9. Médio recuado esq
+        [300,320],   // 10. Médio recuado dir
+        [250,700]    // 11. GR
+      ],
+      B:[
+        [250,32],    // 1. GR
+        [220,140],   // 2. Barreira
+        [250,140],   // 3. Barreira
+        [280,140],   // 4. Barreira
+        [200,80],    // 5. Marca 1º poste
+        [300,80],    // 6. Marca 2º poste
+        [250,100],   // 7. Marca central
+        [180,150],   // 8. Marca entrada esq
+        [320,150],   // 9. Marca entrada dir
+        [225,180],   // 10. Sai à entrada
+        [250,260]    // 11. Recuperação fora
+      ]
     },
   },
   'Livre Indireto': {
     'Passe + Remate': {
-      A:[[250,600],[200,570],[250,555],[300,570],[350,580],[390,585],[180,590],[320,590],[250,625],[200,640],[300,640]],
-      B:[[180,548],[215,544],[250,542],[285,544],[320,548],[250,515],[180,508],[320,508],[250,495],[200,485],[300,485]]
+      // Bola fica para outro rematar
+      A:[
+        [240,185],   // 1. Batedor (toca a bola para 2)
+        [260,185],   // 2. Rematador (recebe e remata)
+        [200,90],    // 3. Avançado 1º poste
+        [300,90],    // 4. Avançado 2º poste
+        [250,110],   // 5. Ponto de penalty
+        [180,220],   // 6. Apoio esq
+        [320,220],   // 7. Apoio dir
+        [200,320],   // 8. Médio esq
+        [300,320],   // 9. Médio dir
+        [150,500],   // 10. Recuperação
+        [250,700]    // 11. GR
+      ],
+      B:[
+        [250,32],    // 1. GR
+        [220,140],   // 2. Barreira
+        [250,140],   // 3. Barreira
+        [280,140],   // 4. Barreira
+        [200,80],    // 5. Marca 1º poste
+        [300,80],    // 6. Marca 2º poste
+        [250,100],   // 7. Marca central
+        [180,150],   // 8. Marca esq
+        [320,150],   // 9. Marca dir
+        [240,170],   // 10. Pressiona o batedor
+        [250,260]    // 11. Recuperação fora
+      ]
     },
   },
   'Lançamento Lateral': {
+    // Bola na faixa esquerda, na altura do meio-campo (Y=400)
     'Curto': {
-      A:[[30,530],[100,510],[150,500],[100,555],[160,545],[200,530],[250,520],[300,525],[350,535],[400,545],[250,570]],
-      B:[[120,520],[170,510],[220,510],[270,515],[320,520],[200,545],[300,545],[250,565],[200,580],[300,580],[250,595]]
+      A:[
+        [25,400],    // 1. Lançador (linha lateral esquerda)
+        [60,420],    // 2. Receptor curto
+        [90,380],    // 3. Apoio em diagonal
+        [130,440],   // 4. Tabela (triângulo)
+        [180,400],   // 5. Recepção média
+        [250,420],   // 6. Médio central
+        [320,440],   // 7. Médio direito
+        [400,460],   // 8. Lateral direito alto
+        [200,560],   // 9. Defesa esq (cobertura)
+        [300,560],   // 10. Defesa dir (cobertura)
+        [250,700]    // 11. GR
+      ],
+      B:[
+        [80,410],    // 1. Marca receptor curto
+        [120,440],   // 2. Marca tabela
+        [180,410],   // 3. Marca recepção média
+        [250,400],   // 4. Médio adversário central
+        [320,420],   // 5. Médio dir
+        [200,500],   // 6. Defesa esq
+        [300,500],   // 7. Defesa dir
+        [250,540],   // 8. Defesa central
+        [180,620],   // 9. Lateral esq
+        [320,620],   // 10. Lateral dir
+        [250,30]     // 11. GR (lá longe)
+      ]
     },
     'Longo': {
-      A:[[30,530],[150,490],[200,480],[250,485],[300,490],[350,500],[400,510],[200,540],[300,540],[250,560],[250,580]],
-      B:[[160,505],[210,500],[260,498],[310,500],[360,505],[250,525],[180,540],[320,540],[250,560],[200,575],[300,575]]
+      // Lançamento longo para o avançado
+      A:[
+        [25,400],    // 1. Lançador
+        [200,180],   // 2. Avançado (alvo do lançamento longo)
+        [300,200],   // 3. Apoio ofensivo
+        [180,320],   // 4. Médio esq (recolhe se a bola não chegar)
+        [320,320],   // 5. Médio dir
+        [250,380],   // 6. Médio centro
+        [200,500],   // 7. Defesa esq
+        [300,500],   // 8. Defesa dir
+        [250,540],   // 9. Defesa central
+        [400,460],   // 10. Lateral dir alto
+        [250,700]    // 11. GR
+      ],
+      B:[
+        [200,200],   // 1. Marca o avançado
+        [280,210],   // 2. Marca apoio
+        [180,300],   // 3. Marca médio esq
+        [320,300],   // 4. Marca médio dir
+        [250,360],   // 5. Médio adversário
+        [200,500],   // 6. Defesa esq
+        [300,500],   // 7. Defesa dir
+        [250,540],   // 8. Defesa central
+        [180,620],   // 9. Lateral esq
+        [320,620],   // 10. Lateral dir
+        [250,30]     // 11. GR
+      ]
     },
   },
 };
