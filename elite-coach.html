@@ -64,11 +64,11 @@ body{margin:0;padding:0;height:100vh;height:100dvh;width:100vw;position:relative
 .action-btn-top:active{background:var(--gold-soft);border-color:var(--gold)}
 
 /* INDICATOR text */
-.scen-indica{position:absolute;top:50px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.85);backdrop-filter:blur(10px);border:1px solid var(--gold-border);border-radius:100px;padding:6px 14px;font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.5px;z-index:10;max-width:90%;text-align:center;animation:fadeInDown .3s both}
+.scen-indica{position:fixed;top:calc(62px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);background:rgba(0,0,0,.88);backdrop-filter:blur(10px);border:1px solid var(--gold-border);border-radius:100px;padding:6px 16px;font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.5px;z-index:450;max-width:88%;text-align:center;animation:fadeInDown .3s both;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @keyframes fadeInDown{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 
-/* DICA POPUP — aparece NO TOPO durante simulação (debaixo do pill) */
-.dica-popup{position:absolute;top:54px;left:14px;right:14px;background:rgba(0,0,0,.92);backdrop-filter:blur(12px);border:2px solid var(--gold);border-radius:11px;padding:10px 14px;z-index:15;animation:slideDownFade .35s both;display:none}
+/* DICA POPUP — position:fixed para garantir visibilidade sempre */
+.dica-popup{position:fixed;top:calc(60px + env(safe-area-inset-top));left:14px;right:14px;background:rgba(0,0,0,.94);backdrop-filter:blur(14px);border:2px solid var(--gold);border-radius:11px;padding:10px 14px;z-index:500;animation:slideDownFade .35s both;display:none;max-width:480px;margin:0 auto}
 .dica-popup.show{display:block}
 @keyframes slideDownFade{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
 @keyframes slideUpFade{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
@@ -133,8 +133,8 @@ body{margin:0;padding:0;height:100vh;height:100dvh;width:100vw;position:relative
 .fb-actions .btn-icon-side{padding:10px 12px;font-size:13px}
 
 /* === MODE 2: SIMULAÇÕES — same UI but no decision === */
-.sim-info-modal{position:absolute;bottom:65px;left:10px;right:10px;background:rgba(15,20,15,.96);backdrop-filter:blur(14px);border:1px solid var(--gold-border);border-radius:12px;padding:12px;z-index:20;display:none;max-height:50vh;overflow-y:auto;padding-bottom:14px}
-.sim-info-modal.show{display:block;animation:slideUpFade .3s both}
+.sim-info-modal{position:fixed;top:calc(60px + env(safe-area-inset-top));left:10px;right:10px;background:rgba(10,16,10,.97);backdrop-filter:blur(14px);border:1px solid var(--gold-border);border-radius:12px;padding:14px;z-index:400;display:none;max-height:65vh;overflow-y:auto;padding-bottom:14px;max-width:500px;margin:0 auto}
+.sim-info-modal.show{display:block;animation:slideDownFade .3s both}
 .sim-info-tag{font-size:8px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:5px}
 .sim-info-title{font-size:14px;font-weight:700;color:#fff;margin-bottom:6px;line-height:1.2}
 .sim-info-desc{font-size:12px;color:var(--slate);line-height:1.5;margin-bottom:10px}
@@ -748,6 +748,7 @@ function reproduzirCen() {
     const elapsed = now - cenAnimStart;
     const f = getInterpolatedFrame(activeCenario.frames, elapsed, (txt, type) => {
       if (type === 'indica') document.getElementById('cenIndica').textContent = txt;
+      if (type === 'dica') showDicaPopup(txt);
     });
     renderFrameInto('cenGPlayers','cenGBall', f);
     if (elapsed < activeCenario.duracao) {
