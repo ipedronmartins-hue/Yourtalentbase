@@ -227,11 +227,30 @@
   overflow: hidden;
 }
 
+/* ════════════════════════════════════════
+   FIX · Cabeças cortadas nas fotos atletas
+   ════════════════════════════════════════ */
 .atleta-foto img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center 12%;   /* puxa para cima para mostrar a cabeça */
   display: block;
+  transition: transform .5s cubic-bezier(.16,1,.3,1);
+}
+
+/* Hover suave (apenas desktop) */
+@media (hover:hover) {
+  .atleta-card-pub:hover .atleta-foto img {
+    transform: scale(1.04);
+  }
+}
+
+/* Mobile · garantir cabeça visível em ecrãs pequenos */
+@media (max-width: 520px) {
+  .atleta-foto img {
+    object-position: center 8%;
+  }
 }
 
 .atleta-avatar {
