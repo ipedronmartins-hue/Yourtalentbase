@@ -3,623 +3,388 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>YourTalentBase · Acompanhamos jovens promessas do futebol</title>
-<meta name="description" content="Acompanhamos jovens futebolistas com Scout Reports, treino diário em casa e visibilidade junto de clubes. Norte de Portugal.">
-<meta property="og:title" content="YourTalentBase">
-<meta property="og:description" content="Plataforma de desenvolvimento individual para jovens futebolistas. Scout Report + Elite Coach + Treino. Reavaliação trimestral.">
-<meta property="og:type" content="website">
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/ytb-public.css?v=20260505">
+<title>YourTalentBase · Scouting 360 · BD Nacional do Talento Jovem</title>
+<meta name="description" content="A base de dados nacional do talento jovem português. IA contextual avalia atletas reais. Inscrição grátis. Clubes descobrem.">
+<meta property="og:title" content="YourTalentBase · Scouting 360">
+<meta property="og:description" content="A BD nacional do talento jovem português. IA contextual. Inscrição grátis.">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,700;0,800;0,900;1,900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{
   --bg:#080C08;--bg2:#0F1410;--bg3:#161D17;
   --gold:#D4AF37;--gold-soft:rgba(212,175,55,.15);--gold-border:rgba(212,175,55,.3);
-  --green:#00D46A;--blue:#4A9FE8;
+  --gold-bright:#F5C842;--gold-deep:#A8862C;
+  --green:#00D46A;--orange:#FFA500;--red:#FF4A4A;--blue:#4A9FE8;--purple:#A78BFA;
+  --silver:#C0C0C0;--bronze:#CD7F32;
   --border:#1F2520;--white:#fff;--slate:#aaa;--muted:#666;
 }
-html,body{background:var(--bg);color:var(--white);font-family:'Plus Jakarta Sans',sans-serif;min-height:100vh}
-body{max-width:520px;margin:0 auto;padding-bottom:40px}
+html{scroll-behavior:smooth}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:#fff;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 
-/* NAV */
-.nav{position:sticky;top:0;z-index:50;background:rgba(8,12,8,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:14px 18px;display:flex;align-items:center;justify-content:space-between}
-.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
-.nav-badge{width:32px;height:32px;background:var(--gold);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:900;font-size:13px;color:#000}
-.nav-name{font-family:'Barlow Condensed';font-weight:800;font-size:18px;letter-spacing:1.5px;color:#fff}
-.nav-name span{color:var(--gold)}
-.nav-cta{background:var(--gold);color:#000;padding:8px 14px;border-radius:8px;font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;text-decoration:none}
+.nav{position:sticky;top:0;z-index:50;background:rgba(8,12,8,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-inner{max-width:1280px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo-b{width:34px;height:34px;background:var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:900;font-size:13px;color:#000}
+.logo-n{font-family:'Barlow Condensed';font-weight:800;font-size:18px;letter-spacing:2px}
+.logo-n span{color:var(--gold)}
+.nav-r{display:flex;align-items:center;gap:8px}
+.nav-cta{font-size:10px;font-weight:800;letter-spacing:1.5px;text-decoration:none;padding:8px 14px;font-family:'Barlow Condensed';text-transform:uppercase}
+.nav-cta-pri{background:var(--gold);color:#000}
+.nav-cta-sec{color:#fff;border:1px solid var(--gold-border)}
+.nav-cta-sec:hover{background:var(--gold-soft)}
 
-/* HERO */
-.hero{padding:36px 22px 24px;text-align:center}
-.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:10px;font-weight:800;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:14px;background:var(--gold-soft);border:1px solid var(--gold-border);padding:6px 14px;border-radius:100px}
-.hero-eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px var(--gold)}
-.hero-title{font-family:'Barlow Condensed';font-weight:900;font-size:42px;line-height:1;letter-spacing:-1.5px;margin-bottom:14px;color:#fff}
-.hero-title span{color:var(--gold)}
-.hero-sub{font-size:14px;color:var(--slate);font-weight:300;line-height:1.55;margin-bottom:22px;padding:0 8px}
-.hero-cta{display:flex;flex-direction:column;gap:8px;max-width:320px;margin:0 auto}
-.btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 18px;border-radius:10px;font-size:13px;font-weight:800;letter-spacing:.5px;text-decoration:none;border:none;cursor:pointer;font-family:inherit;transition:all .15s}
-.btn-primary{background:var(--gold);color:#000}
-.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(212,175,55,.3)}
-.btn-ghost{background:transparent;color:#fff;border:1px solid var(--border)}
-.btn-wa{background:rgba(37,211,102,.12);color:#25D366;border:1px solid rgba(37,211,102,.4)}
+.hero{padding:50px 20px 30px;text-align:center;background:radial-gradient(ellipse at top,rgba(212,175,55,.06),transparent 70%);position:relative}
+.hero-inner{max-width:980px;margin:0 auto}
+.hero-tag{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:800;letter-spacing:3px;color:var(--gold);text-transform:uppercase;padding:6px 12px;border:1px solid var(--gold-border);background:rgba(212,175,55,.05);margin-bottom:18px}
+.hero-tag::before{content:'⚡';font-size:12px}
+.hero-h1{font-family:'Barlow Condensed';font-weight:900;font-size:clamp(36px,7vw,68px);line-height:.95;letter-spacing:-2px;margin-bottom:14px}
+.hero-h1 em{color:var(--gold);font-style:italic}
+.hero-sub{font-size:clamp(13px,2.2vw,16px);color:var(--slate);max-width:680px;margin:0 auto 24px;line-height:1.55}
+.hero-sub strong{color:#fff}
+.hero-cta-row{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:30px}
+.hero-cta{display:inline-flex;align-items:center;gap:8px;padding:14px 24px;font-family:'Barlow Condensed';font-weight:900;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;text-decoration:none}
+.hero-cta-pri{background:var(--gold);color:#000}
+.hero-cta-pri:hover{background:var(--gold-bright);transform:translateY(-2px)}
+.hero-cta-sec{background:transparent;color:#fff;border:2px solid var(--gold-border)}
+.hero-cta-sec:hover{background:var(--gold-soft);border-color:var(--gold)}
 
-/* STATS */
-.stats{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;padding:0 18px;margin-bottom:28px}
-.stat{text-align:center;padding:12px 6px;background:var(--bg2);border:1px solid var(--border);border-radius:10px}
-.stat-n{font-family:'Barlow Condensed';font-weight:900;font-size:24px;color:var(--gold);line-height:1}
-.stat-l{font-size:9px;color:var(--slate);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-top:4px}
+.kpi-row{display:flex;justify-content:center;gap:30px;flex-wrap:wrap;margin-bottom:30px}
+.kpi{text-align:center}
+.kpi-n{font-family:'Barlow Condensed';font-weight:900;font-size:28px;color:var(--gold);line-height:1}
+.kpi-l{font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:4px;font-weight:700}
 
-/* SECTION */
-.section{padding:24px 18px}
-.section-title{font-family:'Barlow Condensed';font-weight:900;font-size:28px;color:#fff;letter-spacing:-.5px;text-align:center;margin-bottom:6px;line-height:1}
-.section-title span{color:var(--gold)}
-.section-sub{font-size:12px;color:var(--slate);text-align:center;margin-bottom:20px}
+.desc-section{padding:30px 20px;background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.desc-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+@media (max-width:768px){.desc-inner{grid-template-columns:1fr}}
+.desc-cell{padding:14px 4px}
+.desc-icon{font-size:22px;margin-bottom:8px}
+.desc-title{font-family:'Barlow Condensed';font-weight:900;font-size:16px;color:var(--gold);letter-spacing:-.3px;margin-bottom:5px;text-transform:uppercase}
+.desc-text{font-size:12px;color:var(--slate);line-height:1.6}
 
-/* COMO FUNCIONA */
-.steps{display:flex;flex-direction:column;gap:10px}
-.step{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;display:flex;gap:14px;align-items:flex-start}
-.step-num{width:32px;height:32px;background:var(--gold);color:#000;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:900;font-size:16px;flex-shrink:0}
-.step-content{flex:1;min-width:0}
-.step-title{font-size:14px;font-weight:700;color:#fff;margin-bottom:4px}
-.step-text{font-size:12px;color:var(--slate);line-height:1.55}
 
-/* PLANS */
-.plans{display:flex;flex-direction:column;gap:12px}
-.plan{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px;position:relative;display:flex;flex-direction:column}
-.plan.featured{border-color:var(--gold);background:linear-gradient(135deg,rgba(212,175,55,.08),rgba(0,0,0,.3))}
-.plan.featured::before{content:'★ MAIS POPULAR';position:absolute;top:-9px;left:18px;background:var(--gold);color:#000;font-size:9px;font-weight:900;letter-spacing:1.5px;padding:3px 9px;border-radius:100px}
-.plan-tag{display:inline-block;font-size:9px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:8px;background:rgba(212,175,55,.12);padding:4px 10px;border-radius:100px;border:1px solid var(--gold-border);align-self:flex-start}
-.plan-tag.tag-blue{color:#4A9FE8;background:rgba(74,159,232,.12);border-color:rgba(74,159,232,.3)}
-.plan-tag.tag-grey{color:var(--slate);background:rgba(255,255,255,.04);border-color:var(--border)}
-.plan-tag.tag-orange{color:#FFA500;background:rgba(255,165,0,.12);border-color:rgba(255,165,0,.3)}
-.plan-header{display:flex;justify-content:space-between;align-items:start;gap:8px;margin-bottom:6px}
-.plan-name{font-family:'Barlow Condensed';font-weight:900;font-size:24px;color:#fff;line-height:1}
-.plan-price{font-family:'Barlow Condensed';font-weight:900;font-size:22px;color:var(--gold);line-height:1;text-align:right;flex-shrink:0}
-.plan-desc{font-size:12px;color:var(--slate);line-height:1.55;margin-bottom:14px}
-.plan-quem{font-size:11px;color:#fff;line-height:1.5;background:rgba(255,255,255,.03);border-left:2px solid var(--gold);padding:9px 12px;border-radius:0 8px 8px 0;margin-bottom:14px}
-.plan-quem strong{color:var(--gold);font-weight:700;letter-spacing:.5px;text-transform:uppercase;font-size:9px;display:block;margin-bottom:3px}
-.plan-features{list-style:none;font-size:12px;color:#fff;margin-bottom:14px}
-.plan-features li{padding:4px 0;display:flex;align-items:flex-start;gap:8px;line-height:1.4}
-.plan-features li::before{content:'✓';color:var(--gold);font-weight:900;flex-shrink:0}
-.plan-cta{display:block;background:var(--gold);color:#000;text-align:center;padding:12px;border-radius:9px;text-decoration:none;font-weight:800;font-size:13px;letter-spacing:.3px;margin-top:auto;transition:all .15s}
-.plan-cta:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(212,175,55,.3)}
-.plan-cta.cta-secondary{background:var(--bg3);color:#fff;border:1px solid var(--border)}
-.plan-cta.cta-wa{background:#25D366;color:#000}
+.perfis-section{padding:60px 20px;background:var(--bg2)}
+.perfis-grid{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:768px){.perfis-grid{grid-template-columns:1fr}}
+.perfil-card{background:linear-gradient(135deg,var(--bg) 0%,var(--bg3) 100%);border:1px solid var(--border);padding:36px 28px;text-decoration:none;color:#fff;transition:all .25s;position:relative;overflow:hidden;display:flex;flex-direction:column;min-height:280px}
+.perfil-card:hover{border-color:var(--gold);transform:translateY(-3px);box-shadow:0 12px 35px rgba(212,175,55,.1)}
+.perfil-card::before{content:'';position:absolute;top:-50%;right:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(212,175,55,.1) 0%,transparent 60%);opacity:0;transition:opacity .25s}
+.perfil-card:hover::before{opacity:1}
+.perfil-tag{font-size:10px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:14px;position:relative;z-index:1}
+.perfil-icon{font-size:48px;margin-bottom:14px;position:relative;z-index:1}
+.perfil-title{font-family:'Barlow Condensed';font-weight:900;font-size:46px;line-height:.9;letter-spacing:-1.5px;margin-bottom:6px;position:relative;z-index:1}
+.perfil-title em{color:var(--gold);font-style:italic}
+.perfil-desc{font-size:13px;color:var(--slate);line-height:1.5;margin-bottom:auto;padding-top:6px;position:relative;z-index:1}
+.perfil-arrow{font-family:'Barlow Condensed';font-weight:900;font-size:14px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-top:18px;display:flex;justify-content:space-between;align-items:center;position:relative;z-index:1}
 
-/* FAQ */
-.faq-item{background:var(--bg2);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;overflow:hidden}
-.faq-q{padding:14px 16px;font-size:13px;font-weight:700;color:#fff;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px}
-.faq-q::after{content:'+';color:var(--gold);font-size:18px;font-weight:900;transition:transform .2s;flex-shrink:0}
-.faq-item.open .faq-q::after{transform:rotate(45deg)}
-.faq-a{padding:0 16px 14px;font-size:12px;color:var(--slate);line-height:1.6;display:none}
-.faq-item.open .faq-a{display:block}
+.como-section{padding:60px 20px}
+.como-inner{max-width:1100px;margin:0 auto}
+.como-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:28px}
+@media (max-width:768px){.como-grid{grid-template-columns:1fr}}
+.como-step{background:var(--bg2);border:1px solid var(--border);padding:24px;position:relative}
+.como-num{font-family:'Barlow Condensed';font-weight:900;font-size:54px;color:var(--gold);line-height:1;margin-bottom:8px;opacity:.95}
+.como-title{font-family:'Barlow Condensed';font-weight:900;font-size:18px;color:#fff;letter-spacing:-.3px;margin-bottom:8px}
+.como-desc{font-size:12px;color:var(--slate);line-height:1.6}
 
-/* FOOTER */
-.footer{padding:30px 18px 0;text-align:center;border-top:1px solid var(--border);margin-top:30px}
-.footer-text{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;font-weight:700;margin-bottom:6px}
-.footer-text span{color:var(--gold)}
-.footer-link{font-size:11px;color:var(--slate);text-decoration:none}
+.produtos-section{padding:60px 20px;background:var(--bg2)}
+.produtos-grid{max-width:1280px;margin:28px auto 0;display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+@media (max-width:768px){.produtos-grid{grid-template-columns:1fr}}
+.produto-card{background:var(--bg);border:1px solid var(--border);padding:26px 22px;position:relative;display:flex;flex-direction:column}
+.produto-card.featured{border-color:var(--gold);background:linear-gradient(135deg,rgba(212,175,55,.06) 0%,var(--bg) 100%)}
+.produto-tag{font-size:9px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:10px}
+.produto-name{font-family:'Barlow Condensed';font-weight:900;font-size:24px;letter-spacing:-.5px;margin-bottom:4px}
+.produto-name em{color:var(--gold);font-style:italic}
+.produto-price{font-family:'Barlow Condensed';font-weight:900;font-size:32px;color:#fff;margin-bottom:6px;letter-spacing:-1px}
+.produto-price small{font-size:13px;color:var(--slate);font-weight:600}
+.produto-price em{color:var(--gold);font-style:normal}
+.produto-desc{font-size:12px;color:var(--slate);line-height:1.55;margin-bottom:14px}
+.produto-list{list-style:none;margin-bottom:18px;flex:1}
+.produto-list li{font-size:12px;color:#ccc;padding:5px 0 5px 22px;position:relative;line-height:1.45}
+.produto-list li::before{content:'✓';position:absolute;left:0;color:var(--gold);font-weight:900}
+.produto-list li.no::before{content:'×';color:var(--muted)}
+.produto-list li.no{color:var(--muted)}
+.produto-btn{display:block;text-align:center;padding:11px;font-family:'Barlow Condensed';font-weight:900;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;text-decoration:none;background:var(--gold);color:#000}
+.produto-btn.sec{background:transparent;color:#fff;border:1px solid var(--gold-border)}
+.produto-btn:hover{background:var(--gold-bright)}
+.produto-btn.sec:hover{background:var(--gold-soft)}
 
-/* ── TESTEMUNHOS ─────────────────────────────────────────────── */
-.testi-wrap{position:relative;margin:0 -18px}
-.testi-row{display:flex;gap:12px;overflow-x:auto;padding:4px 18px 16px;scrollbar-width:none;scroll-snap-type:x mandatory;cursor:grab}
-.testi-row::-webkit-scrollbar{display:none}
-.testi-row:active{cursor:grabbing}
-.testi-card{flex-shrink:0;width:280px;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px;display:flex;flex-direction:column;scroll-snap-align:start;transition:border-color .2s,transform .2s}
-.testi-card:hover{border-color:var(--gold-border);transform:translateY(-2px)}
-.testi-mark{font-family:'Barlow Condensed';font-weight:900;font-size:42px;color:var(--gold);line-height:.6;margin-bottom:4px}
-.testi-body{font-size:13px;line-height:1.6;color:#ddd;margin-bottom:14px;font-weight:300}
-.testi-body em{color:var(--gold);font-style:normal;font-weight:600}
-.testi-meta{display:flex;align-items:center;gap:10px;padding-top:14px;border-top:1px solid var(--border)}
-.testi-avatar{width:34px;height:34px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:900;font-size:13px;color:var(--gold);flex-shrink:0}
-.testi-info{display:flex;flex-direction:column;gap:0;min-width:0}
-.testi-name{font-family:'Barlow Condensed';font-weight:700;font-size:13px;color:#fff;letter-spacing:.3px}
-.testi-role{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--slate)}
-.testi-hint{font-size:10px;color:var(--muted);text-align:center;letter-spacing:1.5px;font-weight:600;text-transform:uppercase;margin-top:4px}
+.testem-section{padding:50px 20px;text-align:center}
+.testem{max-width:680px;margin:0 auto;background:var(--bg2);border-left:3px solid var(--gold);padding:20px 22px;font-size:13px;color:#ddd;line-height:1.6;text-align:left;font-style:italic;position:relative}
+.testem::before{content:'"';position:absolute;top:-6px;left:14px;font-family:'Barlow Condensed';font-size:54px;color:var(--gold);font-style:normal;line-height:1}
+.testem-auth{margin-top:12px;display:flex;align-items:center;gap:10px;font-style:normal}
+.testem-avatar{width:34px;height:34px;background:var(--gold);color:#000;font-family:'Barlow Condensed';font-weight:900;font-size:13px;display:flex;align-items:center;justify-content:center;border-radius:50%}
+.testem-info{font-size:11px}
+.testem-name{font-weight:700;color:#fff}
+.testem-role{color:var(--muted);font-size:10px;letter-spacing:1px;text-transform:uppercase}
 
-/* ── PATH CHOOSER (Sou Pai · Sou Profissional) ──────────────── */
-.path-chooser{padding:8px 18px 16px}
-.path-chooser-label{font-size:9px;font-weight:800;letter-spacing:3px;color:var(--gold);text-transform:uppercase;text-align:center;margin-bottom:10px}
-.path-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.path-card{background:linear-gradient(180deg,var(--bg2),var(--bg3));border:1.5px solid var(--border);border-radius:14px;padding:18px 12px 16px;text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;transition:all .2s;cursor:pointer;position:relative;overflow:hidden}
-.path-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--gold);transform:scaleX(0);transform-origin:left;transition:transform .3s}
-.path-card:hover{border-color:var(--gold-border);transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.4)}
-.path-card:hover::before{transform:scaleX(1)}
-.path-icon{width:46px;height:46px;border-radius:50%;background:var(--gold-soft);border:1px solid var(--gold-border);display:flex;align-items:center;justify-content:center;font-size:22px}
-.path-title{font-family:'Barlow Condensed';font-weight:900;font-size:17px;color:#fff;letter-spacing:.5px;line-height:1.1;text-transform:uppercase}
-.path-sub{font-size:10px;color:var(--slate);line-height:1.4;font-weight:500}
-.path-arrow{font-size:11px;color:var(--gold);font-weight:800;letter-spacing:2px;margin-top:2px}
-
-/* ── AREA DIVIDERS ──────────────────────────────────────────── */
-.area-divider{padding:28px 18px 8px;text-align:center;position:relative}
-.area-divider::before{content:'';position:absolute;top:38px;left:18px;right:18px;height:1px;background:linear-gradient(90deg,transparent,var(--gold-border),transparent)}
-.area-divider-tag{display:inline-block;background:var(--bg);position:relative;z-index:1;padding:0 14px;font-size:10px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--gold)}
-.area-divider-tag.tag-blue{color:#4A9FE8}
-.area-divider-title{font-family:'Barlow Condensed';font-weight:900;font-size:26px;color:#fff;letter-spacing:-.5px;margin:10px 0 4px;line-height:1}
-.area-divider-title span{color:var(--gold)}
-.area-divider-title span.txt-blue{color:#4A9FE8}
-.area-divider-sub{font-size:12px;color:var(--slate);font-weight:400;line-height:1.5;max-width:420px;margin:0 auto}
-
-/* ── SHARED ZONE (YTB League) ───────────────────────────────── */
-.shared-zone{padding:22px 18px 8px;text-align:center}
-.shared-zone-label{font-size:9px;font-weight:800;letter-spacing:3px;color:#00D46A;text-transform:uppercase;margin-bottom:6px}
-.shared-zone-title{font-family:'Barlow Condensed';font-weight:900;font-size:24px;color:#fff;letter-spacing:-.3px;margin-bottom:14px;line-height:1.1}
-
-/* ════════════════════════════════════════════
-   METRO HERO · Botões grandes estilo WP
-   ════════════════════════════════════════════ */
-.metro-hero{padding:24px 18px 30px;display:flex;flex-direction:column;align-items:center}
-.metro-eyebrow{font-size:10px;font-weight:800;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:14px}
-.metro-title{font-family:'Barlow Condensed';font-weight:900;font-size:44px;line-height:.95;letter-spacing:-1.5px;text-align:center;margin-bottom:8px;color:#fff}
-.metro-title span{color:var(--gold);font-style:italic}
-.metro-sub{font-size:13px;line-height:1.55;color:var(--slate);text-align:center;max-width:420px;margin:0 auto 24px}
-
-/* GRID: 2 botões + logo central */
-.metro-grid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto;gap:10px;width:100%;max-width:520px;position:relative}
-.metro-btn{position:relative;padding:30px 18px 30px;text-decoration:none;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:6px;min-height:170px;transition:transform .15s,filter .15s;overflow:hidden}
-.metro-btn:active{transform:scale(.97)}
-.metro-btn::after{content:'→';position:absolute;bottom:14px;right:16px;font-size:24px;font-weight:900;line-height:1}
-
-/* Botão FAMÍLIA · dourado sólido */
-.metro-btn-familia{background:var(--gold);color:#000;border:none}
-.metro-btn-familia::after{color:#000}
-.metro-btn-familia .metro-btn-kicker{color:rgba(0,0,0,.6)}
-.metro-btn-familia .metro-btn-title{color:#000}
-.metro-btn-familia .metro-btn-desc{color:rgba(0,0,0,.65)}
-
-/* Botão CLUBE · preto sólido com borda */
-.metro-btn-clube{background:#000;color:#fff;border:2px solid var(--gold)}
-.metro-btn-clube::after{color:var(--gold)}
-.metro-btn-clube .metro-btn-kicker{color:var(--gold)}
-.metro-btn-clube .metro-btn-title{color:#fff}
-.metro-btn-clube .metro-btn-desc{color:#aaa}
-
-.metro-btn-kicker{font-size:10px;font-weight:800;letter-spacing:3px;text-transform:uppercase;line-height:1;margin-bottom:2px}
-.metro-btn-title{font-family:'Barlow Condensed';font-weight:900;font-size:32px;line-height:.95;letter-spacing:-1px;text-transform:uppercase}
-.metro-btn-desc{font-size:11px;font-weight:500;line-height:1.45;margin-top:4px}
-
-/* Logo YTB central · entre os 2 botões na linha 2 */
-.metro-logo{grid-column:1 / 3;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px 0 4px;gap:8px}
-.metro-logo-mark{width:60px;height:60px;background:var(--gold);border-radius:0;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:900;font-size:24px;color:#000;letter-spacing:1px}
-.metro-logo-text{font-family:'Barlow Condensed';font-weight:900;font-size:14px;letter-spacing:5px;color:#fff;text-transform:uppercase}
-.metro-logo-text span{color:var(--gold)}
-.metro-logo-tag{font-size:9px;font-weight:800;letter-spacing:2.5px;color:var(--muted);text-transform:uppercase;text-align:center}
-
-/* Botão YTB League · linha completa cinza/dourado */
-.metro-league-btn{grid-column:1 / 3;display:flex;align-items:center;gap:14px;padding:18px 20px;background:linear-gradient(135deg,#1a1a1a,#0a0a0a);border:2px solid var(--gold-border);text-decoration:none;transition:all .15s;position:relative}
-.metro-league-btn:active{transform:scale(.97);border-color:var(--gold)}
-.metro-league-btn-icon{font-size:32px;line-height:1;flex-shrink:0}
-.metro-league-btn-body{flex:1;text-align:left}
-.metro-league-btn-kicker{font-size:9px;font-weight:800;letter-spacing:2.5px;color:#00D46A;text-transform:uppercase;margin-bottom:2px}
-.metro-league-btn-title{font-family:'Barlow Condensed';font-weight:900;font-size:22px;color:var(--gold);letter-spacing:.5px;text-transform:uppercase;line-height:1;margin-bottom:3px}
-.metro-league-btn-desc{font-size:11px;color:var(--slate);font-weight:500;line-height:1.4}
-.metro-league-btn-arrow{font-size:24px;color:var(--gold);font-weight:900}
-
-/* Mobile-tweak: stack botões em ecrãs muito pequenos */
-@media (max-width:380px){
-  .metro-grid{grid-template-columns:1fr}
-  .metro-logo{grid-column:auto;order:99;border-top:1px solid var(--border);margin-top:4px;padding-top:14px}
-  .metro-league-btn{grid-column:auto}
-  .metro-btn{min-height:140px}
-}
+.footer{padding:30px 20px;border-top:1px solid var(--border);text-align:center;font-size:11px;color:var(--muted);background:var(--bg)}
+.footer a{color:var(--slate);text-decoration:none;margin:0 7px}
+.footer a:hover{color:var(--gold)}
+.footer-cred{margin-top:10px;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
 
 </style>
 </head>
 <body>
 
 <nav class="nav">
-  <a href="/" class="nav-logo">
-    <div class="nav-badge">YT</div>
-    <div class="nav-name">Your<span>Talent</span>Base</div>
-  </a>
-  <a href="inscrever.html" class="nav-cta">Inscrever</a>
+  <div class="nav-inner">
+    <a href="/" class="logo">
+      <div class="logo-b">YT</div>
+      <div class="logo-n">Your<span>Talent</span>Base</div>
+    </a>
+    <div class="nav-r">
+      <a href="inscrever.html" class="nav-cta nav-cta-sec">Inscrever</a>
+      <a href="auth.html" class="nav-cta nav-cta-pri">🔐 Login</a>
+    </div>
+  </div>
 </nav>
 
-<!-- ════════════════════════════════════════════════
-     METRO HERO · Sou Pai · Sou Clube · YTB · Liga
-     ════════════════════════════════════════════════ -->
-<section class="metro-hero">
-  <div class="metro-eyebrow">⚽ Scouting · Formação · Gestão · Portugal</div>
-  <h1 class="metro-title">O teu filho vale<br>mais que <span>um número.</span></h1>
-  <p class="metro-sub">Scout Reports profissionais, treino diário em casa e visibilidade real junto de clubes e olheiros. Feito por scouts portugueses.</p>
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-tag">Scouting 360 · BD Nacional · IA Contextual</div>
+    <h1 class="hero-h1">A montra do <em>talento jovem</em><br>do futebol português.</h1>
+    <p class="hero-sub">
+      A IA analisa o <strong>contexto competitivo</strong> de cada atleta: idade biológica vs escalão, minutos jogados, classificação da equipa, divisão da competição. Detecta talento real e expõe estatísticas inflacionadas. <strong>Inscrição grátis. Visibilidade orgânica. Sub-9 a Seniores.</strong>
+    </p>
 
-  <div class="metro-grid">
-
-    <!-- BOTÃO 1 · FAMÍLIA (DOURADO) -->
-    <a href="#area-familia" class="metro-btn metro-btn-familia">
-      <span class="metro-btn-kicker">👨‍👧 Para a Família</span>
-      <span class="metro-btn-title">Sou<br>Pai</span>
-      <span class="metro-btn-desc">Inscrever · Scout Report · Treino em casa · Evolução</span>
-    </a>
-
-    <!-- BOTÃO 2 · CLUBE/AGENTE (PRETO) -->
-    <a href="#area-profissionais" class="metro-btn metro-btn-clube">
-      <span class="metro-btn-kicker">🎯 Profissional</span>
-      <span class="metro-btn-title">Sou<br>Clube</span>
-      <span class="metro-btn-desc">Scout · Agente · Treinador · Ferramentas pro</span>
-    </a>
-
-    <!-- LOGO YTB CENTRAL · entre os 2 botões -->
-    <div class="metro-logo">
-      <div class="metro-logo-mark">YT</div>
-      <div class="metro-logo-text">Your<span>Talent</span>Base</div>
-      <div class="metro-logo-tag">Beta · Aberto a todo o País</div>
+    <div class="hero-cta-row">
+      <a href="inscrever.html" class="hero-cta hero-cta-pri">⚽ Inscrever Atleta · Grátis</a>
+      <a href="scouting360.html" class="hero-cta hero-cta-sec">🔍 Ver Base Pública</a>
     </div>
 
-    <!-- BOTÃO 3 · YTB LEAGUE (full-width) -->
-    <a href="liga.html" class="metro-league-btn">
-      <span class="metro-league-btn-icon">⚽</span>
-      <div class="metro-league-btn-body">
-        <div class="metro-league-btn-kicker">🟢 Beta · Aberto a Todos · Grátis</div>
-        <div class="metro-league-btn-title">YTB League</div>
-        <div class="metro-league-btn-desc">3 jogos/semana · Qua · Sex · Dom 21h</div>
-      </div>
-      <span class="metro-league-btn-arrow">→</span>
+    <div class="kpi-row">
+      <div class="kpi"><div class="kpi-n" id="kpi-atletas">—</div><div class="kpi-l">Atletas</div></div>
+      <div class="kpi"><div class="kpi-n" id="kpi-clubes">—</div><div class="kpi-l">Clubes</div></div>
+      <div class="kpi"><div class="kpi-n" id="kpi-assoc">—</div><div class="kpi-l">Associações</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="desc-section">
+  <div class="desc-inner">
+    <div class="desc-cell">
+      <div class="desc-icon">🛡️</div>
+      <div class="desc-title">Anti-spam ZeroZero</div>
+      <div class="desc-text">Cada atleta tem perfil obrigatório no ZeroZero ou Joga+ FPF. Garantia de identidade real e dados verificáveis.</div>
+    </div>
+    <div class="desc-cell">
+      <div class="desc-icon">🧠</div>
+      <div class="desc-title">IA Contextual + Lie Detector</div>
+      <div class="desc-text">A análise pesa o nível competitivo, idade biológica, minutos jogados e classificação da equipa. Detecta inflação estatística.</div>
+    </div>
+    <div class="desc-cell">
+      <div class="desc-icon">💼</div>
+      <div class="desc-title">Mediação RGPD</div>
+      <div class="desc-text">Clubes nunca acedem directamente a contactos. Pedido mediado pelo Admin YTB. Encarregado de Educação decide sempre.</div>
+    </div>
+  </div>
+</section>
+
+<section class="perfis-section">
+  <div class="section-head">
+    <div class="section-eye">Acede ao teu mundo</div>
+    <h2 class="section-h2">Quem és tu?</h2>
+  </div>
+
+  <div class="perfis-grid">
+
+    <a href="pais.html" class="perfil-card">
+      <div class="perfil-tag">👨‍👧 Para a Família</div>
+      <div class="perfil-icon">👨‍👧</div>
+      <div class="perfil-title">SOU <em>PAI</em></div>
+      <div class="perfil-desc">Inscreve o teu filho · Scout Report · Plataforma YTB Pro · Treino em casa · Evolução acompanhada por treinador certificado.</div>
+      <div class="perfil-arrow"><span>Entrar →</span><span style="font-size:24px">→</span></div>
+    </a>
+
+    <a href="scouts.html" class="perfil-card">
+      <div class="perfil-tag">🎯 Profissional</div>
+      <div class="perfil-icon">🎯</div>
+      <div class="perfil-title">SOU <em>CLUBE</em></div>
+      <div class="perfil-desc">Scout · Agente · Treinador · Director Técnico. Acede ao Scouting 360 · ferramentas pro · BD nacional desbloqueada.</div>
+      <div class="perfil-arrow"><span>Entrar →</span><span style="font-size:24px">→</span></div>
     </a>
 
   </div>
 </section>
 
-<div class="stats">
-  <div class="stat"><div class="stat-n">25+</div><div class="stat-l">Critérios</div></div>
-  <div class="stat"><div class="stat-n">48h</div><div class="stat-l">Entrega</div></div>
-  <div class="stat"><div class="stat-n">39,90€</div><div class="stat-l">Scout</div></div>
-  <div class="stat"><div class="stat-n">9,90€</div><div class="stat-l">Família/mês</div></div>
-</div>
-
-<!-- ════════════════════════════════════════════════
-     ÁREA FAMÍLIA · ancora #area-familia
-     ════════════════════════════════════════════════ -->
-<div id="area-familia" style="padding:28px 18px 4px;text-align:center">
-  <div style="font-size:10px;font-weight:800;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:6px">👨‍👧 Para a Família</div>
-  <div style="font-family:'Barlow Condensed';font-weight:900;font-size:22px;color:#fff;letter-spacing:-.3px">Tudo o que precisas se és <span style="color:var(--gold)">pai ou mãe</span></div>
-</div>
-
-<!-- LOGIN FAMÍLIA · só para esta área -->
-<section style="padding:6px 18px 8px">
-  <div style="font-size:9px;font-weight:800;letter-spacing:3px;color:var(--gold);text-transform:uppercase;text-align:center;margin-bottom:4px">🔐 Já tens conta?</div>
-  <div style="font-size:10px;color:var(--slate);text-align:center;margin-bottom:12px;letter-spacing:.3px">Acede à tua plataforma YTB Pro Família</div>
-
-  <a href="pais.html" style="display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,var(--bg2),var(--bg3));border:1px solid var(--gold-border);border-radius:14px;padding:16px 18px;text-decoration:none;transition:all .15s">
-    <div style="font-size:32px;flex-shrink:0">👨‍👧</div>
-    <div style="flex:1;text-align:left">
-      <div style="font-size:13px;font-weight:800;color:var(--gold);letter-spacing:1px;text-transform:uppercase;margin-bottom:2px">Família · YTB Pro</div>
-      <div style="font-size:11px;color:var(--slate);line-height:1.4">Plano semanal, evolução do atleta, reavaliação 90 dias</div>
+<section class="como-section">
+  <div class="como-inner">
+    <div class="section-head">
+      <div class="section-eye">3 passos · sem fricção</div>
+      <h2 class="section-h2">Como <em>funciona</em></h2>
     </div>
-    <div style="font-size:18px;color:var(--gold);font-weight:900">→</div>
-  </a>
-</section>
 
-<!-- BASE TALENTOS · só este na área família -->
-<section style="padding:18px 18px 6px">
-  <a href="database.html" style="display:flex;align-items:center;gap:14px;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:16px 18px;text-decoration:none;transition:all .15s">
-    <div style="font-size:32px;flex-shrink:0">⚽</div>
-    <div style="flex:1;text-align:left">
-      <div style="font-size:13px;font-weight:800;color:var(--gold);letter-spacing:1px;text-transform:uppercase;margin-bottom:2px">Base de Talentos</div>
-      <div style="font-size:11px;color:var(--slate);line-height:1.4">Vê os atletas YTB · acesso livre · sem login</div>
-    </div>
-    <div style="font-size:18px;color:var(--gold);font-weight:900">→</div>
-  </a>
-</section>
-
-<section class="destaque-section">
-  <div id="atleta-destaque">
-    <div style="text-align:center;padding:40px;color:#666;font-size:13px">A carregar destaque...</div>
-  </div>
-</section>
-
-<section class="atletas-section">
-  <div class="section-title">Atletas <span>YTB</span></div>
-  <div class="section-sub">Acompanhamos jovens promessas em clubes do Norte de Portugal</div>
-  <div id="atletas-carousel"></div>
-  <div class="carousel-hint">👈 Arrasta · toca para trocar</div>
-  <div id="atletas-dots"></div>
-</section>
-
-<section class="section">
-  <div class="section-title">Como <span>Funciona</span></div>
-  <div class="section-sub">3 passos. Sem complicações.</div>
-  <div class="steps">
-    <div class="step">
-      <div class="step-num">1</div>
-      <div class="step-content">
-        <div class="step-title">Inscreves o teu filho</div>
-        <div class="step-text">Preenches dados básicos. Pagas 39,90€ pelo Scout Report inicial.</div>
+    <div class="como-grid">
+      <div class="como-step">
+        <div class="como-num">1</div>
+        <div class="como-title">Inscreve grátis</div>
+        <div class="como-desc">Pai, atleta, scout ou treinador inscreve o atleta. Link ZeroZero obrigatório (anti-spam). Consentimento RGPD.</div>
       </div>
-    </div>
-    <div class="step">
-      <div class="step-num">2</div>
-      <div class="step-content">
-        <div class="step-title">Recebes Scout Report em 48h</div>
-        <div class="step-text">25+ critérios técnicos, físicos, tácticos e mentais. PDF profissional por email.</div>
+      <div class="como-step">
+        <div class="como-num">2</div>
+        <div class="como-title">IA avalia contexto</div>
+        <div class="como-desc">Análise automática do contexto competitivo: idade vs escalão, minutos, classificação. Rating atribuído.</div>
       </div>
-    </div>
-    <div class="step">
-      <div class="step-num">3</div>
-      <div class="step-content">
-        <div class="step-title">Acompanhamos a evolução</div>
-        <div class="step-text">9,90€/mês. Treino diário, padrões tácticos e reavaliação a cada 90 dias.</div>
+      <div class="como-step">
+        <div class="como-num">3</div>
+        <div class="como-title">Clubes descobrem</div>
+        <div class="como-desc">Atleta visível na BD nacional. Clubes subscritores vêem detalhe completo. Contacto mediado pelo Admin YTB.</div>
       </div>
     </div>
   </div>
 </section>
 
-<section class="section" id="produtos">
-  <div class="section-title">Os nossos <span>produtos</span></div>
-  <div class="section-sub">4 caminhos consoante o que precisas</div>
-  <div class="plans">
+<section class="produtos-section">
+  <div class="section-head">
+    <div class="section-eye">4 produtos · 1 ecossistema</div>
+    <h2 class="section-h2">Os nossos <em>produtos</em></h2>
+    <p class="section-sub">Scouting 360 (BD nacional grátis) · Scout Report (avulso) · YTB Pro (acompanhamento) · Elite Coach (treino táctico).</p>
+  </div>
 
-    <!-- 1. PLATAFORMA COM TREINADOR (mais popular) -->
-    <div class="plan featured">
-      <span class="plan-tag">★ Plataforma · YTB Pro</span>
-      <div class="plan-header">
-        <div class="plan-name">Com Treinador</div>
-        <div class="plan-price">39€<br><span style="font-size:11px;color:var(--slate);font-weight:400">+ 9,90€/mês</span></div>
-      </div>
-      <div class="plan-desc">A solução completa. Atleta acompanhado por treinador certificado YTB através de Scout Report profissional inicial e plataforma integrada.</div>
-      <div class="plan-quem">
-        <strong>Para quem é</strong>
-        Atletas Sub-12 a Sub-19 que querem desenvolvimento sério com avaliação por treinador, plano táctico e treino prescrito mensalmente.
-      </div>
-      <ul class="plan-features">
-        <li><strong>Scout Report profissional</strong> (39,90€ inicial · 25+ critérios)</li>
-        <li>Elite Coach com 10 cenários táticos personalizados</li>
-        <li>Treino diário em casa, ligado às fraquezas detectadas</li>
-        <li>Reavaliação trimestral (90 dias)</li>
-        <li>Acompanhamento contínuo por treinador YTB</li>
+  <div class="produtos-grid">
+
+    <div class="produto-card featured">
+      <div class="produto-tag">★ Estrela · BD Pública</div>
+      <div class="produto-name">SCOUTING <em>360</em></div>
+      <div class="produto-price">Grátis <em>·</em> <small>premium B2B 49€/mês</small></div>
+      <div class="produto-desc">A base de dados nacional do talento jovem. Inscrição grátis para todos. Clubes pagam para acesso completo.</div>
+      <ul class="produto-list">
+        <li>Inscrição grátis · pai, atleta, scout ou treinador</li>
+        <li>IA contextual atribui rating automático</li>
+        <li>Vista pública: nome, posição, escalão, clube, rating</li>
+        <li>Premium B2B Clube Pro · 49€/mês · tudo desbloqueado</li>
+        <li>Contacto mediado · RGPD blindado</li>
       </ul>
-      <a href="inscrever.html?plano=treinador" class="plan-cta">Inscrever com Treinador →</a>
+      <a href="scouting360.html" class="produto-btn">🔓 Ver BD Pública</a>
     </div>
 
-    <!-- 2. PLATAFORMA COM PAIS -->
-    <div class="plan">
-      <span class="plan-tag tag-blue">Plataforma · YTB Pro</span>
-      <div class="plan-header">
-        <div class="plan-name">Com Família</div>
-        <div class="plan-price">14,90€<br><span style="font-size:11px;color:var(--slate);font-weight:400">+ 9,90€/mês</span></div>
-      </div>
-      <div class="plan-desc">Solução acessível para famílias autónomas. Avaliação por questionário comportamental do encarregado, plataforma e treino prescrito.</div>
-      <div class="plan-quem">
-        <strong>Para quem é</strong>
-        Pais que conhecem bem o filho e querem trabalhar a evolução em casa, sem necessitar de avaliação técnica presencial por treinador.
-      </div>
-      <ul class="plan-features">
-        <li>Questionário comportamental detalhado (14,90€ inicial)</li>
-        <li>Elite Coach com 10 cenários táticos</li>
-        <li>Treino diário em casa, baseado nas debilidades</li>
-        <li>Reavaliação trimestral (90 dias)</li>
-        <li><span style="color:var(--slate)">Sem Scout Report profissional</span></li>
-      </ul>
-      <a href="inscrever.html?plano=familia" class="plan-cta">Inscrever com Família →</a>
-    </div>
-
-    <!-- 3. VISIBILIDADE NOS CARDS -->
-    <div class="plan">
-      <span class="plan-tag tag-grey">Visibilidade</span>
-      <div class="plan-header">
-        <div class="plan-name">Cards no Site</div>
-        <div class="plan-price">9,90€<br><span style="font-size:11px;color:var(--slate);font-weight:400">/mês</span></div>
-      </div>
-      <div class="plan-desc">Exposição directa aos clubes e observadores que consultam a plataforma. Para atletas que não foram seleccionados como agenciados YTB mas merecem ser vistos.</div>
-      <div class="plan-quem">
-        <strong>Para quem é</strong>
-        Atletas que querem ser vistos. Aparecem no carrossel principal do site juntamente com os atletas YTB, mas sem o símbolo "YTB Acompanhado".
-      </div>
-      <ul class="plan-features">
-        <li>Card no carrossel principal da homepage</li>
-        <li>Foto, biografia e palmarés</li>
-        <li>2 publicações Instagram dedicadas/mês</li>
-        <li>Maior exposição a observadores</li>
-        <li><span style="color:var(--slate)">Sem plataforma · Sem treino prescrito</span></li>
-      </ul>
-      <a href="inscrever.html?plano=visibilidade" class="plan-cta cta-secondary">Subscrever Cards →</a>
-    </div>
-
-    <!-- 4. SCOUT REPORT AVULSO -->
-    <div class="plan" style="border-color:var(--gold-border)">
-      <span class="plan-tag tag-orange">Avulso · Sem subscrição</span>
-      <div class="plan-header">
-        <div class="plan-name">Scout Report Único</div>
-        <div class="plan-price">39,90€<br><span style="font-size:11px;color:var(--slate);font-weight:400">único</span></div>
-      </div>
-      <div class="plan-desc">Avaliação profissional pontual, sem compromisso mensal. PDF completo entregue em 48h por email.</div>
-      <div class="plan-quem">
-        <strong>Para quem é</strong>
-        Pais que querem saber objectivamente onde está o filho — pontos fortes, áreas a desenvolver e potencial — sem subscrever plataforma. Ideal para decisões de clube ou início de época.
-      </div>
-      <ul class="plan-features">
+    <div class="produto-card">
+      <div class="produto-tag">📋 Scout Report · Avulso</div>
+      <div class="produto-name">SCOUT <em>REPORT</em></div>
+      <div class="produto-price">39,90€ <small>· único · 48h</small></div>
+      <div class="produto-desc">Avaliação profissional pontual sem subscrição. PDF entregue em 48h por email.</div>
+      <ul class="produto-list">
         <li>25+ critérios técnicos, físicos, tácticos e mentais</li>
         <li>Perfil de posição (até 3 posições adequadas)</li>
         <li>Pontos fortes e áreas de desenvolvimento</li>
         <li>Plano sugerido de 30 dias</li>
-        <li>PDF profissional entregue em 48h</li>
+        <li>PDF profissional · sem subscrição</li>
       </ul>
-      <a href="scout-report.html" class="plan-cta">Encomendar Scout Report →</a>
+      <a href="scout-report.html" class="produto-btn sec">Encomendar Scout Report →</a>
+    </div>
+
+    <div class="produto-card">
+      <div class="produto-tag">⭐ YTB Pro · Com Treinador</div>
+      <div class="produto-name">YTB <em>PRO</em> · Treinador</div>
+      <div class="produto-price">39€ <small>+ 9,90€/mês</small></div>
+      <div class="produto-desc">Acompanhamento com treinador certificado YTB. Avaliação técnica presencial + plataforma + treino prescrito.</div>
+      <ul class="produto-list">
+        <li>Scout Report profissional inicial (39,90€)</li>
+        <li>Elite Coach · 10 cenários tácticos personalizados</li>
+        <li>Treino diário em casa ligado às fraquezas</li>
+        <li>Reavaliação trimestral (90 dias)</li>
+        <li>Treinador YTB acompanha continuamente</li>
+      </ul>
+      <a href="https://wa.me/351913695846?text=Ol%C3%A1!%20Tenho%20interesse%20no%20YTB%20Pro%20com%20Treinador%20(39%E2%82%AC%20%2B%209%2C90%E2%82%AC%2Fm%C3%AAs).%20Gostava%20de%20mais%20informa%C3%A7%C3%B5es." target="_blank" rel="noopener" class="produto-btn">Falar com YTB →</a>
+    </div>
+
+    <div class="produto-card">
+      <div class="produto-tag">👨‍👧 YTB Pro · Com Família</div>
+      <div class="produto-name">YTB <em>PRO</em> · Família</div>
+      <div class="produto-price">14,90€ <small>+ 9,90€/mês</small></div>
+      <div class="produto-desc">Solução acessível para famílias autónomas. Avaliação por questionário comportamental + plataforma e treino.</div>
+      <ul class="produto-list">
+        <li>Questionário comportamental detalhado (14,90€)</li>
+        <li>Elite Coach · 10 cenários tácticos</li>
+        <li>Treino diário em casa baseado nas debilidades</li>
+        <li>Reavaliação trimestral (90 dias)</li>
+        <li class="no">Sem Scout Report profissional</li>
+      </ul>
+      <a href="https://wa.me/351913695846?text=Ol%C3%A1!%20Tenho%20interesse%20no%20YTB%20Pro%20com%20Fam%C3%ADlia%20(14%2C90%E2%82%AC%20%2B%209%2C90%E2%82%AC%2Fm%C3%AAs).%20Gostava%20de%20mais%20informa%C3%A7%C3%B5es." target="_blank" rel="noopener" class="produto-btn sec">Falar com YTB →</a>
     </div>
 
   </div>
 
-  <div style="text-align:center;margin-top:18px;font-size:11px;color:var(--slate);line-height:1.6">
-    Pagamento via MB Way para 913 695 846. Comprovativo pelo WhatsApp.<br>
-    Em fase pilot. Stripe automático em breve.
+  <p style="text-align:center;font-size:11px;color:var(--muted);margin-top:24px;line-height:1.6">
+    Pagamento MB Way · 913 695 846 · Comprovativo por WhatsApp · Stripe automático em breve.
+  </p>
+</section>
+
+<section style="padding:60px 20px;background:linear-gradient(135deg,rgba(212,175,55,.05),transparent);text-align:center">
+  <div style="max-width:680px;margin:0 auto">
+    <div class="section-eye" style="margin-bottom:8px">★ Inscrição Livre · Grátis</div>
+    <h2 class="section-h2" style="margin-bottom:14px">Entra na <em>BD nacional</em></h2>
+    <p style="font-size:14px;color:var(--slate);line-height:1.6;margin-bottom:24px">
+      Inscreve qualquer atleta no <strong style="color:var(--gold)">Scouting 360</strong>. IA contextual avalia o atleta com base no escalão, minutos jogados e classificação da equipa. Clubes e olheiros descobrem talento real. <strong style="color:#fff">Sem custos. Sem compromisso.</strong>
+    </p>
+    <a href="inscrever.html" class="hero-cta hero-cta-pri" style="display:inline-flex">⚽ Inscrever no Scouting 360 →</a>
   </div>
 </section>
 
-<!-- INSCRIÇÃO LIVRE GRATUITA -->
-<section class="section" style="padding-top:0">
-  <div style="background:linear-gradient(135deg,rgba(74,159,232,.08),rgba(0,0,0,.3));border:1px solid rgba(74,159,232,.3);border-radius:14px;padding:20px;text-align:center">
-    <div style="font-size:9px;font-weight:800;letter-spacing:2.5px;color:#4A9FE8;text-transform:uppercase;margin-bottom:8px">★ Inscrição Livre · Grátis</div>
-    <div style="font-family:'Barlow Condensed';font-weight:900;font-size:24px;color:#fff;line-height:1.1;margin-bottom:8px">Achas que o teu filho<br>tem potencial?</div>
-    <div style="font-size:12px;color:var(--slate);line-height:1.55;margin-bottom:14px">Inscreve gratuitamente. Avaliamos em 48h se faz match para agenciamento. Sem custos, sem compromisso.</div>
-    <a href="inscrever.html?plano=agenciado_pendente" style="display:inline-block;background:#4A9FE8;color:#000;padding:11px 22px;border-radius:9px;text-decoration:none;font-weight:800;font-size:13px;letter-spacing:.3px">Inscrição Gratuita →</a>
+<section class="testem-section">
+  <div class="section-head" style="margin-bottom:20px">
+    <div class="section-eye">Quem usa</div>
+    <h2 class="section-h2">O que <em>dizem</em></h2>
   </div>
-</section>
 
-<!-- TESTEMUNHOS -->
-<section class="section">
-  <div class="section-title">O que <span>dizem</span></div>
-  <div class="section-sub">Scouts, pais e mães que já saíram do Word</div>
-
-  <div class="testi-wrap">
-    <div class="testi-row">
-
-      <article class="testi-card">
-        <div class="testi-mark">"</div>
-        <p class="testi-body">Ainda há três semanas chegava a casa ao domingo a tentar abrir o Word. Tabelas desformatavam-se, os pais diziam que não abria no telemóvel. Na YTB <em>clico três botões no campo</em> e o relatório sai limpo. Poupei horas de sono.</p>
-        <div class="testi-meta">
-          <div class="testi-avatar">RS</div>
-          <div class="testi-info"><span class="testi-name">Rui S.</span><span class="testi-role">Scout Distrital</span></div>
-        </div>
-      </article>
-
-      <article class="testi-card">
-        <div class="testi-mark">"</div>
-        <p class="testi-body">O antigo clube mandava folha em Word com cruzes no "Bom" ou "Suficiente". Ia para a gaveta. Agora a avaliação YTB <em>vem ligada à plataforma de treino</em>. O meu filho viu a nota baixa na leitura de jogo e a app sugeriu-lhe um exercício. Faz aquilo sozinho.</p>
-        <div class="testi-meta">
-          <div class="testi-avatar">CP</div>
-          <div class="testi-info"><span class="testi-name">Carlos P.</span><span class="testi-role">Pai · Sub-13</span></div>
-        </div>
-      </article>
-
-      <article class="testi-card">
-        <div class="testi-mark">"</div>
-        <p class="testi-body">Fazer relatórios em Word devia ser crime em 2026. Escrevia no caderno à chuva e depois não entendia a minha letra. Com a YTB faço o Scout Report <em>direto no telemóvel enquanto o jogo decorre</em>. Os miúdos recebem os pontos fracos e entram logo no Elite Coach.</p>
-        <div class="testi-meta">
-          <div class="testi-avatar">VM</div>
-          <div class="testi-info"><span class="testi-name">Vítor M.</span><span class="testi-role">Avaliador Independente</span></div>
-        </div>
-      </article>
-
-      <article class="testi-card">
-        <div class="testi-mark">"</div>
-        <p class="testi-body">O meu filho só queria saber se marcava golos. O relatório abriu-lhe os olhos para as pequenas coisas. O que o agarrou foi <em>a app de treino em casa</em>: domínio orientado, reacção à perda, com vídeos curtos. Faz no quintal e sente que evolui.</p>
-        <div class="testi-meta">
-          <div class="testi-avatar">CT</div>
-          <div class="testi-info"><span class="testi-name">Cláudia T.</span><span class="testi-role">Mãe · Sub-12</span></div>
-        </div>
-      </article>
-
-      <article class="testi-card">
-        <div class="testi-mark">"</div>
-        <p class="testi-body">Entregava relatórios em Word que pareciam trabalhos da secundária. Imagem amadora. Mudei para a YTB e o impacto é outro. Os pais recebem o link, vêem gráficos, os miúdos <em>saltam dali direto para os planos de treino</em>. De texto estático para ferramenta viva.</p>
-        <div class="testi-meta">
-          <div class="testi-avatar">AF</div>
-          <div class="testi-info"><span class="testi-name">André F.</span><span class="testi-role">Olheiro · Treinador</span></div>
-        </div>
-      </article>
-
-      <article class="testi-card">
-        <div class="testi-mark">"</div>
-        <p class="testi-body">Pensava que treinar em casa exigia relvado e três horas livres. O plano YTB foca em <em>10 minutos: agilidade de pés, pé fraco, decisões 1v1</em>. O Scout Report deu diagnóstico, os micro-treinos dão confiança com bola que se nota nos jogos de sábado.</p>
-        <div class="testi-meta">
-          <div class="testi-avatar">RJ</div>
-          <div class="testi-info"><span class="testi-name">Ricardo J.</span><span class="testi-role">Pai · Sub-14</span></div>
-        </div>
-      </article>
-
+  <div class="testem">
+    Ainda há três semanas chegava a casa ao domingo a tentar abrir o Word. Tabelas desformatavam-se, os pais diziam que não abria no telemóvel. Na YTB clico três botões no campo e o relatório sai limpo. Poupei horas de sono.
+    <div class="testem-auth">
+      <div class="testem-avatar">RS</div>
+      <div class="testem-info">
+        <div class="testem-name">Rui S.</div>
+        <div class="testem-role">Scout Distrital</div>
+      </div>
     </div>
-    <div class="testi-hint">👈 Arrasta para ver mais</div>
   </div>
-</section>
-
-<section class="section">
-  <div class="section-title"><span>FAQ</span></div>
-  <div class="section-sub">Dúvidas frequentes</div>
-  
-  <div class="faq-item" onclick="this.classList.toggle('open')">
-    <div class="faq-q">Como pago?</div>
-    <div class="faq-a">Por agora, MB Way para 913 695 846. Envias comprovativo via WhatsApp com o nome do atleta. Em breve, pagamento automático no site.</div>
-  </div>
-  
-  <div class="faq-item" onclick="this.classList.toggle('open')">
-    <div class="faq-q">O que recebo no Scout Report inicial?</div>
-    <div class="faq-a">PDF profissional com avaliação em 25+ critérios, perfil de posição (até 3 posições recomendadas), pontos fortes e áreas de desenvolvimento, e plano sugerido para 30 dias.</div>
-  </div>
-  
-  <div class="faq-item" onclick="this.classList.toggle('open')">
-    <div class="faq-q">Como funciona a reavaliação?</div>
-    <div class="faq-a">A cada 90 dias geramos novo Scout Report comparativo, mostrando evolução real. É o que permite ver se o teu filho está mesmo a crescer nas áreas trabalhadas.</div>
-  </div>
-  
-  <div class="faq-item" onclick="this.classList.toggle('open')">
-    <div class="faq-q">Posso cancelar quando quiser?</div>
-    <div class="faq-a">Sim. Não há fidelização. Se cancelares, o teu filho mantém o acesso até ao fim do mês pago.</div>
-  </div>
-  
-  <div class="faq-item" onclick="this.classList.toggle('open')">
-    <div class="faq-q">Para que escalões serve?</div>
-    <div class="faq-a">Sub-12 a Sub-19. O conteúdo do Elite Coach adapta-se à idade — Sub-13 vê conceitos diferentes de Sub-19.</div>
-  </div>
-</section>
-
-<!-- ════════════════════════════════════════════════
-     ZONA PROFISSIONAL · Compacta · Antes do footer
-     ════════════════════════════════════════════════ -->
-<section id="area-profissionais" style="margin:30px 18px 20px;padding:24px 20px;background:#000;border:2px solid var(--gold);border-radius:0">
-
-  <div style="text-align:center;margin-bottom:20px">
-    <div style="font-size:10px;font-weight:800;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:6px">🎯 Profissionais</div>
-    <div style="font-family:'Barlow Condensed';font-weight:900;font-size:26px;color:#fff;letter-spacing:-.5px;line-height:1">Tens credenciais?<br><span style="color:var(--gold)">Entra aqui.</span></div>
-  </div>
-
-  <!-- Grid 2x2 logins compactos -->
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px">
-
-    <a href="treinador.html" style="background:#0a0a0a;border:1px solid #333;border-radius:0;padding:14px 10px;text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;transition:all .15s">
-      <div style="font-size:22px;line-height:1">🧑‍🏫</div>
-      <div style="font-size:11px;font-weight:800;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase">Treinador</div>
-    </a>
-
-    <a href="scouts.html" style="background:#0a0a0a;border:1px solid #333;border-radius:0;padding:14px 10px;text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;transition:all .15s">
-      <div style="font-size:22px;line-height:1">🔍</div>
-      <div style="font-size:11px;font-weight:800;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase">Scout</div>
-    </a>
-
-    <a href="gondomar.html" style="background:#0a0a0a;border:1px solid #333;border-radius:0;padding:14px 10px;text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;transition:all .15s">
-      <div style="font-size:22px;line-height:1">🏟</div>
-      <div style="font-size:11px;font-weight:800;color:#4A9FE8;letter-spacing:1.5px;text-transform:uppercase">Clube GSC</div>
-    </a>
-
-    <a href="admin.html" style="background:#0a0a0a;border:1px solid #333;border-radius:0;padding:14px 10px;text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;transition:all .15s">
-      <div style="font-size:22px;line-height:1">🔒</div>
-      <div style="font-size:11px;font-weight:800;color:#FFA500;letter-spacing:1.5px;text-transform:uppercase">Admin</div>
-    </a>
-
-  </div>
-
-  <!-- Elite Coach (acesso livre) · linha única -->
-  <a href="elite-coach.html" style="display:flex;align-items:center;gap:12px;background:#0a0a0a;border:1px solid #00D46A;border-radius:0;padding:12px 14px;text-decoration:none;margin-bottom:6px">
-    <div style="font-size:22px;line-height:1;flex-shrink:0">🧠</div>
-    <div style="flex:1;text-align:left;min-width:0">
-      <div style="font-size:11px;font-weight:800;color:#00D46A;letter-spacing:1.5px;text-transform:uppercase;line-height:1">Elite Coach <span style="color:var(--muted);font-weight:600;letter-spacing:.5px">· Free</span></div>
-      <div style="font-size:10px;color:var(--slate);line-height:1.3;margin-top:2px">Acesso livre · Sem login</div>
-    </div>
-    <div style="font-size:14px;color:#00D46A;font-weight:900">→</div>
-  </a>
-
-  <!-- B2B teaser · linha única -->
-  <a href="https://wa.me/351913695846?text=Ol%C3%A1%2C%20sou%20clube%20e%20gostaria%20de%20saber%20mais%20sobre%20o%20departamento%20de%20scouting%20YTB" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:12px;background:transparent;border:1px dashed rgba(74,159,232,.4);border-radius:0;padding:12px 14px;text-decoration:none">
-    <div style="font-size:22px;line-height:1;flex-shrink:0">🚀</div>
-    <div style="flex:1;text-align:left;min-width:0">
-      <div style="font-size:11px;font-weight:800;color:#4A9FE8;letter-spacing:1.5px;text-transform:uppercase;line-height:1">Departamento Scouting</div>
-      <div style="font-size:10px;color:var(--slate);line-height:1.3;margin-top:2px">Outsourcing para clubes · Early access</div>
-    </div>
-    <div style="font-size:11px;color:#4A9FE8;font-weight:800">📱</div>
-  </a>
-
 </section>
 
 <footer class="footer">
-  <div class="footer-text">Your<span>Talent</span>Base · 2026</div>
-  <div style="display:flex;flex-direction:column;gap:6px;align-items:center;margin-top:6px">
-    <a href="https://www.instagram.com/yourtalentbase.pt" target="_blank" class="footer-link">📷 Instagram · @yourtalentbase.pt</a>
-    <a href="https://wa.me/351913695846" class="footer-link">📱 WhatsApp · 913 695 846</a>
-    <a href="mailto:yourtalentbase@gmail.com" class="footer-link">✉️ yourtalentbase@gmail.com</a>
-    <div style="font-size:9px;color:var(--muted);letter-spacing:1px;margin-top:8px;text-transform:uppercase">Parceiro oficial · Gondomar SC</div>
+  <div>
+    <a href="/">Home</a> ·
+    <a href="scouting360.html">Scouting 360</a> ·
+    <a href="inscrever.html">Inscrever</a> ·
+    <a href="auth.html">Login</a> ·
+    <a href="termos.html">Termos</a> ·
+    <a href="privacidade.html">Privacidade</a>
+  </div>
+  <div class="footer-cred">
+    © 2026 YourTalentBase · Gondomar · Portugal
   </div>
 </footer>
 
-<script src="assets/js/ytb-public.js?v=20260505"></script>
+<script>
+const SUPABASE_URL = 'https://nhshnplaiolxwcfuijfo.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oc2hucGxhaW9seHdjZnVpamZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NDQxNTAsImV4cCI6MjA4OTQyMDE1MH0.uyZiDun8495sjnHA6Wsk-Hou-3lubbNJfQqSYbMLSek';
+const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+async function loadKPIs(){
+  try {
+    const { data: atletas, error } = await supa
+      .from('atletas_360')
+      .select('clube_actual, associacao')
+      .eq('visivel_publico', true)
+      .eq('oculto_pelo_responsavel', false);
+
+    if(error){ throw error; }
+
+    const total = (atletas || []).length;
+    const clubes = new Set((atletas || []).map(a => a.clube_actual).filter(Boolean)).size;
+    const assocs = new Set((atletas || []).map(a => a.associacao).filter(Boolean)).size;
+
+    document.getElementById('kpi-atletas').textContent = total;
+    document.getElementById('kpi-clubes').textContent = clubes;
+    document.getElementById('kpi-assoc').textContent = assocs;
+  } catch(err){
+    console.error('Erro KPIs:', err);
+    document.getElementById('kpi-atletas').textContent = '—';
+    document.getElementById('kpi-clubes').textContent = '—';
+    document.getElementById('kpi-assoc').textContent = '—';
+  }
+}
+
+loadKPIs();
+</script>
+
 </body>
 </html>
