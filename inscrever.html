@@ -3,276 +3,711 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Inscrever Atleta · YourTalentBase</title>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<title>Inscrever Atleta · Scouting 360 YTB</title>
+<meta name="description" content="Adiciona atletas à base nacional de scouting. Pais, atletas, scouts e treinadores. Grátis.">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,700;0,800;0,900;1,900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#080C08;--bg2:#0F1410;--bg3:#161D17;--gold:#D4AF37;--gold-soft:rgba(212,175,55,.15);--gold-border:rgba(212,175,55,.3);--green:#00D46A;--border:#1F2520;--white:#fff;--slate:#aaa;--muted:#666}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--white);min-height:100vh;max-width:520px;margin:0 auto;padding-bottom:40px}
-.nav{position:sticky;top:0;z-index:50;background:rgba(8,12,8,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:14px 18px;display:flex;align-items:center;justify-content:space-between}
-.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
-.nav-badge{width:32px;height:32px;background:var(--gold);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:900;font-size:13px;color:#000}
-.nav-name{font-family:'Barlow Condensed';font-weight:800;font-size:18px;letter-spacing:1.5px;color:#fff}
-.nav-name span{color:var(--gold)}
-.nav-back{font-size:12px;color:var(--slate);text-decoration:none}
-.hero{padding:28px 22px 20px;text-align:center}
-.title{font-family:'Barlow Condensed';font-weight:900;font-size:38px;line-height:1;letter-spacing:-1px;margin-bottom:8px}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#080C08;--bg2:#0F1410;--bg3:#161D17;
+  --gold:#D4AF37;--gold-soft:rgba(212,175,55,.15);--gold-border:rgba(212,175,55,.3);
+  --gold-bright:#F5C842;
+  --green:#00D46A;--orange:#FFA500;--red:#FF4A4A;--blue:#4A9FE8;
+  --border:#1F2520;--white:#fff;--slate:#aaa;--muted:#666;
+}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:#fff;min-height:100vh;-webkit-font-smoothing:antialiased}
+
+.nav{position:sticky;top:0;z-index:50;background:rgba(8,12,8,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;max-width:760px;margin:0 auto}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo-b{width:32px;height:32px;background:var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:900;font-size:13px;color:#000}
+.logo-n{font-family:'Barlow Condensed';font-weight:800;font-size:18px;letter-spacing:1.5px;color:#fff}
+.logo-n span{color:var(--gold)}
+.nav-back{font-size:11px;color:var(--slate);text-decoration:none;font-weight:600}
+
+.container{max-width:760px;margin:0 auto;padding:20px 18px 60px}
+.progress{display:flex;gap:8px;margin-bottom:24px}
+.prog-step{flex:1;height:3px;background:var(--bg2)}
+.prog-step.active{background:var(--gold)}
+.prog-step.done{background:var(--green)}
+
+.header{margin-bottom:22px}
+.eyebrow{font-size:10px;font-weight:800;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:6px}
+.title{font-family:'Barlow Condensed';font-weight:900;font-size:30px;line-height:1;letter-spacing:-.8px;margin-bottom:8px}
 .title span{color:var(--gold)}
 .sub{font-size:13px;color:var(--slate);line-height:1.55}
-.form{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;margin:16px 18px}
-.section-title{font-size:9px;font-weight:800;letter-spacing:2.5px;color:var(--gold);text-transform:uppercase;margin-bottom:14px}
-.field{margin-bottom:12px}
-.label{display:block;font-size:10px;font-weight:700;letter-spacing:1px;color:#fff;margin-bottom:5px;text-transform:uppercase}
-.label small{color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px;font-size:10px}
-.input,.select{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:11px 13px;font-size:14px;color:#fff;font-family:inherit;outline:none;transition:border-color .15s}
-.input:focus,.select:focus{border-color:var(--gold)}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.plano-cards{display:flex;flex-direction:column;gap:8px}
-.plano-card{background:var(--bg3);border:2px solid var(--border);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all .15s}
-.plano-card.active{border-color:var(--gold);background:rgba(212,175,55,.06)}
-.plano-name{font-family:'Barlow Condensed';font-weight:900;font-size:17px;color:#fff}
-.plano-price{font-family:'Barlow Condensed';font-weight:900;font-size:17px;color:var(--gold)}
-.plano-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
-.plano-desc{font-size:11px;color:var(--slate);line-height:1.45}
-.btn{width:100%;background:var(--gold);color:#000;border:none;padding:15px;border-radius:10px;font-size:14px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;font-family:inherit;transition:all .15s;margin:0 18px;width:calc(100% - 36px)}
-.btn:disabled{opacity:.5;cursor:not-allowed}
-.error-box{background:rgba(255,80,80,.1);border:1px solid rgba(255,80,80,.3);color:#ff8080;padding:10px 14px;border-radius:8px;font-size:12px;margin:0 18px 12px;display:none}
-.success{background:linear-gradient(135deg,rgba(0,212,106,.1),rgba(0,212,106,.04));border:1px solid rgba(0,212,106,.3);border-radius:12px;padding:24px;margin:16px 18px;text-align:center;display:none}
-.success-icon{font-size:48px;margin-bottom:12px}
-.success-title{font-family:'Barlow Condensed';font-weight:900;font-size:24px;color:var(--green);margin-bottom:8px}
-.success-text{font-size:13px;color:#fff;line-height:1.6;margin-bottom:16px}
-.wa-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:#25D366;color:#000;padding:12px 22px;border-radius:100px;text-decoration:none;font-weight:800;font-size:13px}
-.spinner{display:inline-block;width:12px;height:12px;border:2px solid rgba(0,0,0,.3);border-top-color:#000;border-radius:50%;animation:spin .6s linear infinite;margin-right:6px}
-@keyframes spin{to{transform:rotate(360deg)}}
+.sub strong{color:#fff}
+
+.step{display:none}
+.step.active{display:block;animation:fadeIn .3s both}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.role-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+@media (max-width:480px){.role-grid{grid-template-columns:1fr}}
+.role-card{background:var(--bg2);border:2px solid var(--border);padding:24px 18px;cursor:pointer;text-align:left;font-family:inherit;color:inherit;transition:all .15s;position:relative}
+.role-card:hover{border-color:var(--gold-border);transform:translateY(-2px)}
+.role-card.selected{border-color:var(--gold);background:var(--gold-soft)}
+.role-icon{width:46px;height:46px;background:var(--gold-soft);border:1px solid var(--gold-border);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:14px}
+.role-title{font-family:'Barlow Condensed';font-weight:900;font-size:22px;color:#fff;line-height:1;letter-spacing:-.3px;margin-bottom:6px}
+.role-desc{font-size:11px;color:var(--slate);line-height:1.55}
+.role-meta{position:absolute;top:14px;right:14px;font-size:9px;font-weight:800;letter-spacing:1.2px;color:var(--gold);text-transform:uppercase;padding:3px 7px;background:var(--bg);border:1px solid var(--gold-border)}
+
+.form-section{margin-bottom:22px}
+.sec-title{font-size:10px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:8px}
+.sec-title span{color:var(--muted);font-weight:600;letter-spacing:.5px;text-transform:none;font-size:10px}
+
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media (max-width:520px){.field-grid{grid-template-columns:1fr}}
+.field{display:flex;flex-direction:column}
+.field-full{grid-column:1/-1}
+.field-label{font-size:9px;font-weight:700;letter-spacing:1.5px;color:var(--slate);text-transform:uppercase;margin-bottom:4px}
+.field-label .req{color:var(--gold);margin-left:3px}
+.field-input,.field-select,.field-textarea{background:var(--bg2);border:1px solid var(--border);color:#fff;padding:11px 13px;font-size:14px;font-family:inherit;outline:none}
+.field-input:focus,.field-select:focus,.field-textarea:focus{border-color:var(--gold)}
+.field-input.error{border-color:var(--red)}
+.field-textarea{min-height:80px;resize:vertical;line-height:1.5}
+.field-help{font-size:10px;color:var(--muted);margin-top:4px;line-height:1.4}
+.field-help.error{color:var(--red)}
+.field-select{appearance:none;background-image:url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23D4AF37'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");background-repeat:no-repeat;background-position:right 10px center;background-size:14px;padding-right:32px;cursor:pointer}
+
+.zerozero-box{background:linear-gradient(135deg,rgba(0,212,106,.06),transparent);border:1px solid rgba(0,212,106,.3);padding:14px}
+.zerozero-title{font-size:11px;font-weight:800;letter-spacing:1.5px;color:var(--green);text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.zerozero-title::before{content:'🛡️';font-size:14px}
+.zerozero-text{font-size:11px;color:#aaccaa;line-height:1.55}
+.zerozero-text a{color:var(--gold)}
+
+.epoca-card{background:var(--bg2);border:1px solid var(--border);padding:14px;margin-bottom:10px}
+.epoca-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:11px;color:var(--gold);font-weight:800;letter-spacing:1.5px;text-transform:uppercase}
+.epoca-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media (max-width:480px){.epoca-grid{grid-template-columns:1fr}}
+
+.tags-picker{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.tag-pick{font-size:10px;font-weight:700;padding:6px 11px;background:var(--bg2);border:1px solid var(--border);color:#ccc;cursor:pointer;font-family:inherit;transition:all .15s}
+.tag-pick:hover{border-color:var(--gold-border)}
+.tag-pick.selected{background:var(--gold-soft);border-color:var(--gold);color:var(--gold)}
+
+.rating-picker{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:6px}
+@media (max-width:480px){.rating-picker{grid-template-columns:repeat(4,1fr)}}
+.rating-btn{padding:14px 6px;background:var(--bg2);border:2px solid var(--border);color:#fff;font-family:'Barlow Condensed';font-weight:900;font-size:18px;cursor:pointer;transition:all .15s}
+.rating-btn:hover{border-color:var(--gold-border)}
+.rating-btn.selected{border-color:var(--gold);color:var(--gold);background:var(--gold-soft)}
+
+.consent-box{background:linear-gradient(135deg,rgba(212,175,55,.08),transparent);border:2px solid var(--gold-border);padding:16px}
+.consent-row{display:flex;align-items:flex-start;gap:10px;cursor:pointer}
+.consent-check{width:22px;height:22px;background:var(--bg);border:2px solid var(--gold-border);flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;margin-top:2px}
+.consent-check.checked{background:var(--gold);border-color:var(--gold)}
+.consent-check.checked::after{content:'✓';color:#000;font-weight:900;font-size:14px}
+.consent-text{font-size:12px;color:#ddd;line-height:1.6}
+.consent-text strong{color:var(--gold);font-weight:700}
+.consent-text a{color:var(--gold);text-decoration:underline}
+
+.btn-row{display:flex;gap:10px;margin-top:24px}
+.btn{padding:14px 20px;border:none;font-family:'Barlow Condensed';font-weight:900;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;flex:1}
+.btn-primary{background:var(--gold);color:#000}
+.btn-primary:hover{background:var(--gold-bright)}
+.btn-primary:disabled{background:var(--bg3);color:var(--muted);cursor:not-allowed}
+.btn-secondary{background:transparent;color:#fff;border:1px solid var(--gold-border);flex:0 0 auto;min-width:100px}
+
+.success-box{text-align:center;padding:30px 18px}
+.success-icon{font-size:54px;margin-bottom:14px}
+.success-title{font-family:'Barlow Condensed';font-weight:900;font-size:30px;color:var(--gold);line-height:1;margin-bottom:10px}
+.success-text{font-size:13px;color:var(--slate);line-height:1.6;max-width:480px;margin:0 auto 24px}
+.success-card{background:var(--bg2);border:1px solid var(--gold-border);padding:18px;margin:18px auto;max-width:480px;text-align:left}
+.success-card-row{display:flex;justify-content:space-between;padding:6px 0;font-size:12px;border-bottom:1px solid var(--border);gap:10px}
+.success-card-row:last-child{border-bottom:none}
+.success-card-row span:first-child{color:var(--muted);font-weight:600}
+.success-card-row span:last-child{color:#fff;font-weight:700;text-align:right;word-break:break-word}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--gold);color:#000;padding:12px 20px;font-weight:800;font-size:12px;letter-spacing:1px;text-transform:uppercase;font-family:'Barlow Condensed';z-index:200;opacity:0;pointer-events:none;transition:all .3s;max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
+.toast.error{background:var(--red);color:#fff}
 </style>
 </head>
 <body>
 
 <nav class="nav">
-  <a href="/" class="nav-logo">
-    <div class="nav-badge">YT</div>
-    <div class="nav-name">Your<span>Talent</span>Base</div>
+  <a href="/" class="logo">
+    <div class="logo-b">YT</div>
+    <div class="logo-n">Your<span>Talent</span>Base</div>
   </a>
   <a href="/" class="nav-back">← Voltar</a>
 </nav>
 
-<div class="hero">
-  <div class="title">Inscrever <span>Atleta</span></div>
-  <div class="sub">Preenche os dados. Tratamos do resto em 48h.</div>
+<div class="container">
+
+  <div class="progress">
+    <div class="prog-step active" id="prog-1"></div>
+    <div class="prog-step" id="prog-2"></div>
+    <div class="prog-step" id="prog-3"></div>
+  </div>
+
+  <!-- STEP 1: ROLE -->
+  <div class="step active" id="step-1">
+    <div class="header">
+      <div class="eyebrow">Scouting 360 · BD Nacional</div>
+      <h1 class="title">Quem és tu?</h1>
+      <p class="sub">Adiciona um atleta à maior base nacional de scouting de formação. <strong>Grátis · 5 minutos.</strong></p>
+    </div>
+    <div class="role-grid">
+      <button class="role-card" type="button" onclick="selectRole('pai',event)">
+        <span class="role-meta">Grátis</span>
+        <div class="role-icon">👨‍👧</div>
+        <div class="role-title">Sou Pai/Mãe</div>
+        <div class="role-desc">Inscreve o teu filho. Sem login, sem fotos. Validamos depois.</div>
+      </button>
+      <button class="role-card" type="button" onclick="selectRole('atleta',event)">
+        <span class="role-meta">14+</span>
+        <div class="role-icon">⚽</div>
+        <div class="role-title">Sou Atleta</div>
+        <div class="role-desc">Auto-inscrição. Dá-te a conhecer aos olheiros e clubes.</div>
+      </button>
+      <button class="role-card" type="button" onclick="selectRole('scout',event)">
+        <span class="role-meta">Grátis</span>
+        <div class="role-icon">🎯</div>
+        <div class="role-title">Sou Scout</div>
+        <div class="role-desc">Adiciona atletas que observaste. Avaliação peso 60%.</div>
+      </button>
+      <button class="role-card" type="button" onclick="selectRole('treinador',event)">
+        <span class="role-meta">Grátis</span>
+        <div class="role-icon">👨‍🏫</div>
+        <div class="role-title">Sou Treinador</div>
+        <div class="role-desc">Regista os atletas do teu plantel. Avaliação peso 30%.</div>
+      </button>
+    </div>
+    <div class="zerozero-box" style="margin-top:18px">
+      <div class="zerozero-title">Anti-spam · Link ZeroZero obrigatório</div>
+      <div class="zerozero-text">Cada atleta tem de ter perfil no <strong>ZeroZero</strong> ou <strong>Joga+ FPF</strong>. Atletas sem registo oficial não são aceites.</div>
+    </div>
+  </div>
+
+  <!-- STEP 2: FORM -->
+  <div class="step" id="step-2">
+    <div class="header">
+      <div class="eyebrow" id="step2-role">—</div>
+      <h1 class="title">Dados do <span>atleta</span></h1>
+      <p class="sub" id="step2-sub">—</p>
+    </div>
+
+    <div class="form-section">
+      <div class="sec-title">👤 Identidade</div>
+      <div class="field-grid">
+        <div class="field field-full">
+          <label class="field-label">Nome completo<span class="req">*</span></label>
+          <input class="field-input" id="f_nome" type="text" placeholder="Ex: Vasco Coutinho Martins">
+        </div>
+        <div class="field">
+          <label class="field-label">Ano nascimento<span class="req">*</span></label>
+          <input class="field-input" id="f_ano" type="number" min="1990" max="2020" placeholder="2014">
+        </div>
+        <div class="field">
+          <label class="field-label">Mês</label>
+          <select class="field-select" id="f_mes">
+            <option value="">—</option>
+            <option value="1">Jan (Q1)</option><option value="2">Fev (Q1)</option><option value="3">Mar (Q1)</option>
+            <option value="4">Abr (Q2)</option><option value="5">Mai (Q2)</option><option value="6">Jun (Q2)</option>
+            <option value="7">Jul (Q3)</option><option value="8">Ago (Q3)</option><option value="9">Set (Q3)</option>
+            <option value="10">Out (Q4)</option><option value="11">Nov (Q4)</option><option value="12">Dez (Q4)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field-label">Posição<span class="req">*</span></label>
+          <select class="field-select" id="f_pos">
+            <option value="">—</option>
+            <option value="GR">Guarda-Redes</option><option value="DC">Defesa Central</option>
+            <option value="LD">Lateral Direito</option><option value="LE">Lateral Esquerdo</option>
+            <option value="MD">Médio Defensivo</option><option value="MC">Médio Centro</option>
+            <option value="MO">Médio Ofensivo</option><option value="ED">Extremo Direito</option>
+            <option value="EE">Extremo Esquerdo</option><option value="PL">Ponta de Lança</option>
+            <option value="AV">Avançado</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field-label">Pé</label>
+          <select class="field-select" id="f_pe">
+            <option value="">—</option>
+            <option value="D">Direito</option><option value="E">Esquerdo</option><option value="A">Ambidestro</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="sec-title">🏟 Clube actual</div>
+      <div class="field-grid">
+        <div class="field">
+          <label class="field-label">Clube<span class="req">*</span></label>
+          <input class="field-input" id="f_clube" type="text" placeholder="Ex: Gondomar SC">
+        </div>
+        <div class="field">
+          <label class="field-label">Equipa</label>
+          <input class="field-input" id="f_equipa" type="text" placeholder="Ex: Sub-13 C">
+        </div>
+        <div class="field">
+          <label class="field-label">Escalão<span class="req">*</span></label>
+          <select class="field-select" id="f_escalao">
+            <option value="">—</option>
+            <option>Sub-9</option><option>Sub-10</option><option>Sub-11</option><option>Sub-12</option>
+            <option>Sub-13</option><option>Sub-14</option><option>Sub-15</option><option>Sub-17</option>
+            <option>Sub-19</option><option>Seniores</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field-label">Associação<span class="req">*</span></label>
+          <select class="field-select" id="f_assoc">
+            <option value="">—</option>
+            <option>AF Aveiro</option><option>AF Beja</option><option>AF Braga</option>
+            <option>AF Bragança</option><option>AF Castelo Branco</option><option>AF Coimbra</option>
+            <option>AF Évora</option><option>AF Faro</option><option>AF Guarda</option>
+            <option>AF Leiria</option><option>AF Lisboa</option><option>AF Madeira</option>
+            <option>AF Portalegre</option><option>AF Porto</option><option>AF Santarém</option>
+            <option>AF Setúbal</option><option>AF Viana do Castelo</option>
+            <option>AF Vila Real</option><option>AF Viseu</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="sec-title">🛡️ Validação · ZeroZero / Joga+ <span>obrigatório</span></div>
+      <div class="zerozero-box" style="margin-bottom:8px">
+        <div class="zerozero-text">
+          <strong>Como obter:</strong> vai a <a href="https://www.zerozero.pt" target="_blank">zerozero.pt</a> ou <a href="https://joga.fpf.pt" target="_blank">Joga+</a>, procura o atleta, copia o URL do perfil. Preferimos <strong>Joga+ FPF</strong> (fonte oficial, mais detalhada).
+        </div>
+      </div>
+      <div class="field-grid">
+        <div class="field field-full">
+          <label class="field-label">URL ZeroZero ou Joga+<span class="req">*</span></label>
+          <input class="field-input" id="f_zerozero" type="url" placeholder="https://www.zerozero.pt/player/...">
+          <div class="field-help" id="zerozero_help">Sem URL = sem inscrição. É a nossa garantia anti-spam.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="sec-title">📈 Stats 2025/26 <span>opcional · podes preencher depois</span></div>
+      <div class="field-grid">
+        <div class="field"><label class="field-label">Jogos</label><input class="field-input" id="f_jogos" type="number" min="0" placeholder="0"></div>
+        <div class="field"><label class="field-label">Titularidades</label><input class="field-input" id="f_titular" type="number" min="0" placeholder="0"></div>
+        <div class="field"><label class="field-label">Minutos</label><input class="field-input" id="f_minutos" type="number" min="0" placeholder="0"></div>
+        <div class="field"><label class="field-label">Golos</label><input class="field-input" id="f_golos" type="number" min="0" placeholder="0"></div>
+        <div class="field"><label class="field-label">Assistências</label><input class="field-input" id="f_assists" type="number" min="0" placeholder="0"></div>
+        <div class="field"><label class="field-label">Classificação equipa</label><input class="field-input" id="f_class" type="number" min="1" placeholder="Ex: 3"></div>
+        <div class="field"><label class="field-label">Total equipas série</label><input class="field-input" id="f_total" type="number" min="1" placeholder="Ex: 12"></div>
+        <div class="field field-full"><label class="field-label">Divisão / Série</label><input class="field-input" id="f_divisao" type="text" placeholder="Ex: Honra Sub-13 AF Porto"></div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="sec-title">📜 Histórico últimos 2 anos <span>recomendado</span></div>
+      <p style="font-size:11px;color:var(--muted);margin-bottom:14px;line-height:1.5">Útil para contextualizar evolução. Podes deixar em branco se atleta começou agora.</p>
+
+      <div class="epoca-card">
+        <div class="epoca-head"><span>📅 Época 2024/25</span><span style="color:var(--muted)">1 ano atrás</span></div>
+        <div class="epoca-grid">
+          <div class="field"><label class="field-label">Clube</label><input class="field-input" id="h1_clube" type="text"></div>
+          <div class="field"><label class="field-label">Escalão</label>
+            <select class="field-select" id="h1_escalao">
+              <option value="">—</option>
+              <option>Sub-9</option><option>Sub-10</option><option>Sub-11</option><option>Sub-12</option>
+              <option>Sub-13</option><option>Sub-14</option><option>Sub-15</option><option>Sub-17</option>
+              <option>Sub-19</option><option>Seniores</option>
+            </select>
+          </div>
+          <div class="field"><label class="field-label">Divisão</label><input class="field-input" id="h1_divisao" type="text" placeholder="Ex: Elite, Honra"></div>
+          <div class="field"><label class="field-label">Classificação final</label><input class="field-input" id="h1_class" type="text" placeholder="Ex: 1º · Campeão"></div>
+          <div class="field"><label class="field-label">Jogos</label><input class="field-input" id="h1_jogos" type="number" min="0"></div>
+          <div class="field"><label class="field-label">Golos</label><input class="field-input" id="h1_golos" type="number" min="0"></div>
+        </div>
+      </div>
+
+      <div class="epoca-card">
+        <div class="epoca-head"><span>📅 Época 2023/24</span><span style="color:var(--muted)">2 anos atrás</span></div>
+        <div class="epoca-grid">
+          <div class="field"><label class="field-label">Clube</label><input class="field-input" id="h2_clube" type="text"></div>
+          <div class="field"><label class="field-label">Escalão</label>
+            <select class="field-select" id="h2_escalao">
+              <option value="">—</option>
+              <option>Sub-9</option><option>Sub-10</option><option>Sub-11</option><option>Sub-12</option>
+              <option>Sub-13</option><option>Sub-14</option><option>Sub-15</option><option>Sub-17</option>
+              <option>Sub-19</option><option>Seniores</option>
+            </select>
+          </div>
+          <div class="field"><label class="field-label">Divisão</label><input class="field-input" id="h2_divisao" type="text"></div>
+          <div class="field"><label class="field-label">Classificação final</label><input class="field-input" id="h2_class" type="text"></div>
+          <div class="field"><label class="field-label">Jogos</label><input class="field-input" id="h2_jogos" type="number" min="0"></div>
+          <div class="field"><label class="field-label">Golos</label><input class="field-input" id="h2_golos" type="number" min="0"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section" id="section-avaliacao" style="display:none">
+      <div class="sec-title">⭐ A tua avaliação <span>obrigatório scout/treinador</span></div>
+      <div class="field">
+        <label class="field-label">Rating<span class="req">*</span></label>
+        <div class="rating-picker">
+          <button class="rating-btn" type="button" data-rating="A+">A+</button>
+          <button class="rating-btn" type="button" data-rating="A">A</button>
+          <button class="rating-btn" type="button" data-rating="B+">B+</button>
+          <button class="rating-btn" type="button" data-rating="B">B</button>
+          <button class="rating-btn" type="button" data-rating="C+">C+</button>
+          <button class="rating-btn" type="button" data-rating="C">C</button>
+          <button class="rating-btn" type="button" data-rating="D">D</button>
+        </div>
+        <div class="field-help">A+ elite · A acima da média · B+/B sólido · C+/C em desenvolvimento · D recreativo</div>
+      </div>
+      <div class="field" style="margin-top:12px">
+        <label class="field-label">Observação<span class="req">*</span></label>
+        <textarea class="field-textarea" id="f_obs" placeholder="3-5 linhas sobre o atleta. Linguagem de balneário. Como joga, onde brilha, onde precisa melhorar."></textarea>
+      </div>
+      <div class="field" style="margin-top:12px">
+        <label class="field-label">Tags (3-10)</label>
+        <div class="tags-picker">
+          <span class="tag-pick" data-tag="construção">construção</span>
+          <span class="tag-pick" data-tag="anti-pressão">anti-pressão</span>
+          <span class="tag-pick" data-tag="scanning">scanning</span>
+          <span class="tag-pick" data-tag="1v1-ofensivo">1v1 ofensivo</span>
+          <span class="tag-pick" data-tag="1v1-defensivo">1v1 defensivo</span>
+          <span class="tag-pick" data-tag="pressing">pressing</span>
+          <span class="tag-pick" data-tag="finalizador">finalizador</span>
+          <span class="tag-pick" data-tag="velocidade">velocidade</span>
+          <span class="tag-pick" data-tag="intensidade">intensidade</span>
+          <span class="tag-pick" data-tag="jogo-aéreo">jogo aéreo</span>
+          <span class="tag-pick" data-tag="líder">líder</span>
+          <span class="tag-pick" data-tag="cobertura">cobertura</span>
+          <span class="tag-pick" data-tag="transição">transição</span>
+          <span class="tag-pick" data-tag="passador">passador</span>
+          <span class="tag-pick" data-tag="resistência">resistência</span>
+          <span class="tag-pick" data-tag="técnico">técnico</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="sec-title">👤 Encarregado de Educação <span>obrigatório</span></div>
+      <p style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.5">Contacto do EE para notificação e consentimento. Não fica público.</p>
+      <div class="field-grid">
+        <div class="field">
+          <label class="field-label">Nome EE<span class="req">*</span></label>
+          <input class="field-input" id="f_ee_nome" type="text" placeholder="Nome do encarregado">
+        </div>
+        <div class="field">
+          <label class="field-label">WhatsApp EE<span class="req">*</span></label>
+          <input class="field-input" id="f_ee_tel" type="tel" placeholder="9XX XXX XXX">
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="sec-title">📞 Os teus dados</div>
+      <div class="field-grid">
+        <div class="field"><label class="field-label">Nome<span class="req">*</span></label><input class="field-input" id="f_meu_nome" type="text"></div>
+        <div class="field"><label class="field-label">Email<span class="req">*</span></label><input class="field-input" id="f_meu_email" type="email"></div>
+        <div class="field"><label class="field-label">WhatsApp</label><input class="field-input" id="f_meu_tel" type="tel" placeholder="9XX XXX XXX"></div>
+        <div class="field"><label class="field-label">Clube/Organização</label><input class="field-input" id="f_meu_clube" type="text"></div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="sec-title">📋 Consentimento <span>obrigatório</span></div>
+      <div class="consent-box">
+        <div class="consent-row" onclick="toggleConsent()">
+          <div class="consent-check" id="consent-check"></div>
+          <div class="consent-text">
+            <strong>Confirmo que sou o encarregado de educação do atleta OU tenho autorização do encarregado de educação</strong> para inserir estes dados na plataforma YourTalentBase para fins de <strong>desenvolvimento desportivo</strong> e <strong>análise formativa</strong>.
+            <br><br>
+            Compreendo que o nome, clube, escalão, posição e dados estatísticos do atleta ficarão visíveis publicamente. A qualquer momento posso pedir a remoção do perfil em <strong>yourtalentbase.pt/ocultar</strong> ou respondendo à mensagem WhatsApp de confirmação.
+            <br><br>
+            Aceito os <a href="termos.html" target="_blank">Termos de Utilização</a> e a <a href="privacidade.html" target="_blank">Política de Privacidade</a>.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goStep(1)">← Voltar</button>
+      <button class="btn btn-primary" onclick="submitForm()" id="btn-submit">Submeter →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: SUCCESS -->
+  <div class="step" id="step-3">
+    <div class="success-box">
+      <div class="success-icon">✅</div>
+      <h2 class="success-title">Atleta submetido!</h2>
+      <p class="success-text" id="success-text">—</p>
+      <div class="success-card" id="success-card"></div>
+      <a href="/" class="btn btn-primary" style="display:inline-flex;text-decoration:none;align-items:center;justify-content:center;padding:14px 30px;flex:0 0 auto">Voltar à Home →</a>
+    </div>
+  </div>
+
 </div>
 
-<div id="form-view">
-  <div class="form">
-    <div class="section-title">⚽ Sobre o atleta</div>
-    <div class="field">
-      <label class="label">Nome completo</label>
-      <input class="input" id="f_nome" type="text" placeholder="Nome do atleta">
-    </div>
-    <div class="row">
-      <div class="field">
-        <label class="label">Data nascimento</label>
-        <input class="input" id="f_nasc" type="date">
-      </div>
-      <div class="field">
-        <label class="label">Pé dominante</label>
-        <select class="select" id="f_pe">
-          <option value="">--</option>
-          <option value="D">Direito</option>
-          <option value="E">Esquerdo</option>
-          <option value="A">Ambidestro</option>
-        </select>
-      </div>
-    </div>
-    <div class="field">
-      <label class="label">Posição</label>
-      <select class="select" id="f_pos">
-        <option value="">Selecciona...</option>
-        <option value="GR">Guarda-Redes</option>
-        <option value="DC">Defesa Central</option>
-        <option value="DLD">Lateral Direito</option>
-        <option value="DLE">Lateral Esquerdo</option>
-        <option value="MD">Médio Defensivo</option>
-        <option value="MI">Médio Interior</option>
-        <option value="MO">Médio Ofensivo</option>
-        <option value="ED">Extremo Direito</option>
-        <option value="EE">Extremo Esquerdo</option>
-        <option value="AV">Avançado</option>
-      </select>
-    </div>
-    <div class="row">
-      <div class="field">
-        <label class="label">Clube</label>
-        <input class="input" id="f_clube" type="text">
-      </div>
-      <div class="field">
-        <label class="label">Escalão</label>
-        <select class="select" id="f_esc">
-          <option value="">--</option>
-          <option>Sub-9</option><option>Sub-10</option><option>Sub-11</option>
-          <option>Sub-12</option><option>Sub-13</option><option>Sub-14</option>
-          <option>Sub-15</option><option>Sub-16</option><option>Sub-17</option><option>Sub-19</option>
-        </select>
-      </div>
-    </div>
-    <div class="field">
-      <label class="label">Link ZeroZero <small>(opcional)</small></label>
-      <input class="input" id="f_zerozero" type="url" placeholder="https://www.zerozero.pt/jogador/...">
-    </div>
-  </div>
-
-  <div class="form" style="margin-top:0">
-    <div class="section-title">👨‍👧 Encarregado</div>
-    <div class="field">
-      <label class="label">O teu nome</label>
-      <input class="input" id="f_enc_nome" type="text">
-    </div>
-    <div class="field">
-      <label class="label">Email</label>
-      <input class="input" id="f_email" type="email">
-    </div>
-    <div class="field">
-      <label class="label">Telefone <small>WhatsApp</small></label>
-      <input class="input" id="f_tel" type="tel" placeholder="9XX XXX XXX">
-    </div>
-  </div>
-
-  <div class="form" style="margin-top:0">
-    <div class="section-title">💼 Plano</div>
-    <div class="plano-cards">
-      <div class="plano-card active" data-plano="treinador">
-        <div class="plano-header">
-          <div class="plano-name">Com Treinador</div>
-          <div class="plano-price">39€ + 9,90€/mês</div>
-        </div>
-        <div class="plano-desc">Plataforma integrada com Scout Report profissional pelo treinador. Acompanhamento contínuo.</div>
-      </div>
-
-      <div class="plano-card" data-plano="familia">
-        <div class="plano-header">
-          <div class="plano-name">Com Família</div>
-          <div class="plano-price">14,90€ + 9,90€/mês</div>
-        </div>
-        <div class="plano-desc">Plataforma com questionário comportamental do encarregado. Sem Scout Report profissional.</div>
-      </div>
-
-      <div class="plano-card" data-plano="visibilidade">
-        <div class="plano-header">
-          <div class="plano-name">Visibilidade nos Cards</div>
-          <div class="plano-price">9,90€/mês</div>
-        </div>
-        <div class="plano-desc">Atleta aparece nos cards do site + 2 publicações Instagram mensais. Sem plataforma.</div>
-      </div>
-
-      <div class="plano-card" data-plano="agenciado_pendente">
-        <div class="plano-header">
-          <div class="plano-name">Inscrição Livre</div>
-          <div class="plano-price">Grátis</div>
-        </div>
-        <div class="plano-desc">Submete o atleta à nossa BD interna. Avaliamos em 48h se faz match para agenciamento.</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="error-box" id="error-box"></div>
-  <button class="btn" id="submit-btn" onclick="submeter()">Submeter Inscrição →</button>
-</div>
-
-<div class="success" id="success-view">
-  <div class="success-icon">✅</div>
-  <div class="success-title">Inscrição Recebida!</div>
-  <div class="success-text">
-    Para confirmar:<br><br>
-    <strong>Paga 39€ (Scout Report)</strong><br>
-    MB Way para <strong>913 695 846</strong><br><br>
-    Envia comprovativo com nome do atleta.<br>
-    Resposta em 48h.
-  </div>
-  <a class="wa-btn" id="wa-link" href="#">📱 Enviar WhatsApp</a>
-</div>
+<div class="toast" id="toast"></div>
 
 <script>
 const SUPABASE_URL = 'https://nhshnplaiolxwcfuijfo.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oc2hucGxhaW9seHdjZnVpamZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NDQxNTAsImV4cCI6MjA4OTQyMDE1MH0.uyZiDun8495sjnHA6Wsk-Hou-3lubbNJfQqSYbMLSek';
 const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-let planoEscolhido = 'treinador';
+const CONSENT_TEXT = 'Confirmo que sou o encarregado de educação do atleta OU tenho autorização do encarregado de educação para inserir estes dados na plataforma YourTalentBase para fins de desenvolvimento desportivo e análise formativa. Compreendo que o nome, clube, escalão, posição e dados estatísticos do atleta ficarão visíveis publicamente. A qualquer momento posso pedir a remoção do perfil. Aceito os Termos de Utilização e a Política de Privacidade.';
 
-// Ler ?plano= da URL para pré-seleccionar
-(function() {
-  const params = new URLSearchParams(window.location.search);
-  const planoParam = params.get('plano');
-  const validos = ['treinador','familia','visibilidade','agenciado_pendente'];
-  if (planoParam && validos.includes(planoParam)) {
-    planoEscolhido = planoParam;
-    // Aplica visualmente assim que o DOM estiver pronto
-    setTimeout(() => {
-      document.querySelectorAll('.plano-card').forEach(x => x.classList.remove('active'));
-      const target = document.querySelector(`.plano-card[data-plano="${planoParam}"]`);
-      if (target) {
-        target.classList.add('active');
-        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-    }, 100);
+let state = { role: null, rating: null, tags: new Set(), consent: false };
+
+function selectRole(role, ev){
+  state.role = role;
+  document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+  ev.currentTarget.classList.add('selected');
+
+  const labels = { pai:'SOU PAI/MÃE', atleta:'SOU ATLETA', scout:'SOU SCOUT', treinador:'SOU TREINADOR' };
+  const subs = {
+    pai: 'Dados do teu filho/a. Avaliação fica para o scout YTB confirmar.',
+    atleta: 'Os teus dados. Damos-te visibilidade junto de olheiros e clubes.',
+    scout: 'Dados do atleta + a tua avaliação profissional (peso 60%).',
+    treinador: 'Dados do atleta + a tua avaliação como treinador (peso 30%).'
+  };
+  document.getElementById('step2-role').textContent = labels[role];
+  document.getElementById('step2-sub').textContent = subs[role];
+
+  const showAval = (role === 'scout' || role === 'treinador');
+  document.getElementById('section-avaliacao').style.display = showAval ? 'block' : 'none';
+
+  setTimeout(() => goStep(2), 200);
+}
+
+function goStep(n){
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById('step-' + n).classList.add('active');
+  for(let i = 1; i <= 3; i++){
+    const p = document.getElementById('prog-' + i);
+    p.classList.toggle('active', i === n);
+    p.classList.toggle('done', i < n);
   }
-})();
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
 
-document.querySelectorAll('.plano-card').forEach(c => {
-  c.addEventListener('click', () => {
-    document.querySelectorAll('.plano-card').forEach(x => x.classList.remove('active'));
-    c.classList.add('active');
-    planoEscolhido = c.dataset.plano;
+document.querySelectorAll('.rating-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('.rating-btn').forEach(x => x.classList.remove('selected'));
+    b.classList.add('selected');
+    state.rating = b.dataset.rating;
   });
 });
 
-function v(id){ return document.getElementById(id).value.trim(); }
-
-async function submeter() {
-  const btn = document.getElementById('submit-btn');
-  const err = document.getElementById('error-box');
-  err.style.display = 'none';
-
-  const nome = v('f_nome');
-  const encNome = v('f_enc_nome');
-  const email = v('f_email');
-
-  if (!nome) { err.textContent = 'Preenche o nome do atleta.'; err.style.display = 'block'; return; }
-  if (!encNome) { err.textContent = 'Preenche o teu nome.'; err.style.display = 'block'; return; }
-  if (!email || !email.includes('@')) { err.textContent = 'Email inválido.'; err.style.display = 'block'; return; }
-
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span>A enviar...';
-
-  const { error } = await supa.from('inscricoes').insert({
-    atleta_nome: nome,
-    atleta_data_nascimento: v('f_nasc') || null,
-    atleta_posicao: v('f_pos') || null,
-    atleta_pe: v('f_pe') || null,
-    atleta_clube: v('f_clube') || null,
-    atleta_escalao: v('f_esc') || null,
-    atleta_zerozero: v('f_zerozero') || null,
-    encarregado_nome: encNome,
-    encarregado_email: email,
-    encarregado_telefone: v('f_tel') || null,
-    plano: planoEscolhido,
-    estado: 'pendente'
+document.querySelectorAll('.tag-pick').forEach(t => {
+  t.addEventListener('click', () => {
+    const tag = t.dataset.tag;
+    if(state.tags.has(tag)){
+      state.tags.delete(tag);
+      t.classList.remove('selected');
+    } else {
+      if(state.tags.size >= 10){ toast('Máximo 10 tags', true); return; }
+      state.tags.add(tag);
+      t.classList.add('selected');
+    }
   });
+});
 
-  if (error) {
-    console.error(error);
-    err.textContent = 'Erro ao enviar: ' + error.message;
-    err.style.display = 'block';
-    btn.disabled = false;
-    btn.innerHTML = 'Submeter Inscrição →';
-    return;
+function toggleConsent(){
+  state.consent = !state.consent;
+  document.getElementById('consent-check').classList.toggle('checked', state.consent);
+}
+
+function validateZeroZero(url){
+  if(!url) return { ok: false, msg: 'Link obrigatório' };
+  const u = url.trim().toLowerCase();
+  const valid = (
+    u.includes('zerozero.pt/player') ||
+    u.includes('zerozero.pt/jogador') ||
+    u.includes('zerozero.com/player') ||
+    u.includes('joga.fpf.pt') ||
+    u.includes('jogamais.fpf.pt') ||
+    u.includes('fpf.pt')
+  );
+  if(!valid) return { ok: false, msg: 'URL deve ser de ZeroZero.pt ou Joga+/FPF' };
+  if(!u.startsWith('http')) return { ok: false, msg: 'URL deve começar por http:// ou https://' };
+  return { ok: true };
+}
+
+function splitNome(nome){
+  const parts = nome.trim().split(/\s+/);
+  if(parts.length === 1) return { primeiro: parts[0], ultimo: parts[0] };
+  return { primeiro: parts[0], ultimo: parts[parts.length - 1] };
+}
+
+async function submitForm(){
+  const get = id => document.getElementById(id).value.trim();
+  const num = id => { const v = parseInt(document.getElementById(id).value); return isNaN(v) ? null : v; };
+
+  const nome = get('f_nome'), ano = num('f_ano'), pos = get('f_pos');
+  const clube = get('f_clube'), escalao = get('f_escalao'), assoc = get('f_assoc');
+  const zerozero = get('f_zerozero');
+  const eeNome = get('f_ee_nome'), eeTel = get('f_ee_tel');
+  const meuNome = get('f_meu_nome'), meuEmail = get('f_meu_email');
+
+  if(!nome || !ano || !pos || !clube || !escalao || !assoc){
+    toast('Preenche todos os campos obrigatórios', true); return;
+  }
+  if(!eeNome || !eeTel){
+    toast('Dados do Encarregado de Educação obrigatórios', true); return;
+  }
+  if(!meuNome || !meuEmail){
+    toast('Preenche os teus dados de contacto', true); return;
+  }
+  if(!state.consent){
+    toast('Tens de aceitar o consentimento RGPD', true); return;
   }
 
-  document.getElementById('form-view').style.display = 'none';
-  const sv = document.getElementById('success-view');
-  sv.style.display = 'block';
-  const msg = `Olá! Inscrevi o ${nome} no YTB. Vou enviar comprovativo do pagamento de 39€.`;
-  document.getElementById('wa-link').href = `https://wa.me/351913695846?text=${encodeURIComponent(msg)}`;
+  const zz = validateZeroZero(zerozero);
+  if(!zz.ok){
+    document.getElementById('f_zerozero').classList.add('error');
+    document.getElementById('zerozero_help').textContent = zz.msg;
+    document.getElementById('zerozero_help').classList.add('error');
+    toast(zz.msg, true); return;
+  }
+
+  if((state.role === 'scout' || state.role === 'treinador') && (!state.rating || !get('f_obs'))){
+    toast('Rating e observação obrigatórios para scout/treinador', true); return;
+  }
+
+  const btn = document.getElementById('btn-submit');
+  btn.disabled = true;
+  btn.textContent = 'A submeter...';
+
+  try {
+    const { primeiro, ultimo } = splitNome(nome);
+
+    const atleta = {
+      nome, primeiro_nome: primeiro, ultimo_nome: ultimo,
+      ano_nascimento: ano, mes_nascimento: num('f_mes'),
+      posicao_principal: pos, pe_dominante: get('f_pe') || null,
+      clube_actual: clube, equipa: get('f_equipa') || null,
+      escalao, associacao: assoc,
+      zerozero_url: zerozero,
+      fonte: state.role, fonte_nome: meuNome, fonte_email: meuEmail,
+      fonte_telefone: get('f_meu_tel') || null,
+      consentimento_dado: true,
+      consentimento_dado_em: new Date().toISOString(),
+      consentimento_texto: CONSENT_TEXT,
+      encarregado_nome: eeNome,
+      encarregado_telefone: eeTel,
+      estado: 'pendente',
+      visivel_publico: false, visivel_b2b: false
+    };
+
+    const { data: atletaData, error: e1 } = await supa
+      .from('atletas_360').insert(atleta).select().single();
+
+    if(e1){
+      console.error(e1);
+      if(e1.message && (e1.message.includes('duplicate') || e1.message.includes('unique'))){
+        toast('Este atleta já existe na BD (link duplicado).', true);
+      } else {
+        toast('Erro: ' + (e1.message || 'tenta de novo'), true);
+      }
+      btn.disabled = false; btn.textContent = 'Submeter →'; return;
+    }
+
+    const jogos = num('f_jogos');
+    if(jogos != null && jogos > 0){
+      await supa.from('atletas_360_stats').insert({
+        atleta_id: atletaData.id,
+        epoca: '2025/26',
+        jogos,
+        jogos_titular: num('f_titular') || 0,
+        minutos: num('f_minutos') || 0,
+        golos: num('f_golos') || 0,
+        assistencias: num('f_assists') || 0,
+        classificacao_equipa: num('f_class'),
+        total_equipas_serie: num('f_total'),
+        divisao: get('f_divisao') || null,
+        clube, equipa: get('f_equipa') || null, escalao, associacao: assoc,
+        fonte_dados: 'manual',
+        confianca_fonte: state.role === 'scout' ? 90 : (state.role === 'treinador' ? 85 : 70)
+      });
+    }
+
+    const historico = [];
+    if(get('h1_clube')){
+      historico.push({
+        atleta_id: atletaData.id, epoca: '2024/25',
+        clube: get('h1_clube'), escalao: get('h1_escalao') || 'Sub-?',
+        divisao: get('h1_divisao') || null,
+        classificacao_texto: get('h1_class') || null,
+        jogos: num('h1_jogos'), golos: num('h1_golos'),
+        ordem: 1
+      });
+    }
+    if(get('h2_clube')){
+      historico.push({
+        atleta_id: atletaData.id, epoca: '2023/24',
+        clube: get('h2_clube'), escalao: get('h2_escalao') || 'Sub-?',
+        divisao: get('h2_divisao') || null,
+        classificacao_texto: get('h2_class') || null,
+        jogos: num('h2_jogos'), golos: num('h2_golos'),
+        ordem: 2
+      });
+    }
+    if(historico.length){
+      await supa.from('atletas_360_historico').insert(historico);
+    }
+
+    if((state.role === 'scout' || state.role === 'treinador') && state.rating){
+      await supa.from('atletas_360_avaliacoes').insert({
+        atleta_id: atletaData.id,
+        avaliador_nome: meuNome, avaliador_email: meuEmail,
+        avaliador_tipo: state.role,
+        avaliador_clube: get('f_meu_clube') || null,
+        rating: state.rating, observacao: get('f_obs'),
+        tags: Array.from(state.tags),
+        contexto_jogo: 'observacao_directa',
+        data_observacao: new Date().toISOString().slice(0,10),
+        estado: 'ativo'
+      });
+    }
+
+    renderSuccess(atletaData);
+    goStep(3);
+  } catch(err){
+    console.error(err);
+    toast('Erro inesperado. Tenta de novo.', true);
+    btn.disabled = false; btn.textContent = 'Submeter →';
+  }
 }
+
+function renderSuccess(atleta){
+  const labels = { pai:'Pai/Mãe', atleta:'Atleta', scout:'Scout', treinador:'Treinador' };
+  document.getElementById('success-card').innerHTML = `
+    <div class="success-card-row"><span>Atleta</span><span>${escapeHtml(atleta.nome)}</span></div>
+    <div class="success-card-row"><span>Posição · Escalão</span><span>${escapeHtml(atleta.posicao_principal)} · ${escapeHtml(atleta.escalao)}</span></div>
+    <div class="success-card-row"><span>Clube</span><span>${escapeHtml(atleta.clube_actual)}</span></div>
+    <div class="success-card-row"><span>Inscrito por</span><span>${labels[state.role]}</span></div>
+    <div class="success-card-row"><span>Estado</span><span style="color:var(--gold)">⏳ Pendente validação</span></div>
+    <div class="success-card-row"><span>ID</span><span style="font-family:monospace;font-size:10px">${atleta.id.slice(0,8)}...</span></div>
+  `;
+  const txts = {
+    pai: 'Recebemos a inscrição. O Encarregado de Educação vai receber WhatsApp de confirmação. Nas próximas 48h um scout YTB valida o perfil.',
+    atleta: 'Recebemos os teus dados. O EE vai receber WhatsApp de confirmação. Nas próximas 48h ficas visível na BD.',
+    scout: 'Obrigado pela contribuição. O EE vai receber WhatsApp de confirmação. Entras no pool de avaliadores YTB.',
+    treinador: 'Obrigado pelo registo. O EE vai receber WhatsApp de confirmação. Avaliação peso 30% no rating consolidado.'
+  };
+  document.getElementById('success-text').textContent = txts[state.role];
+}
+
+function escapeHtml(s){ if(s == null) return ''; return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function toast(msg, isError){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.toggle('error', !!isError);
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+document.getElementById('f_zerozero').addEventListener('input', () => {
+  document.getElementById('f_zerozero').classList.remove('error');
+  document.getElementById('zerozero_help').textContent = 'Sem URL = sem inscrição. É a nossa garantia anti-spam.';
+  document.getElementById('zerozero_help').classList.remove('error');
+});
 </script>
+
 </body>
 </html>

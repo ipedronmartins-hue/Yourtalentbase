@@ -3,18 +3,200 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Entrar · YourTalentBase</title>
-<meta name="theme-color" content="#09090C">
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/global.css">
+<title>Área Reservada · Scouting 360 YTB</title>
+<meta name="robots" content="noindex,nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@800;900&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#080C08;--bg2:#0F1410;--gold:#D4AF37;--gold-soft:rgba(212,175,55,.15);--gold-border:rgba(212,175,55,.3);
+  --green:#00D46A;--red:#FF4A4A;--orange:#FFA500;--blue:#4A9FE8;
+  --border:#1F2520;--white:#fff;--slate:#bbb;--muted:#666;
+}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;-webkit-font-smoothing:antialiased}
+
+.box{max-width:440px;width:100%;background:var(--bg2);border:2px solid var(--border);padding:30px 26px}
+.logo{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:24px;text-decoration:none}
+.logo-b{width:36px;height:36px;background:var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:900;font-size:14px;color:#000}
+.logo-n{font-family:'Barlow Condensed';font-weight:800;font-size:20px;letter-spacing:1.5px}
+.logo-n span{color:var(--gold)}
+
+.head{text-align:center;margin-bottom:24px}
+.eyebrow{font-size:9px;font-weight:800;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:6px}
+.title{font-family:'Barlow Condensed';font-weight:900;font-size:26px;line-height:1;letter-spacing:-.5px}
+.title span{color:var(--gold)}
+
+.role-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:20px}
+.role-tab{padding:11px 6px;background:var(--bg);border:1px solid var(--border);color:#aaa;font-family:'Barlow Condensed';font-weight:900;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;text-align:center;transition:all .15s;line-height:1.1}
+.role-tab:hover{border-color:var(--gold-border);color:#fff}
+.role-tab.active{background:var(--gold-soft);border-color:var(--gold);color:var(--gold)}
+.role-tab small{display:block;font-size:8px;letter-spacing:.5px;margin-top:3px;font-weight:600;opacity:.7}
+
+.field{margin-bottom:14px}
+.field-label{font-size:9px;font-weight:700;letter-spacing:1.5px;color:var(--slate);text-transform:uppercase;margin-bottom:4px;display:block}
+.field-input{width:100%;background:var(--bg);border:1px solid var(--border);color:#fff;padding:12px 14px;font-size:14px;font-family:inherit;outline:none}
+.field-input:focus{border-color:var(--gold)}
+
+.btn{width:100%;padding:13px;background:var(--gold);color:#000;border:none;font-family:'Barlow Condensed';font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;margin-top:6px}
+.btn:hover{background:#F5C842}
+.btn:disabled{background:var(--bg);color:var(--muted);cursor:not-allowed}
+
+.error{background:rgba(255,74,74,.08);border:1px solid rgba(255,74,74,.3);color:#ffaaaa;padding:10px;font-size:12px;margin-top:10px;text-align:center;display:none}
+.error.show{display:block}
+
+.info{margin-top:18px;padding-top:18px;border-top:1px solid var(--border);font-size:11px;color:var(--muted);line-height:1.5;text-align:center}
+.info a{color:var(--gold);text-decoration:none}
+.info a:hover{text-decoration:underline}
+
+.foot{margin-top:18px;font-size:10px;color:var(--muted);text-align:center}
+.foot a{color:var(--slate)}
+</style>
 </head>
-<body style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:24px;text-align:center;padding:40px 20px;">
-  <div style="font-size:56px;">🔐</div>
-  <div>
-    <div style="font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#D4AF37;margin-bottom:8px;">Em desenvolvimento</div>
-    <h1 style="font-family:'Barlow Condensed',sans-serif;font-size:48px;font-weight:900;line-height:1;margin-bottom:12px;">Entrar</h1>
-    <p style="font-size:15px;color:#AAAABF;font-weight:300;max-width:400px;line-height:1.7;">Sistema de login por roles — clube, treinador, pai, atleta e admin. A ser implementado com Supabase Auth.</p>
+<body>
+
+<div class="box">
+
+  <a href="/" class="logo">
+    <div class="logo-b">YT</div>
+    <div class="logo-n">Your<span>Talent</span>Base</div>
+  </a>
+
+  <div class="head">
+    <div class="eyebrow">🔐 Área Reservada</div>
+    <h1 class="title">Login <span>Scouting 360</span></h1>
   </div>
-  <a href="/" style="display:inline-flex;align-items:center;gap:8px;background:#111116;border:1px solid #1E1E2A;color:#AAAABF;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;transition:all .2s;">← Voltar ao início</a>
+
+  <div class="role-tabs">
+    <button class="role-tab active" data-role="cliente" onclick="setRole('cliente',event)">
+      🏟️ Clube<small>B2B</small>
+    </button>
+    <button class="role-tab" data-role="scout" onclick="setRole('scout',event)">
+      🎯 Scout<small>YTB</small>
+    </button>
+    <button class="role-tab" data-role="admin" onclick="setRole('admin',event)">
+      ⚙️ Admin<small>YTB</small>
+    </button>
+  </div>
+
+  <div class="field">
+    <label class="field-label" id="pwd-label">Password Cliente</label>
+    <input class="field-input" id="pwd" type="password" placeholder="Insere password" autocomplete="current-password">
+  </div>
+
+  <button class="btn" id="btn-login" onclick="doLogin()">Entrar →</button>
+
+  <div class="error" id="error">Password incorrecta</div>
+
+  <div class="info" id="info">
+    Não tens credenciais? <a href="https://wa.me/351913695846?text=Ol%C3%A1%2C%20sou%20clube%20e%20gostaria%20de%20subscrever%20o%20Scouting%20360" target="_blank">Pedir acesso B2B →</a>
+  </div>
+
+  <div class="foot">
+    <a href="/">← Voltar à home</a> · <a href="termos.html">Termos</a> · <a href="privacidade.html">Privacidade</a>
+  </div>
+
+</div>
+
+<script>
+// Passwords hardcoded (será substituido por Supabase Auth na sessão de segurança)
+const PWD_ADMIN   = 'YTB#Admin2026';   // Admin master · entra em qualquer área
+const PWD_SCOUT   = 'YTB#Scout2026';   // Scout YTB
+const PWD_CLIENTE = 'YTB#Clube2026';   // Cliente B2B
+
+let role = 'cliente';
+
+function setRole(r, ev){
+  role = r;
+  document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
+  ev.currentTarget.classList.add('active');
+  document.getElementById('pwd-label').textContent =
+    r === 'admin'   ? 'Password Admin' :
+    r === 'scout'   ? 'Password Scout YTB' :
+                      'Password Cliente B2B';
+  document.getElementById('info').style.display = (r === 'cliente') ? 'block' : 'none';
+  document.getElementById('error').classList.remove('show');
+  document.getElementById('pwd').focus();
+}
+
+function doLogin(){
+  const pwd = document.getElementById('pwd').value;
+  const err = document.getElementById('error');
+  err.classList.remove('show');
+
+  if(!pwd){
+    err.textContent = 'Insere a password';
+    err.classList.add('show'); return;
+  }
+
+  let granted = false;
+  let actualRole = role;
+
+  // Admin master tem acesso a TUDO
+  if(pwd === PWD_ADMIN){
+    granted = true;
+    actualRole = role; // mantém qual escolheu mas com privilégio admin
+    localStorage.setItem('ytb_360_admin_master', 'true');
+  }
+  // Scout password
+  else if(role === 'scout' && pwd === PWD_SCOUT){
+    granted = true;
+    localStorage.removeItem('ytb_360_admin_master');
+  }
+  // Cliente B2B password
+  else if(role === 'cliente' && pwd === PWD_CLIENTE){
+    granted = true;
+    localStorage.removeItem('ytb_360_admin_master');
+  }
+  // Admin role mas password não é admin
+  else if(role === 'admin'){
+    granted = false;
+  }
+
+  if(!granted){
+    err.textContent = 'Password incorrecta';
+    err.classList.add('show');
+    document.getElementById('pwd').value = '';
+    return;
+  }
+
+  // Guardar sessão (24h)
+  const session = {
+    role: actualRole,
+    isAdmin: pwd === PWD_ADMIN,
+    expires: Date.now() + (24 * 60 * 60 * 1000)
+  };
+  localStorage.setItem('ytb_360_auth', JSON.stringify(session));
+
+  // Redirect
+  if(actualRole === 'admin'){
+    window.location.href = 'admin360.html';
+  } else {
+    window.location.href = 'scouting360-dashboard.html';
+  }
+}
+
+document.getElementById('pwd').addEventListener('keydown', e => {
+  if(e.key === 'Enter') doLogin();
+});
+
+// Auto-focus
+window.addEventListener('load', () => document.getElementById('pwd').focus());
+
+// Se já está logado, redireciona
+const existing = localStorage.getItem('ytb_360_auth');
+if(existing){
+  try {
+    const s = JSON.parse(existing);
+    if(s.expires > Date.now()){
+      if(s.role === 'admin') window.location.href = 'admin360.html';
+      else window.location.href = 'scouting360-dashboard.html';
+    } else {
+      localStorage.removeItem('ytb_360_auth');
+      localStorage.removeItem('ytb_360_admin_master');
+    }
+  } catch(e){}
+}
+</script>
+
 </body>
 </html>

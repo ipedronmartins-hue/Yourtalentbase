@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Console · Scouting 360 YTB</title>
+<meta name="robots" content="noindex,nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,700;0,800;0,900;1,900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#080C08;--bg2:#0F1410;--bg3:#161D17;
+  --gold:#D4AF37;--gold-soft:rgba(212,175,55,.15);--gold-border:rgba(212,175,55,.3);
+  --gold-bright:#F5C842;
+  --green:#00D46A;--orange:#FFA500;--red:#FF4A4A;--blue:#4A9FE8;--purple:#A78BFA;
+  --border:#1F2520;--white:#fff;--slate:#aaa;--muted:#666;
+}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:#fff;min-height:100vh;-webkit-font-smoothing:antialiased}
+
+/* NAV */
+.nav{position:sticky;top:0;z-index:50;background:rgba(8,12,8,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;max-width:1400px;margin:0 auto}
+.nav-l{display:flex;align-items:center;gap:12px}
+.logo-b{width:30px;height:30px;background:var(--red);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:900;font-size:12px;color:#fff}
+.logo-n{font-family:'Barlow Condensed';font-weight:800;font-size:16px;letter-spacing:1.5px}
+.logo-n span{color:var(--red)}
+.admin-tag{font-size:9px;font-weight:800;letter-spacing:2px;color:var(--red);text-transform:uppercase;padding:3px 8px;border:1px solid rgba(255,74,74,.3);background:rgba(255,74,74,.06)}
+.nav-out{font-size:10px;color:var(--muted);cursor:pointer;text-decoration:none;padding:5px 10px;border:1px solid var(--border)}
+.nav-out:hover{border-color:var(--gold-border);color:#fff}
+
+.container{max-width:1400px;margin:0 auto;padding:18px}
+
+/* HEAD */
+.head{margin-bottom:16px}
+.eyebrow{font-size:9px;font-weight:800;letter-spacing:3px;color:var(--red);text-transform:uppercase;margin-bottom:4px}
+.h1{font-family:'Barlow Condensed';font-weight:900;font-size:28px;line-height:1;letter-spacing:-.5px}
+.h1 em{color:var(--gold);font-style:italic}
+
+/* TABS */
+.tabs{display:flex;gap:4px;margin-bottom:14px;border-bottom:1px solid var(--border);overflow-x:auto;padding-bottom:0}
+.tab{padding:11px 16px;background:transparent;border:none;color:#aaa;font-family:'Barlow Condensed';font-weight:900;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:all .15s}
+.tab:hover{color:#fff}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.tab .badge{background:var(--gold);color:#000;font-size:9px;padding:1px 5px;margin-left:4px;border-radius:8px}
+.tab .badge-red{background:var(--red);color:#fff}
+
+/* SECTIONS */
+.section{display:none}
+.section.active{display:block}
+
+/* KPIs */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px}
+@media (max-width:520px){.kpi-row{grid-template-columns:1fr 1fr}}
+.kpi{background:var(--bg2);border:1px solid var(--border);padding:12px;border-left:3px solid var(--gold)}
+.kpi-n{font-family:'Barlow Condensed';font-weight:900;font-size:24px;color:#fff;line-height:1}
+.kpi-l{font-size:8px;font-weight:800;letter-spacing:1.5px;color:var(--gold);text-transform:uppercase;margin-top:3px}
+
+/* TOOLBAR */
+.toolbar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.search{flex:1;min-width:200px;background:var(--bg2);border:1px solid var(--border);padding:9px 12px;color:#fff;font-size:13px;font-family:inherit;outline:none}
+.search:focus{border-color:var(--gold)}
+.f-select{background:var(--bg2);border:1px solid var(--border);color:#fff;padding:8px 24px 8px 10px;font-size:11px;font-weight:700;font-family:inherit;outline:none;appearance:none;cursor:pointer;background-image:url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23D4AF37'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");background-repeat:no-repeat;background-position:right 6px center;background-size:14px}
+
+/* TABLE */
+.table-wrap{background:var(--bg2);border:1px solid var(--border);overflow-x:auto;margin-bottom:18px}
+table{width:100%;border-collapse:collapse;font-size:12px;min-width:700px}
+th{padding:10px 12px;text-align:left;background:var(--bg3);color:var(--gold);font-weight:800;letter-spacing:1px;text-transform:uppercase;font-size:10px;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:10px 12px;border-bottom:1px solid var(--border);color:#ddd;vertical-align:middle}
+tr:hover td{background:rgba(212,175,55,.04)}
+tr:last-child td{border-bottom:none}
+.td-name{color:#fff;font-weight:700}
+.td-name strong{color:var(--gold)}
+.td-mute{color:var(--muted);font-size:11px}
+
+/* PILLS */
+.pill{display:inline-block;font-size:9px;font-weight:800;letter-spacing:1px;padding:2px 7px;text-transform:uppercase}
+.pill-pendente{background:rgba(255,165,0,.15);color:var(--orange);border:1px solid rgba(255,165,0,.3)}
+.pill-aprovado{background:rgba(0,212,106,.15);color:var(--green);border:1px solid rgba(0,212,106,.3)}
+.pill-rejeitado{background:rgba(255,74,74,.15);color:var(--red);border:1px solid rgba(255,74,74,.3)}
+.pill-arquivado{background:rgba(160,160,160,.15);color:#aaa;border:1px solid #444}
+.pill-oculto{background:rgba(167,139,250,.1);color:var(--purple);border:1px solid rgba(167,139,250,.3)}
+.pill-admin{background:rgba(212,175,55,.15);color:var(--gold);border:1px solid var(--gold-border)}
+
+/* RATING */
+.r-rating-mini{display:inline-block;font-family:'Barlow Condensed';font-weight:900;font-size:13px;padding:2px 7px;letter-spacing:-.3px;min-width:30px;text-align:center}
+.rating-A,.rating-Ap{background:#FFD700;color:#000}
+.rating-B,.rating-Bp{background:#C0C0C0;color:#000}
+.rating-C,.rating-Cp{background:#CD7F32;color:#fff}
+.rating-D{background:var(--bg3);color:var(--muted);border:1px dashed var(--border)}
+
+/* ACTIONS */
+.action-btn{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.5px;padding:5px 9px;background:var(--bg);border:1px solid var(--border);color:#fff;cursor:pointer;font-family:inherit;text-decoration:none;margin-right:3px;text-transform:uppercase}
+.action-btn:hover{border-color:var(--gold);color:var(--gold)}
+.action-btn.danger:hover{border-color:var(--red);color:var(--red)}
+.action-btn.success:hover{border-color:var(--green);color:var(--green)}
+.action-btn.whatsapp{border-color:rgba(0,212,106,.3);color:var(--green)}
+.action-btn.whatsapp:hover{background:rgba(0,212,106,.1)}
+
+/* EMPTY */
+.empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:12px}
+.empty-icon{font-size:36px;margin-bottom:10px;opacity:.4}
+.loading{text-align:center;padding:40px;color:var(--muted)}
+.spinner{display:inline-block;width:28px;height:28px;border:2px solid rgba(212,175,55,.15);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(6px);z-index:100;display:none;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto}
+.modal-overlay.show{display:flex}
+.modal{background:var(--bg);border:2px solid var(--gold);max-width:640px;width:100%;padding:24px;margin:auto;animation:popIn .25s cubic-bezier(.16,1,.3,1) both}
+@keyframes popIn{from{transform:scale(.95);opacity:0}to{transform:scale(1);opacity:1}}
+.modal-title{font-family:'Barlow Condensed';font-weight:900;font-size:22px;color:var(--gold);margin-bottom:6px;letter-spacing:-.3px}
+.modal-sub{font-size:12px;color:var(--slate);margin-bottom:16px;line-height:1.5}
+.modal-textarea{width:100%;background:var(--bg2);border:1px solid var(--border);color:#fff;padding:12px;font-size:12px;font-family:'Courier New',monospace;outline:none;line-height:1.5;min-height:200px;resize:vertical}
+.modal-textarea:focus{border-color:var(--gold)}
+.modal-btns{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.modal-btn{flex:1;min-width:120px;padding:11px;border:none;font-family:'Barlow Condensed';font-weight:900;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;text-decoration:none;text-align:center;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.modal-btn-primary{background:var(--green);color:#000}
+.modal-btn-primary:hover{background:#1ae876}
+.modal-btn-secondary{background:transparent;color:#fff;border:1px solid var(--gold-border)}
+.modal-btn-secondary:hover{background:var(--gold-soft)}
+
+/* EDIT FORM */
+.edit-form{display:flex;flex-direction:column;gap:10px;max-height:70vh;overflow-y:auto;padding-right:6px}
+.edit-section{padding:10px;background:var(--bg2);border:1px solid var(--border)}
+.edit-sec-title{font-size:9px;font-weight:800;letter-spacing:1.5px;color:var(--gold);text-transform:uppercase;margin-bottom:8px}
+.edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+@media (max-width:520px){.edit-grid{grid-template-columns:1fr}}
+.edit-field{display:flex;flex-direction:column}
+.edit-field.full{grid-column:1/-1}
+.edit-label{font-size:8px;font-weight:700;letter-spacing:1px;color:var(--slate);text-transform:uppercase;margin-bottom:3px}
+.edit-input,.edit-select,.edit-textarea{background:var(--bg);border:1px solid var(--border);color:#fff;padding:8px 10px;font-size:12px;font-family:inherit;outline:none}
+.edit-input:focus,.edit-select:focus,.edit-textarea:focus{border-color:var(--gold)}
+.edit-textarea{min-height:60px;resize:vertical;line-height:1.5}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--gold);color:#000;padding:12px 20px;font-weight:800;font-size:12px;letter-spacing:1px;text-transform:uppercase;font-family:'Barlow Condensed';z-index:200;opacity:0;pointer-events:none;transition:all .3s;max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
+.toast.error{background:var(--red);color:#fff}
+.toast.green{background:var(--green);color:#000}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-l">
+    <div class="logo-b">YT</div>
+    <div class="logo-n">Your<span>Talent</span>Base</div>
+    <span class="admin-tag">⚙️ Admin 360</span>
+  </div>
+  <a class="nav-out" onclick="logout()">Sair</a>
+</nav>
+
+<div class="container">
+
+  <div class="head">
+    <div class="eyebrow">Console Administração</div>
+    <h1 class="h1">Gestão <em>Scouting 360</em></h1>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi"><div class="kpi-n" id="k-total">—</div><div class="kpi-l">Total</div></div>
+    <div class="kpi" style="border-left-color:var(--orange)"><div class="kpi-n" id="k-pendentes">—</div><div class="kpi-l">Pendentes</div></div>
+    <div class="kpi" style="border-left-color:var(--blue)"><div class="kpi-n" id="k-pedidos">—</div><div class="kpi-l">Pedidos</div></div>
+    <div class="kpi" style="border-left-color:var(--purple)"><div class="kpi-n" id="k-clubes-sub">—</div><div class="kpi-l">Clubes Sub.</div></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('atletas',event)">📋 Atletas</button>
+    <button class="tab" onclick="showTab('pendentes',event)">⏳ Pendentes <span class="badge badge-red" id="tab-bg-pend">0</span></button>
+    <button class="tab" onclick="showTab('pedidos',event)">📞 Pedidos <span class="badge badge-red" id="tab-bg-ped">0</span></button>
+    <button class="tab" onclick="showTab('clubes',event)">🏢 Clubes</button>
+  </div>
+
+  <!-- ATLETAS -->
+  <div class="section active" id="section-atletas">
+    <div class="toolbar">
+      <input class="search" id="s-atletas" type="search" placeholder="Procurar nome, clube, email...">
+      <select class="f-select" id="f-estado">
+        <option value="all">Todos estados</option>
+        <option>pendente</option><option>aprovado</option><option>rejeitado</option><option>arquivado</option>
+      </select>
+      <select class="f-select" id="f-fonte">
+        <option value="all">Todas fontes</option>
+        <option>pai</option><option>atleta</option><option>scout</option><option>treinador</option><option>admin</option>
+      </select>
+      <select class="f-select" id="f-vis">
+        <option value="all">Visibilidade</option>
+        <option value="public">Públicos</option>
+        <option value="b2b">B2B</option>
+        <option value="oculto">Ocultos</option>
+        <option value="invisivel">Invisíveis</option>
+      </select>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Atleta</th>
+            <th>Posição</th>
+            <th>Clube</th>
+            <th>Fonte</th>
+            <th>Rating</th>
+            <th>Estado</th>
+            <th>Vis</th>
+            <th>Acções</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-atletas"><tr><td colspan="8" class="loading"><div class="spinner"></div></td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PENDENTES -->
+  <div class="section" id="section-pendentes">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Atleta</th>
+            <th>Inscrito por</th>
+            <th>Encarregado</th>
+            <th>WhatsApp</th>
+            <th>Data</th>
+            <th>Acções</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-pendentes"><tr><td colspan="6" class="loading"><div class="spinner"></div></td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PEDIDOS CONTACTO -->
+  <div class="section" id="section-pedidos">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Clube</th>
+            <th>Responsável</th>
+            <th>Atleta</th>
+            <th>Estado</th>
+            <th>Data</th>
+            <th>Acções</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-pedidos"><tr><td colspan="6" class="loading"><div class="spinner"></div></td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- CLUBES SUBSCRITORES -->
+  <div class="section" id="section-clubes">
+    <div style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+      <input class="search" id="s-clubes" type="search" placeholder="Procurar clube..." style="flex:1;min-width:200px;max-width:400px">
+      <button class="action-btn success" onclick="abrirNovoClube()" style="padding:9px 14px;font-size:11px">+ Novo Clube</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Clube</th>
+            <th>Responsável</th>
+            <th>Plano</th>
+            <th>Estado</th>
+            <th>Subscrição</th>
+            <th>Acções</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-clubes"><tr><td colspan="6" class="loading"><div class="spinner"></div></td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL WHATSAPP -->
+<div class="modal-overlay" id="modal-wa" onclick="if(event.target.id==='modal-wa')closeModal('wa')">
+  <div class="modal">
+    <div class="modal-title">📱 Enviar WhatsApp</div>
+    <div class="modal-sub" id="wa-sub">—</div>
+    <textarea class="modal-textarea" id="wa-text" rows="14"></textarea>
+    <div class="modal-btns">
+      <button class="modal-btn modal-btn-secondary" onclick="closeModal('wa')">Cancelar</button>
+      <button class="modal-btn modal-btn-secondary" onclick="copyWA()">📋 Copiar texto</button>
+      <a class="modal-btn modal-btn-primary" id="wa-link" target="_blank">📱 Abrir WhatsApp</a>
+    </div>
+    <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:10px;color:var(--muted);text-align:center">
+      Depois de enviar, clica <strong style="color:var(--gold)">"Marcar enviado"</strong> na tabela
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR ATLETA -->
+<div class="modal-overlay" id="modal-edit" onclick="if(event.target.id==='modal-edit')closeModal('edit')">
+  <div class="modal" style="max-width:720px">
+    <div class="modal-title" id="edit-title">Editar Atleta</div>
+    <div class="modal-sub">Edita qualquer campo. Submete para guardar.</div>
+    <div class="edit-form" id="edit-form"></div>
+    <div class="modal-btns">
+      <button class="modal-btn modal-btn-secondary" onclick="closeModal('edit')">Cancelar</button>
+      <button class="modal-btn modal-btn-primary" onclick="saveAtleta()">💾 Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NOVO CLUBE -->
+<div class="modal-overlay" id="modal-clube" onclick="if(event.target.id==='modal-clube')closeModal('clube')">
+  <div class="modal">
+    <div class="modal-title">🏢 Novo Clube Subscritor</div>
+    <div class="modal-sub">Cria manualmente um clube B2B com password temporária.</div>
+    <div class="edit-grid">
+      <div class="edit-field full"><label class="edit-label">Nome do clube *</label><input class="edit-input" id="c_nome" type="text"></div>
+      <div class="edit-field"><label class="edit-label">Responsável *</label><input class="edit-input" id="c_resp" type="text"></div>
+      <div class="edit-field"><label class="edit-label">Cargo</label><input class="edit-input" id="c_cargo" type="text" placeholder="Ex: DT, Coord. Scouting"></div>
+      <div class="edit-field"><label class="edit-label">Email *</label><input class="edit-input" id="c_email" type="email"></div>
+      <div class="edit-field"><label class="edit-label">Telefone</label><input class="edit-input" id="c_tel" type="tel"></div>
+      <div class="edit-field"><label class="edit-label">Plano</label>
+        <select class="edit-select" id="c_plano">
+          <option value="clube-pro">Clube Pro · 49€/mês</option>
+          <option value="clube-pro-plus">Clube Pro+ · 119€/mês</option>
+          <option value="enterprise">Enterprise · 299€/mês</option>
+        </select>
+      </div>
+      <div class="edit-field"><label class="edit-label">Password temporária</label><input class="edit-input" id="c_pwd" type="text" value="YTB#Clube2026"></div>
+      <div class="edit-field full"><label class="edit-label">Notas admin</label><textarea class="edit-textarea" id="c_notas"></textarea></div>
+    </div>
+    <div class="modal-btns">
+      <button class="modal-btn modal-btn-secondary" onclick="closeModal('clube')">Cancelar</button>
+      <button class="modal-btn modal-btn-primary" onclick="saveClube()">💾 Criar Clube</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://nhshnplaiolxwcfuijfo.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oc2hucGxhaW9seHdjZnVpamZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NDQxNTAsImV4cCI6MjA4OTQyMDE1MH0.uyZiDun8495sjnHA6Wsk-Hou-3lubbNJfQqSYbMLSek';
+const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// AUTH GATE - APENAS ADMIN
+const authStr = localStorage.getItem('ytb_360_auth');
+if(!authStr){ window.location.href = 'auth.html'; }
+let session;
+try {
+  session = JSON.parse(authStr);
+  if(session.expires < Date.now() || !session.isAdmin){
+    if(!session.isAdmin){
+      alert('Acesso restrito a Admin');
+    }
+    localStorage.removeItem('ytb_360_auth');
+    window.location.href = 'auth.html';
+  }
+} catch(e){
+  window.location.href = 'auth.html';
+}
+
+function logout(){
+  localStorage.removeItem('ytb_360_auth');
+  localStorage.removeItem('ytb_360_admin_master');
+  window.location.href = 'auth.html';
+}
+
+let allAtletas = [], allPendentes = [], allPedidos = [], allClubes = [];
+let currentAtleta = null;
+let currentPedido = null;
+let waMode = null; // 'pendente' ou 'pedido'
+
+function escapeHtml(s){ if(s == null) return ''; return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function ratingClass(r){ if(!r) return 'rating-D'; return 'rating-' + r.replace('+','p'); }
+function fmtDate(d){ if(!d) return '—'; return new Date(d).toLocaleDateString('pt-PT'); }
+function fmtPhone(p){ if(!p) return '—'; return p.replace(/[\s\-\(\)]/g,''); }
+
+function showTab(tab, ev){
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  ev.currentTarget.classList.add('active');
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('section-' + tab).classList.add('active');
+}
+
+function toast(msg, type){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.remove('error','green');
+  if(type === 'error') t.classList.add('error');
+  if(type === 'green') t.classList.add('green');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+function closeModal(name){
+  document.getElementById('modal-' + name).classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+// ════════════════ LOAD ════════════════
+async function load(){
+  try {
+    const { data: a } = await supa.from('atletas_360').select('*').order('created_at', { ascending: false });
+    allAtletas = a || [];
+
+    const { data: p } = await supa.from('atletas_360_pedidos_contacto').select('*').order('enviado_em', { ascending: false });
+    allPedidos = p || [];
+
+    const { data: c } = await supa.from('atletas_360_clubes_subscritores').select('*').order('created_at', { ascending: false });
+    allClubes = c || [];
+
+    allPendentes = allAtletas.filter(x => x.estado === 'pendente');
+
+    // KPIs
+    document.getElementById('k-total').textContent = allAtletas.length;
+    document.getElementById('k-pendentes').textContent = allPendentes.length;
+    const pedAbertos = allPedidos.filter(p => ['pendente','admin_em_curso','encarregado_notificado'].includes(p.estado)).length;
+    document.getElementById('k-pedidos').textContent = pedAbertos;
+    document.getElementById('k-clubes-sub').textContent = allClubes.filter(c => c.estado_subscricao === 'ativa').length;
+
+    document.getElementById('tab-bg-pend').textContent = allPendentes.length;
+    document.getElementById('tab-bg-ped').textContent = pedAbertos;
+
+    renderAtletas();
+    renderPendentes();
+    renderPedidos();
+    renderClubes();
+
+  } catch(err){
+    console.error(err);
+    toast('Erro a carregar: ' + (err.message || err), 'error');
+  }
+}
+
+// ════════════════ ATLETAS ════════════════
+function renderAtletas(){
+  const search = document.getElementById('s-atletas').value.toLowerCase();
+  const estado = document.getElementById('f-estado').value;
+  const fonte = document.getElementById('f-fonte').value;
+  const vis = document.getElementById('f-vis').value;
+
+  let f = allAtletas;
+  if(search){
+    f = f.filter(a =>
+      (a.nome || '').toLowerCase().includes(search) ||
+      (a.clube_actual || '').toLowerCase().includes(search) ||
+      (a.fonte_email || '').toLowerCase().includes(search)
+    );
+  }
+  if(estado !== 'all') f = f.filter(a => a.estado === estado);
+  if(fonte !== 'all') f = f.filter(a => a.fonte === fonte);
+  if(vis === 'public') f = f.filter(a => a.visivel_publico && !a.oculto_pelo_responsavel);
+  else if(vis === 'b2b') f = f.filter(a => a.visivel_b2b && !a.oculto_pelo_responsavel);
+  else if(vis === 'oculto') f = f.filter(a => a.oculto_pelo_responsavel);
+  else if(vis === 'invisivel') f = f.filter(a => !a.visivel_publico && !a.visivel_b2b);
+
+  const tbody = document.getElementById('tbody-atletas');
+  if(!f.length){
+    tbody.innerHTML = '<tr><td colspan="8" class="empty"><div class="empty-icon">🔍</div>Sem atletas</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = f.map(a => `
+    <tr id="atleta-${a.id}">
+      <td class="td-name">
+        <strong>${escapeHtml(a.nome)}</strong>
+        <div class="td-mute">${escapeHtml(a.escalao)} · ${a.ano_nascimento || '?'}</div>
+      </td>
+      <td>${escapeHtml(a.posicao_principal)}</td>
+      <td>${escapeHtml(a.clube_actual)}<div class="td-mute">${escapeHtml(a.associacao || '')}</div></td>
+      <td><span class="pill pill-admin">${a.fonte}</span><div class="td-mute">${escapeHtml((a.fonte_nome || '').slice(0,20))}</div></td>
+      <td><span class="r-rating-mini ${ratingClass(a.rating_geral)}">${a.rating_geral || '—'}</span></td>
+      <td><span class="pill pill-${a.estado}">${a.estado}</span></td>
+      <td>
+        ${a.oculto_pelo_responsavel ? '<span class="pill pill-oculto">oculto</span>' : ''}
+        ${a.visivel_publico ? '<span style="color:var(--green);font-size:14px" title="Público">●</span>' : '<span style="color:var(--muted);font-size:14px" title="Não público">○</span>'}
+        ${a.visivel_b2b ? '<span style="color:var(--gold);font-size:14px;margin-left:2px" title="B2B">●</span>' : '<span style="color:var(--muted);font-size:14px;margin-left:2px" title="Não B2B">○</span>'}
+      </td>
+      <td style="white-space:nowrap">
+        <button class="action-btn" onclick="editarAtleta('${a.id}')">✏️</button>
+        <button class="action-btn danger" onclick="apagarAtleta('${a.id}','${escapeHtml(a.nome)}')">🗑</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// ════════════════ PENDENTES ════════════════
+function renderPendentes(){
+  const tbody = document.getElementById('tbody-pendentes');
+  if(!allPendentes.length){
+    tbody.innerHTML = '<tr><td colspan="6" class="empty"><div class="empty-icon">✅</div>Sem pendentes</td></tr>';
+    return;
+  }
+  tbody.innerHTML = allPendentes.map(a => `
+    <tr>
+      <td class="td-name">
+        <strong>${escapeHtml(a.nome)}</strong>
+        <div class="td-mute">${escapeHtml(a.posicao_principal)} · ${escapeHtml(a.escalao)} · ${escapeHtml(a.clube_actual)}</div>
+      </td>
+      <td>${escapeHtml(a.fonte_nome)}<div class="td-mute">${a.fonte} · ${escapeHtml(a.fonte_email || '')}</div></td>
+      <td>${escapeHtml(a.encarregado_nome || '—')}</td>
+      <td>
+        ${escapeHtml(a.encarregado_telefone || '—')}
+        ${a.whatsapp_enviado ? '<div class="td-mute" style="color:var(--green)">✓ Enviado ' + fmtDate(a.whatsapp_enviado_em) + '</div>' : '<div class="td-mute" style="color:var(--orange)">⏳ Por enviar</div>'}
+      </td>
+      <td class="td-mute">${fmtDate(a.created_at)}</td>
+      <td style="white-space:nowrap">
+        ${!a.whatsapp_enviado ? `<button class="action-btn whatsapp" onclick="enviarWhatsAppPendente('${a.id}')">📱 WhatsApp</button>` : `<button class="action-btn" onclick="marcarWhatsAppPendente('${a.id}',false)">↻ Reset</button>`}
+        <button class="action-btn success" onclick="aprovarAtleta('${a.id}')">✓ Aprovar</button>
+        <button class="action-btn danger" onclick="rejeitarAtleta('${a.id}')">✗</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// ════════════════ PEDIDOS CONTACTO ════════════════
+function renderPedidos(){
+  const tbody = document.getElementById('tbody-pedidos');
+  if(!allPedidos.length){
+    tbody.innerHTML = '<tr><td colspan="6" class="empty"><div class="empty-icon">📭</div>Sem pedidos</td></tr>';
+    return;
+  }
+  tbody.innerHTML = allPedidos.map(p => {
+    const atleta = allAtletas.find(a => a.id === p.atleta_id);
+    return `
+      <tr>
+        <td class="td-name"><strong>${escapeHtml(p.clube_nome)}</strong></td>
+        <td>${escapeHtml(p.responsavel_nome)}<div class="td-mute">${escapeHtml(p.responsavel_email || '')}</div></td>
+        <td>
+          ${atleta ? `<strong>${escapeHtml(atleta.nome)}</strong><div class="td-mute">${escapeHtml(atleta.posicao_principal)} · ${escapeHtml(atleta.escalao)} · ${escapeHtml(atleta.clube_actual)}</div>` : '<span class="td-mute">Atleta removido</span>'}
+          ${p.motivo ? '<div class="td-mute" style="margin-top:4px;font-style:italic">"' + escapeHtml(p.motivo.slice(0,80)) + (p.motivo.length > 80 ? '..."' : '"') + '</div>' : ''}
+        </td>
+        <td><span class="pill pill-${p.estado === 'aceite' ? 'aprovado' : p.estado === 'recusado' ? 'rejeitado' : 'pendente'}">${p.estado.replace(/_/g,' ')}</span></td>
+        <td class="td-mute">${fmtDate(p.enviado_em)}</td>
+        <td style="white-space:nowrap">
+          ${atleta && p.estado === 'pendente' ? `<button class="action-btn whatsapp" onclick="enviarWhatsAppPedido('${p.id}')">📱 WA EE</button>` : ''}
+          ${p.estado !== 'aceite' && p.estado !== 'recusado' ? `<button class="action-btn success" onclick="resolverPedido('${p.id}','aceite')">✓</button>` : ''}
+          ${p.estado !== 'recusado' ? `<button class="action-btn danger" onclick="resolverPedido('${p.id}','recusado')">✗</button>` : ''}
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+// ════════════════ CLUBES ════════════════
+function renderClubes(){
+  const search = document.getElementById('s-clubes').value.toLowerCase();
+  let f = allClubes;
+  if(search){
+    f = f.filter(c => (c.clube_nome || '').toLowerCase().includes(search) || (c.responsavel_email || '').toLowerCase().includes(search));
+  }
+  const tbody = document.getElementById('tbody-clubes');
+  if(!f.length){
+    tbody.innerHTML = '<tr><td colspan="6" class="empty"><div class="empty-icon">🏢</div>Sem clubes subscritores</td></tr>';
+    return;
+  }
+  tbody.innerHTML = f.map(c => `
+    <tr>
+      <td class="td-name"><strong>${escapeHtml(c.clube_nome)}</strong></td>
+      <td>${escapeHtml(c.responsavel_nome)}<div class="td-mute">${escapeHtml(c.responsavel_email)}</div></td>
+      <td><span class="pill pill-admin">${c.plano || 'sem plano'}</span><div class="td-mute">${c.valor_mensal ? c.valor_mensal + '€/mês' : '—'}</div></td>
+      <td><span class="pill pill-${c.estado_subscricao === 'ativa' ? 'aprovado' : c.estado_subscricao === 'cancelada' ? 'rejeitado' : 'pendente'}">${c.estado_subscricao}</span></td>
+      <td class="td-mute">${fmtDate(c.subscrito_em)}<br>${c.subscricao_ate ? '→ ' + fmtDate(c.subscricao_ate) : ''}</td>
+      <td style="white-space:nowrap">
+        <button class="action-btn" onclick="editarClube('${c.id}')">✏️</button>
+        <button class="action-btn danger" onclick="apagarClube('${c.id}','${escapeHtml(c.clube_nome)}')">🗑</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// ════════════════ WHATSAPP TEMPLATES ════════════════
+function templateA(a){
+  const primeiroNome = a.primeiro_nome || a.nome.split(' ')[0];
+  const dataInsc = fmtDate(a.created_at);
+  const urlOcultar = `https://yourtalentbase.pt/ocultar.html?token=${a.token_ocultar}`;
+  return `Olá ${a.encarregado_nome || ''},
+
+Sou da YourTalentBase (yourtalentbase.pt).
+
+O atleta ${primeiroNome} foi inscrito na nossa base nacional de scouting de formação por ${a.fonte_nome} (${a.fonte}) em ${dataInsc} para fins de desenvolvimento desportivo e visibilidade junto de clubes e olheiros.
+
+Detalhes:
+• Nome: ${a.nome}
+• Posição: ${a.posicao_principal} · Escalão: ${a.escalao}
+• Clube: ${a.clube_actual}
+
+Pode a qualquer momento ocultar/remover o perfil em:
+${urlOcultar}
+
+Para questões: yourtalentbase@gmail.com
+
+Cumprimentos,
+Ivo Martins · YourTalentBase`;
+}
+
+function templateB(p, a){
+  const primeiroNome = a.primeiro_nome || a.nome.split(' ')[0];
+  return `Olá ${a.encarregado_nome || ''},
+
+Sou da YourTalentBase.
+
+O clube ${p.clube_nome} demonstrou interesse no seu filho ${primeiroNome} e gostaria de estabelecer contacto.
+
+${p.motivo ? 'Motivo: ' + p.motivo + '\n' : ''}
+Aceita partilharmos o seu contacto com este clube?
+
+• SIM → respondo SIM e dou o vosso contacto
+• NÃO → respondo NÃO e arquivo o pedido
+• Quero saber mais → falamos primeiro
+
+Cumprimentos,
+Ivo Martins · YourTalentBase`;
+}
+
+function enviarWhatsAppPendente(id){
+  const a = allAtletas.find(x => x.id === id);
+  if(!a){ toast('Atleta não encontrado', 'error'); return; }
+  if(!a.encarregado_telefone){ toast('Falta telefone do EE', 'error'); return; }
+
+  currentAtleta = a;
+  waMode = 'pendente';
+  const text = templateA(a);
+  document.getElementById('wa-sub').innerHTML = `<strong>${escapeHtml(a.encarregado_nome)}</strong> · ${escapeHtml(a.encarregado_telefone)}<br>Notificação inicial pós-inscrição (Template A)`;
+  document.getElementById('wa-text').value = text;
+  const phone = fmtPhone(a.encarregado_telefone).replace(/^\+/, '').replace(/^00/, '');
+  const cleanPhone = phone.startsWith('351') ? phone : '351' + phone;
+  document.getElementById('wa-link').href = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(text)}`;
+  document.getElementById('modal-wa').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function enviarWhatsAppPedido(pedidoId){
+  const p = allPedidos.find(x => x.id === pedidoId);
+  if(!p){ toast('Pedido não encontrado', 'error'); return; }
+  const a = allAtletas.find(x => x.id === p.atleta_id);
+  if(!a){ toast('Atleta não encontrado', 'error'); return; }
+  if(!a.encarregado_telefone){ toast('Falta telefone do EE', 'error'); return; }
+
+  currentPedido = p;
+  currentAtleta = a;
+  waMode = 'pedido';
+  const text = templateB(p, a);
+  document.getElementById('wa-sub').innerHTML = `<strong>${escapeHtml(a.encarregado_nome)}</strong> · ${escapeHtml(a.encarregado_telefone)}<br>Pedido contacto B2B (Template B) · ${escapeHtml(p.clube_nome)}`;
+  document.getElementById('wa-text').value = text;
+  const phone = fmtPhone(a.encarregado_telefone).replace(/^\+/, '').replace(/^00/, '');
+  const cleanPhone = phone.startsWith('351') ? phone : '351' + phone;
+  document.getElementById('wa-link').href = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(text)}`;
+  document.getElementById('modal-wa').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+document.getElementById('wa-link').addEventListener('click', async () => {
+  // Marca como enviado depois de clicar
+  if(waMode === 'pendente' && currentAtleta){
+    await supa.from('atletas_360').update({
+      whatsapp_enviado: true,
+      whatsapp_enviado_em: new Date().toISOString(),
+      whatsapp_enviado_por: 'Admin YTB'
+    }).eq('id', currentAtleta.id);
+  } else if(waMode === 'pedido' && currentPedido){
+    await supa.from('atletas_360_pedidos_contacto').update({
+      estado: 'encarregado_notificado',
+      whatsapp_enviado_em: new Date().toISOString()
+    }).eq('id', currentPedido.id);
+  }
+  setTimeout(() => { closeModal('wa'); load(); }, 800);
+});
+
+function copyWA(){
+  const t = document.getElementById('wa-text');
+  t.select();
+  document.execCommand('copy');
+  toast('Texto copiado', 'green');
+}
+
+// ════════════════ AÇÕES ATLETAS ════════════════
+async function aprovarAtleta(id){
+  if(!confirm('Aprovar atleta e tornar visível na BD?')) return;
+  try {
+    const { error } = await supa.from('atletas_360').update({
+      estado: 'aprovado',
+      aprovado_por: 'Admin YTB',
+      aprovado_em: new Date().toISOString(),
+      visivel_b2b: true,
+      visivel_publico: true
+    }).eq('id', id);
+    if(error){ toast('Erro: ' + error.message, 'error'); return; }
+    toast('✓ Atleta aprovado', 'green');
+    load();
+  } catch(e){ toast('Erro inesperado', 'error'); }
+}
+
+async function rejeitarAtleta(id){
+  const motivo = prompt('Motivo da rejeição:');
+  if(motivo === null) return;
+  try {
+    await supa.from('atletas_360').update({
+      estado: 'rejeitado',
+      estado_motivo: motivo,
+      visivel_b2b: false,
+      visivel_publico: false
+    }).eq('id', id);
+    toast('Atleta rejeitado', 'green');
+    load();
+  } catch(e){ toast('Erro', 'error'); }
+}
+
+async function apagarAtleta(id, nome){
+  if(!confirm(`Apagar PERMANENTEMENTE "${nome}"?\n\nEsta acção apaga também stats, histórico, avaliações.\n\nÉ irreversível.`)) return;
+  if(!confirm('Confirma OUTRA VEZ: apagar para sempre?')) return;
+  try {
+    const { error } = await supa.from('atletas_360').delete().eq('id', id);
+    if(error){ toast('Erro: ' + error.message, 'error'); return; }
+    toast('Atleta apagado', 'green');
+    load();
+  } catch(e){ toast('Erro', 'error'); }
+}
+
+async function marcarWhatsAppPendente(id, enviado){
+  await supa.from('atletas_360').update({
+    whatsapp_enviado: enviado,
+    whatsapp_enviado_em: enviado ? new Date().toISOString() : null
+  }).eq('id', id);
+  toast('Estado atualizado', 'green');
+  load();
+}
+
+// ════════════════ EDITAR ATLETA ════════════════
+function editarAtleta(id){
+  const a = allAtletas.find(x => x.id === id);
+  if(!a){ toast('Atleta não encontrado', 'error'); return; }
+  currentAtleta = a;
+
+  document.getElementById('edit-title').textContent = '✏️ ' + a.nome;
+
+  const ratings = ['','A+','A','B+','B','C+','C','D'];
+  const badges = ['','observado','em-crescimento','hidden-gem','destaque'];
+  const areas = ['','tecnico','tactico','fisico','mental'];
+  const estados = ['pendente','aprovado','rejeitado','arquivado'];
+
+  document.getElementById('edit-form').innerHTML = `
+    <div class="edit-section">
+      <div class="edit-sec-title">👤 Identidade</div>
+      <div class="edit-grid">
+        <div class="edit-field full"><label class="edit-label">Nome completo</label><input class="edit-input" id="e_nome" value="${escapeHtml(a.nome)}"></div>
+        <div class="edit-field"><label class="edit-label">Primeiro nome</label><input class="edit-input" id="e_pri" value="${escapeHtml(a.primeiro_nome || '')}"></div>
+        <div class="edit-field"><label class="edit-label">Último apelido</label><input class="edit-input" id="e_ult" value="${escapeHtml(a.ultimo_nome || '')}"></div>
+        <div class="edit-field"><label class="edit-label">Ano nasc.</label><input class="edit-input" id="e_ano" type="number" value="${a.ano_nascimento}"></div>
+        <div class="edit-field"><label class="edit-label">Mês</label><input class="edit-input" id="e_mes" type="number" min="1" max="12" value="${a.mes_nascimento || ''}"></div>
+        <div class="edit-field"><label class="edit-label">Posição</label><input class="edit-input" id="e_pos" value="${escapeHtml(a.posicao_principal)}"></div>
+        <div class="edit-field"><label class="edit-label">Pé</label><input class="edit-input" id="e_pe" value="${escapeHtml(a.pe_dominante || '')}"></div>
+      </div>
+    </div>
+
+    <div class="edit-section">
+      <div class="edit-sec-title">🏟 Clube</div>
+      <div class="edit-grid">
+        <div class="edit-field"><label class="edit-label">Clube</label><input class="edit-input" id="e_clube" value="${escapeHtml(a.clube_actual)}"></div>
+        <div class="edit-field"><label class="edit-label">Equipa</label><input class="edit-input" id="e_equipa" value="${escapeHtml(a.equipa || '')}"></div>
+        <div class="edit-field"><label class="edit-label">Escalão</label><input class="edit-input" id="e_esc" value="${escapeHtml(a.escalao)}"></div>
+        <div class="edit-field"><label class="edit-label">Associação</label><input class="edit-input" id="e_assoc" value="${escapeHtml(a.associacao || '')}"></div>
+        <div class="edit-field full"><label class="edit-label">URL ZeroZero</label><input class="edit-input" id="e_zz" value="${escapeHtml(a.zerozero_url || '')}"></div>
+        <div class="edit-field full"><label class="edit-label">URL Joga+</label><input class="edit-input" id="e_jp" value="${escapeHtml(a.joga_plus_url || '')}"></div>
+      </div>
+    </div>
+
+    <div class="edit-section">
+      <div class="edit-sec-title">⭐ Avaliação YTB</div>
+      <div class="edit-grid">
+        <div class="edit-field"><label class="edit-label">Rating geral</label>
+          <select class="edit-select" id="e_rating">${ratings.map(r => `<option value="${r}" ${a.rating_geral === r ? 'selected' : ''}>${r || '—'}</option>`).join('')}</select>
+        </div>
+        <div class="edit-field"><label class="edit-label">Badge estado</label>
+          <select class="edit-select" id="e_badge">${badges.map(b => `<option value="${b}" ${a.badge_estado === b ? 'selected' : ''}>${b || '—'}</option>`).join('')}</select>
+        </div>
+        <div class="edit-field"><label class="edit-label">Excelência 1</label>
+          <select class="edit-select" id="e_ex1">${areas.map(x => `<option value="${x}" ${a.area_excelencia_1 === x ? 'selected' : ''}>${x || '—'}</option>`).join('')}</select>
+        </div>
+        <div class="edit-field"><label class="edit-label">Excelência 2</label>
+          <select class="edit-select" id="e_ex2">${areas.map(x => `<option value="${x}" ${a.area_excelencia_2 === x ? 'selected' : ''}>${x || '—'}</option>`).join('')}</select>
+        </div>
+        <div class="edit-field"><label class="edit-label">Excelência 3</label>
+          <select class="edit-select" id="e_ex3">${areas.map(x => `<option value="${x}" ${a.area_excelencia_3 === x ? 'selected' : ''}>${x || '—'}</option>`).join('')}</select>
+        </div>
+      </div>
+    </div>
+
+    <div class="edit-section">
+      <div class="edit-sec-title">📞 Encarregado de Educação</div>
+      <div class="edit-grid">
+        <div class="edit-field"><label class="edit-label">Nome EE</label><input class="edit-input" id="e_eenome" value="${escapeHtml(a.encarregado_nome || '')}"></div>
+        <div class="edit-field"><label class="edit-label">WhatsApp EE</label><input class="edit-input" id="e_eetel" value="${escapeHtml(a.encarregado_telefone || '')}"></div>
+      </div>
+    </div>
+
+    <div class="edit-section">
+      <div class="edit-sec-title">🚦 Estado e visibilidade</div>
+      <div class="edit-grid">
+        <div class="edit-field"><label class="edit-label">Estado</label>
+          <select class="edit-select" id="e_estado">${estados.map(e => `<option value="${e}" ${a.estado === e ? 'selected' : ''}>${e}</option>`).join('')}</select>
+        </div>
+        <div class="edit-field"><label class="edit-label">Visível público</label>
+          <select class="edit-select" id="e_pub"><option value="false" ${!a.visivel_publico ? 'selected' : ''}>Não</option><option value="true" ${a.visivel_publico ? 'selected' : ''}>Sim</option></select>
+        </div>
+        <div class="edit-field"><label class="edit-label">Visível B2B</label>
+          <select class="edit-select" id="e_b2b"><option value="false" ${!a.visivel_b2b ? 'selected' : ''}>Não</option><option value="true" ${a.visivel_b2b ? 'selected' : ''}>Sim</option></select>
+        </div>
+        <div class="edit-field full"><label class="edit-label">Notas admin</label><textarea class="edit-textarea" id="e_notas">${escapeHtml(a.notas_admin || '')}</textarea></div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('modal-edit').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+async function saveAtleta(){
+  if(!currentAtleta) return;
+  const get = id => document.getElementById(id).value.trim();
+  const num = id => { const v = parseInt(document.getElementById(id).value); return isNaN(v) ? null : v; };
+  const nullIf = v => v === '' || v === '—' ? null : v;
+
+  const updates = {
+    nome: get('e_nome'),
+    primeiro_nome: nullIf(get('e_pri')),
+    ultimo_nome: nullIf(get('e_ult')),
+    ano_nascimento: num('e_ano'),
+    mes_nascimento: num('e_mes'),
+    posicao_principal: get('e_pos'),
+    pe_dominante: nullIf(get('e_pe')),
+    clube_actual: get('e_clube'),
+    equipa: nullIf(get('e_equipa')),
+    escalao: get('e_esc'),
+    associacao: nullIf(get('e_assoc')),
+    zerozero_url: nullIf(get('e_zz')),
+    joga_plus_url: nullIf(get('e_jp')),
+    rating_geral: nullIf(get('e_rating')),
+    badge_estado: nullIf(get('e_badge')),
+    area_excelencia_1: nullIf(get('e_ex1')),
+    area_excelencia_2: nullIf(get('e_ex2')),
+    area_excelencia_3: nullIf(get('e_ex3')),
+    encarregado_nome: nullIf(get('e_eenome')),
+    encarregado_telefone: nullIf(get('e_eetel')),
+    estado: get('e_estado'),
+    visivel_publico: get('e_pub') === 'true',
+    visivel_b2b: get('e_b2b') === 'true',
+    notas_admin: nullIf(get('e_notas'))
+  };
+
+  try {
+    const { error } = await supa.from('atletas_360').update(updates).eq('id', currentAtleta.id);
+    if(error){ toast('Erro: ' + error.message, 'error'); return; }
+    toast('✓ Guardado', 'green');
+    closeModal('edit');
+    load();
+  } catch(e){ toast('Erro', 'error'); }
+}
+
+// ════════════════ PEDIDOS ════════════════
+async function resolverPedido(id, estado){
+  if(!confirm(`Marcar pedido como "${estado}"?`)) return;
+  try {
+    await supa.from('atletas_360_pedidos_contacto').update({
+      estado,
+      resolvido_em: new Date().toISOString(),
+      resposta_em: new Date().toISOString()
+    }).eq('id', id);
+    toast('Pedido atualizado', 'green');
+    load();
+  } catch(e){ toast('Erro', 'error'); }
+}
+
+// ════════════════ CLUBES ════════════════
+function abrirNovoClube(){
+  ['c_nome','c_resp','c_cargo','c_email','c_tel','c_notas'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('c_plano').value = 'clube-pro';
+  document.getElementById('c_pwd').value = 'YTB#Clube2026';
+  document.getElementById('modal-clube').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+async function saveClube(){
+  const get = id => document.getElementById(id).value.trim();
+  const nome = get('c_nome'), resp = get('c_resp'), email = get('c_email');
+  if(!nome || !resp || !email){ toast('Nome, responsável e email obrigatórios', 'error'); return; }
+
+  const plano = get('c_plano');
+  const valor = ({'clube-pro':49,'clube-pro-plus':119,'enterprise':299})[plano];
+
+  try {
+    const { error } = await supa.from('atletas_360_clubes_subscritores').insert({
+      clube_nome: nome,
+      responsavel_nome: resp,
+      responsavel_email: email,
+      responsavel_telefone: get('c_tel') || null,
+      responsavel_cargo: get('c_cargo') || null,
+      password_temporaria: get('c_pwd'),
+      plano,
+      valor_mensal: valor,
+      subscrito_em: new Date().toISOString(),
+      estado_subscricao: 'ativa',
+      notas_admin: get('c_notas') || null
+    });
+    if(error){ toast('Erro: ' + error.message, 'error'); return; }
+    toast('Clube criado', 'green');
+    closeModal('clube');
+    load();
+  } catch(e){ toast('Erro', 'error'); }
+}
+
+function editarClube(id){ toast('Edição de clubes em breve · use Supabase directo por agora', 'green'); }
+async function apagarClube(id, nome){
+  if(!confirm(`Apagar clube "${nome}"?`)) return;
+  await supa.from('atletas_360_clubes_subscritores').delete().eq('id', id);
+  toast('Clube apagado', 'green');
+  load();
+}
+
+// ════════════════ FILTROS ════════════════
+['s-atletas'].forEach(id => document.getElementById(id).addEventListener('input', renderAtletas));
+['f-estado','f-fonte','f-vis'].forEach(id => document.getElementById(id).addEventListener('change', renderAtletas));
+document.getElementById('s-clubes').addEventListener('input', renderClubes);
+
+load();
+</script>
+
+</body>
+</html>

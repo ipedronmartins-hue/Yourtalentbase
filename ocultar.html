@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ocultar Perfil · YourTalentBase</title>
+<meta name="description" content="Ocultar imediatamente o perfil de um atleta da base pública YourTalentBase.">
+<meta name="robots" content="noindex,nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@800;900&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#080C08;--bg2:#0F1410;--gold:#D4AF37;--gold-border:rgba(212,175,55,.3);
+  --green:#00D46A;--red:#FF4A4A;--orange:#FFA500;
+  --border:#1F2520;--white:#fff;--slate:#bbb;--muted:#888;
+}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;-webkit-font-smoothing:antialiased}
+
+.box{max-width:560px;width:100%;background:var(--bg2);border:2px solid var(--border);padding:32px 24px;text-align:center}
+.box.success{border-color:var(--green)}
+.box.error{border-color:var(--red)}
+.box.confirm{border-color:var(--orange)}
+
+.icon{font-size:54px;margin-bottom:14px}
+h1{font-family:'Barlow Condensed';font-weight:900;font-size:32px;line-height:1;letter-spacing:-.5px;margin-bottom:10px}
+h1 span{color:var(--gold)}
+.success h1{color:var(--green)}
+.error h1{color:var(--red)}
+.confirm h1{color:var(--orange)}
+
+p{font-size:13px;color:var(--slate);line-height:1.6;margin-bottom:16px}
+p strong{color:#fff}
+
+.atleta-info{background:var(--bg);border:1px solid var(--border);padding:14px;margin:18px 0;text-align:left}
+.atleta-row{display:flex;justify-content:space-between;padding:5px 0;font-size:12px;border-bottom:1px solid var(--border)}
+.atleta-row:last-child{border-bottom:none}
+.atleta-row span:first-child{color:var(--muted);font-weight:600}
+.atleta-row span:last-child{color:#fff;font-weight:700;text-align:right}
+
+.btn-row{display:flex;gap:8px;margin-top:18px}
+.btn{flex:1;padding:13px 18px;border:none;font-family:'Barlow Condensed';font-weight:900;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+.btn-danger{background:var(--red);color:#fff}
+.btn-danger:hover{background:#ff6b6b}
+.btn-secondary{background:transparent;color:#fff;border:1px solid var(--gold-border)}
+.btn-secondary:hover{background:rgba(212,175,55,.08)}
+
+.spinner{display:inline-block;width:32px;height:32px;border:2px solid rgba(212,175,55,.15);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.foot{font-size:11px;color:var(--muted);margin-top:18px}
+.foot a{color:var(--gold)}
+
+.logo{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:24px;text-decoration:none}
+.logo-b{width:32px;height:32px;background:var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:900;font-size:13px;color:#000}
+.logo-n{font-family:'Barlow Condensed';font-weight:800;font-size:18px;letter-spacing:1.5px}
+.logo-n span{color:var(--gold)}
+</style>
+</head>
+<body>
+
+<div id="container">
+
+  <!-- LOADING -->
+  <div class="box" id="state-loading">
+    <a href="/" class="logo">
+      <div class="logo-b">YT</div>
+      <div class="logo-n">Your<span>Talent</span>Base</div>
+    </a>
+    <div class="spinner"></div>
+    <p style="margin-top:16px">A verificar token...</p>
+  </div>
+
+  <!-- ERRO TOKEN INVÁLIDO -->
+  <div class="box error" id="state-invalid" style="display:none">
+    <div class="icon">❌</div>
+    <h1>Link inválido</h1>
+    <p>Este link de ocultação não é válido ou já expirou.</p>
+    <p>Se quiseres remover um perfil, envia email para <a href="mailto:yourtalentbase@gmail.com" style="color:var(--gold)">yourtalentbase@gmail.com</a> com o nome do atleta.</p>
+    <a href="/" class="btn btn-secondary" style="margin-top:14px">Voltar ao site</a>
+  </div>
+
+  <!-- ATLETA JÁ OCULTO -->
+  <div class="box success" id="state-already" style="display:none">
+    <div class="icon">✓</div>
+    <h1>Já oculto</h1>
+    <p>Este atleta <strong id="already-name">—</strong> já está oculto da base pública.</p>
+    <p style="font-size:11px;color:var(--muted)">Se queres a remoção total dos dados, envia email para <a href="mailto:yourtalentbase@gmail.com" style="color:var(--gold)">yourtalentbase@gmail.com</a>.</p>
+    <a href="/" class="btn btn-secondary" style="margin-top:14px">Voltar ao site</a>
+  </div>
+
+  <!-- CONFIRMAR -->
+  <div class="box confirm" id="state-confirm" style="display:none">
+    <a href="/" class="logo">
+      <div class="logo-b">YT</div>
+      <div class="logo-n">Your<span>Talent</span>Base</div>
+    </a>
+    <div class="icon">⚠️</div>
+    <h1>Ocultar <span id="confirm-name">—</span>?</h1>
+    <p>Vais ocultar imediatamente este perfil da base pública e da área subscritora.</p>
+
+    <div class="atleta-info">
+      <div class="atleta-row"><span>Atleta</span><span id="info-nome">—</span></div>
+      <div class="atleta-row"><span>Posição · Escalão</span><span id="info-pos">—</span></div>
+      <div class="atleta-row"><span>Clube</span><span id="info-clube">—</span></div>
+      <div class="atleta-row"><span>Associação</span><span id="info-assoc">—</span></div>
+    </div>
+
+    <p style="font-size:12px">Esta acção é <strong>imediata</strong>. O perfil deixa de ser visível.</p>
+    <p style="font-size:11px;color:var(--muted)">Para remoção total dos dados (não apenas ocultar), envia email para <a href="mailto:yourtalentbase@gmail.com" style="color:var(--gold)">yourtalentbase@gmail.com</a>.</p>
+
+    <div class="btn-row">
+      <a href="/" class="btn btn-secondary">Cancelar</a>
+      <button class="btn btn-danger" onclick="ocultarAgora()">🔒 Ocultar agora</button>
+    </div>
+
+    <div class="foot">
+      <a href="termos.html">Termos</a> · <a href="privacidade.html">Privacidade</a>
+    </div>
+  </div>
+
+  <!-- SUCESSO -->
+  <div class="box success" id="state-done" style="display:none">
+    <div class="icon">✅</div>
+    <h1>Perfil oculto</h1>
+    <p>O perfil de <strong id="done-name">—</strong> foi ocultado da base pública.</p>
+    <p style="font-size:12px">Recebeste confirmação no WhatsApp. Para remoção total dos dados, envia email para <a href="mailto:yourtalentbase@gmail.com" style="color:var(--gold)">yourtalentbase@gmail.com</a>.</p>
+    <a href="/" class="btn btn-secondary" style="margin-top:14px">Voltar ao site</a>
+  </div>
+
+</div>
+
+<script>
+const SUPABASE_URL = 'https://nhshnplaiolxwcfuijfo.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oc2hucGxhaW9seHdjZnVpamZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NDQxNTAsImV4cCI6MjA4OTQyMDE1MH0.uyZiDun8495sjnHA6Wsk-Hou-3lubbNJfQqSYbMLSek';
+const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let atleta = null;
+
+function show(id){
+  ['loading','invalid','already','confirm','done'].forEach(s => {
+    document.getElementById('state-' + s).style.display = (s === id) ? 'block' : 'none';
+  });
+}
+
+async function init(){
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('token');
+
+  if(!token){
+    show('invalid');
+    return;
+  }
+
+  try {
+    const { data, error } = await supa
+      .from('atletas_360')
+      .select('id, nome, primeiro_nome, ultimo_nome, posicao_principal, escalao, clube_actual, associacao, oculto_pelo_responsavel')
+      .eq('token_ocultar', token)
+      .maybeSingle();
+
+    if(error || !data){
+      show('invalid');
+      return;
+    }
+
+    atleta = data;
+    const nomeCurto = (data.primeiro_nome && data.ultimo_nome)
+      ? `${data.primeiro_nome} ${data.ultimo_nome}`
+      : data.nome;
+
+    if(data.oculto_pelo_responsavel){
+      document.getElementById('already-name').textContent = nomeCurto;
+      show('already');
+      return;
+    }
+
+    document.getElementById('confirm-name').textContent = nomeCurto;
+    document.getElementById('info-nome').textContent = data.nome;
+    document.getElementById('info-pos').textContent = `${data.posicao_principal} · ${data.escalao}`;
+    document.getElementById('info-clube').textContent = data.clube_actual;
+    document.getElementById('info-assoc').textContent = data.associacao || '—';
+    show('confirm');
+
+  } catch(err){
+    console.error(err);
+    show('invalid');
+  }
+}
+
+async function ocultarAgora(){
+  if(!atleta) return;
+
+  try {
+    const { error } = await supa
+      .from('atletas_360')
+      .update({
+        oculto_pelo_responsavel: true,
+        oculto_em: new Date().toISOString(),
+        oculto_motivo: 'Solicitado pelo encarregado via link',
+        visivel_publico: false,
+        visivel_b2b: false
+      })
+      .eq('id', atleta.id);
+
+    if(error){
+      console.error(error);
+      alert('Erro ao ocultar. Envia email para yourtalentbase@gmail.com');
+      return;
+    }
+
+    const nomeCurto = (atleta.primeiro_nome && atleta.ultimo_nome)
+      ? `${atleta.primeiro_nome} ${atleta.ultimo_nome}`
+      : atleta.nome;
+    document.getElementById('done-name').textContent = nomeCurto;
+    show('done');
+
+  } catch(err){
+    console.error(err);
+    alert('Erro inesperado. Envia email para yourtalentbase@gmail.com');
+  }
+}
+
+init();
+</script>
+
+</body>
+</html>
