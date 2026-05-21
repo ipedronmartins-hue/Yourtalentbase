@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recuperar Link · YourTalentBase</title>
+<meta name="robots" content="noindex,nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@800;900&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#080C08;--bg2:#0F1410;--gold:#D4AF37;--gold-soft:rgba(212,175,55,.15);
+  --gold-border:rgba(212,175,55,.3);--gold-bright:#F5C842;
+  --green:#00D46A;--red:#FF4A4A;--border:#1F2520;--slate:#aaa;--muted:#666;
+}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;-webkit-font-smoothing:antialiased}
+
+.box{max-width:440px;width:100%;background:var(--bg2);border:2px solid var(--border);padding:30px 26px}
+.logo{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:22px;text-decoration:none}
+.logo-b{width:36px;height:36px;background:var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:900;font-size:14px;color:#000}
+.logo-n{font-family:'Barlow Condensed';font-weight:800;font-size:20px;letter-spacing:1.5px}
+.logo-n span{color:var(--gold)}
+
+.head{text-align:center;margin-bottom:22px}
+.eyebrow{font-size:9px;font-weight:800;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:6px}
+.title{font-family:'Barlow Condensed';font-weight:900;font-size:26px;line-height:1;letter-spacing:-.5px}
+.title span{color:var(--gold)}
+.sub{font-size:12px;color:var(--slate);line-height:1.5;margin-top:8px}
+
+.field{margin-bottom:14px}
+.field-label{font-size:9px;font-weight:700;letter-spacing:1.5px;color:var(--slate);text-transform:uppercase;margin-bottom:4px;display:block}
+.field-input{width:100%;background:var(--bg);border:1px solid var(--border);color:#fff;padding:12px 14px;font-size:14px;font-family:inherit;outline:none}
+.field-input:focus{border-color:var(--gold)}
+
+.btn{width:100%;padding:13px;background:var(--gold);color:#000;border:none;font-family:'Barlow Condensed';font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;margin-top:6px}
+.btn:hover{background:var(--gold-bright)}
+.btn:disabled{background:var(--bg);color:var(--muted);cursor:not-allowed}
+
+.result{margin-top:18px;display:none}
+.result.show{display:block;animation:fade .3s both}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+.result-ok{background:rgba(0,212,106,.06);border:1px solid rgba(0,212,106,.3);padding:16px}
+.result-ok-title{font-size:11px;font-weight:800;letter-spacing:1.5px;color:var(--green);text-transform:uppercase;margin-bottom:8px}
+.result-ok p{font-size:12px;color:#cce;line-height:1.55;margin-bottom:12px}
+.link-box{background:var(--bg);border:1px solid var(--gold-border);padding:10px;font-family:monospace;font-size:11px;color:var(--gold);word-break:break-all;margin-bottom:10px}
+.btn-row{display:flex;gap:8px}
+.btn-sm{flex:1;padding:10px;font-family:'Barlow Condensed';font-weight:900;font-size:11px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;text-decoration:none;text-align:center;border:none}
+.btn-sm-gold{background:var(--gold);color:#000}
+.btn-sm-ghost{background:transparent;color:#fff;border:1px solid var(--gold-border)}
+
+.result-fail{background:rgba(255,74,74,.06);border:1px solid rgba(255,74,74,.3);padding:14px;font-size:12px;color:#fcc;line-height:1.55;text-align:center}
+
+.foot{margin-top:18px;font-size:10px;color:var(--muted);text-align:center}
+.foot a{color:var(--slate);text-decoration:none}
+.foot a:hover{color:var(--gold)}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--gold);color:#000;padding:12px 20px;font-weight:800;font-size:12px;letter-spacing:1px;text-transform:uppercase;font-family:'Barlow Condensed';opacity:0;pointer-events:none;transition:all .3s}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
+</style>
+</head>
+<body>
+
+<div class="box">
+
+  <a href="/" class="logo">
+    <div class="logo-b">YT</div>
+    <div class="logo-n">Your<span>Talent</span>Base</div>
+  </a>
+
+  <div class="head">
+    <div class="eyebrow">🔑 Painel do Colaborador</div>
+    <h1 class="title">Recuperar <span>link</span></h1>
+    <p class="sub">Insere o email com que inscreveste os teus atletas. Mostramos o link do teu painel.</p>
+  </div>
+
+  <div class="field">
+    <label class="field-label">Email de inscrição</label>
+    <input class="field-input" id="email" type="email" placeholder="o-teu@email.com" autocomplete="email">
+  </div>
+
+  <button class="btn" id="btn" onclick="recuperar()">Recuperar Painel →</button>
+
+  <div class="result" id="result"></div>
+
+  <div class="foot">
+    <a href="/">← Home</a> · <a href="inscrever.html">Inscrever atleta</a>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://nhshnplaiolxwcfuijfo.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oc2hucGxhaW9seHdjZnVpamZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NDQxNTAsImV4cCI6MjA4OTQyMDE1MH0.uyZiDun8495sjnHA6Wsk-Hou-3lubbNJfQqSYbMLSek';
+const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+async function recuperar(){
+  const email = document.getElementById('email').value.trim().toLowerCase();
+  const result = document.getElementById('result');
+  result.classList.remove('show');
+
+  if(!email || !email.includes('@')){
+    toast('Insere um email válido');
+    return;
+  }
+
+  const btn = document.getElementById('btn');
+  btn.disabled = true;
+  btn.textContent = 'A procurar...';
+
+  try {
+    const { data: col, error } = await supa
+      .from('atletas_360_colaboradores')
+      .select('nome, token_acesso')
+      .eq('email', email)
+      .maybeSingle();
+
+    if(error) throw error;
+
+    if(!col){
+      result.innerHTML = `
+        <div class="result-fail">
+          Não encontrámos nenhum painel com este email.<br><br>
+          Confirma que usaste o email exacto da inscrição, ou <a href="inscrever.html" style="color:var(--gold)">inscreve um atleta</a> para criar o teu painel.
+        </div>
+      `;
+      result.classList.add('show');
+      btn.disabled = false;
+      btn.textContent = 'Recuperar Painel →';
+      return;
+    }
+
+    const painelURL = window.location.origin + '/painel.html?token=' + col.token_acesso;
+
+    result.innerHTML = `
+      <div class="result-ok">
+        <div class="result-ok-title">✅ Painel encontrado</div>
+        <p>Olá <strong style="color:#fff">${escapeHtml(col.nome)}</strong>. Aqui está o link do teu painel. Guarda-o:</p>
+        <div class="link-box">${painelURL}</div>
+        <div class="btn-row">
+          <a href="painel.html?token=${col.token_acesso}" class="btn-sm btn-sm-gold">Abrir Painel →</a>
+          <button class="btn-sm btn-sm-ghost" onclick="copiar('${painelURL}')">📋 Copiar</button>
+        </div>
+      </div>
+    `;
+    result.classList.add('show');
+    btn.disabled = false;
+    btn.textContent = 'Recuperar Painel →';
+
+  } catch(err){
+    console.error(err);
+    toast('Erro. Tenta novamente.');
+    btn.disabled = false;
+    btn.textContent = 'Recuperar Painel →';
+  }
+}
+
+function copiar(url){
+  navigator.clipboard.writeText(url).then(
+    () => toast('✅ Link copiado!'),
+    () => toast('Copia manualmente')
+  );
+}
+
+function escapeHtml(s){ if(s == null) return ''; return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+document.getElementById('email').addEventListener('keydown', e => {
+  if(e.key === 'Enter') recuperar();
+});
+</script>
+
+</body>
+</html>
