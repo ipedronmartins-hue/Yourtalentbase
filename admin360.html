@@ -337,28 +337,53 @@ const SUPABASE_URL = 'https://nhshnplaiolxwcfuijfo.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oc2hucGxhaW9seHdjZnVpamZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NDQxNTAsImV4cCI6MjA4OTQyMDE1MH0.uyZiDun8495sjnHA6Wsk-Hou-3lubbNJfQqSYbMLSek';
 const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// AUTH GATE - APENAS ADMIN
-const authStr = localStorage.getItem('ytb_360_auth');
-if(!authStr){ window.location.href = 'auth.html'; }
-let session;
-try {
-  session = JSON.parse(authStr);
-  if(session.expires < Date.now() || !session.isAdmin){
-    if(!session.isAdmin){
-      alert('Acesso restrito a Admin');
-    }
-    localStorage.removeItem('ytb_360_auth');
+// ════════════ AUTH GATE · SUPABASE AUTH REAL ════════════
+// Verifica sessao Auth + confirma papel 'admin' na tabela perfis.
+async function verificarAdmin(){
+  const { data: { session }, error } = await supa.auth.getSession();
+
+  if(error || !session){
     window.location.href = 'auth.html';
+    return false;
   }
-} catch(e){
+
+  // Confirmar que este utilizador e admin (tabela perfis)
+  const { data: perfil, error: ePerfil } = await supa
+    .from('perfis')
+    .select('papel, estado, nome')
+    .eq('id', session.user.id)
+    .maybeSingle();
+
+  if(ePerfil || !perfil){
+    alert('Perfil nao encontrado. Contacta o administrador.');
+    await supa.auth.signOut();
+    window.location.href = 'auth.html';
+    return false;
+  }
+
+  if(perfil.papel !== 'admin' || perfil.estado !== 'aprovado'){
+    alert('Acesso restrito a administradores.');
+    await supa.auth.signOut();
+    window.location.href = 'auth.html';
+    return false;
+  }
+
+  // Admin confirmado
+  window.YTB_ADMIN = { id: session.user.id, nome: perfil.nome, email: session.user.email };
+  return true;
+}
+
+async function logout(){
+  await supa.auth.signOut();
   window.location.href = 'auth.html';
 }
 
-function logout(){
-  localStorage.removeItem('ytb_360_auth');
-  localStorage.removeItem('ytb_360_admin_master');
-  window.location.href = 'auth.html';
-}
+// Bloqueia o arranque ate confirmar admin
+let adminOK = false;
+verificarAdmin().then(ok => {
+  adminOK = ok;
+  if(ok && typeof load === 'function'){ load(); }
+});
 
 let allAtletas = [], allPendentes = [], allPedidos = [], allClubes = [];
 let currentAtleta = null;
@@ -917,7 +942,7 @@ async function apagarClube(id, nome){
 ['f-estado','f-fonte','f-vis'].forEach(id => document.getElementById(id).addEventListener('change', renderAtletas));
 document.getElementById('s-clubes').addEventListener('input', renderClubes);
 
-load();
+// load() e chamado por verificarAdmin() apos confirmar o admin
 </script>
 
 </body>

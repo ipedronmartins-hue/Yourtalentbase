@@ -6,6 +6,7 @@
 <title>Área Reservada · Scouting 360 YTB</title>
 <meta name="robots" content="noindex,nofollow">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@800;900&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -63,29 +64,22 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:#fff;
 
   <div class="head">
     <div class="eyebrow">🔐 Área Reservada</div>
-    <h1 class="title">Login <span>Scouting 360</span></h1>
-  </div>
-
-  <div class="role-tabs">
-    <button class="role-tab active" data-role="cliente" onclick="setRole('cliente',event)">
-      🏟️ Clube<small>B2B</small>
-    </button>
-    <button class="role-tab" data-role="scout" onclick="setRole('scout',event)">
-      🎯 Scout<small>YTB</small>
-    </button>
-    <button class="role-tab" data-role="admin" onclick="setRole('admin',event)">
-      ⚙️ Admin<small>YTB</small>
-    </button>
+    <h1 class="title">Login <span>YourTalentBase</span></h1>
   </div>
 
   <div class="field">
-    <label class="field-label" id="pwd-label">Password Cliente</label>
-    <input class="field-input" id="pwd" type="password" placeholder="Insere password" autocomplete="current-password">
+    <label class="field-label">Email</label>
+    <input class="field-input" id="email" type="email" placeholder="o-teu@email.com" autocomplete="email">
+  </div>
+
+  <div class="field">
+    <label class="field-label">Password</label>
+    <input class="field-input" id="pwd" type="password" placeholder="Insere a password" autocomplete="current-password">
   </div>
 
   <button class="btn" id="btn-login" onclick="doLogin()">Entrar →</button>
 
-  <div class="error" id="error">Password incorrecta</div>
+  <div class="error" id="error">Credenciais incorrectas</div>
 
   <div class="info" id="info">
     Não tens credenciais? <a href="https://wa.me/351913695846?text=Ol%C3%A1%2C%20sou%20clube%20e%20gostaria%20de%20subscrever%20o%20Scouting%20360" target="_blank">Pedir acesso B2B →</a>
@@ -98,104 +92,115 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:#fff;
 </div>
 
 <script>
-// Passwords hardcoded (será substituido por Supabase Auth na sessão de segurança)
-const PWD_ADMIN   = 'YTB#Admin2026';   // Admin master · entra em qualquer área
-const PWD_SCOUT   = 'YTB#Scout2026';   // Scout YTB
-const PWD_CLIENTE = 'YTB#Clube2026';   // Cliente B2B
+const SUPABASE_URL = 'https://nhshnplaiolxwcfuijfo.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oc2hucGxhaW9seHdjZnVpamZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NDQxNTAsImV4cCI6MjA4OTQyMDE1MH0.uyZiDun8495sjnHA6Wsk-Hou-3lubbNJfQqSYbMLSek';
+const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-let role = 'cliente';
-
-function setRole(r, ev){
-  role = r;
-  document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
-  ev.currentTarget.classList.add('active');
-  document.getElementById('pwd-label').textContent =
-    r === 'admin'   ? 'Password Admin' :
-    r === 'scout'   ? 'Password Scout YTB' :
-                      'Password Cliente B2B';
-  document.getElementById('info').style.display = (r === 'cliente') ? 'block' : 'none';
-  document.getElementById('error').classList.remove('show');
-  document.getElementById('pwd').focus();
+function mostrarErro(msg){
+  const err = document.getElementById('error');
+  err.textContent = msg;
+  err.classList.add('show');
 }
 
-function doLogin(){
-  const pwd = document.getElementById('pwd').value;
-  const err = document.getElementById('error');
-  err.classList.remove('show');
-
-  if(!pwd){
-    err.textContent = 'Insere a password';
-    err.classList.add('show'); return;
-  }
-
-  let granted = false;
-  let actualRole = role;
-
-  // Admin master tem acesso a TUDO
-  if(pwd === PWD_ADMIN){
-    granted = true;
-    actualRole = role; // mantém qual escolheu mas com privilégio admin
-    localStorage.setItem('ytb_360_admin_master', 'true');
-  }
-  // Scout password
-  else if(role === 'scout' && pwd === PWD_SCOUT){
-    granted = true;
-    localStorage.removeItem('ytb_360_admin_master');
-  }
-  // Cliente B2B password
-  else if(role === 'cliente' && pwd === PWD_CLIENTE){
-    granted = true;
-    localStorage.removeItem('ytb_360_admin_master');
-  }
-  // Admin role mas password não é admin
-  else if(role === 'admin'){
-    granted = false;
-  }
-
-  if(!granted){
-    err.textContent = 'Password incorrecta';
-    err.classList.add('show');
-    document.getElementById('pwd').value = '';
-    return;
-  }
-
-  // Guardar sessão (24h)
-  const session = {
-    role: actualRole,
-    isAdmin: pwd === PWD_ADMIN,
-    expires: Date.now() + (24 * 60 * 60 * 1000)
-  };
-  localStorage.setItem('ytb_360_auth', JSON.stringify(session));
-
-  // Redirect
-  if(actualRole === 'admin'){
+function encaminhar(papel){
+  if(papel === 'admin'){
     window.location.href = 'admin360.html';
-  } else {
+  } else if(papel === 'scout'){
     window.location.href = 'scouting360-dashboard.html';
+  } else if(papel === 'cliente'){
+    window.location.href = 'scouting360-dashboard.html';
+  } else {
+    // pendente ou outro - sem area propria ainda
+    mostrarErro('A tua conta ainda nao foi aprovada. Aguarda validacao.');
+  }
+}
+
+async function doLogin(){
+  const email = document.getElementById('email').value.trim().toLowerCase();
+  const pwd = document.getElementById('pwd').value;
+  const btn = document.getElementById('btn-login');
+  document.getElementById('error').classList.remove('show');
+
+  if(!email || !email.includes('@')){ mostrarErro('Insere um email valido'); return; }
+  if(!pwd){ mostrarErro('Insere a password'); return; }
+
+  btn.disabled = true;
+  btn.textContent = 'A entrar...';
+
+  try {
+    // 1. Login Supabase Auth
+    const { data: authData, error: authErr } = await supa.auth.signInWithPassword({
+      email: email,
+      password: pwd
+    });
+
+    if(authErr || !authData.session){
+      mostrarErro('Email ou password incorrectos');
+      btn.disabled = false; btn.textContent = 'Entrar →';
+      return;
+    }
+
+    // 2. Buscar papel na tabela perfis
+    const { data: perfil, error: perfilErr } = await supa
+      .from('perfis')
+      .select('papel, estado')
+      .eq('id', authData.session.user.id)
+      .maybeSingle();
+
+    if(perfilErr || !perfil){
+      mostrarErro('Perfil nao encontrado. Contacta o administrador.');
+      await supa.auth.signOut();
+      btn.disabled = false; btn.textContent = 'Entrar →';
+      return;
+    }
+
+    // 3. Verificar estado
+    if(perfil.estado === 'bloqueado'){
+      mostrarErro('Conta bloqueada. Contacta o administrador.');
+      await supa.auth.signOut();
+      btn.disabled = false; btn.textContent = 'Entrar →';
+      return;
+    }
+
+    if(perfil.estado === 'pendente'){
+      mostrarErro('A tua conta aguarda aprovacao. Avisamos quando estiver activa.');
+      await supa.auth.signOut();
+      btn.disabled = false; btn.textContent = 'Entrar →';
+      return;
+    }
+
+    // 4. Aprovado - encaminhar conforme papel
+    encaminhar(perfil.papel);
+
+  } catch(e){
+    console.error(e);
+    mostrarErro('Erro ao entrar. Tenta novamente.');
+    btn.disabled = false; btn.textContent = 'Entrar →';
   }
 }
 
 document.getElementById('pwd').addEventListener('keydown', e => {
   if(e.key === 'Enter') doLogin();
 });
+document.getElementById('email').addEventListener('keydown', e => {
+  if(e.key === 'Enter') document.getElementById('pwd').focus();
+});
 
-// Auto-focus
-window.addEventListener('load', () => document.getElementById('pwd').focus());
-
-// Se já está logado, redireciona
-const existing = localStorage.getItem('ytb_360_auth');
-if(existing){
-  try {
-    const s = JSON.parse(existing);
-    if(s.expires > Date.now()){
-      if(s.role === 'admin') window.location.href = 'admin360.html';
-      else window.location.href = 'scouting360-dashboard.html';
-    } else {
-      localStorage.removeItem('ytb_360_auth');
-      localStorage.removeItem('ytb_360_admin_master');
+// Se ja ha sessao activa, encaminhar
+(async () => {
+  const { data: { session } } = await supa.auth.getSession();
+  if(session){
+    const { data: perfil } = await supa
+      .from('perfis')
+      .select('papel, estado')
+      .eq('id', session.user.id)
+      .maybeSingle();
+    if(perfil && perfil.estado === 'aprovado'){
+      encaminhar(perfil.papel);
     }
-  } catch(e){}
-}
+  }
+  document.getElementById('email').focus();
+})();
 </script>
 
 </body>
