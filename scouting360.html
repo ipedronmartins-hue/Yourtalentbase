@@ -7,6 +7,7 @@
 <meta name="description" content="A base de dados nacional de scouting de futebol juvenil português. Sub-10 a Seniores. Análise contextual profissional para clubes.">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,700;0,800;0,900;1,900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/assets/js/ytb-nota-automatica.js"></script>
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -191,6 +192,23 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:#fff;
 
 .consent-notice{font-size:9px;color:var(--muted);letter-spacing:.3px;line-height:1.5;margin-top:8px;padding-top:6px;border-top:1px solid var(--border)}
 .consent-notice a{color:var(--gold);text-decoration:underline}
+.nota-auto{background:linear-gradient(135deg,rgba(212,175,55,.08),rgba(0,0,0,.25));border:1px solid var(--gold-border);border-radius:10px;padding:13px 14px;margin-bottom:12px}
+.na-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.na-title{font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);display:flex;flex-direction:column;gap:2px}
+.na-title span{font-size:8px;font-weight:600;letter-spacing:.5px;color:var(--muted);text-transform:none}
+.na-final{font-family:'Barlow Condensed';font-weight:900;font-size:30px;line-height:.9;color:var(--gold);display:flex;align-items:baseline;gap:6px}
+.na-final em{font-style:normal;font-size:15px;color:var(--slate)}
+.na-letra-Aplus,.na-letra-A{color:#FFD700}
+.na-letra-B{color:var(--gold)}
+.na-letra-C{color:#C9A227}
+.na-letra-D{color:#8a7a3a}
+.na-dims{display:flex;flex-direction:column;gap:7px}
+.na-dim-head{display:flex;justify-content:space-between;font-size:10px;font-weight:700;color:#ccc;margin-bottom:3px}
+.na-dim-head strong{color:#fff;font-family:'Barlow Condensed';font-size:13px}
+.na-bar{height:5px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden}
+.na-bar-fill{height:100%;background:linear-gradient(90deg,var(--gold-deep,#9a7a1e),var(--gold));border-radius:3px}
+.na-conf{margin-top:9px;font-size:9px;font-weight:700;letter-spacing:.5px;color:var(--muted);text-transform:uppercase}
+.na-conf-low{color:#C9802B}
 </style>
 </head>
 <body>
@@ -507,6 +525,7 @@ function renderRow(a){
         <div class="r-rating ${ratingClass(a.rating_geral)}">${a.rating_geral || '—'}</div>
       </div>
       <div class="row-body">
+        ${renderNotaAuto(a, stats, hist)}
         ${renderExcelencia(a)}
         ${stats ? renderStats(a, stats) : ''}
         ${hist.length ? renderHistorico(hist) : ''}
@@ -519,6 +538,45 @@ function renderRow(a){
       </div>
     </div>
   `;
+}
+
+// ─── Nota automática por contexto (determinística, zero IA) ───
+function renderNotaAuto(a, stats, hist){
+  if(typeof window.YTB_NOTA==='undefined' || !window.YTB_NOTA.calcular) return '';
+  const s = stats || {};
+  const h = hist || [];
+  const insc = {
+    associacao:a.associacao, escalao:a.escalao, divisao:a.divisao || s.divisao,
+    posicao:a.posicao_principal, ano_nascimento:a.ano_nascimento,
+    jogos:s.jogos, titular:s.titular, minutos:s.minutos, golos:s.golos, assists:s.assists,
+    classificacao:s.classificacao, total_equipas:s.total_equipas,
+    hist1: h[0] ? {divisao:h[0].divisao, escalao:h[0].escalao, golos:h[0].golos, jogos:h[0].jogos} : null,
+    hist2: h[1] ? {divisao:h[1].divisao, escalao:h[1].escalao, golos:h[1].golos, jogos:h[1].jogos} : null
+  };
+  const r = window.YTB_NOTA.calcular(insc);
+  const dims = [
+    {l:'Contexto', v:r.dimensoes.contexto},
+    {l:'Volume', v:r.dimensoes.volume},
+    {l:'Produção', v:r.dimensoes.producao},
+    {l:'Trajetória', v:r.dimensoes.trajetoria}
+  ];
+  const barras = dims.map(d=>`
+    <div class="na-dim">
+      <div class="na-dim-head"><span>${d.l}</span><strong>${d.v}</strong></div>
+      <div class="na-bar"><div class="na-bar-fill" style="width:${d.v}%"></div></div>
+    </div>`).join('');
+  const confAviso = r.confianca < 50
+    ? `<div class="na-conf na-conf-low">Confiança ${r.confianca}% · poucos dados declarados</div>`
+    : `<div class="na-conf">Confiança ${r.confianca}%</div>`;
+  return `
+    <div class="nota-auto">
+      <div class="na-top">
+        <div class="na-title">Avaliação por Contexto<span>determinística · automática</span></div>
+        <div class="na-final na-letra-${r.letra.replace('+','plus')}">${r.letra}<em>${r.notaFinal}</em></div>
+      </div>
+      <div class="na-dims">${barras}</div>
+      ${confAviso}
+    </div>`;
 }
 
 function renderExcelencia(a){

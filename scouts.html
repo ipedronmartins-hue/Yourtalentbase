@@ -430,7 +430,7 @@ function buildSliders(){
 // HISTORICO
 // ═══════════════════════════════════════════════
 async function carregarHistorico(){
-  const{data}=await supa.from('relatorios').select('*').eq('treinador',scoutAtual?.nome||'').order('created_at',{ascending:false}).limit(10);
+  const{data}=await supa.from('relatorios').select('*').eq('scout',scoutAtual?.nome||'').order('created_at',{ascending:false}).limit(10);
   creditosUsados=data?data.length:0;
   const cr=Math.max(0,3-creditosUsados);
   document.getElementById('creditos-display').textContent=cr+'/3';
@@ -445,8 +445,8 @@ async function carregarHistorico(){
   }
   hist.innerHTML=data.map(r=>{
     const dt=new Date(r.created_at).toLocaleDateString('pt-PT');
-    const gs=r.global_score||0;
-    const col=gs>=70?'var(--green)':gs>=50?'var(--gold)':'var(--slate)';
+    const gs=r.media_geral||0;
+    const col=gs>=4?'var(--green)':gs>=3?'var(--gold)':'var(--slate)';
     return `<div class="rel-item" onclick='abrirReportGuardado(${JSON.stringify(r).replace(/'/g,"&#39;")})'>
       <div style="display:flex;justify-content:space-between;align-items:center">
         <div>
@@ -537,19 +537,31 @@ async function gerarReport(){
     stat.textContent='⚠ IA indisponível — usando análise local.';
   }
 
-  // Guardar Supabase
+  // Guardar Supabase — nomes alinhados com a tabela real 'relatorios'
   try{
-    await supa.from('relatorios').insert({
-      nome_atleta:nome,
-      posicao:pos,
-      escalao:dados.escalao,
-      scores:scores,
-      global_score:globalScore,
-      treinador:scoutAtual.nome,
-      tipo:'scout',
-      report_data:dados
+    const r=dados.rating||{};
+    const { error } = await supa.from('relatorios').insert({
+      scout:        scoutAtual.nome,
+      atleta:       nome,
+      clube:        dados.clube||null,
+      categoria:    dados.escalao||null,
+      posicao:      pos,
+      epoca:        dados.epoca||'2025/2026',
+      scores:       scores,
+      dados:        dados,
+      relatorio_texto: dados.analise||null,
+      decisao:      r.acao||null,
+      rendimento:   r.desc||null,
+      prazo:        r.horizonte||null,
+      media_geral:  mediaGeral,
+      report_data:  dados
     });
-  }catch(e){console.warn('Save:',e)}
+    if(error) throw error;
+  }catch(e){
+    console.error('Erro ao guardar relatório:',e);
+    stat.style.display='block';
+    stat.textContent='⚠ Relatório gerado mas NÃO guardado: '+(e.message||'erro')+'. Avisa o admin.';
+  }
 
   reportAtual=dados;
   btn.disabled=false;btn.textContent='⚡ Gerar Scout Report';

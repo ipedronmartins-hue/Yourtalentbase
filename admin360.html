@@ -167,6 +167,7 @@ tr:last-child td{border-bottom:none}
     <button class="tab active" onclick="showTab('atletas',event)">📋 Atletas</button>
     <button class="tab" onclick="showTab('pendentes',event)">⏳ Pendentes <span class="badge badge-red" id="tab-bg-pend">0</span></button>
     <button class="tab" onclick="showTab('pedidos',event)">📞 Pedidos <span class="badge badge-red" id="tab-bg-ped">0</span></button>
+    <button class="tab" onclick="showTab('treinadores',event)">🎓 Treinadores <span class="badge badge-red" id="tab-bg-trein">0</span></button>
     <button class="tab" onclick="showTab('clubes',event)">🏢 Clubes</button>
   </div>
 
@@ -243,6 +244,24 @@ tr:last-child td{border-bottom:none}
           </tr>
         </thead>
         <tbody id="tbody-pedidos"><tr><td colspan="6" class="loading"><div class="spinner"></div></td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TREINADORES (registos) -->
+  <div class="section" id="section-treinadores">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Email</th>
+            <th>Estado</th>
+            <th>Data</th>
+            <th>Acções</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-treinadores"><tr><td colspan="5" class="loading"><div class="spinner"></div></td></tr></tbody>
       </table>
     </div>
   </div>
@@ -385,7 +404,7 @@ verificarAdmin().then(ok => {
   if(ok && typeof load === 'function'){ load(); }
 });
 
-let allAtletas = [], allPendentes = [], allPedidos = [], allClubes = [];
+let allAtletas = [], allPendentes = [], allPedidos = [], allClubes = [], allTreinadores = [];
 let currentAtleta = null;
 let currentPedido = null;
 let waMode = null; // 'pendente' ou 'pedido'
@@ -429,6 +448,10 @@ async function load(){
     const { data: c } = await supa.from('atletas_360_clubes_subscritores').select('*').order('created_at', { ascending: false });
     allClubes = c || [];
 
+    let t = [];
+    try { const r = await supa.from('registos_pendentes').select('*').order('criado_em', { ascending: false }); t = r.data || []; } catch(e){ t = []; }
+    allTreinadores = t;
+
     allPendentes = allAtletas.filter(x => x.estado === 'pendente');
 
     // KPIs
@@ -440,11 +463,15 @@ async function load(){
 
     document.getElementById('tab-bg-pend').textContent = allPendentes.length;
     document.getElementById('tab-bg-ped').textContent = pedAbertos;
+    const treinPend = allTreinadores.filter(t => t.estado === 'pendente').length;
+    const elTrein = document.getElementById('tab-bg-trein');
+    if(elTrein) elTrein.textContent = treinPend;
 
     renderAtletas();
     renderPendentes();
     renderPedidos();
     renderClubes();
+    renderTreinadores();
 
   } catch(err){
     console.error(err);
@@ -560,6 +587,72 @@ function renderPedidos(){
       </tr>
     `;
   }).join('');
+}
+
+// ════════════════ TREINADORES ════════════════
+function renderTreinadores(){
+  const tbody = document.getElementById('tbody-treinadores');
+  if(!tbody) return;
+  if(!allTreinadores.length){
+    tbody.innerHTML = '<tr><td colspan="5" class="empty"><div class="empty-icon">🎓</div>Sem registos de treinadores</td></tr>';
+    return;
+  }
+  tbody.innerHTML = allTreinadores.map(t => {
+    const est = t.estado || 'pendente';
+    const pill = est === 'aprovado' ? 'aprovado' : est === 'rejeitado' ? 'rejeitado' : 'pendente';
+    return `
+      <tr>
+        <td class="td-name"><strong>${escapeHtml(t.nome)}</strong></td>
+        <td>${escapeHtml(t.email)}</td>
+        <td><span class="pill pill-${pill}">${escapeHtml(est)}</span></td>
+        <td class="td-mute">${fmtDate(t.criado_em)}</td>
+        <td style="white-space:nowrap">
+          ${est === 'pendente' ? `<button class="action-btn success" onclick="aprovarTreinador('${t.id}')">✓ Aprovar</button>` : ''}
+          ${est !== 'rejeitado' ? `<button class="action-btn danger" onclick="rejeitarTreinador('${t.id}')">✗</button>` : ''}
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+async function aprovarTreinador(id){
+  const t = allTreinadores.find(x => x.id === id);
+  if(!t) return;
+  try {
+    const { error: e1 } = await supa.from('registos_pendentes').update({ estado: 'aprovado' }).eq('id', id);
+    if(e1) throw e1;
+    const { data: existe } = await supa.from('perfis').select('id').eq('email', t.email).maybeSingle();
+    if(existe){
+      await supa.from('perfis').update({ papel: 'treinador', estado: 'aprovado', nome: t.nome }).eq('email', t.email);
+    } else {
+      try { await supa.from('perfis').insert({ email: t.email, nome: t.nome, papel: 'treinador', estado: 'aprovado' }); }
+      catch(e){ console.warn('perfil criado no 1º login:', e.message); }
+    }
+    t.estado = 'aprovado';
+    renderTreinadores();
+    const elTrein = document.getElementById('tab-bg-trein');
+    if(elTrein) elTrein.textContent = allTreinadores.filter(x => x.estado === 'pendente').length;
+    toast('Treinador aprovado ✓', 'success');
+  } catch(err){
+    console.error(err);
+    toast('Erro ao aprovar: ' + (err.message || err), 'error');
+  }
+}
+
+async function rejeitarTreinador(id){
+  if(!confirm('Rejeitar este registo de treinador?')) return;
+  try {
+    const { error } = await supa.from('registos_pendentes').update({ estado: 'rejeitado' }).eq('id', id);
+    if(error) throw error;
+    const t = allTreinadores.find(x => x.id === id);
+    if(t) t.estado = 'rejeitado';
+    renderTreinadores();
+    const elTrein = document.getElementById('tab-bg-trein');
+    if(elTrein) elTrein.textContent = allTreinadores.filter(x => x.estado === 'pendente').length;
+    toast('Registo rejeitado', 'success');
+  } catch(err){
+    toast('Erro: ' + (err.message || err), 'error');
+  }
 }
 
 // ════════════════ CLUBES ════════════════

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Registo de Treinador · YourTalentBase</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="/assets/js/ytb-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--bg:#080C08;--bg2:#0F1410;--bg3:#161D17;--gold:#D4AF37;--gold-soft:rgba(212,175,55,.15);--gold-border:rgba(212,175,55,.3);--green:#00D46A;--red:#ff5050;--border:#1F2520;--white:#fff;--slate:#aaa;--muted:#666}
+html,body{background:var(--bg);color:var(--white);font-family:'Plus Jakarta Sans',sans-serif;min-height:100vh}
+body{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;min-height:100vh}
+.card{width:100%;max-width:400px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:28px}
+.logo{display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:22px}
+.logo-badge{width:36px;height:36px;background:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:900;font-size:15px;color:#000}
+.logo-name{font-family:'Barlow Condensed';font-weight:800;font-size:20px;letter-spacing:1.5px}.logo-name span{color:var(--gold)}
+h1{font-family:'Barlow Condensed';font-weight:900;font-size:26px;text-align:center;margin-bottom:6px}
+h1 span{color:var(--gold)}
+.sub{font-size:13px;color:var(--slate);text-align:center;line-height:1.5;margin-bottom:22px}
+label{display:block;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--slate);margin-bottom:5px;margin-top:14px}
+input{width:100%;background:var(--bg3);border:1px solid var(--border);color:#fff;padding:12px;font-family:inherit;font-size:15px;outline:none;border-radius:9px}
+input:focus{border-color:var(--gold)}
+.btn{width:100%;margin-top:22px;padding:14px;border:none;border-radius:10px;background:var(--gold);color:#000;font-family:'Barlow Condensed';font-weight:900;font-size:15px;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(0,0,0,.25);border-top-color:#000;border-radius:50%;animation:sp .7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.msg{margin-top:16px;font-size:13px;line-height:1.5;text-align:center;padding:12px;border-radius:9px;display:none}
+.msg.err{display:block;background:rgba(255,80,80,.1);border:1px solid rgba(255,80,80,.3);color:var(--red)}
+.msg.ok{display:block;background:rgba(0,212,106,.1);border:1px solid rgba(0,212,106,.3);color:var(--green)}
+.foot{font-size:11px;color:var(--muted);text-align:center;margin-top:18px;line-height:1.5}
+.foot a{color:var(--gold);text-decoration:none}
+.success-box{display:none;text-align:center}
+.success-box .big{font-size:40px;margin-bottom:10px}
+.success-box h2{font-family:'Barlow Condensed';font-weight:900;font-size:22px;margin-bottom:8px}
+.success-box p{font-size:13px;color:var(--slate);line-height:1.6}
+.demo-flag{display:none;background:var(--gold-soft);border:1px solid var(--gold-border);color:var(--gold);font-size:11px;font-weight:700;padding:8px 12px;border-radius:7px;margin-bottom:16px;text-align:center}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo"><div class="logo-badge">YT</div><div class="logo-name">Your<span>Talent</span>Base</div></div>
+  <div class="demo-flag" id="demoFlag">Modo demo — sem base ligada.</div>
+
+  <!-- Formulário -->
+  <div id="formArea">
+    <h1>Registo de <span>Treinador</span></h1>
+    <div class="sub">Cria a tua conta para avaliar os teus atletas e gerar treinos. Entras por link no email — sem passwords.</div>
+    <label for="nome">Nome completo</label>
+    <input id="nome" type="text" placeholder="O teu nome" autocomplete="name">
+    <label for="email">Email</label>
+    <input id="email" type="email" placeholder="o.teu@email.com" autocomplete="email">
+    <button class="btn" id="btn" onclick="registar()">Pedir conta →</button>
+    <div class="msg" id="msg"></div>
+    <div class="foot">Já tens conta? <a href="auth.html">Entrar</a></div>
+  </div>
+
+  <!-- Sucesso -->
+  <div class="success-box" id="successArea">
+    <div class="big">📩</div>
+    <h2>Registo enviado!</h2>
+    <p id="successMsg"></p>
+    <div class="foot" style="margin-top:20px"><a href="/">← Voltar ao início</a></div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL=(window.YTB_CONFIG&&window.YTB_CONFIG.SUPABASE_URL)||'';
+const SUPABASE_KEY=(window.YTB_CONFIG&&window.YTB_CONFIG.SUPABASE_KEY)||'';
+const USING_SB=!!(SUPABASE_URL&&SUPABASE_KEY);
+const sb=USING_SB?supabase.createClient(SUPABASE_URL,SUPABASE_KEY):null;
+
+if(!USING_SB) document.getElementById('demoFlag').style.display='block';
+
+function showMsg(txt,tipo){const m=document.getElementById('msg');m.textContent=txt;m.className='msg '+tipo;}
+function emailValido(e){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);}
+
+async function registar(){
+  const nome=document.getElementById('nome').value.trim();
+  const email=document.getElementById('email').value.trim().toLowerCase();
+  const btn=document.getElementById('btn');
+
+  if(!nome){showMsg('Escreve o teu nome.','err');return;}
+  if(!emailValido(email)){showMsg('Escreve um email válido.','err');return;}
+
+  if(!USING_SB){showMsg('Modo demo — registo não enviado.','err');return;}
+
+  btn.innerHTML='<span class="spin"></span>A enviar...';btn.disabled=true;
+
+  try{
+    // 1) Criar/iniciar conta por magic link (cria utilizador no Auth ao clicar no link).
+    //    O nome vai nos metadados para podermos criar o perfil depois.
+    const { error: otpErr } = await sb.auth.signInWithOtp({
+      email: email,
+      options: {
+        emailRedirectTo: window.location.origin + '/elite-coach.html',
+        data: { nome: nome, papel_pretendido: 'treinador' }
+      }
+    });
+    if(otpErr) throw otpErr;
+
+    // 2) Criar perfil PENDENTE (se ainda não existir).
+    //    Como o utilizador só existe no Auth após clicar o link, gravamos o
+    //    pedido numa tabela de pendentes lida pelo admin. Usamos 'perfis' com
+    //    estado pendente quando possível; se o id ainda não existe, o admin
+    //    cria-o na aprovação. Aqui registamos a intenção.
+    //    (Tentativa best-effort — não bloqueia o magic link.)
+    try{
+      await sb.from('registos_pendentes').insert({ nome: nome, email: email, papel: 'treinador' });
+    }catch(e){ /* tabela pode não existir ainda; o magic link é o essencial */ }
+
+    document.getElementById('formArea').style.display='none';
+    document.getElementById('successArea').style.display='block';
+    document.getElementById('successMsg').innerHTML=
+      'Enviámos um link de acesso para <strong style="color:#fff">'+email+'</strong>.<br><br>'+
+      'Clica nesse link para confirmares o email. A tua conta fica <strong style="color:var(--gold)">a aguardar aprovação</strong> — assim que for aprovada, terás acesso completo.';
+  }catch(e){
+    console.error('registo',e);
+    showMsg('Não foi possível concluir: '+(e.message||'erro')+'. Tenta de novo.','err');
+    btn.innerHTML='Pedir conta →';btn.disabled=false;
+  }
+}
+
+// Enter no email envia
+document.getElementById('email').addEventListener('keydown',function(e){ if(e.key==='Enter') registar(); });
+</script>
+</body>
+</html>
