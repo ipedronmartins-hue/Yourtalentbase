@@ -281,13 +281,25 @@ async function processarSessao(){
   if(estado)estado.innerHTML='<div class="estado-pend"><div class="big"><span class="spinner"></span></div><div class="t">A verificar inscrição</div></div>';
 
   try{
-    // RLS: só devolve o atleta cujo encarregado_email == email autenticado
+    // 1) Verificar acesso: papel familia/admin + estado aprovado (controlado pelo Admin ao confirmar pagamento)
+    const{data:perfil}=await supa.from('perfis').select('papel,estado').eq('email',sessionEmail).maybeSingle();
+    if(!perfil||perfil.estado!=='aprovado'||(perfil.papel!=='familia'&&perfil.papel!=='cliente'&&perfil.papel!=='admin')){
+      if(estado)estado.innerHTML='<div class="estado-pend"><div class="big">🔒</div><div class="t">Acesso pendente</div><div class="s">A conta '+esc(sessionEmail)+' ainda não tem acesso de família aprovado. Assim que confirmarmos o pagamento, entras.</div><button class="btn btn-secondary" style="margin-top:12px" onclick="logout()">Usar outro email</button></div>';
+      return;
+    }
+    // 2) Já tem filho ligado? Se sim, entra direto.
     const{data:atletas,error}=await supa.from('atletas_360')
       .select('id,nome,primeiro_nome,ano_nascimento,encarregado_email')
       .eq('encarregado_email',sessionEmail);
     if(error)throw error;
     if(!atletas||!atletas.length){
-      if(estado)estado.innerHTML='<div class="estado-pend"><div class="big">🔍</div><div class="t">Sem acesso de família</div><div class="s">A conta '+esc(sessionEmail)+' ainda não está ligada a nenhum atleta. Assim que aderires ao YTB Pro Família, ligamos o teu acesso.</div><button class="btn btn-secondary" style="margin-top:12px" onclick="logout()">Usar outro email</button></div>';
+      // 3) Aprovado mas sem filho: deixa inscrever o filho aqui mesmo
+      if(estado)estado.innerHTML='<div class="estado-pend"><div class="big">👶</div><div class="t">Inscreve o teu filho</div><div class="s">A tua conta está ativa. Falta ligar o teu filho para começares a avaliar e treinar.</div>'+
+        '<div class="field" style="margin-top:14px;text-align:left"><label class="label">Nome do filho</label><input class="input" id="ins-nome" type="text" placeholder="Nome"></div>'+
+        '<div class="field" style="text-align:left"><label class="label">Ano de nascimento</label><input class="input" id="ins-ano" type="number" placeholder="2014"></div>'+
+        '<div class="field" style="text-align:left"><label class="label">Clube (opcional)</label><input class="input" id="ins-clube" type="text" placeholder="Clube"></div>'+
+        '<button class="btn btn-primary" id="ins-btn" onclick="inscreverFilho()">Inscrever filho →</button>'+
+        '<button class="btn btn-secondary" style="margin-top:8px" onclick="logout()">Usar outro email</button></div>';
       return;
     }
     const a=atletas[0];
@@ -298,6 +310,29 @@ async function processarSessao(){
   }catch(e){
     console.warn('verificar inscricao',e);
     if(estado)estado.innerHTML='<div class="estado-pend"><div class="big">⚠️</div><div class="t">Erro a verificar</div><div class="s">Não conseguimos confirmar a inscrição agora. Tenta recarregar a página.</div><button class="btn btn-secondary" style="margin-top:12px" onclick="logout()">Sair</button></div>';
+  }
+}
+
+// Família inscreve o próprio filho (fica ligado a ela por encarregado_email)
+async function inscreverFilho(){
+  const nome=(document.getElementById('ins-nome')||{}).value;
+  const ano=parseInt((document.getElementById('ins-ano')||{}).value)||null;
+  const clube=(document.getElementById('ins-clube')||{}).value||null;
+  if(!nome||!nome.trim()){alert('Indica o nome do filho');return;}
+  const btn=document.getElementById('ins-btn');if(btn){btn.disabled=true;btn.innerHTML='<span class="spinner"></span>';}
+  try{
+    const{data:novo,error}=await supa.from('atletas_360').insert({
+      nome:nome.trim(), primeiro_nome:nome.trim().split(' ')[0], ano_nascimento:ano, clube:clube,
+      fonte:'familia', fonte_nome:nome.trim(), fonte_email:emailInscricao, encarregado_email:emailInscricao
+    }).select().single();
+    if(error)throw error;
+    atletaId=novo.id;
+    nomeAtleta=novo.primeiro_nome||novo.nome;
+    idadeAtleta=2026-(novo.ano_nascimento||2014);
+    mostrarMain();
+  }catch(e){
+    alert('Não foi possível inscrever: '+(e.message||'tenta de novo'));
+    if(btn){btn.disabled=false;btn.innerHTML='Inscrever filho →';}
   }
 }
 
@@ -326,7 +361,8 @@ async function carregarDados(){
         resultadoFinal={nome:nomeAtleta,posicao:r.posicao||'MED',posicaoLabel:r.posicao||'Geral',score:r.score||50,confianca:r.confianca,debilidades:r.debilidades||[],plano:r.plano||null,fonte:'familia',created_at:r.created_at};
       }}catch(e){console.warn('aval',e);}
     // Scout report: se existir, as debilidades profissionais geram o plano (tem prioridade)
-    try{const{data:sr}=await supa.from('scout_reports').select('*').eq('atleta_id',atletaId).order('created_at',{ascending:false}).limit(1);
+    // A tabela 'relatorios' liga ao atleta pelo NOME (não tem atleta_id).
+    try{const{data:sr}=await supa.from('relatorios').select('*').eq('atleta',nomeAtleta).order('created_at',{ascending:false}).limit(1);
       if(sr&&sr.length){
         const rep=sr[0];
         const debsScout=debsFromScoutReport(rep.scores||{});
