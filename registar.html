@@ -132,12 +132,19 @@ async function registar(){
   btn.innerHTML='<span class="spin"></span>A enviar...';btn.disabled=true;
 
   try{
+    // Destino após clicar o link, conforme o papel escolhido
+    const destinoPorPapel = {
+      treinador: '/pro-treinador.html',
+      familia: '/pro-pai.html',
+      scout: '/scouts.html'
+    };
+    const destino = destinoPorPapel[papelEscolhido] || '/auth.html';
     // 1) Criar/iniciar conta por magic link (cria utilizador no Auth ao clicar no link).
     //    O nome vai nos metadados para podermos criar o perfil depois.
     const { error: otpErr } = await sb.auth.signInWithOtp({
       email: email,
       options: {
-        emailRedirectTo: window.location.origin + '/',
+        emailRedirectTo: window.location.origin + destino,
         data: { nome: nome, papel_pretendido: papelEscolhido }
       }
     });

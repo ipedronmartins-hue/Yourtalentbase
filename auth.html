@@ -218,24 +218,41 @@ document.getElementById('email').addEventListener('keydown', e => {
   if(e.key === 'Enter') document.getElementById('pwd').focus();
 });
 
-// Se ja ha sessao activa (incluindo retorno do magic link), encaminhar
+// Reencaminha conforme o papel (partilhado pelo arranque e pelo retorno do magic link)
+let jaEncaminhou = false;
+async function verificarEEncaminhar(session){
+  if(jaEncaminhou) return;
+  if(!session || !session.user) return;
+  try {
+    const { data: perfil } = await supa
+      .from('perfis')
+      .select('papel, estado')
+      .eq('id', session.user.id)
+      .maybeSingle();
+    if(perfil && perfil.estado === 'aprovado'){
+      jaEncaminhou = true;
+      encaminhar(perfil.papel);
+      return;
+    }
+    // sessão existe mas perfil não aprovado: limpar para não prender no login
+    if(!perfil || perfil.estado !== 'aprovado'){
+      await supa.auth.signOut();
+    }
+  } catch(e){ console.warn('verificar', e); }
+}
+
+// 1) Listener: dispara mal a sessão do magic link assente (ou login normal)
+supa.auth.onAuthStateChange((_event, session) => {
+  if(session) verificarEEncaminhar(session);
+});
+
+// 2) Arranque: se já há sessão activa (incluindo retorno do magic link), encaminhar
 (async () => {
   try {
     const { data: { session } } = await supa.auth.getSession();
     if(session && session.user){
-      const { data: perfil } = await supa
-        .from('perfis')
-        .select('papel, estado')
-        .eq('id', session.user.id)
-        .maybeSingle();
-      if(perfil && perfil.estado === 'aprovado'){
-        encaminhar(perfil.papel);
-        return;
-      }
-      // sessão existe mas perfil não aprovado/inexistente: limpar para não prender
-      if(!perfil || perfil.estado !== 'aprovado'){
-        await supa.auth.signOut();
-      }
+      await verificarEEncaminhar(session);
+      if(jaEncaminhou) return;
     }
   } catch(e){ console.warn('arranque auth', e); }
   const elEmail = document.getElementById('email');
