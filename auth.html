@@ -79,7 +79,15 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:#fff;
 
   <button class="btn" id="btn-login" onclick="doLogin()">Entrar →</button>
 
+  <div style="text-align:center;margin:14px 0 4px;font-size:11px;color:var(--muted);position:relative">
+    <span style="background:var(--bg2);padding:0 10px;position:relative;z-index:1">ou</span>
+    <div style="position:absolute;top:50%;left:0;right:0;height:1px;background:var(--border)"></div>
+  </div>
+
+  <button class="btn" id="btn-magic" onclick="doMagicLink()" style="background:var(--bg);color:var(--gold);border:1px solid var(--gold-border)">📧 Entrar por link no email</button>
+
   <div class="error" id="error">Credenciais incorrectas</div>
+  <div id="okmsg" style="display:none;background:rgba(0,212,106,.08);border:1px solid rgba(0,212,106,.3);color:#7fffb0;padding:10px;font-size:12px;margin-top:10px;text-align:center;line-height:1.5"></div>
 
   <div class="info" id="info">
     Não tens credenciais? <a href="https://wa.me/351913695846?text=Ol%C3%A1%2C%20sou%20clube%20e%20gostaria%20de%20subscrever%20o%20Scouting%20360" target="_blank">Pedir acesso B2B →</a>
@@ -106,11 +114,12 @@ function encaminhar(papel){
   if(papel === 'admin'){
     window.location.href = 'admin360.html';
   } else if(papel === 'scout'){
-    window.location.href = 'scouting360-dashboard.html';
-  } else if(papel === 'cliente'){
-    window.location.href = 'scouting360-dashboard.html';
+    window.location.href = 'scouts.html';
+  } else if(papel === 'treinador'){
+    window.location.href = 'pro-treinador.html';
+  } else if(papel === 'familia' || papel === 'cliente'){
+    window.location.href = 'pro-pai.html';
   } else {
-    // pendente ou outro - sem area propria ainda
     mostrarErro('A tua conta ainda nao foi aprovada. Aguarda validacao.');
   }
 }
@@ -182,24 +191,55 @@ async function doLogin(){
 document.getElementById('pwd').addEventListener('keydown', e => {
   if(e.key === 'Enter') doLogin();
 });
+
+async function doMagicLink(){
+  const email = document.getElementById('email').value.trim().toLowerCase();
+  const btn = document.getElementById('btn-magic');
+  const ok = document.getElementById('okmsg');
+  document.getElementById('error').classList.remove('show');
+  ok.style.display = 'none';
+  if(!email || !email.includes('@')){ mostrarErro('Insere um email valido'); return; }
+  btn.disabled = true; btn.textContent = 'A enviar...';
+  try {
+    const { error } = await supa.auth.signInWithOtp({
+      email: email,
+      options: { emailRedirectTo: window.location.origin + '/auth.html' }
+    });
+    if(error) throw error;
+    ok.innerHTML = '📧 Link enviado para <strong>' + email + '</strong>. Abre o email e clica para entrares.';
+    ok.style.display = 'block';
+    btn.textContent = 'Link enviado ✓';
+  } catch(e){
+    mostrarErro('Nao foi possivel enviar o link: ' + (e.message || 'erro'));
+    btn.disabled = false; btn.textContent = '📧 Entrar por link no email';
+  }
+}
 document.getElementById('email').addEventListener('keydown', e => {
   if(e.key === 'Enter') document.getElementById('pwd').focus();
 });
 
-// Se ja ha sessao activa, encaminhar
+// Se ja ha sessao activa (incluindo retorno do magic link), encaminhar
 (async () => {
-  const { data: { session } } = await supa.auth.getSession();
-  if(session){
-    const { data: perfil } = await supa
-      .from('perfis')
-      .select('papel, estado')
-      .eq('id', session.user.id)
-      .maybeSingle();
-    if(perfil && perfil.estado === 'aprovado'){
-      encaminhar(perfil.papel);
+  try {
+    const { data: { session } } = await supa.auth.getSession();
+    if(session && session.user){
+      const { data: perfil } = await supa
+        .from('perfis')
+        .select('papel, estado')
+        .eq('id', session.user.id)
+        .maybeSingle();
+      if(perfil && perfil.estado === 'aprovado'){
+        encaminhar(perfil.papel);
+        return;
+      }
+      // sessão existe mas perfil não aprovado/inexistente: limpar para não prender
+      if(!perfil || perfil.estado !== 'aprovado'){
+        await supa.auth.signOut();
+      }
     }
-  }
-  document.getElementById('email').focus();
+  } catch(e){ console.warn('arranque auth', e); }
+  const elEmail = document.getElementById('email');
+  if(elEmail) elEmail.focus();
 })();
 </script>
 
