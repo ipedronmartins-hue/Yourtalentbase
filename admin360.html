@@ -190,6 +190,7 @@ tr:last-child td{border-bottom:none}
     <button class="tab" onclick="showTab('pedidos',event)">📞 Pedidos <span class="badge badge-red" id="tab-bg-ped">0</span></button>
     <button class="tab" onclick="showTab('treinadores',event)">🎓 Registos <span class="badge badge-red" id="tab-bg-trein">0</span></button>
     <button class="tab" onclick="showTab('relatorios',event)">📄 Relatórios</button>
+    <button class="tab" onclick="showTab('atletastreinador',event)">⚽ Atletas Treinador</button>
     <button class="tab" onclick="showTab('clubes',event)">🏢 Clubes</button>
   </div>
 
@@ -296,6 +297,18 @@ tr:last-child td{border-bottom:none}
           <tr><th>Atleta</th><th>Scout</th><th>Posição</th><th>Média</th><th>Data</th></tr>
         </thead>
         <tbody id="tbody-relatorios"><tr><td colspan="5" class="loading"><div class="spinner"></div></td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ATLETAS DE TREINADOR (confirmar pagamentos + comissões) -->
+  <div class="section" id="section-atletastreinador">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Atleta</th><th>Treinador</th><th>Entrada</th><th>Mensalidade</th></tr>
+        </thead>
+        <tbody id="tbody-atletastreinador"><tr><td colspan="4" class="loading"><div class="spinner"></div></td></tr></tbody>
       </table>
     </div>
   </div>
@@ -438,7 +451,7 @@ verificarAdmin().then(ok => {
   if(ok && typeof load === 'function'){ load(); }
 });
 
-let allAtletas = [], allPendentes = [], allPedidos = [], allClubes = [], allTreinadores = [], allRelatorios = [];
+let allAtletas = [], allPendentes = [], allPedidos = [], allClubes = [], allTreinadores = [], allRelatorios = [], allAtletasTreinador = [];
 let currentAtleta = null;
 let currentPedido = null;
 let waMode = null; // 'pendente' ou 'pedido'
@@ -490,6 +503,12 @@ async function load(){
     try { const rr = await supa.from('relatorios').select('*').order('created_at', { ascending: false }); rel = rr.data || []; } catch(e){ rel = []; }
     allRelatorios = rel;
 
+    let at = [];
+    try { const ra = await supa.from('atletas_360').select('id,nome,primeiro_nome,clube,fonte,fonte_email,fonte_nome,encarregado_email').eq('fonte','treinador').order('nome'); at = ra.data || []; } catch(e){ at = []; }
+    allAtletasTreinador = at;
+    // pagamentos já registados (para saber o que já foi pago por atleta)
+    try { const rp = await supa.from('pagamentos').select('email,servico,nome'); window._pagamentos = rp.data || []; } catch(e){ window._pagamentos = []; }
+
     allPendentes = allAtletas.filter(x => x.estado === 'pendente');
 
     // KPIs
@@ -511,6 +530,7 @@ async function load(){
     renderClubes();
     renderTreinadores();
     renderRelatorios();
+    renderAtletasTreinador();
     carregarDashboard();
 
   } catch(err){
@@ -629,6 +649,63 @@ function renderPedidos(){
   }).join('');
 }
 
+// ════════════════ ATLETAS DE TREINADOR (pagamentos + comissões) ════════════════
+function atletaJaPagou(atleta, servico){
+  const pags = window._pagamentos || [];
+  // marca por nome do atleta + serviço (entrada conta 1 vez)
+  return pags.some(p => p.servico === servico && p.nome === (atleta.nome || atleta.primeiro_nome));
+}
+
+function renderAtletasTreinador(){
+  const tbody = document.getElementById('tbody-atletastreinador');
+  if(!tbody) return;
+  if(!allAtletasTreinador.length){
+    tbody.innerHTML = '<tr><td colspan="4" class="empty"><div class="empty-icon">⚽</div>Nenhum atleta inserido por treinadores</td></tr>';
+    return;
+  }
+  tbody.innerHTML = allAtletasTreinador.map(a => {
+    const nome = a.primeiro_nome || a.nome;
+    const entradaPaga = atletaJaPagou(a, 'miudo_treinador_entrada');
+    return `
+      <tr>
+        <td class="td-name"><strong>${escapeHtml(nome)}</strong>${a.clube ? '<div class="td-mute">' + escapeHtml(a.clube) + '</div>' : ''}</td>
+        <td class="td-mute">${escapeHtml(a.fonte_nome || a.fonte_email || '?')}</td>
+        <td>${entradaPaga
+          ? '<span class="pill pill-aprovado">paga ✓</span>'
+          : `<button class="action-btn success" onclick="confirmarPagAtleta('${a.id}','entrada')">✓ 39,90€</button>`}</td>
+        <td><button class="action-btn" onclick="confirmarPagAtleta('${a.id}','mensal')">+ 9,90€/mês</button></td>
+      </tr>
+    `;
+  }).join('');
+}
+
+async function confirmarPagAtleta(atletaId, tipo){
+  const a = allAtletasTreinador.find(x => x.id === atletaId);
+  if(!a) return;
+  const nome = a.primeiro_nome || a.nome;
+  const treinadorEmail = a.fonte_email;
+  if(!treinadorEmail){ toast('Atleta sem treinador associado', 'error'); return; }
+  const valor = tipo === 'entrada' ? 39.90 : 9.90;
+  const servico = tipo === 'entrada' ? 'miudo_treinador_entrada' : 'miudo_treinador_mensal';
+  const label = tipo === 'entrada' ? 'entrada 39,90€' : 'mensalidade 9,90€';
+  if(!confirm('Confirmas o pagamento de ' + label + ' do atleta ' + nome + '?\nGera comissão para ' + treinadorEmail + '.')) return;
+  try {
+    // 1) registar o pagamento (entra no dashboard financeiro)
+    await supa.rpc('admin_registar_pagamento', { p_email: a.encarregado_email || treinadorEmail, p_nome: nome, p_servico: servico, p_valor: valor });
+    // 2) gerar a comissão do treinador (19,90 entrada / 4,90 mensal)
+    await supa.rpc('admin_registar_comissao', { p_treinador_email: treinadorEmail, p_atleta_nome: nome, p_tipo: tipo, p_valor_pago: valor });
+    // atualizar memória local
+    (window._pagamentos = window._pagamentos || []).push({ email: a.encarregado_email || treinadorEmail, servico: servico, nome: nome });
+    renderAtletasTreinador();
+    if(typeof carregarDashboard === 'function') carregarDashboard();
+    const com = tipo === 'entrada' ? '19,90€' : '4,90€';
+    toast('Pago ✓ · comissão ' + com + ' para o treinador', 'success');
+  } catch(err){
+    console.error(err);
+    toast('Erro: ' + (err.message || err), 'error');
+  }
+}
+
 // ════════════════ RELATÓRIOS (admin vê todos os scout reports) ════════════════
 function renderRelatorios(){
   const tbody = document.getElementById('tbody-relatorios');
@@ -658,7 +735,9 @@ const SERVICO_INFO = {
   treinador_mensal:  { label:'Treinador · Mensal', emoji:'🎓' },
   familia_entrada:   { label:'Família · Entrada', emoji:'👨‍👩‍👦' },
   familia_mensal:    { label:'Família · Mensal', emoji:'👨‍👩‍👦' },
-  scout_report:      { label:'Scout Report', emoji:'🔍' }
+  scout_report:      { label:'Scout Report', emoji:'🔍' },
+  miudo_treinador_entrada: { label:'Atleta Treinador · Entrada', emoji:'⚽' },
+  miudo_treinador_mensal:  { label:'Atleta Treinador · Mensal', emoji:'⚽' }
 };
 
 async function carregarDashboard(){
