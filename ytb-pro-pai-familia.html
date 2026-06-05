@@ -326,7 +326,8 @@ async function carregarDados(){
         resultadoFinal={nome:nomeAtleta,posicao:r.posicao||'MED',posicaoLabel:r.posicao||'Geral',score:r.score||50,confianca:r.confianca,debilidades:r.debilidades||[],plano:r.plano||null,fonte:'familia',created_at:r.created_at};
       }}catch(e){console.warn('aval',e);}
     // Scout report: se existir, as debilidades profissionais geram o plano (tem prioridade)
-    try{const{data:sr}=await supa.from('scout_reports').select('*').eq('atleta_id',atletaId).order('created_at',{ascending:false}).limit(1);
+    // A tabela 'relatorios' liga ao atleta pelo NOME (não tem atleta_id).
+    try{const{data:sr}=await supa.from('relatorios').select('*').eq('atleta',nomeAtleta).order('created_at',{ascending:false}).limit(1);
       if(sr&&sr.length){
         const rep=sr[0];
         const debsScout=debsFromScoutReport(rep.scores||{});
