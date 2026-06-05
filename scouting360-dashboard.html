@@ -334,26 +334,34 @@ const SUPABASE_URL = 'https://nhshnplaiolxwcfuijfo.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oc2hucGxhaW9seHdjZnVpamZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NDQxNTAsImV4cCI6MjA4OTQyMDE1MH0.uyZiDun8495sjnHA6Wsk-Hou-3lubbNJfQqSYbMLSek';
 const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const authStr = localStorage.getItem('ytb_360_auth');
-if(!authStr){ window.location.href = 'auth.html'; }
-let session;
-try {
-  session = JSON.parse(authStr);
-  if(session.expires < Date.now()){
-    localStorage.removeItem('ytb_360_auth');
+// Autenticação por Supabase (alinhado com o resto do site).
+// Acesso à base: admin, scout ou cliente/clube aprovados.
+let session = { role: 'cliente', isAdmin: false, email: null };
+
+async function verificarAcesso(){
+  const { data: { session: sess } } = await supa.auth.getSession();
+  if(!sess || !sess.user){ window.location.href = 'auth.html'; return false; }
+  const { data: perfil } = await supa.from('perfis')
+    .select('papel, estado, nome').eq('id', sess.user.id).maybeSingle();
+  if(!perfil || perfil.estado !== 'aprovado'){
+    await supa.auth.signOut();
     window.location.href = 'auth.html';
+    return false;
   }
-} catch(e){
-  localStorage.removeItem('ytb_360_auth');
-  window.location.href = 'auth.html';
+  if(!['admin','scout','cliente','clube'].includes(perfil.papel)){
+    window.location.href = 'auth.html';
+    return false;
+  }
+  session = { role: perfil.papel, isAdmin: perfil.papel === 'admin', email: sess.user.email, nome: perfil.nome };
+  const navRole = document.getElementById('nav-role');
+  if(navRole) navRole.innerHTML = 'Olá, <strong>' + (roleLabels[session.role] || 'Utilizador') + '</strong>' + (session.isAdmin ? ' ★' : '');
+  return true;
 }
 
-const roleLabels = { cliente:'Cliente B2B', scout:'Scout YTB', admin:'Admin' };
-document.getElementById('nav-role').innerHTML = 'Olá, <strong>' + (roleLabels[session.role] || 'Utilizador') + '</strong>' + (session.isAdmin ? ' ★' : '');
+const roleLabels = { cliente:'Cliente B2B', clube:'Clube', scout:'Scout YTB', admin:'Admin' };
 
-function logout(){
-  localStorage.removeItem('ytb_360_auth');
-  localStorage.removeItem('ytb_360_admin_master');
+async function logout(){
+  await supa.auth.signOut();
   window.location.href = 'auth.html';
 }
 
@@ -750,7 +758,12 @@ document.getElementById('search').addEventListener('input', e => { state.search 
   document.getElementById('f-' + k).addEventListener('change', e => { state[k] = e.target.value; renderList(); });
 });
 
-load();
+// Arranque: só carrega a base depois de confirmar acesso por Supabase
+(async () => {
+  const ok = await verificarAcesso();
+  if(ok) load();
+})();
+
 </script>
 
 </body>
