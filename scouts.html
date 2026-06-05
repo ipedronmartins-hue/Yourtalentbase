@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Área Scout · YTB</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="/assets/js/ytb-config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
@@ -185,28 +186,25 @@ body{max-width:520px;margin:0 auto;padding-bottom:60px}
   <div class="login-wrap">
     <div class="login-icon">🔍</div>
     <div class="login-title">Área <span>Scout</span></div>
-    <div class="login-sub">Acesso reservado · Insere as credenciais</div>
+    <div class="login-sub">Acesso reservado · Entra com o teu email</div>
   </div>
   <div class="login-box">
     <div class="field">
-      <label class="label">Utilizador</label>
-      <input class="input" id="user" type="text" autocomplete="off">
+      <label class="label">O teu email</label>
+      <input class="input" id="email" type="email" autocomplete="email" placeholder="o.teu@email.com">
     </div>
-    <div class="field">
-      <label class="label">Password</label>
-      <input class="input" id="pass" type="password" autocomplete="off">
-    </div>
-    <div class="err" id="err">Credenciais inválidas.</div>
-    <button class="btn btn-primary" onclick="login()">Entrar →</button>
+    <div class="err" id="err">Não foi possível enviar o link.</div>
+    <div class="ok-msg" id="okmsg" style="display:none;color:var(--green);font-size:13px;margin:10px 0;line-height:1.5"></div>
+    <button class="btn btn-primary" id="loginBtn" onclick="enviarLink()">Receber link de acesso →</button>
   </div>
-  <div class="contact-link">Ainda não tens acesso? <a href="https://wa.me/351913695846" target="_blank">Fala connosco →</a></div>
+  <div class="contact-link">Ainda não tens acesso? <a href="registar.html">Pedir conta →</a></div>
 </div>
 
 <div id="main-view">
   <div class="welcome-bar">
     <div>
       <div style="font-size:14px;font-weight:700;color:#fff" id="nome-scout">Scout</div>
-      <div style="font-size:11px;color:var(--muted);margin-top:2px">3 relatórios por 39€</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:2px">3 relatórios por 39,90€</div>
     </div>
     <div style="text-align:right">
       <div style="font-size:9px;font-weight:800;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:4px">Créditos</div>
@@ -325,12 +323,6 @@ const SUPABASE_URL='https://nhshnplaiolxwcfuijfo.supabase.co';
 const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oc2hucGxhaW9seHdjZnVpamZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NDQxNTAsImV4cCI6MjA4OTQyMDE1MH0.uyZiDun8495sjnHA6Wsk-Hou-3lubbNJfQqSYbMLSek';
 const supa=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 
-const SCOUTS={
-  'Miro':{pass:'YTB#Miro#3ozkUuLO6D',nome:'Scout Miro',creditos:3},
-  'Jonas':{pass:'YTB#Jonas#gLWjfiu6LG',nome:'Scout Jonas',creditos:3},
-  'Paulo':{pass:'YTB#Paulo#XX2025xx',nome:'Scout Paulo',creditos:3},
-};
-
 // 25 CRITÉRIOS (escala 1-5)
 const CRITERIOS={
   tecnicos:['1x1 Defensivo','1x1 Ofensivo','Recepção','Passe','Condução','Finalização','Jogo Aéreo','Velocidade de Execução'],
@@ -379,18 +371,49 @@ function genReportNum(){
 // ═══════════════════════════════════════════════
 // LOGIN
 // ═══════════════════════════════════════════════
-function login(){
-  const u=document.getElementById('user').value.trim();
-  const p=document.getElementById('pass').value;
+async function enviarLink(){
+  const email=document.getElementById('email').value.trim().toLowerCase();
   const err=document.getElementById('err');
-  const scout=SCOUTS[u];
-  if(!scout||scout.pass!==p){err.style.display='block';return}
-  err.style.display='none';
-  scoutAtual={username:u,...scout};
-  sessionStorage.setItem('ytb_scout',JSON.stringify({username:u,pass:p}));
+  const ok=document.getElementById('okmsg');
+  const btn=document.getElementById('loginBtn');
+  err.style.display='none'; ok.style.display='none';
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ err.textContent='Escreve um email válido.'; err.style.display='block'; return; }
+  if(!supa){ err.textContent='Sistema não ligado. Tenta mais tarde.'; err.style.display='block'; return; }
+  btn.disabled=true; btn.textContent='A enviar...';
+  try{
+    const { error } = await supa.auth.signInWithOtp({ email: email, options:{ emailRedirectTo: window.location.href.split('#')[0].split('?')[0] } });
+    if(error) throw error;
+    ok.innerHTML='📩 Enviámos um link para <strong>'+email+'</strong>. Abre o email e clica para entrares.';
+    ok.style.display='block';
+    btn.textContent='Link enviado ✓';
+  }catch(e){
+    err.textContent='Não foi possível: '+(e.message||'erro'); err.style.display='block';
+    btn.disabled=false; btn.textContent='Receber link de acesso →';
+  }
+}
+
+async function logout(){ if(supa) await supa.auth.signOut(); location.reload(); }
+
+// Verifica sessão. Se autenticado e for scout/admin aprovado, mostra a ferramenta.
+async function verificarSessao(){
+  if(!supa) return;
+  const { data:{ session } } = await supa.auth.getSession();
+  if(!session){ return; } // fica no login
+  const email=session.user.email;
+  const { data: perfil } = await supa.from('perfis').select('nome,papel,estado').eq('email',email).maybeSingle();
+  if(!perfil){
+    document.getElementById('err').textContent='A tua conta ainda não foi aprovada.';
+    document.getElementById('err').style.display='block';
+    return;
+  }
+  if(perfil.estado!=='aprovado' || (perfil.papel!=='scout' && perfil.papel!=='admin')){
+    document.getElementById('err').textContent='Conta sem acesso de scout (estado: '+perfil.estado+').';
+    document.getElementById('err').style.display='block';
+    return;
+  }
+  scoutAtual={ email:email, nome:perfil.nome||email, papel:perfil.papel };
   mostrarMain();
 }
-function logout(){sessionStorage.removeItem('ytb_scout');location.reload()}
 
 function mostrarMain(){
   document.getElementById('login-view').style.display='none';
@@ -403,7 +426,7 @@ function mostrarMain(){
   document.getElementById('sr_data').value=new Date().toISOString().split('T')[0];
 }
 
-document.getElementById('pass').addEventListener('keypress',e=>{if(e.key==='Enter')login()});
+document.getElementById('email').addEventListener('keypress',e=>{if(e.key==='Enter')enviarLink()});
 
 // ═══════════════════════════════════════════════
 // SLIDERS
@@ -431,9 +454,10 @@ function buildSliders(){
 // ═══════════════════════════════════════════════
 async function carregarHistorico(){
   const{data}=await supa.from('relatorios').select('*').eq('scout',scoutAtual?.nome||'').order('created_at',{ascending:false}).limit(10);
-  creditosUsados=data?data.length:0;
-  const cr=Math.max(0,3-creditosUsados);
-  document.getElementById('creditos-display').textContent=cr+'/3';
+  // créditos vêm do SERVIDOR (não da contagem de relatórios)
+  let cr=0;
+  try{ const { data: rest } = await supa.rpc('scout_creditos_restantes'); cr=rest||0; }catch(e){ cr=0; }
+  document.getElementById('creditos-display').textContent=cr+(cr===1?' crédito':' créditos');
   if(cr<=0){
     document.getElementById('area-com-creditos').style.display='none';
     document.getElementById('area-sem-creditos').style.display='block';
@@ -450,8 +474,8 @@ async function carregarHistorico(){
     return `<div class="rel-item" onclick='abrirReportGuardado(${JSON.stringify(r).replace(/'/g,"&#39;")})'>
       <div style="display:flex;justify-content:space-between;align-items:center">
         <div>
-          <div class="rel-nome">${r.nome_atleta}</div>
-          <div class="rel-meta">${r.posicao||'?'} · ${r.escalao||'?'} · ${dt}</div>
+          <div class="rel-nome">${r.atleta||'?'}</div>
+          <div class="rel-meta">${r.posicao||'?'} · ${r.categoria||'?'} · ${dt}</div>
         </div>
         <div class="rel-score" style="color:${col}">${gs}</div>
       </div>
@@ -474,6 +498,12 @@ async function gerarReport(){
   if(!nome){alert('Insere o nome do atleta');return}
   const pos=document.getElementById('sr_pos').value;
   if(!pos){alert('Selecciona a posição');return}
+
+  // Gastar 1 crédito NO SERVIDOR (à prova de browser). -1 = sem créditos.
+  let restantes=-1;
+  try{ const { data } = await supa.rpc('scout_gastar_credito'); restantes=(data===null||data===undefined)?-1:data; }
+  catch(e){ alert('Não foi possível validar créditos: '+(e.message||'erro')); return; }
+  if(restantes<0){ alert('Não tens créditos disponíveis. Contacta a YTB para adquirir mais.'); carregarHistorico(); return; }
 
   // Recolher scores
   const scores={};
@@ -853,19 +883,10 @@ function exportarPDF(){
 }
 
 // ═══════════════════════════════════════════════
-// AUTO LOGIN
+// SESSÃO (magic link / sessão activa)
 // ═══════════════════════════════════════════════
-const saved=sessionStorage.getItem('ytb_scout');
-if(saved){
-  try{
-    const s=JSON.parse(saved);
-    const scout=SCOUTS[s.username];
-    if(scout&&scout.pass===s.pass){
-      scoutAtual={username:s.username,...scout};
-      document.addEventListener('DOMContentLoaded',mostrarMain);
-    }
-  }catch(e){}
-}
+document.addEventListener('DOMContentLoaded',()=>{ verificarSessao(); });
+if(supa){ supa.auth.onAuthStateChange((_e,_s)=>{ verificarSessao(); }); }
 </script>
 </body>
 </html>
