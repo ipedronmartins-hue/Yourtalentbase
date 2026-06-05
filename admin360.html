@@ -54,6 +54,18 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:#fff;
 .kpi{background:var(--bg2);border:1px solid var(--border);padding:12px;border-left:3px solid var(--gold)}
 .kpi-n{font-family:'Barlow Condensed';font-weight:900;font-size:24px;color:#fff;line-height:1}
 .kpi-l{font-size:8px;font-weight:800;letter-spacing:1.5px;color:var(--gold);text-transform:uppercase;margin-top:3px}
+.fin-panel{background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--green);padding:14px;margin-bottom:18px}
+.fin-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.fin-title{font-family:'Barlow Condensed';font-weight:900;font-size:16px;color:#fff}
+.fin-title span{color:var(--green)}
+.fin-select{background:var(--bg3);border:1px solid var(--border);color:#fff;font-size:12px;padding:4px 8px;border-radius:6px;font-family:inherit}
+.fin-total{font-family:'Barlow Condensed';font-weight:900;font-size:34px;color:var(--green);line-height:1;margin-bottom:12px}
+.fin-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+@media(min-width:520px){.fin-grid{grid-template-columns:repeat(3,1fr)}}
+.fin-card{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 10px}
+.fin-card-n{font-family:'Barlow Condensed';font-weight:900;font-size:18px;color:#fff}
+.fin-card-l{font-size:9px;font-weight:700;letter-spacing:.5px;color:var(--slate);text-transform:uppercase;margin-top:2px}
+.fin-card-c{font-size:10px;color:var(--muted);margin-top:1px}
 
 /* TOOLBAR */
 .toolbar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
@@ -163,11 +175,21 @@ tr:last-child td{border-bottom:none}
     <div class="kpi" style="border-left-color:var(--purple)"><div class="kpi-n" id="k-clubes-sub">—</div><div class="kpi-l">Clubes Sub.</div></div>
   </div>
 
+  <div class="fin-panel" id="finPanel">
+    <div class="fin-head">
+      <div class="fin-title">💰 Receita <span id="fin-mes-label">deste mês</span></div>
+      <select class="fin-select" id="fin-mes" onchange="carregarDashboard()"></select>
+    </div>
+    <div class="fin-total" id="fin-total">0,00€</div>
+    <div class="fin-grid" id="fin-grid"></div>
+  </div>
+
   <div class="tabs">
     <button class="tab active" onclick="showTab('atletas',event)">📋 Atletas</button>
     <button class="tab" onclick="showTab('pendentes',event)">⏳ Pendentes <span class="badge badge-red" id="tab-bg-pend">0</span></button>
     <button class="tab" onclick="showTab('pedidos',event)">📞 Pedidos <span class="badge badge-red" id="tab-bg-ped">0</span></button>
-    <button class="tab" onclick="showTab('treinadores',event)">🎓 Treinadores <span class="badge badge-red" id="tab-bg-trein">0</span></button>
+    <button class="tab" onclick="showTab('treinadores',event)">🎓 Registos <span class="badge badge-red" id="tab-bg-trein">0</span></button>
+    <button class="tab" onclick="showTab('relatorios',event)">📄 Relatórios</button>
     <button class="tab" onclick="showTab('clubes',event)">🏢 Clubes</button>
   </div>
 
@@ -262,6 +284,18 @@ tr:last-child td{border-bottom:none}
           </tr>
         </thead>
         <tbody id="tbody-treinadores"><tr><td colspan="5" class="loading"><div class="spinner"></div></td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- RELATÓRIOS (scout reports) -->
+  <div class="section" id="section-relatorios">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Atleta</th><th>Scout</th><th>Posição</th><th>Média</th><th>Data</th></tr>
+        </thead>
+        <tbody id="tbody-relatorios"><tr><td colspan="5" class="loading"><div class="spinner"></div></td></tr></tbody>
       </table>
     </div>
   </div>
@@ -404,7 +438,7 @@ verificarAdmin().then(ok => {
   if(ok && typeof load === 'function'){ load(); }
 });
 
-let allAtletas = [], allPendentes = [], allPedidos = [], allClubes = [], allTreinadores = [];
+let allAtletas = [], allPendentes = [], allPedidos = [], allClubes = [], allTreinadores = [], allRelatorios = [];
 let currentAtleta = null;
 let currentPedido = null;
 let waMode = null; // 'pendente' ou 'pedido'
@@ -452,6 +486,10 @@ async function load(){
     try { const r = await supa.from('registos_pendentes').select('*').order('criado_em', { ascending: false }); t = r.data || []; } catch(e){ t = []; }
     allTreinadores = t;
 
+    let rel = [];
+    try { const rr = await supa.from('relatorios').select('*').order('created_at', { ascending: false }); rel = rr.data || []; } catch(e){ rel = []; }
+    allRelatorios = rel;
+
     allPendentes = allAtletas.filter(x => x.estado === 'pendente');
 
     // KPIs
@@ -472,6 +510,8 @@ async function load(){
     renderPedidos();
     renderClubes();
     renderTreinadores();
+    renderRelatorios();
+    carregarDashboard();
 
   } catch(err){
     console.error(err);
@@ -589,7 +629,89 @@ function renderPedidos(){
   }).join('');
 }
 
-// ════════════════ TREINADORES ════════════════
+// ════════════════ RELATÓRIOS (admin vê todos os scout reports) ════════════════
+function renderRelatorios(){
+  const tbody = document.getElementById('tbody-relatorios');
+  if(!tbody) return;
+  if(!allRelatorios.length){
+    tbody.innerHTML = '<tr><td colspan="5" class="empty"><div class="empty-icon">📄</div>Sem relatórios gerados</td></tr>';
+    return;
+  }
+  tbody.innerHTML = allRelatorios.map(r => {
+    const media = r.media_geral != null ? Number(r.media_geral).toFixed(1) : '—';
+    const cor = r.media_geral >= 4 ? 'var(--green)' : r.media_geral >= 3 ? 'var(--gold)' : 'var(--slate)';
+    return `
+      <tr>
+        <td class="td-name"><strong>${escapeHtml(r.atleta || '?')}</strong>${r.clube ? '<div class="td-mute">' + escapeHtml(r.clube) + '</div>' : ''}</td>
+        <td>${escapeHtml(r.scout || '?')}</td>
+        <td class="td-mute">${escapeHtml(r.posicao || '?')} · ${escapeHtml(r.categoria || '?')}</td>
+        <td><strong style="color:${cor}">${media}</strong></td>
+        <td class="td-mute">${fmtDate(r.created_at)}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+// ════════════════ DASHBOARD FINANCEIRO ════════════════
+const SERVICO_INFO = {
+  treinador_entrada: { label:'Treinador · Entrada', emoji:'🎓' },
+  treinador_mensal:  { label:'Treinador · Mensal', emoji:'🎓' },
+  familia_entrada:   { label:'Família · Entrada', emoji:'👨‍👩‍👦' },
+  familia_mensal:    { label:'Família · Mensal', emoji:'👨‍👩‍👦' },
+  scout_report:      { label:'Scout Report', emoji:'🔍' }
+};
+
+async function carregarDashboard(){
+  const sel = document.getElementById('fin-mes');
+  const grid = document.getElementById('fin-grid');
+  const totalEl = document.getElementById('fin-total');
+  if(!grid || !totalEl) return;
+  let pagamentos = [];
+  try {
+    const { data } = await supa.from('pagamentos').select('*').order('criado_em', { ascending: false });
+    pagamentos = data || [];
+  } catch(e){
+    totalEl.textContent = '—';
+    grid.innerHTML = '<div class="fin-card"><div class="fin-card-l">Tabela de pagamentos ainda não criada</div></div>';
+    return;
+  }
+  // meses disponíveis
+  const meses = [...new Set(pagamentos.map(p => p.mes))].sort().reverse();
+  const mesAtual = new Date().toISOString().slice(0,7);
+  if(!meses.includes(mesAtual)) meses.unshift(mesAtual);
+  if(sel && !sel.dataset.filled){
+    sel.innerHTML = meses.map(m => `<option value="${m}">${m}</option>`).join('');
+    sel.dataset.filled = '1';
+  }
+  const mesEscolhido = (sel && sel.value) || mesAtual;
+  const doMes = pagamentos.filter(p => p.mes === mesEscolhido);
+
+  const total = doMes.reduce((s,p) => s + Number(p.valor||0), 0);
+  totalEl.textContent = total.toFixed(2).replace('.', ',') + '€';
+
+  // agrupar por serviço
+  const porServico = {};
+  doMes.forEach(p => {
+    if(!porServico[p.servico]) porServico[p.servico] = { n:0, total:0 };
+    porServico[p.servico].n++;
+    porServico[p.servico].total += Number(p.valor||0);
+  });
+  const ordenado = Object.entries(porServico).sort((a,b) => b[1].total - a[1].total);
+  if(!ordenado.length){
+    grid.innerHTML = '<div class="fin-card"><div class="fin-card-l">Sem receita registada neste mês</div></div>';
+  } else {
+    grid.innerHTML = ordenado.map(([srv, d]) => {
+      const info = SERVICO_INFO[srv] || { label: srv, emoji:'💶' };
+      return `<div class="fin-card">
+        <div class="fin-card-n">${d.total.toFixed(2).replace('.', ',')}€</div>
+        <div class="fin-card-l">${info.emoji} ${info.label}</div>
+        <div class="fin-card-c">${d.n} pagamento${d.n>1?'s':''}</div>
+      </div>`;
+    }).join('');
+  }
+}
+
+// ════════════════ REGISTOS (treinador/scout/família) ════════════════
 function renderTreinadores(){
   const tbody = document.getElementById('tbody-treinadores');
   if(!tbody) return;
@@ -615,9 +737,11 @@ function renderTreinadores(){
     } else if(est === 'aprovado'){
       acoes = '<span class="td-mute" style="color:var(--green)">acesso ativo</span>';
     }
+    const papelEmoji = { treinador:'🎓', scout:'🔍', familia:'👨‍👩‍👦' }[t.papel] || '🎓';
+    const papelLabel = { treinador:'Treinador', scout:'Scout', familia:'Família' }[t.papel] || 'Treinador';
     return `
       <tr>
-        <td class="td-name"><strong>${escapeHtml(t.nome)}</strong></td>
+        <td class="td-name"><strong>${escapeHtml(t.nome)}</strong><div class="td-mute">${papelEmoji} ${papelLabel}</div></td>
         <td>${escapeHtml(t.email)}${tel ? '<div class="td-mute">📱 ' + escapeHtml(tel) + '</div>' : '<div class="td-mute" style="color:var(--orange)">sem telemóvel</div>'}</td>
         <td><span class="pill pill-${pill}">${escapeHtml(estLabel)}</span></td>
         <td class="td-mute">${fmtDate(t.criado_em)}</td>
@@ -633,11 +757,20 @@ function cobrarTreinador(id){
   if(!t || !t.telemovel) return;
   const tel = t.telemovel.replace(/\D/g,'');
   const cleanPhone = tel.startsWith('351') ? tel : '351' + tel;
-  const texto = 'Olá ' + t.nome + '! Bem-vindo ao YourTalentBase 🎓\n\n' +
-    'Recebemos o teu registo como treinador. Para ativar o acesso completo (Elite Coach + avaliação dos teus atletas + treino IA), o plano é:\n\n' +
-    '• 39,90€ entrada (Scout Report inicial)\n' +
-    '• 9,90€/mês de acompanhamento\n\n' +
-    'Podes pagar por MB Way para o número 913 695 846. Assim que confirmar, ativo o teu acesso e recebes o link de entrada por email. Qualquer dúvida, diz!';
+  const papel = t.papel || 'treinador';
+  let intro, plano;
+  if(papel === 'scout'){
+    intro = 'Recebemos o teu registo como scout. Para ativar o acesso ao Scout Report (3 relatórios profissionais), o valor é:';
+    plano = '• 39,90€ por 3 relatórios';
+  } else if(papel === 'familia'){
+    intro = 'Recebemos o teu registo. Para ativar o acompanhamento do teu atleta (avaliação + treino IA personalizado), o plano é:';
+    plano = '• 14,90€ entrada\n• 9,90€/mês de acompanhamento';
+  } else {
+    intro = 'Recebemos o teu registo como treinador. Para ativar o acesso completo (Elite Coach + avaliação dos teus atletas + treino IA), o plano é:';
+    plano = '• 39,90€ entrada\n• 9,90€/mês de acompanhamento';
+  }
+  const texto = 'Olá ' + t.nome + '! Bem-vindo ao YourTalentBase ⚽\n\n' + intro + '\n\n' + plano +
+    '\n\nPodes pagar por MB Way para o número 913 695 846. Assim que confirmar, ativo o teu acesso e recebes o link de entrada por email. Qualquer dúvida, diz!';
   window.open('https://wa.me/' + cleanPhone + '?text=' + encodeURIComponent(texto), '_blank');
   // marca como contactado (best-effort)
   supa.from('registos_pendentes').update({ estado: 'contactado' }).eq('id', id).then(() => {
@@ -646,25 +779,41 @@ function cobrarTreinador(id){
   });
 }
 
+// Valores de entrada por serviço
+const VALOR_ENTRADA = { treinador: 39.90, familia: 14.90, scout: 39.90 };
+
 async function aprovarTreinador(id){
   const t = allTreinadores.find(x => x.id === id);
   if(!t) return;
-  if(!confirm('Confirmas que ' + t.nome + ' JÁ PAGOU? Isto ativa o acesso de treinador.')) return;
+  const papel = t.papel || 'treinador';
+  const valor = VALOR_ENTRADA[papel] || 39.90;
+  const labelPapel = papel === 'scout' ? 'Scout' : papel === 'familia' ? 'Família' : 'Treinador';
+  if(!confirm('Confirmas que ' + t.nome + ' JÁ PAGOU ' + valor.toFixed(2) + '€ (' + labelPapel + ')? Isto ativa o acesso.')) return;
   try {
     const { error: e1 } = await supa.from('registos_pendentes').update({ estado: 'aprovado' }).eq('id', id);
     if(e1) throw e1;
     const { data: existe } = await supa.from('perfis').select('id').eq('email', t.email).maybeSingle();
     if(existe){
-      await supa.from('perfis').update({ papel: 'treinador', estado: 'aprovado', nome: t.nome }).eq('email', t.email);
+      await supa.from('perfis').update({ papel: papel, estado: 'aprovado', nome: t.nome }).eq('email', t.email);
     } else {
-      try { await supa.from('perfis').insert({ email: t.email, nome: t.nome, papel: 'treinador', estado: 'aprovado' }); }
+      try { await supa.from('perfis').insert({ email: t.email, nome: t.nome, papel: papel, estado: 'aprovado' }); }
       catch(e){ console.warn('perfil criado no 1º login:', e.message); }
+    }
+    // Registar o pagamento de entrada
+    const servico = papel === 'scout' ? 'scout_report' : (papel + '_entrada');
+    try { await supa.rpc('admin_registar_pagamento', { p_email: t.email, p_nome: t.nome, p_servico: servico, p_valor: valor }); }
+    catch(e){ console.warn('pagamento não registado:', e.message); }
+    // Se for scout, dar 3 créditos
+    if(papel === 'scout'){
+      try { await supa.rpc('admin_dar_creditos', { p_email: t.email, p_qtd: 3 }); }
+      catch(e){ console.warn('créditos não atribuídos (scout entra 1x primeiro):', e.message); }
     }
     t.estado = 'aprovado';
     renderTreinadores();
     const elTrein = document.getElementById('tab-bg-trein');
     if(elTrein) elTrein.textContent = allTreinadores.filter(x => x.estado === 'pendente' || x.estado === 'contactado').length;
-    toast('Treinador ativado ✓', 'success');
+    if(typeof carregarDashboard === 'function') carregarDashboard();
+    toast(labelPapel + ' ativado · ' + valor.toFixed(2) + '€ registado ✓', 'success');
   } catch(err){
     console.error(err);
     toast('Erro ao aprovar: ' + (err.message || err), 'error');

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Registo de Treinador · YourTalentBase</title>
+<title>Criar Conta · YourTalentBase</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="/assets/js/ytb-config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -19,6 +19,9 @@ body{display:flex;flex-direction:column;align-items:center;justify-content:cente
 h1{font-family:'Barlow Condensed';font-weight:900;font-size:26px;text-align:center;margin-bottom:6px}
 h1 span{color:var(--gold)}
 .sub{font-size:13px;color:var(--slate);text-align:center;line-height:1.5;margin-bottom:22px}
+.papel-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:6px}
+.papel-opt{background:var(--bg3);border:1px solid var(--border);color:var(--slate);padding:12px 4px;border-radius:9px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s}
+.papel-opt.active{border-color:var(--gold);color:var(--gold);background:var(--gold-soft)}
 label{display:block;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--slate);margin-bottom:5px;margin-top:14px}
 input{width:100%;background:var(--bg3);border:1px solid var(--border);color:#fff;padding:12px;font-family:inherit;font-size:15px;outline:none;border-radius:9px}
 input:focus{border-color:var(--gold)}
@@ -45,8 +48,14 @@ input:focus{border-color:var(--gold)}
 
   <!-- Formulário -->
   <div id="formArea">
-    <h1>Registo de <span>Treinador</span></h1>
-    <div class="sub">Cria a tua conta para avaliar os teus atletas e gerar treinos. Entras por link no email — sem passwords.</div>
+    <h1>Criar <span>Conta</span></h1>
+    <div class="sub">Cria a tua conta para aceder às ferramentas YTB. Entras por link no email — sem passwords.</div>
+    <label>O que és?</label>
+    <div class="papel-grid" id="papelGrid">
+      <button type="button" class="papel-opt active" data-papel="treinador" onclick="escolherPapel(this)">🎓 Treinador</button>
+      <button type="button" class="papel-opt" data-papel="familia" onclick="escolherPapel(this)">👨‍👩‍👦 Família</button>
+      <button type="button" class="papel-opt" data-papel="scout" onclick="escolherPapel(this)">🔍 Scout</button>
+    </div>
     <label for="nome">Nome completo</label>
     <input id="nome" type="text" placeholder="O teu nome" autocomplete="name">
     <label for="email">Email</label>
@@ -75,6 +84,13 @@ const sb=USING_SB?supabase.createClient(SUPABASE_URL,SUPABASE_KEY):null;
 
 if(!USING_SB) document.getElementById('demoFlag').style.display='block';
 
+let papelEscolhido='treinador';
+function escolherPapel(btn){
+  papelEscolhido=btn.getAttribute('data-papel');
+  document.querySelectorAll('.papel-opt').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
 function showMsg(txt,tipo){const m=document.getElementById('msg');m.textContent=txt;m.className='msg '+tipo;}
 function emailValido(e){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);}
 
@@ -98,8 +114,8 @@ async function registar(){
     const { error: otpErr } = await sb.auth.signInWithOtp({
       email: email,
       options: {
-        emailRedirectTo: window.location.origin + '/elite-coach.html',
-        data: { nome: nome, papel_pretendido: 'treinador' }
+        emailRedirectTo: window.location.origin + '/',
+        data: { nome: nome, papel_pretendido: papelEscolhido }
       }
     });
     if(otpErr) throw otpErr;
@@ -111,7 +127,7 @@ async function registar(){
     //    cria-o na aprovação. Aqui registamos a intenção.
     //    (Tentativa best-effort — não bloqueia o magic link.)
     try{
-      await sb.from('registos_pendentes').insert({ nome: nome, email: email, telemovel: telemovel, papel: 'treinador' });
+      await sb.from('registos_pendentes').insert({ nome: nome, email: email, telemovel: telemovel, papel: papelEscolhido });
     }catch(e){ /* tabela pode não existir ainda; o magic link é o essencial */ }
 
     document.getElementById('formArea').style.display='none';
