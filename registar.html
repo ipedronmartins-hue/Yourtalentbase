@@ -19,9 +19,11 @@ body{display:flex;flex-direction:column;align-items:center;justify-content:cente
 h1{font-family:'Barlow Condensed';font-weight:900;font-size:26px;text-align:center;margin-bottom:6px}
 h1 span{color:var(--gold)}
 .sub{font-size:13px;color:var(--slate);text-align:center;line-height:1.5;margin-bottom:22px}
-.papel-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:6px}
-.papel-opt{background:var(--bg3);border:1px solid var(--border);color:var(--slate);padding:12px 4px;border-radius:9px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s}
+.papel-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px}
+.papel-opt{background:var(--bg3);border:1px solid var(--border);color:var(--slate);padding:14px 4px;border-radius:9px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s}
 .papel-opt.active{border-color:var(--gold);color:var(--gold);background:var(--gold-soft)}
+.papel-desc{background:var(--gold-soft);border:1px solid var(--gold-border);border-radius:9px;padding:12px 14px;margin-bottom:8px;font-size:12px;color:var(--slate);line-height:1.5}
+.papel-desc .preco{font-family:'Barlow Condensed';font-weight:900;font-size:18px;color:var(--gold);display:block;margin-bottom:4px}
 label{display:block;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--slate);margin-bottom:5px;margin-top:14px}
 input{width:100%;background:var(--bg3);border:1px solid var(--border);color:#fff;padding:12px;font-family:inherit;font-size:15px;outline:none;border-radius:9px}
 input:focus{border-color:var(--gold)}
@@ -50,12 +52,12 @@ input:focus{border-color:var(--gold)}
   <div id="formArea">
     <h1>Criar <span>Conta</span></h1>
     <div class="sub">Cria a tua conta para aceder às ferramentas YTB. Entras por link no email — sem passwords.</div>
-    <label>O que és?</label>
+    <label>O que procuras?</label>
     <div class="papel-grid" id="papelGrid">
       <button type="button" class="papel-opt active" data-papel="treinador" onclick="escolherPapel(this)">🎓 Treinador</button>
       <button type="button" class="papel-opt" data-papel="familia" onclick="escolherPapel(this)">👨‍👩‍👦 Família</button>
-      <button type="button" class="papel-opt" data-papel="scout" onclick="escolherPapel(this)">🔍 Scout</button>
     </div>
+    <div class="papel-desc" id="papelDesc"></div>
     <label for="nome">Nome completo</label>
     <input id="nome" type="text" placeholder="O teu nome" autocomplete="name">
     <label for="email">Email</label>
@@ -84,12 +86,33 @@ const sb=USING_SB?supabase.createClient(SUPABASE_URL,SUPABASE_KEY):null;
 
 if(!USING_SB) document.getElementById('demoFlag').style.display='block';
 
+const PAPEL_DESC={
+  treinador:'<span class="preco">39,90€ + 9,90€/mês</span>Inscreve os teus atletas, avalia-os pelos 25 critérios profissionais e gera treino personalizado focado nas debilidades de cada um.',
+  familia:'<span class="preco">14,90€ + 9,90€/mês</span>Avalia o teu filho com perguntas simples e recebe um plano de treino caseiro, ajustado às debilidades. Acompanhas a evolução.'
+};
 let papelEscolhido='treinador';
 function escolherPapel(btn){
   papelEscolhido=btn.getAttribute('data-papel');
   document.querySelectorAll('.papel-opt').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
+  const d=document.getElementById('papelDesc');
+  if(d)d.innerHTML=PAPEL_DESC[papelEscolhido]||'';
 }
+document.addEventListener('DOMContentLoaded',()=>{
+  // papel via URL (ex: registar.html?papel=scout vindo do Scout Report)
+  const params=new URLSearchParams(window.location.search);
+  const pUrl=params.get('papel');
+  if(pUrl==='scout'){
+    papelEscolhido='scout';
+    const grid=document.getElementById('papelGrid');
+    if(grid)grid.style.display='none'; // scout vem direto, sem seletor
+    const h1=document.querySelector('h1'); if(h1)h1.innerHTML='Conta de <span>Scout</span>';
+    const d=document.getElementById('papelDesc');
+    if(d)d.innerHTML='<span class="preco">39,90€ · 3 relatórios</span>Cria a conta e, após confirmarmos o pagamento, geras 3 Scout Reports profissionais imprimíveis.';
+  } else {
+    const d=document.getElementById('papelDesc');if(d)d.innerHTML=PAPEL_DESC[papelEscolhido];
+  }
+});
 
 function showMsg(txt,tipo){const m=document.getElementById('msg');m.textContent=txt;m.className='msg '+tipo;}
 function emailValido(e){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);}
