@@ -599,25 +599,57 @@ function renderTreinadores(){
   }
   tbody.innerHTML = allTreinadores.map(t => {
     const est = t.estado || 'pendente';
-    const pill = est === 'aprovado' ? 'aprovado' : est === 'rejeitado' ? 'rejeitado' : 'pendente';
+    const pillMap = { pendente:'pendente', contactado:'pendente', aprovado:'aprovado', rejeitado:'rejeitado' };
+    const pill = pillMap[est] || 'pendente';
+    const estLabel = { pendente:'novo', contactado:'contactado', aprovado:'pago ✓', rejeitado:'rejeitado' }[est] || est;
+    const tel = t.telemovel || '';
+    let acoes = '';
+    if(est === 'pendente'){
+      acoes += tel ? `<button class="action-btn whatsapp" onclick="cobrarTreinador('${t.id}')">📱 Cobrar MB Way</button>` : '';
+      acoes += `<button class="action-btn success" onclick="aprovarTreinador('${t.id}')">✓ Já pagou</button>`;
+      acoes += `<button class="action-btn danger" onclick="rejeitarTreinador('${t.id}')">✗</button>`;
+    } else if(est === 'contactado'){
+      acoes += tel ? `<button class="action-btn whatsapp" onclick="cobrarTreinador('${t.id}')">📱 Reenviar</button>` : '';
+      acoes += `<button class="action-btn success" onclick="aprovarTreinador('${t.id}')">✓ Já pagou</button>`;
+      acoes += `<button class="action-btn danger" onclick="rejeitarTreinador('${t.id}')">✗</button>`;
+    } else if(est === 'aprovado'){
+      acoes = '<span class="td-mute" style="color:var(--green)">acesso ativo</span>';
+    }
     return `
       <tr>
         <td class="td-name"><strong>${escapeHtml(t.nome)}</strong></td>
-        <td>${escapeHtml(t.email)}</td>
-        <td><span class="pill pill-${pill}">${escapeHtml(est)}</span></td>
+        <td>${escapeHtml(t.email)}${tel ? '<div class="td-mute">📱 ' + escapeHtml(tel) + '</div>' : '<div class="td-mute" style="color:var(--orange)">sem telemóvel</div>'}</td>
+        <td><span class="pill pill-${pill}">${escapeHtml(estLabel)}</span></td>
         <td class="td-mute">${fmtDate(t.criado_em)}</td>
-        <td style="white-space:nowrap">
-          ${est === 'pendente' ? `<button class="action-btn success" onclick="aprovarTreinador('${t.id}')">✓ Aprovar</button>` : ''}
-          ${est !== 'rejeitado' ? `<button class="action-btn danger" onclick="rejeitarTreinador('${t.id}')">✗</button>` : ''}
-        </td>
+        <td style="white-space:nowrap">${acoes}</td>
       </tr>
     `;
   }).join('');
 }
 
+// Abre WhatsApp com mensagem pronta a combinar o MB Way, e marca 'contactado'.
+function cobrarTreinador(id){
+  const t = allTreinadores.find(x => x.id === id);
+  if(!t || !t.telemovel) return;
+  const tel = t.telemovel.replace(/\D/g,'');
+  const cleanPhone = tel.startsWith('351') ? tel : '351' + tel;
+  const texto = 'Olá ' + t.nome + '! Bem-vindo ao YourTalentBase 🎓\n\n' +
+    'Recebemos o teu registo como treinador. Para ativar o acesso completo (Elite Coach + avaliação dos teus atletas + treino IA), o plano é:\n\n' +
+    '• 39,90€ entrada (Scout Report inicial)\n' +
+    '• 9,90€/mês de acompanhamento\n\n' +
+    'Podes pagar por MB Way para o número 913 695 846. Assim que confirmar, ativo o teu acesso e recebes o link de entrada por email. Qualquer dúvida, diz!';
+  window.open('https://wa.me/' + cleanPhone + '?text=' + encodeURIComponent(texto), '_blank');
+  // marca como contactado (best-effort)
+  supa.from('registos_pendentes').update({ estado: 'contactado' }).eq('id', id).then(() => {
+    t.estado = 'contactado';
+    renderTreinadores();
+  });
+}
+
 async function aprovarTreinador(id){
   const t = allTreinadores.find(x => x.id === id);
   if(!t) return;
+  if(!confirm('Confirmas que ' + t.nome + ' JÁ PAGOU? Isto ativa o acesso de treinador.')) return;
   try {
     const { error: e1 } = await supa.from('registos_pendentes').update({ estado: 'aprovado' }).eq('id', id);
     if(e1) throw e1;
@@ -631,8 +663,8 @@ async function aprovarTreinador(id){
     t.estado = 'aprovado';
     renderTreinadores();
     const elTrein = document.getElementById('tab-bg-trein');
-    if(elTrein) elTrein.textContent = allTreinadores.filter(x => x.estado === 'pendente').length;
-    toast('Treinador aprovado ✓', 'success');
+    if(elTrein) elTrein.textContent = allTreinadores.filter(x => x.estado === 'pendente' || x.estado === 'contactado').length;
+    toast('Treinador ativado ✓', 'success');
   } catch(err){
     console.error(err);
     toast('Erro ao aprovar: ' + (err.message || err), 'error');
@@ -648,7 +680,7 @@ async function rejeitarTreinador(id){
     if(t) t.estado = 'rejeitado';
     renderTreinadores();
     const elTrein = document.getElementById('tab-bg-trein');
-    if(elTrein) elTrein.textContent = allTreinadores.filter(x => x.estado === 'pendente').length;
+    if(elTrein) elTrein.textContent = allTreinadores.filter(x => x.estado === 'pendente' || x.estado === 'contactado').length;
     toast('Registo rejeitado', 'success');
   } catch(err){
     toast('Erro: ' + (err.message || err), 'error');

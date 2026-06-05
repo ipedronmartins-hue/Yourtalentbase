@@ -51,6 +51,8 @@ input:focus{border-color:var(--gold)}
     <input id="nome" type="text" placeholder="O teu nome" autocomplete="name">
     <label for="email">Email</label>
     <input id="email" type="email" placeholder="o.teu@email.com" autocomplete="email">
+    <label for="telemovel">Telemóvel</label>
+    <input id="telemovel" type="tel" placeholder="912 345 678" autocomplete="tel">
     <button class="btn" id="btn" onclick="registar()">Pedir conta →</button>
     <div class="msg" id="msg"></div>
     <div class="foot">Já tens conta? <a href="auth.html">Entrar</a></div>
@@ -79,10 +81,12 @@ function emailValido(e){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);}
 async function registar(){
   const nome=document.getElementById('nome').value.trim();
   const email=document.getElementById('email').value.trim().toLowerCase();
+  const telemovel=document.getElementById('telemovel').value.trim();
   const btn=document.getElementById('btn');
 
   if(!nome){showMsg('Escreve o teu nome.','err');return;}
   if(!emailValido(email)){showMsg('Escreve um email válido.','err');return;}
+  if(telemovel.replace(/\D/g,'').length < 9){showMsg('Escreve um telemóvel válido (9 dígitos).','err');return;}
 
   if(!USING_SB){showMsg('Modo demo — registo não enviado.','err');return;}
 
@@ -107,7 +111,7 @@ async function registar(){
     //    cria-o na aprovação. Aqui registamos a intenção.
     //    (Tentativa best-effort — não bloqueia o magic link.)
     try{
-      await sb.from('registos_pendentes').insert({ nome: nome, email: email, papel: 'treinador' });
+      await sb.from('registos_pendentes').insert({ nome: nome, email: email, telemovel: telemovel, papel: 'treinador' });
     }catch(e){ /* tabela pode não existir ainda; o magic link é o essencial */ }
 
     document.getElementById('formArea').style.display='none';
