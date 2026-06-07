@@ -210,6 +210,10 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:#fff;
           </select>
         </div>
         <div class="field">
+          <label class="field-label">Dia</label>
+          <input class="field-input" id="f_dia" type="number" min="1" max="31" placeholder="15">
+        </div>
+        <div class="field">
           <label class="field-label">Posição<span class="req">*</span></label>
           <select class="field-select" id="f_pos">
             <option value="">—</option>
@@ -228,7 +232,16 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:#fff;
             <option value="D">Direito</option><option value="E">Esquerdo</option><option value="A">Ambidestro</option>
           </select>
         </div>
+        <div class="field">
+          <label class="field-label">Altura (cm)</label>
+          <input class="field-input" id="f_altura" type="number" min="100" max="220" placeholder="Ex: 158">
+        </div>
+        <div class="field">
+          <label class="field-label">Peso (kg)</label>
+          <input class="field-input" id="f_peso" type="number" min="20" max="120" placeholder="Ex: 48">
+        </div>
       </div>
+      <p style="font-size:11px;color:var(--muted);margin-top:8px;line-height:1.5">Altura e peso são opcionais mas valiosos: ajudam a contextualizar o atleta em relação ao escalão e maturação.</p>
     </div>
 
     <div class="form-section">
@@ -343,17 +356,42 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:#fff;
     <div class="form-section" id="section-avaliacao" style="display:none">
       <div class="sec-title">⭐ A tua avaliação <span>obrigatório scout/treinador</span></div>
       <div class="field">
-        <label class="field-label">Rating<span class="req">*</span></label>
-        <div class="rating-picker">
-          <button class="rating-btn" type="button" data-rating="A+">A+</button>
-          <button class="rating-btn" type="button" data-rating="A">A</button>
-          <button class="rating-btn" type="button" data-rating="B+">B+</button>
-          <button class="rating-btn" type="button" data-rating="B">B</button>
-          <button class="rating-btn" type="button" data-rating="C+">C+</button>
-          <button class="rating-btn" type="button" data-rating="C">C</button>
-          <button class="rating-btn" type="button" data-rating="D">D</button>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.5">Avalia o atleta nas 4 dimensões. A IA vai cruzar com o contexto competitivo, stats e histórico para gerar a nota final.</p>
+
+        <label class="field-label" style="margin-top:8px">Impacto atual<span class="req">*</span></label>
+        <div class="rating-picker" data-dim="impacto">
+          <button class="rating-btn" type="button" data-val="muito_baixo">Muito baixo</button>
+          <button class="rating-btn" type="button" data-val="baixo">Baixo</button>
+          <button class="rating-btn" type="button" data-val="normal">Normal</button>
+          <button class="rating-btn" type="button" data-val="bom">Bom</button>
+          <button class="rating-btn" type="button" data-val="excelente">Excelente</button>
         </div>
-        <div class="field-help">A+ elite · A acima da média · B+/B sólido · C+/C em desenvolvimento · D recreativo</div>
+
+        <label class="field-label" style="margin-top:14px">Compromisso<span class="req">*</span></label>
+        <div class="rating-picker" data-dim="compromisso">
+          <button class="rating-btn" type="button" data-val="muito_baixo">Muito baixo</button>
+          <button class="rating-btn" type="button" data-val="baixo">Baixo</button>
+          <button class="rating-btn" type="button" data-val="normal">Normal</button>
+          <button class="rating-btn" type="button" data-val="bom">Bom</button>
+          <button class="rating-btn" type="button" data-val="excelente">Excelente</button>
+        </div>
+
+        <label class="field-label" style="margin-top:14px">Treinabilidade<span class="req">*</span></label>
+        <div class="rating-picker" data-dim="treinabilidade">
+          <button class="rating-btn" type="button" data-val="resiste">Resiste à correção</button>
+          <button class="rating-btn" type="button" data-val="aceita">Aceita correção</button>
+          <button class="rating-btn" type="button" data-val="procura">Procura correção</button>
+          <button class="rating-btn" type="button" data-val="implementa">Implementa rapidamente</button>
+          <button class="rating-btn" type="button" data-val="nao_observado">Não observado ainda</button>
+        </div>
+
+        <label class="field-label" style="margin-top:14px">Competitividade<span class="req">*</span></label>
+        <div class="rating-picker" data-dim="competitividade">
+          <button class="rating-btn" type="button" data-val="baixa">Baixa</button>
+          <button class="rating-btn" type="button" data-val="normal">Normal</button>
+          <button class="rating-btn" type="button" data-val="alta">Alta</button>
+          <button class="rating-btn" type="button" data-val="muito_alta">Muito Alta</button>
+        </div>
       </div>
       <div class="field" style="margin-top:12px">
         <label class="field-label">Observação<span class="req">*</span></label>
@@ -451,7 +489,7 @@ const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const CONSENT_TEXT = 'Confirmo que sou o encarregado de educação do atleta OU tenho autorização do encarregado de educação para inserir estes dados na plataforma YourTalentBase para fins de desenvolvimento desportivo e análise formativa. Compreendo que o nome, clube, escalão, posição e dados estatísticos do atleta ficarão visíveis publicamente. A qualquer momento posso pedir a remoção do perfil. Aceito os Termos de Utilização e a Política de Privacidade.';
 
-let state = { role: null, rating: null, tags: new Set(), consent: false };
+let state = { role: null, dims: { impacto:null, compromisso:null, treinabilidade:null, competitividade:null }, tags: new Set(), consent: false };
 
 function selectRole(role, ev){
   state.role = role;
@@ -485,11 +523,16 @@ function goStep(n){
   window.scrollTo({top: 0, behavior: 'smooth'});
 }
 
-document.querySelectorAll('.rating-btn').forEach(b => {
-  b.addEventListener('click', () => {
-    document.querySelectorAll('.rating-btn').forEach(x => x.classList.remove('selected'));
-    b.classList.add('selected');
-    state.rating = b.dataset.rating;
+// 4 dimensões qualitativas (substituem o rating A+..D directo).
+// Cada picker é independente — só uma opção activa por dimensão.
+document.querySelectorAll('.rating-picker[data-dim]').forEach(picker => {
+  const dim = picker.dataset.dim;
+  picker.querySelectorAll('.rating-btn').forEach(b => {
+    b.addEventListener('click', () => {
+      picker.querySelectorAll('.rating-btn').forEach(x => x.classList.remove('selected'));
+      b.classList.add('selected');
+      state.dims[dim] = b.dataset.val;
+    });
   });
 });
 
@@ -565,8 +608,12 @@ async function submitForm(){
     toast(zz.msg, true); return;
   }
 
-  if((state.role === 'scout' || state.role === 'treinador') && (!state.rating || !get('f_obs'))){
-    toast('Rating e observação obrigatórios para scout/treinador', true); return;
+  if(state.role === 'scout' || state.role === 'treinador'){
+    const d = state.dims;
+    if(!d.impacto || !d.compromisso || !d.treinabilidade || !d.competitividade){
+      toast('Preenche as 4 dimensões (Impacto, Compromisso, Treinabilidade, Competitividade)', true); return;
+    }
+    if(!get('f_obs')){ toast('Observação é obrigatória para scout/treinador', true); return; }
   }
 
   const btn = document.getElementById('btn-submit');
@@ -578,7 +625,11 @@ async function submitForm(){
 
     const atleta = {
       nome, primeiro_nome: primeiro, ultimo_nome: ultimo,
-      ano_nascimento: ano, mes_nascimento: num('f_mes'),
+      ano_nascimento: ano,
+      mes_nascimento: num('f_mes'),
+      dia_nascimento: num('f_dia'),
+      altura_cm: num('f_altura'),
+      peso_kg: num('f_peso'),
       posicao_principal: pos, pe_dominante: get('f_pe') || null,
       clube_actual: clube, equipa: get('f_equipa') || null,
       escalao, associacao: assoc,
@@ -651,13 +702,21 @@ async function submitForm(){
       await supa.from('atletas_360_historico').insert(historico);
     }
 
-    if((state.role === 'scout' || state.role === 'treinador') && state.rating){
+    if(state.role === 'scout' || state.role === 'treinador'){
       await supa.from('atletas_360_avaliacoes').insert({
         atleta_id: atletaData.id,
         avaliador_nome: meuNome, avaliador_email: meuEmail,
         avaliador_tipo: state.role,
         avaliador_clube: get('f_meu_clube') || null,
-        rating: state.rating, observacao: get('f_obs'),
+        peso_avaliacao: state.role === 'scout' ? 0.60 : 0.40,
+        // As 4 dimensões qualitativas (input do humano)
+        dim_impacto:         state.dims.impacto,
+        dim_compromisso:     state.dims.compromisso,
+        dim_treinabilidade:  state.dims.treinabilidade,
+        dim_competitividade: state.dims.competitividade,
+        versao_regua: 'v1',
+        // rating (letra) e narrativa_ia ficam null aqui — serão preenchidos pela IA na Zona C
+        observacao: get('f_obs'),
         tags: Array.from(state.tags),
         contexto_jogo: 'observacao_directa',
         data_observacao: new Date().toISOString().slice(0,10),
