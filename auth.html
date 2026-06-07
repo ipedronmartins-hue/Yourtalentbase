@@ -72,19 +72,20 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:#fff;
     <input class="field-input" id="email" type="email" placeholder="o-teu@email.com" autocomplete="email">
   </div>
 
-  <div class="field">
+  <!-- Método principal: magic link (família, treinador, scout) -->
+  <button class="btn" id="btn-magic" onclick="doMagicLink()">📧 Entrar por link no email →</button>
+
+  <!-- Campo de password escondido — só para admin/clube -->
+  <div class="field" id="pwd-field" style="display:none;margin-top:14px">
     <label class="field-label">Password</label>
     <input class="field-input" id="pwd" type="password" placeholder="Insere a password" autocomplete="current-password">
+    <button class="btn" id="btn-login" onclick="doLogin()" style="margin-top:10px">Entrar com password →</button>
   </div>
 
-  <button class="btn" id="btn-login" onclick="doLogin()">Entrar →</button>
-
-  <div style="text-align:center;margin:14px 0 4px;font-size:11px;color:var(--muted);position:relative">
-    <span style="background:var(--bg2);padding:0 10px;position:relative;z-index:1">ou</span>
-    <div style="position:absolute;top:50%;left:0;right:0;height:1px;background:var(--border)"></div>
+  <!-- Link discreto que revela a password -->
+  <div style="text-align:center;margin-top:14px">
+    <a href="javascript:void(0)" id="toggle-pwd" onclick="mostrarPassword()" style="font-size:11px;color:var(--muted);text-decoration:underline">Acesso admin / clube com password</a>
   </div>
-
-  <button class="btn" id="btn-magic" onclick="doMagicLink()" style="background:var(--bg);color:var(--gold);border:1px solid var(--gold-border)">📧 Entrar por link no email</button>
 
   <div class="error" id="error">Credenciais incorrectas</div>
   <div id="okmsg" style="display:none;background:rgba(0,212,106,.08);border:1px solid rgba(0,212,106,.3);color:#7fffb0;padding:10px;font-size:12px;margin-top:10px;text-align:center;line-height:1.5"></div>
@@ -192,6 +193,15 @@ document.getElementById('pwd').addEventListener('keydown', e => {
   if(e.key === 'Enter') doLogin();
 });
 
+function mostrarPassword(){
+  const f = document.getElementById('pwd-field');
+  const t = document.getElementById('toggle-pwd');
+  if(f){ f.style.display = 'block'; }
+  if(t){ t.style.display = 'none'; }
+  const p = document.getElementById('pwd');
+  if(p) p.focus();
+}
+
 async function doMagicLink(){
   const email = document.getElementById('email').value.trim().toLowerCase();
   const btn = document.getElementById('btn-magic');
@@ -215,7 +225,12 @@ async function doMagicLink(){
   }
 }
 document.getElementById('email').addEventListener('keydown', e => {
-  if(e.key === 'Enter') document.getElementById('pwd').focus();
+  if(e.key === 'Enter'){
+    // se a password está visível (admin/clube), entra por password; senão, magic link
+    const pwdField = document.getElementById('pwd-field');
+    if(pwdField && pwdField.style.display !== 'none'){ doLogin(); }
+    else { doMagicLink(); }
+  }
 });
 
 // Reencaminha conforme o papel (partilhado pelo arranque e pelo retorno do magic link)
