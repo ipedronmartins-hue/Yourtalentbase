@@ -468,6 +468,15 @@ async function gerarAvaliacao(){
       if(av){
         await supa.from('treinador_treinos').insert({atleta_id:atletaSel.id, avaliacao_id:av.id, plano:plano, fonte:'avaliacao'});
       }
+      // Atualiza o atleta na base 360: rating = nota da última avaliação, data, e fica visível no Scouting360.
+      // Histórico completo fica em treinador_avaliacoes (série temporal preservada).
+      const m = medias.geral; // média /5
+      const nota = m >= 4.7 ? 'A+' : m >= 4.3 ? 'A' : m >= 3.8 ? 'B+' : m >= 3.3 ? 'B' : m >= 2.8 ? 'C+' : m >= 2.3 ? 'C' : 'D';
+      await supa.from('atletas_360').update({
+        rating_geral: nota,
+        stats_actualizadas_em: new Date().toISOString(),
+        visivel_b2b: true
+      }).eq('id', atletaSel.id);
     }catch(e){console.warn('save aval',e);}
   }
   const debLabels={tecnica:'Técnica individual',fisico:'Físico',decisao:'Tomada de decisão',tatica:'Tática / posicionamento',mental:'Mental / atitude'};
