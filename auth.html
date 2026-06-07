@@ -67,6 +67,16 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:#fff;
     <h1 class="title">Login <span>YourTalentBase</span></h1>
   </div>
 
+  <!-- Ecrã enquanto verifica se já há sessão (entra direto se sim) -->
+  <div id="a-verificar" style="text-align:center;padding:24px 0">
+    <div style="display:inline-block;width:22px;height:22px;border:3px solid rgba(212,175,55,.25);border-top-color:var(--gold);border-radius:50%;animation:sp .7s linear infinite"></div>
+    <div style="margin-top:12px;font-size:13px;color:var(--muted)">A verificar acesso...</div>
+  </div>
+  <style>@keyframes sp{to{transform:rotate(360deg)}}</style>
+
+  <!-- Formulário de login (só aparece se NÃO houver sessão) -->
+  <div id="form-login" style="display:none">
+
   <div class="field">
     <label class="field-label">Email</label>
     <input class="field-input" id="email" type="email" placeholder="o-teu@email.com" autocomplete="email">
@@ -86,6 +96,8 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:#fff;
   <div style="text-align:center;margin-top:14px">
     <a href="javascript:void(0)" id="toggle-pwd" onclick="mostrarPassword()" style="font-size:11px;color:var(--muted);text-decoration:underline">Acesso admin / clube com password</a>
   </div>
+
+  </div><!-- /form-login -->
 
   <div class="error" id="error">Credenciais incorrectas</div>
   <div id="okmsg" style="display:none;background:rgba(0,212,106,.08);border:1px solid rgba(0,212,106,.3);color:#7fffb0;padding:10px;font-size:12px;margin-top:10px;text-align:center;line-height:1.5"></div>
@@ -267,9 +279,14 @@ supa.auth.onAuthStateChange((_event, session) => {
     const { data: { session } } = await supa.auth.getSession();
     if(session && session.user){
       await verificarEEncaminhar(session);
-      if(jaEncaminhou) return;
+      if(jaEncaminhou) return; // tem sessão e foi encaminhado — nunca vê o formulário
     }
   } catch(e){ console.warn('arranque auth', e); }
+  // Sem sessão (ou não aprovado): esconde "a verificar" e mostra o formulário
+  const av = document.getElementById('a-verificar');
+  const fl = document.getElementById('form-login');
+  if(av) av.style.display = 'none';
+  if(fl) fl.style.display = 'block';
   const elEmail = document.getElementById('email');
   if(elEmail) elEmail.focus();
 })();
