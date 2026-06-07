@@ -322,7 +322,7 @@ async function inscreverFilho(){
   const btn=document.getElementById('ins-btn');if(btn){btn.disabled=true;btn.innerHTML='<span class="spinner"></span>';}
   try{
     const{data:novo,error}=await supa.from('atletas_360').insert({
-      nome:nome.trim(), primeiro_nome:nome.trim().split(' ')[0], ano_nascimento:ano, clube:clube,
+      nome:nome.trim(), primeiro_nome:nome.trim().split(' ')[0], ano_nascimento:ano, clube_actual:clube,
       fonte:'familia', fonte_nome:nome.trim(), fonte_email:emailInscricao, encarregado_email:emailInscricao
     }).select().single();
     if(error)throw error;

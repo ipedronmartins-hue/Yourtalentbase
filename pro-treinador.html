@@ -325,7 +325,7 @@ async function carregarAtletas(){
   }
   lista.innerHTML='<div class="empty-state"><span class="spinner"></span></div>';
   try{
-    const{data}=await supa.from('atletas_360').select('id,nome,primeiro_nome,ano_nascimento,clube,fonte_email').eq('fonte_email',treinadorEmail).order('nome');
+    const{data}=await supa.from('atletas_360').select('id,nome,primeiro_nome,ano_nascimento,clube_actual,fonte_email').eq('fonte_email',treinadorEmail).order('nome');
     meusAtletas=data||[];
     renderAtletas();
   }catch(e){
@@ -345,7 +345,7 @@ function renderAtletas(){
     const sel=atletaSel&&atletaSel.id===a.id;
     return '<div class="atleta-card'+(sel?' sel':'')+'" onclick="selecionarAtleta(\''+a.id+'\')">'+
       '<div><div class="atleta-nome">'+esc(a.primeiro_nome||a.nome)+'</div>'+
-      '<div class="atleta-meta">'+(id?('Sub-'+id+' · '):'')+esc(a.clube||'')+'</div></div>'+
+      '<div class="atleta-meta">'+(id?('Sub-'+id+' · '):'')+esc(a.clube_actual||'')+'</div></div>'+
       '<div class="atleta-arrow">›</div></div>';
   }).join('');
 }
@@ -380,7 +380,7 @@ async function submeterInscricao(){
   if(!USING_SB){showToast('Demo: inscrição não gravada');fecharInscricao();btn.innerHTML='Inscrever →';btn.disabled=false;return;}
   try{
     await supa.from('atletas_360').insert({
-      nome:nome, primeiro_nome:nome.split(' ')[0], ano_nascimento:ano, clube:clube,
+      nome:nome, primeiro_nome:nome.split(' ')[0], ano_nascimento:ano, clube_actual:clube,
       fonte:'treinador', fonte_nome:treinadorNome, fonte_email:treinadorEmail,
       encarregado_email:emailEnc||null
     });
