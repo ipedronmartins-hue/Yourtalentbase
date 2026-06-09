@@ -645,8 +645,14 @@ async function submitForm(){
       visivel_publico: false, visivel_b2b: false
     };
 
-    const { data: atletaData, error: e1 } = await supa
-      .from('atletas_360').insert(atleta).select().single();
+    // FIX 401: o INSERT + .select() falhava porque a linha nova (estado='pendente')
+    // não é legível pelo role anon (policies de leitura exigem 'aprovado'/visivel_publico).
+    // Solução: gerar o id no cliente e inserir SEM pedir a linha de volta.
+    const atletaId = crypto.randomUUID();
+    atleta.id = atletaId;
+
+    const { error: e1 } = await supa
+      .from('atletas_360').insert(atleta);
 
     if(e1){
       console.error(e1);
@@ -661,7 +667,7 @@ async function submitForm(){
     const jogos = num('f_jogos');
     if(jogos != null && jogos > 0){
       await supa.from('atletas_360_stats').insert({
-        atleta_id: atletaData.id,
+        atleta_id: atletaId,
         epoca: '2025/26',
         jogos,
         jogos_titular: num('f_titular') || 0,
@@ -680,7 +686,7 @@ async function submitForm(){
     const historico = [];
     if(get('h1_clube')){
       historico.push({
-        atleta_id: atletaData.id, epoca: '2024/25',
+        atleta_id: atletaId, epoca: '2024/25',
         clube: get('h1_clube'), escalao: get('h1_escalao') || 'Sub-?',
         divisao: get('h1_divisao') || null,
         classificacao_texto: get('h1_class') || null,
@@ -690,7 +696,7 @@ async function submitForm(){
     }
     if(get('h2_clube')){
       historico.push({
-        atleta_id: atletaData.id, epoca: '2023/24',
+        atleta_id: atletaId, epoca: '2023/24',
         clube: get('h2_clube'), escalao: get('h2_escalao') || 'Sub-?',
         divisao: get('h2_divisao') || null,
         classificacao_texto: get('h2_class') || null,
@@ -704,7 +710,7 @@ async function submitForm(){
 
     if(state.role === 'scout' || state.role === 'treinador'){
       await supa.from('atletas_360_avaliacoes').insert({
-        atleta_id: atletaData.id,
+        atleta_id: atletaId,
         avaliador_nome: meuNome, avaliador_email: meuEmail,
         avaliador_tipo: state.role,
         avaliador_clube: get('f_meu_clube') || null,
@@ -724,7 +730,7 @@ async function submitForm(){
       });
     }
 
-    renderSuccess(atletaData);
+    renderSuccess({ ...atleta, id: atletaId });
     goStep(3);
   } catch(err){
     console.error(err);
