@@ -570,9 +570,18 @@ async function gerarReport(){
   // Guardar Supabase — nomes alinhados com a tabela real 'relatorios'
   try{
     const r=dados.rating||{};
+    // P0: ligar o report ao UUID do atleta (identidade do passaporte).
+    // Match único → liga; 0 ou vários → null (fica em v_registos_orfaos para revisão).
+    let atletaIdReport=null;
+    try{
+      const{data:cands}=await supa.from('atletas_360')
+        .select('id,nome').ilike('nome',nome).limit(2);
+      if(cands&&cands.length===1)atletaIdReport=cands[0].id;
+    }catch(e2){console.warn('Lookup atleta:',e2)}
     const { error } = await supa.from('relatorios').insert({
       scout:        scoutAtual.nome,
       atleta:       nome,
+      atleta_id:    atletaIdReport,
       clube:        dados.clube||null,
       categoria:    dados.escalao||null,
       posicao:      pos,
