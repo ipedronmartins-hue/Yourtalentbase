@@ -131,8 +131,8 @@ body{max-width:520px;margin:0 auto;padding-bottom:60px}
 <div class="modal-objetivo"><div class="modal-obj-tag">🎯 Objectivo</div><div class="modal-obj-text" id="mod-objetivo">—</div></div>
 <div class="input-group"><div class="input-group-label"><span class="input-group-emoji">✅</span> Quantas completas?</div><div class="number-input"><button class="number-btn" onclick="adjustInput('completas',-1)">−</button><input type="number" class="number-val" id="in-completas" value="0" min="0" max="999"><button class="number-btn" onclick="adjustInput('completas',1)">+</button></div></div>
 <div class="input-group"><div class="input-group-label"><span class="input-group-emoji">⏱</span> Quantos minutos?</div><div class="number-input"><button class="number-btn" onclick="adjustInput('tempo',-1)">−</button><input type="number" class="number-val" id="in-tempo" value="0" min="0" max="120"><button class="number-btn" onclick="adjustInput('tempo',1)">+</button></div></div>
-<div class="input-group"><div class="input-group-label"><span class="input-group-emoji">🥵</span> Dificuldade?</div><div class="choice-row"><button class="choice-btn" data-field="dificuldade" data-val="facil" onclick="selectChoice(this)">Fácil</button><button class="choice-btn selected" data-field="dificuldade" data-val="media" onclick="selectChoice(this)">Média</button><button class="choice-btn" data-field="dificuldade" data-val="dificil" onclick="selectChoice(this)">Difícil</button></div></div>
-<div class="input-group"><div class="input-group-label"><span class="input-group-emoji">⚡</span> Energia hoje?</div><div class="choice-row"><button class="choice-btn" data-field="energia" data-val="baixa" onclick="selectChoice(this)">Baixa</button><button class="choice-btn selected" data-field="energia" data-val="normal" onclick="selectChoice(this)">Normal</button><button class="choice-btn" data-field="energia" data-val="alta" onclick="selectChoice(this)">Alta</button></div></div>
+<div class="input-group"><div class="input-group-label"><span class="input-group-emoji">🥵</span> Dificuldade?</div><div class="choice-row"><button class="choice-btn" data-field="dificuldade" data-val="facil" onclick="selectChoice(this)">Fácil</button><button class="choice-btn" data-field="dificuldade" data-val="media" onclick="selectChoice(this)">Média</button><button class="choice-btn" data-field="dificuldade" data-val="dificil" onclick="selectChoice(this)">Difícil</button></div></div>
+<div class="input-group"><div class="input-group-label"><span class="input-group-emoji">⚡</span> Energia hoje?</div><div class="choice-row"><button class="choice-btn" data-field="energia" data-val="baixa" onclick="selectChoice(this)">Baixa</button><button class="choice-btn" data-field="energia" data-val="normal" onclick="selectChoice(this)">Normal</button><button class="choice-btn" data-field="energia" data-val="alta" onclick="selectChoice(this)">Alta</button></div></div>
 <div style="display:flex;gap:8px;margin-top:18px"><button class="btn btn-secondary" onclick="fecharModal()">Cancelar</button><button class="btn btn-primary" onclick="submeterTreino()">Submeter ✓</button></div></div></div>
 <div class="toast" id="toast">—</div>
 <div class="treino-ativo" id="treinoAtivo">
@@ -226,7 +226,7 @@ const CICLOS=[
 
 // ═══ STATE ═══
 let nomeAtleta='',idadeAtleta=null,respostas={},resultadoFinal=null,questStep=0;
-let historico=[],scoreConfianca=100,exercicioAtivo=null,modalInputs={dificuldade:'media',energia:'normal'};
+let historico=[],scoreConfianca=100,exercicioAtivo=null,modalInputs={dificuldade:null,energia:null};
 let emailInscricao='';
 let atletaId=null;
 
@@ -383,7 +383,7 @@ async function carregarDados(){
   }
   if(!resultadoFinal){resultadoFinal={nome:nomeAtleta,posicao:'MED',posicaoLabel:'Geral',score:50,debilidades:['tecnica','fisico','decisao'],plano:planoFallback(),fonte:'base',created_at:new Date().toISOString()};}
   else if(!resultadoFinal.plano){resultadoFinal.plano=planoFallback();}
-  if(USING_SB&&atletaId){try{const{data:treinos}=await supa.from('familia_treinos').select('*').eq('atleta_id',atletaId).order('created_at',{ascending:false}).limit(60);historico=treinos||[];scoreConfianca=calcularConfiancaGlobal(historico);}catch(e){console.warn('hist',e);historico=[];}}
+  if(USING_SB&&atletaId){await flushFilaTreinos();try{const{data:treinos}=await supa.from('familia_treinos').select('*').eq('atleta_id',atletaId).order('created_at',{ascending:false}).limit(60);historico=treinos||[];scoreConfianca=calcularConfiancaGlobal(historico);}catch(e){console.warn('hist',e);historico=[];}}
   renderDashboard();
 }
 
@@ -482,19 +482,39 @@ function renderTreino(){const c=document.getElementById('treino-area');if(!resul
 function jaFezExercicio(exId,ciclo,sessao){if(!resultadoFinal||!resultadoFinal.created_at)return false;const ini=new Date(resultadoFinal.created_at);const semanaIni=new Date(ini);semanaIni.setDate(semanaIni.getDate()+ciclo*7);const semanaFim=new Date(semanaIni);semanaFim.setDate(semanaFim.getDate()+7);return historico.some(t=>t.exercicio_id===exId&&new Date(t.created_at)>=semanaIni&&new Date(t.created_at)<=semanaFim);}
 
 // ═══ SUBMISSÃO MODAL ═══
-function abrirSubmissao(exId){let ex=null;Object.values(EXERCICIOS).forEach(arr=>{const f=arr.find(e=>e.id===exId);if(f)ex=f;});if(!ex)return;exercicioAtivo=ex;modalInputs={dificuldade:'media',energia:'normal'};
-  document.getElementById('mod-eyebrow').innerHTML='⚽ Treino · '+esc(ex.nome.split(' · ')[0]);document.getElementById('mod-title').textContent=ex.nome;document.getElementById('mod-sub').textContent=ex.desc;document.getElementById('mod-objetivo').textContent=ex.objetivo;document.getElementById('in-completas').value=0;document.getElementById('in-tempo').value=ex.tempo;
+function abrirSubmissao(exId){let ex=null;Object.values(EXERCICIOS).forEach(arr=>{const f=arr.find(e=>e.id===exId);if(f)ex=f;});if(!ex)return;exercicioAtivo=ex;modalInputs={dificuldade:null,energia:null};
+  document.getElementById('mod-eyebrow').innerHTML='⚽ Treino · '+esc(ex.nome.split(' · ')[0]);document.getElementById('mod-title').textContent=ex.nome;document.getElementById('mod-sub').textContent=ex.desc;document.getElementById('mod-objetivo').textContent=ex.objetivo;document.getElementById('in-completas').value=0;document.getElementById('in-tempo').value=0;
   document.querySelectorAll('.choice-btn').forEach(b=>b.classList.toggle('selected',b.getAttribute('data-val')===modalInputs[b.getAttribute('data-field')]));document.getElementById('submitModal').classList.add('show');}
 function fecharModal(){document.getElementById('submitModal').classList.remove('show');}
 function adjustInput(field,delta){const el=document.getElementById('in-'+field);let v=parseInt(el.value)||0;v=Math.max(0,v+delta*(field==='completas'?5:1));el.value=v;}
 function selectChoice(btn){const field=btn.getAttribute('data-field');modalInputs[field]=btn.getAttribute('data-val');document.querySelectorAll('.choice-btn[data-field="'+field+'"]').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');}
-async function submeterTreino(){if(!exercicioAtivo)return;const completas=parseInt(document.getElementById('in-completas').value)||0;const tempo=parseInt(document.getElementById('in-tempo').value)||0;if(completas===0){showToast('Quantas completaste?');return;}if(tempo===0){showToast('Tempo?');return;}
+async function submeterTreino(){if(!exercicioAtivo)return;const completas=parseInt(document.getElementById('in-completas').value)||0;const tempo=parseInt(document.getElementById('in-tempo').value)||0;if(completas===0){showToast('Quantas completaste?');return;}if(tempo===0){showToast('Quanto tempo demoraste (real)?');return;}
+  if(!modalInputs.dificuldade){showToast('Como foi a dificuldade?');return;}if(!modalInputs.energia){showToast('Como estava a energia?');return;}
   const submetidoPor=idadeAtleta<=12?'pai':'atleta';const conf=detectarBullshitLocal(exercicioAtivo,completas,tempo,modalInputs);
-  const submissao={atleta_id:atletaId,exercicio_id:exercicioAtivo.id,exercicio_nome:exercicioAtivo.nome,bloco:Object.keys(EXERCICIOS).find(k=>EXERCICIOS[k].includes(exercicioAtivo))||'',completas:completas,tempo:tempo,dificuldade:modalInputs.dificuldade,energia:modalInputs.energia,submetido_por:submetidoPor,confianca:conf.confianca,flags:conf.flags};
-  if(USING_SB&&atletaId){try{const{error}=await supa.from('familia_treinos').insert(submissao);if(error)console.warn('save treino',error);historico.unshift(Object.assign({},submissao,{created_at:new Date().toISOString()}));}catch(e){console.warn('save treino',e);historico.unshift(Object.assign({},submissao,{created_at:new Date().toISOString()}));}}
-  else{historico.unshift(Object.assign({},submissao,{created_at:new Date().toISOString()}));}
+  const submissao={atleta_id:atletaId,exercicio_id:exercicioAtivo.id,exercicio_nome:exercicioAtivo.nome,bloco:Object.keys(EXERCICIOS).find(k=>EXERCICIOS[k].includes(exercicioAtivo))||'',completas:completas,tempo:tempo,tempo_fonte:'declarado',dificuldade:modalInputs.dificuldade,energia:modalInputs.energia,submetido_por:submetidoPor,confianca:conf.confianca,flags:conf.flags};
+  await guardarTreino(submissao);
   scoreConfianca=calcularConfiancaGlobal(historico);fecharModal();let msg='Treino submetido ✓';if(conf.confianca<70)msg='Submetido. Mas verifica os dados.';showToast(msg,3500);setTab('dashboard');}
-function detectarBullshitLocal(ex,completas,tempo,inputs){let conf=100,flags=[];if(tempo<ex.tempo*0.4){conf-=20;flags.push('Tempo muito baixo');}if(tempo>ex.tempo*3){conf-=10;flags.push('Tempo muito alto');}const obj=parseInt(ex.objetivo)||30;if(completas>obj*2){conf-=15;flags.push('Completas acima do realista');}const histEx=historico.filter(t=>t.exercicio_id===ex.id).slice(0,3);if(histEx.length>=2){const mediaHist=histEx.reduce((s,t)=>s+(t.completas||0),0)/histEx.length;if(completas>mediaHist*1.5&&inputs.energia!=='alta'){conf-=15;flags.push('Salto súbito sem energia alta');}}if(inputs.dificuldade==='facil'&&completas<obj*0.7){conf-=5;flags.push('Fácil mas abaixo do objectivo');}return{confianca:Math.max(0,conf),flags:flags};}
+
+// ═══ Persistência com fila de retry: a falha de rede nunca perde dados nem finge sucesso ═══
+async function guardarTreino(sub){
+  historico.unshift(Object.assign({},sub,{created_at:new Date().toISOString()}));
+  if(!USING_SB||!atletaId)return;
+  try{const{error}=await supa.from('familia_treinos').insert(sub);if(error)throw error;}
+  catch(e){
+    try{const fila=JSON.parse(localStorage.getItem('ytb_fila_treinos')||'[]');fila.push(sub);localStorage.setItem('ytb_fila_treinos',JSON.stringify(fila));}catch(_){}
+    showToast('⚠ Sem ligação — treino guardado no telemóvel, envio automático na próxima visita.',4500);
+  }
+}
+async function flushFilaTreinos(){
+  if(!USING_SB||!atletaId)return;
+  let fila=[];try{fila=JSON.parse(localStorage.getItem('ytb_fila_treinos')||'[]');}catch(_){return;}
+  if(!fila.length)return;
+  const falhados=[];
+  for(const sub of fila){try{const{error}=await supa.from('familia_treinos').insert(sub);if(error)falhados.push(sub);}catch(e){falhados.push(sub);}}
+  localStorage.setItem('ytb_fila_treinos',JSON.stringify(falhados));
+  if(fila.length>falhados.length)showToast('✓ '+(fila.length-falhados.length)+' treino(s) pendente(s) enviado(s)',3000);
+}
+function detectarBullshitLocal(ex,completas,tempo,inputs){let conf=100,flags=[];const medido=inputs&&inputs.tempo_fonte==='medido';if(!medido&&tempo<ex.tempo*0.4){conf-=20;flags.push('Tempo muito baixo');}if(!medido&&tempo>ex.tempo*3){conf-=10;flags.push('Tempo muito alto');}const obj=parseInt(ex.objetivo)||30;if(completas>obj*2){conf-=15;flags.push('Completas acima do realista');}const histEx=historico.filter(t=>t.exercicio_id===ex.id).slice(0,3);if(histEx.length>=2){const mediaHist=histEx.reduce((s,t)=>s+(t.completas||0),0)/histEx.length;if(completas>mediaHist*1.5&&inputs.energia!=='alta'){conf-=15;flags.push('Salto súbito sem energia alta');}}if(inputs.dificuldade==='facil'&&completas<obj*0.7){conf-=5;flags.push('Fácil mas abaixo do objectivo');}return{confianca:Math.max(0,conf),flags:flags};}
 function calcularConfiancaGlobal(hist){if(!hist.length)return 100;const ult10=hist.slice(0,10);return Math.round(ult10.reduce((s,t)=>s+(t.confianca||100),0)/ult10.length);}
 function getProximoTreino(){if(!resultadoFinal||!resultadoFinal.plano)return null;const cicloIdx=getCicloAtual();const semana=resultadoFinal.plano[cicloIdx];if(!semana)return null;for(let si=0;si<semana.sessoes.length;si++){const sessao=semana.sessoes[si];for(let ei=0;ei<sessao.exercicios.length;ei++){const ex=sessao.exercicios[ei];if(!jaFezExercicio(ex.id,cicloIdx,si))return{ciclo:semana.ciclo,sessao:si+1,exercicio:ex};}}return null;}
 
@@ -544,12 +564,27 @@ function tapRep(){ta.reps++;document.getElementById('taRepCount').textContent=ta
 function guardarResultadoExercicio(){const ex=ta.exercicios[ta.idx];ta.resultados.push({exId:ex.id,nome:ex.nome,completas:ta.reps,tempo:Math.round((ex.tempo*60-ta.tempoRestante)/60)});}
 function saltarExercicio(){clearInterval(ta.timer);guardarResultadoExercicio();ta.idx++;iniciarExercicioAtivo();}
 function proximoExercicioAtivo(){ta.idx++;iniciarExercicioAtivo();}
+let taInputs={dificuldade:null,energia:null};
+function taChoice(field,val,btn){taInputs[field]=val;btn.parentElement.querySelectorAll('button').forEach(b=>b.style.cssText=b.style.cssText.replace(/border-color:[^;]+;?/,'')+';border-color:#2a2f28');btn.style.borderColor='#D4AF37';}
 function finalizarSessaoAtiva(){clearInterval(ta.timer);document.getElementById('taTimerWrap').style.display='none';document.getElementById('taDoneWrap').style.display='flex';document.querySelector('.ta-btn-skip').style.display='none';document.getElementById('taBtnNext').style.display='none';
   const totalReps=ta.resultados.reduce((s,r)=>s+r.completas,0);const totalMin=ta.exercicios.reduce((s,e)=>s+e.tempo,0);document.getElementById('taDoneSub').textContent=ta.exercicios.length+' exercícios · '+totalReps+' execuções totais · ~'+totalMin+' min';
+  taInputs={dificuldade:null,energia:null};
+  if(!document.getElementById('taPerguntas')){
+    const wrap=document.getElementById('taDoneWrap');const div=document.createElement('div');div.id='taPerguntas';
+    const btnCss='background:transparent;border:1px solid #2a2f28;border-radius:8px;color:#fff;padding:8px 14px;font-size:13px;font-family:inherit';
+    div.innerHTML='<div style="margin:14px 0 4px;font-size:12px;color:#aaa;letter-spacing:1px;text-transform:uppercase">🥵 Dificuldade da sessão?</div>'+
+      '<div style="display:flex;gap:8px;justify-content:center">'+['facil','media','dificil'].map(v=>'<button style="'+btnCss+'" onclick="taChoice(\'dificuldade\',\''+v+'\',this)">'+({facil:'Fácil',media:'Média',dificil:'Difícil'})[v]+'</button>').join('')+'</div>'+
+      '<div style="margin:12px 0 4px;font-size:12px;color:#aaa;letter-spacing:1px;text-transform:uppercase">⚡ Energia hoje?</div>'+
+      '<div style="display:flex;gap:8px;justify-content:center">'+['baixa','normal','alta'].map(v=>'<button style="'+btnCss+'" onclick="taChoice(\'energia\',\''+v+'\',this)">'+({baixa:'Baixa',normal:'Normal',alta:'Alta'})[v]+'</button>').join('')+'</div>';
+    const doneBtn=wrap.querySelector('button');wrap.insertBefore(div,doneBtn||null);
+  }
   ta.exercicios.forEach((_,i)=>{const d=document.getElementById('tapd'+i);if(d)d.className='ta-prog-dot done';});beepDone();setTimeout(beepDone,400);}
-async function submeterSessaoCompleta(){fecharTreinoAtivo();for(const r of ta.resultados){const conf=detectarBullshitLocal(ta.exercicios.find(e=>e.id===r.exId)||{id:r.exId,objetivo:'30',tempo:10},r.completas,r.tempo,{dificuldade:'media',energia:'normal'});
-  const sub={atleta_id:atletaId,exercicio_id:r.exId,exercicio_nome:r.nome,bloco:Object.keys(EXERCICIOS).find(k=>EXERCICIOS[k].some(e=>e.id===r.exId))||'',completas:r.completas,tempo:r.tempo,dificuldade:'media',energia:'normal',submetido_por:idadeAtleta<=12?'pai':'atleta',confianca:conf.confianca,flags:conf.flags};
-  if(USING_SB&&atletaId){try{const{error}=await supa.from('familia_treinos').insert(sub);if(error)console.warn('save sessao',error);historico.unshift(Object.assign({},sub,{created_at:new Date().toISOString()}));}catch(e){historico.unshift(Object.assign({},sub,{created_at:new Date().toISOString()}));}}else{historico.unshift(Object.assign({},sub,{created_at:new Date().toISOString()}));}}
+async function submeterSessaoCompleta(){
+  if(!taInputs.dificuldade||!taInputs.energia){showToast('Responde às 2 perguntas antes de guardar 🙏');return;}
+  fecharTreinoAtivo();
+  for(const r of ta.resultados){const conf=detectarBullshitLocal(ta.exercicios.find(e=>e.id===r.exId)||{id:r.exId,objetivo:'30',tempo:10},r.completas,r.tempo,{dificuldade:taInputs.dificuldade,energia:taInputs.energia,tempo_fonte:'medido'});
+  const sub={atleta_id:atletaId,exercicio_id:r.exId,exercicio_nome:r.nome,bloco:Object.keys(EXERCICIOS).find(k=>EXERCICIOS[k].some(e=>e.id===r.exId))||'',completas:r.completas,tempo:r.tempo,tempo_fonte:'medido',dificuldade:taInputs.dificuldade,energia:taInputs.energia,submetido_por:idadeAtleta<=12?'pai':'atleta',confianca:conf.confianca,flags:conf.flags};
+  await guardarTreino(sub);}
   scoreConfianca=calcularConfiancaGlobal(historico);showToast('Sessão guardada ✓',3000);setTab('dashboard');}
 function fecharTreinoAtivo(){clearInterval(ta.timer);document.getElementById('treinoAtivo').classList.remove('show');}
 </script>
