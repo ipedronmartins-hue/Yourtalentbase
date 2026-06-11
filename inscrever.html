@@ -577,6 +577,49 @@ function splitNome(nome){
   return { primeiro: parts[0], ultimo: parts[parts.length - 1] };
 }
 
+
+// ═══ ZONA C · Avaliação contextual por IA (determinística; falha = null, nunca bloqueia) ═══
+const DIM_LABEL = { muito_baixo:'muito baixo', baixo:'baixo', medio:'médio', alto:'alto', excelente:'excelente',
+  resiste:'resiste à correção', aceita:'aceita a correção', procura:'procura correção ativamente', implementa:'implementa a correção de imediato', nao_observado:'não observado',
+  baixa:'baixa', media:'média', alta:'alta', muito_alta:'muito alta' };
+async function gerarAvaliacaoContextual(atleta, dims, role){
+  try {
+    const idade = atleta.ano_nascimento ? (new Date().getFullYear() - atleta.ano_nascimento) : null;
+    const prompt = `És o motor de avaliação da YourTalentBase (futebol jovem, Portugal). Gera um rating e uma narrativa curta a partir de UMA avaliação declarada por um ${role === 'scout' ? 'scout' : 'treinador'}.
+
+CONTEXTO DO ATLETA (sem nome, por privacidade):
+- Posição: ${atleta.posicao_principal || 'n/d'} · Escalão: ${atleta.escalao || 'n/d'} · Idade: ${idade || 'n/d'}
+- Clube: ${atleta.clube || 'n/d'} · ${atleta.associacao || 'n/d'}
+
+AS 4 DIMENSÕES DECLARADAS PELO AVALIADOR:
+- Impacto no jogo: ${DIM_LABEL[dims.impacto] || dims.impacto}
+- Compromisso: ${DIM_LABEL[dims.compromisso] || dims.compromisso}
+- Treinabilidade: ${DIM_LABEL[dims.treinabilidade] || dims.treinabilidade}
+- Competitividade: ${DIM_LABEL[dims.competitividade] || dims.competitividade}
+
+RÉGUA DO RATING (v1): A+ excecional no escalão · A muito acima · B+ acima · B dentro com potencial · C+ dentro · C a desenvolver · D abaixo. Pondera as 4 dimensões em conjunto; treinabilidade e compromisso pesam tanto como impacto. Sê conservador: A+ e A são raros.
+
+REGRAS DA NARRATIVA (60-90 palavras, PT-PT): terceira pessoa, sem nome próprio; deixa claro que se baseia na avaliação declarada pelo ${role}; contextualiza pela idade/escalão; sem hype, sem certezas absolutas; termina com a área prioritária a desenvolver.
+
+Devolve APENAS JSON válido: {"rating":"B+","narrativa":"..."} — nada antes nem depois.`;
+    const ctrl = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 9000));
+    const call = fetch('/api/claude', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ prompt: prompt, max_tokens: 400 })
+    }).then(r => { if(!r.ok) throw new Error('API ' + r.status); return r.json(); });
+    const j = await Promise.race([call, ctrl]);
+    let txt = '';
+    if(j.content && j.content.length){ j.content.forEach(c => { if(c.type === 'text') txt += c.text; }); }
+    const m = txt.match(/\{[\s\S]*\}/);
+    const parsed = JSON.parse(m ? m[0] : txt);
+    const VALIDAS = ['A+','A','B+','B','C+','C','D'];
+    if(!VALIDAS.includes(parsed.rating) || !parsed.narrativa) return null;
+    return { rating: parsed.rating, narrativa: String(parsed.narrativa).slice(0, 900) };
+  } catch(e){
+    return null; // a inscrição segue; rating/narrativa ficam a aguardar
+  }
+}
+
 async function submitForm(){
   const get = id => document.getElementById(id).value.trim();
   const num = id => { const v = parseInt(document.getElementById(id).value); return isNaN(v) ? null : v; };
@@ -709,7 +752,12 @@ async function submitForm(){
     }
 
     if(state.role === 'scout' || state.role === 'treinador'){
+      btn.textContent = 'A gerar avaliação contextual...';
+      const ia = await gerarAvaliacaoContextual(atleta, state.dims, state.role);
+      btn.textContent = 'A submeter...';
       await supa.from('atletas_360_avaliacoes').insert({
+        rating: ia ? ia.rating : null,
+        narrativa_ia: ia ? ia.narrativa : null,
         atleta_id: atletaId,
         avaliador_nome: meuNome, avaliador_email: meuEmail,
         avaliador_tipo: state.role,
@@ -721,7 +769,6 @@ async function submitForm(){
         dim_treinabilidade:  state.dims.treinabilidade,
         dim_competitividade: state.dims.competitividade,
         versao_regua: 'v1',
-        // rating (letra) e narrativa_ia ficam null aqui — serão preenchidos pela IA na Zona C
         observacao: get('f_obs'),
         tags: Array.from(state.tags),
         contexto_jogo: 'observacao_directa',
