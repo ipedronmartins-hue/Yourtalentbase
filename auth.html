@@ -79,6 +79,8 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:#fff;
 
   <button class="btn" id="btn-login" onclick="doLogin()">Entrar →</button>
 
+  <button class="btn" id="btn-magic" onclick="doMagic()" style="margin-top:8px;background:transparent;border:1px solid var(--gold);color:var(--gold)">Entrar por link no email ✉</button>
+
   <div class="error" id="error">Credenciais incorrectas</div>
 
   <div class="info" id="info">
@@ -119,6 +121,30 @@ function encaminhar(papel){
     // papel desconhecido - sem area propria ainda
     mostrarErro('A tua conta ainda nao tem area atribuida. Contacta-nos por WhatsApp.');
   }
+}
+
+const DESTINOS = { 'pro-pai.html':['familia','admin'], 'pro-treinador.html':['treinador','clube','admin'], 'scouting360-dashboard.html':['scout','cliente','admin'], 'admin360.html':['admin'] };
+function destinoPedido(){
+  const d = new URLSearchParams(location.search).get('dest');
+  return (d && DESTINOS[d]) ? d : null;
+}
+function irPara(papel){
+  const d = destinoPedido();
+  if(d && DESTINOS[d].includes(papel)){ window.location.href = d; return; }
+  encaminhar(papel);
+}
+
+async function doMagic(){
+  const email = document.getElementById('email').value.trim().toLowerCase();
+  if(!email || !email.includes('@')){ mostrarErro('Insere um email valido'); return; }
+  const btn = document.getElementById('btn-magic');
+  btn.disabled = true; btn.textContent = 'A enviar...';
+  const dest = destinoPedido();
+  const redirect = window.location.origin + '/auth.html' + (dest ? '?dest=' + dest : '');
+  const { error } = await supa.auth.signInWithOtp({ email: email, options: { emailRedirectTo: redirect } });
+  if(error){ mostrarErro('Nao foi possivel enviar o link. Tenta novamente.'); btn.disabled = false; btn.textContent = 'Entrar por link no email ✉'; return; }
+  btn.textContent = 'Link enviado ✓ Ve o teu email';
+  document.getElementById('info').innerHTML = 'Abre o link no email para entrares. Podes fechar esta pagina.';
 }
 
 async function doLogin(){
@@ -175,8 +201,8 @@ async function doLogin(){
       return;
     }
 
-    // 4. Aprovado - encaminhar conforme papel
-    encaminhar(perfil.papel);
+    // 4. Aprovado - encaminhar conforme papel (ou destino pedido em ?dest=)
+    irPara(perfil.papel);
 
   } catch(e){
     console.error(e);
@@ -202,7 +228,7 @@ document.getElementById('email').addEventListener('keydown', e => {
       .eq('id', session.user.id)
       .maybeSingle();
     if(perfil && perfil.estado === 'aprovado'){
-      encaminhar(perfil.papel);
+      irPara(perfil.papel);
     }
   }
   document.getElementById('email').focus();
