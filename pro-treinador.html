@@ -166,6 +166,7 @@ body{padding-bottom:40px}
     <div class="section-sub">O atleta fica ligado a ti. Quando a família pagar e o Admin confirmar, as comissões começam a contar.</div>
     <div class="field"><label class="label">Nome do atleta</label><input class="input" id="insc-nome" type="text"></div>
     <div class="field"><label class="label">Ano de nascimento</label><input class="input" id="insc-ano" type="number" placeholder="2014"></div>
+    <div class="field"><label class="label">Posição</label><select class="input" id="insc-pos"><option value="">— escolhe —</option><option>Guarda-Redes</option><option>Defesa Central</option><option>Lateral Direito</option><option>Lateral Esquerdo</option><option>Médio Defensivo</option><option>Médio Centro</option><option>Médio Ofensivo</option><option>Extremo</option><option>Ponta de Lança</option></select></div>
     <div class="field"><label class="label">Clube</label><input class="input" id="insc-clube" type="text"></div>
     <div class="field"><label class="label">Email do encarregado</label><input class="input" id="insc-email" type="email" placeholder="pai@email.com"></div>
     <div class="err" id="insc-err"></div>
@@ -372,6 +373,8 @@ async function submeterInscricao(){
   const nome=document.getElementById('insc-nome').value.trim();
   const ano=parseInt(document.getElementById('insc-ano').value)||null;
   const clube=document.getElementById('insc-clube').value.trim();
+  const pos=(document.getElementById('insc-pos')||{}).value||'';
+  if(!pos){err.style.display='block';err.textContent='Escolhe a posição do atleta';return;}
   const emailEnc=document.getElementById('insc-email').value.trim().toLowerCase();
   const err=document.getElementById('insc-err');
   if(!nome){err.style.display='block';err.textContent='Nome obrigatório';return;}
@@ -380,7 +383,10 @@ async function submeterInscricao(){
   if(!USING_SB){showToast('Demo: inscrição não gravada');fecharInscricao();btn.innerHTML='Inscrever →';btn.disabled=false;return;}
   try{
     await supa.from('atletas_360').insert({
-      nome:nome, primeiro_nome:nome.split(' ')[0], ano_nascimento:ano, clube_actual:clube,
+      id:crypto.randomUUID(),
+      nome:nome, primeiro_nome:nome.split(' ')[0], ano_nascimento:ano,
+      posicao_principal:pos, clube_actual:clube,
+      estado:'pendente',
       fonte:'treinador', fonte_nome:treinadorNome, fonte_email:treinadorEmail,
       encarregado_email:emailEnc||null
     });
