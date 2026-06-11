@@ -27,22 +27,23 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:#fff;
 .logo-b{width:32px;height:32px;background:var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:900;font-size:13px;color:#000}
 .logo-n{font-family:'Barlow Condensed';font-weight:800;font-size:17px;letter-spacing:2px;color:#fff}
 .logo-n span{color:var(--gold)}
-.nav-tag{font-size:9px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;padding:3px 8px;border:1px solid var(--gold-border);background:rgba(212,175,55,.06)}
+.nav-tag{font-size:10px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;padding:3px 8px;border:1px solid var(--gold-border);background:rgba(212,175,55,.06)}
 .nav-cta{font-size:10px;font-weight:800;letter-spacing:1.5px;color:#000;background:var(--gold);text-transform:uppercase;padding:8px 14px;text-decoration:none;font-family:'Barlow Condensed'}
 
 .container{max-width:1280px;margin:0 auto;padding:0 18px}
 
-.hero{padding:40px 0 30px;text-align:center}
-.eyebrow{font-size:10px;font-weight:800;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:8px}
-.h1{font-family:'Barlow Condensed';font-weight:900;font-size:clamp(32px,6vw,52px);line-height:.95;letter-spacing:-1.5px;margin-bottom:12px}
+.hero{padding:22px 0 16px;display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;text-align:left;border-bottom:1px solid var(--border);margin-bottom:6px}
+.hero-l{flex:1;min-width:240px}
+.eyebrow{font-size:10px;font-weight:800;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:6px}
+.h1{font-family:'Barlow Condensed';font-weight:900;font-size:clamp(24px,4vw,34px);line-height:1.06;letter-spacing:-.5px;margin-bottom:6px}
 .h1 em{color:var(--gold);font-style:italic}
-.sub{font-size:14px;color:var(--slate);max-width:600px;margin:0 auto 24px;line-height:1.55}
+.sub{font-size:13px;color:var(--slate);max-width:600px;margin:0;line-height:1.55}
 .sub strong{color:#fff}
 
-.hero-stats{display:flex;justify-content:center;gap:24px;flex-wrap:wrap;margin-bottom:24px}
+.hero-stats{display:flex;justify-content:flex-end;gap:22px;flex-wrap:wrap;margin-bottom:4px}
 .hero-stat{text-align:center}
 .hero-stat-n{font-family:'Barlow Condensed';font-weight:900;font-size:24px;color:var(--gold);line-height:1}
-.hero-stat-l{font-size:9px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-top:4px;font-weight:700}
+.hero-stat-l{font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-top:4px;font-weight:700}
 
 /* FIFA CARDS · destaques */
 .section-destaques{padding:10px 0 30px;border-top:1px solid var(--border)}
@@ -54,33 +55,35 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:#fff;
 
 .cards-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin:0 -18px}
 .cards-wrap::-webkit-scrollbar{display:none}
-.cards-grid{display:grid;grid-template-columns:repeat(5,minmax(240px,1fr));gap:14px;padding:6px 18px;min-width:min-content}
+.cards-grid{display:grid;grid-template-columns:repeat(5,minmax(178px,1fr));gap:10px;padding:6px 18px;min-width:min-content}
 @media (max-width:1100px){.cards-grid{grid-template-columns:repeat(5,260px)}}
 
-.fifa-card{background:linear-gradient(180deg,#1a1d18 0%,#0d100d 100%);border:1px solid var(--border);padding:18px 16px 14px;position:relative;overflow:hidden;cursor:pointer;transition:transform .2s,border-color .2s;display:flex;flex-direction:column;min-height:480px}
+.fifa-card{background:linear-gradient(180deg,#1a1d18 0%,#0d100d 100%);border:1px solid var(--border);padding:12px 12px 10px;position:relative;overflow:hidden;cursor:pointer;transition:transform .2s,border-color .2s;display:flex;flex-direction:column;min-height:340px}
 .fifa-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.6}
 .fifa-card:hover{transform:translateY(-4px);border-color:var(--gold-border);box-shadow:0 10px 30px rgba(212,175,55,.15)}
 .fifa-card.tier-a{background:linear-gradient(180deg,#1f1c10 0%,#0d100d 100%);border-color:rgba(212,175,55,.25)}
 .fifa-card.tier-a::before{background:linear-gradient(90deg,transparent,#FFD700,transparent);height:3px;opacity:1}
 
-.card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
 .card-tag{font-size:8px;font-weight:800;letter-spacing:1.5px;color:var(--gold);text-transform:uppercase;padding:3px 7px;border:1px solid var(--gold-border);background:rgba(212,175,55,.08)}
-.card-rating{font-family:'Barlow Condensed';font-weight:900;font-size:24px;padding:4px 12px;line-height:1;letter-spacing:-1px}
+.card-rating{font-family:'Barlow Condensed';font-weight:900;font-size:20px;padding:3px 10px;line-height:1;letter-spacing:-1px}
 .rating-A,.rating-Ap{background:#FFD700;color:#000}
 .rating-B,.rating-Bp{background:var(--silver);color:#000}
 .rating-C,.rating-Cp{background:var(--bronze);color:#fff}
 .rating-D,.rating-N{background:var(--bg3);color:var(--muted);border:1px dashed var(--border)}
 
-.card-avatar-wrap{position:relative;margin:0 auto 14px;width:96px;height:96px}
-.card-avatar{width:96px;height:96px;border-radius:50%;background:linear-gradient(135deg,var(--gold) 0%,var(--gold-deep) 100%);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:900;font-size:34px;color:#000;letter-spacing:-1px;border:3px solid var(--gold);box-shadow:0 6px 20px rgba(212,175,55,.3)}
+.card-avatar-wrap{position:relative;margin:0 auto 10px;width:62px;height:62px}
+.card-avatar{width:62px;height:62px;border-radius:50%;background:linear-gradient(135deg,var(--gold) 0%,var(--gold-deep) 100%);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:900;font-size:21px;color:#000;letter-spacing:0;border:2px solid var(--gold);box-shadow:0 4px 14px rgba(212,175,55,.3)}
 .card-avatar.gr{background:linear-gradient(135deg,#3FBF7F 0%,#1A8C50 100%);border-color:#3FBF7F;color:#fff}
 .gr-badge{position:absolute;bottom:-4px;right:-4px;background:#000;border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:14px;border:2px solid #3FBF7F}
 
-.card-name{font-family:'Barlow Condensed';font-weight:900;font-size:20px;text-align:center;line-height:1;letter-spacing:-.5px;margin-bottom:4px;text-transform:uppercase}
-.card-meta{text-align:center;font-size:11px;color:var(--slate);line-height:1.5;margin-bottom:14px}
+.card-name{font-family:'Barlow Condensed';font-weight:900;font-size:16px;text-align:center;line-height:1.05;letter-spacing:-.3px;margin-bottom:3px;text-transform:uppercase}
+.card-meta{text-align:center;font-size:10px;color:var(--slate);line-height:1.45;margin-bottom:10px}
 .card-meta strong{color:#fff}
 
-.card-exc{display:flex;justify-content:space-around;padding:10px 4px;background:rgba(0,0,0,.3);border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:12px}
+.card-exc{display:flex;justify-content:space-around;padding:8px 4px;background:rgba(0,0,0,.3);border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:10px}
+.card-btn-upd{display:block;text-align:center;margin-top:6px;font-size:10px;color:var(--slate);text-decoration:none;padding:6px;border:1px dashed var(--border);border-radius:6px;transition:color .2s,border-color .2s}
+.card-btn-upd:hover{color:var(--gold);border-color:var(--gold-border)}
 .exc-item{text-align:center;flex:1}
 .exc-icon{font-size:20px;margin-bottom:3px;display:block}
 .exc-label{font-size:7px;font-weight:800;letter-spacing:1px;color:var(--gold);text-transform:uppercase}
@@ -117,7 +120,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:#fff;
 @media (max-width:520px){.row-head{grid-template-columns:1fr auto;gap:8px}.col-tag{display:none}}
 .r-identity{display:flex;flex-direction:column;gap:3px;min-width:0}
 .r-name{font-family:'Barlow Condensed';font-weight:900;font-size:18px;color:#fff;letter-spacing:-.3px;line-height:1;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.r-badge{font-size:9px;font-weight:800;letter-spacing:1px;padding:2px 6px;text-transform:uppercase;flex-shrink:0}
+.r-badge{font-size:10px;font-weight:800;letter-spacing:1px;padding:2px 6px;text-transform:uppercase;flex-shrink:0}
 .r-badge-observado{background:rgba(212,175,55,.15);color:var(--gold);border:1px solid var(--gold-border)}
 .r-badge-em-crescimento{background:rgba(0,212,106,.1);color:var(--green);border:1px solid rgba(0,212,106,.3)}
 .r-badge-hidden-gem{background:rgba(167,139,250,.1);color:var(--purple);border:1px solid rgba(167,139,250,.3)}
@@ -137,7 +140,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:#fff;
 
 .body-section{margin-bottom:14px}
 .body-section:last-child{margin-bottom:0}
-.body-sec-title{font-size:9px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.body-sec-title{font-size:10px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px}
 
 .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--gold-border);background:var(--bg2)}
 @media (max-width:520px){.stats-grid{grid-template-columns:repeat(2,1fr)}}
@@ -190,7 +193,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:#fff;
 .footer a{color:var(--slate);text-decoration:none;margin:0 6px}
 .footer a:hover{color:var(--gold)}
 
-.consent-notice{font-size:9px;color:var(--muted);letter-spacing:.3px;line-height:1.5;margin-top:8px;padding-top:6px;border-top:1px solid var(--border)}
+.consent-notice{font-size:11px;color:var(--muted);letter-spacing:.3px;line-height:1.5;margin-top:8px;padding-top:6px;border-top:1px solid var(--border)}
 .consent-notice a{color:var(--gold);text-decoration:underline}
 .nota-auto{background:linear-gradient(135deg,rgba(212,175,55,.08),rgba(0,0,0,.25));border:1px solid var(--gold-border);border-radius:10px;padding:13px 14px;margin-bottom:12px}
 .na-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
@@ -207,7 +210,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:#fff;
 .na-dim-head strong{color:#fff;font-family:'Barlow Condensed';font-size:13px}
 .na-bar{height:5px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden}
 .na-bar-fill{height:100%;background:linear-gradient(90deg,var(--gold-deep,#9a7a1e),var(--gold));border-radius:3px}
-.na-conf{margin-top:9px;font-size:9px;font-weight:700;letter-spacing:.5px;color:var(--muted);text-transform:uppercase}
+.na-conf{margin-top:9px;font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--muted);text-transform:uppercase}
 .na-conf-low{color:#C9802B}
 </style>
 </head>
@@ -229,10 +232,11 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:#fff;
 <div class="container">
 
   <div class="hero">
-    <div class="eyebrow">BD Nacional · Sub-9 a Seniores</div>
-    <h1 class="h1">A montra do <em>talento jovem</em><br>do futebol português.</h1>
-    <p class="sub">Cada atleta avaliado, contextualizado, defensável. <strong>O ZeroZero regista. Nós analisamos.</strong></p>
-
+    <div class="hero-l">
+      <div class="eyebrow">BD Nacional · Sub-9 a Seniores</div>
+      <h1 class="h1">Scouting <em>360</em></h1>
+      <p class="sub">Cada atleta avaliado e contextualizado. <strong>O ZeroZero regista. Nós analisamos.</strong></p>
+    </div>
     <div class="hero-stats">
       <div class="hero-stat"><div class="hero-stat-n" id="stat-atletas">—</div><div class="hero-stat-l">Atletas</div></div>
       <div class="hero-stat"><div class="hero-stat-n" id="stat-clubes">—</div><div class="hero-stat-l">Clubes</div></div>
@@ -265,7 +269,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:#fff;
     <div class="search-row">
       <div class="search-wrap">
         <span class="search-icon">🔍</span>
-        <input class="search" id="search" type="search" placeholder="Procurar nome ou clube...">
+        <input class="search" id="search" type="search" placeholder="Pesquisar atleta, clube, posição...">
       </div>
     </div>
     <div class="filters">
@@ -294,7 +298,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:#fff;
 
   <div class="count-bar">
     <div><strong id="count-num">0</strong> atletas encontrados</div>
-    <div style="font-size:9px">Atualização: <span id="last-update">—</span></div>
+    <div style="font-size:10px">Atualização: <span id="last-update">—</span></div>
   </div>
 
   <div id="loading" class="loading"><div class="spinner"></div></div>
@@ -333,12 +337,6 @@ let state = { search:'', escalao:'all', posicao:'all', assoc:'all', rating:'all'
 
 function escapeHtml(s){ if(s == null) return ''; return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-function getIniciais(primeiro, ultimo, nome){
-  if(primeiro && ultimo) return (primeiro.charAt(0) + ultimo.charAt(0)).toUpperCase();
-  if(nome){ const parts = nome.split(/\s+/); if(parts.length >= 2) return (parts[0].charAt(0) + parts[parts.length-1].charAt(0)).toUpperCase(); return parts[0].slice(0,2).toUpperCase(); }
-  return '?';
-}
-
 function nomeCurto(a){
   if(a.primeiro_nome && a.ultimo_nome) return `${a.primeiro_nome} ${a.ultimo_nome}`;
   return a.nome;
@@ -366,6 +364,8 @@ async function load(){
 
     if(e1){ throw e1; }
     allAtletas = atletas || [];
+    const RANK={'A+':7,'A':6,'B+':5,'B':4,'C+':3,'C':2,'D':1};
+    allAtletas.sort((a,b)=>(RANK[b.rating_geral]||0)-(RANK[a.rating_geral]||0));
 
     if(allAtletas.length){
       const ids = allAtletas.map(a => a.id);
@@ -383,9 +383,12 @@ async function load(){
     document.getElementById('stat-clubes').textContent = new Set(allAtletas.map(a => a.clube_actual).filter(Boolean)).size;
     document.getElementById('stat-assoc').textContent = new Set(allAtletas.map(a => a.associacao).filter(Boolean)).size;
 
-    const assocs = [...new Set(allAtletas.map(a => a.associacao).filter(Boolean))].sort();
+    // Lista canónica: as 22 Associações de Futebol do país (FPF).
+    const AFS = ['AF Algarve','AF Angra do Heroísmo','AF Aveiro','AF Beja','AF Braga','AF Bragança','AF Castelo Branco','AF Coimbra','AF Évora','AF Guarda','AF Horta','AF Leiria','AF Lisboa','AF Madeira','AF Ponta Delgada','AF Portalegre','AF Porto','AF Santarém','AF Setúbal','AF Viana do Castelo','AF Vila Real','AF Viseu'];
+    const presentes = new Set(allAtletas.map(a => a.associacao).filter(Boolean));
+    const assocs = [...new Set([...AFS, ...presentes])].sort();
     const sel = document.getElementById('f-assoc');
-    assocs.forEach(x => { const o = document.createElement('option'); o.value = x; o.textContent = x; sel.appendChild(o); });
+    assocs.forEach(x => { const o = document.createElement('option'); o.value = x; o.textContent = presentes.has(x) ? x + ' ●' : x; sel.appendChild(o); });
 
     if(allAtletas.length){
       const latest = allAtletas.reduce((m, a) => { const t = new Date(a.updated_at); return t > m ? t : m; }, new Date(0));
@@ -438,7 +441,6 @@ function renderDestaques(){
   }
 
   grid.innerHTML = destaqueAtletas.map(a => {
-    const iniciais = getIniciais(a.primeiro_nome, a.ultimo_nome, a.nome);
     const idade = calcIdade(a.ano_nascimento, a.mes_nascimento);
     const palmares = getPalmares(a);
     const isGR = a.posicao_principal === 'GR';
@@ -451,7 +453,7 @@ function renderDestaques(){
           <div class="card-rating ${ratingClass(a.rating_geral)}">${a.rating_geral || '—'}</div>
         </div>
         <div class="card-avatar-wrap">
-          <div class="card-avatar ${isGR ? 'gr' : ''}">${iniciais}</div>
+          <div class="card-avatar ${isGR ? 'gr' : ''}">${posAbrev(a.posicao_principal)}</div>
           ${isGR ? '<div class="gr-badge">🧤</div>' : ''}
         </div>
         <div class="card-name">${escapeHtml(a.primeiro_nome || a.nome)}</div>
@@ -468,9 +470,21 @@ function renderDestaques(){
           ${palmares.length ? palmares.map(p => `<div class="palmares-item">${p}</div>`).join('') : '<div class="palmares-item empty">Em desenvolvimento</div>'}
         </div>
         <button class="card-btn">Ver Detalhes ↓</button>
+        <a class="card-btn-upd" href="https://wa.me/351913695846?text=${encodeURIComponent('Quero atualizar os dados do atleta ' + (a.nome || '') + ' (ref ' + String(a.id).slice(0,8) + '): ')}" target="_blank" rel="noopener" onclick="event.stopPropagation()">↻ Atualizar dados</a>
       </div>
     `;
   }).join('');
+}
+
+function posAbrev(p){
+  if(!p) return '?';
+  const t = p.trim();
+  if(t.length <= 3) return t.toUpperCase();
+  const MAP = {'guarda-redes':'GR','guarda redes':'GR','defesa central':'DC','central':'DC','lateral direito':'LD','lateral esquerdo':'LE','lateral':'LA','médio defensivo':'MD','medio defensivo':'MD','médio centro':'MC','medio centro':'MC','médio ofensivo':'MO','medio ofensivo':'MO','médio':'MC','medio':'MC','médio interior':'MI','medio interior':'MI','extremo direito':'ED','extremo esquerdo':'EE','extremo':'EX','ponta de lança':'PL','ponta de lanca':'PL','avançado':'AV','avancado':'AV'};
+  const k = t.toLowerCase();
+  if(MAP[k]) return MAP[k];
+  const w = t.split(/[\s-]+/).filter(Boolean);
+  return (w.length > 1 ? (w[0][0] + w[w.length-1][0]) : t.slice(0,2)).toUpperCase();
 }
 
 function scrollToAtleta(id){
@@ -532,7 +546,7 @@ function renderRow(a){
         ${renderPaywall()}
         <div class="body-foot">
           <div>${a.zerozero_url ? `<a href="${escapeHtml(a.zerozero_url)}" target="_blank" rel="noopener">🔗 Perfil ZeroZero</a>` : ''}</div>
-          <a href="ocultar.html?token=${a.token_ocultar}" style="font-size:9px">Ocultar perfil</a>
+          <a href="ocultar.html?token=${a.token_ocultar}" style="font-size:10px">Ocultar perfil</a>
         </div>
         <div class="consent-notice">Atleta inscrito com consentimento do encarregado de educação para fins de desenvolvimento desportivo. <a href="privacidade.html">Política de Privacidade</a>.</div>
       </div>

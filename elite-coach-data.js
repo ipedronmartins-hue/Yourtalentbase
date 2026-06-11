@@ -186,6 +186,150 @@ const CENARIOS = [
     ],
     treino: ['Movimentação sem bola', 'Apoio curto (5-10m)'],
     dica: 'Companheiro pressionado? APROXIMA.'
+  },
+  {
+    id: 'C11', titulo: 'GR · Cruzamento na tua área', posicao: 'Guarda-Redes',
+    debilidade: 'Decisão sair/ficar', icon: '🧤', cor: '#4A9FE8', nivel: 'Sub-11+',
+    situacao: 'Cruzamento tenso da direita. Bola vai cair à zona do penálti. Tens um central na disputa e um avançado adversário a atacar a bola.',
+    duracao: 4500,
+    frames: [
+      { t: 0, players: { meu: { x: 250, y: 80, team: 'us', label: 'TU', highlight: true }, central: { x: 220, y: 160, team: 'us', label: 'Cent' }, avanc: { x: 260, y: 170, team: 'them' }, cruzador: { x: 420, y: 220, team: 'them' } }, ball: { owner: 'cruzador' }, indica: 'Cruzamento a sair da direita.' },
+      { t: 1500, players: { meu: { x: 250, y: 80, team: 'us', highlight: true }, central: { x: 230, y: 150, team: 'us' }, avanc: { x: 250, y: 155, team: 'them' }, cruzador: { x: 420, y: 220, team: 'them' } }, ball: { x: 330, y: 180 }, indica: 'O QUE FAZES?' },
+      { t: 4500, players: { meu: { x: 250, y: 80, team: 'us', highlight: true }, central: { x: 230, y: 150, team: 'us' }, avanc: { x: 250, y: 155, team: 'them' }, cruzador: { x: 420, y: 220, team: 'them' } }, ball: { x: 300, y: 165 }, indica: 'O QUE FAZES?' }
+    ],
+    opcoes: [
+      { id: 'A', texto: 'Saio a soco com decisão', certa: true, feedback: 'Saída forte, bola afastada. Comunicaste "MINHA!" e a defesa confiou.', consequencia: 'sucesso' },
+      { id: 'B', texto: 'Fico na linha à espera', certa: false, feedback: 'Bola caiu na zona morta. Avançado cabeceou sozinho.', consequencia: 'perda' },
+      { id: 'C', texto: 'Saio mas hesito a meio', certa: false, feedback: 'O pior dos dois mundos: nem na baliza nem na bola.', consequencia: 'perda' }
+    ],
+    treino: ['Saídas a cruzamento com tráfego', 'Comunicação em voz alta', 'Leitura da trajetória cedo'],
+    dica: 'Decide CEDO e grita a decisão. Sair a meio-gás é pior do que ficar.'
+  },
+  {
+    id: 'C12', titulo: 'GR · Construção sob pressão', posicao: 'Guarda-Redes',
+    debilidade: 'Decisão sob pressão', icon: '🧤', cor: '#4A9FE8', nivel: 'Sub-13+',
+    situacao: 'Recebes atrasado do central. Avançado adversário pressiona-te em curva, a fechar o passe de volta. Lateral esquerdo livre na ala. Médio pede entre linhas.',
+    duracao: 4500,
+    frames: [
+      { t: 0, players: { meu: { x: 250, y: 90, team: 'us', label: 'TU', highlight: true }, central: { x: 330, y: 170, team: 'us', label: 'Cent' }, press: { x: 300, y: 140, team: 'them' }, lateral: { x: 90, y: 230, team: 'us', label: 'Lat' }, medio: { x: 230, y: 280, team: 'us', label: 'Méd' } }, ball: { owner: 'meu' }, indica: 'Avançado vem em curva sobre ti.' },
+      { t: 1500, players: { meu: { x: 250, y: 90, team: 'us', highlight: true }, central: { x: 330, y: 170, team: 'us' }, press: { x: 280, y: 120, team: 'them' }, lateral: { x: 90, y: 230, team: 'us' }, medio: { x: 230, y: 280, team: 'us' } }, ball: { owner: 'meu' }, indica: 'O QUE FAZES?' },
+      { t: 4500, players: { meu: { x: 250, y: 90, team: 'us', highlight: true }, central: { x: 330, y: 170, team: 'us' }, press: { x: 280, y: 120, team: 'them' }, lateral: { x: 90, y: 230, team: 'us' }, medio: { x: 230, y: 280, team: 'us' } }, ball: { owner: 'meu' }, indica: 'O QUE FAZES?' }
+    ],
+    opcoes: [
+      { id: 'A', texto: 'Devolver ao central', certa: false, feedback: 'O avançado fechava exatamente essa linha. Quase autogolo.', consequencia: 'perda' },
+      { id: 'B', texto: 'Abrir no lateral livre', certa: true, feedback: 'Leste a curva da pressão e saíste pelo lado livre. Construção limpa.', consequencia: 'sucesso' },
+      { id: 'C', texto: 'Pontapé longo imediato', certa: false, feedback: 'Aliviou o perigo mas devolveu a posse. Solução de emergência, não de equipa.', consequencia: 'neutro' }
+    ],
+    treino: ['Receção orientada de GR', 'Leitura da curva de pressão', 'Passe tenso de primeira'],
+    dica: 'A curva da pressão DIZ-TE o lado livre. Lê o corpo do avançado, não a bola.'
+  },
+  {
+    id: 'C13', titulo: 'Lateral · 1×1 contra extremo rápido', posicao: 'Defesa',
+    debilidade: '1×1 defensivo', icon: '🛡️', cor: '#C0C0C0', nivel: 'Sub-12+',
+    situacao: 'Extremo adversário recebe isolado contra ti na ala. É mais rápido que tu. Não tens cobertura imediata — o central está longe.',
+    duracao: 4500,
+    frames: [
+      { t: 0, players: { meu: { x: 120, y: 250, team: 'us', label: 'TU', highlight: true }, extremo: { x: 110, y: 330, team: 'them', label: 'Ext' }, central: { x: 280, y: 200, team: 'us', label: 'Cent' } }, ball: { owner: 'extremo' }, indica: 'Extremo isolado contra ti.' },
+      { t: 1500, players: { meu: { x: 120, y: 250, team: 'us', highlight: true }, extremo: { x: 115, y: 310, team: 'them' }, central: { x: 270, y: 210, team: 'us' } }, ball: { owner: 'extremo' }, indica: 'O QUE FAZES?' },
+      { t: 4500, players: { meu: { x: 120, y: 250, team: 'us', highlight: true }, extremo: { x: 115, y: 310, team: 'them' }, central: { x: 270, y: 210, team: 'us' } }, ball: { owner: 'extremo' }, indica: 'O QUE FAZES?' }
+    ],
+    opcoes: [
+      { id: 'A', texto: 'Atacar a bola já', certa: false, feedback: 'Entrada precipitada contra um mais rápido. Passou por ti — autoestrada para a baliza.', consequencia: 'perda' },
+      { id: 'B', texto: 'Temporizar e encaminhar para a linha', certa: true, feedback: 'Recuaste em diagonal, deste tempo à cobertura e fechaste o interior. O extremo ficou sem espaço útil.', consequencia: 'sucesso' },
+      { id: 'C', texto: 'Recuar até à área', certa: false, feedback: 'Recuaste demasiado. Ofereceste 20 metros e o cruzamento saiu confortável.', consequencia: 'neutro' }
+    ],
+    treino: ['Temporização defensiva 1v1', 'Orientação corporal (fechar interior)', 'Recuperação em diagonal'],
+    dica: 'Contra um mais rápido, o teu aliado é o TEMPO. Não ganhas a corrida — ganhas o ângulo.'
+  },
+  {
+    id: 'C14', titulo: 'Central · Profundidade nas costas', posicao: 'Defesa',
+    debilidade: 'Posicionamento', icon: '🛡️', cor: '#C0C0C0', nivel: 'Sub-13+',
+    situacao: 'A tua equipa está subida. O médio adversário tem a bola sem pressão e o avançado deles arranca para as tuas costas.',
+    duracao: 4500,
+    frames: [
+      { t: 0, players: { meu: { x: 220, y: 230, team: 'us', label: 'TU', highlight: true }, par: { x: 320, y: 230, team: 'us', label: 'Cent2' }, avanc: { x: 250, y: 250, team: 'them', label: 'Av' }, medio: { x: 250, y: 400, team: 'them' } }, ball: { owner: 'medio' }, indica: 'Médio deles com bola, sem pressão.' },
+      { t: 1500, players: { meu: { x: 220, y: 230, team: 'us', highlight: true }, par: { x: 320, y: 230, team: 'us' }, avanc: { x: 240, y: 215, team: 'them' }, medio: { x: 250, y: 400, team: 'them' } }, ball: { owner: 'medio' }, indica: 'O QUE FAZES?' },
+      { t: 4500, players: { meu: { x: 220, y: 230, team: 'us', highlight: true }, par: { x: 320, y: 230, team: 'us' }, avanc: { x: 240, y: 215, team: 'them' }, medio: { x: 250, y: 400, team: 'them' } }, ball: { owner: 'medio' }, indica: 'O QUE FAZES?' }
+    ],
+    opcoes: [
+      { id: 'A', texto: 'Cair uns metros antes do passe', certa: true, feedback: 'Bola sem pressão = linha desce. Mataste a profundidade antes de ela existir.', consequencia: 'sucesso' },
+      { id: 'B', texto: 'Manter a linha e jogar ao fora-de-jogo', certa: false, feedback: 'Sem pressão na bola, o passe sai medido. Fora-de-jogo falhou por meio metro.', consequencia: 'perda' },
+      { id: 'C', texto: 'Colar ao avançado', certa: false, feedback: 'Ele prendeu-te, rodou no arranque e ganhou-te as costas.', consequencia: 'perda' }
+    ],
+    treino: ['Regra bola pressionada/não pressionada', 'Basculação da linha defensiva', 'Leitura do passe longo'],
+    dica: 'Bola SEM pressão → a linha DESCE. Bola pressionada → a linha sobe. É a regra de ouro.'
+  },
+  {
+    id: 'C15', titulo: 'Falhaste um golo cantado. E agora?', posicao: 'Todos',
+    debilidade: 'Reação à adversidade', icon: '🧠', cor: '#A78BFA', nivel: 'Sub-9+',
+    situacao: 'Acabaste de falhar uma ocasião flagrante. Ouves o banco e alguns colegas reagirem. O jogo recomeça já — a equipa adversária vai repor de baliza.',
+    duracao: 4500,
+    frames: [
+      { t: 0, players: { meu: { x: 250, y: 160, team: 'us', label: 'TU', highlight: true }, gr: { x: 250, y: 70, team: 'them', label: 'GR' }, colega: { x: 150, y: 240, team: 'us' } }, ball: { owner: 'gr' }, indica: 'A bola saiu por cima. Falhaste.' },
+      { t: 1500, players: { meu: { x: 250, y: 160, team: 'us', highlight: true }, gr: { x: 250, y: 70, team: 'them' }, colega: { x: 150, y: 240, team: 'us' } }, ball: { owner: 'gr' }, indica: 'O QUE FAZES?' },
+      { t: 4500, players: { meu: { x: 250, y: 160, team: 'us', highlight: true }, gr: { x: 250, y: 70, team: 'them' }, colega: { x: 150, y: 240, team: 'us' } }, ball: { owner: 'gr' }, indica: 'O QUE FAZES?' }
+    ],
+    opcoes: [
+      { id: 'A', texto: 'Baixar a cabeça e evitar a bola uns minutos', certa: false, feedback: 'Desapareceste do jogo 10 minutos. A equipa jogou com menos um.', consequencia: 'perda' },
+      { id: 'B', texto: 'Reset: próxima ação, pressionar a reposição', certa: true, feedback: 'A melhor resposta a um falhanço é a ação seguinte. Pressionaste, recuperaste e voltaste ao jogo.', consequencia: 'sucesso' },
+      { id: 'C', texto: 'Discutir com quem comentou', certa: false, feedback: 'Perdeste o foco e ganhaste um conflito. O jogo continuou sem ti.', consequencia: 'perda' }
+    ],
+    treino: ['Rotina de reset (respirar + próxima tarefa)', 'Treinar finalização com consequência', 'Linguagem corporal pós-erro'],
+    dica: 'Os melhores falham MUITO — e a resposta deles mede-se na jogada seguinte, não no falhanço.'
+  },
+  {
+    id: 'C16', titulo: 'Adversário provoca-te depois da falta', posicao: 'Todos',
+    debilidade: 'Controlo emocional', icon: '🧠', cor: '#A78BFA', nivel: 'Sub-11+',
+    situacao: 'Sofreste uma falta dura. O árbitro marcou, mas o adversário levanta-se e provoca-te à frente de todos. Sentes o sangue a subir.',
+    duracao: 4500,
+    frames: [
+      { t: 0, players: { meu: { x: 250, y: 300, team: 'us', label: 'TU', highlight: true }, adv: { x: 270, y: 290, team: 'them', label: 'Adv' }, arb: { x: 320, y: 330, team: 'us', label: 'Árb' } }, ball: { x: 250, y: 310 }, indica: 'Falta sofrida. Ele provoca-te.' },
+      { t: 1500, players: { meu: { x: 250, y: 300, team: 'us', highlight: true }, adv: { x: 268, y: 292, team: 'them' }, arb: { x: 315, y: 325, team: 'us' } }, ball: { x: 250, y: 310 }, indica: 'O QUE FAZES?' },
+      { t: 4500, players: { meu: { x: 250, y: 300, team: 'us', highlight: true }, adv: { x: 268, y: 292, team: 'them' }, arb: { x: 315, y: 325, team: 'us' } }, ball: { x: 250, y: 310 }, indica: 'O QUE FAZES?' }
+    ],
+    opcoes: [
+      { id: 'A', texto: 'Responder à letra', certa: false, feedback: 'O árbitro só viu a TUA reação. Amarelo para ti — exatamente o que ele queria.', consequencia: 'perda' },
+      { id: 'B', texto: 'Levantar, pegar na bola, marcar rápido', certa: true, feedback: 'Resposta de jogador inteligente: usaste a provocação como combustível e a falta como vantagem.', consequencia: 'sucesso' },
+      { id: 'C', texto: 'Ficar no chão a pedir cartão', certa: false, feedback: 'Teatro não joga. Enquanto reclamavas, a tua equipa perdeu a vantagem da reposição rápida.', consequencia: 'neutro' }
+    ],
+    treino: ['Gatilhos emocionais e resposta-padrão', 'Reposição rápida após falta', 'Conversa com treinador sobre provocações'],
+    dica: 'Quem te provoca quer ALUGAR a tua cabeça de graça. Não assines o contrato.'
+  },
+  {
+    id: 'C17', titulo: 'Canto contra · A tua marcação', posicao: 'Todos',
+    debilidade: 'Concentração', icon: '🚩', cor: '#FFA500', nivel: 'Sub-12+',
+    situacao: 'Canto contra a tua equipa. Marcas o nº 9 deles — o mais forte no jogo aéreo. A bola vai ser batida e ele começa a afastar-se de ti em passos curtos.',
+    duracao: 4500,
+    frames: [
+      { t: 0, players: { meu: { x: 230, y: 140, team: 'us', label: 'TU', highlight: true }, n9: { x: 245, y: 150, team: 'them', label: '9' }, gr: { x: 250, y: 75, team: 'us', label: 'GR' }, batedor: { x: 440, y: 90, team: 'them' } }, ball: { owner: 'batedor' }, indica: 'Canto contra. Marcas o 9.' },
+      { t: 1500, players: { meu: { x: 230, y: 140, team: 'us', highlight: true }, n9: { x: 265, y: 165, team: 'them' }, gr: { x: 250, y: 75, team: 'us' }, batedor: { x: 440, y: 90, team: 'them' } }, ball: { owner: 'batedor' }, indica: 'O QUE FAZES?' },
+      { t: 4500, players: { meu: { x: 230, y: 140, team: 'us', highlight: true }, n9: { x: 265, y: 165, team: 'them' }, gr: { x: 250, y: 75, team: 'us' }, batedor: { x: 440, y: 90, team: 'them' } }, ball: { owner: 'batedor' }, indica: 'O QUE FAZES?' }
+    ],
+    opcoes: [
+      { id: 'A', texto: 'Olhar só para a bola', certa: false, feedback: 'Quando a bola entrou, o 9 já tinha 3 metros de balanço. Golo dele, marcação tua.', consequencia: 'perda' },
+      { id: 'B', texto: 'Contacto + bola e homem no campo de visão', certa: true, feedback: 'Mão no contacto, corpo orientado para veres bola E homem. Atacaste a bola primeiro.', consequencia: 'sucesso' },
+      { id: 'C', texto: 'Agarrar a camisola', certa: false, feedback: 'O árbitro estava a olhar. Penálti. Caro demais.', consequencia: 'perda' }
+    ],
+    treino: ['Marcação homem-a-homem em bola parada', 'Orientação corporal bola+homem', 'Duelo aéreo com contacto legal'],
+    dica: 'Em bola parada, quem perde o homem de vista por 1 segundo perde o lance. Bola E homem, sempre.'
+  },
+  {
+    id: 'C18', titulo: '2 contra 1 · Decidir o último passe', posicao: 'Todos',
+    debilidade: 'Tomada de decisão', icon: '⭐', cor: '#00D46A', nivel: 'Sub-9+',
+    situacao: 'Contra-ataque! Levas a bola em velocidade, só tens um defesa pela frente e um colega livre ao teu lado. O guarda-redes fica na baliza.',
+    duracao: 4500,
+    frames: [
+      { t: 0, players: { meu: { x: 200, y: 280, team: 'us', label: 'TU', highlight: true }, colega: { x: 320, y: 270, team: 'us', label: 'Colega' }, def: { x: 260, y: 190, team: 'them', label: 'Def' }, gr: { x: 250, y: 75, team: 'them', label: 'GR' } }, ball: { owner: 'meu' }, indica: '2 contra 1! Tu e o colega.' },
+      { t: 1500, players: { meu: { x: 210, y: 240, team: 'us', highlight: true }, colega: { x: 320, y: 230, team: 'us' }, def: { x: 255, y: 185, team: 'them' }, gr: { x: 250, y: 75, team: 'them' } }, ball: { owner: 'meu' }, indica: 'O QUE FAZES?' },
+      { t: 4500, players: { meu: { x: 210, y: 240, team: 'us', highlight: true }, colega: { x: 320, y: 230, team: 'us' }, def: { x: 255, y: 185, team: 'them' }, gr: { x: 250, y: 75, team: 'them' } }, ball: { owner: 'meu' }, indica: 'O QUE FAZES?' }
+    ],
+    opcoes: [
+      { id: 'A', texto: 'Passar já ao colega', certa: false, feedback: 'Passaste cedo demais — o defesa nem teve de escolher, foi direto ao teu colega.', consequencia: 'neutro' },
+      { id: 'B', texto: 'Conduzir até fixar o defesa, depois decidir', certa: true, feedback: 'Conduziste até ele TER de vir a ti — e o passe saiu no momento certo. Colega isolado para o golo.', consequencia: 'sucesso' },
+      { id: 'C', texto: 'Rematar de longe', certa: false, feedback: 'Tinhas superioridade e escolheste a opção mais difícil. O GR agradeceu.', consequencia: 'neutro' }
+    ],
+    treino: ['2v1 em campo reduzido', 'Fixar o defesa antes do passe', 'Decisão com cabeça levantada'],
+    dica: 'No 2v1, a bola FIXA o defesa. Obriga-o a escolher-te — e nesse momento o teu colega fica livre.'
   }
 ];
 
