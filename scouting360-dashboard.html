@@ -180,6 +180,18 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:#fff;
 .empty{text-align:center;padding:60px 20px;color:var(--muted);font-size:13px}
 .empty-icon{font-size:40px;margin-bottom:10px;opacity:.4}
 
+.prov{display:inline-block;font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:4px;vertical-align:middle;margin-left:6px}
+.prov-declarado{background:rgba(170,170,170,.12);color:#aaa;border:1px solid #333}
+.prov-calculado{background:rgba(212,175,55,.14);color:var(--gold);border:1px solid var(--gold-border)}
+.prov-observado{background:rgba(0,212,106,.12);color:#00D46A;border:1px solid rgba(0,212,106,.3)}
+.prov-ia{background:rgba(167,139,250,.12);color:#A78BFA;border:1px solid rgba(167,139,250,.3)}
+.rv-line{font-size:11px;color:var(--slate);margin-top:3px;text-align:right}
+.rep-card{background:rgba(0,0,0,.25);border:1px solid var(--border);border-left:3px solid var(--gold);padding:10px 12px;margin-bottom:8px;font-size:12px;color:#ccc;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.dim-grid{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.dim-pill{font-size:10px;background:rgba(0,0,0,.3);border:1px solid var(--border);padding:3px 8px;border-radius:5px;color:var(--slate)}
+.dim-pill strong{color:#fff;font-weight:700}
+.narrativa-ia{margin-top:8px;font-size:12px;line-height:1.6;color:#ddd;background:rgba(167,139,250,.05);border-left:2px solid rgba(167,139,250,.4);padding:8px 10px;font-style:italic}
+
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(6px);z-index:100;display:none;align-items:center;justify-content:center;padding:20px}
 .modal-overlay.show{display:flex;animation:fadeIn .2s}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
@@ -378,6 +390,8 @@ let destaqueAtletas = [];
 let statsMap = {};
 let historicoMap = {};
 let avalMap = {};
+let repMap = {};
+let ratingVivoCache = {};
 let state = { search:'', escalao:'all', posicao:'all', assoc:'all', rating:'all', fonte:'all' };
 let currentAtleta = null;
 
@@ -426,6 +440,14 @@ async function load(){
         if(!avalMap[a.atleta_id]) avalMap[a.atleta_id] = [];
         avalMap[a.atleta_id].push(a);
       });
+
+      try {
+        const { data: reps } = await supa.from('relatorios').select('*').in('atleta_id', ids).order('created_at', { ascending: false });
+        (reps || []).forEach(r => {
+          if(!repMap[r.atleta_id]) repMap[r.atleta_id] = [];
+          repMap[r.atleta_id].push(r);
+        });
+      } catch(e) { /* tabela sem leitura para este papel — secção fica vazia */ }
     }
 
     destaqueAtletas = allAtletas.filter(a => a.badge_estado === 'destaque').slice(0, 5);
@@ -562,7 +584,11 @@ function renderList(){
 
   list.innerHTML = f.map(a => renderRow(a)).join('');
   list.querySelectorAll('.row-head').forEach(el => {
-    el.addEventListener('click', () => el.parentElement.classList.toggle('open'));
+    el.addEventListener('click', () => {
+      const row = el.parentElement;
+      row.classList.toggle('open');
+      if(row.classList.contains('open')) carregarRatingVivo(row.dataset.id);
+    });
   });
 }
 
@@ -583,13 +609,14 @@ function renderRow(a){
           <div class="r-meta">${escapeHtml(a.posicao_principal)} · ${escapeHtml(a.escalao)} · ${escapeHtml(a.clube_actual)} · ${escapeHtml(a.associacao || '')}</div>
         </div>
         <div class="col-tag">${idade ? idade + ' anos' : ''}${a.pe_dominante ? ' · ' + (a.pe_dominante === 'D' ? 'Direito' : a.pe_dominante === 'E' ? 'Esquerdo' : 'Amb') : ''}</div>
-        <div class="r-rating ${ratingClass(a.rating_geral)}">${a.rating_geral || '—'}</div>
+        <div style="text-align:right"><div class="r-rating ${ratingClass(a.rating_geral)}">${a.rating_geral || '—'}</div><div class="rv-line" id="rv-${a.id}"></div></div>
       </div>
 
       <div class="row-body">
         ${renderExcelencia(a)}
         ${stats ? renderStats(stats) : ''}
         ${hist.length ? renderHistorico(hist) : ''}
+        ${(repMap[a.id] || []).length ? renderReports(repMap[a.id]) : ''}
         ${avals.length ? renderAvaliacoes(avals) : ''}
 
         <div class="actions-row">
@@ -663,6 +690,37 @@ function renderHistorico(hist){
   `;
 }
 
+function renderReports(reps){
+  return `
+    <div class="body-section">
+      <div class="body-sec-title">📋 Scout Reports <span class="prov prov-declarado">avaliação de scout</span></div>
+      ${reps.map(r => {
+        const num = r.numero || r.numero_relatorio || r.ref || ('#' + String(r.id).slice(0,8));
+        const scout = r.scout_nome || r.scout || r.avaliador || r.scout_email || '—';
+        const rec = r.recomendacao || r.decisao || r.classificacao || '';
+        const media = (r.media_geral != null ? r.media_geral : (r.media != null ? r.media : null));
+        const data = r.created_at ? new Date(r.created_at).toLocaleDateString('pt-PT') : (r.data || '');
+        return `<div class="rep-card">
+          <span><strong style="color:#fff">${escapeHtml(String(num))}</strong> · ${escapeHtml(String(scout))}</span>
+          <span>${media != null ? '<strong style="color:var(--gold)">' + escapeHtml(String(media)) + '/5</strong> · ' : ''}${escapeHtml(String(rec))} · ${escapeHtml(String(data))}</span>
+        </div>`;
+      }).join('')}
+    </div>
+  `;
+}
+
+const DIM_PT = { muito_baixo:'Muito baixo', baixo:'Baixo', medio:'Médio', alto:'Alto', excelente:'Excelente', resiste:'Resiste', aceita:'Aceita', procura:'Procura', implementa:'Implementa', nao_observado:'N/O', baixa:'Baixa', media:'Média', alta:'Alta', muito_alta:'Muito alta' };
+async function carregarRatingVivo(atletaId){
+  const el = document.getElementById('rv-' + atletaId);
+  if(!el || ratingVivoCache[atletaId] !== undefined) return;
+  ratingVivoCache[atletaId] = null;
+  try {
+    const { data, error } = await supa.rpc('fn_calcular_rating_atleta', { p_atleta_id: atletaId });
+    if(error) throw error;
+    if(data){ ratingVivoCache[atletaId] = data; el.innerHTML = 'vivo: <strong style="color:var(--gold)">' + escapeHtml(String(data)) + '</strong><span class="prov prov-calculado">calculado</span>'; }
+  } catch(e) { /* sem avaliações com rating ou RPC indisponível — silêncio */ }
+}
+
 function renderAvaliacoes(avals){
   return `
     <div class="body-section">
@@ -675,9 +733,11 @@ function renderAvaliacoes(avals){
             <div class="aval-card">
               <div class="aval-head">
                 <div class="aval-author">${escapeHtml(av.avaliador_nome)} <span>· ${tipoLabel} ${peso}</span></div>
-                <div class="aval-rating-pill ${ratingClass(av.rating)}">${av.rating}</div>
+                <div class="aval-rating-pill ${ratingClass(av.rating)}">${av.rating || '…'}</div>
               </div>
-              <div class="aval-text">${escapeHtml(av.observacao)}</div>
+              <div class="aval-text">${escapeHtml(av.observacao || '')}</div>
+              ${av.dim_impacto ? `<div class="dim-grid"><span class="dim-pill">Impacto <strong>${DIM_PT[av.dim_impacto]||av.dim_impacto}</strong></span><span class="dim-pill">Compromisso <strong>${DIM_PT[av.dim_compromisso]||av.dim_compromisso||'—'}</strong></span><span class="dim-pill">Treinabilidade <strong>${DIM_PT[av.dim_treinabilidade]||av.dim_treinabilidade||'—'}</strong></span><span class="dim-pill">Competitividade <strong>${DIM_PT[av.dim_competitividade]||av.dim_competitividade||'—'}</strong></span><span class="prov prov-declarado">declarado</span></div>` : ''}
+              ${av.narrativa_ia ? `<div class="narrativa-ia">${escapeHtml(av.narrativa_ia)}<span class="prov prov-ia">IA</span></div>` : ''}
               ${av.tags && av.tags.length ? `<div class="aval-tags">${av.tags.map(t => `<span class="aval-tag">${escapeHtml(t)}</span>`).join('')}</div>` : ''}
               <div style="margin-top:6px;font-size:10px;color:var(--muted);letter-spacing:.5px">
                 ${av.contexto_jogo || 'observação'} · ${av.data_observacao || new Date(av.created_at).toLocaleDateString('pt-PT')}
