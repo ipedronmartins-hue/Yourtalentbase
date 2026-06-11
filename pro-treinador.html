@@ -465,15 +465,18 @@ async function gerarAvaliacao(){
   const medias=mediasPorCat(scores);
   const plano=gerarPlano(debs);
   avalSel={atleta_id:atletaSel.id,nome:atletaSel.primeiro_nome||atletaSel.nome,scores:scores,medias:medias,debilidades:debs,plano:plano,created_at:new Date().toISOString()};
+  let gravou=true;
   if(USING_SB){
     try{
-      const{data:av}=await supa.from('treinador_avaliacoes').insert({
+      const avId=crypto.randomUUID();
+      const{error:e1}=await supa.from('treinador_avaliacoes').insert({
+        id:avId,
         atleta_id:atletaSel.id, treinador_email:treinadorEmail,
         criterios:scores, debilidades:debs
-      }).select().single();
-      if(av){
-        await supa.from('treinador_treinos').insert({atleta_id:atletaSel.id, avaliacao_id:av.id, plano:plano, fonte:'avaliacao'});
-      }
+      });
+      if(e1)throw e1;
+      const{error:e2}=await supa.from('treinador_treinos').insert({atleta_id:atletaSel.id, avaliacao_id:avId, plano:plano, fonte:'avaliacao'});
+      if(e2)throw e2;
       // Atualiza o atleta na base 360: rating = nota da última avaliação, data, e fica visível no Scouting360.
       // Histórico completo fica em treinador_avaliacoes (série temporal preservada).
       const m = medias.geral; // média /5
@@ -483,7 +486,7 @@ async function gerarAvaliacao(){
         stats_actualizadas_em: new Date().toISOString(),
         visivel_b2b: true
       }).eq('id', atletaSel.id);
-    }catch(e){console.warn('save aval',e);}
+    }catch(e){gravou=false;console.warn('save aval',e);}
   }
   const debLabels={tecnica:'Técnica individual',fisico:'Físico',decisao:'Tomada de decisão',tatica:'Tática / posicionamento',mental:'Mental / atitude'};
   document.getElementById('aval-result').innerHTML=
@@ -492,7 +495,8 @@ async function gerarAvaliacao(){
     '<div style="font-size:9px;font-weight:800;letter-spacing:2px;color:var(--red);text-transform:uppercase;margin:16px 0 8px">Debilidades detetadas</div>'+
     debs.map(d=>'<div class="deb-item">⚠️ '+(debLabels[d]||d)+'</div>').join('')+
     '<button class="btn btn-primary" style="margin-top:14px" onclick="setTabProgram(\'treino\')">Ver plano de treino →</button></div>';
-  showToast('Avaliação guardada ✓ Treino gerado');
+  if(gravou){showToast('Avaliação guardada ✓ Treino gerado');}
+  else{showToast('⚠ Análise feita mas NÃO gravada — verifica a ligação e submete de novo',5000);}
 }
 
 /* ════════ TREINO ════════ */
