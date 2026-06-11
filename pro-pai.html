@@ -298,7 +298,8 @@ async function processarSessao(){
         '<div class="field" style="margin-top:14px;text-align:left"><label class="label">Nome do filho</label><input class="input" id="ins-nome" type="text" placeholder="Nome"></div>'+
         '<div class="field" style="text-align:left"><label class="label">Ano de nascimento</label><input class="input" id="ins-ano" type="number" placeholder="2014"></div>'+
         '<div class="field" style="text-align:left"><label class="label">Posição</label><select class="input" id="ins-pos"><option value="">— escolhe —</option><option>Guarda-Redes</option><option>Defesa Central</option><option>Lateral Direito</option><option>Lateral Esquerdo</option><option>Médio Defensivo</option><option>Médio Centro</option><option>Médio Ofensivo</option><option>Extremo</option><option>Ponta de Lança</option></select></div>'+
-        '<div class="field" style="text-align:left"><label class="label">Clube (opcional)</label><input class="input" id="ins-clube" type="text" placeholder="Clube"></div>'+
+        '<div class="field" style="text-align:left"><label class="label">Clube</label><input class="input" id="ins-clube" type="text" placeholder="Clube"></div>'+
+        '<div class="field" style="text-align:left"><label class="label">Associação de Futebol</label><select class="input" id="ins-assoc"><option value="">— escolhe —</option><option>AF Algarve</option><option>AF Angra do Heroísmo</option><option>AF Aveiro</option><option>AF Beja</option><option>AF Braga</option><option>AF Bragança</option><option>AF Castelo Branco</option><option>AF Coimbra</option><option>AF Évora</option><option>AF Guarda</option><option>AF Horta</option><option>AF Leiria</option><option>AF Lisboa</option><option>AF Madeira</option><option>AF Ponta Delgada</option><option>AF Portalegre</option><option>AF Porto</option><option>AF Santarém</option><option>AF Setúbal</option><option>AF Viana do Castelo</option><option>AF Vila Real</option><option>AF Viseu</option></select></div>'+
         '<button class="btn btn-primary" id="ins-btn" onclick="inscreverFilho()">Inscrever filho →</button>'+
         '<button class="btn btn-secondary" style="margin-top:8px" onclick="logout()">Usar outro email</button></div>';
       return;
@@ -320,14 +321,20 @@ async function inscreverFilho(){
   const ano=parseInt((document.getElementById('ins-ano')||{}).value)||null;
   const pos=(document.getElementById('ins-pos')||{}).value||'';
   const clube=(document.getElementById('ins-clube')||{}).value||null;
+  const assoc=(document.getElementById('ins-assoc')||{}).value||'';
   if(!nome||!nome.trim()){alert('Indica o nome do filho');return;}
+  if(!ano||ano<2000){alert('Indica o ano de nascimento');return;}
   if(!pos){alert('Escolhe a posição do teu filho');return;}
+  if(!clube){alert('Indica o clube');return;}
+  if(!assoc){alert('Escolhe a Associação de Futebol');return;}
   const btn=document.getElementById('ins-btn');if(btn){btn.disabled=true;btn.innerHTML='<span class="spinner"></span>';}
   try{
     const novoId=crypto.randomUUID();
     const{error}=await supa.from('atletas_360').insert({
       id:novoId,
       nome:nome.trim(), primeiro_nome:nome.trim().split(' ')[0], ano_nascimento:ano,
+      escalao:'Sub-'+(2026-ano),
+      associacao:assoc,
       posicao_principal:pos, clube_actual:clube,
       fonte:'familia', fonte_nome:nome.trim(), fonte_email:emailInscricao, encarregado_email:emailInscricao
     });

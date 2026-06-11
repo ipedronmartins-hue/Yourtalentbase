@@ -168,6 +168,7 @@ body{padding-bottom:40px}
     <div class="field"><label class="label">Ano de nascimento</label><input class="input" id="insc-ano" type="number" placeholder="2014"></div>
     <div class="field"><label class="label">Posição</label><select class="input" id="insc-pos"><option value="">— escolhe —</option><option>Guarda-Redes</option><option>Defesa Central</option><option>Lateral Direito</option><option>Lateral Esquerdo</option><option>Médio Defensivo</option><option>Médio Centro</option><option>Médio Ofensivo</option><option>Extremo</option><option>Ponta de Lança</option></select></div>
     <div class="field"><label class="label">Clube</label><input class="input" id="insc-clube" type="text"></div>
+    <div class="field"><label class="label">Associação de Futebol</label><select class="input" id="insc-assoc"><option value="">— escolhe —</option><option>AF Algarve</option><option>AF Angra do Heroísmo</option><option>AF Aveiro</option><option>AF Beja</option><option>AF Braga</option><option>AF Bragança</option><option>AF Castelo Branco</option><option>AF Coimbra</option><option>AF Évora</option><option>AF Guarda</option><option>AF Horta</option><option>AF Leiria</option><option>AF Lisboa</option><option>AF Madeira</option><option>AF Ponta Delgada</option><option>AF Portalegre</option><option>AF Porto</option><option>AF Santarém</option><option>AF Setúbal</option><option>AF Viana do Castelo</option><option>AF Vila Real</option><option>AF Viseu</option></select></div>
     <div class="field"><label class="label">Email do encarregado</label><input class="input" id="insc-email" type="email" placeholder="pai@email.com"></div>
     <div class="err" id="insc-err"></div>
     <button class="btn btn-primary" id="insc-btn" onclick="submeterInscricao()">Inscrever →</button>
@@ -374,7 +375,11 @@ async function submeterInscricao(){
   const ano=parseInt(document.getElementById('insc-ano').value)||null;
   const clube=document.getElementById('insc-clube').value.trim();
   const pos=(document.getElementById('insc-pos')||{}).value||'';
+  const assoc=(document.getElementById('insc-assoc')||{}).value||'';
   if(!pos){err.style.display='block';err.textContent='Escolhe a posição do atleta';return;}
+  if(!ano||ano<2000){err.style.display='block';err.textContent='Indica o ano de nascimento';return;}
+  if(!clube){err.style.display='block';err.textContent='Indica o clube';return;}
+  if(!assoc){err.style.display='block';err.textContent='Escolhe a Associação de Futebol';return;}
   const emailEnc=document.getElementById('insc-email').value.trim().toLowerCase();
   const err=document.getElementById('insc-err');
   if(!nome){err.style.display='block';err.textContent='Nome obrigatório';return;}
@@ -385,7 +390,8 @@ async function submeterInscricao(){
     const{error:insErr}=await supa.from('atletas_360').insert({
       id:crypto.randomUUID(),
       nome:nome, primeiro_nome:nome.split(' ')[0], ano_nascimento:ano,
-      escalao:(ano&&ano>2000)?('Sub-'+(2026-ano)):null,
+      escalao:'Sub-'+(2026-ano),
+      associacao:assoc,
       posicao_principal:pos, clube_actual:clube,
       estado:'pendente',
       fonte:'treinador', fonte_nome:treinadorNome, fonte_email:treinadorEmail,
