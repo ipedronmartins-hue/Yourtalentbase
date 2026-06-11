@@ -382,14 +382,16 @@ async function submeterInscricao(){
   const btn=document.getElementById('insc-btn');btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;
   if(!USING_SB){showToast('Demo: inscrição não gravada');fecharInscricao();btn.innerHTML='Inscrever →';btn.disabled=false;return;}
   try{
-    await supa.from('atletas_360').insert({
+    const{error:insErr}=await supa.from('atletas_360').insert({
       id:crypto.randomUUID(),
       nome:nome, primeiro_nome:nome.split(' ')[0], ano_nascimento:ano,
+      escalao:(ano&&ano>2000)?('Sub-'+(2026-ano)):null,
       posicao_principal:pos, clube_actual:clube,
       estado:'pendente',
       fonte:'treinador', fonte_nome:treinadorNome, fonte_email:treinadorEmail,
       encarregado_email:emailEnc||null
     });
+    if(insErr)throw insErr;
     showToast('Atleta inscrito ✓');
     fecharInscricao();
     document.getElementById('insc-nome').value='';document.getElementById('insc-ano').value='';document.getElementById('insc-clube').value='';document.getElementById('insc-email').value='';
