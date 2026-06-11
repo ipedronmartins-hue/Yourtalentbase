@@ -1,4 +1,4 @@
-const CACHE = 'ytb-elite-coach-v3';
+const CACHE = 'ytb-elite-coach-v4';
 const ASSETS = ['/elite-coach.html','/elite-coach-data.js','/manifest-elite-coach.json'];
 
 self.addEventListener('install', e => {
