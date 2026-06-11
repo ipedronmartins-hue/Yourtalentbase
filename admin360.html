@@ -1156,6 +1156,7 @@ function editarAtleta(id){
         <div class="edit-field"><label class="edit-label">Badge estado</label>
           <select class="edit-select" id="e_badge">${badges.map(b => `<option value="${b}" ${a.badge_estado === b ? 'selected' : ''}>${badgeLabels[b] || b}</option>`).join('')}</select>
         </div>
+        <div class="edit-field" style="grid-column:1/-1"><button type="button" class="action-btn" id="btn-narrativa-${a.id}" onclick="gerarNarrativaAdmin('${a.id}')">🧠 Gerar avaliação contextual (IA)</button></div>
         <div class="edit-field"><label class="edit-label">Excelência 1</label>
           <select class="edit-select" id="e_ex1">${areas.map(x => `<option value="${x}" ${a.area_excelencia_1 === x ? 'selected' : ''}>${x || '—'}</option>`).join('')}</select>
         </div>
@@ -1305,6 +1306,53 @@ async function apagarClube(id, nome){
 document.getElementById('s-clubes').addEventListener('input', renderClubes);
 
 // load() e chamado por verificarAdmin() apos confirmar o admin
+
+// ═══ Avaliação contextual retroativa (admin) · junta dimensões + Scout Report ═══
+async function gerarNarrativaAdmin(atletaId){
+  const btn = document.getElementById('btn-narrativa-' + atletaId);
+  if(btn){ btn.disabled = true; btn.textContent = 'A gerar...'; }
+  try {
+    const a = allAtletas.find(x => String(x.id) === String(atletaId));
+    if(!a) throw new Error('atleta não carregado');
+    const { data: avs } = await supa.from('atletas_360_avaliacoes').select('*').eq('atleta_id', atletaId).eq('estado','ativo').order('created_at',{ascending:false}).limit(1);
+    const av = avs && avs[0];
+    if(!av){ alert('Este atleta ainda não tem nenhuma avaliação por dimensões. Pede uma avaliação (treinador/scout) primeiro — a IA interpreta, não inventa.'); if(btn){btn.disabled=false;btn.textContent='🧠 Gerar avaliação contextual (IA)';} return; }
+    let { data: reps } = await supa.from('relatorios').select('*').eq('atleta_id', atletaId).order('created_at',{ascending:false}).limit(1);
+    if(!reps || !reps.length){ const r2 = await supa.from('relatorios').select('*').ilike('atleta', '%'+(a.primeiro_nome||a.nome||'').split(' ')[0]+'%').order('created_at',{ascending:false}).limit(1); reps = r2.data; }
+    const rep = reps && reps[0];
+    let repResumo = 'sem Scout Report';
+    if(rep){
+      const partes = [];
+      for(const k in rep){ const v = rep[k]; if(v !== null && (typeof v === 'number' || (typeof v === 'string' && v.length <= 60)) && !['id','atleta_id','scout_email','created_at'].includes(k)) partes.push(k + ': ' + v); }
+      repResumo = partes.slice(0, 25).join(' · ');
+    }
+    const idade = a.ano_nascimento ? (new Date().getFullYear() - a.ano_nascimento) : 'n/d';
+    const prompt = `És o motor de avaliação da YourTalentBase (futebol jovem, Portugal). Gera rating e narrativa a partir dos dados EXISTENTES (interpretar, nunca inventar).
+
+ATLETA (sem nome): ${a.posicao_principal||'n/d'} · ${a.escalao||'n/d'} · ${idade} anos · ${a.clube_actual||a.clube||'n/d'} · ${a.associacao||'n/d'}
+AVALIAÇÃO POR DIMENSÕES (${av.avaliador_tipo}): impacto ${av.dim_impacto||'n/d'} · compromisso ${av.dim_compromisso||'n/d'} · treinabilidade ${av.dim_treinabilidade||'n/d'} · competitividade ${av.dim_competitividade||'n/d'}
+SCOUT REPORT (dados disponíveis): ${repResumo}
+
+RÉGUA (v1): A+ excecional no escalão · A muito acima · B+ acima · B dentro com potencial · C+ dentro · C a desenvolver · D abaixo. Conservador: A+ e A raros. Treinabilidade e compromisso pesam tanto como impacto.
+NARRATIVA (70-100 palavras, PT-PT, 3ª pessoa, sem nome): identifica as fontes (avaliação do ${av.avaliador_tipo}${rep ? ' + Scout Report' : ''}), contextualiza pela idade/escalão, sem hype, termina com a área prioritária.
+
+Devolve APENAS JSON: {"rating":"B+","narrativa":"..."}`;
+    const r = await fetch('/api/claude', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ prompt: prompt, max_tokens: 450 }) });
+    if(!r.ok) throw new Error('API ' + r.status);
+    const j = await r.json();
+    let txt = ''; (j.content||[]).forEach(c => { if(c.type==='text') txt += c.text; });
+    const m = txt.match(/\{[\s\S]*\}/);
+    const parsed = JSON.parse(m ? m[0] : txt);
+    if(!['A+','A','B+','B','C+','C','D'].includes(parsed.rating) || !parsed.narrativa) throw new Error('resposta IA inválida');
+    const { error: upErr } = await supa.from('atletas_360_avaliacoes').update({ rating: parsed.rating, narrativa_ia: String(parsed.narrativa).slice(0,900) }).eq('id', av.id);
+    if(upErr) throw upErr;
+    alert('✓ Avaliação contextual gerada\n\nRating: ' + parsed.rating + '\n\n' + parsed.narrativa);
+  } catch(e){
+    alert('Não foi possível gerar: ' + (e.message || 'erro'));
+  }
+  if(btn){ btn.disabled = false; btn.textContent = '🧠 Gerar avaliação contextual (IA)'; }
+}
+
 </script>
 
 </body>
