@@ -1117,6 +1117,7 @@ function editarAtleta(id){
 
   const ratings = ['','A+','A','B+','B','C+','C','D'];
   const badges = ['','observado','em-crescimento','hidden-gem','destaque'];
+  const badgeLabels = { '':'— sem estatuto —', 'observado':'👀 Observado', 'em-crescimento':'📈 Em Crescimento', 'hidden-gem':'💎 Hidden Gem', 'destaque':'★ YTB Acompanhado' };
   const areas = ['','tecnico','tactico','fisico','mental'];
   const estados = ['pendente','aprovado','rejeitado','arquivado'];
 
@@ -1153,7 +1154,7 @@ function editarAtleta(id){
           <select class="edit-select" id="e_rating">${ratings.map(r => `<option value="${r}" ${a.rating_geral === r ? 'selected' : ''}>${r || '—'}</option>`).join('')}</select>
         </div>
         <div class="edit-field"><label class="edit-label">Badge estado</label>
-          <select class="edit-select" id="e_badge">${badges.map(b => `<option value="${b}" ${a.badge_estado === b ? 'selected' : ''}>${b || '—'}</option>`).join('')}</select>
+          <select class="edit-select" id="e_badge">${badges.map(b => `<option value="${b}" ${a.badge_estado === b ? 'selected' : ''}>${badgeLabels[b] || b}</option>`).join('')}</select>
         </div>
         <div class="edit-field"><label class="edit-label">Excelência 1</label>
           <select class="edit-select" id="e_ex1">${areas.map(x => `<option value="${x}" ${a.area_excelencia_1 === x ? 'selected' : ''}>${x || '—'}</option>`).join('')}</select>
