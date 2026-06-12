@@ -500,11 +500,35 @@ function abrirReportGuardado(r){
 // ═══════════════════════════════════════════════
 // GERAR REPORT
 // ═══════════════════════════════════════════════
+// R5 · Dedupe com confirmação: devolve UUID (ligar), null (criar novo) ou undefined (cancelar)
+async function confirmarIdentidadeAtleta(nome){
+  try{
+    const{data:cands}=await supa.from('atletas_360')
+      .select('id,nome,ano_nascimento,clube_actual').ilike('nome','%'+nome+'%').limit(5);
+    if(!cands||!cands.length) return null;
+    if(cands.length===1){
+      const c=cands[0];
+      const ok=confirm('Encontrei na base:\n\n'+c.nome+' · '+(c.ano_nascimento||'?')+' · '+(c.clube_actual||'—')+'\n\nOK = este report entra no PASSAPORTE dele (com evolução vs report anterior)\nCancelar = criar registo NOVO');
+      return ok?c.id:null;
+    }
+    const lista=cands.map((c,i)=>(i+1)+') '+c.nome+' · '+(c.ano_nascimento||'?')+' · '+(c.clube_actual||'—')).join('\n');
+    const esc=prompt('Encontrei '+cands.length+' atletas parecidos:\n\n'+lista+'\n\nEscreve o número do atleta certo, 0 para criar novo, ou Cancelar:');
+    if(esc===null) return undefined;
+    const n=parseInt(esc);
+    if(n>=1&&n<=cands.length) return cands[n-1].id;
+    return null;
+  }catch(e){ return null; }
+}
+
 async function gerarReport(){
   const nome=document.getElementById('sr_nome').value.trim();
   if(!nome){alert('Insere o nome do atleta');return}
   const pos=document.getElementById('sr_pos').value;
   if(!pos){alert('Selecciona a posição');return}
+
+  // R5: confirmar identidade ANTES de gastar crédito — dedupe na origem
+  const atletaConfirmado = await confirmarIdentidadeAtleta(nome);
+  if(atletaConfirmado === undefined) return; // scout cancelou
 
   // Gastar 1 crédito NO SERVIDOR (à prova de browser). -1 = sem créditos.
   let restantes=-1;
@@ -581,14 +605,31 @@ async function gerarReport(){
   // Guardar Supabase — nomes alinhados com a tabela real 'relatorios'
   try{
     const r=dados.rating||{};
-    // P0: ligar o report ao UUID do atleta (identidade do passaporte).
-    // Match único → liga; 0 ou vários → null (fica em v_registos_orfaos para revisão).
-    let atletaIdReport=null;
-    try{
-      const{data:cands}=await supa.from('atletas_360')
-        .select('id,nome').ilike('nome',nome).limit(2);
-      if(cands&&cands.length===1)atletaIdReport=cands[0].id;
-    }catch(e2){console.warn('Lookup atleta:',e2)}
+    // R5: identidade confirmada pelo scout no início (dedupe na origem)
+    const atletaIdReport = atletaConfirmado || null;
+    // R5b: evolução vs report anterior do MESMO atleta (a vantagem que o Excel não tem)
+    if(atletaIdReport){
+      try{
+        const{data:ant}=await supa.from('relatorios').select('scores,media_geral,decisao,criado_em,epoca')
+          .eq('atleta_id',atletaIdReport).order('criado_em',{ascending:false}).limit(1);
+        if(ant&&ant.length&&ant[0].scores){
+          const a=ant[0];const subiu=[],desceu=[];
+          Object.keys(scores).forEach(k=>{
+            if(a.scores[k]!=null){
+              if(scores[k]>a.scores[k])subiu.push(k+' ('+a.scores[k]+'→'+scores[k]+')');
+              else if(scores[k]<a.scores[k])desceu.push(k+' ('+a.scores[k]+'→'+scores[k]+')');
+            }
+          });
+          const dataAnt=a.criado_em?new Date(a.criado_em).toLocaleDateString('pt-PT'):'';
+          dados.analise+='\n\n## 5. Evolução vs Report Anterior ('+dataAnt+(a.epoca?' · '+a.epoca:'')+')\n'
+            +'Média geral: '+(a.media_geral!=null?a.media_geral:'—')+' → '+mediaGeral
+            +(a.decisao?' · Recomendação anterior: '+a.decisao:'')+'.\n'
+            +(subiu.length?'Critérios em subida: '+subiu.slice(0,6).join(', ')+'.\n':'')
+            +(desceu.length?'Critérios em descida: '+desceu.slice(0,6).join(', ')+'.\n':'')
+            +((!subiu.length&&!desceu.length)?'Perfil estável face à observação anterior.\n':'');
+        }
+      }catch(e3){console.warn('comparativo:',e3)}
+    }
     const { error } = await supa.from('relatorios').insert({
       scout:        scoutAtual.nome,
       atleta:       nome,

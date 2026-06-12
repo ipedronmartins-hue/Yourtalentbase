@@ -335,6 +335,29 @@ async function carregarAtletas(){
   }
 }
 
+// R6: janela do treinador para o treino extra do plantel (lê as métricas da Família)
+let treinoResumo={};
+async function carregarTreinoExtra(){
+  try{
+    const ids=meusAtletas.map(a=>a.id);
+    if(!ids.length)return;
+    const desde=new Date(Date.now()-30*24*3600*1000).toISOString();
+    const{data:tr}=await supa.from('familia_treinos').select('atleta_id,confianca,created_at').in('atleta_id',ids).gte('created_at',desde);
+    if(!tr)return;
+    const novo={};
+    tr.forEach(t=>{
+      if(!novo[t.atleta_id])novo[t.atleta_id]={n:0,soma:0,c:0};
+      novo[t.atleta_id].n++;
+      if(t.confianca!=null){novo[t.atleta_id].soma+=t.confianca;novo[t.atleta_id].c++;}
+    });
+    Object.keys(novo).forEach(k=>{novo[k].conf=novo[k].c?Math.round(novo[k].soma/novo[k].c):null;});
+    const mudou=JSON.stringify(Object.keys(novo).sort())!==JSON.stringify(Object.keys(treinoResumo).sort());
+    treinoResumo=novo;
+    if(mudou)renderAtletasSemReload();
+  }catch(e){/* sem leitura ainda — silêncio */}
+}
+function renderAtletasSemReload(){const f=renderAtletas;try{f();}catch(e){}}
+
 function renderAtletas(){
   const lista=document.getElementById('lista-atletas');
   document.getElementById('k-atletas').textContent=meusAtletas.length;
@@ -345,11 +368,14 @@ function renderAtletas(){
   lista.innerHTML=meusAtletas.map(a=>{
     const id=idade(a.ano_nascimento);
     const sel=atletaSel&&atletaSel.id===a.id;
+    const tx=treinoResumo[a.id];
+    const badge=tx?('<div style="font-size:10px;color:'+(tx.n>=8?'#00D46A':(tx.n>=3?'#FFA500':'#7a7a7a'))+';margin-top:2px">🏠 '+tx.n+' treinos · 30d'+(tx.conf?(' · conf '+tx.conf):'')+'</div>'):'';
     return '<div class="atleta-card'+(sel?' sel':'')+'" onclick="selecionarAtleta(\''+a.id+'\')">'+
       '<div><div class="atleta-nome">'+esc(a.primeiro_nome||a.nome)+'</div>'+
-      '<div class="atleta-meta">'+(id?('Sub-'+id+' · '):'')+esc(a.clube_actual||'')+'</div></div>'+
+      '<div class="atleta-meta">'+(id?('Sub-'+id+' · '):'')+esc(a.clube_actual||'')+'</div>'+badge+'</div>'+
       '<div class="atleta-arrow">›</div></div>';
   }).join('');
+  carregarTreinoExtra();
 }
 
 function selecionarAtleta(id){
