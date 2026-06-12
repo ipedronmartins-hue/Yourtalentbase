@@ -206,28 +206,44 @@ const CRIT_DEB={
 /* ════════ EXERCÍCIOS CASEIROS (espaço curto, sem grandes remates) ════════ */
 const EXERCICIOS={
   tecnica:[
-    {id:'te1',nome:'Pé fraco · passe à parede',obj:'30 toques limpos',desc:'A 3m de uma parede, passa só com o pé não-dominante e recebe. Espaço de corredor chega.',tempo:8,debs:['tecnica']},
-    {id:'te2',nome:'Toques alternados',obj:'50 sem cair',desc:'Toques direito/esquerdo sem deixar cair. Em casa, num tapete.',tempo:6,debs:['tecnica']},
-    {id:'te3',nome:'Domínio orientado curto',obj:'15 limpos',desc:'Lança contra a parede, recebe e orienta para o lado. Sem chutar forte.',tempo:7,debs:['tecnica']},
-    {id:'te4',nome:'Condução entre cones',obj:'10 idas e voltas',desc:'4 garrafas a 1m. Conduz a bola em ziguezague, toques curtos.',tempo:8,debs:['tecnica']}
+    {id:'te1',nome:'Pé fraco · passe à parede',obj:'30 toques limpos',desc:'A 3m de uma parede, passa só com o pé não-dominante e recebe. Espaço de corredor chega.',tempo:8,nivel:1},
+    {id:'te2',nome:'Toques alternados',obj:'50 sem cair',desc:'Toques direito/esquerdo sem deixar cair. Em casa, num tapete.',tempo:6,nivel:1},
+    {id:'te3',nome:'Domínio orientado curto',obj:'15 limpos',desc:'Lança contra a parede, recebe e orienta para o lado. Sem chutar forte.',tempo:7,nivel:2},
+    {id:'te4',nome:'Condução entre cones',obj:'10 idas e voltas',desc:'4 garrafas a 1m. Conduz em ziguezague, toques curtos.',tempo:8,nivel:1},
+    {id:'te5',nome:'Sola · rolo · arrasto',obj:'3×20 cada',desc:'Trabalho de sola parado: rola para trás, arrasta lateral, alterna pés. Controlo fino.',tempo:7,nivel:2},
+    {id:'te6',nome:'Receção aérea suave',obj:'15 amortecidas',desc:'Atira a bola ao ar, amortece com peito ou peito do pé sem deixar bater no chão.',tempo:8,nivel:3},
+    {id:'te7',nome:'Parede · 1 toque',obj:'40 seguidos',desc:'Passe à parede e devolve a 1 toque, pés sempre vivos. Ritmo de jogo.',tempo:8,nivel:3},
+    {id:'te8',nome:'Circuito 4 gestos',obj:'5 voltas limpas',desc:'Condução → sola → passe à parede → receção orientada, em sequência cronometrada.',tempo:10,nivel:4}
   ],
   fisico:[
-    {id:'fi1',nome:'Skipping no lugar',obj:'4×30s',desc:'Joelhos ao peito, no mesmo sítio. Não precisa de espaço.',tempo:6,debs:['fisico']},
-    {id:'fi2',nome:'Agachamentos',obj:'3×15',desc:'Costas direitas, desce devagar. Força de pernas.',tempo:6,debs:['fisico']},
-    {id:'fi3',nome:'Prancha',obj:'3×30s',desc:'Core estável. No tapete.',tempo:5,debs:['fisico']},
-    {id:'fi4',nome:'Saltos laterais',obj:'4×20',desc:'Salta de lado sobre uma linha. Explosão e coordenação.',tempo:6,debs:['fisico']}
+    {id:'fi1',nome:'Skipping no lugar',obj:'4×30s',desc:'Joelhos ao peito, no mesmo sítio. Não precisa de espaço.',tempo:6,nivel:1},
+    {id:'fi2',nome:'Agachamentos',obj:'3×15',desc:'Costas direitas, desce devagar. Força de pernas.',tempo:6,nivel:1},
+    {id:'fi3',nome:'Prancha',obj:'3×30s',desc:'Core estável. No tapete.',tempo:5,nivel:1},
+    {id:'fi4',nome:'Saltos laterais',obj:'4×20',desc:'Salta de lado sobre uma linha. Explosão e coordenação.',tempo:6,nivel:2},
+    {id:'fi5',nome:'Afundos alternados',obj:'3×10 cada perna',desc:'Passo em frente, joelho a 90º, troca. Força unilateral — a do remate.',tempo:7,nivel:2},
+    {id:'fi6',nome:'Burpees suaves',obj:'3×8',desc:'Agacha, prancha, sobe com salto pequeno. Explosão total do corpo.',tempo:7,nivel:3},
+    {id:'fi7',nome:'Escada imaginária',obj:'4×20s',desc:'Pés rápidos no lugar como numa escada de agilidade: dentro-fora, lateral. Velocidade de apoios.',tempo:6,nivel:4}
   ],
   decisao:[
-    {id:'de1',nome:'Cores ao sinal',obj:'3 séries',desc:'Alguém diz uma cor, tocas no objeto dessa cor com a sola na bola. Decisão rápida.',tempo:7,debs:['decisao']},
-    {id:'de2',nome:'Espelho',obj:'5 min',desc:'Imita os movimentos de alguém à tua frente com a bola nos pés. Reação.',tempo:6,debs:['decisao']}
+    {id:'de1',nome:'Cores ao sinal',obj:'3 séries',desc:'Alguém diz uma cor, tocas no objeto dessa cor com a sola na bola. Decisão rápida.',tempo:7,nivel:1},
+    {id:'de2',nome:'Espelho',obj:'5 min',desc:'Imita os movimentos de alguém à tua frente com a bola nos pés. Reação.',tempo:6,nivel:2},
+    {id:'de3',nome:'Contagem ao toque',obj:'3×1 min',desc:'Faz toques enquanto alguém diz números — repete-os em voz alta sem perder a bola. Cabeça levantada.',tempo:6,nivel:2},
+    {id:'de4',nome:'Elite Coach · 3 cenários',obj:'3 decisões',desc:'Abre o Elite Coach (grátis na YTB) e resolve 3 cenários da tua posição. Decisão sem cansaço.',tempo:8,nivel:3},
+    {id:'de5',nome:'Esquerda-direita ao grito',obj:'4×30s',desc:'Conduz em linha; quando ouvires "esquerda/direita", muda de direção nesse instante. Reação sob fadiga.',tempo:6,nivel:4}
   ],
   tatica:[
-    {id:'ta1',nome:'Vídeo + 3 perguntas',obj:'1 clip',desc:'Vê 5 min de um jogo. O treinador faz 3 perguntas: "porquê este passe?". Leitura de jogo.',tempo:10,debs:['tatica']},
-    {id:'ta2',nome:'Sombra posicional',obj:'5 min',desc:'Sem bola, ocupa a posição certa conforme onde está a bola imaginária. Posicionamento.',tempo:6,debs:['tatica']}
+    {id:'ta1',nome:'Vídeo + 3 perguntas',obj:'1 clip',desc:'Vê 5 min de um jogo. Alguém pergunta: "porquê este passe?". Leitura de jogo.',tempo:10,nivel:1},
+    {id:'ta2',nome:'Sombra posicional',obj:'5 min',desc:'Sem bola, ocupa a posição certa conforme onde está a bola imaginária. Posicionamento.',tempo:6,nivel:2},
+    {id:'ta3',nome:'Narrar o jogo',obj:'5 min de clip',desc:'Vê um lance e narra em voz alta o que cada jogador devia fazer ANTES de acontecer. Antecipação.',tempo:9,nivel:3},
+    {id:'ta4',nome:'Desenhar o lance',obj:'2 lances',desc:'Depois de um jogo teu, desenha num papel um lance que correu mal e a alternativa. Autoanálise.',tempo:8,nivel:4},
+    {id:'ta5',nome:'Scout do adversário',obj:'1 página',desc:'Vê 10 min do próximo adversário (ou de um jogo de TV) e escreve 3 fraquezas que explorarias.',tempo:12,nivel:4}
   ],
   mental:[
-    {id:'me1',nome:'Diário de 1 objetivo',obj:'escrever',desc:'Antes do treino escreve 1 objetivo. Depois avalia se cumpriu. Foco e compromisso.',tempo:4,debs:['mental']},
-    {id:'me2',nome:'Repetir após erro',obj:'10 reps',desc:'Faz um gesto técnico; se falhar, repete sem frustração. Resiliência.',tempo:7,debs:['mental']}
+    {id:'me1',nome:'Diário de 1 objetivo',obj:'escrever',desc:'Antes do treino escreve 1 objetivo. Depois avalia se cumpriu. Foco e compromisso.',tempo:4,nivel:1},
+    {id:'me2',nome:'Repetir após erro',obj:'10 reps',desc:'Faz um gesto técnico; se falhar, repete sem frustração. Resiliência.',tempo:7,nivel:1},
+    {id:'me3',nome:'Respiração 4-4-4',obj:'3 min',desc:'Inspira 4s, segura 4s, expira 4s. A rotina dos penáltis — controlo da pressão.',tempo:4,nivel:2},
+    {id:'me4',nome:'Visualização do jogo',obj:'5 min',desc:'Olhos fechados: imagina 3 lances teus a correr bem no próximo jogo, com detalhe. Confiança preparada.',tempo:5,nivel:3},
+    {id:'me5',nome:'Análise sem desculpas',obj:'pós-jogo',desc:'Depois do jogo escreve: 2 coisas boas, 1 a melhorar, 0 desculpas. Honestidade de atleta.',tempo:6,nivel:4}
   ]
 };
 const CICLOS=[
@@ -536,16 +552,24 @@ async function gerarAvaliacao(){
 /* ════════ TREINO ════════ */
 function gerarPlano(debs){
   const plano=[];
+  // pool das debilidades (com reforço de técnica+físico se escasso)
+  let pool=[];
+  debs.forEach(d=>{ if(EXERCICIOS[d]) pool=pool.concat(EXERCICIOS[d]); });
+  if(pool.length<6){pool=pool.concat(EXERCICIOS.tecnica,EXERCICIOS.fisico);}
+  const vistos=new Set();pool=pool.filter(e=>{if(vistos.has(e.id))return false;vistos.add(e.id);return true;});
+  let cursor=0; // roda o pool ao longo das 12 sessões → sem repetição próxima
   CICLOS.forEach((ciclo,ci)=>{
+    const nivelAlvo=ci+1;
+    // progressão: prioriza o nível do ciclo, aceita vizinhos como fallback
+    const porNivel=pool.slice().sort((a,b)=>Math.abs((a.nivel||1)-nivelAlvo)-Math.abs((b.nivel||1)-nivelAlvo));
     const sessoes=[];
     for(let s=0;s<3;s++){
-      const exs=[];
-      // junta exercícios das debilidades
-      debs.forEach(d=>{ if(EXERCICIOS[d]) EXERCICIOS[d].forEach(e=>exs.push(e)); });
-      // se poucos, completa com técnica e físico
-      if(exs.length<3){EXERCICIOS.tecnica.forEach(e=>exs.push(e));EXERCICIOS.fisico.forEach(e=>exs.push(e));}
       const sessao=[];const usados=new Set();let g=0;
-      while(sessao.length<3 && exs.length && g<50){g++;const ex=exs[(s*3+sessao.length+ci)%exs.length];if(!usados.has(ex.id)){sessao.push(ex);usados.add(ex.id);}if(usados.size>=exs.length)break;}
+      while(sessao.length<3 && g<porNivel.length*2){
+        const ex=porNivel[(cursor+g)%porNivel.length];g++;
+        if(!usados.has(ex.id)){sessao.push(ex);usados.add(ex.id);}
+      }
+      cursor+=3;
       sessoes.push(sessao);
     }
     plano.push({ciclo:ciclo,sessoes:sessoes});
@@ -567,7 +591,8 @@ function renderTreino(){
       '<div style="font-size:11px;color:var(--slate);margin-bottom:10px">'+sem.ciclo.desc+'</div>';
     sem.sessoes.forEach((sess,si)=>{
       const total=sess.reduce((s,e)=>s+e.tempo,0);
-      html+='<div style="font-size:11px;font-weight:800;color:var(--gold);margin:8px 0 6px">Sessão '+(si+1)+' · '+total+' min</div>';
+      html+='<div style="display:flex;align-items:center;justify-content:space-between;margin:8px 0 6px"><span style="font-size:11px;font-weight:800;color:var(--gold)">Sessão '+(si+1)+' · '+total+' min</span>'+
+        '<button onclick="swIniciar('+wi+','+si+')" style="background:transparent;border:1px solid var(--gold);color:var(--gold);border-radius:8px;padding:4px 12px;font-size:11px;font-weight:800;font-family:inherit">▶ Cronometrar</button></div>';
       sess.forEach((ex,ei)=>{
         html+='<div class="ex-card"><div class="ex-card-name">'+(ei+1)+'. '+esc(ex.nome)+'</div>'+
           '<div class="ex-card-obj">🎯 '+esc(ex.obj)+'</div>'+
@@ -579,6 +604,52 @@ function renderTreino(){
   });
   c.innerHTML=html;
 }
+
+/* ════════ CRONÓMETRO DE SESSÃO (stopwatch) ════════ */
+let sw={lista:[],i:0,resta:0,timer:null,pausa:false};
+function swIniciar(wi,si){
+  if(!avalSel||!avalSel.plano)return;
+  sw.lista=avalSel.plano[wi].sessoes[si];sw.i=0;sw.pausa=false;
+  if(!document.getElementById('sw-overlay')){
+    const d=document.createElement('div');d.id='sw-overlay';
+    d.style.cssText='position:fixed;inset:0;background:rgba(5,7,5,.97);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center';
+    d.innerHTML='<div id="sw-prog" style="font-size:12px;color:#888;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px"></div>'+
+      '<div id="sw-nome" style="font-family:\'Barlow Condensed\',sans-serif;font-weight:900;font-size:30px;color:#fff;margin-bottom:6px"></div>'+
+      '<div id="sw-obj" style="font-size:14px;color:#D4AF37;margin-bottom:10px"></div>'+
+      '<div id="sw-desc" style="font-size:13px;color:#aaa;max-width:340px;line-height:1.5;margin-bottom:26px"></div>'+
+      '<div id="sw-tempo" style="font-family:\'Barlow Condensed\',sans-serif;font-weight:900;font-size:96px;color:#D4AF37;line-height:1;margin-bottom:30px">00:00</div>'+
+      '<div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">'+
+      '<button onclick="swPausa()" id="sw-btn-pausa" style="background:transparent;border:1px solid #555;color:#fff;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:800;font-family:inherit">⏸ Pausa</button>'+
+      '<button onclick="swProximo()" style="background:#D4AF37;border:none;color:#000;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:800;font-family:inherit">Próximo →</button>'+
+      '<button onclick="swFechar()" style="background:transparent;border:1px solid #803;color:#f88;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:800;font-family:inherit">✕ Sair</button></div>';
+    document.body.appendChild(d);
+  }
+  document.getElementById('sw-overlay').style.display='flex';
+  swCarregar();
+}
+function swCarregar(){
+  const ex=sw.lista[sw.i];if(!ex){swTerminar();return;}
+  document.getElementById('sw-prog').textContent='Exercício '+(sw.i+1)+' de '+sw.lista.length;
+  document.getElementById('sw-nome').textContent=ex.nome;
+  document.getElementById('sw-obj').textContent='🎯 '+ex.obj;
+  document.getElementById('sw-desc').textContent=ex.desc;
+  sw.resta=ex.tempo*60;swTick();
+  clearInterval(sw.timer);sw.timer=setInterval(()=>{if(!sw.pausa){sw.resta--;swTick();if(sw.resta<=0)swProximo();}},1000);
+}
+function swTick(){
+  const m=Math.max(0,Math.floor(sw.resta/60)),s=Math.max(0,sw.resta%60);
+  document.getElementById('sw-tempo').textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+}
+function swPausa(){sw.pausa=!sw.pausa;document.getElementById('sw-btn-pausa').textContent=sw.pausa?'▶ Retomar':'⏸ Pausa';}
+function swProximo(){try{const ac=new (window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator();o.frequency.value=880;o.connect(ac.destination);o.start();setTimeout(()=>o.stop(),180);}catch(e){}
+  sw.i++;if(sw.i>=sw.lista.length){swTerminar();}else{swCarregar();}}
+function swTerminar(){clearInterval(sw.timer);
+  document.getElementById('sw-nome').textContent='Sessão concluída! 👏';
+  document.getElementById('sw-prog').textContent='Bom trabalho';
+  document.getElementById('sw-obj').textContent='';document.getElementById('sw-desc').textContent='';
+  document.getElementById('sw-tempo').textContent='✓';
+  setTimeout(swFechar,2600);}
+function swFechar(){clearInterval(sw.timer);const d=document.getElementById('sw-overlay');if(d)d.style.display='none';}
 
 /* ════════ COMISSÕES ════════ */
 async function carregarComissoes(){
