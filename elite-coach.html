@@ -691,10 +691,56 @@ function renderFrameInto(playersGroupId, ballGroupId, frame) {
 let activeCenario = null;
 let cenAnimId = null, cenAnimStart = 0, cenAnimating = false;
 
+// ═══ R4 · Ligação ao Passaporte Digital ═══
+const EC_SB_URL = 'https://nhshnplaiolxwcfuijfo.supabase.co/rest/v1/elite_coach_resultados';
+const EC_SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oc2hucGxhaW9seHdjZnVpamZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NDQxNTAsImV4cCI6MjA4OTQyMDE1MH0.uyZiDun8495sjnHA6Wsk-Hou-3lubbNJfQqSYbMLSek';
+let ecAtleta = null;
+(function ecIdentidade(){
+  try {
+    const p = new URLSearchParams(location.search);
+    if(p.get('atleta')){
+      ecAtleta = { id: p.get('atleta'), debs: (p.get('debs')||'').split(',').filter(Boolean), nome: p.get('nome')||'' };
+      localStorage.setItem('ec-atleta', JSON.stringify(ecAtleta));
+    } else {
+      ecAtleta = JSON.parse(localStorage.getItem('ec-atleta')||'null');
+    }
+  } catch(e){ ecAtleta = null; }
+})();
+async function ecGravar(registo){
+  try {
+    const r = await fetch(EC_SB_URL, {
+      method:'POST',
+      headers:{ 'apikey':EC_SB_KEY, 'Authorization':'Bearer '+EC_SB_KEY, 'Content-Type':'application/json', 'Prefer':'return=minimal' },
+      body: JSON.stringify(registo)
+    });
+    if(!r.ok) throw new Error('HTTP '+r.status);
+  } catch(e){
+    try{ const f=JSON.parse(localStorage.getItem('ec-fila')||'[]'); f.push(registo); localStorage.setItem('ec-fila', JSON.stringify(f)); }catch(_){}
+  }
+}
+(async function ecFlush(){
+  let fila=[]; try{ fila=JSON.parse(localStorage.getItem('ec-fila')||'[]'); }catch(_){ return; }
+  if(!fila.length) return;
+  const falhados=[];
+  for(const reg of fila){
+    try{ const r=await fetch(EC_SB_URL,{method:'POST',headers:{'apikey':EC_SB_KEY,'Authorization':'Bearer '+EC_SB_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify(reg)}); if(!r.ok) falhados.push(reg); }
+    catch(e){ falhados.push(reg); }
+  }
+  localStorage.setItem('ec-fila', JSON.stringify(falhados));
+})();
+const EC_DEB_MATCH = { tecnica:['1×1','execução','drible'], decisao:['decisão','passe'], leitura:['leitura'], posicionamento:['posicionamento','profundidade'], mental:['adversidade','emocional','concentração','mentalidade'], pe_fraco:['execução'], fisico:[] };
+function ecRecomendado(c){
+  if(!ecAtleta || !ecAtleta.debs || !ecAtleta.debs.length) return false;
+  const d = (c.debilidade||'').toLowerCase();
+  return ecAtleta.debs.some(k => (EC_DEB_MATCH[k]||[]).some(t => d.includes(t)));
+}
+
 function renderCenarios() {
   const grid = document.getElementById('cenariosGrid');
-  grid.innerHTML = CENARIOS.map((c, i) => `
-    <button class="cen-card" style="border-left-color:${c.cor}" onclick="abrirCenario(${i})">
+  const ordenados = CENARIOS.map((c, i) => ({ c: c, i: i, rec: ecRecomendado(c) })).sort((a, b) => (b.rec?1:0) - (a.rec?1:0));
+  grid.innerHTML = ordenados.map(({c, i, rec}) => `
+    <button class="cen-card" style="border-left-color:${c.cor}${rec ? ';box-shadow:0 0 0 1px #D4AF37 inset' : ''}" onclick="abrirCenario(${i})">
+      ${rec ? '<div style="font-size:9px;font-weight:800;letter-spacing:1px;color:#D4AF37;text-transform:uppercase;margin-bottom:4px">⭐ Recomendado' + (ecAtleta && ecAtleta.nome ? ' para ' + ecAtleta.nome : '') + '</div>' : ''}
       <div class="cen-icon" style="background:${c.cor}22;border-color:${c.cor}55">${c.icon}</div>
       <div class="cen-info">
         <div class="cen-num">Cenário ${String(i+1).padStart(2,'0')}</div>
@@ -790,6 +836,9 @@ function escolher(opcaoId) {
   else { document.getElementById('fbIcon').textContent = '⚠️'; document.getElementById('fbLabel').textContent = 'Decisão Subóptima'; }
   document.getElementById('fbTexto').textContent = o.feedback;
   document.getElementById('fbDica').textContent = activeCenario.dica;
+  if(ecAtleta && ecAtleta.id){
+    ecGravar({ atleta_id: ecAtleta.id, cenario_id: activeCenario.id, correto: !!o.certa, opcao: opcaoId, consequencia: o.consequencia || null, debilidade: activeCenario.debilidade || null, posicao: activeCenario.posicao || null });
+  }
   document.getElementById('fbTreinos').innerHTML = activeCenario.treino.map(t => `<div class="fb-treino">${t}</div>`).join('');
   fb.classList.add('show');
 }
