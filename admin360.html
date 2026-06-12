@@ -200,6 +200,7 @@ tr:last-child td{border-bottom:none}
     <button class="tab" onclick="showTab('relatorios',event)">📄 Relatórios</button>
     <button class="tab" onclick="showTab('atletastreinador',event)">⚽ Atletas Treinador</button>
     <button class="tab" onclick="showTab('clubes',event)">🏢 Clubes</button>
+    <button class="tab" onclick="showTab('contas',event)">👤 Contas</button>
   </div>
 
   <!-- ATLETAS -->
@@ -242,6 +243,17 @@ tr:last-child td{border-bottom:none}
   </div>
 
   <!-- PENDENTES -->
+  <div class="section" id="section-contas">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Nome</th><th>Email</th><th>Papel</th><th>Estado</th><th>Acções</th></tr>
+        </thead>
+        <tbody id="tbody-contas"><tr><td colspan="5" class="loading"><div class="spinner"></div></td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
   <div class="section" id="section-pendentes">
     <div class="table-wrap">
       <table>
@@ -470,6 +482,7 @@ function fmtDate(d){ if(!d) return '—'; return new Date(d).toLocaleDateString(
 function fmtPhone(p){ if(!p) return '—'; return p.replace(/[\s\-\(\)]/g,''); }
 
 function showTab(tab, ev){
+  if(tab === 'contas') carregarContas();
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   ev.currentTarget.classList.add('active');
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
@@ -1336,14 +1349,20 @@ SCOUT REPORT (dados disponíveis): ${repResumo}
 RÉGUA (v1): A+ excecional no escalão · A muito acima · B+ acima · B dentro com potencial · C+ dentro · C a desenvolver · D abaixo. Conservador: A+ e A raros. Treinabilidade e compromisso pesam tanto como impacto.
 NARRATIVA (70-100 palavras, PT-PT, 3ª pessoa, sem nome): identifica as fontes (avaliação do ${av.avaliador_tipo}${rep ? ' + Scout Report' : ''}), contextualiza pela idade/escalão, sem hype, termina com a área prioritária.
 
-Devolve APENAS JSON: {"rating":"B+","narrativa":"..."}`;
-    const r = await fetch('/api/claude', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ prompt: prompt, max_tokens: 450 }) });
+REGRA DE ROBUSTEZ: mesmo com dados parciais ou em falta, escolhe SEMPRE uma letra da régua (na dúvida, sê prudente: B ou C) e declara a limitação na narrativa. Nunca devolvas outra coisa.
+A tua resposta deve COMEÇAR com { e TERMINAR com }. Sem texto antes, sem texto depois, sem markdown: {"rating":"B+","narrativa":"..."}`;
+    const r = await fetch('/api/claude', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ prompt: prompt, max_tokens: 700 }) });
     if(!r.ok) throw new Error('API ' + r.status);
     const j = await r.json();
     let txt = ''; (j.content||[]).forEach(c => { if(c.type==='text') txt += c.text; });
     const m = txt.match(/\{[\s\S]*\}/);
-    const parsed = JSON.parse(m ? m[0] : txt);
-    if(!['A+','A','B+','B','C+','C','D'].includes(parsed.rating) || !parsed.narrativa) throw new Error('resposta IA inválida');
+    let parsed;
+    try { parsed = JSON.parse(m ? m[0] : txt); }
+    catch(pe){ throw new Error('IA não devolveu JSON. Resposta: ' + txt.slice(0,200)); }
+    let letra = String(parsed.rating || '').toUpperCase().replace(/\s+/g,'').replace('PLUS','+');
+    if(letra === 'C-' || letra === 'D+') letra = letra[0];
+    if(!['A+','A','B+','B','C+','C','D'].includes(letra) || !parsed.narrativa) throw new Error('IA devolveu formato inesperado: ' + txt.slice(0,200));
+    parsed.rating = letra;
     const { error: upErr } = await supa.from('atletas_360_avaliacoes').update({ rating: parsed.rating, narrativa_ia: String(parsed.narrativa).slice(0,900) }).eq('id', av.id);
     if(upErr) throw upErr;
     alert('✓ Avaliação contextual gerada\n\nRating: ' + parsed.rating + '\n\n' + parsed.narrativa);
@@ -1351,6 +1370,40 @@ Devolve APENAS JSON: {"rating":"B+","narrativa":"..."}`;
     alert('Não foi possível gerar: ' + (e.message || 'erro'));
   }
   if(btn){ btn.disabled = false; btn.textContent = '🧠 Gerar avaliação contextual (IA)'; }
+}
+
+
+// ═══ Gestão de Contas (bloquear / reativar) ═══
+const CONTAS_PROTEGIDAS = ['ipedronmartins@gmail.com','yourtalentbase@gmail.com'];
+async function carregarContas(){
+  const tb = document.getElementById('tbody-contas');
+  try {
+    const { data: contas, error } = await supa.from('perfis').select('*').order('estado').order('nome');
+    if(error) throw error;
+    if(!contas || !contas.length){ tb.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#7a7a7a;padding:20px">Sem contas registadas.</td></tr>'; return; }
+    tb.innerHTML = contas.map(c => {
+      const protegida = CONTAS_PROTEGIDAS.includes((c.email||'').toLowerCase());
+      const cor = c.estado === 'aprovado' ? '#00D46A' : (c.estado === 'bloqueado' ? '#ff5050' : '#FFA500');
+      let acao = '';
+      if(protegida){ acao = '<span style="font-size:10px;color:#7a7a7a">🔒 protegida</span>'; }
+      else if(c.estado === 'aprovado'){ acao = `<button class="action-btn" style="border-color:rgba(255,80,80,.4);color:#ff5050" onclick="mudarEstadoConta('${c.email}','bloqueado')">🚫 Bloquear</button>`; }
+      else { acao = `<button class="action-btn" onclick="mudarEstadoConta('${c.email}','aprovado')">✓ ${c.estado === 'bloqueado' ? 'Reativar' : 'Aprovar'}</button>`; }
+      return `<tr>
+        <td>${escapeHtml(c.nome || '—')}</td>
+        <td style="font-size:11px">${escapeHtml(c.email || '')}</td>
+        <td>${escapeHtml(c.papel || '—')}</td>
+        <td><span style="color:${cor};font-weight:700;font-size:11px;text-transform:uppercase">${escapeHtml(c.estado || '—')}</span></td>
+        <td>${acao}</td>
+      </tr>`;
+    }).join('');
+  } catch(e){ tb.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#ff5050;padding:20px">Erro a carregar contas: ' + escapeHtml(e.message || '') + '</td></tr>'; }
+}
+async function mudarEstadoConta(email, novoEstado){
+  if(CONTAS_PROTEGIDAS.includes((email||'').toLowerCase())){ alert('Conta protegida — não pode ser alterada.'); return; }
+  if(novoEstado === 'bloqueado' && !confirm('Vais BLOQUEAR o acesso de ' + email + ' a toda a plataforma. Confirmas?')) return;
+  const { error } = await supa.from('perfis').update({ estado: novoEstado }).eq('email', email);
+  if(error){ alert('Não foi possível: ' + (error.message || 'erro')); return; }
+  carregarContas();
 }
 
 </script>
