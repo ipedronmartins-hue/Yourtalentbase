@@ -331,6 +331,26 @@ async function inscreverFilho(){
   if(!assoc){alert('Escolhe a Associação de Futebol');return;}
   const btn=document.getElementById('ins-btn');if(btn){btn.disabled=true;btn.innerHTML='<span class="spinner"></span>';}
   try{
+    // ── Dedupe: o filho já tem passaporte? Liga em vez de duplicar ──
+    const{data:existentes}=await supa.from('atletas_360')
+      .select('id,nome,ano_nascimento,clube_actual').ilike('nome','%'+nome.trim()+'%').eq('ano_nascimento',ano).limit(5);
+    if(existentes&&existentes.length){
+      const c=existentes[0];
+      const ligar=confirm('Já existe um passaporte de '+c.nome+' ('+c.ano_nascimento+' · '+(c.clube_actual||'—')+').\n\nOK = é o teu filho, LIGAR a este passaporte (mantém o histórico)\nCancelar = não é, voltar atrás');
+      if(ligar){
+        await supa.from('atletas_360').update({ encarregado_email:emailInscricao }).eq('id',c.id);
+        atletaId=c.id;
+        nomeAtleta=(c.nome||nome.trim()).split(' ')[0];
+        localStorage.setItem('ytb-atleta-id',c.id);
+        showToast('Ligado ao passaporte de '+c.nome+' ✓',3000);
+        if(btn){btn.disabled=false;btn.innerHTML='Inscrever →';}
+        location.reload();
+        return;
+      } else {
+        if(btn){btn.disabled=false;btn.innerHTML='Inscrever →';}
+        return;
+      }
+    }
     const novoId=crypto.randomUUID();
     const{error}=await supa.from('atletas_360').insert({
       id:novoId,

@@ -429,6 +429,31 @@ async function submeterInscricao(){
   const btn=document.getElementById('insc-btn');btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;
   if(!USING_SB){showToast('Demo: inscrição não gravada');fecharInscricao();btn.innerHTML='Inscrever →';btn.disabled=false;return;}
   try{
+    // ── Dedupe: o atleta já tem passaporte? Liga em vez de duplicar ──
+    const{data:existentes}=await supa.from('atletas_360')
+      .select('id,nome,ano_nascimento,clube_actual,fonte_email')
+      .ilike('nome','%'+nome+'%').eq('ano_nascimento',ano).limit(5);
+    if(existentes&&existentes.length){
+      const c=existentes[0];
+      const jaMeu=c.fonte_email===treinadorEmail;
+      const msg=jaMeu
+        ? c.nome+' ('+c.ano_nascimento+') já está no teu plantel. Não foi criado outro.'
+        : 'Já existe passaporte de '+c.nome+' ('+c.ano_nascimento+' · '+(c.clube_actual||'—')+').\n\nOK = LIGAR-te ao passaporte existente (recomendado — mantém o histórico)\nCancelar = não inscrever';
+      if(jaMeu){ showToast(msg,4000); fecharInscricao(); btn.innerHTML='Inscrever →'; btn.disabled=false; carregarAtletas(); return; }
+      const ligar=confirm(msg);
+      if(!ligar){ btn.innerHTML='Inscrever →'; btn.disabled=false; return; }
+      // Liga: associa este treinador ao atleta existente (sem duplicar)
+      const{error:upErr}=await supa.from('atletas_360')
+        .update({ fonte:'treinador', fonte_nome:treinadorNome, fonte_email:treinadorEmail, encarregado_email:emailEnc||c.fonte_email||null })
+        .eq('id',c.id);
+      if(upErr)throw upErr;
+      showToast('Ligado ao passaporte de '+c.nome+' ✓',3500);
+      fecharInscricao();
+      document.getElementById('insc-nome').value='';document.getElementById('insc-ano').value='';document.getElementById('insc-clube').value='';document.getElementById('insc-email').value='';
+      carregarAtletas();
+      btn.innerHTML='Inscrever →'; btn.disabled=false;
+      return;
+    }
     const{error:insErr}=await supa.from('atletas_360').insert({
       id:crypto.randomUUID(),
       nome:nome, primeiro_nome:nome.split(' ')[0], ano_nascimento:ano,
