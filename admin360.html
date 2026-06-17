@@ -201,6 +201,7 @@ tr:last-child td{border-bottom:none}
     <button class="tab" onclick="showTab('atletastreinador',event)">⚽ Atletas Treinador</button>
     <button class="tab" onclick="showTab('clubes',event)">🏢 Clubes</button>
     <button class="tab" onclick="showTab('contas',event)">👤 Contas</button>
+    <button class="tab" onclick="showTab('comissoes',event)">💶 Comissões</button>
   </div>
 
   <!-- ATLETAS -->
@@ -243,6 +244,27 @@ tr:last-child td{border-bottom:none}
   </div>
 
   <!-- PENDENTES -->
+  <div class="section" id="section-comissoes">
+    <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px">
+      <div style="flex:1;min-width:160px;background:#161B16;border:1px solid #2a2f28;border-radius:10px;padding:14px">
+        <div style="font-size:11px;color:#8A958A;text-transform:uppercase;letter-spacing:1px">A pagar aos treinadores</div>
+        <div id="com-total-pend" style="font-size:28px;font-weight:800;color:#E8A33D;margin-top:4px">—</div>
+      </div>
+      <div style="flex:1;min-width:160px;background:#161B16;border:1px solid #2a2f28;border-radius:10px;padding:14px">
+        <div style="font-size:11px;color:#8A958A;text-transform:uppercase;letter-spacing:1px">Já pago</div>
+        <div id="com-total-pago" style="font-size:28px;font-weight:800;color:#27AE60;margin-top:4px">—</div>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Treinador</th><th>Atleta</th><th>Tipo</th><th>Comissão</th><th>Mês</th><th>Estado</th><th>Acção</th></tr>
+        </thead>
+        <tbody id="tbody-comissoes"><tr><td colspan="7" class="loading"><div class="spinner"></div></td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
   <div class="section" id="section-contas">
     <div class="table-wrap">
       <table>
@@ -483,6 +505,7 @@ function fmtPhone(p){ if(!p) return '—'; return p.replace(/[\s\-\(\)]/g,''); }
 
 function showTab(tab, ev){
   if(tab === 'contas') carregarContas();
+  if(tab === 'comissoes') carregarComissoes();
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   ev.currentTarget.classList.add('active');
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
@@ -1404,6 +1427,44 @@ async function mudarEstadoConta(email, novoEstado){
   const { error } = await supa.from('perfis').update({ estado: novoEstado }).eq('email', email);
   if(error){ alert('Não foi possível: ' + (error.message || 'erro')); return; }
   carregarContas();
+}
+
+
+// ═══ Comissões: ver quem receber, marcar como pago ═══
+async function carregarComissoes(){
+  const tb = document.getElementById('tbody-comissoes');
+  try {
+    const { data: coms, error } = await supa.from('comissoes').select('*').order('pago_ao_treinador').order('criado_em', { ascending: false });
+    if(error) throw error;
+    if(!coms || !coms.length){ tb.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#7a7a7a;padding:20px">Ainda não há comissões registadas.</td></tr>'; document.getElementById('com-total-pend').textContent='0,00€'; document.getElementById('com-total-pago').textContent='0,00€'; return; }
+    let pend=0, pago=0;
+    coms.forEach(c => { const v=Number(c.comissao||0); if(c.pago_ao_treinador) pago+=v; else pend+=v; });
+    document.getElementById('com-total-pend').textContent = pend.toFixed(2).replace('.',',')+'€';
+    document.getElementById('com-total-pago').textContent = pago.toFixed(2).replace('.',',')+'€';
+    tb.innerHTML = coms.map(c => {
+      const v = Number(c.comissao||0).toFixed(2).replace('.',',')+'€';
+      const estado = c.pago_ao_treinador
+        ? '<span style="color:#27AE60;font-weight:700;font-size:11px">✓ PAGO</span>'
+        : '<span style="color:#E8A33D;font-weight:700;font-size:11px">POR PAGAR</span>';
+      const acao = c.pago_ao_treinador
+        ? `<button class="action-btn" style="border-color:#444;color:#999" onclick="marcarComissao('${c.id}', false)">↩ Reverter</button>`
+        : `<button class="action-btn" onclick="marcarComissao('${c.id}', true)">✓ Marcar paga</button>`;
+      return `<tr>
+        <td style="font-size:11px">${escapeHtml(c.treinador_email||'—')}</td>
+        <td>${escapeHtml(c.atleta_nome||'—')}</td>
+        <td><span style="font-size:11px;text-transform:uppercase">${escapeHtml(c.tipo||'—')}</span></td>
+        <td style="font-weight:700;color:#D4AF37">${v}</td>
+        <td style="font-size:11px">${escapeHtml(c.mes||'—')}</td>
+        <td>${estado}</td>
+        <td>${acao}</td>
+      </tr>`;
+    }).join('');
+  } catch(e){ tb.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#ff5050;padding:20px">Erro: ' + escapeHtml(e.message||'') + '</td></tr>'; }
+}
+async function marcarComissao(id, pago){
+  const { error } = await supa.from('comissoes').update({ pago_ao_treinador: pago }).eq('id', id);
+  if(error){ alert('Não foi possível: ' + (error.message||'erro')); return; }
+  carregarComissoes();
 }
 
 </script>
