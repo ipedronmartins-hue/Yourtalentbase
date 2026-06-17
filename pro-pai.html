@@ -148,7 +148,9 @@ body{max-width:520px;margin:0 auto;padding-bottom:60px}
 const SUPABASE_URL=(window.YTB_CONFIG&&window.YTB_CONFIG.SUPABASE_URL)||'';
 const SUPABASE_ANON_KEY=(window.YTB_CONFIG&&window.YTB_CONFIG.SUPABASE_KEY)||'';
 const USING_SB=!!(SUPABASE_URL&&SUPABASE_ANON_KEY);
-const supa=USING_SB?window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY):null;
+const supa=USING_SB?window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{
+  auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, storageKey:'ytb-auth', flowType:'pkce' }
+}):null;
 
 // ═══ QUESTIONÁRIO CRUZADO (12) ═══
 const PERGUNTAS=[
