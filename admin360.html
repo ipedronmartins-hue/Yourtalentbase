@@ -443,7 +443,9 @@ tr:last-child td{border-bottom:none}
 <script>
 const SUPABASE_URL = 'https://nhshnplaiolxwcfuijfo.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oc2hucGxhaW9seHdjZnVpamZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NDQxNTAsImV4cCI6MjA4OTQyMDE1MH0.uyZiDun8495sjnHA6Wsk-Hou-3lubbNJfQqSYbMLSek';
-const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, storageKey:'ytb-auth', flowType:'pkce' }
+});
 
 // ════════════ AUTH GATE · SUPABASE AUTH REAL ════════════
 // Verifica sessao Auth + confirma papel 'admin' na tabela perfis.
@@ -455,23 +457,34 @@ async function verificarAdmin(){
     return false;
   }
 
-  // Confirmar que este utilizador e admin (tabela perfis)
-  const { data: perfil, error: ePerfil } = await supa
-    .from('perfis')
-    .select('papel, estado, nome')
-    .eq('id', session.user.id)
-    .maybeSingle();
+  // Confirmar admin: procura por id E por email (o registo em perfis pode ter id != auth.user.id)
+  const email = (session.user.email||'').toLowerCase();
+  let perfil = null;
+  try {
+    const r1 = await supa.from('perfis').select('papel, estado, nome').eq('id', session.user.id).maybeSingle();
+    perfil = r1.data;
+    if(!perfil && email){
+      const r2 = await supa.from('perfis').select('papel, estado, nome').eq('email', email).maybeSingle();
+      perfil = r2.data;
+    }
+  } catch(e){ /* tenta na mesma com o que houver */ }
 
-  if(ePerfil || !perfil){
-    alert('Perfil nao encontrado. Contacta o administrador.');
-    await supa.auth.signOut();
+  // Conta-mestra: nunca trancar o fundador fora por desencontro de perfil
+  const MESTRE = ['ipedronmartins@gmail.com','yourtalentbase@gmail.com'];
+  if(!perfil && MESTRE.includes(email)){
+    window.YTB_ADMIN = { id: session.user.id, nome: 'Admin', email: email };
+    return true;
+  }
+
+  if(!perfil){
+    alert('Perfil nao encontrado para ' + email + '. Contacta o administrador.');
     window.location.href = 'auth.html';
     return false;
   }
 
-  if(perfil.papel !== 'admin' || perfil.estado !== 'aprovado'){
+  const ehAdmin = perfil.papel === 'admin' || MESTRE.includes(email);
+  if(!ehAdmin || (perfil.estado && perfil.estado !== 'aprovado' && !MESTRE.includes(email))){
     alert('Acesso restrito a administradores.');
-    await supa.auth.signOut();
     window.location.href = 'auth.html';
     return false;
   }
