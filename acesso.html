@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#080C08">
+<title>Passaporte do Atleta · Acesso da família</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="ytb.css">
+<style>
+  
+  *{box-sizing:border-box; margin:0; padding:0}
+  html,body{height:100%}
+  body{
+    background:
+      radial-gradient(1200px 600px at 50% -10%, #0E140E 0%, var(--bg) 60%);
+    color:var(--text);
+    font-family:'Plus Jakarta Sans',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    display:flex; align-items:center; justify-content:center;
+    padding:24px; min-height:100dvh;
+  }
+  .card{
+    width:100%; max-width:380px;
+    background:linear-gradient(180deg,var(--bg2),var(--bg2) 70%,#0C110C);
+    border:1px solid var(--border); border-radius:20px;
+    padding:34px 28px 26px;
+    box-shadow:0 30px 80px -40px #000, inset 0 1px 0 #ffffff08;
+  }
+  /* ── Selo (assinatura): o único lugar com ouro ── */
+  .seal{
+    width:54px; height:54px; margin:0 auto 18px;
+    border:1.5px solid var(--gold); border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    color:var(--gold);
+    box-shadow:0 0 0 4px #D4AF3712, inset 0 0 18px #D4AF3710;
+    transition:transform .4s cubic-bezier(.2,.8,.2,1), border-color .3s, color .3s;
+  }
+  .seal svg{width:24px; height:24px; display:block}
+  .seal .ico-check{display:none}
+  body.is-ok .seal{color:var(--green); border-color:var(--green); box-shadow:0 0 0 4px #00D46A12, inset 0 0 18px #00D46A12}
+  body.is-ok .seal .ico-lock{display:none}
+  body.is-ok .seal .ico-check{display:block}
+
+  .eyebrow{
+    font-family:'Barlow Condensed',sans-serif; font-weight:700;
+    text-transform:uppercase; letter-spacing:.22em;
+    font-size:11px; color:var(--muted); text-align:center;
+  }
+  h1{
+    font-family:'Barlow Condensed',sans-serif; font-weight:800;
+    font-size:26px; line-height:1.05; text-transform:uppercase;
+    letter-spacing:.01em; text-align:center; margin:4px 0 22px;
+  }
+  .step{display:none}
+  .step.active{display:block; animation:rise .35s ease both}
+  @keyframes rise{from{opacity:0; transform:translateY(6px)}to{opacity:1; transform:none}}
+
+  label{
+    display:block; font-size:11px; font-weight:600; letter-spacing:.08em;
+    text-transform:uppercase; color:var(--slate); margin:0 0 7px 2px;
+  }
+  .field{margin-bottom:16px}
+  input{
+    width:100%; background:var(--bg); color:var(--text);
+    border:1px solid var(--border); border-radius:12px;
+    padding:15px 16px; font-family:inherit; font-size:16px;
+    transition:border-color .2s, box-shadow .2s; outline:none;
+  }
+  input::placeholder{color:#3C443D}
+  input:focus-visible{border-color:var(--gold); box-shadow:0 0 0 3px #D4AF3722}
+  #f-id{font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:20px; letter-spacing:.14em; text-transform:uppercase}
+  #f-pin{font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:22px; letter-spacing:.5em; text-align:center}
+
+  .btn{
+    width:100%; border:none; border-radius:12px; cursor:pointer;
+    padding:16px; font-family:'Barlow Condensed',sans-serif; font-weight:800;
+    font-size:17px; text-transform:uppercase; letter-spacing:.08em;
+    background:var(--gold); color:#1A1400;
+    transition:transform .12s, filter .2s; margin-top:4px;
+  }
+  .btn:hover{filter:brightness(1.06)}
+  .btn:active{transform:scale(.985)}
+  .btn[disabled]{opacity:.5; cursor:default; transform:none}
+  .btn.ghost{background:transparent; color:var(--slate); border:1px solid var(--border)}
+  .btn.ghost:hover{filter:none; color:var(--text); border-color:#2C342C}
+
+  .hint{font-size:12.5px; color:var(--muted); text-align:center; margin-top:16px; line-height:1.5}
+  .msg{
+    font-size:13px; line-height:1.45; border-radius:10px; padding:11px 13px;
+    margin-bottom:14px; display:none;
+  }
+  .msg.show{display:block}
+  .msg.err{background:#FF50500F; border:1px solid #FF505033; color:#FF8A8A}
+
+  /* consentimento */
+  .consent-name{
+    font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:22px;
+    color:var(--gold); text-align:center; text-transform:uppercase; letter-spacing:.02em;
+    margin:-6px 0 14px;
+  }
+  .consent-body{font-size:13.5px; line-height:1.6; color:#C7CEC6; background:var(--bg); border:1px solid var(--border); border-radius:12px; padding:15px; margin-bottom:16px}
+  .consent-body strong{color:var(--text); font-weight:600}
+  .consent-body .li{display:flex; gap:9px; margin-top:9px}
+  .consent-body .li::before{content:""; flex:0 0 6px; height:6px; margin-top:6px; border-radius:50%; background:var(--gold)}
+
+  .success-sub{text-align:center; color:var(--slate); font-size:14px; line-height:1.55; margin-top:-8px}
+  .success-sub b{color:var(--text); font-weight:600}
+
+  .demo{
+    margin-top:18px; text-align:center; font-size:11px; letter-spacing:.06em;
+    text-transform:uppercase; color:var(--muted);
+  }
+  .demo b{color:var(--gold); font-weight:700}
+  .spin{display:inline-block; width:15px; height:15px; border:2px solid #1A1400; border-top-color:transparent; border-radius:50%; animation:sp .7s linear infinite; vertical-align:-2px; margin-right:7px}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  @media (prefers-reduced-motion: reduce){*{animation:none !important; transition:none !important}}
+</style>
+</head>
+<body>
+  <main class="card" role="main">
+    <div class="seal" aria-hidden="true">
+      <svg class="ico-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2.2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/><circle cx="12" cy="15.3" r="1.1" fill="currentColor" stroke="none"/></svg>
+      <svg class="ico-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+    </div>
+
+    <!-- PASSO 1 · ENTRADA -->
+    <section id="step-entrada" class="step active" aria-labelledby="t-entrada">
+      <p class="eyebrow">Passaporte do atleta</p>
+      <h1 id="t-entrada">Acesso da família</h1>
+
+      <div id="msg-entrada" class="msg err" role="alert" aria-live="assertive"></div>
+
+      <div class="field">
+        <label for="f-id">ID do atleta</label>
+        <input id="f-id" inputmode="text" autocomplete="off" autocapitalize="characters"
+               spellcheck="false" placeholder="YTB-XXXXX" maxlength="9" aria-describedby="hint-entrada">
+      </div>
+      <div class="field">
+        <label for="f-pin">PIN</label>
+        <input id="f-pin" inputmode="numeric" autocomplete="off" type="password"
+               placeholder="••••••" maxlength="6" aria-describedby="hint-entrada">
+      </div>
+
+      <button id="btn-entrar" class="btn">Entrar</button>
+      <p id="hint-entrada" class="hint">Sem acesso? Pede o ID e o PIN ao treinador do teu filho.</p>
+    </section>
+
+    <!-- PASSO 2 · CONSENTIMENTO (1ª entrada) -->
+    <section id="step-consentimento" class="step" aria-labelledby="t-consent">
+      <p class="eyebrow">Primeiro acesso</p>
+      <h1 id="t-consent">Autorização</h1>
+      <p class="consent-name" id="consent-name">—</p>
+
+      <div class="consent-body">
+        Estás a ativar o passaporte digital deste atleta. Antes de entrar, precisamos da tua autorização como encarregado de educação:
+        <div class="li">O <strong>passaporte pertence ao atleta</strong> e acompanha-o ao longo do percurso.</div>
+        <div class="li">Os dados servem para <strong>registar e mostrar a evolução desportiva</strong> — avaliações, treino e marcos.</div>
+        <div class="li">Podes <strong>revogar</strong> esta autorização a qualquer momento.</div>
+      </div>
+
+      <button id="btn-consentir" class="btn">Autorizar e entrar</button>
+      <button id="btn-voltar" class="btn ghost" style="margin-top:10px">Voltar</button>
+    </section>
+
+    <!-- PASSO 3 · SUCESSO -->
+    <section id="step-sucesso" class="step" aria-labelledby="t-sucesso">
+      <p class="eyebrow">Sessão iniciada</p>
+      <h1 id="t-sucesso">Bem-vindo</h1>
+      <p class="success-sub">A abrir o passaporte de <b id="sucesso-nome">—</b>…</p>
+    </section>
+
+    <p class="demo" id="demo-banner" hidden>Modo <b>demonstração</b> — sem ligação à base de dados</p>
+  </main>
+
+<script>
+(function(){
+  "use strict";
+  // ── Configuração (mesmo padrão das restantes páginas) ──
+  var CFG = window.YTB_CONFIG || {};
+  var SUPABASE_URL = CFG.SUPABASE_URL || '';
+  var SUPABASE_KEY = CFG.SUPABASE_KEY || '';
+  var USING_SB = !!(SUPABASE_URL && SUPABASE_KEY && window.supabase);
+  var supa = USING_SB ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+
+  var CONSENT_VERSION = 'v1';
+  var PASSAPORTE_URL  = 'passaporte.html';   // FASE 3 (a construir)
+
+  var pend = { id:null, nome:'', token:null };
+
+  // ── Elementos ──
+  var $ = function(s){ return document.getElementById(s); };
+  var elId=$('f-id'), elPin=$('f-pin'), btnEntrar=$('btn-entrar'),
+      btnConsent=$('btn-consentir'), btnVoltar=$('btn-voltar'),
+      msgEntrada=$('msg-entrada');
+
+  if(!USING_SB){ var db=$('demo-banner'); if(db) db.hidden=false; }
+
+  // ── Navegação entre passos ──
+  function show(name){
+    ['entrada','consentimento','sucesso'].forEach(function(n){
+      $('step-'+n).classList.toggle('active', n===name);
+    });
+    if(name==='consentimento'){ setTimeout(function(){ btnConsent.focus(); },50); }
+  }
+  function err(text){ msgEntrada.textContent=text; msgEntrada.classList.add('show'); }
+  function clearErr(){ msgEntrada.classList.remove('show'); }
+  function loading(btn,on,label){
+    btn.disabled=on;
+    btn.innerHTML = on ? '<span class="spin"></span>'+(label||'Aguarda…') : btn.dataset.label;
+  }
+  [btnEntrar,btnConsent].forEach(function(b){ b.dataset.label=b.textContent; });
+
+  // ── Normalização dos campos ──
+  elId.addEventListener('input', function(){
+    var v=elId.value.toUpperCase().replace(/[^A-Z0-9-]/g,'');
+    elId.value=v; clearErr();
+  });
+  elPin.addEventListener('input', function(){
+    elPin.value=elPin.value.replace(/\D/g,'').slice(0,6); clearErr();
+  });
+  elPin.addEventListener('keydown', function(e){ if(e.key==='Enter') doLogin(); });
+  elId.addEventListener('keydown', function(e){ if(e.key==='Enter') elPin.focus(); });
+
+  function normId(v){
+    v=(v||'').trim().toUpperCase();
+    if(v && v.indexOf('YTB-')!==0) v='YTB-'+v.replace(/^YTB/,'');
+    return v;
+  }
+
+  // ── LOGIN ──
+  btnEntrar.addEventListener('click', doLogin);
+  function doLogin(){
+    clearErr();
+    var id=normId(elId.value), pin=elPin.value;
+    if(id.length<5){ err('Escreve o ID do atleta (ex.: YTB-AB3CD).'); elId.focus(); return; }
+    if(pin.length!==6){ err('O PIN tem 6 dígitos.'); elPin.focus(); return; }
+
+    loading(btnEntrar,true,'A entrar…');
+
+    if(!USING_SB){            // modo demonstração
+      setTimeout(function(){
+        loading(btnEntrar,false);
+        pend={ id:'demo', nome:(id.replace('YTB-','')||'Atleta')+' (demo)', token:'demo' };
+        $('consent-name').textContent=pend.nome;
+        show('consentimento');   // demo: mostra sempre a 1ª entrada
+      },550);
+      return;
+    }
+
+    supa.rpc('ytb_acesso',{ p_id_publico:id, p_pin:pin }).then(function(res){
+      loading(btnEntrar,false);
+      if(res.error){ err('Não foi possível entrar agora. Tenta novamente.'); return; }
+      var row=(res.data&&res.data[0])||null;
+      if(!row){ err('ID ou PIN incorreto. Verifica e tenta de novo.'); return; }
+
+      if(row.status==='bloqueado'){ err('Demasiadas tentativas. Aguarda uns minutos antes de tentar de novo.'); return; }
+      if(row.status!=='ok'){ err('ID ou PIN incorreto. Verifica e tenta de novo.'); return; }
+
+      pend={ id:row.atleta_id, nome:row.nome||'o teu atleta', token:row.token };
+      if(row.consentido){ goSuccess(); }          // já consentiu → entra direto
+      else { $('consent-name').textContent=pend.nome; show('consentimento'); }  // 1ª entrada
+    }).catch(function(){
+      loading(btnEntrar,false);
+      err('Sem ligação. Verifica a internet e tenta de novo.');
+    });
+  }
+
+  // ── CONSENTIMENTO ──
+  btnVoltar.addEventListener('click', function(){ show('entrada'); elId.focus(); });
+  btnConsent.addEventListener('click', function(){
+    loading(btnConsent,true,'A ativar…');
+    if(!USING_SB){ setTimeout(function(){ loading(btnConsent,false); goSuccess(); },550); return; }
+
+    supa.rpc('ytb_consentir',{ p_token:pend.token, p_versao:CONSENT_VERSION }).then(function(res){
+      loading(btnConsent,false);
+      if(res.error){ alert('Não foi possível registar a autorização. Tenta novamente.'); return; }
+      goSuccess();
+    }).catch(function(){
+      loading(btnConsent,false);
+      alert('Sem ligação. Verifica a internet e tenta de novo.');
+    });
+  });
+
+  // ── SUCESSO ──
+  function goSuccess(){
+    document.body.classList.add('is-ok');     // o selo torna-se verde ✓
+    $('sucesso-nome').textContent=pend.nome;
+    show('sucesso');
+    if(!USING_SB){
+      $('sucesso-nome').insertAdjacentText('afterend',' — fim da demonstração');
+      return;
+    }
+    try{ sessionStorage.setItem('ytb_sessao', pend.token); }catch(e){}
+    var url = PASSAPORTE_URL + (pend.token ? ('?s=' + encodeURIComponent(pend.token)) : '');
+    setTimeout(function(){ window.location.href = url; }, 1100);
+  }
+})();
+</script>
+</body>
+</html>

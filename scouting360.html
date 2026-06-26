@@ -2,664 +2,239 @@
 <html lang="pt">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Scouting 360 · BD Nacional do Talento Jovem · YourTalentBase</title>
-<meta name="description" content="A base de dados nacional de scouting de futebol juvenil português. Sub-10 a Seniores. Análise contextual profissional para clubes.">
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,700;0,800;0,900;1,900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#080C08">
+<title>Scouting360 · Descoberta</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="/assets/js/ytb-nota-automatica.js"></script>
+<link rel="stylesheet" href="ytb.css">
 <style>
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-:root{
-  --bg:#080C08;--bg2:#0F1410;--bg3:#161D17;
-  --gold:#D4AF37;--gold-soft:rgba(212,175,55,.15);--gold-border:rgba(212,175,55,.3);
-  --gold-bright:#F5C842;--gold-deep:#A8862C;
-  --green:#00D46A;--orange:#FFA500;--red:#FF4A4A;--blue:#4A9FE8;--purple:#A78BFA;
-  --silver:#C0C0C0;--bronze:#CD7F32;
-  --border:#1F2520;--white:#fff;--slate:#aaa;--muted:#666;
-}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:#fff;min-height:100vh;-webkit-font-smoothing:antialiased}
+  
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.5;padding-bottom:50px}
+  .num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+  .wrap{max-width:540px;margin:0 auto;padding:0 16px}
+  .top{position:sticky;top:0;z-index:20;background:#080C08F2;backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
+  .top .wrap{display:flex;align-items:center;gap:10px;height:54px}
+  .mono{font-family:'Barlow Condensed',sans-serif;font-weight:900;letter-spacing:.06em;font-size:18px;color:var(--gold)}
+  .top .ttl{flex:1;font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;letter-spacing:.05em;font-size:16px}
+  .lead{margin-top:16px}
+  .lead .h{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:22px;text-transform:uppercase;letter-spacing:.01em;line-height:1}
+  .lead .s{font-size:12.5px;color:var(--slate);margin-top:5px}
 
-.nav{position:sticky;top:0;z-index:50;background:rgba(8,12,8,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
-.nav-inner{max-width:1280px;margin:0 auto;padding:14px 18px;display:flex;align-items:center;justify-content:space-between}
-.nav-l{display:flex;align-items:center;gap:14px}
-.logo{display:flex;align-items:center;gap:10px;text-decoration:none}
-.logo-b{width:32px;height:32px;background:var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:900;font-size:13px;color:#000}
-.logo-n{font-family:'Barlow Condensed';font-weight:800;font-size:17px;letter-spacing:2px;color:#fff}
-.logo-n span{color:var(--gold)}
-.nav-tag{font-size:10px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;padding:3px 8px;border:1px solid var(--gold-border);background:rgba(212,175,55,.06)}
-.nav-cta{font-size:10px;font-weight:800;letter-spacing:1.5px;color:#000;background:var(--gold);text-transform:uppercase;padding:8px 14px;text-decoration:none;font-family:'Barlow Condensed'}
+  /* seletor de ordenação */
+  .sorts{display:flex;gap:7px;overflow-x:auto;padding:14px 0 4px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .sorts::-webkit-scrollbar{display:none}
+  .chip{flex:0 0 auto;background:var(--bg3);border:1px solid var(--border);color:var(--slate);border-radius:999px;padding:8px 14px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:12px;letter-spacing:.8px;text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:.15s}
+  .chip:hover{color:var(--text);border-color:var(--border2)}
+  .chip.on{color:var(--up);border-color:rgba(0,212,106,.4);background:rgba(0,212,106,.08)}
 
-.container{max-width:1280px;margin:0 auto;padding:0 18px}
+  /* cartão (padrão aprovado) */
+  .card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:15px 16px 0;margin-bottom:13px;overflow:hidden;transition:border-color .2s,transform .2s}
+  .card:hover{border-color:var(--border2);transform:translateY(-1px)}
+  .head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:11px;min-height:20px}
+  .rank{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:13px;color:var(--muted);letter-spacing:1px}
+  .rank.top{color:var(--gold)}
+  .seal{display:inline-flex;align-items:center;gap:5px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:10px;letter-spacing:.8px;text-transform:uppercase;color:var(--gold);background:var(--gold-soft);border:1px solid var(--gold-border);border-radius:999px;padding:4px 9px;white-space:nowrap}
+  .seal.unv{color:var(--slate);background:var(--bg4);border-color:var(--border2)}
+  .who-row{display:flex;align-items:flex-start;gap:12px}
+  .avatar{flex:0 0 auto;width:46px;height:46px;border-radius:50%;background:var(--bg4);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:16px;color:var(--slate)}
+  .who{flex:1;min-width:0;padding-top:1px}
+  .who .nm{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:19px;line-height:1.05;letter-spacing:.2px}
+  .who .mt{font-size:12px;color:var(--slate);margin-top:3px}
+  .who .mt .pos{display:inline-block;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:11px;letter-spacing:.5px;color:var(--text);background:var(--bg4);border:1px solid var(--border2);border-radius:6px;padding:1px 7px;margin-right:6px}
 
-.hero{padding:22px 0 16px;display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;text-align:left;border-bottom:1px solid var(--border);margin-bottom:6px}
-.hero-l{flex:1;min-width:240px}
-.eyebrow{font-size:10px;font-weight:800;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:6px}
-.h1{font-family:'Barlow Condensed';font-weight:900;font-size:clamp(24px,4vw,34px);line-height:1.06;letter-spacing:-.5px;margin-bottom:6px}
-.h1 em{color:var(--gold);font-style:italic}
-.sub{font-size:13px;color:var(--slate);max-width:600px;margin:0;line-height:1.55}
-.sub strong{color:#fff}
+  .spark{margin:12px 0 4px}
+  svg.sp{display:block;width:100%;height:34px;overflow:visible}
 
-.hero-stats{display:flex;justify-content:flex-end;gap:22px;flex-wrap:wrap;margin-bottom:4px}
-.hero-stat{text-align:center}
-.hero-stat-n{font-family:'Barlow Condensed';font-weight:900;font-size:24px;color:var(--gold);line-height:1}
-.hero-stat-l{font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-top:4px;font-weight:700}
+  .mx{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin-top:6px}
+  .mt-cell{text-align:center;padding:7px 2px 9px;border-radius:8px}
+  .mt-cell .v{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:21px;line-height:1}
+  .mt-cell .l{font-size:9px;text-transform:uppercase;letter-spacing:.9px;color:var(--slate);margin-top:4px}
+  .mt-cell.on{background:var(--bg3)}
+  .mt-cell.on .v,.mt-cell.on .l{color:var(--up)}
 
-/* FIFA CARDS · destaques */
-.section-destaques{padding:10px 0 30px;border-top:1px solid var(--border)}
-.sec-head{text-align:center;margin-bottom:24px;padding-top:30px}
-.sec-eye{font-size:10px;font-weight:800;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:5px}
-.sec-h2{font-family:'Barlow Condensed';font-weight:900;font-size:clamp(26px,4vw,38px);line-height:1;letter-spacing:-.8px;margin-bottom:8px}
-.sec-h2 em{color:var(--gold);font-style:italic}
-.sec-sub{font-size:12px;color:var(--slate);max-width:580px;margin:0 auto;line-height:1.55}
+  .proof{display:flex;align-items:center;gap:7px;margin:12px -16px 0;padding:11px 16px;border-top:1px solid var(--border);background:rgba(0,0,0,.18);font-size:12px;color:var(--slate);flex-wrap:wrap}
+  .proof .mk{color:var(--up)}
+  .proof b{font-family:'Barlow Condensed',sans-serif;font-weight:800;color:var(--text)}
 
-.cards-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin:0 -18px}
-.cards-wrap::-webkit-scrollbar{display:none}
-.cards-grid{display:grid;grid-template-columns:repeat(5,minmax(178px,1fr));gap:10px;padding:6px 18px;min-width:min-content}
-@media (max-width:1100px){.cards-grid{grid-template-columns:repeat(5,260px)}}
-
-.fifa-card{background:linear-gradient(180deg,#1a1d18 0%,#0d100d 100%);border:1px solid var(--border);padding:12px 12px 10px;position:relative;overflow:hidden;cursor:pointer;transition:transform .2s,border-color .2s;display:flex;flex-direction:column;min-height:340px}
-.fifa-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.6}
-.fifa-card:hover{transform:translateY(-4px);border-color:var(--gold-border);box-shadow:0 10px 30px rgba(212,175,55,.15)}
-.fifa-card.tier-a{background:linear-gradient(180deg,#1f1c10 0%,#0d100d 100%);border-color:rgba(212,175,55,.25)}
-.fifa-card.tier-a::before{background:linear-gradient(90deg,transparent,#FFD700,transparent);height:3px;opacity:1}
-
-.card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
-.card-tag{font-size:8px;font-weight:800;letter-spacing:1.5px;color:var(--gold);text-transform:uppercase;padding:3px 7px;border:1px solid var(--gold-border);background:rgba(212,175,55,.08)}
-.card-rating{font-family:'Barlow Condensed';font-weight:900;font-size:20px;padding:3px 10px;line-height:1;letter-spacing:-1px}
-.rating-A,.rating-Ap{background:#FFD700;color:#000}
-.rating-B,.rating-Bp{background:var(--silver);color:#000}
-.rating-C,.rating-Cp{background:var(--bronze);color:#fff}
-.rating-D,.rating-N{background:var(--bg3);color:var(--muted);border:1px dashed var(--border)}
-
-.card-avatar-wrap{position:relative;margin:0 auto 10px;width:62px;height:62px}
-.card-avatar{width:62px;height:62px;border-radius:50%;background:linear-gradient(135deg,var(--gold) 0%,var(--gold-deep) 100%);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:900;font-size:21px;color:#000;letter-spacing:0;border:2px solid var(--gold);box-shadow:0 4px 14px rgba(212,175,55,.3)}
-.card-avatar.gr{background:linear-gradient(135deg,#3FBF7F 0%,#1A8C50 100%);border-color:#3FBF7F;color:#fff}
-.gr-badge{position:absolute;bottom:-4px;right:-4px;background:#000;border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:14px;border:2px solid #3FBF7F}
-
-.card-name{font-family:'Barlow Condensed';font-weight:900;font-size:16px;text-align:center;line-height:1.05;letter-spacing:-.3px;margin-bottom:3px;text-transform:uppercase}
-.card-meta{text-align:center;font-size:10px;color:var(--slate);line-height:1.45;margin-bottom:10px}
-.card-meta strong{color:#fff}
-
-.card-exc{display:flex;justify-content:space-around;padding:8px 4px;background:rgba(0,0,0,.3);border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:10px}
-.card-btn-upd{display:block;text-align:center;margin-top:6px;font-size:10px;color:var(--slate);text-decoration:none;padding:6px;border:1px dashed var(--border);border-radius:6px;transition:color .2s,border-color .2s}
-.card-btn-upd:hover{color:var(--gold);border-color:var(--gold-border)}
-.exc-item{text-align:center;flex:1}
-.exc-icon{font-size:20px;margin-bottom:3px;display:block}
-.exc-label{font-size:7px;font-weight:800;letter-spacing:1px;color:var(--gold);text-transform:uppercase}
-
-.card-palmares{flex:1;margin-bottom:12px}
-.palmares-title{font-size:8px;font-weight:800;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;text-align:center}
-.palmares-item{font-size:10px;color:#ddd;line-height:1.5;padding:2px 0}
-.palmares-item.empty{color:var(--muted);font-style:italic;text-align:center}
-
-.card-btn{display:block;text-align:center;padding:10px;background:var(--gold);color:#000;font-family:'Barlow Condensed';font-weight:900;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;text-decoration:none;margin-top:auto;border:none;cursor:pointer;width:100%}
-.card-btn:hover{background:var(--gold-bright)}
-
-/* TOOLBAR + LISTA */
-.toolbar{padding:14px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:18px;position:sticky;top:60px;background:rgba(8,12,8,.96);backdrop-filter:blur(10px);z-index:40}
-.search-row{margin-bottom:10px}
-.search-wrap{position:relative}
-.search{width:100%;background:var(--bg2);border:1px solid var(--border);padding:11px 14px 11px 38px;color:#fff;font-size:13px;font-family:inherit;outline:none}
-.search:focus{border-color:var(--gold)}
-.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;pointer-events:none}
-
-.filters{display:flex;gap:6px;flex-wrap:wrap}
-.f-select{background:var(--bg2);border:1px solid var(--border);color:#fff;padding:9px 26px 9px 11px;font-size:11px;font-weight:700;font-family:inherit;outline:none;appearance:none;cursor:pointer;background-image:url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23D4AF37'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");background-repeat:no-repeat;background-position:right 6px center;background-size:14px;flex:1;min-width:120px}
-.f-select:focus{border-color:var(--gold)}
-
-.count-bar{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;font-weight:700;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
-.count-bar strong{color:var(--gold)}
-
-.list{display:flex;flex-direction:column;gap:6px}
-.row{background:var(--bg2);border:1px solid var(--border);cursor:pointer;transition:border-color .15s}
-.row:hover{border-color:var(--gold-border)}
-.row.open{border-color:var(--gold)}
-
-.row-head{padding:14px 16px;display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center}
-@media (max-width:520px){.row-head{grid-template-columns:1fr auto;gap:8px}.col-tag{display:none}}
-.r-identity{display:flex;flex-direction:column;gap:3px;min-width:0}
-.r-name{font-family:'Barlow Condensed';font-weight:900;font-size:18px;color:#fff;letter-spacing:-.3px;line-height:1;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.r-badge{font-size:10px;font-weight:800;letter-spacing:1px;padding:2px 6px;text-transform:uppercase;flex-shrink:0}
-.r-badge-observado{background:rgba(212,175,55,.15);color:var(--gold);border:1px solid var(--gold-border)}
-.r-badge-em-crescimento{background:rgba(0,212,106,.1);color:var(--green);border:1px solid rgba(0,212,106,.3)}
-.r-badge-hidden-gem{background:rgba(167,139,250,.1);color:var(--purple);border:1px solid rgba(167,139,250,.3)}
-.r-badge-destaque{background:rgba(255,165,0,.1);color:var(--orange);border:1px solid rgba(255,165,0,.3)}
-.r-meta{font-size:11px;color:var(--slate);line-height:1.4}
-
-.col-tag{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted)}
-
-.r-rating{font-family:'Barlow Condensed';font-weight:900;font-size:20px;padding:6px 12px;text-align:center;min-width:42px;line-height:1;letter-spacing:-.5px}
-
-.r-chevron{color:var(--muted);font-size:14px;font-weight:900;transition:transform .2s}
-.row.open .r-chevron{transform:rotate(90deg);color:var(--gold)}
-
-.row-body{display:none;padding:16px;border-top:1px solid var(--border);background:rgba(0,0,0,.3)}
-.row.open .row-body{display:block;animation:slide .25s cubic-bezier(.16,1,.3,1) both}
-@keyframes slide{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
-
-.body-section{margin-bottom:14px}
-.body-section:last-child{margin-bottom:0}
-.body-sec-title{font-size:10px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px}
-
-.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--gold-border);background:var(--bg2)}
-@media (max-width:520px){.stats-grid{grid-template-columns:repeat(2,1fr)}}
-.stat-cell{padding:10px 8px;text-align:center;border-right:1px solid var(--gold-border)}
-.stat-cell:last-child{border-right:none}
-@media (max-width:520px){.stat-cell:nth-child(2n){border-right:none}.stat-cell:nth-child(1),.stat-cell:nth-child(2){border-bottom:1px solid var(--gold-border)}}
-.stat-num{font-family:'Barlow Condensed';font-weight:900;font-size:20px;color:#fff;line-height:1}
-.stat-lbl{font-size:8px;color:var(--gold);font-weight:800;letter-spacing:1.5px;text-transform:uppercase;margin-top:3px}
-
-.context-row{display:flex;justify-content:space-between;padding:6px 10px;background:var(--bg2);border-left:2px solid var(--gold-border);margin-top:4px;font-size:11px;gap:8px}
-.context-row span:first-child{color:var(--muted);font-weight:600;flex-shrink:0}
-.context-row span:last-child{color:#fff;font-weight:700;text-align:right;word-break:break-word}
-
-.timeline{display:flex;flex-direction:column;gap:4px}
-.timeline-item{display:flex;align-items:flex-start;gap:10px;padding:8px 12px;background:var(--bg2);border-left:2px solid var(--gold);font-size:11px}
-.timeline-year{font-family:'Barlow Condensed';font-weight:900;color:var(--gold);min-width:56px;font-size:13px}
-.timeline-info{flex:1;color:#ddd}
-.timeline-info strong{color:#fff}
-
-.exc-row{display:flex;align-items:center;gap:14px;padding:10px 12px;background:var(--bg2);border:1px solid var(--gold-border)}
-.exc-icons{font-size:24px;letter-spacing:6px}
-.exc-text{flex:1;font-size:11px;color:var(--muted)}
-.exc-text strong{color:var(--gold)}
-
-.paywall{margin-top:14px;background:linear-gradient(135deg,rgba(212,175,55,.08),rgba(0,0,0,.5));border:2px solid var(--gold);padding:18px;position:relative}
-.paywall::before{content:'🔒';position:absolute;top:-12px;left:14px;background:var(--bg);padding:0 6px;font-size:18px}
-.paywall-title{font-family:'Barlow Condensed';font-weight:900;font-size:16px;color:var(--gold);letter-spacing:-.2px;margin-bottom:8px}
-.paywall-list{font-size:11px;color:var(--slate);line-height:1.7;margin-bottom:14px}
-.paywall-list li{padding-left:18px;position:relative;list-style:none}
-.paywall-list li::before{content:'🔒';position:absolute;left:0;font-size:10px}
-.paywall-btn{display:inline-flex;align-items:center;gap:6px;background:var(--gold);color:#000;font-family:'Barlow Condensed';font-weight:900;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;padding:10px 18px;text-decoration:none}
-.paywall-btn:hover{background:var(--gold-bright)}
-
-.body-foot{display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:12px;border-top:1px solid var(--border);font-size:10px;color:var(--muted)}
-.body-foot a{color:var(--slate);text-decoration:none}
-.body-foot a:hover{color:var(--gold)}
-
-.loading{text-align:center;padding:60px 20px;color:var(--muted)}
-.spinner{display:inline-block;width:32px;height:32px;border:2px solid rgba(212,175,55,.15);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.empty{text-align:center;padding:60px 20px;color:var(--muted);font-size:13px}
-.empty-icon{font-size:40px;margin-bottom:10px;opacity:.4}
-
-.footer-cta{margin:50px 0 30px;padding:30px 24px;background:linear-gradient(135deg,rgba(212,175,55,.06),transparent);border:2px solid var(--gold);text-align:center}
-.footer-cta h3{font-family:'Barlow Condensed';font-weight:900;font-size:26px;color:#fff;letter-spacing:-.3px;margin-bottom:8px}
-.footer-cta h3 em{color:var(--gold);font-style:italic}
-.footer-cta p{font-size:12px;color:var(--slate);margin-bottom:14px;line-height:1.6}
-
-.footer{padding:30px 18px;border-top:1px solid var(--border);text-align:center;font-size:11px;color:var(--muted)}
-.footer a{color:var(--slate);text-decoration:none;margin:0 6px}
-.footer a:hover{color:var(--gold)}
-
-.consent-notice{font-size:11px;color:var(--muted);letter-spacing:.3px;line-height:1.5;margin-top:8px;padding-top:6px;border-top:1px solid var(--border)}
-.consent-notice a{color:var(--gold);text-decoration:underline}
-.nota-auto{background:linear-gradient(135deg,rgba(212,175,55,.08),rgba(0,0,0,.25));border:1px solid var(--gold-border);border-radius:10px;padding:13px 14px;margin-bottom:12px}
-.na-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.na-title{font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);display:flex;flex-direction:column;gap:2px}
-.na-title span{font-size:8px;font-weight:600;letter-spacing:.5px;color:var(--muted);text-transform:none}
-.na-final{font-family:'Barlow Condensed';font-weight:900;font-size:30px;line-height:.9;color:var(--gold);display:flex;align-items:baseline;gap:6px}
-.na-final em{font-style:normal;font-size:15px;color:var(--slate)}
-.na-letra-Aplus,.na-letra-A{color:#FFD700}
-.na-letra-B{color:var(--gold)}
-.na-letra-C{color:#C9A227}
-.na-letra-D{color:#8a7a3a}
-.na-dims{display:flex;flex-direction:column;gap:7px}
-.na-dim-head{display:flex;justify-content:space-between;font-size:10px;font-weight:700;color:#ccc;margin-bottom:3px}
-.na-dim-head strong{color:#fff;font-family:'Barlow Condensed';font-size:13px}
-.na-bar{height:5px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden}
-.na-bar-fill{height:100%;background:linear-gradient(90deg,var(--gold-deep,#9a7a1e),var(--gold));border-radius:3px}
-.na-conf{margin-top:9px;font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--muted);text-transform:uppercase}
-.na-conf-low{color:#C9802B}
+  .foot{text-align:center;font-size:10.5px;color:var(--muted);margin-top:18px}
+  .demo-tag{color:var(--gold);font-weight:700}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+  .gate{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:22px}
+  .gate-card{max-width:400px;width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:28px 24px;text-align:center}
+  .gate-brand{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--slate);margin-bottom:18px}
+  .gate-h{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:26px;margin-bottom:8px}
+  .gate-s{font-size:13px;color:var(--slate);line-height:1.55;margin-bottom:20px}
+  .gate-input{width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:10px;padding:13px;color:var(--text);font-family:inherit;font-size:15px;margin-bottom:10px}
+  .gate-input:focus{outline:none;border-color:var(--slate)}
+  .gate-err{color:var(--down);font-size:12.5px;min-height:16px;margin-bottom:8px;display:none}
+  .gate-btn{width:100%;background:var(--text);color:#0A0D0A;border:none;border-radius:10px;padding:13px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
+  .gate-btn:disabled{opacity:.5}
+  .gate-contact{margin-top:14px;font-size:12px;color:var(--muted)}
+  .gate-contact a{color:var(--slate)}
+  .gate-pend .big{font-size:40px;margin-bottom:10px}
+  .gate-pend .t{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:20px;margin-bottom:6px}
+  .gate-pend .s{font-size:13px;color:var(--slate);line-height:1.55}
+  .gate-spin{width:24px;height:24px;border:2px solid var(--border2);border-top-color:var(--text);border-radius:50%;animation:gsp .8s linear infinite;margin:8px auto}
+  @keyframes gsp{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
-
-<nav class="nav">
-  <div class="nav-inner">
-    <div class="nav-l">
-      <a href="/" class="logo">
-        <div class="logo-b">YT</div>
-        <div class="logo-n">Your<span>Talent</span>Base</div>
-      </a>
-      <span class="nav-tag">⚽ Scouting 360</span>
-    </div>
-    <a href="auth.html" class="nav-cta">🔐 Login</a>
-  </div>
-</nav>
-
-<div class="container">
-
-  <div class="hero">
-    <div class="hero-l">
-      <div class="eyebrow">BD Nacional · Sub-9 a Seniores</div>
-      <h1 class="h1">Scouting <em>360</em></h1>
-      <p class="sub">Cada atleta avaliado e contextualizado. <strong>O ZeroZero regista. Nós analisamos.</strong></p>
-    </div>
-    <div class="hero-stats">
-      <div class="hero-stat"><div class="hero-stat-n" id="stat-atletas">—</div><div class="hero-stat-l">Atletas</div></div>
-      <div class="hero-stat"><div class="hero-stat-n" id="stat-clubes">—</div><div class="hero-stat-l">Clubes</div></div>
-      <div class="hero-stat"><div class="hero-stat-n" id="stat-assoc">—</div><div class="hero-stat-l">Associações</div></div>
-    </div>
-  </div>
-
-  <!-- DESTAQUES YTB · FIFA CARDS -->
-  <section class="section-destaques" id="section-destaques">
-    <div class="sec-head">
-      <div class="sec-eye">★ Atletas YTB acompanhados</div>
-      <h2 class="sec-h2">Em <em>destaque</em></h2>
-      <p class="sec-sub">Validados pela equipa YTB. Subscreve Clube Pro para detalhe completo + contacto mediado.</p>
-    </div>
-
-    <div class="cards-wrap">
-      <div class="cards-grid" id="cards-grid">
-        <div class="loading" style="grid-column:1/-1"><div class="spinner"></div></div>
+  <div id="gate" class="gate">
+    <div class="gate-card">
+      <div class="gate-brand"><span class="mono">YTB</span> · Área reservada</div>
+      <div id="gate-form">
+        <div class="gate-h">Scouting360</div>
+        <div class="gate-s">Acesso a scouts e admin. Entras por link no email — sem password. O acesso abre quando confirmarmos o teu pagamento.</div>
+        <input id="gate-email" class="gate-input" type="email" placeholder="o.teu@email.com" autocomplete="email">
+        <div class="gate-err" id="gate-err"></div>
+        <button id="gate-btn" class="gate-btn">Entrar →</button>
+        <div class="gate-contact">És clube? <a id="wa-clube" href="#" target="_blank" rel="noopener">Pedir acesso por WhatsApp →</a></div>
       </div>
-    </div>
-  </section>
-
-  <!-- TOOLBAR + LISTA -->
-  <div class="sec-head" style="padding-top:30px">
-    <div class="sec-eye">Lista completa · BD nacional</div>
-    <h2 class="sec-h2">Todos os <em>atletas</em></h2>
-  </div>
-
-  <div class="toolbar">
-    <div class="search-row">
-      <div class="search-wrap">
-        <span class="search-icon">🔍</span>
-        <input class="search" id="search" type="search" placeholder="Pesquisar atleta, clube, posição...">
-      </div>
-    </div>
-    <div class="filters">
-      <select class="f-select" id="f-escalao">
-        <option value="all">⚽ Todos escalões</option>
-        <option>Sub-9</option><option>Sub-10</option><option>Sub-11</option><option>Sub-12</option>
-        <option>Sub-13</option><option>Sub-14</option><option>Sub-15</option><option>Sub-17</option>
-        <option>Sub-19</option><option>Seniores</option>
-      </select>
-      <select class="f-select" id="f-posicao">
-        <option value="all">⚽ Posição</option>
-        <option>GR</option><option>DC</option><option>LD</option><option>LE</option>
-        <option>MD</option><option>MC</option><option>MO</option>
-        <option>ED</option><option>EE</option><option>PL</option><option>AV</option>
-      </select>
-      <select class="f-select" id="f-assoc">
-        <option value="all">🏟 Associação</option>
-      </select>
-      <select class="f-select" id="f-rating">
-        <option value="all">⭐ Rating</option>
-        <option>A+</option><option>A</option><option>B+</option><option>B</option>
-        <option>C+</option><option>C</option>
-      </select>
+      <div id="gate-status"></div>
     </div>
   </div>
-
-  <div class="count-bar">
-    <div><strong id="count-num">0</strong> atletas encontrados</div>
-    <div style="font-size:10px">Atualização: <span id="last-update">—</span></div>
-  </div>
-
-  <div id="loading" class="loading"><div class="spinner"></div></div>
-  <div id="list" class="list"></div>
-
-  <div class="footer-cta">
-    <h3>Encontraste talento? <em>Subscreve.</em></h3>
-    <p>Acesso completo · análise YTB · Lie Detector · contacto mediado · 49€/mês.</p>
-    <a href="auth.html" class="paywall-btn" style="margin-top:8px">🔓 Subscrever Clube Pro</a>
-  </div>
-
-</div>
-
-<footer class="footer">
-  © 2026 YourTalentBase · <a href="/">Home</a> · <a href="termos.html">Termos</a> · <a href="privacidade.html">Privacidade</a> · <a href="inscrever.html">Inscrever atleta</a>
-</footer>
+  <header class="top"><div class="wrap"><span class="mono">YTB</span><span class="ttl">Scouting360</span></div></header>
+  <main class="wrap">
+    <div class="lead"><div class="h">Base de talento longitudinal</div><div class="s">Descoberta por trajetória — não por popularidade.</div></div>
+    <div class="sorts" id="sorts"></div>
+    <div id="list"></div>
+    <div class="foot" id="foot"></div>
+  </main>
 
 <script>
-const SUPABASE_URL = 'https://nhshnplaiolxwcfuijfo.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oc2hucGxhaW9seHdjZnVpamZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NDQxNTAsImV4cCI6MjA4OTQyMDE1MH0.uyZiDun8495sjnHA6Wsk-Hou-3lubbNJfQqSYbMLSek';
-const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+(function(){
+  "use strict";
+  var CFG=window.YTB_CONFIG||{};
+  var URL_=CFG.SUPABASE_URL||'',KEY=CFG.SUPABASE_KEY||'';
+  var USING_SB=!!(URL_&&KEY&&window.supabase);
+  var supa=USING_SB?window.supabase.createClient(URL_,KEY):null;
 
-const EXC_MAP = {
-  tecnico:   { icon: '⚽', label: 'Técnico' },
-  tactico:   { icon: '🧠', label: 'Táctico' },
-  fisico:    { icon: '💪', label: 'Físico' },
-  mental:    { icon: '🦁', label: 'Mental' },
-  defensivo: { icon: '🛡️', label: 'Defensivo' },
-};
-
-let allAtletas = [];
-let destaqueAtletas = [];
-let statsMap = {};
-let historicoMap = {};
-let state = { search:'', escalao:'all', posicao:'all', assoc:'all', rating:'all' };
-
-function escapeHtml(s){ if(s == null) return ''; return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-
-function nomeCurto(a){
-  if(a.primeiro_nome && a.ultimo_nome) return `${a.primeiro_nome} ${a.ultimo_nome}`;
-  return a.nome;
-}
-
-function ratingClass(r){ if(!r) return 'rating-N'; return 'rating-' + r.replace('+','p'); }
-function ratingTier(r){ return (r === 'A+' || r === 'A') ? 'tier-a' : ''; }
-
-function calcIdade(ano, mes){
-  if(!ano) return null;
-  const hoje = new Date();
-  let i = hoje.getFullYear() - ano;
-  if(mes && hoje.getMonth() + 1 < mes) i--;
-  return i;
-}
-
-async function load(){
-  try {
-    const { data: atletas, error: e1 } = await supa
-      .from('atletas_360')
-      .select('*')
-      .eq('visivel_publico', true)
-      .eq('oculto_pelo_responsavel', false)
-      .order('rating_geral', { ascending: true, nullsFirst: false });
-
-    if(e1){ throw e1; }
-    allAtletas = atletas || [];
-    const RANK={'A+':7,'A':6,'B+':5,'B':4,'C+':3,'C':2,'D':1};
-    allAtletas.sort((a,b)=>(RANK[b.rating_geral]||0)-(RANK[a.rating_geral]||0));
-
-    if(allAtletas.length){
-      const ids = allAtletas.map(a => a.id);
-      const { data: stats } = await supa.from('atletas_360_stats').select('*').in('atleta_id', ids).eq('epoca', '2025/26');
-      (stats || []).forEach(s => statsMap[s.atleta_id] = s);
-
-      const { data: hist } = await supa.from('atletas_360_historico').select('*').in('atleta_id', ids).order('ordem');
-      (hist || []).forEach(h => { if(!historicoMap[h.atleta_id]) historicoMap[h.atleta_id] = []; historicoMap[h.atleta_id].push(h); });
-    }
-
-    // Filtrar destaques
-    destaqueAtletas = allAtletas.filter(a => a.badge_estado === 'destaque').slice(0, 5);
-
-    document.getElementById('stat-atletas').textContent = allAtletas.length;
-    document.getElementById('stat-clubes').textContent = new Set(allAtletas.map(a => a.clube_actual).filter(Boolean)).size;
-    document.getElementById('stat-assoc').textContent = new Set(allAtletas.map(a => a.associacao).filter(Boolean)).size;
-
-    // Lista canónica: as 22 Associações de Futebol do país (FPF).
-    const AFS = ['AF Algarve','AF Angra do Heroísmo','AF Aveiro','AF Beja','AF Braga','AF Bragança','AF Castelo Branco','AF Coimbra','AF Évora','AF Guarda','AF Horta','AF Leiria','AF Lisboa','AF Madeira','AF Ponta Delgada','AF Portalegre','AF Porto','AF Santarém','AF Setúbal','AF Viana do Castelo','AF Vila Real','AF Viseu'];
-    const presentes = new Set(allAtletas.map(a => a.associacao).filter(Boolean));
-    const assocs = [...new Set([...AFS, ...presentes])].sort();
-    const sel = document.getElementById('f-assoc');
-    assocs.forEach(x => { const o = document.createElement('option'); o.value = x; o.textContent = presentes.has(x) ? x + ' ●' : x; sel.appendChild(o); });
-
-    if(allAtletas.length){
-      const latest = allAtletas.reduce((m, a) => { const t = new Date(a.updated_at); return t > m ? t : m; }, new Date(0));
-      document.getElementById('last-update').textContent = latest.toLocaleDateString('pt-PT');
-    }
-
-    document.getElementById('loading').style.display = 'none';
-    renderDestaques();
-    renderList();
-
-  } catch(err){
-    console.error(err);
-    document.getElementById('loading').innerHTML = '<div class="empty"><div class="empty-icon">⚠</div>Erro a carregar: ' + (err.message || 'tenta de novo') + '</div>';
-  }
-}
-
-function getPalmares(atleta){
-  const items = [];
-  const notas = atleta.notas_admin || '';
-  const idadeBio = calcIdade(atleta.ano_nascimento, atleta.mes_nascimento);
-
-  if(idadeBio){
-    const escalaoEsperado = 'Sub-' + idadeBio;
-    if(escalaoEsperado !== atleta.escalao && atleta.escalao.startsWith('Sub-')){
-      items.push(`⬆️ ${escalaoEsperado} → joga <strong>${atleta.escalao}</strong>`);
-    }
-  }
-  if(/capitão/i.test(notas)) items.push(`🦁 Capitão de equipa`);
-  if(/campeão de série|campeão série/i.test(notas)) items.push(`🏆 Campeão de Série`);
-  if(/fase de campeão|fase campe/i.test(notas)) items.push(`⚡ Apurado Fase Campeão`);
-  if(/manutenção/i.test(notas)) items.push(`💪 Garantiu manutenção`);
-  if(/divisão elite|elite af/i.test(notas) && items.length < 3) items.push(`🥇 Divisão Elite`);
-
-  const hist = historicoMap[atleta.id] || [];
-  hist.slice(0, 2).forEach(h => {
-    if(h.titulos && h.titulos.length && items.length < 3){
-      const t = h.titulos[0];
-      if(/selecção|distrital/i.test(t)) items.push(`🇵🇹 Selecção Distrital`);
-      else if(/campeão|vencedor/i.test(t)) items.push(`🏆 ${t.length > 28 ? t.slice(0,28) + '...' : t}`);
-    }
-  });
-  return items.slice(0, 3);
-}
-
-function renderDestaques(){
-  const grid = document.getElementById('cards-grid');
-  if(!destaqueAtletas.length){
-    document.getElementById('section-destaques').style.display = 'none';
-    return;
-  }
-
-  grid.innerHTML = destaqueAtletas.map(a => {
-    const idade = calcIdade(a.ano_nascimento, a.mes_nascimento);
-    const palmares = getPalmares(a);
-    const isGR = a.posicao_principal === 'GR';
-    const excelencias = [a.area_excelencia_1, a.area_excelencia_2, a.area_excelencia_3].filter(Boolean).map(k => EXC_MAP[k] || {icon:'⚽', label:k});
-
-    return `
-      <div class="fifa-card ${ratingTier(a.rating_geral)}" onclick="scrollToAtleta('${a.id}')">
-        <div class="card-top">
-          <div class="card-tag">★ YTB</div>
-          <div class="card-rating ${ratingClass(a.rating_geral)}">${a.rating_geral || '—'}</div>
-        </div>
-        <div class="card-avatar-wrap">
-          <div class="card-avatar ${isGR ? 'gr' : ''}">${posAbrev(a.posicao_principal)}</div>
-          ${isGR ? '<div class="gr-badge">🧤</div>' : ''}
-        </div>
-        <div class="card-name">${escapeHtml(a.primeiro_nome || a.nome)}</div>
-        <div class="card-meta">
-          <strong>${escapeHtml(a.posicao_principal)}</strong> · ${escapeHtml(a.escalao)}${idade ? ' · ' + idade + ' anos' : ''}<br>
-          ${escapeHtml(a.clube_actual)}<br>
-          <span style="color:var(--muted);font-size:10px">${escapeHtml(a.associacao || '')}</span>
-        </div>
-        <div class="card-exc">
-          ${excelencias.map(e => `<div class="exc-item"><span class="exc-icon">${e.icon}</span><div class="exc-label">${e.label}</div></div>`).join('')}
-        </div>
-        <div class="card-palmares">
-          <div class="palmares-title">Palmarés</div>
-          ${palmares.length ? palmares.map(p => `<div class="palmares-item">${p}</div>`).join('') : '<div class="palmares-item empty">Em desenvolvimento</div>'}
-        </div>
-        <button class="card-btn">Ver Detalhes ↓</button>
-        <a class="card-btn-upd" href="https://wa.me/351913695846?text=${encodeURIComponent('Quero atualizar os dados do atleta ' + (a.nome || '') + ' (ref ' + String(a.id).slice(0,8) + '): ')}" target="_blank" rel="noopener" onclick="event.stopPropagation()">↻ Atualizar dados</a>
-      </div>
-    `;
-  }).join('');
-}
-
-function posAbrev(p){
-  if(!p) return '?';
-  const t = p.trim();
-  if(t.length <= 3) return t.toUpperCase();
-  const MAP = {'guarda-redes':'GR','guarda redes':'GR','defesa central':'DC','central':'DC','lateral direito':'LD','lateral esquerdo':'LE','lateral':'LA','médio defensivo':'MD','medio defensivo':'MD','médio centro':'MC','medio centro':'MC','médio ofensivo':'MO','medio ofensivo':'MO','médio':'MC','medio':'MC','médio interior':'MI','medio interior':'MI','extremo direito':'ED','extremo esquerdo':'EE','extremo':'EX','ponta de lança':'PL','ponta de lanca':'PL','avançado':'AV','avancado':'AV'};
-  const k = t.toLowerCase();
-  if(MAP[k]) return MAP[k];
-  const w = t.split(/[\s-]+/).filter(Boolean);
-  return (w.length > 1 ? (w[0][0] + w[w.length-1][0]) : t.slice(0,2)).toUpperCase();
-}
-
-function scrollToAtleta(id){
-  const row = document.querySelector(`.row[data-id="${id}"]`);
-  if(row){
-    row.classList.add('open');
-    row.scrollIntoView({behavior:'smooth', block:'start'});
-  }
-}
-
-function renderList(){
-  let f = allAtletas;
-  if(state.search){
-    const t = state.search.toLowerCase();
-    f = f.filter(a => (a.nome || '').toLowerCase().includes(t) || (a.clube_actual || '').toLowerCase().includes(t) || (a.associacao || '').toLowerCase().includes(t));
-  }
-  if(state.escalao !== 'all') f = f.filter(a => a.escalao === state.escalao);
-  if(state.posicao !== 'all') f = f.filter(a => a.posicao_principal === state.posicao);
-  if(state.assoc !== 'all') f = f.filter(a => a.associacao === state.assoc);
-  if(state.rating !== 'all') f = f.filter(a => a.rating_geral === state.rating);
-
-  document.getElementById('count-num').textContent = f.length;
-
-  const list = document.getElementById('list');
-  if(!f.length){
-    list.innerHTML = '<div class="empty"><div class="empty-icon">🔍</div>Nenhum atleta com estes filtros.</div>';
-    return;
-  }
-
-  list.innerHTML = f.map(a => renderRow(a)).join('');
-  list.querySelectorAll('.row-head').forEach(el => {
-    el.addEventListener('click', () => el.parentElement.classList.toggle('open'));
-  });
-}
-
-function badgeLabel(b){ return ({ 'observado':'👀 Observado', 'em-crescimento':'📈 Em Crescimento', 'hidden-gem':'💎 Hidden Gem', 'destaque':'★ YTB Acompanhado' })[b] || b; }
-
-function renderRow(a){
-  const stats = statsMap[a.id];
-  const hist = historicoMap[a.id] || [];
-  const idade = calcIdade(a.ano_nascimento, a.mes_nascimento);
-  const badge = a.badge_estado ? `<span class="r-badge r-badge-${a.badge_estado}">${badgeLabel(a.badge_estado)}</span>` : '';
-
-  return `
-    <div class="row" data-id="${a.id}">
-      <div class="row-head">
-        <div class="r-identity">
-          <div class="r-name">${escapeHtml(nomeCurto(a))} ${badge}</div>
-          <div class="r-meta">${escapeHtml(a.posicao_principal)} · ${escapeHtml(a.escalao)} · ${escapeHtml(a.clube_actual)} · ${escapeHtml(a.associacao || '')}</div>
-        </div>
-        <div class="col-tag">${idade ? idade + ' anos' : ''}</div>
-        <div class="r-rating ${ratingClass(a.rating_geral)}">${a.rating_geral || '—'}</div>
-      </div>
-      <div class="row-body">
-        ${renderNotaAuto(a, stats, hist)}
-        ${renderExcelencia(a)}
-        ${stats ? renderStats(a, stats) : ''}
-        ${hist.length ? renderHistorico(hist) : ''}
-        ${renderPaywall()}
-        <div class="body-foot">
-          <div>${a.zerozero_url ? `<a href="${escapeHtml(a.zerozero_url)}" target="_blank" rel="noopener">🔗 Perfil ZeroZero</a>` : ''}</div>
-          <a href="ocultar.html?token=${a.token_ocultar}" style="font-size:10px">Ocultar perfil</a>
-        </div>
-        <div class="consent-notice">Atleta inscrito com consentimento do encarregado de educação para fins de desenvolvimento desportivo. <a href="privacidade.html">Política de Privacidade</a>.</div>
-      </div>
-    </div>
-  `;
-}
-
-// ─── Nota automática por contexto (determinística, zero IA) ───
-function renderNotaAuto(a, stats, hist){
-  if(typeof window.YTB_NOTA==='undefined' || !window.YTB_NOTA.calcular) return '';
-  const s = stats || {};
-  const h = hist || [];
-  const insc = {
-    associacao:a.associacao, escalao:a.escalao, divisao:a.divisao || s.divisao,
-    posicao:a.posicao_principal, ano_nascimento:a.ano_nascimento,
-    jogos:s.jogos, titular:s.titular, minutos:s.minutos, golos:s.golos, assists:s.assists,
-    classificacao:s.classificacao, total_equipas:s.total_equipas,
-    hist1: h[0] ? {divisao:h[0].divisao, escalao:h[0].escalao, golos:h[0].golos, jogos:h[0].jogos} : null,
-    hist2: h[1] ? {divisao:h[1].divisao, escalao:h[1].escalao, golos:h[1].golos, jogos:h[1].jogos} : null
-  };
-  const r = window.YTB_NOTA.calcular(insc);
-  const dims = [
-    {l:'Contexto', v:r.dimensoes.contexto},
-    {l:'Volume', v:r.dimensoes.volume},
-    {l:'Produção', v:r.dimensoes.producao},
-    {l:'Trajetória', v:r.dimensoes.trajetoria}
+  // DEMO — 6 atletas com perfis variados (para a ordenação reordenar de verdade)
+  var DEMO=[
+    {nome:"Coutinho",posicao:"MC",escalao:"Sub-13",clube:"Gondomar SC",evolucao_pct:31,treinabilidade:87,compromisso:92,consistencia:89,nivel_verificacao:"Scout + Treinador",observadores:5,eventos:52,epocas:3,serie:[60,63,67,72,80,90]},
+    {nome:"Rafa",posicao:"EE",escalao:"Sub-15",clube:"Boavista",evolucao_pct:44,treinabilidade:82,compromisso:88,consistencia:79,nivel_verificacao:"Scout",observadores:2,eventos:21,epocas:2,serie:[52,55,61,70,79,88]},
+    {nome:"Diogo",posicao:"DC",escalao:"Sub-13",clube:"Dragon Force",evolucao_pct:12,treinabilidade:95,compromisso:80,consistencia:84,nivel_verificacao:"Scout + Treinador",observadores:4,eventos:38,epocas:2,serie:[84,86,85,88,90,95]},
+    {nome:"Tomás",posicao:"GR",escalao:"Sub-11",clube:"Leixões",evolucao_pct:18,treinabilidade:78,compromisso:95,consistencia:92,nivel_verificacao:"Scout + Treinador",observadores:3,eventos:44,epocas:3,serie:[66,70,71,74,78,82]},
+    {nome:"Martim",posicao:"PL",escalao:"Sub-13",clube:"Famalicão",evolucao_pct:27,treinabilidade:84,compromisso:76,consistencia:71,nivel_verificacao:"Scout",observadores:2,eventos:16,epocas:1,serie:[58,62,66,70,73,84]},
+    {nome:"Afonso",posicao:"MDC",escalao:"Sub-15",clube:"Vitória SC",evolucao_pct:9,treinabilidade:88,compromisso:90,consistencia:94,nivel_verificacao:"Scout + Treinador",observadores:6,eventos:61,epocas:3,serie:[80,82,84,86,87,90]}
   ];
-  const barras = dims.map(d=>`
-    <div class="na-dim">
-      <div class="na-dim-head"><span>${d.l}</span><strong>${d.v}</strong></div>
-      <div class="na-bar"><div class="na-bar-fill" style="width:${d.v}%"></div></div>
-    </div>`).join('');
-  const confAviso = r.confianca < 50
-    ? `<div class="na-conf na-conf-low">Confiança ${r.confianca}% · poucos dados declarados</div>`
-    : `<div class="na-conf">Confiança ${r.confianca}%</div>`;
-  return `
-    <div class="nota-auto">
-      <div class="na-top">
-        <div class="na-title">Avaliação por Contexto<span>determinística · automática</span></div>
-        <div class="na-final na-letra-${r.letra.replace('+','plus')}">${r.letra}<em>${r.notaFinal}</em></div>
-      </div>
-      <div class="na-dims">${barras}</div>
-      ${confAviso}
-    </div>`;
-}
 
-function renderExcelencia(a){
-  const areas = [a.area_excelencia_1, a.area_excelencia_2, a.area_excelencia_3].filter(Boolean);
-  if(!areas.length) return '';
-  const icons = areas.map(x => (EXC_MAP[x] || {icon:'⚽'}).icon).join(' ');
-  return `<div class="body-section"><div class="body-sec-title">🏅 Áreas de Excelência</div><div class="exc-row"><div class="exc-icons">${icons}</div><div class="exc-text"><strong>3 áreas destacadas</strong> · Detalhe completo para subscritores</div></div></div>`;
-}
+  function verifRank(a){return /trein/i.test(a.nivel_verificacao||'')?2:1;}
+  var METRICS={
+    evolucao:{label:"Evolução 24m", get:function(a){return a.evolucao_pct;}},
+    treinabilidade:{label:"Treinabilidade", get:function(a){return a.treinabilidade;}},
+    compromisso:{label:"Compromisso", get:function(a){return a.compromisso;}},
+    consistencia:{label:"Consistência", get:function(a){return a.consistencia;}},
+    observados:{label:"Mais observados", get:function(a){return a.observadores;}},
+    verificados:{label:"Mais verificados", get:function(a){return verifRank(a)*1000+a.observadores;}},
+    densidade:{label:"Densidade de dados", get:function(a){return a.eventos;}}
+  };
+  var ORDER=["evolucao","treinabilidade","compromisso","consistencia","observados","verificados","densidade"];
+  var sortBy="evolucao", data=DEMO;
 
-function renderStats(a, s){
-  return `
-    <div class="body-section">
-      <div class="body-sec-title">📈 Estatísticas 2025/26</div>
-      <div class="stats-grid">
-        <div class="stat-cell"><div class="stat-num">${s.jogos || 0}</div><div class="stat-lbl">Jogos</div></div>
-        <div class="stat-cell"><div class="stat-num">${s.minutos || 0}</div><div class="stat-lbl">Minutos</div></div>
-        <div class="stat-cell"><div class="stat-num">${s.golos || 0}</div><div class="stat-lbl">Golos</div></div>
-        <div class="stat-cell"><div class="stat-num">${s.assistencias || 0}</div><div class="stat-lbl">Assists</div></div>
-      </div>
-      ${s.divisao ? `<div class="context-row"><span>Divisão</span><span>${escapeHtml(s.divisao)}${s.serie ? ' · ' + escapeHtml(s.serie) : ''}</span></div>` : ''}
-      ${s.classificacao_equipa ? `<div class="context-row"><span>Equipa</span><span>${s.classificacao_equipa}º${s.total_equipas_serie ? ' de ' + s.total_equipas_serie : ''}${s.fase_competicao ? ' · ' + escapeHtml(s.fase_competicao) : ''}</span></div>` : ''}
-      ${s.titulos_epoca && s.titulos_epoca.length ? `<div class="context-row"><span>Conquistas</span><span style="color:var(--gold)">🏆 ${escapeHtml(s.titulos_epoca[0])}</span></div>` : ''}
-    </div>
-  `;
-}
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function spark(serie){
+    if(!serie||serie.length<2) return '';
+    var w=480,h=34,n=serie.length;
+    var pts=serie.map(function(v,i){return [+(i*(w/(n-1))).toFixed(1),+(h-(v/100)*(h*0.7)-h*0.15).toFixed(1)];});
+    var line=pts.map(function(p,i){return (i?'L':'M')+p[0]+','+p[1];}).join(' ');
+    var area=line+' L'+w+','+h+' L0,'+h+' Z';
+    return '<div class="spark"><svg class="sp" viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none" aria-hidden="true">'+
+      '<defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#00D46A" stop-opacity=".18"/><stop offset="1" stop-color="#00D46A" stop-opacity="0"/></linearGradient></defs>'+
+      '<path d="'+area+'" fill="url(#sg)"/><path d="'+line+'" fill="none" stroke="#00D46A" stroke-width="2"/></svg></div>';
+  }
 
-function renderHistorico(hist){
-  return `
-    <div class="body-section">
-      <div class="body-sec-title">📜 Histórico recente</div>
-      <div class="timeline">
-        ${hist.map(h => `
-          <div class="timeline-item">
-            <div class="timeline-year">${escapeHtml(h.epoca)}</div>
-            <div class="timeline-info">
-              <strong>${escapeHtml(h.clube)}</strong> · ${escapeHtml(h.escalao)}${h.divisao ? ' · ' + escapeHtml(h.divisao) : ''}
-              ${h.classificacao_texto ? '<br><span style="color:var(--muted);font-size:10px">' + escapeHtml(h.classificacao_texto) + (h.jogos ? ' · ' + h.jogos + 'J · ' + (h.golos || 0) + 'G' : '') + '</span>' : ''}
-              ${h.titulos && h.titulos.length ? '<br><span style="color:var(--gold);font-size:10px">🏆 ' + escapeHtml(h.titulos[0]) + '</span>' : ''}
-            </div>
-          </div>
-        `).join('')}
-      </div>
-    </div>
-  `;
-}
+  function pad(n){return n<10?'0'+n:''+n;}
+  function initials(nm){var p=String(nm||'').trim().split(/\s+/);var s=((p[0]||'')[0]||'')+((p[1]||'')[0]||'');return s.toUpperCase()||'–';}
+  function sealLbl(v){v=String(v||'').toLowerCase();if(/trein/.test(v))return 'Scout + Treinador';if(/scout/.test(v))return 'Scout';return 'Por verificar';}
 
-function renderPaywall(){
-  return `
-    <div class="paywall">
-      <div class="paywall-title">🔒 Acesso completo · Subscritores</div>
-      <ul class="paywall-list">
-        <li>Avaliação YTB completa (rating · observação · tags)</li>
-        <li>Arquétipo táctico · Contexto Ideal · Risco</li>
-        <li>Lie Detector · validação contextual</li>
-        <li>Badges com nome e detalhe</li>
-        <li>Pedido de contacto via mediação YTB</li>
-      </ul>
-      <a href="auth.html" class="paywall-btn">🔓 Subscrever · 49€/mês</a>
-    </div>
-  `;
-}
+  function render(){
+    document.getElementById('sorts').innerHTML=ORDER.map(function(k){
+      return '<button class="chip'+(k===sortBy?' on':'')+'" data-k="'+k+'">'+esc(METRICS[k].label)+'</button>';
+    }).join('');
+    document.querySelectorAll('.chip').forEach(function(b){b.addEventListener('click',function(){sortBy=b.dataset.k;load();});});
 
-document.getElementById('search').addEventListener('input', e => { state.search = e.target.value; renderList(); });
-['escalao','posicao','assoc','rating'].forEach(k => {
-  document.getElementById('f-' + k).addEventListener('change', e => { state[k] = e.target.value; renderList(); });
-});
+    var list=data.slice().sort(function(x,y){return (METRICS[sortBy].get(y)||-1e9)-(METRICS[sortBy].get(x)||-1e9);});
+    var tiles=[["evolucao","Evolução"],["treinabilidade","Treinab"],["compromisso","Compromisso"],["consistencia","Consist"]];
 
-load();
+    document.getElementById('list').innerHTML=list.map(function(a,i){
+      var lbl=sealLbl(a.nivel_verificacao), unv=(lbl==='Por verificar');
+      var mx=tiles.map(function(t){
+        var key=t[0], on=(key===sortBy), val=a[key==='evolucao'?'evolucao_pct':key];
+        var disp=(key==='evolucao')?(((val||0)>=0?'+':'')+(val||0)+'%'):(val==null?'—':val);
+        return '<div class="mt-cell'+(on?' on':'')+'"><div class="v num">'+disp+'</div><div class="l">'+t[1]+'</div></div>';
+      }).join('');
+      return '<div class="card">'+
+        '<div class="head">'+
+          '<span class="rank'+(i<1?' top':'')+' num">'+pad(i+1)+'</span>'+
+          '<span class="seal'+(unv?' unv':'')+'">✦ '+lbl+'</span>'+
+        '</div>'+
+        '<div class="who-row"><div class="avatar">'+initials(a.nome)+'</div>'+
+          '<div class="who"><div class="nm">'+esc(a.nome)+'</div>'+
+          '<div class="mt"><span class="pos">'+esc(a.posicao||'')+'</span>'+esc(a.escalao||'')+' · '+esc(a.clube||'')+'</div></div></div>'+
+        spark(a.serie)+
+        '<div class="mx">'+mx+'</div>'+
+        '<div class="proof"><span class="mk">◇</span> <b class="num">'+(a.observadores||0)+'</b> observadores · <b class="num">'+(a.eventos||0)+'</b> eventos · <b class="num">'+(a.epocas||0)+'</b> '+((a.epocas||0)===1?'época':'épocas')+'</div>'+
+        '</div>';
+    }).join('');
+    document.getElementById('foot').innerHTML=USING_SB?'YourTalentBase · Scouting360':'<span class="demo-tag">Demonstração</span> · 6 atletas de exemplo';
+  }
+
+  function load(){
+    if(!USING_SB){ data=DEMO; render(); return; }
+    supa.rpc('ytb_scouting360',{p_ordenar:sortBy,p_limit:50}).then(function(res){
+      data=(res&&res.data&&res.data.length)?res.data:DEMO; render();
+    }).catch(function(){ data=DEMO; render(); });
+  }
+  /* ════ PORTÃO DE ACESSO (magic link + estado aprovado) ════ */
+  var ALLOW=['scout','admin'];
+  function gq(id){return document.getElementById(id);}
+  function gateMsg(h){var s=gq('gate-status');if(s)s.innerHTML=h;}
+  function showApp(){var g=gq('gate');if(g)g.style.display='none';load();}
+  function gateLogin(){
+    var email=(gq('gate-email').value||'').trim().toLowerCase();
+    var err=gq('gate-err');
+    if(!email||email.indexOf('@')<0){err.style.display='block';err.textContent='Insere um email válido';return;}
+    err.style.display='none';
+    var btn=gq('gate-btn');btn.disabled=true;btn.textContent='A enviar...';
+    supa.auth.signInWithOtp({email:email,options:{emailRedirectTo:location.href.split('#')[0].split('?')[0]}}).then(function(r){
+      if(r.error){err.style.display='block';err.textContent='Não foi possível enviar o link.';btn.disabled=false;btn.textContent='Entrar →';return;}
+      gq('gate-form').style.display='none';
+      gateMsg('<div class="gate-pend"><div class="big">📧</div><div class="t">Verifica o teu email</div><div class="s">Enviámos um link para <b>'+esc(email)+'</b>. Abre e clica para entrares.</div></div>');
+    });
+  }
+  function gateProcess(){
+    supa.auth.getSession().then(function(res){
+      var s=res&&res.data&&res.data.session; if(!s||!s.user)return;
+      var email=s.user.email.toLowerCase();
+      var f=gq('gate-form');if(f)f.style.display='none';
+      gateMsg('<div class="gate-pend"><div class="gate-spin"></div><div class="t">A verificar acesso</div></div>');
+      supa.from('perfis').select('nome,papel,estado').eq('email',email).maybeSingle().then(function(p){
+        var perfil=p&&p.data;
+        if(!perfil||perfil.estado!=='aprovado'||ALLOW.indexOf(perfil.papel)<0){
+          gateMsg('<div class="gate-pend"><div class="big">🔒</div><div class="t">Acesso pendente</div><div class="s">A conta '+esc(email)+' ainda não tem acesso aprovado. Assim que confirmarmos o pagamento, entras.</div><button id="gate-out" class="gate-btn" style="margin-top:12px">Usar outro email</button></div>');
+          var o=gq('gate-out');if(o)o.addEventListener('click',gateLogout);
+          return;
+        }
+        showApp();
+      });
+    });
+  }
+  function gateLogout(){supa.auth.signOut().then(function(){location.reload();});}
+
+  if(!USING_SB){ showApp(); }
+  else {
+    var wa=gq('wa-clube'); if(wa) wa.href='https://wa.me/351913695846?text='+encodeURIComponent('Olá! 👋 Represento um clube e quero acesso ao Scouting360 para descobrir atletas com dados. Podemos falar?');
+    gq('gate-btn').addEventListener('click',gateLogin);
+    gq('gate-email').addEventListener('keypress',function(e){if(e.key==='Enter')gateLogin();});
+    gateProcess();
+    supa.auth.onAuthStateChange(function(){gateProcess();});
+  }
+})();
 </script>
-
 </body>
 </html>

@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#080C08">
+<title>Passaporte do Atleta</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="ytb.css">
+<style>
+  :root{/* tokens próprios desta página */ --obs-bar:#3FA76E; --dec-bar2:#465147;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:'Plus Jakarta Sans',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased; line-height:1.5;
+    padding-bottom:60px;
+  }
+  .num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+  .wrap{max-width:468px;margin:0 auto;padding:0 16px}
+
+  /* ── topo ── */
+  .top{
+    position:sticky;top:0;z-index:20;background:#080C08F2;backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--border);
+  }
+  .top .wrap{display:flex;align-items:center;gap:10px;height:54px}
+  .mono{
+    font-family:'Barlow Condensed',sans-serif;font-weight:900;letter-spacing:.06em;
+    font-size:18px;color:var(--gold);
+  }
+  .top .who{flex:1;font-size:12px;color:var(--slate);font-weight:600;letter-spacing:.04em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .top button{
+    background:transparent;border:1px solid var(--border);color:var(--slate);
+    border-radius:9px;padding:7px 11px;font-family:inherit;font-size:12px;font-weight:600;
+    cursor:pointer;transition:.15s;
+  }
+  .top button:hover{color:var(--text);border-color:#2C342C}
+
+  .eyebrow{font-family:'Barlow Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.2em;font-size:11px;color:var(--muted)}
+  .shead{font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;letter-spacing:.06em;font-size:15px;color:var(--text);margin:26px 2px 11px;display:flex;align-items:center;gap:9px}
+  .shead::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent)}
+
+  /* ── cartão identidade + curva ── */
+  .pcard{background:linear-gradient(180deg,var(--bg2),#0C110C);border:1px solid var(--border);border-radius:18px;padding:16px;margin-top:16px;overflow:hidden}
+  .head{display:flex;align-items:center;gap:13px}
+  .photo{width:62px;height:62px;border-radius:14px;flex:0 0 auto;background:
+      radial-gradient(circle at 50% 35%, #28332A 0%, #131A14 70%);
+      border:1px solid var(--border);position:relative;overflow:hidden}
+  .photo::after{content:"";position:absolute;left:50%;bottom:-8px;transform:translateX(-50%);width:38px;height:38px;border-radius:50% 50% 45% 45%;background:#3A463C}
+  .photo .pp{position:absolute;inset:0;background-size:cover;background-position:center;border-radius:14px}
+  .idblock{flex:1;min-width:0}
+  .idblock .name{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:25px;line-height:1;letter-spacing:.01em}
+  .idblock .meta{font-size:12.5px;color:var(--slate);margin-top:4px}
+  .idblock .meta .pos{display:inline-block;background:var(--bg4);border:1px solid var(--border);color:var(--text);font-weight:700;font-size:11px;border-radius:6px;padding:1px 7px;margin-right:7px}
+  /* selo — assinatura, ouro */
+  .selo{flex:0 0 auto;text-align:center;color:var(--gold);border:1.4px dashed #D4AF3766;border-radius:12px;padding:7px 9px;transform:rotate(2deg)}
+  .selo .v{display:block;font-size:16px;line-height:1}
+  .selo .src{font-size:8.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-top:2px;color:#D4AF37CC}
+
+  .curvebox{position:relative;margin-top:16px;border-top:1px solid var(--border);padding-top:14px}
+  .curvebox .cap{position:absolute;top:18px;left:2px;z-index:2}
+  .curvebox .cap .big{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:32px;line-height:.9;color:var(--up)}
+  .curvebox .cap .lbl{font-size:10.5px;text-transform:uppercase;letter-spacing:.13em;color:var(--muted);margin-top:3px}
+  svg.curve{display:block;width:100%;height:150px}
+
+  /* ── contexto competitivo ── */
+  .ctx{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-top:14px}
+  .ctx>div{background:var(--bg2);padding:11px 6px;text-align:center}
+  .ctx .v{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:16px;color:var(--text)}
+  .ctx .l{font-size:8.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-top:3px;line-height:1.25}
+
+  /* ── 4 indicadores primários ── */
+  .prim{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+  .tile{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px 8px;text-align:center}
+  .tile .l{font-size:9.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:7px;line-height:1.2;min-height:23px;display:flex;align-items:center;justify-content:center}
+  .tile .v{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:27px;line-height:1}
+  .tile .v small{font-size:14px;font-weight:700}
+  .v.obs{color:var(--obs)} .v.dec{color:var(--dec)} .v.up{color:var(--up)}
+
+  /* densidade + legenda */
+  .dens{display:flex;flex-wrap:wrap;align-items:center;gap:7px 14px;margin-top:12px;padding:11px 13px;background:var(--bg2);border:1px solid var(--border);border-radius:12px}
+  .dens .lab{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700;width:100%}
+  .dens i{font-style:normal;font-size:12px;color:var(--slate)}
+  .dens i b{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:17px;color:var(--text);margin-right:5px}
+  .legend{display:flex;flex-wrap:wrap;gap:8px 16px;margin:11px 2px 0}
+  .legend i{font-style:normal;display:flex;align-items:center;gap:6px;font-size:11px;color:var(--slate)}
+  .legend .dot{width:8px;height:8px;border-radius:50%}
+
+  /* ── DNA ── */
+  .panel{background:linear-gradient(180deg,var(--bg2),#0C110C);border:1px solid var(--border);border-radius:16px;padding:16px}
+  .panel .hd{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .panel .hd h3{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:17px;text-transform:uppercase;letter-spacing:.02em}
+  .badge{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--gold);border:1px solid #D4AF3744;border-radius:20px;padding:3px 9px;white-space:nowrap}
+  .panel .sub{font-size:12px;color:var(--muted);margin-top:5px}
+  .dna-grid{margin-top:14px;display:flex;flex-direction:column;gap:11px}
+  .trait .tl{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;margin-bottom:5px}
+  .trait .tl span{color:var(--slate)}
+  .trait .tl b{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:16px}
+  .trait .tl b.obs{color:var(--obs)} .trait .tl b.dec{color:var(--dec)}
+  .barx{height:5px;background:var(--bg4);border-radius:3px;overflow:hidden}
+  .barx i{display:block;height:100%;border-radius:3px}
+  .panel .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border)}
+  .panel .stats .v{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:20px}
+  .panel .stats .l{font-size:11px;color:var(--muted);margin-top:2px}
+
+  /* atividade */
+  .act{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .act .cell{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px 6px;text-align:center}
+  .act .cell .v{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:23px}
+  .act .cell .l{font-size:9px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-top:4px;line-height:1.2}
+
+  /* marcos — ouro, orgulho */
+  .marcos{display:flex;flex-direction:column;gap:8px}
+  .marco{display:flex;align-items:center;gap:12px;background:linear-gradient(90deg,#16130A 0%,var(--bg2) 60%);border:1px solid #2A2414;border-radius:13px;padding:13px 14px}
+  .marco .ic{color:var(--gold);font-size:15px;flex:0 0 auto}
+  .marco .tt{flex:1;font-size:13.5px;font-weight:600;color:var(--text)}
+  .marco .wn{font-size:11px;color:var(--muted);white-space:nowrap}
+
+  /* carreira */
+  .car{display:flex;flex-direction:column}
+  .car .item{display:flex;gap:14px;padding:11px 0;border-bottom:1px solid var(--border)}
+  .car .item:last-child{border-bottom:0}
+  .car .yr{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:19px;color:var(--slate);width:48px;flex:0 0 auto}
+  .car .cl{font-size:13.5px;font-weight:600}
+  .car .cl small{display:block;color:var(--muted);font-weight:400;font-size:11.5px;margin-top:2px}
+
+  /* morfologia (privado) */
+  .morfo{border:1px dashed #2C342C;background:#0C110C}
+  .morfo .lock{font-size:11px;color:var(--gold);letter-spacing:.02em}
+  .morfo .fields{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+  .morfo .f{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 6px;text-align:center}
+  .morfo .f .l{font-size:9px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+  .morfo .f .v{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:18px;color:#3A463C;margin-top:3px}
+  .morfo .derived{font-size:11px;color:var(--muted);margin-top:12px;line-height:1.5}
+
+  /* timeline */
+  .tl-list{display:flex;flex-direction:column}
+  .tl-row{display:flex;align-items:flex-start;gap:11px;padding:12px 0;border-bottom:1px solid var(--border)}
+  .tl-row:last-child{border-bottom:0}
+  .tl-row .mk{font-size:13px;line-height:1.4;flex:0 0 auto;width:14px;text-align:center}
+  .tl-row .ev{flex:1;min-width:0}
+  .tl-row .ev .t{font-size:13.5px;font-weight:600}
+  .tl-row .ev .s{font-size:11.5px;color:var(--muted);margin-top:2px}
+  .tl-row .pill{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;border-radius:5px;padding:3px 6px;white-space:nowrap;align-self:center}
+  .pill.obs{background:#3FA76E22;color:var(--obs-bar);border:1px solid #3FA76E33}
+  .pill.dec{background:#46514733;color:var(--dec);border:1px solid #46514744}
+  .pill.mar{background:#D4AF3722;color:var(--gold);border:1px solid #D4AF3744}
+  .tl-row .when{font-size:10.5px;color:var(--muted);white-space:nowrap;align-self:center}
+  .up{color:var(--up)} .down{color:var(--down)}
+
+  .share{width:100%;margin-top:22px;border:none;border-radius:13px;cursor:pointer;padding:15px;background:var(--gold);color:#1A1400;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:16px;text-transform:uppercase;letter-spacing:.07em;transition:.15s}
+  .share:hover{filter:brightness(1.06)} .share:active{transform:scale(.99)}
+  .foot{text-align:center;font-size:10.5px;color:var(--muted);margin-top:18px;letter-spacing:.04em}
+  .demo-tag{display:inline-block;color:var(--gold);font-weight:700}
+
+  .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--bg4);border:1px solid var(--border);color:var(--text);padding:11px 18px;border-radius:10px;font-size:13px;opacity:0;transition:.25s;z-index:50;pointer-events:none}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+  <header class="top">
+    <div class="wrap">
+      <span class="mono">YTB</span>
+      <span class="who" id="who">—</span>
+      <button id="btn-share-top" type="button">Partilhar</button>
+      <button id="btn-exit" type="button">Sair</button>
+    </div>
+  </header>
+
+  <main class="wrap" id="app" aria-live="polite"></main>
+  <div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+  "use strict";
+  var CFG=window.YTB_CONFIG||{};
+  var URL_=CFG.SUPABASE_URL||'', KEY=CFG.SUPABASE_KEY||'';
+  var USING_SB=!!(URL_&&KEY&&window.supabase);
+  var supa=USING_SB?window.supabase.createClient(URL_,KEY):null;
+
+  // ── DEMO (Coutinho) — espelha a forma que o ytb_passaporte vai devolver ──
+  var DEMO={
+    identidade:{nome:"Coutinho",pos:"MC",pos_full:"Médio centro",clube:"Gondomar SC",escalao:"Sub-13",foto:""},
+    evolucao:{pct24:31, serie:[60,63,62,68,67,75,74,82,85,90]},
+    contexto:[["AF Porto","Associação"],["Sub-13","Escalão"],["Elite","Divisão"],["26","Jogos",1],["1820'","Min · pé dir.",1]],
+    indicadores:{treinab:87,compromisso:92,consistencia:89,verificacao:"Scout + Treinador"},
+    densidade:[["52","eventos"],["12","avaliações"],["4","observadores"],["3","épocas"]],
+    dna:[["Compromisso",92,"obs"],["Consistência",89,"dec"],["Treinabilidade",87,"obs"],["Recuperação após pausa",83,"dec"],["Adesão aos planos",76,"dec"],["Competitividade",84,"obs"]],
+    dnaStats:[["148h","Treino extra acumulado"],["há 2 dias","Último treino"]],
+    atividade:[["64","Prescritos"],["58","Concluídos"],["6","Streak sem."],["148h","Horas"]],
+    cognitivo:{acerto:80,total:142,tipos:[["Passe",83],["Condução",100],["Remate",60]],serie:[56,61,65,70,74,80]},
+    marcos:[
+      ["◆","Primeiro interesse de clube registado","há 5 dias"],
+      ["◆","100 horas de treino extra","há 1 mês"],
+      ["◆","Campeão Série 3 · Sub-13","época 25/26"],
+      ["◆","Evolução acima de 25%","há 2 meses"],
+      ["◆","Passaporte ativado","há 3 meses"]
+    ],
+    carreira:[
+      ["2026","Gondomar SC","Sub-13 · Campeão Série 3"],
+      ["2025","Gondomar SC","Sub-12"],
+      ["2024","Dragon Force","Sub-11"],
+      ["2023","Dragon Force","Sub-10"]
+    ],
+    timeline:[
+      ["mar","Interesse de clube registado","marco de carreira","há 5 dias"],
+      ["obs","Avaliação 360 <span class='up'>↑ +6</span>","régua v1 · peso 0.60","há 12 dias"],
+      ["obs","Relatório de observação","FC Porto Sub-13 · jogo","há 3 sem"],
+      ["dec","Treino concluído <span class='num'>×6</span>","YTB Elite · plano do treinador","esta sem."],
+      ["mar","Consentimento do encarregado","passaporte ativado","há 3 meses"]
+    ]
+  };
+
+  // ── helpers ──
+  function el(html){var t=document.createElement('template');t.innerHTML=html.trim();return t.content.firstChild;}
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function curveSVG(serie,pct){
+    var w=636,h=150,n=serie.length;
+    var pts=serie.map(function(v,i){return [ +(i*(w/(n-1))).toFixed(1), +(h - (v/100)*(h*0.74) - h*0.08).toFixed(1) ];});
+    var line=pts.map(function(p,i){return (i?'L':'M')+p[0]+','+p[1];}).join(' ');
+    var area=line+' L'+w+','+h+' L0,'+h+' Z';
+    var dots=pts.slice(-3).map(function(p,i){return '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+(i===2?4:3)+'" fill="#ECEFEA"/>';}).join('');
+    return '<div class="curvebox"><div class="cap"><div class="big num">+'+pct+'%</div><div class="lbl">Evolução · 24 meses</div></div>'+
+      '<svg class="curve" viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none" aria-hidden="true">'+
+      '<defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#00D46A" stop-opacity=".15"/><stop offset="1" stop-color="#00D46A" stop-opacity="0"/></linearGradient></defs>'+
+      '<path d="'+area+'" fill="url(#cg)"/><path d="'+line+'" fill="none" stroke="#00D46A" stroke-width="2.2"/>'+dots+'</svg></div>';
+  }
+
+  function render(d){
+    var id=d.identidade, ind=d.indicadores;
+    var html='';
+    // identidade + curva
+    html+='<div style="padding:18px 2px 0"><span class="eyebrow">O Passaporte</span></div>';
+    html+='<div class="pcard"><div class="head">'+
+      '<div class="photo">'+(id.foto?'<div class="pp" style="background-image:url('+esc(id.foto)+')"></div>':'')+'</div>'+
+      '<div class="idblock"><div class="name">'+esc(id.nome)+'</div><div class="meta"><span class="pos">'+esc(id.pos)+'</span>'+esc(id.clube)+' · '+esc(id.pos_full)+'</div></div>'+
+      '<div class="selo"><span class="v">✓</span><span class="src">'+esc(ind.verificacao)+'</span></div>'+
+      '</div>'+curveSVG(d.evolucao.serie,d.evolucao.pct24)+'</div>';
+    // contexto
+    html+='<div class="ctx">'+d.contexto.map(function(c){return '<div><div class="v'+(c[2]?' num':'')+'">'+esc(c[0])+'</div><div class="l">'+esc(c[1])+'</div></div>';}).join('')+'</div>';
+    // 4 primários
+    html+='<div class="prim">'+
+      '<div class="tile"><div class="l">Treinabilidade</div><div class="v obs num">'+ind.treinab+'</div></div>'+
+      '<div class="tile"><div class="l">Compromisso</div><div class="v obs num">'+ind.compromisso+'</div></div>'+
+      '<div class="tile"><div class="l">Consistência</div><div class="v dec num">'+ind.consistencia+'</div></div>'+
+      '<div class="tile"><div class="l">Evolução 24m</div><div class="v up num">+'+d.evolucao.pct24+'<small>%</small></div></div>'+
+      '</div>';
+    // densidade
+    html+='<div class="dens"><span class="lab">Densidade do retrato</span>'+d.densidade.map(function(x){return '<i><b class="num">'+x[0]+'</b>'+x[1]+'</i>';}).join('')+'</div>';
+    // legenda
+    html+='<div class="legend">'+
+      '<i><span class="dot" style="background:var(--obs-bar)"></span>observado (scout/treinador)</i>'+
+      '<i><span class="dot" style="background:var(--dec-bar2)"></span>declarado (família)</i>'+
+      '<i><span class="dot" style="background:var(--gold)"></span>verificação · selo</i></div>';
+    // DNA
+    html+='<div class="shead">DNA do Atleta</div><div class="panel">'+
+      '<div class="hd"><h3>Comportamento acumulado</h3><span class="badge">difícil de copiar</span></div>'+
+      '<div class="sub">Construído ao longo de 3 épocas. Não é um snapshot — é um padrão.</div><div class="dna-grid">'+
+      d.dna.map(function(t){var bar=t[2]==='obs'?'var(--obs-bar)':'var(--dec-bar2)';
+        return '<div class="trait"><div class="tl"><span>'+esc(t[0])+'</span><b class="'+t[2]+' num">'+t[1]+'</b></div><div class="barx"><i style="width:'+t[1]+'%;background:'+bar+'"></i></div></div>';}).join('')+
+      '</div><div class="stats">'+d.dnaStats.map(function(s){return '<div><div class="v num">'+esc(s[0])+'</div><div class="l">'+esc(s[1])+'</div></div>';}).join('')+'</div></div>';
+    // atividade
+    html+='<div class="shead">Atividade</div><div class="act">'+d.atividade.map(function(a){return '<div class="cell"><div class="v num">'+esc(a[0])+'</div><div class="l">'+esc(a[1])+'</div></div>';}).join('')+'</div>';
+    // inteligência de jogo (Elite Coach)
+    var cg=d.cognitivo, cgT=(cg&&cg.serie&&cg.serie.length>1)?(cg.serie[cg.serie.length-1]-cg.serie[0]):0;
+    if(cg){ html+='<div class="shead">Inteligência de Jogo</div><div class="panel">'+
+      '<div class="hd"><h3>Tomada de decisão</h3><span class="badge">Elite Coach</span></div>'+
+      '<div class="sub">A evoluir ao longo do tempo. Mede a decisão — não o golo.</div>'+
+      '<div style="display:flex;flex-wrap:wrap;gap:14px 24px;align-items:flex-end;margin-top:12px">'+
+        '<div style="flex:0 0 auto"><div class="num" style="font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:30px;line-height:1;color:var(--obs)">'+cg.acerto+'<small style="font-size:15px">%</small></div><div style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-top:4px">acerto global</div></div>'+
+        '<div style="flex:0 0 auto"><div class="num" style="font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:30px;line-height:1">'+cg.total+'</div><div style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-top:4px">decisões</div></div>'+
+        (cgT>0?'<div style="flex:0 0 auto;margin-left:auto;color:var(--up);font-size:12px;font-weight:600;white-space:nowrap">↗ +'+cgT+' nos últimos meses</div>':'')+
+      '</div>'+
+      '<div class="dna-grid" style="margin-top:16px">'+cg.tipos.map(function(t){return '<div class="trait"><div class="tl"><span>'+esc(t[0])+'</span><b class="obs num">'+t[1]+'%</b></div><div class="barx"><i style="width:'+t[1]+'%;background:var(--obs-bar)"></i></div></div>';}).join('')+'</div>'+
+      '</div>'; }
+    // marcos
+    html+='<div class="shead">Marcos da Carreira</div><div class="marcos">'+d.marcos.map(function(m){return '<div class="marco"><span class="ic">'+m[0]+'</span><span class="tt">'+esc(m[1])+'</span><span class="wn">'+esc(m[2])+'</span></div>';}).join('')+'</div>';
+    // carreira
+    html+='<div class="shead">Carreira</div><div class="panel car">'+d.carreira.map(function(c){return '<div class="item"><div class="yr num">'+esc(c[0])+'</div><div class="cl">'+esc(c[1])+'<small>'+esc(c[2])+'</small></div></div>';}).join('')+'</div>';
+    // morfologia
+    html+='<div class="shead">Morfologia &amp; Maturação</div><div class="panel morfo">'+
+      '<span class="lock">🔒 Privado · família · treinador · scout autorizado</span>'+
+      '<div class="fields"><div class="f"><div class="l">Altura</div><div class="v">—</div></div><div class="f"><div class="l">Peso</div><div class="v">—</div></div><div class="f"><div class="l">Altura pai</div><div class="v">—</div></div><div class="f"><div class="l">Altura mãe</div><div class="v">—</div></div></div>'+
+      '<div class="derived">Em breve · altura adulta prevista · velocidade de crescimento · maturação. Nunca visível ao público.</div></div>';
+    // timeline
+    var pill={mar:'mar',obs:'obs',dec:'dec'}, mk={mar:'<span class="mk" style="color:var(--gold)">◆</span>',obs:'<span class="mk" style="color:var(--obs-bar)">•</span>',dec:'<span class="mk" style="color:var(--dec)">·</span>'};
+    var plabel={mar:'marco',obs:'observado',dec:'declarado'};
+    html+='<div class="shead">Linha temporal</div><div class="tl-list">'+d.timeline.map(function(r){
+      return '<div class="tl-row">'+mk[r[0]]+'<div class="ev"><div class="t">'+r[1]+'</div><div class="s">'+esc(r[2])+'</div></div><span class="pill '+pill[r[0]]+'">'+plabel[r[0]]+'</span><span class="when">'+esc(r[3])+'</span></div>';
+    }).join('')+'</div>';
+    // partilhar + rodapé
+    html+='<button class="share" id="btn-share" type="button">Partilhar passaporte</button>';
+    html+='<div class="foot">'+(USING_SB?'YourTalentBase · passaporte verificado':'<span class="demo-tag">Demonstração</span> · dados de exemplo (Coutinho)')+'</div>';
+
+    document.getElementById('app').innerHTML=html;
+    document.getElementById('who').textContent=id.nome+' · '+id.clube;
+    document.getElementById('btn-share').addEventListener('click',share);
+  }
+
+  function toast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},1900);}
+  function share(){
+    var d=window.__d; var txt=(d?d.identidade.nome:'')+' — passaporte digital · YourTalentBase';
+    if(navigator.share){navigator.share({title:'Passaporte do Atleta',text:txt}).catch(function(){});}
+    else{ toast('Link copiado'); try{navigator.clipboard&&navigator.clipboard.writeText(location.href);}catch(e){} }
+  }
+  document.getElementById('btn-share-top').addEventListener('click',share);
+  document.getElementById('btn-exit').addEventListener('click',function(){
+    try{sessionStorage.removeItem('ytb_sessao');}catch(e){}
+    window.location.href='acesso.html';
+  });
+
+  // ── tradutor: forma semântica do ytb_passaporte → forma do render ──
+  function relTime(iso){
+    if(!iso) return '';
+    var then=new Date(iso), now=new Date(), d=Math.floor((now-then)/86400000);
+    if(isNaN(d)) return '';
+    if(d<=0) return 'hoje'; if(d===1) return 'ontem';
+    if(d<7) return 'há '+d+' dias';
+    if(d<14) return 'há 1 sem'; if(d<31) return 'há '+Math.floor(d/7)+' sem';
+    if(d<365){ var m=Math.max(1,Math.round(d/30)); return 'há '+m+(m===1?' mês':' meses'); }
+    var y=Math.floor(d/365); return 'há '+y+(y===1?' ano':' anos');
+  }
+  function cap(s){ s=String(s||''); return s.charAt(0).toUpperCase()+s.slice(1); }
+  function verifLabel(v){ return (!v||v==='sem_avaliacao') ? 'Sem avaliação' : String(v).split('+').map(function(x){return cap(x.trim());}).join(' + '); }
+  function nz(x){ return (x===null||x===undefined)?0:x; }
+  function mapFromRPC(r){
+    var id=r.identidade||{}, ind=r.indicadores||{}, den=r.densidade||{}, at=r.atividade||{}, cg=r.cognitivo||{};
+    var serie=(r.evolucao_serie||[]).map(function(p){return Math.round(nz(p.v));});
+    var dnaSrc=[['Compromisso',ind.compromisso,'obs'],['Consistência',ind.consistencia,'dec'],
+                ['Treinabilidade',ind.treinabilidade,'obs'],['Adesão aos planos',ind.adesao_plano,'dec'],
+                ['Nível competitivo',ind.nivel_competitivo,'obs']];
+    var dna=dnaSrc.filter(function(t){return t[1]!==null&&t[1]!==undefined;}).map(function(t){return [t[0],Math.round(t[1]),t[2]];});
+    var temCog=!!(cg&&cg.total>0);
+    return {
+      identidade:{nome:id.nome||'—', pos:id.posicao||'', pos_full:id.posicao||'', clube:id.clube||'', escalao:id.escalao||'', foto:id.foto||''},
+      evolucao:{pct24:Math.round(nz(ind.evolucao_pct)), serie:serie.length>1?serie:[50,50]},
+      contexto:[[id.associacao||'—','Associação'],[id.escalao||'—','Escalão']],
+      indicadores:{treinab:Math.round(nz(ind.treinabilidade)), compromisso:Math.round(nz(ind.compromisso)), consistencia:Math.round(nz(ind.consistencia)), verificacao:verifLabel(ind.nivel_verificacao)},
+      densidade:[[String(nz(den.eventos)),'eventos'],[String(nz(den.avaliacoes)),'avaliações'],[String(nz(den.observadores)),'observadores'],[String(nz(den.epocas)),'épocas']],
+      dna:dna,
+      dnaStats:[[nz(ind.horas_treino_extra)+'h','Treino extra acumulado'],[relTime(ind.ultimo_evento)||'—','Último evento']],
+      atividade:[[String(nz(at.prescritos)),'Prescritos'],[String(nz(at.concluidos)),'Concluídos'],[String(nz(at.semanas_ativas)),'Semanas ativas'],[nz(ind.horas_treino_extra)+'h','Horas']],
+      cognitivo: temCog?{acerto:Math.round(nz(cg.acerto_pct)), total:nz(cg.total), tipos:(cg.por_tipo||[]).map(function(t){return [cap(t.cenario),Math.round(nz(t.acerto_pct))];}), serie:(cg.serie||[]).map(function(p){return Math.round(nz(p.v));})}:null,
+      marcos:(r.marcos||[]).map(function(m){return ['◆',m.titulo||'',relTime(m.em)];}),
+      carreira:(r.carreira||[]).map(function(c){return [c.epoca||'','',''];}),
+      timeline:(r.timeline||[]).map(function(e){
+        var tp = e.categoria==='marco'?'mar':(e.origem==='declarado'?'dec':'obs');
+        var title=esc(e.titulo||'');
+        if(e.impacto&&e.impacto>0) title+=' <span class="up">↑ +'+e.impacto+'</span>';
+        else if(e.impacto&&e.impacto<0) title+=' <span class="down">↓ '+e.impacto+'</span>';
+        return [tp, title, e.fonte||cap(e.categoria||''), relTime(e.em)];
+      })
+    };
+  }
+
+  // ── carregar ──
+  function show(d){ window.__d=d; render(d); }
+  function getToken(){
+    try{var u=new URLSearchParams(location.search).get('s'); if(u) return u;}catch(e){}
+    try{return sessionStorage.getItem('ytb_sessao');}catch(e){}
+    return null;
+  }
+  var token=getToken();
+  if(USING_SB && token){
+    supa.rpc('ytb_passaporte',{ p_token: token }).then(function(res){
+      if(res.error||!res.data){ show(DEMO); return; }
+      try{ show(mapFromRPC(res.data)); }catch(e){ show(DEMO); }
+    }).catch(function(){ show(DEMO); });
+  } else { show(DEMO); }   // sem backend ou sem sessão → demonstração (Coutinho)
+})();
+</script>
+</body>
+</html>

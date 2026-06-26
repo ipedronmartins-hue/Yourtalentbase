@@ -1,0 +1,163 @@
+/* ============================================================================
+   YourTalentBase · DESIGN SYSTEM (ytb.css)
+   Fonte única da linguagem visual. Todas as páginas importam este ficheiro.
+   Para unificar uma página: <link rel="stylesheet" href="ytb.css"> e remover o
+   :root local — passa a herdar daqui. Muda-se um token aqui, muda em todo o lado.
+   ============================================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+:root{
+  /* — superfícies — */
+  --bg:#080C08;   --bg2:#0F1410;  --bg3:#161D17;  --bg4:#1A241A;
+  --border:#1F2520;  --border2:#2A322B;
+
+  /* — texto — */
+  --text:#ECEFEA;  --slate:#9AA39A;  --muted:#6B756C;
+  --white:#ECEFEA;                 /* alias legado → off-white aprovado */
+
+  /* — marca (dourado RESERVADO a selo de verificação + marcos) — */
+  --gold:#D4AF37;  --gold-bright:#F5C842;
+  --gold-soft:rgba(212,175,55,.14);  --gold-border:rgba(212,175,55,.32);
+
+  /* — sinais (com aliases legados) — */
+  --up:#00D46A;    --green:#00D46A;       /* subida / positivo */
+  --down:#ff5050;  --red:#ff5050;         /* descida / erro */
+  --warn:#E0A458;  --orange:#E0A458;      /* aviso / pendente */
+  --blue:#5AA9E6;  --purple:#A78BFA;
+
+  /* — proveniência do dado — */
+  --obs:#D3E7D9;   /* observado (scout/treinador) */
+  --dec:#8E978E;   /* declarado (família) */
+
+  /* — tipografia — */
+  --font-display:'Barlow Condensed', system-ui, sans-serif;
+  --font-body:'Plus Jakarta Sans', system-ui, sans-serif;
+
+  /* — forma / ritmo — */
+  --r:14px;  --r-sm:9px;  --r-lg:20px;
+  --maxw:980px;
+  --shadow:0 1px 0 rgba(255,255,255,.02), 0 8px 30px rgba(0,0,0,.35);
+}
+
+/* ============================ BASE ======================================== */
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font-family:var(--font-body); font-size:15px; line-height:1.5;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  font-variant-numeric:tabular-nums;
+}
+::selection{background:var(--gold-soft); color:var(--text)}
+::-webkit-scrollbar{width:10px; height:10px}
+::-webkit-scrollbar-thumb{background:var(--border2); border-radius:8px}
+::-webkit-scrollbar-track{background:transparent}
+
+h1,h2,h3,h4,h5{font-family:var(--font-display); font-weight:800; letter-spacing:.2px; line-height:1.04; margin:0 0 .4em}
+h1{font-size:30px; font-weight:900} h2{font-size:22px} h3{font-size:17px}
+p{margin:0 0 .8em}
+a{color:inherit; text-decoration:none}
+small{color:var(--slate)}
+hr{border:none; border-top:1px solid var(--border); margin:18px 0}
+img{max-width:100%; display:block}
+.mono,[class*="num"],.tabular{font-variant-numeric:tabular-nums}
+
+/* ===================== FORMULÁRIOS ======================================== */
+input,select,textarea,button{font-family:var(--font-body); font-size:14px; color:var(--text)}
+input,select,textarea{
+  background:var(--bg3); border:1px solid var(--border); border-radius:var(--r-sm);
+  padding:11px 12px; width:100%; outline:none; transition:border-color .15s, background .15s;
+}
+input::placeholder,textarea::placeholder{color:var(--muted)}
+input:focus,select:focus,textarea:focus{border-color:var(--gold-border); background:var(--bg4)}
+select{cursor:pointer; -webkit-appearance:none; appearance:none;
+  background-image:linear-gradient(45deg,transparent 50%,var(--slate) 50%),linear-gradient(135deg,var(--slate) 50%,transparent 50%);
+  background-position:calc(100% - 16px) 18px, calc(100% - 11px) 18px; background-size:5px 5px,5px 5px; background-repeat:no-repeat;
+  padding-right:32px;
+}
+button{cursor:pointer; border:none; background:none}
+
+/* ====================== LAYOUT / HELPERS ================================== */
+.ytb-wrap{max-width:var(--maxw); margin:0 auto; padding:0 16px}
+.ytb-eyebrow{font-family:var(--font-display); font-weight:900; font-size:11px; letter-spacing:2px;
+  text-transform:uppercase; color:var(--slate)}
+.ytb-muted{color:var(--muted)} .ytb-slate{color:var(--slate)}
+.up{color:var(--up)} .down{color:var(--down)} .warn{color:var(--warn)}
+.is-obs{color:var(--obs)} .is-dec{color:var(--dec)}
+.ytb-divider{height:1px; background:var(--border); margin:16px 0}
+
+/* ============================ CARTÃO ====================================== */
+.ytb-card{background:var(--bg2); border:1px solid var(--border); border-radius:var(--r); padding:16px}
+.ytb-card--raised{box-shadow:var(--shadow)}
+
+/* ============================ BOTÕES ====================================== */
+.ytb-btn{display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  font-family:var(--font-display); font-weight:800; letter-spacing:.6px; text-transform:uppercase;
+  font-size:13px; padding:12px 18px; border-radius:var(--r-sm); border:1px solid var(--border2);
+  background:var(--bg3); color:var(--text); transition:all .15s; white-space:nowrap}
+.ytb-btn:hover{border-color:var(--slate)}
+.ytb-btn:disabled{opacity:.45; cursor:not-allowed}
+.ytb-btn--gold{background:var(--gold); border-color:var(--gold); color:#0A0D0A}
+.ytb-btn--gold:hover{background:var(--gold-bright); border-color:var(--gold-bright)}
+.ytb-btn--ghost{background:transparent}
+.ytb-btn--danger{border-color:rgba(255,80,80,.4); color:var(--down); background:transparent}
+.ytb-btn--block{width:100%}
+
+/* ============================ PÍLULAS ===================================== */
+.ytb-pill{display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:700;
+  padding:3px 9px; border-radius:999px; background:var(--bg4); color:var(--slate); border:1px solid var(--border)}
+.ytb-pill[data-tone="ok"]{color:var(--up); border-color:rgba(0,212,106,.3); background:rgba(0,212,106,.08)}
+.ytb-pill[data-tone="warn"]{color:var(--warn); border-color:rgba(224,164,88,.3); background:rgba(224,164,88,.08)}
+.ytb-pill[data-tone="down"]{color:var(--down); border-color:rgba(255,80,80,.3); background:rgba(255,80,80,.08)}
+.ytb-pill[data-tone="gold"]{color:var(--gold); border-color:var(--gold-border); background:var(--gold-soft)}
+
+/* ====================== SELO DE VERIFICAÇÃO =============================== */
+/* dourado é reservado: usar só aqui e nos marcos de carreira */
+.ytb-seal{display:inline-flex; align-items:center; gap:6px; font-family:var(--font-display);
+  font-weight:800; font-size:11px; letter-spacing:1px; text-transform:uppercase;
+  color:var(--gold); padding:4px 10px; border:1px solid var(--gold-border);
+  border-radius:999px; background:var(--gold-soft)}
+.ytb-seal::before{content:"✦"; font-size:10px}
+
+/* ============================ BADGE ======================================= */
+.ytb-badge{font-size:9px; font-weight:800; padding:1px 6px; border-radius:8px;
+  background:var(--gold); color:#0A0D0A}
+.ytb-badge--red{background:var(--down); color:#fff}
+
+/* ============================ ABAS ======================================== */
+.ytb-tabs{display:flex; gap:4px; border-bottom:1px solid var(--border); overflow-x:auto}
+.ytb-tab{padding:11px 16px; background:transparent; color:var(--slate);
+  font-family:var(--font-display); font-weight:900; font-size:12px; letter-spacing:1.5px;
+  text-transform:uppercase; white-space:nowrap; border-bottom:2px solid transparent; transition:all .15s}
+.ytb-tab:hover{color:var(--text)}
+.ytb-tab.active{color:var(--gold); border-bottom-color:var(--gold)}
+
+/* ============================ KPI ========================================= */
+.ytb-kpi{background:var(--bg2); border:1px solid var(--border); border-left:3px solid var(--gold);
+  border-radius:var(--r-sm); padding:14px 16px}
+.ytb-kpi-n{font-family:var(--font-display); font-weight:900; font-size:26px; line-height:1}
+.ytb-kpi-l{font-size:11px; color:var(--slate); text-transform:uppercase; letter-spacing:1px; margin-top:4px}
+
+/* ============================ TABELA ====================================== */
+.ytb-table{width:100%; border-collapse:collapse; font-size:13px}
+.ytb-table th{text-align:left; font-family:var(--font-display); font-weight:800; font-size:11px;
+  letter-spacing:1px; text-transform:uppercase; color:var(--gold); padding:12px 14px; border-bottom:1px solid var(--border)}
+.ytb-table td{padding:12px 14px; border-bottom:1px solid var(--border); color:var(--text)}
+.ytb-table tr:hover td,.ytb-table tbody tr:hover td{background:var(--bg3)}
+
+/* ====================== CURVA / SPARK (svg) ============================== */
+.ytb-spark{display:block; width:100%; height:auto}
+
+/* ============================ ESTADOS ===================================== */
+.ytb-loading{display:flex; align-items:center; justify-content:center; padding:30px; color:var(--muted)}
+.ytb-spinner{width:22px; height:22px; border:2px solid var(--border2); border-top-color:var(--gold);
+  border-radius:50%; animation:ytb-spin .7s linear infinite}
+@keyframes ytb-spin{to{transform:rotate(360deg)}}
+.ytb-empty{text-align:center; color:var(--muted); padding:28px}
+
+/* ============================ PWA / mobile =============================== */
+@media (max-width:560px){
+  h1{font-size:25px} .ytb-wrap{padding:0 13px}
+  .ytb-btn{font-size:12px; padding:11px 15px}
+}

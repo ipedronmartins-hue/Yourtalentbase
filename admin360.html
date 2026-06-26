@@ -7,16 +7,12 @@
 <meta name="robots" content="noindex,nofollow">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,700;0,800;0,900;1,900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- Design system único: fonte dos tokens aprovados (ver ytb.css) -->
+<link rel="stylesheet" href="ytb.css">
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-:root{
-  --bg:#080C08;--bg2:#0F1410;--bg3:#161D17;
-  --gold:#D4AF37;--gold-soft:rgba(212,175,55,.15);--gold-border:rgba(212,175,55,.3);
-  --gold-bright:#F5C842;
-  --green:#00D46A;--orange:#FFA500;--red:#FF4A4A;--blue:#4A9FE8;--purple:#A78BFA;
-  --border:#1F2520;--white:#fff;--slate:#aaa;--muted:#666;
-}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:#fff;min-height:100vh;-webkit-font-smoothing:antialiased}
+/* tokens herdados de ytb.css (paleta aprovada). Só estilos locais a partir daqui. */
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
 
 /* NAV */
 .nav{position:sticky;top:0;z-index:50;background:rgba(8,12,8,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;max-width:1400px;margin:0 auto}
@@ -163,9 +159,9 @@ tr:last-child td{border-bottom:none}
 <div style="display:flex;gap:8px;flex-wrap:wrap;padding:10px 18px;background:#0d100d;border-bottom:1px solid #1F2520;font-size:12px">
   <span style="color:#7a7a7a;align-self:center">Entrar como →</span>
   <a href="pro-treinador.html" style="color:#D4AF37;text-decoration:none;border:1px solid #2a2f28;border-radius:7px;padding:5px 11px">🎓 Pro Treinador</a>
-  <a href="pro-pai.html" style="color:#D4AF37;text-decoration:none;border:1px solid #2a2f28;border-radius:7px;padding:5px 11px">👨‍👧 Pro Família</a>
+  <a href="acesso.html" style="color:#D4AF37;text-decoration:none;border:1px solid #2a2f28;border-radius:7px;padding:5px 11px">👨‍👧 Pro Família</a>
   <a href="scouts.html" style="color:#D4AF37;text-decoration:none;border:1px solid #2a2f28;border-radius:7px;padding:5px 11px">📋 Área Scout</a>
-  <a href="scouting360-dashboard.html" style="color:#D4AF37;text-decoration:none;border:1px solid #2a2f28;border-radius:7px;padding:5px 11px">🔎 Dashboard B2B</a>
+  <a href="scouting360.html" style="color:#D4AF37;text-decoration:none;border:1px solid #2a2f28;border-radius:7px;padding:5px 11px">🔎 Dashboard B2B</a>
   <a href="elite-coach.html" style="color:#D4AF37;text-decoration:none;border:1px solid #2a2f28;border-radius:7px;padding:5px 11px">🧠 Elite Coach</a>
 </div>
 
@@ -1219,6 +1215,19 @@ function editarAtleta(id){
     </div>
 
     <div class="edit-section">
+      <div class="edit-sec-title">📊 Contexto competitivo <span style="font-weight:400;font-size:11px;color:#8a958a">(alimenta a avaliação contextual · tudo opcional)</span></div>
+      <div class="edit-grid">
+        <div class="edit-field"><label class="edit-label">Época ref.</label><input class="edit-input" id="e_epoca" placeholder="2025/26" value="${escapeHtml(a.epoca_ref || '')}"></div>
+        <div class="edit-field full"><label class="edit-label">Divisão / nível</label><input class="edit-input" id="e_div" placeholder="ex: 1ª Div. Distrital AF Porto" value="${escapeHtml(a.divisao || '')}"></div>
+        <div class="edit-field"><label class="edit-label">Golos (atleta)</label><input class="edit-input" id="e_golos" type="number" value="${a.golos_epoca ?? ''}"></div>
+        <div class="edit-field"><label class="edit-label">Jogos (atleta)</label><input class="edit-input" id="e_jogos" type="number" value="${a.jogos_epoca ?? ''}"></div>
+        <div class="edit-field"><label class="edit-label">Assistências</label><input class="edit-input" id="e_assist" type="number" value="${a.assist_epoca ?? ''}"></div>
+        <div class="edit-field"><label class="edit-label">Golos da EQUIPA</label><input class="edit-input" id="e_goleq" type="number" placeholder="total da equipa" value="${a.golos_equipa_epoca ?? ''}"></div>
+        <div class="edit-field full"><label class="edit-label">Classificação da equipa</label><input class="edit-input" id="e_class" placeholder="ex: 3º de 12 · campeão" value="${escapeHtml(a.classificacao_equipa || '')}"></div>
+      </div>
+    </div>
+
+    <div class="edit-section">
       <div class="edit-sec-title">📞 Encarregado de Educação</div>
       <div class="edit-grid">
         <div class="edit-field"><label class="edit-label">Nome EE</label><input class="edit-input" id="e_eenome" value="${escapeHtml(a.encarregado_nome || '')}"></div>
@@ -1274,6 +1283,13 @@ async function saveAtleta(){
     area_excelencia_3: nullIf(get('e_ex3')),
     encarregado_nome: nullIf(get('e_eenome')),
     encarregado_telefone: nullIf(get('e_eetel')),
+    epoca_ref: nullIf(get('e_epoca')),
+    divisao: nullIf(get('e_div')),
+    golos_epoca: num('e_golos'),
+    jogos_epoca: num('e_jogos'),
+    assist_epoca: num('e_assist'),
+    golos_equipa_epoca: num('e_goleq'),
+    classificacao_equipa: nullIf(get('e_class')),
     estado: get('e_estado'),
     visivel_publico: get('e_pub') === 'true',
     visivel_b2b: get('e_b2b') === 'true',
@@ -1363,45 +1379,83 @@ async function gerarNarrativaAdmin(atletaId){
   try {
     const a = allAtletas.find(x => String(x.id) === String(atletaId));
     if(!a) throw new Error('atleta não carregado');
-    const { data: avs } = await supa.from('atletas_360_avaliacoes').select('*').eq('atleta_id', atletaId).eq('estado','ativo').order('created_at',{ascending:false}).limit(1);
-    const av = avs && avs[0];
-    if(!av){ alert('Este atleta ainda não tem nenhuma avaliação por dimensões. Pede uma avaliação (treinador/scout) primeiro — a IA interpreta, não inventa.'); if(btn){btn.disabled=false;btn.textContent='🧠 Gerar avaliação contextual (IA)';} return; }
-    let { data: reps } = await supa.from('relatorios').select('*').eq('atleta_id', atletaId).order('created_at',{ascending:false}).limit(1);
-    if(!reps || !reps.length){ const r2 = await supa.from('relatorios').select('*').ilike('atleta', '%'+(a.primeiro_nome||a.nome||'').split(' ')[0]+'%').order('created_at',{ascending:false}).limit(1); reps = r2.data; }
-    const rep = reps && reps[0];
-    let repResumo = 'sem Scout Report';
-    if(rep){
-      const partes = [];
-      for(const k in rep){ const v = rep[k]; if(v !== null && (typeof v === 'number' || (typeof v === 'string' && v.length <= 60)) && !['id','atleta_id','scout_email','created_at'].includes(k)) partes.push(k + ': ' + v); }
-      repResumo = partes.slice(0, 25).join(' · ');
-    }
-    const idade = a.ano_nascimento ? (new Date().getFullYear() - a.ano_nascimento) : 'n/d';
-    const prompt = `És o motor de avaliação da YourTalentBase (futebol jovem, Portugal). Gera rating e narrativa a partir dos dados EXISTENTES (interpretar, nunca inventar).
 
-ATLETA (sem nome): ${a.posicao_principal||'n/d'} · ${a.escalao||'n/d'} · ${idade} anos · ${a.clube_actual||a.clube||'n/d'} · ${a.associacao||'n/d'}
-AVALIAÇÃO POR DIMENSÕES (${av.avaliador_tipo}): impacto ${av.dim_impacto||'n/d'} · compromisso ${av.dim_compromisso||'n/d'} · treinabilidade ${av.dim_treinabilidade||'n/d'} · competitividade ${av.dim_competitividade||'n/d'}
-SCOUT REPORT (dados disponíveis): ${repResumo}
+    // ── Contexto competitivo (o que existe; a IA é honesta sobre o que falta) ──
+    const idade = a.ano_nascimento ? (new Date().getFullYear() - a.ano_nascimento) : null;
+    const ctx = {
+      posicao: a.posicao_principal || null,
+      escalao: a.escalao || null,
+      idade: idade,
+      clube: a.clube_actual || a.clube || null,
+      associacao: a.associacao || null,
+      divisao: a.divisao || null,
+      epoca: a.epoca_ref || null,
+      golos: (a.golos_epoca ?? null),
+      jogos: (a.jogos_epoca ?? null),
+      assist: (a.assist_epoca ?? null),
+      golos_equipa: (a.golos_equipa_epoca ?? null),
+      classificacao: a.classificacao_equipa || null
+    };
 
-RÉGUA (v1): A+ excecional no escalão · A muito acima · B+ acima · B dentro com potencial · C+ dentro · C a desenvolver · D abaixo. Conservador: A+ e A raros. Treinabilidade e compromisso pesam tanto como impacto.
-NARRATIVA (70-100 palavras, PT-PT, 3ª pessoa, sem nome): identifica as fontes (avaliação do ${av.avaliador_tipo}${rep ? ' + Scout Report' : ''}), contextualiza pela idade/escalão, sem hype, termina com a área prioritária.
+    // rácios calculados (só quando há dados — a IA recebe-os já feitos, não os inventa)
+    let calc = [];
+    if(ctx.golos!=null && ctx.jogos){ calc.push('rácio golos/jogo: ' + (ctx.golos/ctx.jogos).toFixed(2)); }
+    if(ctx.golos!=null && ctx.golos_equipa){ calc.push('peso nos golos da equipa: ' + Math.round(ctx.golos/ctx.golos_equipa*100) + '%'); }
 
-REGRA DE ROBUSTEZ: mesmo com dados parciais ou em falta, escolhe SEMPRE uma letra da régua (na dúvida, sê prudente: B ou C) e declara a limitação na narrativa. Nunca devolvas outra coisa.
-A tua resposta deve COMEÇAR com { e TERMINAR com }. Sem texto antes, sem texto depois, sem markdown: {"rating":"B+","narrativa":"..."}`;
-    const r = await fetch('/api/claude', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ prompt: prompt, max_tokens: 700 }) });
+    // linhas de contexto, marcando o que falta
+    const linhas = [];
+    linhas.push('Posição: ' + (ctx.posicao||'n/d') + ' · Escalão: ' + (ctx.escalao||'n/d') + (ctx.idade?(' · '+ctx.idade+' anos'):''));
+    linhas.push('Clube: ' + (ctx.clube||'n/d') + ' · Associação: ' + (ctx.associacao||'n/d'));
+    linhas.push('Divisão/nível: ' + (ctx.divisao||'NÃO INFORMADO'));
+    linhas.push('Época: ' + (ctx.epoca||'n/d'));
+    linhas.push('Golos do atleta: ' + (ctx.golos!=null?ctx.golos:'NÃO INFORMADO') + ' · Jogos: ' + (ctx.jogos!=null?ctx.jogos:'NÃO INFORMADO') + ' · Assist: ' + (ctx.assist!=null?ctx.assist:'n/d'));
+    linhas.push('Golos da equipa (total): ' + (ctx.golos_equipa!=null?ctx.golos_equipa:'NÃO INFORMADO'));
+    linhas.push('Classificação da equipa: ' + (ctx.classificacao||'NÃO INFORMADO'));
+    if(calc.length) linhas.push('Rácios já calculados (factuais): ' + calc.join(' · '));
+
+    const prompt = `És o motor de avaliação contextual da YourTalentBase (futebol jovem, Portugal). A tua função é interpretar o desempenho de um jovem atleta TENDO EM CONTA O CONTEXTO onde joga — porque os números nus enganam: 30 golos numa equipa que marca 250 não valem o mesmo que 30 numa equipa que marca 60; a 1ª divisão não é a 2ª.
+
+DADOS DO ATLETA (sem nome):
+${linhas.join('\n')}
+
+REGRAS ABSOLUTAS DE HONESTIDADE:
+- Usa APENAS os dados fornecidos. NUNCA inventes números que não estão acima.
+- Onde diz "NÃO INFORMADO", NÃO inventes — ou omites, ou dizes explicitamente que falta esse dado para uma leitura completa.
+- Se tens os golos do atleta mas NÃO os da equipa, fala do rácio golos/jogo (que sabes), mas NÃO afirmes o peso na equipa (que não sabes).
+- Distingue sempre o que é FACTO (os números) do que é LEITURA (a tua interpretação).
+
+COMO CONTEXTUALIZAR:
+- Pondera o nível competitivo (divisão) e a posição na tabela da equipa.
+- Um avançado numa equipa fraca que marca muito carrega a equipa; numa equipa forte, partilha o mérito.
+- Sê conservador e profissional. Sem hype. Linguagem de scout sério, não de marketing.
+
+FORMATO DA RESPOSTA:
+- Texto corrido, PT-PT, 3ª pessoa, SEM nome do atleta.
+- 80 a 120 palavras.
+- Começa pela leitura contextual mais relevante. Termina com o que falta saber para uma avaliação mais completa (se aplicável).
+- Devolve APENAS o texto da análise. Sem JSON, sem markdown, sem aspas, sem preâmbulo.`;
+
+    const r = await fetch('/api/claude', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ prompt: prompt, max_tokens: 600 }) });
     if(!r.ok) throw new Error('API ' + r.status);
     const j = await r.json();
     let txt = ''; (j.content||[]).forEach(c => { if(c.type==='text') txt += c.text; });
-    const m = txt.match(/\{[\s\S]*\}/);
-    let parsed;
-    try { parsed = JSON.parse(m ? m[0] : txt); }
-    catch(pe){ throw new Error('IA não devolveu JSON. Resposta: ' + txt.slice(0,200)); }
-    let letra = String(parsed.rating || '').toUpperCase().replace(/\s+/g,'').replace('PLUS','+');
-    if(letra === 'C-' || letra === 'D+') letra = letra[0];
-    if(!['A+','A','B+','B','C+','C','D'].includes(letra) || !parsed.narrativa) throw new Error('IA devolveu formato inesperado: ' + txt.slice(0,200));
-    parsed.rating = letra;
-    const { error: upErr } = await supa.from('atletas_360_avaliacoes').update({ rating: parsed.rating, narrativa_ia: String(parsed.narrativa).slice(0,900) }).eq('id', av.id);
-    if(upErr) throw upErr;
-    alert('✓ Avaliação contextual gerada\n\nRating: ' + parsed.rating + '\n\n' + parsed.narrativa);
+    txt = (txt||'').trim();
+    if(txt.length < 40) throw new Error('IA devolveu texto vazio ou curto demais: ' + txt.slice(0,120));
+
+    // ── Gravar na tabela de histórico (append-only) com snapshot dos dados ──
+    let adminEmail = '';
+    try { const { data:{ session } } = await supa.auth.getSession(); adminEmail = session?.user?.email || ''; } catch(e){}
+    const { error: insErr } = await supa.from('avaliacoes_contextuais').insert({
+      id: crypto.randomUUID(),
+      atleta_id: atletaId,
+      texto_ia: txt,
+      snapshot: ctx,
+      gerado_por: adminEmail,
+      modelo: 'claude'
+    });
+    if(insErr) throw insErr;
+
+    alert('✓ Avaliação contextual gerada e GRAVADA no histórico\n\n' + txt);
   } catch(e){
     alert('Não foi possível gerar: ' + (e.message || 'erro'));
   }
@@ -1427,12 +1481,24 @@ async function carregarContas(){
       return `<tr>
         <td>${escapeHtml(c.nome || '—')}</td>
         <td style="font-size:11px">${escapeHtml(c.email || '')}</td>
-        <td>${escapeHtml(c.papel || '—')}</td>
+        <td>${(protegida || c.papel === 'admin') ? escapeHtml(c.papel || '—') : `<select onchange="mudarPapelConta('${c.email}', this.value)" style="background:#171D18;border:1px solid #2A322B;border-radius:7px;color:#ECEFEA;font-size:11px;padding:5px 7px;cursor:pointer">
+          <option value="" disabled${['treinador','scout','familia'].includes(c.papel)?'':' selected'}>— escolher —</option>
+          <option value="treinador"${c.papel==='treinador'?' selected':''}>🎓 Treinador</option>
+          <option value="scout"${c.papel==='scout'?' selected':''}>🔍 Scout</option>
+          <option value="familia"${c.papel==='familia'?' selected':''}>👨‍👩‍👦 Família</option>
+        </select>`}</td>
         <td><span style="color:${cor};font-weight:700;font-size:11px;text-transform:uppercase">${escapeHtml(c.estado || '—')}</span></td>
         <td>${acao}</td>
       </tr>`;
     }).join('');
   } catch(e){ tb.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#ff5050;padding:20px">Erro a carregar contas: ' + escapeHtml(e.message || '') + '</td></tr>'; }
+}
+async function mudarPapelConta(email, novoPapel){
+  if(!novoPapel) return;
+  if(CONTAS_PROTEGIDAS.includes((email||'').toLowerCase())){ alert('Conta protegida — não pode ser alterada.'); carregarContas(); return; }
+  const { error } = await supa.from('perfis').update({ papel: novoPapel }).eq('email', email);
+  if(error){ alert('Não foi possível mudar o papel: ' + (error.message || 'erro')); carregarContas(); return; }
+  carregarContas();
 }
 async function mudarEstadoConta(email, novoEstado){
   if(CONTAS_PROTEGIDAS.includes((email||'').toLowerCase())){ alert('Conta protegida — não pode ser alterada.'); return; }

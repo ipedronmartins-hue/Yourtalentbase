@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#080C08">
+<title>Observação · Scout</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="ytb.css">
+<style>
+  
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.5;padding-bottom:60px}
+  .num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+  .wrap{max-width:500px;margin:0 auto;padding:0 16px}
+  .top{position:sticky;top:0;z-index:20;background:#080C08F2;backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
+  .top .wrap{display:flex;align-items:center;gap:10px;height:54px}
+  .mono{font-family:'Barlow Condensed',sans-serif;font-weight:900;letter-spacing:.06em;font-size:18px;color:var(--gold)}
+  .top .ttl{flex:1;font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;letter-spacing:.05em;font-size:16px}
+
+  /* atleta */
+  .who{display:flex;align-items:center;gap:12px;margin-top:16px;padding:14px;background:var(--bg2);border:1px solid var(--border);border-radius:14px}
+  .who .ph{width:46px;height:46px;border-radius:11px;background:radial-gradient(circle at 50% 35%,#28332A,#131A14);border:1px solid var(--border);flex:0 0 auto}
+  .who .n{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:21px;line-height:1}
+  .who .m{font-size:12px;color:var(--slate);margin-top:3px}
+  .who .pos{display:inline-block;background:var(--bg4);border:1px solid var(--border);color:var(--text);font-weight:700;font-size:10px;border-radius:5px;padding:1px 6px;margin-right:6px}
+
+  /* DOSSIER de contexto (só leitura) */
+  .ctxwrap{margin-top:16px;border:1px solid var(--border);border-radius:16px;overflow:hidden;background:linear-gradient(180deg,#0C110C,#0A0E0A)}
+  .ctxbar{display:flex;align-items:center;gap:8px;padding:11px 14px;background:#0E140E;border-bottom:1px solid var(--border)}
+  .ctxbar .tag{font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;letter-spacing:.08em;font-size:12px;color:var(--slate)}
+  .ctxbar .note{font-size:10.5px;color:var(--muted);margin-left:auto;display:flex;align-items:center;gap:5px}
+  .ctxbar .note::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--muted)}
+  .ctxbody{padding:14px}
+  .ctxbody .lbl{font-size:9.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:0 0 8px 2px}
+  /* curva compacta */
+  .cwrap{position:relative;border:1px solid var(--border);border-radius:11px;background:var(--bg);padding:10px;margin-bottom:13px}
+  .cwrap .pct{position:absolute;top:12px;left:12px;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:22px;color:var(--up)}
+  .cwrap .pl{position:absolute;top:38px;left:12px;font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+  svg.cv{display:block;width:100%;height:80px}
+  /* grelha de indicadores (contexto, calma) */
+  .igrid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+  .ind{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:9px 6px;text-align:center}
+  .ind .v{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:18px;color:var(--text)}
+  .ind .v small{font-size:11px}
+  .ind .l{font-size:8.5px;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);margin-top:3px;line-height:1.2}
+  .ind.wide{grid-column:span 2}
+  .ind .v.txt{font-size:13px}
+  /* eventos */
+  .evs{margin-top:13px;display:flex;flex-direction:column}
+  .ev{display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid var(--border)}
+  .ev:last-child{border-bottom:0}
+  .ev .t{flex:1;font-size:12.5px;color:var(--slate)}
+  .ev .p{font-size:8.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;border-radius:4px;padding:2px 5px}
+  .p.obs{background:#3FA76E22;color:var(--obs);border:1px solid #3FA76E33}
+  .p.dec{background:#46514733;color:var(--slate);border:1px solid #46514744}
+  .p.mar{background:#D4AF3722;color:var(--gold);border:1px solid #D4AF3744}
+  .ev .w{font-size:10px;color:var(--muted);white-space:nowrap}
+
+  /* separador forte */
+  .divide{display:flex;align-items:center;gap:12px;margin:24px 2px 16px}
+  .divide .ln{flex:1;height:1px;background:var(--border)}
+  .divide .tx{font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;letter-spacing:.05em;font-size:13px;color:var(--text)}
+
+  /* OBSERVAÇÃO (começa em branco) */
+  .obscard{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:16px}
+  .obscard .blank{font-size:11.5px;color:var(--warn);background:#E0A4580F;border:1px solid #E0A45822;border-radius:9px;padding:9px 11px;margin-bottom:16px;display:flex;gap:8px}
+  .dim{margin-bottom:15px}
+  .dim .dl{font-size:13px;font-weight:600;margin-bottom:8px;display:flex;justify-content:space-between}
+  .dim .dl .st{color:var(--muted);font-size:11px;font-weight:500}
+  .scale{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+  .scale button{background:var(--bg);border:1px solid var(--border);color:var(--slate);border-radius:9px;padding:11px 0;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:17px;cursor:pointer;transition:.12s}
+  .scale button:hover{border-color:#2C342C;color:var(--text)}
+  .scale button.sel{background:var(--obs);border-color:var(--obs);color:#06140C}
+  textarea{width:100%;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:11px;padding:12px;font-family:inherit;font-size:14px;resize:vertical;min-height:84px;outline:none}
+  textarea:focus-visible{border-color:var(--gold);box-shadow:0 0 0 3px #D4AF3722}
+  textarea::placeholder{color:#3C443D}
+  .submit{width:100%;margin-top:16px;border:none;border-radius:12px;padding:15px;background:var(--gold);color:#1A1400;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:16px;text-transform:uppercase;letter-spacing:.07em;cursor:pointer;transition:.15s}
+  .submit:hover{filter:brightness(1.06)} .submit[disabled]{opacity:.45;cursor:default}
+  .done{text-align:center;padding:26px 10px}
+  .done .ic{width:54px;height:54px;border-radius:50%;border:1.5px solid var(--up);color:var(--up);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:26px}
+  .done h2{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:22px;text-transform:uppercase}
+  .done p{color:var(--slate);font-size:13.5px;margin-top:6px}
+  .foot{text-align:center;font-size:10.5px;color:var(--muted);margin-top:18px}
+  .demo-tag{color:var(--gold);font-weight:700}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+  .gate{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:22px}
+  .gate-card{max-width:400px;width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:28px 24px;text-align:center}
+  .gate-brand{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--slate);margin-bottom:18px}
+  .gate-h{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:26px;margin-bottom:8px}
+  .gate-s{font-size:13px;color:var(--slate);line-height:1.55;margin-bottom:20px}
+  .gate-input{width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:10px;padding:13px;color:var(--text);font-family:inherit;font-size:15px;margin-bottom:10px}
+  .gate-input:focus{outline:none;border-color:var(--slate)}
+  .gate-err{color:var(--down);font-size:12.5px;min-height:16px;margin-bottom:8px;display:none}
+  .gate-btn{width:100%;background:var(--text);color:#0A0D0A;border:none;border-radius:10px;padding:13px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
+  .gate-btn:disabled{opacity:.5}
+  .gate-contact{margin-top:14px;font-size:12px;color:var(--muted)}
+  .gate-contact a{color:var(--slate)}
+  .gate-pend .big{font-size:40px;margin-bottom:10px}
+  .gate-pend .t{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:20px;margin-bottom:6px}
+  .gate-pend .s{font-size:13px;color:var(--slate);line-height:1.55}
+  .gate-spin{width:24px;height:24px;border:2px solid var(--border2);border-top-color:var(--text);border-radius:50%;animation:gsp .8s linear infinite;margin:8px auto}
+  @keyframes gsp{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+  <div id="gate" class="gate">
+    <div class="gate-card">
+      <div class="gate-brand"><span class="mono">YTB</span> · Área reservada</div>
+      <div id="gate-form">
+        <div class="gate-h">Observação</div>
+        <div class="gate-s">Acesso a scouts, treinadores e admin. Entras por link no email — sem password. O acesso abre quando confirmarmos o teu pagamento.</div>
+        <input id="gate-email" class="gate-input" type="email" placeholder="o.teu@email.com" autocomplete="email">
+        <div class="gate-err" id="gate-err"></div>
+        <button id="gate-btn" class="gate-btn">Entrar →</button>
+        <div class="gate-contact">Ainda não tens acesso? <a id="wa-pedir" href="#" target="_blank" rel="noopener">Pedir por WhatsApp →</a></div>
+      </div>
+      <div id="gate-status"></div>
+    </div>
+  </div>
+  <header class="top"><div class="wrap"><span class="mono">YTB</span><span class="ttl">Observação</span></div></header>
+  <main class="wrap" id="app"></main>
+
+<script>
+(function(){
+  "use strict";
+  var CFG=window.YTB_CONFIG||{};
+  var URL_=CFG.SUPABASE_URL||'',KEY=CFG.SUPABASE_KEY||'';
+  var USING_SB=!!(URL_&&KEY&&window.supabase);
+  var supa=USING_SB?window.supabase.createClient(URL_,KEY):null;
+
+  var ATLETA={nome:"Coutinho",pos:"MC",escalao:"Sub-13",clube:"Gondomar SC"};
+  // DEMO do contexto — mesma forma do ytb_contexto
+  var DEMO={
+    indicadores:{treinabilidade:87,compromisso:92,consistencia:89,nivel_competitivo:84,horas_treino_extra:148,adesao_plano:76,evolucao_pct:31,nivel_verificacao:"Scout + Treinador"},
+    evolucao_serie:[{v:60},{v:63},{v:62},{v:68},{v:67},{v:75},{v:74},{v:82},{v:85},{v:90}],
+    eventos:[
+      {titulo:"Avaliação 360 (+6)",origem:"observado",em:"há 12 dias"},
+      {titulo:"Relatório de observação",origem:"observado",em:"há 3 sem"},
+      {titulo:"Treino concluído ×6",origem:"declarado",em:"esta sem."},
+      {titulo:"Interesse de clube",origem:"marco",em:"há 5 dias"},
+      {titulo:"100h de treino extra",origem:"marco",em:"há 1 mês"}
+    ]
+  };
+
+  // dimensões que o scout avalia — começam SEM valor
+  var DIMS=[["treinabilidade","Treinabilidade"],["compromisso","Compromisso"],["competitividade","Competitividade"],["impacto","Impacto técnico"]];
+  var notas={};  // vazio de propósito
+
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function relt(v){return (typeof v==='string')?v:new Date(v).toLocaleDateString('pt-PT');}
+  function curve(serie){
+    var w=460,h=80,n=serie.length; if(!n) return '';
+    var vals=serie.map(function(p){return p.v;});
+    var pts=vals.map(function(v,i){return [+(i*(w/(n-1))).toFixed(1),+(h-(v/100)*(h*0.7)-h*0.12).toFixed(1)];});
+    var line=pts.map(function(p,i){return (i?'L':'M')+p[0]+','+p[1];}).join(' ');
+    var area=line+' L'+w+','+h+' L0,'+h+' Z';
+    var pct = vals.length>1 ? Math.round((vals[vals.length-1]-vals[0])/vals[0]*100) : 0;
+    return '<div class="cwrap"><div class="pct num">+'+pct+'%</div><div class="pl">24 meses</div>'+
+      '<svg class="cv" viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none" aria-hidden="true">'+
+      '<defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#00D46A" stop-opacity=".15"/><stop offset="1" stop-color="#00D46A" stop-opacity="0"/></linearGradient></defs>'+
+      '<path d="'+area+'" fill="url(#g)"/><path d="'+line+'" fill="none" stroke="#00D46A" stroke-width="2"/></svg></div>';
+  }
+
+  function renderContext(ctx){
+    var i=ctx.indicadores||{}, pillc={observado:'obs',declarado:'dec',marco:'mar'};
+    function ind(v,l,wide,txt){return '<div class="ind'+(wide?' wide':'')+'"><div class="v'+(txt?' txt':' num')+'">'+v+'</div><div class="l">'+l+'</div></div>';}
+    var ev=(ctx.eventos||[]).slice(0,10).map(function(e){var p=pillc[e.origem]||'dec';
+      return '<div class="ev"><span class="t">'+esc(e.titulo)+'</span><span class="p '+p+'">'+esc(e.origem)+'</span><span class="w">'+esc(relt(e.em))+'</span></div>';}).join('');
+    return '<div class="ctxwrap"><div class="ctxbar"><span class="tag">Contexto · histórico</span><span class="note">só leitura · não influencia a tua avaliação</span></div>'+
+      '<div class="ctxbody">'+
+        '<div class="lbl">Evolução</div>'+curve(ctx.evolucao_serie||[])+
+        '<div class="lbl">Indicadores acumulados</div><div class="igrid">'+
+          ind(i.treinabilidade,'Treinab.')+ind(i.compromisso,'Compromisso')+ind(i.consistencia,'Consist.')+ind(i.nivel_competitivo,'Nível comp.')+
+          ind((i.horas_treino_extra!=null?i.horas_treino_extra:'—')+'<small>h</small>','Treino extra')+ind((i.adesao_plano!=null?i.adesao_plano:'—')+'<small>%</small>','Adesão')+
+          ind((i.evolucao_pct>=0?'+':'')+i.evolucao_pct+'<small>%</small>','Evolução')+ind(esc(i.nivel_verificacao||'—'),'Verificação',false,true)+
+        '</div>'+
+        '<div class="lbl" style="margin-top:14px">Últimos eventos</div><div class="evs">'+ev+'</div>'+
+      '</div></div>';
+  }
+
+  function renderForm(){
+    var dims=DIMS.map(function(d){
+      var btns=[1,2,3,4,5].map(function(n){return '<button type="button" data-dim="'+d[0]+'" data-n="'+n+'">'+n+'</button>';}).join('');
+      return '<div class="dim"><div class="dl"><span>'+d[1]+'</span><span class="st" id="st-'+d[0]+'">por avaliar</span></div><div class="scale">'+btns+'</div></div>';
+    }).join('');
+    return '<div class="divide"><span class="tx">A tua observação</span><span class="ln"></span></div>'+
+      '<div class="obscard" id="obscard">'+
+      '<div class="blank">✎ Observa primeiro. As notas começam em branco — sem sugestões, com os teus olhos.</div>'+
+      dims+
+      '<div class="dim"><div class="dl"><span>Notas / debilidades</span></div><textarea id="notas" placeholder="O que viste em campo…"></textarea></div>'+
+      '<button class="submit" id="submit" disabled>Concluir relatório</button></div>';
+  }
+
+  function render(ctx){
+    if(ctx&&ctx.identidade){ ATLETA={nome:ctx.identidade.nome||'—',pos:ctx.identidade.posicao||'',escalao:ctx.identidade.escalao||'',clube:ctx.identidade.clube||''}; }
+    document.getElementById('app').innerHTML=
+      '<div class="who"><div class="ph"></div><div><div class="n">'+esc(ATLETA.nome)+'</div><div class="m"><span class="pos">'+esc(ATLETA.pos)+'</span>'+esc(ATLETA.escalao)+' · '+esc(ATLETA.clube)+'</div></div></div>'+
+      renderContext(ctx)+renderForm()+
+      '<div class="foot">'+(USING_SB?'YourTalentBase · Scout Report':'<span class="demo-tag">Demonstração</span> · contexto de exemplo')+'</div>';
+    wireForm();
+  }
+  function wireForm(){
+    document.querySelectorAll('.scale button').forEach(function(b){
+      b.addEventListener('click',function(){
+        var dim=b.dataset.dim, n=b.dataset.n;
+        document.querySelectorAll('.scale button[data-dim="'+dim+'"]').forEach(function(x){x.classList.remove('sel');});
+        b.classList.add('sel'); notas[dim]=+n;
+        document.getElementById('st-'+dim).textContent=n+'/5';
+        document.getElementById('submit').disabled = Object.keys(notas).length<DIMS.length;
+      });
+    });
+    document.getElementById('submit').addEventListener('click',function(){
+      var btn=this; btn.disabled=true; btn.textContent='A gravar…';
+      var atletaId=null; try{atletaId=new URLSearchParams(location.search).get('atleta');}catch(e){}
+      var notaTxt=(document.getElementById('notas')&&document.getElementById('notas').value)||'';
+      function feito(){ document.getElementById('app').innerHTML='<div class="done"><div class="ic">✓</div><h2>Relatório registado</h2><p>A tua avaliação foi gravada como evento.<br>O passaporte vai atualizar treinabilidade, evolução, densidade e verificação.</p></div>'; }
+      function falhou(m){ btn.disabled=false; btn.textContent='Concluir relatório'; alert(m||'Não foi possível gravar. Tenta novamente.'); }
+      if(!USING_SB || !atletaId){ feito(); return; }   // demo / sem atleta → confirmação visual
+      supa.rpc('ytb_scout_observar',{p_atleta:atletaId, p_dims:notas, p_nota:notaTxt}).then(function(res){
+        if(res&&res.data&&res.data.status==='ok'){ feito(); }
+        else { falhou(res&&res.data&&res.data.motivo); }
+      }).catch(function(){ falhou('Sem ligação. Tenta novamente.'); });
+    });
+  }
+
+  var atletaId=null; try{atletaId=new URLSearchParams(location.search).get('atleta');}catch(e){}
+
+  /* ════ PORTÃO DE ACESSO (magic link + estado aprovado) ════ */
+  var ALLOW=['scout','treinador','admin'];
+  function gq(id){return document.getElementById(id);}
+  function gateMsg(h){var s=gq('gate-status');if(s)s.innerHTML=h;}
+  function startApp(){
+    var g=gq('gate'); if(g) g.style.display='none';
+    if(!USING_SB){ render(DEMO); return; }
+    supa.rpc('ytb_contexto',{p_atleta:atletaId}).then(function(res){
+      render((res&&res.data)?res.data:DEMO);
+    }).catch(function(){ render(DEMO); });
+  }
+  function gateLogin(){
+    var email=(gq('gate-email').value||'').trim().toLowerCase();
+    var err=gq('gate-err');
+    if(!email||email.indexOf('@')<0){err.style.display='block';err.textContent='Insere um email válido';return;}
+    err.style.display='none';
+    var btn=gq('gate-btn');btn.disabled=true;btn.textContent='A enviar...';
+    supa.auth.signInWithOtp({email:email,options:{emailRedirectTo:location.href.split('#')[0].split('?')[0]}}).then(function(r){
+      if(r.error){err.style.display='block';err.textContent='Não foi possível enviar o link.';btn.disabled=false;btn.textContent='Entrar →';return;}
+      gq('gate-form').style.display='none';
+      gateMsg('<div class="gate-pend"><div class="big">📧</div><div class="t">Verifica o teu email</div><div class="s">Enviámos um link para <b>'+esc(email)+'</b>. Abre e clica para entrares.</div></div>');
+    });
+  }
+  function gateProcess(){
+    supa.auth.getSession().then(function(res){
+      var s=res&&res.data&&res.data.session; if(!s||!s.user)return;
+      var email=s.user.email.toLowerCase();
+      var f=gq('gate-form');if(f)f.style.display='none';
+      gateMsg('<div class="gate-pend"><div class="gate-spin"></div><div class="t">A verificar acesso</div></div>');
+      supa.from('perfis').select('nome,papel,estado').eq('email',email).maybeSingle().then(function(p){
+        var perfil=p&&p.data;
+        if(!perfil||perfil.estado!=='aprovado'||ALLOW.indexOf(perfil.papel)<0){
+          gateMsg('<div class="gate-pend"><div class="big">🔒</div><div class="t">Acesso pendente</div><div class="s">A conta '+esc(email)+' ainda não tem acesso aprovado. Assim que confirmarmos o pagamento, entras.</div><button id="gate-out" class="gate-btn" style="margin-top:12px">Usar outro email</button></div>');
+          var o=gq('gate-out');if(o)o.addEventListener('click',gateLogout);
+          return;
+        }
+        startApp();
+      });
+    });
+  }
+  function gateLogout(){supa.auth.signOut().then(function(){location.reload();});}
+
+  if(!USING_SB){ startApp(); }
+  else {
+    var wp=gq('wa-pedir'); if(wp) wp.href='https://wa.me/351913695846?text='+encodeURIComponent('Olá! 👋 Quero pedir acesso à área de observação do YourTalentBase (scout/treinador). Podemos falar?');
+    gq('gate-btn').addEventListener('click',gateLogin);
+    gq('gate-email').addEventListener('keypress',function(e){if(e.key==='Enter')gateLogin();});
+    gateProcess();
+    supa.auth.onAuthStateChange(function(){gateProcess();});
+  }
+})();
+</script>
+</body>
+</html>

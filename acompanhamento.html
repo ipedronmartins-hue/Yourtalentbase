@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#080C08">
+<title>Acompanhamento · Treinador</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="ytb.css">
+<style>
+  
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.5;padding-bottom:50px}
+  .num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+  .wrap{max-width:520px;margin:0 auto;padding:0 16px}
+
+  .top{position:sticky;top:0;z-index:20;background:#080C08F2;backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
+  .top .wrap{display:flex;align-items:center;gap:10px;height:54px}
+  .mono{font-family:'Barlow Condensed',sans-serif;font-weight:900;letter-spacing:.06em;font-size:18px;color:var(--gold)}
+  .top .ttl{flex:1;font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;letter-spacing:.05em;font-size:16px}
+  .top .who{font-size:12px;color:var(--slate);font-weight:600}
+
+  /* resumo */
+  .summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:18px}
+  .summary .cell{background:linear-gradient(180deg,var(--bg2),#0C110C);border:1px solid var(--border);border-radius:14px;padding:14px 10px;text-align:center}
+  .summary .v{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:28px;line-height:1}
+  .summary .l{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-top:5px}
+
+  .shead{font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;letter-spacing:.06em;font-size:14px;color:var(--text);margin:24px 2px 11px;display:flex;align-items:center;gap:9px}
+  .shead::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent)}
+
+  /* cartão de atleta */
+  .athlete{display:flex;align-items:center;gap:14px;background:linear-gradient(180deg,var(--bg2),#0C110C);border:1px solid var(--border);border-radius:16px;padding:14px;margin-bottom:10px;position:relative}
+  .athlete.attn{border-color:#5A2E2E}
+  .ring{flex:0 0 auto}
+  .info{flex:1;min-width:0}
+  .info .name{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:20px;line-height:1}
+  .info .meta{font-size:11.5px;color:var(--slate);margin-top:3px}
+  .info .meta .pos{display:inline-block;background:var(--bg4);border:1px solid var(--border);color:var(--text);font-weight:700;font-size:10px;border-radius:5px;padding:1px 6px;margin-right:6px}
+  .info .stat{display:flex;gap:16px;margin-top:9px}
+  .info .stat .s{font-size:11px;color:var(--muted)}
+  .info .stat .s b{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;color:var(--text);margin-right:4px}
+  .info .stat .s b.up{color:var(--up)}
+  .attn-tag{position:absolute;top:12px;right:12px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--down);background:#ff505015;border:1px solid #ff505033;border-radius:20px;padding:3px 8px}
+  .actions{display:flex;gap:7px;margin-top:11px;flex-wrap:wrap}
+  .actions a{font-size:11px;font-weight:600;color:var(--slate);text-decoration:none;border:1px solid var(--border);border-radius:8px;padding:6px 10px;transition:.15s;cursor:pointer}
+  .actions a:hover{color:var(--text);border-color:#2C342C;background:var(--bg3)}
+  .actions a.go{color:var(--gold);border-color:#D4AF3733}
+
+  .foot{text-align:center;font-size:10.5px;color:var(--muted);margin-top:18px;letter-spacing:.04em}
+  .demo-tag{color:var(--gold);font-weight:700}
+  @media(max-width:420px){.info .stat{gap:11px}}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+  <header class="top"><div class="wrap">
+    <span class="mono">YTB</span><span class="ttl">Acompanhamento</span><span class="who" id="who">—</span>
+  </div></header>
+  <main class="wrap" id="app" aria-live="polite"></main>
+
+<script>
+(function(){
+  "use strict";
+  var CFG=window.YTB_CONFIG||{};
+  var URL_=CFG.SUPABASE_URL||'',KEY=CFG.SUPABASE_KEY||'';
+  var USING_SB=!!(URL_&&KEY&&window.supabase);
+  var supa=USING_SB?window.supabase.createClient(URL_,KEY):null;
+
+  // DEMO — espelha ytb_acompanhamento (+ campos de identidade que o RPC pode juntar)
+  var DEMO=[
+    {nome:"Neto",pos:"DC",escalao:"Sub-19",prescritos:6,concluidos:0,evolucao_pct:null,ultima:"há 3 sem"},
+    {nome:"Vitinha",pos:"EE",escalao:"Sub-11",prescritos:8,concluidos:5,evolucao_pct:5,ultima:"há 4 dias"},
+    {nome:"Coutinho",pos:"MC",escalao:"Sub-13",prescritos:12,concluidos:9,evolucao_pct:11,ultima:"há 2 dias"},
+    {nome:"Pepê",pos:"PL",escalao:"Sub-15",prescritos:10,concluidos:10,evolucao_pct:18,ultima:"ontem"}
+  ];
+
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function adesao(a){return a.prescritos>0?Math.min(100,Math.round(100*a.concluidos/a.prescritos)):0;}
+  function lvl(p){return p>=80?'var(--up)':p>=50?'var(--warn)':'var(--down)';}
+  function ring(p){
+    var r=20,c=2*Math.PI*r,off=c*(1-p/100),col=lvl(p);
+    return '<svg class="ring" width="56" height="56" viewBox="0 0 56 56" aria-hidden="true">'+
+      '<circle cx="28" cy="28" r="20" fill="none" stroke="#1F2520" stroke-width="4"/>'+
+      '<circle cx="28" cy="28" r="20" fill="none" stroke="'+col+'" stroke-width="4" stroke-linecap="round" stroke-dasharray="'+c.toFixed(1)+'" stroke-dashoffset="'+off.toFixed(1)+'" transform="rotate(-90 28 28)"/>'+
+      '<text x="28" y="33" text-anchor="middle" font-family="Barlow Condensed" font-weight="800" font-size="17" fill="#ECEFEA">'+p+'</text></svg>';
+  }
+  function relurl(nome){return '#'+encodeURIComponent(nome);}
+
+  function render(list){
+    list=list.slice().sort(function(a,b){return adesao(a)-adesao(b);});  // quem precisa de atenção primeiro
+    var n=list.length;
+    var media = n? Math.round(list.reduce(function(s,a){return s+adesao(a);},0)/n):0;
+    var cumpridas = list.reduce(function(s,a){return s+a.concluidos;},0);
+
+    var html='<div class="summary">'+
+      '<div class="cell"><div class="v num">'+n+'</div><div class="l">Atletas</div></div>'+
+      '<div class="cell"><div class="v num" style="color:'+lvl(media)+'">'+media+'<span style="font-size:16px">%</span></div><div class="l">Adesão média</div></div>'+
+      '<div class="cell"><div class="v num">'+cumpridas+'</div><div class="l">Sessões cumpridas</div></div>'+
+      '</div>';
+
+    html+='<div class="shead">Os teus atletas</div>';
+    list.forEach(function(a){
+      var p=adesao(a), attn=p<50;
+      html+='<div class="athlete'+(attn?' attn':'')+'">'+ring(p)+
+        '<div class="info"><div class="name">'+esc(a.nome)+'</div>'+
+        '<div class="meta"><span class="pos">'+esc(a.pos)+'</span>'+esc(a.escalao)+'</div>'+
+        '<div class="stat">'+
+          '<span class="s"><b class="num">'+a.concluidos+'/'+a.prescritos+'</b>sessões</span>'+
+          (a.evolucao_pct!=null?'<span class="s"><b class="up num">'+(a.evolucao_pct>=0?'+':'')+a.evolucao_pct+'%</b>evolução</span>':'<span class="s" style="color:var(--muted)">sem avaliação</span>')+
+          '<span class="s"><b>'+esc(a.ultima||'—')+'</b></span>'+
+        '</div>'+
+        '<div class="actions"><a href="pro-treinador.html'+relurl(a.nome)+'">Avaliar</a><a href="pro-treinador.html'+relurl(a.nome)+'">Prescrever</a><a class="go" href="passaporte.html'+relurl(a.nome)+'">Passaporte →</a></div>'+
+        '</div>'+(attn?'<span class="attn-tag">precisa de atenção</span>':'')+'</div>';
+    });
+    html+='<div class="foot">'+(USING_SB?'YourTalentBase · acompanhamento':'<span class="demo-tag">Demonstração</span> · dados de exemplo')+'</div>';
+    document.getElementById('app').innerHTML=html;
+    document.getElementById('who').textContent=USING_SB?'':'Mister (demo)';
+  }
+
+  // tradutor: forma do ytb_acompanhamento → forma do render
+  function relTime(iso){
+    if(!iso) return '—';
+    var then=new Date(iso), now=new Date(), d=Math.floor((now-then)/86400000);
+    if(isNaN(d)) return '—';
+    if(d<=0) return 'hoje'; if(d===1) return 'ontem';
+    if(d<7) return 'há '+d+' dias';
+    if(d<14) return 'há 1 sem'; if(d<31) return 'há '+Math.floor(d/7)+' sem';
+    if(d<365){ var m=Math.max(1,Math.round(d/30)); return 'há '+m+(m===1?' mês':' meses'); }
+    var y=Math.floor(d/365); return 'há '+y+(y===1?' ano':' anos');
+  }
+  function mapRow(r){
+    return { nome:r.nome||'—', pos:r.posicao||'', escalao:r.escalao||'',
+      prescritos:r.prescritos||0, concluidos:r.concluidos||0,
+      evolucao_pct:(r.evolucao_pct===null||r.evolucao_pct===undefined)?null:Math.round(r.evolucao_pct),
+      ultima:relTime(r.ultima) };
+  }
+
+  if(!USING_SB){ render(DEMO); }
+  else{
+    supa.rpc('ytb_acompanhamento',{}).then(function(res){
+      if(res.error||!res.data||!res.data.length){ render(DEMO); return; }
+      render(res.data.map(mapRow));
+    }).catch(function(){ render(DEMO); });
+  }
+})();
+</script>
+</body>
+</html>

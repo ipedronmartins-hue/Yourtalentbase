@@ -7,9 +7,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="/assets/js/ytb-config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="ytb.css">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-:root{--bg:#080C08;--bg2:#0F1410;--bg3:#161D17;--gold:#D4AF37;--gold-soft:rgba(212,175,55,.13);--gold-border:rgba(212,175,55,.35);--green:#00D46A;--red:#ff5050;--orange:#FFA500;--blue:#4A9FE8;--border:#1F2520;--white:#fff;--slate:#9aa39a;--muted:#5a615a}
+
 html,body{background:var(--bg);color:var(--white);font-family:'Plus Jakarta Sans',sans-serif;min-height:100vh}
 body{padding-bottom:40px}
 .spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.2);border-top-color:var(--gold);border-radius:50%;animation:sp .7s linear infinite;vertical-align:middle}
@@ -106,7 +107,7 @@ body{padding-bottom:40px}
       </div>
       <div id="estado-area"></div>
     </div>
-    <div class="contact-link">Ainda não tens conta? <a href="registar.html">Pedir acesso →</a></div>
+    <div class="contact-link">Ainda não tens conta? <a href="https://wa.me/351913695846?text=Ol%C3%A1%21%20Sou%20treinador%20e%20quero%20pedir%20acesso%20ao%20YourTalentBase%20para%20acompanhar%20a%20evolu%C3%A7%C3%A3o%20dos%20meus%20atletas." target="_blank" rel="noopener">Pedir acesso por WhatsApp →</a></div>
   </div>
 </div>
 
@@ -260,6 +261,25 @@ let toastTimer=null;
 
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function showToast(msg,dur){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),dur||2500);}
+function linkConsentimento(token,nome){
+  if(!token){return;}
+  var url=location.origin+'/consentir.html?token='+token;
+  var msg='Olá! Para ativar o passaporte de '+(nome||'')+' na YourTalentBase, confirma o consentimento aqui: '+url;
+  var ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:20px';
+  ov.innerHTML='<div style="max-width:430px;width:100%;background:#0d120f;border:1px solid #2A322B;border-radius:14px;padding:22px;color:#ECEFEA">'
+    +'<div style="font-weight:800;font-size:17px;margin-bottom:6px">Falta o consentimento do encarregado</div>'
+    +'<div style="font-size:13px;color:#8E978E;line-height:1.5;margin-bottom:14px">O passaporte de <b style="color:#ECEFEA">'+(nome||'')+'</b> fica inativo e invisível até o encarregado consentir. Envia-lhe este link:</div>'
+    +'<input readonly value="'+url+'" style="width:100%;background:#171D18;border:1px solid #2A322B;border-radius:8px;color:#ECEFEA;font-size:12px;padding:10px;margin-bottom:12px" onclick="this.select()">'
+    +'<div style="display:flex;gap:8px"><button id="_cwa" style="flex:1;background:transparent;border:1px solid #2A322B;color:#ECEFEA;border-radius:8px;padding:11px;font-weight:700;cursor:pointer">Enviar por WhatsApp</button>'
+    +'<button id="_ccp" style="flex:1;background:transparent;border:1px solid #2A322B;color:#ECEFEA;border-radius:8px;padding:11px;font-weight:700;cursor:pointer">Copiar link</button></div>'
+    +'<button id="_ccl" style="width:100%;margin-top:10px;background:none;border:none;color:#8E978E;font-size:12px;cursor:pointer">Fechar</button></div>';
+  document.body.appendChild(ov);
+  ov.querySelector('#_cwa').onclick=function(){window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');};
+  ov.querySelector('#_ccp').onclick=function(){if(navigator.clipboard){navigator.clipboard.writeText(url);showToast('Link copiado ✓');}};
+  ov.querySelector('#_ccl').onclick=function(){ov.remove();};
+  ov.onclick=function(e){if(e.target===ov){ov.remove();}};
+}
 function idade(ano){return ano?(2026-ano):null;}
 
 /* O resto da lógica (login, atletas, avaliação, treino, comissões) vem a seguir */
@@ -454,18 +474,19 @@ async function submeterInscricao(){
       btn.innerHTML='Inscrever →'; btn.disabled=false;
       return;
     }
-    const{error:insErr}=await supa.from('atletas_360').insert({
+    const{data:novoAtleta,error:insErr}=await supa.from('atletas_360').insert({
       id:crypto.randomUUID(),
       nome:nome, primeiro_nome:nome.split(' ')[0], ano_nascimento:ano,
       escalao:'Sub-'+(2026-ano),
       associacao:assoc,
       posicao_principal:pos, clube_actual:clube,
-      estado:'pendente',
+      estado:'pendente', visivel_b2b:false,
       fonte:'treinador', fonte_nome:treinadorNome, fonte_email:treinadorEmail,
       encarregado_email:emailEnc||null
-    });
+    }).select('id,token_consentimento').single();
     if(insErr)throw insErr;
     showToast('Atleta inscrito ✓');
+    linkConsentimento(novoAtleta&&novoAtleta.token_consentimento, nome);
     fecharInscricao();
     document.getElementById('insc-nome').value='';document.getElementById('insc-ano').value='';document.getElementById('insc-clube').value='';document.getElementById('insc-email').value='';
     carregarAtletas();
@@ -558,8 +579,7 @@ async function gerarAvaliacao(){
       const nota = m >= 4.7 ? 'A+' : m >= 4.3 ? 'A' : m >= 3.8 ? 'B+' : m >= 3.3 ? 'B' : m >= 2.8 ? 'C+' : m >= 2.3 ? 'C' : 'D';
       await supa.from('atletas_360').update({
         rating_geral: nota,
-        stats_actualizadas_em: new Date().toISOString(),
-        visivel_b2b: true
+        stats_actualizadas_em: new Date().toISOString()
       }).eq('id', atletaSel.id);
     }catch(e){gravou=false;window._ultimoErroAval=(e&&e.message)||String(e);console.warn('save aval',e);}
   }
