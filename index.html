@@ -40,10 +40,15 @@ nav .wide{display:flex;align-items:center;justify-content:space-between;height:6
 .btn-primary{background:var(--text);color:#0A0D0A}
 .btn-primary:hover{transform:translateY(-2px);opacity:.93}
 .btn-lg{padding:16px 30px;font-size:15.5px}
+.btn-ghost{background:transparent;color:var(--text);border-color:var(--border2)}
+.btn-ghost:hover{border-color:var(--up);color:var(--up);transform:translateY(-2px)}
+.hero-cta{display:flex;gap:13px;flex-wrap:wrap;margin-top:34px}
+@media(max-width:520px){.hero-cta{flex-direction:column}.hero-cta .btn{justify-content:center}}
 .stage{min-height:100vh;display:flex;flex-direction:column;justify-content:center;position:relative;padding:96px 0}
 .hero{min-height:100vh}
 .hero::before{content:"";position:absolute;inset:0;pointer-events:none;
-  background:radial-gradient(820px 520px at 50% 34%,rgba(0,212,106,.07),transparent 62%)}
+  background:radial-gradient(720px 460px at 26% 24%,rgba(0,212,106,.16),transparent 58%),
+             radial-gradient(640px 440px at 84% 82%,rgba(212,175,55,.09),transparent 60%)}
 .hero .narrow{position:relative}
 .hero h1{font-family:var(--fd);font-weight:900;font-size:clamp(2.9rem,9vw,6.2rem);line-height:.96;letter-spacing:-1px}
 .fade{background:linear-gradient(100deg,var(--text) 18%,var(--muted));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
@@ -145,6 +150,10 @@ footer .logo b{font-size:17px}
   <div class="narrow">
     <h1>A história do teu<br>filho está a <span class="fade">desaparecer</span>.</h1>
     <p class="sub">Cada mudança de clube, cada época que passa, leva consigo tudo o que ele construiu. Até agora.</p>
+    <div class="hero-cta">
+      <a class="btn btn-primary btn-lg" href="acesso.html">Entrar <span class="arr">→</span></a>
+      <a class="btn btn-ghost btn-lg" href="#personas">Ver os percursos</a>
+    </div>
   </div>
   <a class="scrollcue" href="#numero" aria-label="Continuar"><span>Scroll</span><span class="ln"></span></a>
 </header>
