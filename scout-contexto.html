@@ -10,6 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="/assets/js/ytb-config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <link rel="stylesheet" href="ytb.css">
 <style>
   
@@ -105,6 +106,10 @@
   .gate-pend .s{font-size:13px;color:var(--slate);line-height:1.55}
   .gate-spin{width:24px;height:24px;border:2px solid var(--border2);border-top-color:var(--text);border-radius:50%;animation:gsp .8s linear infinite;margin:8px auto}
   @keyframes gsp{to{transform:rotate(360deg)}}
+  .empty{text-align:center;padding:64px 20px}
+  .empty-ic{font-size:42px;color:var(--up);opacity:.45;margin-bottom:14px}
+  .empty-t{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:23px;margin-bottom:8px}
+  .empty-s{font-size:13.5px;color:var(--slate);line-height:1.55;max-width:32em;margin:0 auto}
 </style>
 </head>
 <body>
@@ -196,13 +201,95 @@
       '<button class="submit" id="submit" disabled>Concluir relatório</button></div>';
   }
 
+  // ===== Exportar PDF (plafond de relatórios) =====
+  var __pdfReady=false;
+  function __pdfSetup(){
+    if(__pdfReady) return; __pdfReady=true;
+    var css='.pdf-bar{margin:18px 0 6px;text-align:center}'+
+      '.pdf-btn{background:var(--text);color:#0A0D0A;border:none;border-radius:11px;padding:13px 20px;font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:15px;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;transition:.15s}'+
+      '.pdf-btn:hover{filter:brightness(1.06)} .pdf-btn:disabled{opacity:.55;cursor:default}'+
+      '.pdf-q{font-size:12px;color:var(--slate);margin-top:8px}'+
+      '#pdf-doc{position:fixed;left:-10000px;top:0;width:760px;background:#fff;color:#15201A;padding:48px 44px;font-family:\'Plus Jakarta Sans\',sans-serif;box-sizing:border-box}'+
+      '#pdf-doc .ph{display:flex;justify-content:space-between;align-items:baseline;border-bottom:2px solid #15201A;padding-bottom:12px}'+
+      '#pdf-doc .pt{font-family:\'Barlow Condensed\',sans-serif;font-weight:900;font-size:24px;letter-spacing:.5px;text-transform:uppercase}'+
+      '#pdf-doc .pb{font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:13px;letter-spacing:2px;color:#0a7a3a;text-transform:uppercase}'+
+      '#pdf-doc .pn{font-family:\'Barlow Condensed\',sans-serif;font-weight:900;font-size:34px;margin-top:20px;line-height:1}'+
+      '#pdf-doc .pm{font-size:13px;color:#5a6b5f;margin-top:4px}'+
+      '#pdf-doc .ps{font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#0a7a3a;margin:26px 0 10px}'+
+      '#pdf-doc .rt{width:100%;border-collapse:collapse}'+
+      '#pdf-doc .rt td{padding:7px 0;border-bottom:1px solid #e6ebe7;font-size:14px}'+
+      '#pdf-doc .rl{font-weight:600} #pdf-doc .rd{letter-spacing:3px;color:#0a7a3a;text-align:center} #pdf-doc .rn{text-align:right;color:#5a6b5f;font-weight:700;width:48px}'+
+      '#pdf-doc .pnotes{margin-top:12px;font-size:13px;line-height:1.5;background:#f4f7f5;border-radius:8px;padding:12px 14px}'+
+      '#pdf-doc .pind{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}'+
+      '#pdf-doc .pi{background:#f4f7f5;border-radius:8px;padding:11px 10px;text-align:center}'+
+      '#pdf-doc .piv{font-family:\'Barlow Condensed\',sans-serif;font-weight:900;font-size:20px}'+
+      '#pdf-doc .pil{font-size:10px;color:#5a6b5f;text-transform:uppercase;letter-spacing:.5px;margin-top:2px}'+
+      '#pdf-doc .pf{margin-top:30px;border-top:1px solid #e6ebe7;padding-top:14px;font-size:11px;color:#5a6b5f;line-height:1.6}';
+    var st=document.createElement('style'); st.textContent=css; document.head.appendChild(st);
+    var dd=document.createElement('div'); dd.id='pdf-doc'; document.body.appendChild(dd);
+  }
+  function __slug(s){return String(s||'atleta').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');}
+  function __dots(n){var s='';for(var k=1;k<=5;k++)s+=(k<=n?'●':'○');return s;}
+  function __pind(l,v){return '<div class="pi"><div class="piv">'+esc(v==null?'—':String(v))+'</div><div class="pil">'+esc(l)+'</div></div>';}
+  function __ratings(){return DIMS.map(function(d){var sel=document.querySelector('#obscard button[data-dim="'+d[0]+'"].on');return {label:d[1],n:sel?+sel.getAttribute('data-n'):0};});}
+  function loadQuota(){
+    var q=document.getElementById('pdf-q'); if(!q) return;
+    supa.rpc('ytb_scout_plafond',{}).then(function(res){
+      var d=res&&res.data; var r=d?d.restantes:0;
+      q.innerHTML=(r>0)?('<b style="color:var(--up)">'+r+'</b> de '+d.creditos+' relatórios PDF disponíveis'):'Sem créditos — 39,90€ por 3 relatórios';
+      var b=document.getElementById('btn-pdf'); if(b) b.disabled=false;
+    }).catch(function(){});
+  }
+  function semCreditos(){
+    var q=document.getElementById('pdf-q');
+    if(q) q.innerHTML='Sem créditos. <a href="https://wa.me/351913695846?text=Quero%20mais%20relat%C3%B3rios%20Scout%20(39%2C90%E2%82%AC%20por%203)" target="_blank" style="color:var(--up)">Comprar 3 por 39,90€ →</a>';
+  }
+  function buildPdfDoc(ctx){
+    var i=(ctx&&ctx.indicadores)||{}, notas=((document.getElementById('notas')||{}).value||'').trim();
+    var rRows=__ratings().map(function(r){return '<tr><td class="rl">'+esc(r.label)+'</td><td class="rd">'+__dots(r.n)+'</td><td class="rn">'+(r.n?r.n+'/5':'—')+'</td></tr>';}).join('');
+    document.getElementById('pdf-doc').innerHTML=
+      '<div class="ph"><div class="pt">Relatório de Observação</div><div class="pb">YourTalentBase</div></div>'+
+      '<div class="pn">'+esc(ATLETA.nome)+'</div>'+
+      '<div class="pm">'+esc([ATLETA.pos,ATLETA.escalao,ATLETA.clube].filter(Boolean).join(' · '))+'</div>'+
+      '<div class="ps">Observação do scout</div><table class="rt"><tbody>'+rRows+'</tbody></table>'+
+      (notas?'<div class="pnotes"><b>Notas:</b> '+esc(notas)+'</div>':'')+
+      '<div class="ps">Indicadores acumulados</div><div class="pind">'+
+        __pind('Treinab.',i.treinabilidade)+__pind('Compromisso',i.compromisso)+__pind('Consist.',i.consistencia)+__pind('Nível comp.',i.nivel_competitivo)+
+        __pind('Treino extra',(i.horas_treino_extra!=null?i.horas_treino_extra+'h':'—'))+__pind('Adesão',(i.adesao_plano!=null?i.adesao_plano+'%':'—'))+
+        __pind('Evolução',(i.evolucao_pct!=null?((i.evolucao_pct>=0?'+':'')+i.evolucao_pct+'%'):'—'))+__pind('Verificação',i.nivel_verificacao||'—')+
+      '</div>'+
+      '<div class="pf">Observado por '+esc(window.__scoutEmail||'scout')+' · '+new Date().toLocaleDateString('pt-PT')+'<br>YourTalentBase · Passaporte Digital verificado</div>';
+  }
+  function exportarPDF(){
+    if(!USING_SB){ return; }
+    if(typeof html2pdf==='undefined'){ alert('A biblioteca de PDF ainda não carregou. Tenta daqui a um instante.'); return; }
+    var btn=document.getElementById('btn-pdf'); if(btn){btn.disabled=true; btn.textContent='A gerar…';}
+    supa.rpc('ytb_scout_gerar',{p_atleta:atletaId, p_nome:ATLETA.nome}).then(function(res){
+      var d=res&&res.data;
+      if(!d||!d.ok){
+        if(btn){btn.textContent='Exportar relatório em PDF'; btn.disabled=false;}
+        if(d&&d.motivo==='sem_creditos'){ semCreditos(); } else { alert('Não foi possível gerar o relatório.'); }
+        return;
+      }
+      buildPdfDoc(window.__ctx||{});
+      var el=document.getElementById('pdf-doc');
+      html2pdf().set({margin:0,filename:'relatorio-'+__slug(ATLETA.nome)+'.pdf',image:{type:'jpeg',quality:.96},html2canvas:{scale:2,backgroundColor:'#ffffff',windowWidth:760},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}}).from(el).save().then(function(){
+        if(btn){btn.textContent='Exportar relatório em PDF'; btn.disabled=false;} loadQuota();
+      }).catch(function(){ if(btn){btn.textContent='Exportar relatório em PDF'; btn.disabled=false;} loadQuota(); });
+    }).catch(function(){ if(btn){btn.textContent='Exportar relatório em PDF'; btn.disabled=false;} alert('Falha de ligação.'); });
+  }
+  window.__exportPDF=function(){ exportarPDF(); };
+
   function render(ctx){
+    window.__ctx=ctx;
     if(ctx&&ctx.identidade){ ATLETA={nome:ctx.identidade.nome||'—',pos:ctx.identidade.posicao||'',escalao:ctx.identidade.escalao||'',clube:ctx.identidade.clube||''}; }
     document.getElementById('app').innerHTML=
       '<div class="who"><div class="ph"></div><div><div class="n">'+esc(ATLETA.nome)+'</div><div class="m"><span class="pos">'+esc(ATLETA.pos)+'</span>'+esc(ATLETA.escalao)+' · '+esc(ATLETA.clube)+'</div></div></div>'+
       renderContext(ctx)+renderForm()+
+      (USING_SB?'<div class="pdf-bar"><button class="pdf-btn" id="btn-pdf" disabled onclick="window.__exportPDF()">Exportar relatório em PDF</button><div class="pdf-q" id="pdf-q">a verificar créditos…</div></div>':'')+
       '<div class="foot">'+(USING_SB?'YourTalentBase · Scout Report':'<span class="demo-tag">Demonstração</span> · contexto de exemplo')+'</div>';
     wireForm();
+    if(USING_SB){ __pdfSetup(); loadQuota(); }
   }
   function wireForm(){
     document.querySelectorAll('.scale button').forEach(function(b){
@@ -234,12 +321,16 @@
   var ALLOW=['scout','treinador','admin'];
   function gq(id){return document.getElementById(id);}
   function gateMsg(h){var s=gq('gate-status');if(s)s.innerHTML=h;}
+  function appMsg(t,s){ var a=document.getElementById('app'); if(a) a.innerHTML='<div class="empty"><div class="empty-ic">◇</div><div class="empty-t">'+t+'</div><div class="empty-s">'+s+'</div></div>'; }
   function startApp(){
     var g=gq('gate'); if(g) g.style.display='none';
     if(!USING_SB){ render(DEMO); return; }
+    if(!atletaId){ appMsg('Sem atleta selecionado','Abre um atleta a partir do Scouting360 para fazeres a observação.'); return; }
     supa.rpc('ytb_contexto',{p_atleta:atletaId}).then(function(res){
-      render((res&&res.data)?res.data:DEMO);
-    }).catch(function(){ render(DEMO); });
+      if(res&&res.error){ appMsg('Não foi possível carregar','Verifica a ligação e tenta novamente.'); return; }
+      if(!res||!res.data){ appMsg('Atleta não encontrado','Este atleta não existe ou não tens acesso a ele.'); return; }
+      render(res.data);
+    }).catch(function(){ appMsg('Não foi possível carregar','Verifica a ligação e tenta novamente.'); });
   }
   function gateLogin(){
     var email=(gq('gate-email').value||'').trim().toLowerCase();
@@ -256,7 +347,7 @@
   function gateProcess(){
     supa.auth.getSession().then(function(res){
       var s=res&&res.data&&res.data.session; if(!s||!s.user)return;
-      var email=s.user.email.toLowerCase();
+      var email=s.user.email.toLowerCase(); window.__scoutEmail=email;
       var f=gq('gate-form');if(f)f.style.display='none';
       gateMsg('<div class="gate-pend"><div class="gate-spin"></div><div class="t">A verificar acesso</div></div>');
       supa.from('perfis').select('nome,papel,estado').eq('email',email).maybeSingle().then(function(p){

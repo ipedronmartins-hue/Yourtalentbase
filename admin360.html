@@ -170,6 +170,7 @@ tr:last-child td{border-bottom:none}
   <div class="head">
     <div class="eyebrow">Console Administração</div>
     <h1 class="h1">Gestão <em>Scouting 360</em></h1>
+    <button class="action-btn success" onclick="creditarScout()" style="margin-top:8px;padding:8px 14px;font-size:11px">+ Créditos Scout (39,90€ = 3 PDF)</button>
   </div>
 
   <div class="kpi-row">
@@ -206,7 +207,7 @@ tr:last-child td{border-bottom:none}
       <input class="search" id="s-atletas" type="search" placeholder="Procurar nome, clube, email...">
       <select class="f-select" id="f-estado">
         <option value="all">Todos estados</option>
-        <option>pendente</option><option>aprovado</option><option>rejeitado</option><option>arquivado</option>
+        <option value="pendente">A aguardar pagamento</option><option>aprovado</option><option>rejeitado</option><option>arquivado</option>
       </select>
       <select class="f-select" id="f-fonte">
         <option value="all">Todas fontes</option>
@@ -630,13 +631,14 @@ function renderAtletas(){
       <td>${escapeHtml(a.clube_actual)}<div class="td-mute">${escapeHtml(a.associacao || '')}</div></td>
       <td><span class="pill pill-admin">${a.fonte}</span><div class="td-mute">${escapeHtml((a.fonte_nome || '').slice(0,20))}</div></td>
       <td><span class="r-rating-mini ${ratingClass(a.rating_geral)}">${a.rating_geral || '—'}</span></td>
-      <td><span class="pill pill-${a.estado}">${a.estado}</span></td>
+      <td><span class="pill pill-${a.estado}">${a.estado === 'pendente' ? 'A aguardar pagamento' : a.estado}</span></td>
       <td>
         ${a.oculto_pelo_responsavel ? '<span class="pill pill-oculto">oculto</span>' : ''}
         ${a.visivel_publico ? '<span style="color:var(--green);font-size:14px" title="Público">●</span>' : '<span style="color:var(--muted);font-size:14px" title="Não público">○</span>'}
         ${a.visivel_b2b ? '<span style="color:var(--gold);font-size:14px;margin-left:2px" title="B2B">●</span>' : '<span style="color:var(--muted);font-size:14px;margin-left:2px" title="Não B2B">○</span>'}
       </td>
       <td style="white-space:nowrap">
+        <button class="action-btn" onclick="window.open('passaporte.html?admin=${a.id}','_blank')" title="Ver passaporte">👁</button>
         <button class="action-btn" onclick="editarAtleta('${a.id}')">✏️</button>
         <button class="action-btn danger" onclick="apagarAtleta('${a.id}','${escapeHtml(a.nome)}')">🗑</button>
       </td>
@@ -1320,6 +1322,17 @@ async function resolverPedido(id, estado){
 }
 
 // ════════════════ CLUBES ════════════════
+async function creditarScout(){
+  const email=(prompt('Email do scout que pagou 39,90€ (credita +3 relatórios PDF):')||'').trim().toLowerCase();
+  if(!email) return;
+  try{
+    const { data, error } = await supa.rpc('ytb_scout_creditar', { p_email: email, p_n: 3 });
+    if(error){ toast('Erro: '+error.message,'error'); return; }
+    if(data&&data.ok){ toast('✓ +3 relatórios para '+email+' (total '+data.creditos+')','green'); }
+    else { toast('Não creditado: '+((data&&data.motivo)||'erro'),'error'); }
+  }catch(e){ toast('Erro inesperado','error'); }
+}
+
 function abrirNovoClube(){
   ['c_nome','c_resp','c_cargo','c_email','c_tel','c_notas'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('c_plano').value = 'clube-pro';
