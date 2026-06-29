@@ -82,6 +82,17 @@
   textarea::placeholder{color:#3C443D}
   .submit{width:100%;margin-top:16px;border:none;border-radius:12px;padding:15px;background:var(--text);color:#0A0D0A;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:16px;text-transform:uppercase;letter-spacing:.07em;cursor:pointer;transition:.15s}
   .submit:hover{filter:brightness(1.06)} .submit[disabled]{opacity:.45;cursor:default}
+  .pick-h{margin:6px 0 14px}
+  .pick-t{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:26px;line-height:1}
+  .pick-s{color:var(--slate);font-size:13px;margin-top:5px}
+  .pick-list{display:flex;flex-direction:column;gap:8px}
+  .pick-row{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--bg3);border:1px solid var(--border);border-radius:13px;padding:12px 14px;cursor:pointer;transition:.14s;color:var(--text);font-family:inherit}
+  .pick-row:hover{border-color:var(--border2);background:var(--bg4)}
+  .pick-av{flex:none;width:40px;height:40px;border-radius:10px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;color:var(--slate)}
+  .pick-info{flex:1;min-width:0;display:flex;flex-direction:column}
+  .pick-nm{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:17px}
+  .pick-mt{font-size:12px;color:var(--slate)}
+  .pick-go{flex:none;color:var(--slate);font-size:18px}
   .done{text-align:center;padding:26px 10px}
   .done .ic{width:54px;height:54px;border-radius:50%;border:1.5px solid var(--up);color:var(--up);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:26px}
   .done h2{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:22px;text-transform:uppercase}
@@ -322,15 +333,37 @@
   function gq(id){return document.getElementById(id);}
   function gateMsg(h){var s=gq('gate-status');if(s)s.innerHTML=h;}
   function appMsg(t,s){ var a=document.getElementById('app'); if(a) a.innerHTML='<div class="empty"><div class="empty-ic">◇</div><div class="empty-t">'+t+'</div><div class="empty-s">'+s+'</div></div>'; }
-  function startApp(){
-    var g=gq('gate'); if(g) g.style.display='none';
-    if(!USING_SB){ render(DEMO); return; }
-    if(!atletaId){ appMsg('Sem atleta selecionado','Abre um atleta a partir do Scouting360 para fazeres a observação.'); return; }
-    supa.rpc('ytb_contexto',{p_atleta:atletaId}).then(function(res){
+  function loadAtleta(id){
+    supa.rpc('ytb_contexto',{p_atleta:id}).then(function(res){
       if(res&&res.error){ appMsg('Não foi possível carregar','Verifica a ligação e tenta novamente.'); return; }
       if(!res||!res.data){ appMsg('Atleta não encontrado','Este atleta não existe ou não tens acesso a ele.'); return; }
       render(res.data);
     }).catch(function(){ appMsg('Não foi possível carregar','Verifica a ligação e tenta novamente.'); });
+  }
+  function pkInit(nm){var p=String(nm||'').trim().split(/\s+/);return (((p[0]||'')[0]||'')+((p[1]||'')[0]||'')).toUpperCase()||'–';}
+  window.__pickAtleta=function(id){
+    atletaId=id; try{history.replaceState(null,'','?atleta='+encodeURIComponent(id));}catch(e){}
+    var a=document.getElementById('app'); if(a) a.innerHTML='<div class="empty"><div class="empty-ic">◇</div><div class="empty-t">A abrir…</div></div>';
+    loadAtleta(id);
+  };
+  function renderPicker(){
+    var a=document.getElementById('app');
+    a.innerHTML='<div class="pick-h"><div class="pick-t">Quem vais observar?</div><div class="pick-s">Escolhe o atleta — a tua avaliação entra no passaporte dele.</div></div><div id="pick-list" class="pick-list">A carregar atletas…</div>';
+    supa.rpc('ytb_scouting360',{p_ordenar:'evolucao',p_limit:50}).then(function(res){
+      var d=(res&&res.data)||[]; var el=document.getElementById('pick-list');
+      if(!d.length){ el.innerHTML='<div class="empty"><div class="empty-ic">◇</div><div class="empty-t">Ainda não há atletas</div><div class="empty-s">Quando houver atletas visíveis, aparecem aqui para observares.</div></div>'; return; }
+      el.innerHTML=d.map(function(x){
+        var id=x.atleta_id||x.id||''; if(!id) return '';
+        var meta=[x.posicao,x.escalao,x.clube].filter(Boolean).join(' · ');
+        return '<button class="pick-row" onclick="window.__pickAtleta(\''+id+'\')"><span class="pick-av">'+pkInit(x.nome)+'</span><span class="pick-info"><span class="pick-nm">'+esc(x.nome||'—')+'</span><span class="pick-mt">'+esc(meta)+'</span></span><span class="pick-go">→</span></button>';
+      }).join('');
+    }).catch(function(){ var el=document.getElementById('pick-list'); if(el) el.innerHTML='<div class="empty"><div class="empty-ic">◇</div><div class="empty-t">Não foi possível carregar</div><div class="empty-s">Verifica a ligação e tenta novamente.</div></div>'; });
+  }
+  function startApp(){
+    var g=gq('gate'); if(g) g.style.display='none';
+    if(!USING_SB){ render(DEMO); return; }
+    if(!atletaId){ renderPicker(); return; }
+    loadAtleta(atletaId);
   }
   function gateLogin(){
     var email=(gq('gate-email').value||'').trim().toLowerCase();

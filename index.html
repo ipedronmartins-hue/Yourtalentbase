@@ -112,6 +112,24 @@ svg.curve{display:block;width:100%;height:clamp(290px,48vh,470px)}
   display:inline-flex;align-items:center;gap:8px;white-space:nowrap;transition:color .2s}
 .prow:hover .parr{color:var(--text)}
 .prow .parr .a{transition:transform .2s}.prow:hover .parr .a{transform:translateX(4px)}
+.price-stage{padding:clamp(80px,13vh,140px) 0;border-top:1px solid var(--border)}
+.price-stage h2{font-family:var(--fd);font-weight:900;font-size:clamp(2.2rem,5.4vw,3.6rem);line-height:1;letter-spacing:-.5px;text-align:center;margin:12px 0 14px}
+.price-stage .psay{text-align:center;font-size:clamp(15px,1.8vw,17px);color:var(--slate);max-width:34em;margin:0 auto clamp(34px,5vh,52px)}
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:18px;max-width:740px;margin:0 auto}
+.pcard{background:var(--bg2);border:1px solid var(--border);border-radius:18px;padding:30px 26px;display:flex;flex-direction:column}
+.pcard .ptag{font-family:var(--fd);font-weight:800;font-size:11.5px;letter-spacing:2px;text-transform:uppercase;color:var(--slate);margin-bottom:6px}
+.pcard .pname{font-family:var(--fd);font-weight:900;font-size:26px;letter-spacing:.3px;margin-bottom:18px}
+.pprice{display:flex;align-items:baseline;gap:7px;margin-bottom:6px}
+.pprice .amt{font-family:var(--fd);font-weight:900;font-size:44px;line-height:1}
+.pprice .per{font-size:14px;color:var(--slate)}
+.psub{font-size:13px;color:var(--slate);line-height:1.5;margin-bottom:22px}
+.pcard ul{list-style:none;display:flex;flex-direction:column;gap:11px;margin:0 0 24px;flex:1;padding:0}
+.pcard li{font-size:13.8px;color:var(--text);display:flex;gap:10px;align-items:flex-start;line-height:1.45}
+.pcard li .mk{color:var(--up);flex:0 0 auto;font-size:12px;margin-top:2px}
+.pcta{display:block;text-align:center;background:var(--text);color:#0A0D0A;border-radius:12px;padding:14px;font-family:var(--fd);font-weight:800;font-size:15px;text-transform:uppercase;letter-spacing:.06em;text-decoration:none;transition:filter .15s}
+.pcta:hover{filter:brightness(1.06)}
+.pnote{text-align:center;font-size:12.5px;color:var(--muted);margin:26px auto 0;max-width:40em}
+@media(max-width:640px){.pgrid{grid-template-columns:1fr}.pprice .amt{font-size:40px}}
 .close-stage{min-height:74vh;text-align:center;border-top:1px solid var(--border);
   background:radial-gradient(720px 380px at 50% 0%,rgba(0,212,106,.07),transparent 60%)}
 .close-stage h2{font-family:var(--fd);font-weight:900;font-size:clamp(2.3rem,5.6vw,4rem);line-height:1.02;letter-spacing:-.5px;max-width:16em;margin:12px auto 0}
@@ -217,9 +235,49 @@ footer .logo b{font-size:17px}
       <a class="prow reveal" href="acesso.html"><span class="pk">Pais</span><span class="pd">O percurso dele, guardado para sempre. E é dele.</span><span class="parr">Entrar <span class="a">→</span></span></a>
       <a class="prow reveal" href="acesso.html"><span class="pk">Jogadores</span><span class="pd">A tua evolução, provada. Não dependes de um olhar de um dia.</span><span class="parr">A minha evolução <span class="a">→</span></span></a>
       <a class="prow reveal" href="pro-treinador.html"><span class="pk">Treinadores</span><span class="pd">Vê o desenvolvimento real. Prescreve. Acompanha o impacto.</span><span class="parr">Entrar como treinador <span class="a">→</span></span></a>
-      <a class="prow reveal" href="scouting360.html"><span class="pk">Scouts</span><span class="pd">Descobre por trajetória verificada, não por boato.</span><span class="parr">Abrir o Scouting360 <span class="a">→</span></span></a>
+      <a class="prow reveal" href="scout-contexto.html"><span class="pk">Scouts</span><span class="pd">Escolhe o atleta, avalia e exporta o relatório. A tua observação entra no passaporte.</span><span class="parr">Abrir o Scout Report <span class="a">→</span></span></a>
       <a class="prow reveal" href="scouting360.html"><span class="pk">Clubes</span><span class="pd">Decisões com prova longitudinal, não com achismo.</span><span class="parr">Explorar talento <span class="a">→</span></span></a>
+      <a class="prow reveal" href="inscrever.html"><span class="pk">Atletas e Famílias</span><span class="pd">Cria um perfil grátis. Aparece para clubes quando fores observado.</span><span class="parr">Inscrever grátis <span class="a">→</span></span></a>
     </div>
+  </div>
+</section>
+
+<!-- ===== ECRÃ — PREÇOS ===== -->
+<section class="price-stage" id="precos">
+  <div class="wide">
+    <span class="eyebrow reveal" style="display:block;text-align:center">Preços</span>
+    <h2 class="reveal">Simples. Sem letras pequenas.</h2>
+    <p class="psay reveal">Pagas pelo que usas. O percurso do atleta fica registado para sempre.</p>
+    <div class="pgrid">
+
+      <div class="pcard reveal">
+        <div class="ptag">Para famílias</div>
+        <div class="pname">Avaliação + Passaporte</div>
+        <div class="pprice"><span class="amt">9,90€</span><span class="per">/ mês</span></div>
+        <div class="psub">+ 39,90€ por avaliação, de 3 em 3 meses</div>
+        <ul>
+          <li><span class="mk">◇</span> Passaporte digital vitalício do teu filho</li>
+          <li><span class="mk">◇</span> Avaliação verificada por um treinador a cada trimestre</li>
+          <li><span class="mk">◇</span> Treino prescrito para as debilidades reais</li>
+        </ul>
+        <a class="pcta" href="https://wa.me/351913695846?text=Ol%C3%A1%21%20%F0%9F%91%8B%20Quero%20come%C3%A7ar%20no%20YourTalentBase%20para%20o%20meu%20filho%20%289%2C90%E2%82%AC/m%C3%AAs%20%2B%20avalia%C3%A7%C3%A3o%20trimestral%20de%2039%2C90%E2%82%AC%29.%20Como%20come%C3%A7o%3F" target="_blank" rel="noopener">Pedir acesso</a>
+      </div>
+
+      <div class="pcard reveal">
+        <div class="ptag">Para scouts</div>
+        <div class="pname">Scout Report</div>
+        <div class="pprice"><span class="amt">39,90€</span></div>
+        <div class="psub">Plafond para 3 relatórios exportáveis em PDF</div>
+        <ul>
+          <li><span class="mk">◇</span> Observação por critérios, verificada</li>
+          <li><span class="mk">◇</span> Relatório com prova: observadores · eventos · épocas</li>
+          <li><span class="mk">◇</span> Exportas em PDF, pronto a apresentar a um clube</li>
+        </ul>
+        <a class="pcta" href="https://wa.me/351913695846?text=Ol%C3%A1%21%20%F0%9F%91%8B%20Quero%20o%20Scout%20Report%20no%20YourTalentBase%20%2839%2C90%E2%82%AC%20por%203%20relat%C3%B3rios%20em%20PDF%29.%20Como%20come%C3%A7o%3F" target="_blank" rel="noopener">Pedir acesso</a>
+      </div>
+
+    </div>
+    <p class="pnote">O acesso é ativado assim que confirmarmos o pagamento.</p>
   </div>
 </section>
 
@@ -237,6 +295,7 @@ footer .logo b{font-size:17px}
   <div class="wide">
     <a class="logo" href="#top"><b>YTB</b><span>YourTalentBase</span></a>
     <span>O Passaporte Digital do atleta · Desenvolvimento longitudinal verificado</span>
+    <a href="admin360.html" style="color:var(--text);background:var(--bg3);font-family:var(--fd);font-weight:800;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;border:1px solid var(--border2);border-radius:8px;padding:8px 16px">Admin →</a>
   </div>
 </footer>
 

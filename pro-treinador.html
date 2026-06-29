@@ -18,7 +18,7 @@ body{padding-bottom:40px}
 .btn{width:100%;padding:13px;border:none;border-radius:10px;font-family:'Barlow Condensed';font-weight:900;font-size:15px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:opacity .15s}
 .btn:disabled{opacity:.5}
 .btn-primary{background:var(--text);color:#0A0D0A}
-.btn-secondary{background:var(--bg3);color:#fff;border:1px solid var(--border)}
+.btn-secondary{background:var(--bg3);color:var(--text);border:1px solid var(--border)}
 .btn-small{font-size:12px;padding:9px 14px;width:auto}
 /* LOGIN */
 .login-wrap{max-width:400px;margin:0 auto;padding:50px 22px}
@@ -30,7 +30,7 @@ body{padding-bottom:40px}
 .login-box{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:22px}
 .field{margin-bottom:14px}
 .label{display:block;font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--slate);margin-bottom:6px}
-.input{width:100%;background:var(--bg3);border:1px solid var(--border);color:#fff;padding:12px;border-radius:9px;font-family:inherit;font-size:15px;outline:none}
+.input{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:12px;border-radius:9px;font-family:inherit;font-size:15px;outline:none}
 .input:focus{border-color:var(--gold)}
 .err{display:none;color:var(--red);font-size:12px;margin-bottom:10px;text-align:center}
 .info-box{background:var(--gold-soft);border:1px solid var(--gold-border);border-radius:9px;padding:11px 13px;font-size:11px;color:var(--slate);line-height:1.5;margin-bottom:16px}
@@ -60,7 +60,7 @@ body{padding-bottom:40px}
 .crit-cat{margin-bottom:18px}
 .crit-cat-h{display:flex;align-items:center;gap:7px;font-family:'Barlow Condensed';font-weight:800;font-size:16px;margin-bottom:10px}
 .slider-row{margin-bottom:13px}
-.slider-label{display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px}.slider-name{color:#fff}.slider-val{color:var(--gold);font-weight:800}
+.slider-label{display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px}.slider-name{color:var(--text)}.slider-val{color:var(--gold);font-weight:800}
 .slider{width:100%;height:5px;-webkit-appearance:none;background:var(--border);border-radius:100px;outline:none}
 .slider::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;background:var(--gold);border-radius:50%;cursor:pointer}
 .slider::-moz-range-thumb{width:18px;height:18px;background:var(--gold);border-radius:50%;cursor:pointer;border:none}
@@ -75,7 +75,7 @@ body{padding-bottom:40px}
 .ex-card-desc{font-size:12px;color:var(--slate);line-height:1.5}
 .ex-card-meta{font-size:10px;color:var(--muted);margin-top:6px}
 .com-row{display:flex;justify-content:space-between;align-items:center;background:var(--bg2);border:1px solid var(--border);border-radius:9px;padding:12px 14px;margin-bottom:7px}
-.com-info{font-size:12px}.com-atleta{font-weight:700;color:#fff}.com-tipo{font-size:10px;color:var(--slate);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.com-info{font-size:12px}.com-atleta{font-weight:700;color:var(--text)}.com-tipo{font-size:10px;color:var(--slate);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
 .com-val{font-family:'Barlow Condensed';font-weight:900;font-size:17px;color:var(--green)}
 .com-val.pend{color:var(--orange)}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.8);display:none;align-items:flex-end;justify-content:center;z-index:100}
@@ -97,7 +97,7 @@ body{padding-bottom:40px}
     <div class="demo-flag" id="demoFlag">Modo demo — sem base ligada.</div>
     <div class="login-box">
       <div id="login-box-form">
-        <div class="info-box">O acesso abre quando o Admin confirmar o teu pagamento. Usa o email com que te registaste. Entras por link no email — sem password.</div>
+        <div class="info-box">O acesso abre quando o Admin aprovar o teu registo de treinador. Usa o email com que te registaste. Entras por link no email — sem password.</div>
         <div class="field">
           <label class="label">O teu email</label>
           <input class="input" id="email-input" type="email" placeholder="o.teu@email.com" autocomplete="email">
@@ -169,6 +169,7 @@ body{padding-bottom:40px}
     <div class="field"><label class="label">Ano de nascimento</label><input class="input" id="insc-ano" type="number" placeholder="2014"></div>
     <div class="field"><label class="label">Posição</label><select class="input" id="insc-pos"><option value="">— escolhe —</option><option value="GR">Guarda-Redes</option><option value="DC">Defesa Central</option><option value="LD">Lateral Direito</option><option value="LE">Lateral Esquerdo</option><option value="MD">Médio Defensivo</option><option value="MC">Médio Centro</option><option value="MO">Médio Ofensivo</option><option value="ED">Extremo Direito</option><option value="EE">Extremo Esquerdo</option><option value="PL">Ponta de Lança</option><option value="AV">Avançado</option></select></div>
     <div class="field"><label class="label">Clube</label><input class="input" id="insc-clube" type="text"></div>
+    <div class="field"><label class="label">Link ZeroZero <span style="color:var(--gold)">*</span></label><input class="input" id="insc-zz" type="url" placeholder="https://www.zerozero.pt/jogador/..."><div style="font-size:11px;color:var(--slate);margin-top:5px;line-height:1.4">Obrigatório — é como confirmamos que o atleta é real. Sem perfil ZeroZero, não inscrevemos.</div></div>
     <div class="field"><label class="label">Associação de Futebol</label><select class="input" id="insc-assoc"><option value="">— escolhe —</option><option>AF Algarve</option><option>AF Angra do Heroísmo</option><option>AF Aveiro</option><option>AF Beja</option><option>AF Braga</option><option>AF Bragança</option><option>AF Castelo Branco</option><option>AF Coimbra</option><option>AF Évora</option><option>AF Guarda</option><option>AF Horta</option><option>AF Leiria</option><option>AF Lisboa</option><option>AF Madeira</option><option>AF Ponta Delgada</option><option>AF Portalegre</option><option>AF Porto</option><option>AF Santarém</option><option>AF Setúbal</option><option>AF Viana do Castelo</option><option>AF Vila Real</option><option>AF Viseu</option></select></div>
     <div class="field"><label class="label">Email do encarregado</label><input class="input" id="insc-email" type="email" placeholder="pai@email.com"></div>
     <div class="err" id="insc-err"></div>
@@ -269,11 +270,11 @@ function linkConsentimento(token,nome){
   ov.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:20px';
   ov.innerHTML='<div style="max-width:430px;width:100%;background:#0d120f;border:1px solid #2A322B;border-radius:14px;padding:22px;color:#ECEFEA">'
     +'<div style="font-weight:800;font-size:17px;margin-bottom:6px">Falta o consentimento do encarregado</div>'
-    +'<div style="font-size:13px;color:#8E978E;line-height:1.5;margin-bottom:14px">O passaporte de <b style="color:#ECEFEA">'+(nome||'')+'</b> fica inativo e invisível até o encarregado consentir. Envia-lhe este link:</div>'
+    +'<div style="font-size:13px;color:var(--dec);line-height:1.5;margin-bottom:14px">O passaporte de <b style="color:#ECEFEA">'+(nome||'')+'</b> fica inativo e invisível até o encarregado consentir. Envia-lhe este link:</div>'
     +'<input readonly value="'+url+'" style="width:100%;background:#171D18;border:1px solid #2A322B;border-radius:8px;color:#ECEFEA;font-size:12px;padding:10px;margin-bottom:12px" onclick="this.select()">'
     +'<div style="display:flex;gap:8px"><button id="_cwa" style="flex:1;background:transparent;border:1px solid #2A322B;color:#ECEFEA;border-radius:8px;padding:11px;font-weight:700;cursor:pointer">Enviar por WhatsApp</button>'
     +'<button id="_ccp" style="flex:1;background:transparent;border:1px solid #2A322B;color:#ECEFEA;border-radius:8px;padding:11px;font-weight:700;cursor:pointer">Copiar link</button></div>'
-    +'<button id="_ccl" style="width:100%;margin-top:10px;background:none;border:none;color:#8E978E;font-size:12px;cursor:pointer">Fechar</button></div>';
+    +'<button id="_ccl" style="width:100%;margin-top:10px;background:none;border:none;color:var(--dec);font-size:12px;cursor:pointer">Fechar</button></div>';
   document.body.appendChild(ov);
   ov.querySelector('#_cwa').onclick=function(){window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');};
   ov.querySelector('#_ccp').onclick=function(){if(navigator.clipboard){navigator.clipboard.writeText(url);showToast('Link copiado ✓');}};
@@ -317,7 +318,7 @@ async function processarSessao(){
   try{
     const{data:perfil}=await supa.from('perfis').select('nome,papel,estado').eq('email',email).maybeSingle();
     if(!perfil||perfil.estado!=='aprovado'||(perfil.papel!=='treinador'&&perfil.papel!=='admin')){
-      if(estado)estado.innerHTML='<div class="estado-pend"><div class="big">🔒</div><div class="t">Acesso pendente</div><div class="s">A conta '+esc(email)+' ainda não tem acesso de treinador aprovado. Assim que confirmarmos o pagamento, entras.</div><button class="btn btn-secondary" style="margin-top:12px" onclick="logout()">Usar outro email</button></div>';
+      if(estado)estado.innerHTML='<div class="estado-pend"><div class="big">🔒</div><div class="t">Acesso pendente</div><div class="s">A conta '+esc(email)+' ainda não tem acesso de treinador aprovado. Assim que aprovarmos o teu registo, entras.</div><button class="btn btn-secondary" style="margin-top:12px" onclick="logout()">Usar outro email</button></div>';
       return;
     }
     treinadorEmail=email;treinadorNome=perfil.nome||email;
@@ -363,7 +364,7 @@ async function carregarAtletas(){
   }
   lista.innerHTML='<div class="empty-state"><span class="spinner"></span></div>';
   try{
-    const{data}=await supa.from('atletas_360').select('id,nome,primeiro_nome,ano_nascimento,clube_actual,fonte_email').eq('fonte_email',treinadorEmail).order('nome');
+    const{data}=await supa.from('atletas_360').select('id,nome,primeiro_nome,ano_nascimento,clube_actual,fonte_email,estado').eq('fonte_email',treinadorEmail).order('nome');
     meusAtletas=data||[];
     renderAtletas();
   }catch(e){
@@ -405,10 +406,16 @@ function renderAtletas(){
     const id=idade(a.ano_nascimento);
     const sel=atletaSel&&atletaSel.id===a.id;
     const tx=treinoResumo[a.id];
-    const badge=tx?('<div style="font-size:10px;color:'+(tx.n>=8?'#00D46A':(tx.n>=3?'#FFA500':'#7a7a7a'))+';margin-top:2px">🏠 '+tx.n+' treinos · 30d'+(tx.conf?(' · conf '+tx.conf):'')+'</div>'):'';
+    const badge=tx?('<div style="font-size:10px;color:'+(tx.n>=8?'var(--up)':(tx.n>=3?'var(--orange)':'var(--muted)'))+';margin-top:2px">🏠 '+tx.n+' treinos · 30d'+(tx.conf?(' · conf '+tx.conf):'')+'</div>'):'';
+    const est=a.estado||'pendente';
+    const estPill=est==='aprovado'
+      ? '<span style="display:inline-block;margin-top:4px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(0,212,106,.15);color:var(--up)">✓ Aprovado</span>'
+      : est==='rejeitado'
+      ? '<span style="display:inline-block;margin-top:4px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(255,80,80,.12);color:var(--down)">✕ Rejeitado</span>'
+      : '<span style="display:inline-block;margin-top:4px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(255,165,0,.15);color:var(--orange)">⏳ A aguardar pagamento</span>';
     return '<div class="atleta-card'+(sel?' sel':'')+'" onclick="selecionarAtleta(\''+a.id+'\')">'+
       '<div><div class="atleta-nome">'+esc(a.primeiro_nome||a.nome)+'</div>'+
-      '<div class="atleta-meta">'+(id?('Sub-'+id+' · '):'')+esc(a.clube_actual||'')+'</div>'+badge+'</div>'+
+      '<div class="atleta-meta">'+(id?('Sub-'+id+' · '):'')+esc(a.clube_actual||'')+'</div>'+estPill+badge+'</div>'+
       '<div class="atleta-arrow">›</div></div>';
   }).join('');
   carregarTreinoExtra();
@@ -438,13 +445,15 @@ async function submeterInscricao(){
   const clube=document.getElementById('insc-clube').value.trim();
   const pos=(document.getElementById('insc-pos')||{}).value||'';
   const assoc=(document.getElementById('insc-assoc')||{}).value||'';
+  const zz=((document.getElementById('insc-zz')||{}).value||'').trim();
+  const emailEnc=document.getElementById('insc-email').value.trim().toLowerCase();
+  const err=document.getElementById('insc-err');
+  if(!nome){err.style.display='block';err.textContent='Nome obrigatório';return;}
   if(!pos){err.style.display='block';err.textContent='Escolhe a posição do atleta';return;}
   if(!ano||ano<2000){err.style.display='block';err.textContent='Indica o ano de nascimento';return;}
   if(!clube){err.style.display='block';err.textContent='Indica o clube';return;}
   if(!assoc){err.style.display='block';err.textContent='Escolhe a Associação de Futebol';return;}
-  const emailEnc=document.getElementById('insc-email').value.trim().toLowerCase();
-  const err=document.getElementById('insc-err');
-  if(!nome){err.style.display='block';err.textContent='Nome obrigatório';return;}
+  if(!/zerozero\.pt\/\S/i.test(zz)){err.style.display='block';err.textContent='Link ZeroZero obrigatório (perfil em zerozero.pt) — é como confirmamos que o atleta é real';return;}
   err.style.display='none';
   const btn=document.getElementById('insc-btn');btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;
   if(!USING_SB){showToast('Demo: inscrição não gravada');fecharInscricao();btn.innerHTML='Inscrever →';btn.disabled=false;return;}
@@ -469,7 +478,7 @@ async function submeterInscricao(){
       if(upErr)throw upErr;
       showToast('Ligado ao passaporte de '+c.nome+' ✓',3500);
       fecharInscricao();
-      document.getElementById('insc-nome').value='';document.getElementById('insc-ano').value='';document.getElementById('insc-clube').value='';document.getElementById('insc-email').value='';
+      document.getElementById('insc-nome').value='';document.getElementById('insc-ano').value='';document.getElementById('insc-clube').value='';document.getElementById('insc-email').value='';document.getElementById('insc-zz').value='';
       carregarAtletas();
       btn.innerHTML='Inscrever →'; btn.disabled=false;
       return;
@@ -479,7 +488,7 @@ async function submeterInscricao(){
       nome:nome, primeiro_nome:nome.split(' ')[0], ano_nascimento:ano,
       escalao:'Sub-'+(2026-ano),
       associacao:assoc,
-      posicao_principal:pos, clube_actual:clube,
+      posicao_principal:pos, clube_actual:clube, zerozero_url:zz,
       estado:'pendente', visivel_b2b:false,
       fonte:'treinador', fonte_nome:treinadorNome, fonte_email:treinadorEmail,
       encarregado_email:emailEnc||null
@@ -488,7 +497,7 @@ async function submeterInscricao(){
     showToast('Atleta inscrito ✓');
     linkConsentimento(novoAtleta&&novoAtleta.token_consentimento, nome);
     fecharInscricao();
-    document.getElementById('insc-nome').value='';document.getElementById('insc-ano').value='';document.getElementById('insc-clube').value='';document.getElementById('insc-email').value='';
+    document.getElementById('insc-nome').value='';document.getElementById('insc-ano').value='';document.getElementById('insc-clube').value='';document.getElementById('insc-email').value='';document.getElementById('insc-zz').value='';
     carregarAtletas();
   }catch(e){
     err.style.display='block';err.textContent='Erro: '+(e.message||'tenta de novo');
@@ -659,12 +668,12 @@ function swIniciar(wi,si){
     const d=document.createElement('div');d.id='sw-overlay';
     d.style.cssText='position:fixed;inset:0;background:rgba(5,7,5,.97);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center';
     d.innerHTML='<div id="sw-prog" style="font-size:12px;color:#888;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px"></div>'+
-      '<div id="sw-nome" style="font-family:\'Barlow Condensed\',sans-serif;font-weight:900;font-size:30px;color:#fff;margin-bottom:6px"></div>'+
+      '<div id="sw-nome" style="font-family:\'Barlow Condensed\',sans-serif;font-weight:900;font-size:30px;color:var(--text);margin-bottom:6px"></div>'+
       '<div id="sw-obj" style="font-size:14px;color:#D4AF37;margin-bottom:10px"></div>'+
       '<div id="sw-desc" style="font-size:13px;color:#aaa;max-width:340px;line-height:1.5;margin-bottom:26px"></div>'+
       '<div id="sw-tempo" style="font-family:\'Barlow Condensed\',sans-serif;font-weight:900;font-size:96px;color:#D4AF37;line-height:1;margin-bottom:30px">00:00</div>'+
       '<div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">'+
-      '<button onclick="swPausa()" id="sw-btn-pausa" style="background:transparent;border:1px solid #555;color:#fff;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:800;font-family:inherit">⏸ Pausa</button>'+
+      '<button onclick="swPausa()" id="sw-btn-pausa" style="background:transparent;border:1px solid #555;color:var(--text);border-radius:10px;padding:12px 24px;font-size:14px;font-weight:800;font-family:inherit">⏸ Pausa</button>'+
       '<button onclick="swProximo()" style="background:#D4AF37;border:none;color:#000;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:800;font-family:inherit">Próximo →</button>'+
       '<button onclick="swFechar()" style="background:transparent;border:1px solid #803;color:#f88;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:800;font-family:inherit">✕ Sair</button></div>';
     document.body.appendChild(d);
