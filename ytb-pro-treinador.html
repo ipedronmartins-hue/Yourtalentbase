@@ -120,6 +120,7 @@ body{padding-bottom:40px}
   <div class="tabs">
     <button class="tab active" onclick="setTab('atletas')">👥 Atletas</button>
     <button class="tab" onclick="setTab('avaliar')">📋 Avaliar</button>
+    <button class="tab" onclick="setTab('retorno')">🔄 Retorno</button>
     <button class="tab" onclick="setTab('treino')">⚽ Treino</button>
     <button class="tab" onclick="setTab('comissoes')">💰 Comissões</button>
   </div>
@@ -142,6 +143,13 @@ body{padding-bottom:40px}
     <div class="section-title">Avaliação <span>técnica</span></div>
     <div class="section-sub" id="avaliar-sub">Seleciona um atleta na aba Atletas primeiro.</div>
     <div id="avaliar-area"></div>
+  </div>
+
+  <!-- RETORNO -->
+  <div class="tab-panel" id="tab-retorno">
+    <div class="section-title">O teu <span>retorno</span></div>
+    <div class="section-sub">O que aconteceu depois de avaliares e prescreveres: quem treinou, como correu, quem precisa de nova avaliação.</div>
+    <div id="retorno-area"></div>
   </div>
 
   <!-- TREINO -->
@@ -307,8 +315,49 @@ function setTab(name){
   event.target.classList.add('active');
   document.getElementById('tab-'+name).classList.add('active');
   if(name==='avaliar')renderAvaliar();
+  if(name==='retorno')renderRetorno();
   if(name==='treino')renderTreino();
   if(name==='comissoes')carregarComissoes();
+}
+
+/* ════════ RETORNO (digest do treinador) ════════ */
+async function renderRetorno(){
+  const area=document.getElementById('retorno-area');
+  if(!USING_SB){area.innerHTML='<div class="empty-state">Demo: sem dados reais.</div>';return;}
+  area.innerHTML='<div class="empty-state"><span class="spinner"></span> A carregar retorno…</div>';
+  let digest=null;
+  try{
+    const{data,error}=await supa.rpc('ytb_treinador_digest');
+    if(error)throw error;
+    digest=data;
+  }catch(e){
+    area.innerHTML='<div class="empty-state">⚠ Não foi possível carregar o retorno ('+esc(e.message||'erro')+').</div>';
+    return;
+  }
+  if(!digest||!digest.length){
+    area.innerHTML='<div class="empty-state"><div class="empty-emoji">🔄</div>Ainda sem retorno.<br>Inscreve e avalia atletas — quando as famílias treinarem, vês aqui o resultado.</div>';
+    return;
+  }
+  let html='';
+  digest.forEach(d=>{
+    const ult=d.ultima_atividade?new Date(d.ultima_atividade).toLocaleDateString('pt-PT',{day:'2-digit',month:'short'}):null;
+    const diasAval=d.dias_desde_avaliacao;
+    const precisaAval=diasAval==null||diasAval>45;
+    const conf=d.confianca_media;
+    html+='<div class="dash-card">'
+      +'<div class="dash-card-header"><div class="dash-card-eyebrow">'+esc(d.nome||'Atleta')+(d.escalao?' · '+esc(d.escalao):'')+'</div>'
+      +(ult?'<div class="dash-card-action">último treino: '+ult+'</div>':'')+'</div>'
+      +'<div style="display:flex;gap:14px;margin:8px 0 4px;flex-wrap:wrap">'
+      +'<div><div style="font-family:\'Barlow Condensed\';font-weight:900;font-size:26px;color:var(--gold);line-height:1">'+(d.execucoes_desde_plano||0)+'</div><div style="font-size:9px;letter-spacing:1px;color:var(--slate);text-transform:uppercase">treinos desde o plano</div></div>'
+      +'<div><div style="font-family:\'Barlow Condensed\';font-weight:900;font-size:26px;color:var(--blue);line-height:1">'+(d.execucoes_total||0)+'</div><div style="font-size:9px;letter-spacing:1px;color:var(--slate);text-transform:uppercase">treinos no total</div></div>'
+      +(conf!=null?'<div><div style="font-family:\'Barlow Condensed\';font-weight:900;font-size:26px;color:'+(conf>=80?'var(--green)':conf>=60?'var(--gold)':'var(--orange)')+';line-height:1">'+conf+'%</div><div style="font-size:9px;letter-spacing:1px;color:var(--slate);text-transform:uppercase">confiança dos dados</div></div>':'')
+      +'</div>'
+      +(d.ultimo_feedback?'<div style="font-size:11.5px;color:#ddd;background:rgba(255,255,255,.04);border-radius:8px;padding:8px 10px;margin-top:6px">💬 «'+esc(d.ultimo_feedback)+'»</div>':'')
+      +(precisaAval?'<div style="font-size:11px;color:var(--orange);margin-top:8px">📋 '+(diasAval==null?'Ainda sem avaliação tua':'Última avaliação há '+diasAval+' dias')+' — considera reavaliar.</div>':'')
+      +(!d.execucoes_desde_plano&&d.plano_prescrito_em?'<div style="font-size:11px;color:var(--slate);margin-top:6px">😴 O plano ainda não teve treinos — a família pode precisar de um empurrão.</div>':'')
+      +'</div>';
+  });
+  area.innerHTML=html;
 }
 
 document.getElementById('email-input').addEventListener('keypress',e=>{if(e.key==='Enter')login();});

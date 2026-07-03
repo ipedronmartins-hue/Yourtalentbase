@@ -392,7 +392,7 @@ function setTab(name){
 // ═══ DASHBOARD ═══
 function renderDashboard(){
   const c=document.getElementById('dash-content');
-  if(!resultadoFinal){c.innerHTML='<div class="empty-state"><div class="empty-emoji">🎯</div>Faz a <strong style="color:var(--gold)">Avaliação inicial</strong> para começar.<br><br><button class="btn btn-primary" style="max-width:240px;margin:0 auto" onclick="setTab(\'avaliar\')">Fazer Avaliação →</button></div>';document.getElementById('streak-num').textContent='0';return;}
+  if(!resultadoFinal){c.innerHTML='<div id="oqm-card"></div><div class="empty-state"><div class="empty-emoji">🎯</div>Faz a <strong style="color:var(--gold)">Avaliação inicial</strong> para começar.<br><br><button class="btn btn-primary" style="max-width:240px;margin:0 auto" onclick="setTab(\'avaliar\')">Fazer Avaliação →</button></div>';document.getElementById('streak-num').textContent='0';carregarOQueMudou();return;}
   const streak=calcularStreak();document.getElementById('streak-num').textContent=streak;
   const proximo=getProximoTreino();
   let proximoHTML=proximo?'<div class="next-workout"><div class="next-eyebrow">Próximo treino · '+proximo.ciclo.emoji+' '+proximo.ciclo.nome+'</div><div class="next-title">'+esc(proximo.exercicio.nome)+'</div><div class="next-info"><strong>'+esc(proximo.exercicio.objetivo)+'</strong> · '+proximo.exercicio.tempo+' min · Sessão '+proximo.sessao+'/3</div><button class="btn btn-primary btn-small" onclick="abrirSubmissao(\''+proximo.exercicio.id+'\')">⚽ Treinar agora →</button></div>':'<div class="dash-card"><div class="dash-card-eyebrow">✓ Sem treinos pendentes</div><div class="dash-card-title">Bom trabalho esta semana!</div><div class="dash-card-sub">Próximo plano abre na próxima semana.</div></div>';
@@ -406,7 +406,47 @@ function renderDashboard(){
   const cicloAtual=getCicloAtual();let cicloHTML='<div class="ciclo-info"><div class="dash-card-eyebrow" style="margin-bottom:6px">CICLO DE 4 SEMANAS</div><div class="ciclo-row">';
   CICLOS.forEach((cc,i)=>{let st=i<cicloAtual?'done':i===cicloAtual?'current':'';cicloHTML+='<div class="ciclo-week '+st+'">'+cc.emoji+' '+cc.nome+'</div>';});
   cicloHTML+='</div><div class="ciclo-titulo">'+CICLOS[cicloAtual].emoji+' Semana '+(cicloAtual+1)+': '+CICLOS[cicloAtual].nome+'</div><div class="ciclo-foco">'+CICLOS[cicloAtual].descricao+'</div></div>';
-  c.innerHTML=proximoHTML+cicloHTML+chartHTML+insHTML;
+  c.innerHTML='<div id="oqm-card"></div>'+proximoHTML+cicloHTML+chartHTML+insHTML;
+  carregarOQueMudou();
+}
+
+// ═══ O QUE MUDOU (novidades do livro-razão + pendências inteligentes) ═══
+let oqmCache=null;
+async function carregarOQueMudou(){
+  const box=document.getElementById('oqm-card');
+  if(!box||!USING_SB||!atletaId)return;
+  if(!oqmCache){
+    try{
+      const{data,error}=await supa.rpc('ytb_o_que_mudou',{p_atleta:atletaId});
+      if(error)throw error;
+      oqmCache=data||{novidades:[],pendencias:[],nao_vistos:0};
+    }catch(e){console.warn('oqm',e);return;}
+  }
+  renderOQM();
+}
+function renderOQM(){
+  const box=document.getElementById('oqm-card');
+  if(!box||!oqmCache)return;
+  const nov=oqmCache.novidades||[],pen=oqmCache.pendencias||[];
+  if(!nov.length&&!pen.length){box.innerHTML='';return;}
+  let html='<div class="dash-card" style="border-left:3px solid var(--gold)">';
+  if(nov.length){
+    html+='<div class="dash-card-eyebrow">✨ O que mudou desde a última visita</div>';
+    nov.slice(0,5).forEach(n=>{const d=new Date(n.em).toLocaleDateString('pt-PT',{day:'2-digit',month:'short'});html+='<div style="display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px"><div style="color:#fff">'+esc(n.msg)+'</div><div style="color:var(--slate);font-size:10px;white-space:nowrap">'+d+'</div></div>';});
+    if(nov.length>5)html+='<div style="font-size:10px;color:var(--slate);padding-top:6px">+'+(nov.length-5)+' novidades mais antigas</div>';
+    html+='<button class="btn btn-secondary" style="margin-top:10px;width:auto;padding:9px 16px;font-size:11px" onclick="marcarVisto()">Entendido ✓</button>';
+  }
+  if(pen.length){
+    html+='<div class="dash-card-eyebrow" style="margin-top:'+(nov.length?'14px':'0')+'">📌 Para fazer</div>';
+    pen.forEach(p=>{html+='<div style="padding:6px 0;font-size:12px;color:#ddd;border-bottom:1px solid var(--border)">'+esc(p.msg)+'</div>';});
+  }
+  html+='</div>';
+  box.innerHTML=html;
+}
+async function marcarVisto(){
+  try{const{error}=await supa.rpc('ytb_marcar_visto',{p_atleta:atletaId});if(error)throw error;}catch(e){showToast('⚠ Não foi possível marcar como visto');return;}
+  if(oqmCache){oqmCache.novidades=[];oqmCache.nao_vistos=0;}
+  renderOQM();
 }
 function calcularStreak(){if(!historico.length)return 0;const datas=new Set();historico.forEach(t=>datas.add(new Date(t.created_at).toDateString()));const hoje=new Date();let streak=0;for(let i=0;i<60;i++){const d=new Date(hoje);d.setDate(d.getDate()-i);if(datas.has(d.toDateString()))streak++;else if(i>0)break;}return streak;}
 function getEvolucaoSemanal(){const r=[];const hoje=new Date();for(let w=5;w>=0;w--){const ini=new Date(hoje);ini.setDate(ini.getDate()-w*7-hoje.getDay());const fim=new Date(ini);fim.setDate(fim.getDate()+6);const treinos=historico.filter(t=>{const d=new Date(t.created_at);return d>=ini&&d<=fim;});r.push({label:'S'+(6-w),total:treinos.length});}return r;}
