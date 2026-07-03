@@ -12,7 +12,6 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="stylesheet" href="ytb.css">
 <style>
-  
   *{box-sizing:border-box; margin:0; padding:0}
   html,body{height:100%}
   body{
@@ -73,8 +72,6 @@
   }
   input::placeholder{color:#3C443D}
   input:focus-visible{border-color:var(--gold); box-shadow:0 0 0 3px #D4AF3722}
-  #f-id{font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:20px; letter-spacing:.14em; text-transform:uppercase}
-  #f-pin{font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:22px; letter-spacing:.5em; text-align:center}
 
   .btn{
     width:100%; border:none; border-radius:12px; cursor:pointer;
@@ -111,6 +108,19 @@
   .success-sub{text-align:center; color:var(--slate); font-size:14px; line-height:1.55; margin-top:-8px}
   .success-sub b{color:var(--text); font-weight:600}
 
+  /* escolha de atleta (mais do que um filho no mesmo email) */
+  .pick-list{display:flex; flex-direction:column; gap:9px}
+  .pick-row{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    width:100%; text-align:left; background:var(--bg); border:1px solid var(--border);
+    border-radius:12px; padding:14px 15px; cursor:pointer; transition:.14s;
+    color:var(--text); font-family:inherit;
+  }
+  .pick-row:hover{border-color:#2C342C}
+  .pick-nm{font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:16px}
+  .pick-mt{font-size:11.5px; color:var(--slate); margin-top:2px}
+  .pick-go{flex:none; color:var(--slate); font-size:17px}
+
   .demo{
     margin-top:18px; text-align:center; font-size:11px; letter-spacing:.06em;
     text-transform:uppercase; color:var(--muted);
@@ -128,29 +138,39 @@
       <svg class="ico-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
     </div>
 
-    <!-- PASSO 1 · ENTRADA -->
-    <section id="step-entrada" class="step active" aria-labelledby="t-entrada">
+    <!-- PASSO 1 · EMAIL (a única chave) -->
+    <section id="step-email" class="step active" aria-labelledby="t-email">
       <p class="eyebrow">Passaporte do atleta</p>
-      <h1 id="t-entrada">Acesso da família</h1>
+      <h1 id="t-email">Acesso da família</h1>
 
-      <div id="msg-entrada" class="msg err" role="alert" aria-live="assertive"></div>
+      <div id="msg-email" class="msg err" role="alert" aria-live="assertive"></div>
 
       <div class="field">
-        <label for="f-id">ID do atleta</label>
-        <input id="f-id" inputmode="text" autocomplete="off" autocapitalize="characters"
-               spellcheck="false" placeholder="YTB-XXXXX" maxlength="9" aria-describedby="hint-entrada">
-      </div>
-      <div class="field">
-        <label for="f-pin">PIN</label>
-        <input id="f-pin" inputmode="numeric" autocomplete="off" type="password"
-               placeholder="••••••" maxlength="6" aria-describedby="hint-entrada">
+        <label for="f-email">O teu email</label>
+        <input id="f-email" type="email" inputmode="email" autocomplete="email"
+               placeholder="pai@email.com" aria-describedby="hint-email">
       </div>
 
-      <button id="btn-entrar" class="btn">Entrar</button>
-      <p id="hint-entrada" class="hint">Sem acesso? Pede o ID e o PIN ao treinador do teu filho.</p>
+      <button id="btn-enviar" class="btn">Enviar link de acesso</button>
+      <p id="hint-email" class="hint">Usa o email que o treinador registou na inscrição. Sem password — enviamos um link de entrada.</p>
     </section>
 
-    <!-- PASSO 2 · CONSENTIMENTO (1ª entrada) -->
+    <!-- PASSO 2 · A AGUARDAR O CLIQUE NO EMAIL -->
+    <section id="step-aguarda" class="step" aria-labelledby="t-aguarda">
+      <p class="eyebrow">Quase lá</p>
+      <h1 id="t-aguarda">Verifica o teu email</h1>
+      <p class="success-sub">Enviámos um link de acesso para <b id="aguarda-email">—</b>. Abre o email no telemóvel e toca no link — entras automaticamente.</p>
+      <button id="btn-outro" class="btn ghost" style="margin-top:18px">Usar outro email</button>
+    </section>
+
+    <!-- PASSO 3 · ESCOLHER ATLETA (se o mesmo email tiver mais do que um) -->
+    <section id="step-escolha" class="step" aria-labelledby="t-escolha">
+      <p class="eyebrow">Acesso confirmado</p>
+      <h1 id="t-escolha">Escolhe o atleta</h1>
+      <div id="escolha-list" class="pick-list"></div>
+    </section>
+
+    <!-- PASSO 4 · CONSENTIMENTO (1ª entrada) -->
     <section id="step-consentimento" class="step" aria-labelledby="t-consent">
       <p class="eyebrow">Primeiro acesso</p>
       <h1 id="t-consent">Autorização</h1>
@@ -160,14 +180,18 @@
         Estás a ativar o passaporte digital deste atleta. Antes de entrar, precisamos da tua autorização como encarregado de educação:
         <div class="li">O <strong>passaporte pertence ao atleta</strong> e acompanha-o ao longo do percurso.</div>
         <div class="li">Os dados servem para <strong>registar e mostrar a evolução desportiva</strong> — avaliações, treino e marcos.</div>
-        <div class="li">Podes <strong>revogar</strong> esta autorização a qualquer momento.</div>
+        <div class="li">Podes <strong>revogar</strong> esta autorização a qualquer momento, no passaporte.</div>
+        <label style="display:flex;gap:10px;align-items:flex-start;margin-top:13px;padding-top:13px;border-top:1px solid var(--border);cursor:pointer">
+          <input type="checkbox" id="chk-b2b" checked style="margin-top:2px;accent-color:#00D46A">
+          <span><strong>Mostrar a clubes e scouts</strong> (recomendado) — o percurso fica visível na área profissional. A <strong>montra pública é opcional</strong> e liga-se depois, no passaporte.</span>
+        </label>
       </div>
 
       <button id="btn-consentir" class="btn">Autorizar e entrar</button>
       <button id="btn-voltar" class="btn ghost" style="margin-top:10px">Voltar</button>
     </section>
 
-    <!-- PASSO 3 · SUCESSO -->
+    <!-- PASSO 5 · SUCESSO -->
     <section id="step-sucesso" class="step" aria-labelledby="t-sucesso">
       <p class="eyebrow">Sessão iniciada</p>
       <h1 id="t-sucesso">Bem-vindo</h1>
@@ -185,100 +209,131 @@
   var SUPABASE_URL = CFG.SUPABASE_URL || '';
   var SUPABASE_KEY = CFG.SUPABASE_KEY || '';
   var USING_SB = !!(SUPABASE_URL && SUPABASE_KEY && window.supabase);
-  var supa = USING_SB ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+  // storageKey PRÓPRIA da família — isolada da sessão de treinador/admin ('ytb-auth'),
+  // para o mesmo telemóvel poder testar os dois papéis sem se desautenticarem um ao outro.
+  var supa = USING_SB ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY,
+              {auth:{persistSession:true, autoRefreshToken:true, storageKey:'ytb-familia-auth'}}) : null;
 
-  var CONSENT_VERSION = 'v1';
-  var PASSAPORTE_URL  = 'passaporte.html';   // FASE 3 (a construir)
+  var CONSENT_VERSION = 'v2';
 
-  var pend = { id:null, nome:'', token:null };
+  var pend = { id:null, nome:'' };
+  var ultimaLista = [];
 
   // ── Elementos ──
   var $ = function(s){ return document.getElementById(s); };
-  var elId=$('f-id'), elPin=$('f-pin'), btnEntrar=$('btn-entrar'),
+  var elEmail=$('f-email'), btnEnviar=$('btn-enviar'), btnOutro=$('btn-outro'),
       btnConsent=$('btn-consentir'), btnVoltar=$('btn-voltar'),
-      msgEntrada=$('msg-entrada');
+      msgEmail=$('msg-email');
 
   if(!USING_SB){ var db=$('demo-banner'); if(db) db.hidden=false; }
 
+  function escHtml(s){ return String(s==null?'':s).replace(/[&<>"]/g, function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+
   // ── Navegação entre passos ──
   function show(name){
-    ['entrada','consentimento','sucesso'].forEach(function(n){
+    ['email','aguarda','escolha','consentimento','sucesso'].forEach(function(n){
       $('step-'+n).classList.toggle('active', n===name);
     });
-    if(name==='consentimento'){ setTimeout(function(){ btnConsent.focus(); },50); }
   }
-  function err(text){ msgEntrada.textContent=text; msgEntrada.classList.add('show'); }
-  function clearErr(){ msgEntrada.classList.remove('show'); }
+  function err(text){ msgEmail.textContent=text; msgEmail.classList.add('show'); }
+  function clearErr(){ msgEmail.classList.remove('show'); }
   function loading(btn,on,label){
     btn.disabled=on;
     btn.innerHTML = on ? '<span class="spin"></span>'+(label||'Aguarda…') : btn.dataset.label;
   }
-  [btnEntrar,btnConsent].forEach(function(b){ b.dataset.label=b.textContent; });
+  [btnEnviar,btnConsent].forEach(function(b){ b.dataset.label=b.textContent; });
 
-  // ── Normalização dos campos ──
-  elId.addEventListener('input', function(){
-    var v=elId.value.toUpperCase().replace(/[^A-Z0-9-]/g,'');
-    elId.value=v; clearErr();
-  });
-  elPin.addEventListener('input', function(){
-    elPin.value=elPin.value.replace(/\D/g,'').slice(0,6); clearErr();
-  });
-  elPin.addEventListener('keydown', function(e){ if(e.key==='Enter') doLogin(); });
-  elId.addEventListener('keydown', function(e){ if(e.key==='Enter') elPin.focus(); });
+  elEmail.addEventListener('input', clearErr);
+  elEmail.addEventListener('keydown', function(e){ if(e.key==='Enter') doEnviar(); });
 
-  function normId(v){
-    v=(v||'').trim().toUpperCase();
-    if(v && v.indexOf('YTB-')!==0) v='YTB-'+v.replace(/^YTB/,'');
-    return v;
-  }
-
-  // ── LOGIN ──
-  btnEntrar.addEventListener('click', doLogin);
-  function doLogin(){
+  // ── PASSO 1 · pedir o magic link ──
+  btnEnviar.addEventListener('click', doEnviar);
+  function doEnviar(){
     clearErr();
-    var id=normId(elId.value), pin=elPin.value;
-    if(id.length<5){ err('Escreve o ID do atleta (ex.: YTB-AB3CD).'); elId.focus(); return; }
-    if(pin.length!==6){ err('O PIN tem 6 dígitos.'); elPin.focus(); return; }
+    var email=(elEmail.value||'').trim().toLowerCase();
+    if(!email||email.indexOf('@')<0){ err('Escreve um email válido.'); elEmail.focus(); return; }
 
-    loading(btnEntrar,true,'A entrar…');
+    loading(btnEnviar,true,'A enviar…');
 
     if(!USING_SB){            // modo demonstração
       setTimeout(function(){
-        loading(btnEntrar,false);
-        pend={ id:'demo', nome:(id.replace('YTB-','')||'Atleta')+' (demo)', token:'demo' };
+        loading(btnEnviar,false);
+        pend={ id:'demo', nome:'Atleta (demo)' };
         $('consent-name').textContent=pend.nome;
-        show('consentimento');   // demo: mostra sempre a 1ª entrada
+        show('consentimento');
       },550);
       return;
     }
 
-    supa.rpc('ytb_acesso',{ p_id_publico:id, p_pin:pin }).then(function(res){
-      loading(btnEntrar,false);
-      if(res.error){ err('Não foi possível entrar agora. Tenta novamente.'); return; }
-      var row=(res.data&&res.data[0])||null;
-      if(!row){ err('ID ou PIN incorreto. Verifica e tenta de novo.'); return; }
-
-      if(row.status==='bloqueado'){ err('Demasiadas tentativas. Aguarda uns minutos antes de tentar de novo.'); return; }
-      if(row.status!=='ok'){ err('ID ou PIN incorreto. Verifica e tenta de novo.'); return; }
-
-      pend={ id:row.atleta_id, nome:row.nome||'o teu atleta', token:row.token };
-      if(row.consentido){ goSuccess(); }          // já consentiu → entra direto
-      else { $('consent-name').textContent=pend.nome; show('consentimento'); }  // 1ª entrada
+    supa.auth.signInWithOtp({
+      email:email,
+      options:{ emailRedirectTo: location.origin + location.pathname }
+    }).then(function(res){
+      loading(btnEnviar,false);
+      if(res.error){ err('Não foi possível enviar o link. Tenta novamente.'); return; }
+      $('aguarda-email').textContent=email;
+      show('aguarda');
     }).catch(function(){
-      loading(btnEntrar,false);
+      loading(btnEnviar,false);
       err('Sem ligação. Verifica a internet e tenta de novo.');
     });
   }
+  btnOutro.addEventListener('click', function(){ show('email'); elEmail.focus(); });
 
-  // ── CONSENTIMENTO ──
-  btnVoltar.addEventListener('click', function(){ show('entrada'); elId.focus(); });
+  // ── PASSO 3 · escolher atleta (mesmo email, mais do que um filho) ──
+  function renderEscolha(lista){
+    ultimaLista=lista;
+    $('escolha-list').innerHTML = lista.map(function(a){
+      return '<button type="button" class="pick-row" data-id="'+escHtml(a.id)+'">'
+        + '<span><span class="pick-nm">'+escHtml(a.nome)+'</span>'
+        + '<span class="pick-mt">'+escHtml(a.escalao||'')+(a.clube?(' · '+escHtml(a.clube)):'')+'</span></span>'
+        + '<span class="pick-go">→</span></button>';
+    }).join('');
+    Array.prototype.forEach.call($('escolha-list').querySelectorAll('.pick-row'), function(b){
+      b.addEventListener('click', function(){
+        var id=b.getAttribute('data-id');
+        var a=lista.filter(function(x){return x.id===id;})[0];
+        if(a) afterPick(a);
+      });
+    });
+  }
+  function afterPick(a){
+    pend={ id:a.id, nome:a.nome||'o teu atleta' };
+    if(a.consentido){ goSuccess(); }
+    else { $('consent-name').textContent=pend.nome; show('consentimento'); }
+  }
+
+  // ── carregar os atletas do email autenticado ──
+  function carregarAtletas(){
+    supa.rpc('ytb_meus_atletas',{}).then(function(res){
+      var lista=(res&&res.data)||[];
+      if(!lista.length){
+        show('email');
+        err('Este email ainda não está associado a nenhum atleta. Confirma com o treinador o email usado na inscrição.');
+        return;
+      }
+      if(lista.length===1){ afterPick(lista[0]); return; }
+      renderEscolha(lista);
+      show('escolha');
+    }).catch(function(){
+      show('email');
+      err('Não foi possível carregar o teu acesso. Tenta novamente.');
+    });
+  }
+
+  // ── PASSO 4 · CONSENTIMENTO ──
+  btnVoltar.addEventListener('click', function(){
+    if(ultimaLista.length>1){ renderEscolha(ultimaLista); show('escolha'); }
+    else { show('email'); }
+  });
   btnConsent.addEventListener('click', function(){
     loading(btnConsent,true,'A ativar…');
     if(!USING_SB){ setTimeout(function(){ loading(btnConsent,false); goSuccess(); },550); return; }
 
-    supa.rpc('ytb_consentir',{ p_token:pend.token, p_versao:CONSENT_VERSION }).then(function(res){
+    supa.rpc('ytb_consentir_email',{ p_atleta:pend.id, p_versao:CONSENT_VERSION, p_visivel_b2b: !!(document.getElementById('chk-b2b')&&document.getElementById('chk-b2b').checked) }).then(function(res){
       loading(btnConsent,false);
-      if(res.error){ alert('Não foi possível registar a autorização. Tenta novamente.'); return; }
+      var d=res&&res.data;
+      if(res.error || !d || !d.ok){ alert('Não foi possível registar a autorização. Tenta novamente.'); return; }
       goSuccess();
     }).catch(function(){
       loading(btnConsent,false);
@@ -286,7 +341,7 @@
     });
   });
 
-  // ── SUCESSO ──
+  // ── PASSO 5 · SUCESSO ──
   function goSuccess(){
     document.body.classList.add('is-ok');     // o selo torna-se verde ✓
     $('sucesso-nome').textContent=pend.nome;
@@ -295,9 +350,16 @@
       $('sucesso-nome').insertAdjacentText('afterend',' — fim da demonstração');
       return;
     }
-    try{ sessionStorage.setItem('ytb_sessao', pend.token); }catch(e){}
-    var url = PASSAPORTE_URL + (pend.token ? ('?s=' + encodeURIComponent(pend.token)) : '');
+    var url='passaporte.html'+(pend.id?('?atleta='+encodeURIComponent(pend.id)):'');
     setTimeout(function(){ window.location.href = url; }, 1100);
+  }
+
+  // ── arranque: já há sessão (voltou do clique no magic link)? ──
+  if(USING_SB){
+    supa.auth.getSession().then(function(res){
+      var session = res && res.data && res.data.session;
+      if(session && session.user && session.user.email){ carregarAtletas(); }
+    }).catch(function(){});
   }
 })();
 </script>

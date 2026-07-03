@@ -907,7 +907,7 @@ function cobrarTreinador(id){
     '\n\nPodes pagar por MB Way para o número 913 695 846. Assim que confirmar, ativo o teu acesso e recebes o link de entrada por email. Qualquer dúvida, diz!';
   window.open('https://wa.me/' + cleanPhone + '?text=' + encodeURIComponent(texto), '_blank');
   // marca como contactado (best-effort)
-  supa.from('registos_pendentes').update({ estado: 'contactado' }).eq('id', id).then(() => {
+  supa.rpc('ytb_admin_registo_decidir',{ p_id:id, p_acao:'contactado' }).then(() => {
     t.estado = 'contactado';
     renderTreinadores();
   });
@@ -924,15 +924,9 @@ async function aprovarTreinador(id){
   const labelPapel = papel === 'scout' ? 'Scout' : papel === 'familia' ? 'Família' : 'Treinador';
   if(!confirm('Confirmas que ' + t.nome + ' JÁ PAGOU ' + valor.toFixed(2) + '€ (' + labelPapel + ')? Isto ativa o acesso.')) return;
   try {
-    const { error: e1 } = await supa.from('registos_pendentes').update({ estado: 'aprovado' }).eq('id', id);
+    const { data: rAp, error: e1 } = await supa.rpc('ytb_admin_registo_decidir', { p_id:id, p_acao:'aprovado', p_papel:papel });
     if(e1) throw e1;
-    const { data: existe } = await supa.from('perfis').select('id').eq('email', t.email).maybeSingle();
-    if(existe){
-      await supa.from('perfis').update({ papel: papel, estado: 'aprovado', nome: t.nome }).eq('email', t.email);
-    } else {
-      try { await supa.from('perfis').insert({ email: t.email, nome: t.nome, papel: papel, estado: 'aprovado' }); }
-      catch(e){ console.warn('perfil criado no 1º login:', e.message); }
-    }
+    if(!rAp || !rAp.ok) throw new Error((rAp && rAp.motivo) || 'aprovacao_falhou');
     // Registar o pagamento de entrada
     const servico = papel === 'scout' ? 'scout_report' : (papel + '_entrada');
     try { await supa.rpc('admin_registar_pagamento', { p_email: t.email, p_nome: t.nome, p_servico: servico, p_valor: valor }); }
@@ -957,7 +951,7 @@ async function aprovarTreinador(id){
 async function rejeitarTreinador(id){
   if(!confirm('Rejeitar este registo de treinador?')) return;
   try {
-    const { error } = await supa.from('registos_pendentes').update({ estado: 'rejeitado' }).eq('id', id);
+    const { error } = await supa.rpc('ytb_admin_registo_decidir', { p_id:id, p_acao:'rejeitado' });
     if(error) throw error;
     const t = allTreinadores.find(x => x.id === id);
     if(t) t.estado = 'rejeitado';
@@ -1001,7 +995,7 @@ function renderClubes(){
 function templateA(a){
   const primeiroNome = a.primeiro_nome || a.nome.split(' ')[0];
   const dataInsc = fmtDate(a.created_at);
-  const urlOcultar = `https://yourtalentbase.pt/ocultar.html?token=${a.token_ocultar}`;
+  const urlOcultar = `https://yourtalentbase.pt/acesso.html`;
   return `Olá ${a.encarregado_nome || ''},
 
 Sou da YourTalentBase (yourtalentbase.pt).
@@ -1013,7 +1007,7 @@ Detalhes:
 • Posição: ${a.posicao_principal} · Escalão: ${a.escalao}
 • Clube: ${a.clube_actual}
 
-Pode a qualquer momento ocultar/remover o perfil em:
+Pode a qualquer momento gerir a privacidade, ocultar ou remover o perfil entrando com o seu email em:
 ${urlOcultar}
 
 Para questões: yourtalentbase@gmail.com
@@ -1081,16 +1075,9 @@ function enviarWhatsAppPedido(pedidoId){
 document.getElementById('wa-link').addEventListener('click', async () => {
   // Marca como enviado depois de clicar
   if(waMode === 'pendente' && currentAtleta){
-    await supa.from('atletas_360').update({
-      whatsapp_enviado: true,
-      whatsapp_enviado_em: new Date().toISOString(),
-      whatsapp_enviado_por: 'Admin YTB'
-    }).eq('id', currentAtleta.id);
+    await supa.rpc('ytb_admin_whatsapp', { p_id: currentAtleta.id, p_enviado: true });
   } else if(waMode === 'pedido' && currentPedido){
-    await supa.from('atletas_360_pedidos_contacto').update({
-      estado: 'encarregado_notificado',
-      whatsapp_enviado_em: new Date().toISOString()
-    }).eq('id', currentPedido.id);
+    await supa.rpc('ytb_admin_pedido_contacto', { p_id: currentPedido.id, p_estado: null, p_notificado: true });
   }
   setTimeout(() => { closeModal('wa'); load(); }, 800);
 });
@@ -1104,15 +1091,10 @@ function copyWA(){
 
 // ════════════════ AÇÕES ATLETAS ════════════════
 async function aprovarAtleta(id){
-  if(!confirm('Aprovar atleta e tornar visível na BD?')) return;
+  if(!confirm('Aprovar atleta? (A visibilidade a clubes e na montra é decidida pela família, no passaporte.)')) return;
   try {
-    const { error } = await supa.from('atletas_360').update({
-      estado: 'aprovado',
-      aprovado_por: 'Admin YTB',
-      aprovado_em: new Date().toISOString(),
-      visivel_b2b: true,
-      visivel_publico: true
-    }).eq('id', id);
+    // v2: aprovar decide o ESTADO; a exposição (b2b/montra) é decisão da FAMÍLIA (Constituição · P6)
+    const { error } = await supa.rpc('ytb_admin_atleta_estado', { p_id:id, p_acao:'aprovar' });
     if(error){ toast('Erro: ' + error.message, 'error'); return; }
     toast('✓ Atleta aprovado', 'green');
     load();
@@ -1123,12 +1105,7 @@ async function rejeitarAtleta(id){
   const motivo = prompt('Motivo da rejeição:');
   if(motivo === null) return;
   try {
-    await supa.from('atletas_360').update({
-      estado: 'rejeitado',
-      estado_motivo: motivo,
-      visivel_b2b: false,
-      visivel_publico: false
-    }).eq('id', id);
+    await supa.rpc('ytb_admin_atleta_estado', { p_id:id, p_acao:'rejeitar', p_motivo:motivo });
     toast('Atleta rejeitado', 'green');
     load();
   } catch(e){ toast('Erro', 'error'); }
@@ -1138,7 +1115,7 @@ async function apagarAtleta(id, nome){
   if(!confirm(`Apagar PERMANENTEMENTE "${nome}"?\n\nEsta acção apaga também stats, histórico, avaliações.\n\nÉ irreversível.`)) return;
   if(!confirm('Confirma OUTRA VEZ: apagar para sempre?')) return;
   try {
-    const { error } = await supa.from('atletas_360').delete().eq('id', id);
+    const { error } = await supa.rpc('ytb_admin_atleta_apagar', { p_id:id });
     if(error){ toast('Erro: ' + error.message, 'error'); return; }
     toast('Atleta apagado', 'green');
     load();
@@ -1146,10 +1123,7 @@ async function apagarAtleta(id, nome){
 }
 
 async function marcarWhatsAppPendente(id, enviado){
-  await supa.from('atletas_360').update({
-    whatsapp_enviado: enviado,
-    whatsapp_enviado_em: enviado ? new Date().toISOString() : null
-  }).eq('id', id);
+  await supa.rpc('ytb_admin_whatsapp', { p_id:id, p_enviado:enviado });
   toast('Estado atualizado', 'green');
   load();
 }
@@ -1299,7 +1273,7 @@ async function saveAtleta(){
   };
 
   try {
-    const { error } = await supa.from('atletas_360').update(updates).eq('id', currentAtleta.id);
+    const { error } = await supa.rpc('ytb_admin_atleta_guardar', { p_id: currentAtleta.id, p: updates });
     if(error){ toast('Erro: ' + error.message, 'error'); return; }
     toast('✓ Guardado', 'green');
     closeModal('edit');
@@ -1311,11 +1285,7 @@ async function saveAtleta(){
 async function resolverPedido(id, estado){
   if(!confirm(`Marcar pedido como "${estado}"?`)) return;
   try {
-    await supa.from('atletas_360_pedidos_contacto').update({
-      estado,
-      resolvido_em: new Date().toISOString(),
-      resposta_em: new Date().toISOString()
-    }).eq('id', id);
+    await supa.rpc('ytb_admin_pedido_contacto', { p_id:id, p_estado:estado, p_notificado:false });
     toast('Pedido atualizado', 'green');
     load();
   } catch(e){ toast('Erro', 'error'); }
@@ -1350,18 +1320,11 @@ async function saveClube(){
   const valor = ({'clube-pro':49,'clube-pro-plus':119,'enterprise':299})[plano];
 
   try {
-    const { error } = await supa.from('atletas_360_clubes_subscritores').insert({
-      clube_nome: nome,
-      responsavel_nome: resp,
-      responsavel_email: email,
-      responsavel_telefone: get('c_tel') || null,
-      responsavel_cargo: get('c_cargo') || null,
-      password_temporaria: get('c_pwd'),
-      plano,
-      valor_mensal: valor,
-      subscrito_em: new Date().toISOString(),
-      estado_subscricao: 'ativa',
-      notas_admin: get('c_notas') || null
+    // v2: sem password_temporaria — o acesso real dá-se por papel (ytb_definir_papel) + magic link
+    const { error } = await supa.rpc('ytb_admin_clube_registar', {
+      p_nome: nome, p_resp: resp, p_email: email,
+      p_tel: get('c_tel') || null, p_cargo: get('c_cargo') || null,
+      p_plano: plano, p_valor: valor, p_notas: get('c_notas') || null
     });
     if(error){ toast('Erro: ' + error.message, 'error'); return; }
     toast('Clube criado', 'green');
@@ -1373,7 +1336,7 @@ async function saveClube(){
 function editarClube(id){ toast('Edição de clubes em breve · use Supabase directo por agora', 'green'); }
 async function apagarClube(id, nome){
   if(!confirm(`Apagar clube "${nome}"?`)) return;
-  await supa.from('atletas_360_clubes_subscritores').delete().eq('id', id);
+  await supa.rpc('ytb_admin_clube_remover', { p_id:id });
   toast('Clube apagado', 'green');
   load();
 }
@@ -1458,13 +1421,8 @@ FORMATO DA RESPOSTA:
     // ── Gravar na tabela de histórico (append-only) com snapshot dos dados ──
     let adminEmail = '';
     try { const { data:{ session } } = await supa.auth.getSession(); adminEmail = session?.user?.email || ''; } catch(e){}
-    const { error: insErr } = await supa.from('avaliacoes_contextuais').insert({
-      id: crypto.randomUUID(),
-      atleta_id: atletaId,
-      texto_ia: txt,
-      snapshot: ctx,
-      gerado_por: adminEmail,
-      modelo: 'claude'
+    const { error: insErr } = await supa.rpc('ytb_admin_aval_contextual', {
+      p_atleta: atletaId, p_texto: txt, p_snapshot: ctx
     });
     if(insErr) throw insErr;
 
@@ -1509,14 +1467,14 @@ async function carregarContas(){
 async function mudarPapelConta(email, novoPapel){
   if(!novoPapel) return;
   if(CONTAS_PROTEGIDAS.includes((email||'').toLowerCase())){ alert('Conta protegida — não pode ser alterada.'); carregarContas(); return; }
-  const { error } = await supa.from('perfis').update({ papel: novoPapel }).eq('email', email);
+  const { error } = await supa.rpc('ytb_definir_papel', { p_email: email, p_papel: novoPapel });
   if(error){ alert('Não foi possível mudar o papel: ' + (error.message || 'erro')); carregarContas(); return; }
   carregarContas();
 }
 async function mudarEstadoConta(email, novoEstado){
   if(CONTAS_PROTEGIDAS.includes((email||'').toLowerCase())){ alert('Conta protegida — não pode ser alterada.'); return; }
   if(novoEstado === 'bloqueado' && !confirm('Vais BLOQUEAR o acesso de ' + email + ' a toda a plataforma. Confirmas?')) return;
-  const { error } = await supa.from('perfis').update({ estado: novoEstado }).eq('email', email);
+  const { error } = await supa.rpc('ytb_admin_perfil_estado', { p_email: email, p_estado: novoEstado });
   if(error){ alert('Não foi possível: ' + (error.message || 'erro')); return; }
   carregarContas();
 }
@@ -1554,9 +1512,7 @@ async function carregarComissoes(){
   } catch(e){ tb.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#ff5050;padding:20px">Erro: ' + escapeHtml(e.message||'') + '</td></tr>'; }
 }
 async function marcarComissao(id, pago){
-  const { error } = await supa.from('comissoes').update({ pago_ao_treinador: pago }).eq('id', id);
-  if(error){ alert('Não foi possível: ' + (error.message||'erro')); return; }
-  carregarComissoes();
+  alert('Comissões descontinuadas pela Constituição YTB (modelo aprovado não tem comissão de treinador). O registo mantém-se apenas como arquivo.');
 }
 
 </script>

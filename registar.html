@@ -157,7 +157,7 @@ async function registar(){
     //    cria-o na aprovação. Aqui registamos a intenção.
     //    (Tentativa best-effort — não bloqueia o magic link.)
     try{
-      await sb.from('registos_pendentes').insert({ nome: nome, email: email, telemovel: telemovel, papel: papelEscolhido });
+      await sb.rpc('ytb_registar_interesse', { p_nome: nome, p_email: email, p_telefone: telemovel, p_papel: papelEscolhido });
     }catch(e){ /* tabela pode não existir ainda; o magic link é o essencial */ }
 
     document.getElementById('formArea').style.display='none';
