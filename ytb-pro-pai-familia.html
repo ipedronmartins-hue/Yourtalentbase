@@ -342,8 +342,23 @@ async function carregarDados(){
   }
   if(!resultadoFinal){resultadoFinal={nome:nomeAtleta,posicao:'MED',posicaoLabel:'Geral',score:50,debilidades:['tecnica','fisico','decisao'],plano:planoFallback(),fonte:'base',created_at:new Date().toISOString()};}
   else if(!resultadoFinal.plano){resultadoFinal.plano=planoFallback();}
-  if(USING_SB&&atletaId){try{const{data:treinos}=await supa.from('familia_treinos').select('*').eq('atleta_id',atletaId).order('created_at',{ascending:false}).limit(60);historico=treinos||[];scoreConfianca=calcularConfiancaGlobal(historico);}catch(e){console.warn('hist',e);historico=[];}}
+  if(USING_SB&&atletaId){try{const{data:treinos}=await supa.from('familia_treinos').select('*').eq('atleta_id',atletaId).order('created_at',{ascending:false}).limit(60);historico=(treinos||[]).map(normTreino);scoreConfianca=calcularConfiancaGlobal(historico);}catch(e){console.warn('hist',e);historico=[];}}
   renderDashboard();
+}
+
+// Normaliza uma linha de familia_treinos (esquema real: exercicio + resultado jsonb)
+// para o shape que os renders esperam (exercicio_id, exercicio_nome, completas, ...)
+function normTreino(r){
+  const res=r.resultado||{};
+  return Object.assign({},r,{
+    exercicio_nome:r.exercicio_nome||r.exercicio||'',
+    exercicio_id:r.exercicio_id||res.exercicio_id||'',
+    bloco:r.bloco||res.bloco||'',
+    completas:(r.completas!=null?r.completas:res.completas)||0,
+    dificuldade:r.dificuldade||res.dificuldade||'media',
+    energia:r.energia||res.energia||'normal',
+    submetido_por:r.submetido_por||res.submetido_por||''
+  });
 }
 
 // Mapa dos 11 critérios da ferramenta de scout → debilidades de treino
@@ -421,8 +436,16 @@ function detectarDebilidades(){const debs=[];if(respostas.fraqueza)debs.push(res
 function gerarPlano(debilidades,posicao){const idade=idadeAtleta||13;const plano=[];CICLOS.forEach(ciclo=>{const bloco=EXERCICIOS[ciclo.bloco];let elegiveis=bloco.filter(e=>e.min<=idade);const prioritarios=elegiveis.filter(e=>e.debs.some(d=>debilidades.includes(d)));const outros=elegiveis.filter(e=>!e.debs.some(d=>debilidades.includes(d)));const semana={ciclo:ciclo,sessoes:[]};for(let s=0;s<3;s++){const sessao={n:s+1,exercicios:[]};const pool=prioritarios.slice(0,8).concat(outros.slice(0,4));const escolhidos=new Set();let guard=0;while(sessao.exercicios.length<3&&pool.length&&guard<50){guard++;const ex=pool[(s*3+sessao.exercicios.length)%pool.length];if(!escolhidos.has(ex.id)){sessao.exercicios.push(ex);escolhidos.add(ex.id);}if(escolhidos.size>=elegiveis.length)break;}semana.sessoes.push(sessao);}plano.push(semana);});return plano;}
 async function gerarResultado(){const pos=respostas.posicao||'MED';const posLabel={GR:'Guarda-Redes',DEF:'Defesa',MED:'Médio',ATA:'Avançado / Extremo'}[pos]||pos;const score=calcularScoreReal();const inflacao=detectarInflacao();const debilidades=detectarDebilidades();const plano=gerarPlano(debilidades,pos);
   resultadoFinal={nome:nomeAtleta,idade:idadeAtleta,posicao:pos,posicaoLabel:posLabel,score:score,debilidades:debilidades,confianca:inflacao.confianca,flagsInflacao:inflacao.flags,plano:plano,fonte:'familia',created_at:new Date().toISOString()};
-  if(USING_SB&&atletaId){try{await supa.from('familia_avaliacoes').insert({atleta_id:atletaId,posicao:pos,escalao:'Sub-'+idadeAtleta,score:score,confianca:inflacao.confianca,respostas:respostas,debilidades:debilidades,plano:plano});}catch(e){console.warn('save aval',e);}}
-  renderAvaliacaoExistente();showToast('Avaliação concluída ✓');}
+  let avalGravada=false;
+  if(USING_SB&&atletaId){
+    try{
+      const{data,error}=await supa.rpc('ytb_familia_autoavaliar',{p_atleta:atletaId,p_posicao:pos,p_score:score,p_confianca:inflacao.confianca,p_respostas:respostas,p_debilidades:debilidades,p_plano:plano});
+      if(error)throw error;
+      avalGravada=!!(data&&data.ok);
+    }catch(e){console.warn('save aval',e);}
+  }
+  renderAvaliacaoExistente();
+  showToast(avalGravada?'Avaliação concluída e guardada ✓':(USING_SB&&atletaId?'⚠ Avaliação concluída mas NÃO gravada':'Avaliação concluída ✓'),avalGravada?2200:3500);}
 function renderAvaliacaoExistente(){if(!resultadoFinal){buildQuestionario();return;}document.getElementById('quest-area').innerHTML='';const debs=resultadoFinal.debilidades||[];const debLabels={tecnica:'Técnica individual',fisico:'Físico (velocidade/força)',decisao:'Tomada de decisão',posicionamento:'Posicionamento sem bola',mental:'Resiliência mental',pe_fraco:'Pé não-dominante',leitura:'Leitura de jogo'};
   let confianca='';if(resultadoFinal.confianca<70)confianca='<div style="background:rgba(255,165,0,.08);border:1px solid rgba(255,165,0,.3);border-radius:9px;padding:10px 12px;margin-top:11px;font-size:11px;line-height:1.5"><strong style="color:var(--orange)">🟠 Confiança '+resultadoFinal.confianca+'%</strong> · Alguns pontos parecem inconsistentes. Refazer com mais honestidade ajuda o treino.</div>';
   document.getElementById('result-area').innerHTML='<div class="result-card"><div style="font-size:9px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;text-align:center;margin-bottom:5px">Perfil estimado</div><div class="score-big">'+resultadoFinal.score+'</div><div style="text-align:center;font-size:10px;color:var(--slate);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-top:4px">/ 100</div><div class="pos-card"><div class="pos-titulo">Posição</div><div class="pos-nome">'+esc(resultadoFinal.posicaoLabel)+'</div></div>'+(debs.length?'<div style="font-size:9px;font-weight:800;letter-spacing:2px;color:var(--red);text-transform:uppercase;margin:14px 0 7px">Áreas a desenvolver</div><div class="debilidades-list">'+debs.map(d=>'<div class="deb-item">⚠️ '+(debLabels[d]||d)+'</div>').join('')+'</div>':'')+confianca+'</div><div style="display:flex;gap:8px;margin-top:11px"><button class="btn btn-secondary" onclick="buildQuestionario()">Refazer avaliação</button><button class="btn btn-primary" onclick="setTab(\'treino\')">Ver plano →</button></div>';}
@@ -450,9 +473,19 @@ function selectChoice(btn){const field=btn.getAttribute('data-field');modalInput
 async function submeterTreino(){if(!exercicioAtivo)return;const completas=parseInt(document.getElementById('in-completas').value)||0;const tempo=parseInt(document.getElementById('in-tempo').value)||0;if(completas===0){showToast('Quantas completaste?');return;}if(tempo===0){showToast('Tempo?');return;}
   const submetidoPor=idadeAtleta<=12?'pai':'atleta';const conf=detectarBullshitLocal(exercicioAtivo,completas,tempo,modalInputs);
   const submissao={atleta_id:atletaId,exercicio_id:exercicioAtivo.id,exercicio_nome:exercicioAtivo.nome,bloco:Object.keys(EXERCICIOS).find(k=>EXERCICIOS[k].includes(exercicioAtivo))||'',completas:completas,tempo:tempo,dificuldade:modalInputs.dificuldade,energia:modalInputs.energia,submetido_por:submetidoPor,confianca:conf.confianca,flags:conf.flags};
-  if(USING_SB&&atletaId){try{const{data}=await supa.from('familia_treinos').insert(submissao).select();if(data&&data[0])historico.unshift(Object.assign({},submissao,{created_at:new Date().toISOString()}));}catch(e){console.warn('save treino',e);historico.unshift(Object.assign({},submissao,{created_at:new Date().toISOString()}));}}
-  else{historico.unshift(Object.assign({},submissao,{created_at:new Date().toISOString()}));}
-  scoreConfianca=calcularConfiancaGlobal(historico);fecharModal();let msg='Treino submetido ✓';if(conf.confianca<70)msg='Submetido. Mas verifica os dados.';showToast(msg,3500);setTab('dashboard');}
+  let treinoGravado=!USING_SB||!atletaId;
+  if(USING_SB&&atletaId){
+    try{
+      const{data,error}=await supa.rpc('ytb_treino_registar',{p_atleta:atletaId,p_exercicio:exercicioAtivo.nome,p_resultado:{exercicio_id:exercicioAtivo.id,bloco:submissao.bloco,completas:completas,dificuldade:modalInputs.dificuldade,energia:modalInputs.energia,submetido_por:submetidoPor},p_tempo:tempo,p_confianca:conf.confianca,p_flags:conf.flags});
+      if(error)throw error;
+      treinoGravado=!!(data&&data.ok);
+    }catch(e){console.warn('save treino',e);}
+  }
+  historico.unshift(Object.assign({},submissao,{created_at:new Date().toISOString()}));
+  scoreConfianca=calcularConfiancaGlobal(historico);fecharModal();
+  let msg=treinoGravado?'Treino submetido ✓':'⚠ Treino NÃO gravado — verifica a ligação';
+  if(treinoGravado&&conf.confianca<70)msg='Submetido. Mas verifica os dados.';
+  showToast(msg,3500);setTab('dashboard');}
 function detectarBullshitLocal(ex,completas,tempo,inputs){let conf=100,flags=[];if(tempo<ex.tempo*0.4){conf-=20;flags.push('Tempo muito baixo');}if(tempo>ex.tempo*3){conf-=10;flags.push('Tempo muito alto');}const obj=parseInt(ex.objetivo)||30;if(completas>obj*2){conf-=15;flags.push('Completas acima do realista');}const histEx=historico.filter(t=>t.exercicio_id===ex.id).slice(0,3);if(histEx.length>=2){const mediaHist=histEx.reduce((s,t)=>s+(t.completas||0),0)/histEx.length;if(completas>mediaHist*1.5&&inputs.energia!=='alta'){conf-=15;flags.push('Salto súbito sem energia alta');}}if(inputs.dificuldade==='facil'&&completas<obj*0.7){conf-=5;flags.push('Fácil mas abaixo do objectivo');}return{confianca:Math.max(0,conf),flags:flags};}
 function calcularConfiancaGlobal(hist){if(!hist.length)return 100;const ult10=hist.slice(0,10);return Math.round(ult10.reduce((s,t)=>s+(t.confianca||100),0)/ult10.length);}
 function getProximoTreino(){if(!resultadoFinal||!resultadoFinal.plano)return null;const cicloIdx=getCicloAtual();const semana=resultadoFinal.plano[cicloIdx];if(!semana)return null;for(let si=0;si<semana.sessoes.length;si++){const sessao=semana.sessoes[si];for(let ei=0;ei<sessao.exercicios.length;ei++){const ex=sessao.exercicios[ei];if(!jaFezExercicio(ex.id,cicloIdx,si))return{ciclo:semana.ciclo,sessao:si+1,exercicio:ex};}}return null;}
@@ -506,10 +539,18 @@ function proximoExercicioAtivo(){ta.idx++;iniciarExercicioAtivo();}
 function finalizarSessaoAtiva(){clearInterval(ta.timer);document.getElementById('taTimerWrap').style.display='none';document.getElementById('taDoneWrap').style.display='flex';document.querySelector('.ta-btn-skip').style.display='none';document.getElementById('taBtnNext').style.display='none';
   const totalReps=ta.resultados.reduce((s,r)=>s+r.completas,0);const totalMin=ta.exercicios.reduce((s,e)=>s+e.tempo,0);document.getElementById('taDoneSub').textContent=ta.exercicios.length+' exercícios · '+totalReps+' execuções totais · ~'+totalMin+' min';
   ta.exercicios.forEach((_,i)=>{const d=document.getElementById('tapd'+i);if(d)d.className='ta-prog-dot done';});beepDone();setTimeout(beepDone,400);}
-async function submeterSessaoCompleta(){fecharTreinoAtivo();for(const r of ta.resultados){const conf=detectarBullshitLocal(ta.exercicios.find(e=>e.id===r.exId)||{id:r.exId,objetivo:'30',tempo:10},r.completas,r.tempo,{dificuldade:'media',energia:'normal'});
+async function submeterSessaoCompleta(){fecharTreinoAtivo();let falhas=0;for(const r of ta.resultados){const conf=detectarBullshitLocal(ta.exercicios.find(e=>e.id===r.exId)||{id:r.exId,objetivo:'30',tempo:10},r.completas,r.tempo,{dificuldade:'media',energia:'normal'});
   const sub={atleta_id:atletaId,exercicio_id:r.exId,exercicio_nome:r.nome,bloco:Object.keys(EXERCICIOS).find(k=>EXERCICIOS[k].some(e=>e.id===r.exId))||'',completas:r.completas,tempo:r.tempo,dificuldade:'media',energia:'normal',submetido_por:idadeAtleta<=12?'pai':'atleta',confianca:conf.confianca,flags:conf.flags};
-  if(USING_SB&&atletaId){try{const{data}=await supa.from('familia_treinos').insert(sub).select();if(data&&data[0])historico.unshift(Object.assign({},sub,{created_at:new Date().toISOString()}));}catch(e){historico.unshift(Object.assign({},sub,{created_at:new Date().toISOString()}));}}else{historico.unshift(Object.assign({},sub,{created_at:new Date().toISOString()}));}}
-  scoreConfianca=calcularConfiancaGlobal(historico);showToast('Sessão guardada ✓',3000);setTab('dashboard');}
+  if(USING_SB&&atletaId){
+    try{
+      const{data,error}=await supa.rpc('ytb_treino_registar',{p_atleta:atletaId,p_exercicio:r.nome,p_resultado:{exercicio_id:r.exId,bloco:sub.bloco,completas:r.completas,dificuldade:'media',energia:'normal',submetido_por:sub.submetido_por},p_tempo:r.tempo,p_confianca:conf.confianca,p_flags:conf.flags});
+      if(error)throw error;
+      if(!data||!data.ok)falhas++;
+    }catch(e){falhas++;}
+  }
+  historico.unshift(Object.assign({},sub,{created_at:new Date().toISOString()}));}
+  scoreConfianca=calcularConfiancaGlobal(historico);
+  showToast(falhas>0?('⚠ '+falhas+' exercício(s) NÃO gravado(s)'):'Sessão guardada ✓',3000);setTab('dashboard');}
 function fecharTreinoAtivo(){clearInterval(ta.timer);document.getElementById('treinoAtivo').classList.remove('show');}
 </script>
 

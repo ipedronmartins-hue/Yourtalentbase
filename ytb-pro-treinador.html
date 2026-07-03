@@ -167,6 +167,8 @@ body{padding-bottom:40px}
     <div class="field"><label class="label">Nome do atleta</label><input class="input" id="insc-nome" type="text"></div>
     <div class="field"><label class="label">Ano de nascimento</label><input class="input" id="insc-ano" type="number" placeholder="2014"></div>
     <div class="field"><label class="label">Clube</label><input class="input" id="insc-clube" type="text"></div>
+    <div class="field"><label class="label">Posição (opcional)</label><select class="input" id="insc-pos"><option value="">—</option><option>GR</option><option>DC</option><option>LD</option><option>LE</option><option>MD</option><option>MC</option><option>MO</option><option>ED</option><option>EE</option><option>PL</option><option>AV</option></select></div>
+    <div class="field"><label class="label">Página ZeroZero do atleta</label><input class="input" id="insc-zz" type="url" placeholder="https://www.zerozero.pt/jogador/..."><div style="font-size:10px;color:var(--slate);margin-top:4px">Obrigatório — é a verificação de identidade do registo.</div></div>
     <div class="field"><label class="label">Email do encarregado</label><input class="input" id="insc-email" type="email" placeholder="pai@email.com"></div>
     <div class="err" id="insc-err"></div>
     <button class="btn btn-primary" id="insc-btn" onclick="submeterInscricao()">Inscrever →</button>
@@ -372,21 +374,25 @@ async function submeterInscricao(){
   const nome=document.getElementById('insc-nome').value.trim();
   const ano=parseInt(document.getElementById('insc-ano').value)||null;
   const clube=document.getElementById('insc-clube').value.trim();
+  const pos=document.getElementById('insc-pos').value||null;
+  const zz=document.getElementById('insc-zz').value.trim();
   const emailEnc=document.getElementById('insc-email').value.trim().toLowerCase();
   const err=document.getElementById('insc-err');
   if(!nome){err.style.display='block';err.textContent='Nome obrigatório';return;}
+  if(!ano){err.style.display='block';err.textContent='Ano de nascimento obrigatório';return;}
+  if(!/zerozero\.pt\/\S/i.test(zz)){err.style.display='block';err.textContent='Página ZeroZero obrigatória (verificação de identidade)';return;}
+  if(!emailEnc||emailEnc.indexOf('@')<1){err.style.display='block';err.textContent='Email do encarregado obrigatório';return;}
   err.style.display='none';
   const btn=document.getElementById('insc-btn');btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;
   if(!USING_SB){showToast('Demo: inscrição não gravada');fecharInscricao();btn.innerHTML='Inscrever →';btn.disabled=false;return;}
+  const MOTIVOS={sem_papel_treinador:'A tua conta ainda não tem papel de treinador aprovado.',dados_incompletos:'Nome e ano de nascimento são obrigatórios.',zerozero_invalido:'Link ZeroZero inválido.',email_encarregado_invalido:'Email do encarregado inválido.'};
   try{
-    await supa.from('atletas_360').insert({
-      nome:nome, primeiro_nome:nome.split(' ')[0], ano_nascimento:ano, clube:clube,
-      fonte:'treinador', fonte_nome:treinadorNome, fonte_email:treinadorEmail,
-      encarregado_email:emailEnc||null
-    });
+    const{data,error}=await supa.rpc('ytb_treinador_inscrever',{p_nome:nome,p_ano:ano,p_assoc:null,p_pos:pos,p_clube:clube||null,p_zz:zz,p_email_enc:emailEnc});
+    if(error)throw error;
+    if(!data||!data.ok){err.style.display='block';err.textContent=MOTIVOS[data&&data.motivo]||('Não foi gravado ('+((data&&data.motivo)||'erro')+')');btn.innerHTML='Inscrever →';btn.disabled=false;return;}
     showToast('Atleta inscrito ✓');
     fecharInscricao();
-    document.getElementById('insc-nome').value='';document.getElementById('insc-ano').value='';document.getElementById('insc-clube').value='';document.getElementById('insc-email').value='';
+    document.getElementById('insc-nome').value='';document.getElementById('insc-ano').value='';document.getElementById('insc-clube').value='';document.getElementById('insc-pos').value='';document.getElementById('insc-zz').value='';document.getElementById('insc-email').value='';
     carregarAtletas();
   }catch(e){
     err.style.display='block';err.textContent='Erro: '+(e.message||'tenta de novo');
@@ -459,16 +465,13 @@ async function gerarAvaliacao(){
   const medias=mediasPorCat(scores);
   const plano=gerarPlano(debs);
   avalSel={atleta_id:atletaSel.id,nome:atletaSel.primeiro_nome||atletaSel.nome,scores:scores,medias:medias,debilidades:debs,plano:plano,created_at:new Date().toISOString()};
+  let gravado=false, motivoFalha='';
   if(USING_SB){
     try{
-      const{data:av}=await supa.from('treinador_avaliacoes').insert({
-        atleta_id:atletaSel.id, treinador_email:treinadorEmail,
-        criterios:scores, debilidades:debs
-      }).select().single();
-      if(av){
-        await supa.from('treinador_treinos').insert({atleta_id:atletaSel.id, avaliacao_id:av.id, plano:plano, fonte:'avaliacao'});
-      }
-    }catch(e){console.warn('save aval',e);}
+      const{data,error}=await supa.rpc('ytb_treinador_avaliar',{p_atleta:atletaSel.id,p_criterios:scores,p_debilidades:debs,p_plano:plano});
+      if(error)throw error;
+      if(data&&data.ok)gravado=true; else motivoFalha=(data&&data.motivo)||'erro';
+    }catch(e){motivoFalha=e.message||'sem ligação';}
   }
   const debLabels={tecnica:'Técnica individual',fisico:'Físico',decisao:'Tomada de decisão',tatica:'Tática / posicionamento',mental:'Mental / atitude'};
   document.getElementById('aval-result').innerHTML=
@@ -476,8 +479,9 @@ async function gerarAvaliacao(){
     '<div class="score-big">'+medias.geral.toFixed(1)+'</div><div style="text-align:center;font-size:10px;color:var(--slate);margin-top:4px">/ 5</div>'+
     '<div style="font-size:9px;font-weight:800;letter-spacing:2px;color:var(--red);text-transform:uppercase;margin:16px 0 8px">Debilidades detetadas</div>'+
     debs.map(d=>'<div class="deb-item">⚠️ '+(debLabels[d]||d)+'</div>').join('')+
+    (gravado?'':'<div style="background:rgba(255,80,80,.08);border:1px solid rgba(255,80,80,.35);border-radius:9px;padding:10px 12px;margin-top:11px;font-size:11px;line-height:1.5"><strong style="color:var(--red)">⚠ Não ficou gravado</strong> · '+esc(motivoFalha)+'. O plano abaixo é local — volta a concluir a avaliação com sessão ativa.</div>')+
     '<button class="btn btn-primary" style="margin-top:14px" onclick="setTabProgram(\'treino\')">Ver plano de treino →</button></div>';
-  showToast('Avaliação guardada ✓ Treino gerado');
+  showToast(gravado?'Avaliação guardada ✓ Treino gerado':'⚠ Avaliação NÃO gravada',gravado?2200:3500);
 }
 
 /* ════════ TREINO ════════ */
