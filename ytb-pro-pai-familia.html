@@ -500,7 +500,39 @@ function renderTreino(){const c=document.getElementById('treino-area');if(!resul
     sessao.exercicios.forEach((ex,ei)=>{const feito=jaFezExercicio(ex.id,cicloIdx,si);html+='<div class="ex-card '+(feito?'done':'')+'"><div class="ex-card-head"><div class="ex-card-num">Exercício '+(ei+1)+'</div><div class="ex-card-status '+(feito?'feito':'pendente')+'">'+(feito?'✓ Feito':'○ Pendente')+'</div></div><div class="ex-card-name">'+esc(ex.nome)+'</div><div class="ex-card-obj">🎯 '+esc(ex.objetivo)+'</div><div class="ex-card-desc">'+esc(ex.desc)+'</div><div class="ex-card-meta"><div class="ex-meta">⏱ '+ex.tempo+' min</div></div>'+(!feito?'<button class="ex-card-start" onclick="abrirSubmissao(\''+ex.id+'\')">Registar execução →</button>':'')+'</div>';});
     if(!completa)html+='<button class="btn btn-primary btn-small" style="margin-top:6px" onclick="iniciarSessao('+cicloIdx+','+si+')">▶ Treinar Sessão '+(si+1)+' com Timer</button>';
     html+='</div>';});
-  c.innerHTML=html;}
+  c.innerHTML=diarioHTML()+html;}
+
+// ═══ DIÁRIO DE TREINOS (livre / jogo / clube) ═══
+let diarioSel={tipo:'livre',min:60};
+function diarioHTML(){
+  return '<div class="dash-card" id="diario-card"><div class="dash-card-eyebrow">📓 Diário de treinos</div>'
+  +'<div style="font-size:11px;color:var(--slate);margin:4px 0 10px">Treinou fora do plano? Jogo, clube ou treino livre — tudo conta para a sequência e fica no percurso.</div>'
+  +'<div style="display:flex;gap:6px;margin-bottom:8px" id="diario-tipos">'
+  +['livre|⚽ Livre','jogo|🏟️ Jogo','clube|🏃 Clube'].map(o=>{const p=o.split('|');const sel=p[0]===diarioSel.tipo;return '<button class="btn btn-secondary" style="flex:1;padding:9px 4px;font-size:11px'+(sel?';border-color:var(--gold);color:var(--gold)':'')+'" data-tipo="'+p[0]+'" onclick="diarioTipo(this)">'+p[1]+'</button>';}).join('')
+  +'</div>'
+  +'<div style="display:flex;gap:6px;margin-bottom:8px" id="diario-mins">'
+  +[30,45,60,90].map(m=>{const sel=m===diarioSel.min;return '<button class="btn btn-secondary" style="flex:1;padding:9px 4px;font-size:11px'+(sel?';border-color:var(--gold);color:var(--gold)':'')+'" data-min="'+m+'" onclick="diarioMin(this)">'+m+'&#39;</button>';}).join('')
+  +'</div>'
+  +'<input class="input" id="diario-nota" type="text" placeholder="Nota (opcional): onde, com quem, como correu" style="margin-bottom:8px">'
+  +'<button class="btn btn-primary" onclick="registarDiario()">Registar no diário →</button></div>';
+}
+function diarioTipo(btn){diarioSel.tipo=btn.getAttribute('data-tipo');document.querySelectorAll('#diario-tipos .btn').forEach(b=>{b.style.borderColor='';b.style.color='';});btn.style.borderColor='var(--gold)';btn.style.color='var(--gold)';}
+function diarioMin(btn){diarioSel.min=parseInt(btn.getAttribute('data-min'));document.querySelectorAll('#diario-mins .btn').forEach(b=>{b.style.borderColor='';b.style.color='';});btn.style.borderColor='var(--gold)';btn.style.color='var(--gold)';}
+async function registarDiario(){
+  if(!USING_SB||!atletaId){showToast('O diário precisa de sessão com atleta ligado');return;}
+  const nota=document.getElementById('diario-nota').value.trim();
+  try{
+    const{data,error}=await supa.rpc('ytb_diario_registar',{p_atleta:atletaId,p_atividade:diarioSel.tipo,p_minutos:diarioSel.min,p_nota:nota||null});
+    if(error)throw error;
+    if(!data||!data.ok){showToast('⚠ Não gravado ('+((data&&data.motivo)||'erro')+')');return;}
+    document.getElementById('diario-nota').value='';
+    const lbl={livre:'Treino livre',jogo:'Jogo',clube:'Treino no clube'}[diarioSel.tipo];
+    historico.unshift({exercicio_nome:lbl,exercicio_id:'diario_'+diarioSel.tipo,bloco:'',completas:0,tempo:diarioSel.min,dificuldade:'media',energia:'normal',confianca:100,created_at:new Date().toISOString()});
+    if(data.streak!=null){const sn=document.getElementById('streak-num');if(sn)sn.textContent=data.streak;}
+    if(data.marco){showToast('🏆 Marco: '+data.marco+' dias seguidos! Ficou registado no percurso ✨',4500);}
+    else{showToast('Diário registado ✓ Sequência: '+(data.streak||1)+' dia'+((data.streak||1)>1?'s':''));}
+  }catch(e){showToast('⚠ Não gravado: '+(e.message||'erro'));}
+}
 function jaFezExercicio(exId,ciclo,sessao){if(!resultadoFinal||!resultadoFinal.created_at)return false;const ini=new Date(resultadoFinal.created_at);const semanaIni=new Date(ini);semanaIni.setDate(semanaIni.getDate()+ciclo*7);const semanaFim=new Date(semanaIni);semanaFim.setDate(semanaFim.getDate()+7);return historico.some(t=>t.exercicio_id===exId&&new Date(t.created_at)>=semanaIni&&new Date(t.created_at)<=semanaFim);}
 
 // ═══ SUBMISSÃO MODAL ═══
@@ -531,14 +563,55 @@ function calcularConfiancaGlobal(hist){if(!hist.length)return 100;const ult10=hi
 function getProximoTreino(){if(!resultadoFinal||!resultadoFinal.plano)return null;const cicloIdx=getCicloAtual();const semana=resultadoFinal.plano[cicloIdx];if(!semana)return null;for(let si=0;si<semana.sessoes.length;si++){const sessao=semana.sessoes[si];for(let ei=0;ei<sessao.exercicios.length;ei++){const ex=sessao.exercicios[ei];if(!jaFezExercicio(ex.id,cicloIdx,si))return{ciclo:semana.ciclo,sessao:si+1,exercicio:ex};}}return null;}
 
 // ═══ PROGRESSO ═══
-function renderProgresso(){const c=document.getElementById('progresso-area');if(!historico.length){c.innerHTML='<div class="empty-state"><div class="empty-emoji">📊</div>Ainda não há treinos submetidos.<br>Faz o primeiro treino na aba <strong>Treino</strong>.</div>';return;}
+function renderProgresso(){const c=document.getElementById('progresso-area');if(!historico.length){c.innerHTML='<div id="bio-card"></div><div class="empty-state"><div class="empty-emoji">📊</div>Ainda não há treinos submetidos.<br>Faz o primeiro treino na aba <strong>Treino</strong>.</div>';carregarBiometria();return;}
   const totalTreinos=historico.length;const totalCompletas=historico.reduce((s,t)=>s+(t.completas||0),0);const totalTempo=historico.reduce((s,t)=>s+(t.tempo||0),0);const streak=calcularStreak();
   let html='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px"><div class="dash-card" style="padding:13px;margin-bottom:0;text-align:center"><div style="font-family:\'Barlow Condensed\';font-weight:900;font-size:32px;color:var(--gold);line-height:1">'+totalTreinos+'</div><div style="font-size:9px;letter-spacing:1.5px;color:var(--slate);text-transform:uppercase;margin-top:4px">Treinos</div></div><div class="dash-card" style="padding:13px;margin-bottom:0;text-align:center"><div style="font-family:\'Barlow Condensed\';font-weight:900;font-size:32px;color:var(--orange);line-height:1">'+streak+'</div><div style="font-size:9px;letter-spacing:1.5px;color:var(--slate);text-transform:uppercase;margin-top:4px">Dias seguidos</div></div><div class="dash-card" style="padding:13px;margin-bottom:0;text-align:center"><div style="font-family:\'Barlow Condensed\';font-weight:900;font-size:32px;color:var(--green);line-height:1">'+totalCompletas+'</div><div style="font-size:9px;letter-spacing:1.5px;color:var(--slate);text-transform:uppercase;margin-top:4px">Reps totais</div></div><div class="dash-card" style="padding:13px;margin-bottom:0;text-align:center"><div style="font-family:\'Barlow Condensed\';font-weight:900;font-size:32px;color:var(--blue);line-height:1">'+Math.round(totalTempo)+'</div><div style="font-size:9px;letter-spacing:1.5px;color:var(--slate);text-transform:uppercase;margin-top:4px">Min totais</div></div></div>';
   const porEx={};historico.forEach(t=>{if(!porEx[t.exercicio_id])porEx[t.exercicio_id]={nome:t.exercicio_nome,n:0,reps:0};porEx[t.exercicio_id].n++;porEx[t.exercicio_id].reps+=(t.completas||0);});const top=Object.values(porEx).sort((a,b)=>b.n-a.n).slice(0,6);
   html+='<div class="dash-card"><div class="dash-card-eyebrow">🏆 Exercícios mais trabalhados</div>';top.forEach(t=>{html+='<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px"><div style="color:#fff">'+esc(t.nome)+'</div><div style="color:var(--gold);font-weight:700">'+t.n+'× · '+t.reps+' reps</div></div>';});html+='</div>';
   html+='<div class="dash-card"><div class="dash-card-eyebrow">🧠 IA · Confiança nos dados</div><div style="display:flex;align-items:center;gap:12px;margin-top:8px"><div style="font-family:\'Barlow Condensed\';font-weight:900;font-size:42px;color:'+(scoreConfianca>=80?'var(--green)':scoreConfianca>=60?'var(--gold)':'var(--orange)')+';line-height:1">'+scoreConfianca+'%</div><div style="flex:1;font-size:11px;color:var(--slate);line-height:1.55">'+(scoreConfianca>=80?'Dados consistentes. A IA aprende contigo.':scoreConfianca>=60?'Alguns padrões inconsistentes. Submete com calma.':'Dados pouco consistentes. Refaz com honestidade.')+'</div></div></div>';
   html+='<div class="dash-card"><div class="dash-card-eyebrow">📜 Últimos 10 treinos</div>';historico.slice(0,10).forEach(t=>{const d=new Date(t.created_at).toLocaleDateString('pt-PT',{day:'2-digit',month:'short'});const emo={baixa:'😴',normal:'😊',alta:'⚡'}[t.energia]||'';const dif={facil:'○',media:'●',dificil:'⚫'}[t.dificuldade]||'';html+='<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:11.5px"><div style="color:#fff;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:8px">'+esc(t.exercicio_nome)+'</div><div style="color:var(--slate);font-size:10px">'+d+'</div><div style="color:var(--gold);font-weight:700;margin-left:8px">'+t.completas+'</div><div style="margin-left:4px">'+emo+dif+'</div></div>';});html+='</div>';
-  c.innerHTML=html;}
+  c.innerHTML='<div id="bio-card"></div>'+html;carregarBiometria();}
+
+// ═══ BIOMETRIA (crescimento: altura / peso / pé) ═══
+let bioCache=null;
+async function carregarBiometria(){
+  const box=document.getElementById('bio-card');if(!box||!USING_SB||!atletaId)return;
+  if(!bioCache){
+    try{const{data,error}=await supa.rpc('ytb_biometria_historico',{p_atleta:atletaId});if(error)throw error;bioCache=data||[];}
+    catch(e){console.warn('bio',e);return;}
+  }
+  renderBio();
+}
+function renderBio(){
+  const box=document.getElementById('bio-card');if(!box)return;
+  const h=bioCache||[];const ult=h.length?h[h.length-1]:null;const ant=h.length>1?h[h.length-2]:null;
+  function delta(k,unit){if(!ult||!ant||ult[k]==null||ant[k]==null)return'';const d=Math.round((ult[k]-ant[k])*10)/10;if(!d)return'';return ' <span style="font-size:10px;color:var(--green)">'+(d>0?'+':'')+d+unit+'</span>';}
+  const vals=ult
+    ?'<div style="display:flex;gap:14px;flex-wrap:wrap;margin:8px 0 4px">'
+      +(ult.altura_cm!=null?'<div><div style="font-family:\'Barlow Condensed\';font-weight:900;font-size:26px;color:var(--blue);line-height:1">'+ult.altura_cm+'<span style="font-size:12px"> cm</span>'+delta('altura_cm',' cm')+'</div><div style="font-size:9px;letter-spacing:1px;color:var(--slate);text-transform:uppercase">altura</div></div>':'')
+      +(ult.peso_kg!=null?'<div><div style="font-family:\'Barlow Condensed\';font-weight:900;font-size:26px;color:var(--green);line-height:1">'+ult.peso_kg+'<span style="font-size:12px"> kg</span>'+delta('peso_kg',' kg')+'</div><div style="font-size:9px;letter-spacing:1px;color:var(--slate);text-transform:uppercase">peso</div></div>':'')
+      +(ult.pe_eu!=null?'<div><div style="font-family:\'Barlow Condensed\';font-weight:900;font-size:26px;color:var(--gold);line-height:1">'+ult.pe_eu+'<span style="font-size:12px"> EU</span>'+delta('pe_eu','')+'</div><div style="font-size:9px;letter-spacing:1px;color:var(--slate);text-transform:uppercase">pé</div></div>':'')
+      +'</div><div style="font-size:10px;color:var(--slate)">Última medição: '+new Date(ult.medido_em).toLocaleDateString('pt-PT',{day:'2-digit',month:'short',year:'numeric'})+' · '+h.length+' registo'+(h.length>1?'s':'')+' na trajetória</div>'
+    :'<div style="font-size:12px;color:var(--slate);margin:6px 0">Ainda sem medições. A trajetória começa na primeira — regista altura, peso e tamanho do pé (ideal: a cada 3 meses).</div>';
+  box.innerHTML='<div class="dash-card"><div class="dash-card-header"><div class="dash-card-eyebrow">📏 Crescimento</div><div class="dash-card-action" onclick="toggleBioForm()" style="cursor:pointer">'+(ult?'Atualizar →':'Registar →')+'</div></div>'+vals
+    +'<div id="bio-form" style="display:none;margin-top:10px">'
+    +'<div style="display:flex;gap:6px"><input class="input" id="bio-alt" type="number" step="0.5" placeholder="Altura cm"><input class="input" id="bio-peso" type="number" step="0.1" placeholder="Peso kg"><input class="input" id="bio-pe" type="number" step="0.5" placeholder="Pé EU"></div>'
+    +'<button class="btn btn-primary btn-small" style="margin-top:8px" onclick="guardarBiometria()">Guardar medição →</button></div></div>';
+}
+function toggleBioForm(){const f=document.getElementById('bio-form');if(f)f.style.display=f.style.display==='none'?'block':'none';}
+async function guardarBiometria(){
+  const alt=parseFloat(document.getElementById('bio-alt').value)||null;
+  const peso=parseFloat(document.getElementById('bio-peso').value)||null;
+  const pe=parseFloat(document.getElementById('bio-pe').value)||null;
+  if(alt==null&&peso==null&&pe==null){showToast('Preenche pelo menos um valor');return;}
+  try{
+    const{data,error}=await supa.rpc('ytb_biometria_registar',{p_atleta:atletaId,p_altura_cm:alt,p_peso_kg:peso,p_pe_eu:pe});
+    if(error)throw error;
+    if(!data||!data.ok){showToast('⚠ Não gravado ('+((data&&data.motivo)||'erro')+')');return;}
+    bioCache=null;await carregarBiometria();
+    showToast('Medição registada ✓ Ficou no percurso');
+  }catch(e){showToast('⚠ Não gravado: '+(e.message||'valores fora do razoável'));}
+}
 
 // ═══ TOAST ═══
 function showToast(msg,duration){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(window.__toast);window.__toast=setTimeout(()=>t.classList.remove('show'),duration||2200);}
