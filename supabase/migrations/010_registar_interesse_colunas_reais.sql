@@ -1,3 +1,0 @@
--- MIGRAÇÃO 010 (aplicada em prod): ytb_registar_interesse alinhada com esquema real
--- registos_pendentes usa telemovel + notas (não telefone + mensagem).
--- Corpo integral em supabase_migrations.schema_migrations (010_registar_interesse_colunas_reais).
