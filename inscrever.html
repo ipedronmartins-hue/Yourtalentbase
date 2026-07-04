@@ -73,8 +73,8 @@
 
   <div class="row">
     <div class="field">
-      <label class="label">Ano de nascimento</label>
-      <input class="input" id="f-ano" type="number" placeholder="2014" inputmode="numeric">
+      <label class="label">Data de nascimento</label>
+      <input class="input" id="f-nasc" type="date">
     </div>
     <div class="field">
       <label class="label">Posição</label>
@@ -93,6 +93,15 @@
   <div class="field">
     <label class="label">Clube</label>
     <input class="input" id="f-clube" type="text" placeholder="Clube atual">
+  </div>
+
+  <div class="field">
+    <label class="label">Esquema tático da equipa (opcional)</label>
+    <input class="input" id="f-esquema" type="text" placeholder="4-3-3" list="f-esquema-lista">
+    <datalist id="f-esquema-lista">
+      <option value="4-3-3"><option value="4-4-2"><option value="4-2-3-1">
+      <option value="3-4-3"><option value="3-5-2"><option value="4-1-4-1"><option value="5-3-2">
+    </datalist>
   </div>
 
   <div class="field">
@@ -151,11 +160,15 @@
 
   window.submeter=function(){
     hideErr();
-    var nome=gv('f-nome'), ano=parseInt(gv('f-ano'))||null, pos=gv('f-pos'),
-        clube=gv('f-clube'), assoc=gv('f-assoc'), zz=gv('f-zz'), email=gv('f-email');
+    var nome=gv('f-nome'), nascStr=gv('f-nasc'), pos=gv('f-pos'),
+        clube=gv('f-clube'), assoc=gv('f-assoc'), esquema=gv('f-esquema'),
+        zz=gv('f-zz'), email=gv('f-email');
     var consent=document.getElementById('f-consent').checked;
 
     if(!nome){ showErr('Indica o nome do atleta.'); return; }
+    if(!nascStr){ showErr('Indica a data de nascimento.'); return; }
+    var nasc=new Date(nascStr+'T00:00:00');
+    var ano=nasc.getFullYear(), mes=nasc.getMonth()+1, dia=nasc.getDate();
     if(!/zerozero\.pt\/\S/i.test(zz)){ showErr('Link ZeroZero obrigatório — cola o perfil do atleta em zerozero.pt. É como confirmamos que é real.'); return; }
     if(email && email.indexOf('@')<0){ showErr('O email de contacto não parece válido.'); return; }
     if(!consent){ showErr('Confirma a autorização para criarmos o perfil.'); return; }
@@ -167,7 +180,8 @@
 
     supa.rpc('ytb_inscrever_livre',{
       p_nome:nome, p_ano:ano, p_posicao:pos, p_clube:clube,
-      p_associacao:assoc, p_zerozero:zz, p_contacto:email
+      p_associacao:assoc, p_zerozero:zz, p_contacto:email,
+      p_dia_nasc:dia, p_mes_nasc:mes, p_esquema:esquema||null
     }).then(function(res){
       var d=res&&res.data;
       if(res&&res.error){ btn.innerHTML='Inscrever grátis →'; btn.disabled=false; showErr('Não foi possível inscrever. Tenta novamente.'); return; }
@@ -175,6 +189,7 @@
         btn.innerHTML='Inscrever grátis →'; btn.disabled=false;
         if(d&&d.motivo==='zerozero'){ showErr('O link ZeroZero não é válido. Cola o perfil do atleta em zerozero.pt.'); }
         else if(d&&d.motivo==='nome'){ showErr('Indica o nome do atleta.'); }
+        else if(d&&(d.motivo==='dia_invalido'||d.motivo==='mes_invalido')){ showErr('A data de nascimento não é válida.'); }
         else { showErr('Não foi possível inscrever. Tenta novamente.'); }
         return;
       }

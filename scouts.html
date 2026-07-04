@@ -232,6 +232,7 @@ body{max-width:520px;margin:0 auto;padding-bottom:60px}
             <option value="ED">Extremo Direito</option>
             <option value="EE">Extremo Esquerdo</option>
             <option value="PL">Ponta de Lança</option>
+            <option value="AV">Avançado</option>
           </select>
         </div>
         <div class="field"><label class="label">Clube</label><input class="input" id="sr_clube" type="text"></div>
@@ -244,15 +245,36 @@ body{max-width:520px;margin:0 auto;padding-bottom:60px}
             <option>Sub-16</option><option>Sub-17</option><option>Sub-19</option>
           </select>
         </div>
+        <div class="field"><label class="label">Data de nascimento</label><input class="input" id="sr_nasc" type="date"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div class="field"><label class="label">Associação de Futebol</label>
+          <select class="input" id="sr_assoc">
+            <option value="">—</option>
+            <option>AF Algarve</option><option>AF Angra do Heroísmo</option><option>AF Aveiro</option><option>AF Beja</option>
+            <option>AF Braga</option><option>AF Bragança</option><option>AF Castelo Branco</option><option>AF Coimbra</option>
+            <option>AF Évora</option><option>AF Guarda</option><option>AF Horta</option><option>AF Leiria</option>
+            <option>AF Lisboa</option><option>AF Madeira</option><option>AF Ponta Delgada</option><option>AF Portalegre</option>
+            <option>AF Porto</option><option>AF Santarém</option><option>AF Setúbal</option><option>AF Viana do Castelo</option>
+            <option>AF Vila Real</option><option>AF Viseu</option>
+          </select>
+        </div>
         <div class="field"><label class="label">Pé</label>
           <select class="input" id="sr_pe">
             <option>Direito</option><option>Esquerdo</option><option>Ambidextro</option>
           </select>
         </div>
       </div>
+      <div class="field"><label class="label">Link ZeroZero</label><input class="input" id="sr_zz" type="url" placeholder="https://www.zerozero.pt/jogador/..."></div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
         <div class="field"><label class="label">Camisola</label><input class="input" id="sr_cam" type="number"></div>
-        <div class="field"><label class="label">Estrutura</label><input class="input" id="sr_estr" type="text" placeholder="4-3-3"></div>
+        <div class="field"><label class="label">Esquema tático</label>
+          <input class="input" id="sr_estr" type="text" placeholder="4-3-3" list="sr_estr_lista">
+          <datalist id="sr_estr_lista">
+            <option value="4-3-3"><option value="4-4-2"><option value="4-2-3-1">
+            <option value="3-4-3"><option value="3-5-2"><option value="4-1-4-1"><option value="5-3-2">
+          </datalist>
+        </div>
         <div class="field"><label class="label">Data obs.</label><input class="input" id="sr_data" type="date"></div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
@@ -453,7 +475,8 @@ function buildSliders(){
 // HISTORICO
 // ═══════════════════════════════════════════════
 async function carregarHistorico(){
-  const{data}=await supa.from('relatorios').select('*').eq('scout',scoutAtual?.nome||'').order('created_at',{ascending:false}).limit(10);
+  let data=[];
+  try{ const r=await supa.rpc('ytb_scout_meus_relatorios',{p_limit:10}); data=r.data||[]; }catch(e){ console.warn('historico',e); }
   // créditos vêm do SERVIDOR (não da contagem de relatórios)
   let cr=0;
   if(scoutAtual && scoutAtual.papel==='admin'){
@@ -569,6 +592,9 @@ async function gerarReport(){
     posicaoLabel:POS_LABELS[pos]||pos,
     clube:document.getElementById('sr_clube').value.trim(),
     escalao:document.getElementById('sr_esc').value,
+    dataNascimento:document.getElementById('sr_nasc').value||null,
+    associacao:document.getElementById('sr_assoc').value||null,
+    zerozero:document.getElementById('sr_zz').value.trim()||null,
     pe:document.getElementById('sr_pe').value,
     camisola:document.getElementById('sr_cam').value||'-',
     estrutura:document.getElementById('sr_estr').value||'4-3-3',
@@ -610,10 +636,9 @@ async function gerarReport(){
     // R5b: evolução vs report anterior do MESMO atleta (a vantagem que o Excel não tem)
     if(atletaIdReport){
       try{
-        const{data:ant}=await supa.from('relatorios').select('scores,media_geral,decisao,criado_em,epoca')
-          .eq('atleta_id',atletaIdReport).order('criado_em',{ascending:false}).limit(1);
-        if(ant&&ant.length&&ant[0].scores){
-          const a=ant[0];const subiu=[],desceu=[];
+        const{data:a}=await supa.rpc('ytb_scout_relatorio_anterior',{p_atleta_id:atletaIdReport});
+        if(a&&a.scores){
+          const subiu=[],desceu=[];
           Object.keys(scores).forEach(k=>{
             if(a.scores[k]!=null){
               if(scores[k]>a.scores[k])subiu.push(k+' ('+a.scores[k]+'→'+scores[k]+')');
@@ -630,24 +655,23 @@ async function gerarReport(){
         }
       }catch(e3){console.warn('comparativo:',e3)}
     }
-    const { error } = await supa.from('relatorios').insert({
-      scout:        scoutAtual.nome,
-      atleta:       nome,
-      atleta_id:    atletaIdReport,
-      clube:        dados.clube||null,
-      categoria:    dados.escalao||null,
-      posicao:      pos,
-      epoca:        dados.epoca||'2025/2026',
-      scores:       scores,
-      dados:        dados,
-      relatorio_texto: dados.analise||null,
-      decisao:      r.acao||null,
-      rendimento:   r.desc||null,
-      prazo:        r.horizonte||null,
-      media_geral:  mediaGeral,
-      report_data:  dados
+    const { data: rpcRes, error } = await supa.rpc('ytb_scout_relatorio_criar', {
+      p_atleta_id:      atletaIdReport,
+      p_atleta_nome:    nome,
+      p_clube:          dados.clube||null,
+      p_categoria:      dados.escalao||null,
+      p_posicao:        pos,
+      p_epoca:          dados.epoca||'2025/2026',
+      p_scores:         scores,
+      p_dados:          dados,
+      p_relatorio_texto: dados.analise||null,
+      p_decisao:        r.acao||null,
+      p_rendimento:     r.desc||null,
+      p_prazo:          r.horizonte||null,
+      p_media_geral:    mediaGeral
     });
     if(error) throw error;
+    if(!rpcRes||!rpcRes.ok) throw new Error((rpcRes&&rpcRes.motivo)||'não foi possível gravar');
   }catch(e){
     console.error('Erro ao guardar relatório:',e);
     stat.style.display='block';
