@@ -1,0 +1,8 @@
+-- MIGRAÇÃO 009 · CORREÇÕES DO SECURITY ADVISOR (aplicada em produção 2026-07-03)
+-- (1) drop policies INSERT/true: ecr_insert_publico, reg_pend_insert
+-- (2) RPC ytb_registar_interesse (anon) — substitui insert direto em registos_pendentes
+-- (3) admin_dar_creditos/registar_pagamento/registar_comissao: revoke anon (gated, ficam p/ admin360)
+-- (4) 27 funções mortas/trigger: revoke execute a anon+authenticated
+-- (5) search_path=public fixo em 14 funções (incl. ytb_num)
+-- (6) drop policy "Fotos atletas públicas" em storage.objects (bucket deixa de ser listável)
+-- Versão integral registada em supabase_migrations.schema_migrations (009_advisor_fixes).

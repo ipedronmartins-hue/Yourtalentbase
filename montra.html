@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#080C08">
+<title>Atletas · YourTalentBase</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="/assets/js/ytb-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="ytb.css">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:radial-gradient(1100px 520px at 50% -8%,#0E140E 0%,var(--bg) 55%);color:var(--text);font-family:'Plus Jakarta Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased;min-height:100dvh;padding:26px 18px 70px}
+  .wrap{max-width:940px;margin:0 auto}
+
+  /* topo */
+  .top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:30px}
+  .brand{display:flex;align-items:center;gap:9px}
+  .brand b{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:19px;letter-spacing:.5px;color:var(--gold)}
+  .brand span{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--slate)}
+  .top a.scout{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--text);background:var(--bg3);border:1px solid var(--border2);border-radius:9px;padding:9px 14px;text-decoration:none;transition:.15s}
+  .top a.scout:hover{filter:brightness(1.1)}
+
+  .hero{margin-bottom:26px}
+  .eyebrow{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:var(--muted)}
+  h1{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:clamp(34px,7vw,50px);line-height:.98;letter-spacing:-.01em;margin:6px 0}
+  h1 em{font-style:normal;color:var(--gold)}
+  .lead{color:var(--slate);font-size:14.5px;max-width:52ch;line-height:1.55}
+
+  .count{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;margin:0 0 14px 2px}
+
+  /* grelha de cartões */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:12px}
+  .card{
+    position:relative;background:linear-gradient(180deg,var(--bg2),#0C110C);
+    border:1px solid var(--border);border-radius:16px;padding:18px 18px 16px;
+    transition:transform .16s, border-color .16s;overflow:hidden;
+  }
+  .card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--border2);transition:background .16s}
+  .card:hover{transform:translateY(-2px);border-color:var(--border2)}
+  .card:hover::before{background:var(--slate)}
+  .c-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+  .c-pos{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--slate);background:var(--bg);border:1px solid var(--border2);border-radius:6px;padding:3px 8px}
+  /* selo de rating — destaque comedido */
+  .c-rating{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:18px;line-height:1;min-width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:9px;background:var(--bg);border:1px solid var(--border2);color:var(--text)}
+  .c-rating.top{border-color:rgba(0,212,106,.4);color:var(--up)}
+  .c-name{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:23px;line-height:1.05;margin:14px 0 3px}
+  .c-meta{font-size:12.5px;color:var(--slate)}
+  .c-club{display:flex;align-items:center;gap:6px;margin-top:11px;padding-top:11px;border-top:1px solid var(--border);font-size:12px;color:var(--muted)}
+  .c-club .dot{width:5px;height:5px;border-radius:50%;background:var(--slate);flex:none}
+
+  /* estados */
+  .state{text-align:center;padding:60px 20px;color:var(--slate)}
+  .state .ic{font-size:40px;opacity:.5;margin-bottom:14px}
+  .state h2{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:22px;color:var(--text);margin-bottom:6px}
+  .state p{font-size:14px;line-height:1.55;max-width:34ch;margin:0 auto}
+  .skel{background:var(--bg2);border:1px solid var(--border);border-radius:16px;height:150px;animation:pulse 1.3s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:.5}50%{opacity:.85}}
+
+  /* rodapé funil */
+  .funnel{margin-top:34px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:22px;text-align:center}
+  .funnel h3{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:22px;margin-bottom:6px}
+  .funnel p{font-size:13.5px;color:var(--slate);line-height:1.55;max-width:46ch;margin:0 auto 16px}
+  .funnel .btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+  .funnel a{text-decoration:none;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;text-transform:uppercase;letter-spacing:.05em;border-radius:11px;padding:13px 20px;transition:.15s}
+  .funnel a.pri{background:var(--text);color:#0A0D0A}
+  .funnel a.pri:hover{filter:brightness(1.06)}
+  .funnel a.sec{background:transparent;color:var(--text);border:1px solid var(--border2)}
+  .funnel a.sec:hover{border-color:var(--slate)}
+  .demo{margin-top:18px;text-align:center;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  .demo b{color:var(--gold)}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a href="index.html" class="brand" style="text-decoration:none"><b>YTB</b><span>YourTalentBase</span></a>
+    <a href="scouting360.html" class="scout">Área Scout →</a>
+  </div>
+
+  <div class="hero">
+    <div class="eyebrow">Talento em formação</div>
+    <h1>Atletas <em>YTB</em></h1>
+    <p class="lead">Jovens jogadores com percurso verificado e acompanhamento real. Uma amostra pública — o perfil completo está reservado a scouts e clubes.</p>
+  </div>
+
+  <div class="count" id="count"></div>
+  <div class="grid" id="grid">
+    <div class="skel"></div><div class="skel"></div><div class="skel"></div>
+  </div>
+
+  <div class="funnel" id="funnel" hidden>
+    <h3>Vês um jogador que te interessa?</h3>
+    <p>O perfil completo — avaliações, evolução ao longo do tempo e contexto — está na Área Scout, para scouts e clubes registados.</p>
+    <div class="btns">
+      <a href="scouting360.html" class="pri">Entrar como Scout / Clube</a>
+      <a href="inscrever.html" class="sec">Sou atleta ou pai — aparecer aqui</a>
+    </div>
+  </div>
+
+  <p class="demo" id="demo-banner" hidden>Modo <b>demonstração</b> — dados de exemplo</p>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var CFG=window.YTB_CONFIG||{};
+  var URL_=CFG.SUPABASE_URL||'', KEY=CFG.SUPABASE_KEY||'';
+  var USING_SB=!!(URL_&&KEY&&window.supabase);
+  var supa=USING_SB?window.supabase.createClient(URL_,KEY):null;
+
+  var DEMO=[
+    {nome:'Vasco Martins',posicao:'MC',escalao:'Sub-12',clube:'Gondomar SC'},
+    {nome:'Ana Costa',posicao:'EE',escalao:'Sub-13',clube:'Boavista FC'},
+    {nome:'Rafael Neto',posicao:'PL',escalao:'Sub-11',clube:'Rio Ave'},
+    {nome:'Diogo Faria',posicao:'DC',escalao:'Sub-14',clube:'Padroense'}
+  ];
+
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  var POS={GR:'Guarda-Redes',DC:'Defesa Central',LD:'Lateral Direito',LE:'Lateral Esquerdo',MD:'Médio Defensivo',MC:'Médio Centro',MO:'Médio Ofensivo',ED:'Extremo Direito',EE:'Extremo Esquerdo',PL:'Ponta de Lança',AV:'Avançado'};
+  // v2: a montra mostra percurso, nunca classificações de menores (Constituição · nunca 1)
+
+  function render(lista){
+    var grid=document.getElementById('grid'), count=document.getElementById('count'), funnel=document.getElementById('funnel');
+    if(!lista||!lista.length){
+      grid.innerHTML='<div class="state" style="grid-column:1/-1"><div class="ic">◇</div><h2>Ainda sem atletas na montra</h2><p>Os atletas aparecem aqui quando as famílias escolhem torná-los públicos.</p></div>';
+      count.textContent='';
+      funnel.hidden=false;
+      return;
+    }
+    count.textContent=lista.length+(lista.length===1?' atleta':' atletas');
+    grid.innerHTML=lista.map(function(a){
+      var pos=a.posicao?('<span class="c-pos">'+esc(a.posicao)+'</span>'):'<span></span>';
+      var rat='';
+      var meta=[POS[a.posicao]||a.posicao,a.escalao].filter(Boolean).join(' · ');
+      return '<div class="card">'
+        +'<div class="c-top">'+pos+rat+'</div>'
+        +'<div class="c-name">'+esc(a.nome||'—')+'</div>'
+        +'<div class="c-meta">'+esc(meta)+'</div>'
+        +(a.clube?'<div class="c-club"><span class="dot"></span>'+esc(a.clube)+'</div>':'')
+        +'</div>';
+    }).join('');
+    funnel.hidden=false;
+  }
+
+  if(!USING_SB){
+    document.getElementById('demo-banner').hidden=false;
+    render(DEMO);
+    return;
+  }
+  supa.rpc('ytb_montra',{}).then(function(res){
+    if(res.error){ render([]); return; }
+    render(res.data||[]);
+  }).catch(function(){ render([]); });
+})();
+</script>
+</body>
+</html>

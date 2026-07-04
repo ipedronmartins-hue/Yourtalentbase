@@ -171,7 +171,7 @@ body{padding-bottom:40px}
     <div class="field"><label class="label">Clube</label><input class="input" id="insc-clube" type="text"></div>
     <div class="field"><label class="label">Link ZeroZero <span style="color:var(--gold)">*</span></label><input class="input" id="insc-zz" type="url" placeholder="https://www.zerozero.pt/jogador/..."><div style="font-size:11px;color:var(--slate);margin-top:5px;line-height:1.4">Obrigatório — é como confirmamos que o atleta é real. Sem perfil ZeroZero, não inscrevemos.</div></div>
     <div class="field"><label class="label">Associação de Futebol</label><select class="input" id="insc-assoc"><option value="">— escolhe —</option><option>AF Algarve</option><option>AF Angra do Heroísmo</option><option>AF Aveiro</option><option>AF Beja</option><option>AF Braga</option><option>AF Bragança</option><option>AF Castelo Branco</option><option>AF Coimbra</option><option>AF Évora</option><option>AF Guarda</option><option>AF Horta</option><option>AF Leiria</option><option>AF Lisboa</option><option>AF Madeira</option><option>AF Ponta Delgada</option><option>AF Portalegre</option><option>AF Porto</option><option>AF Santarém</option><option>AF Setúbal</option><option>AF Viana do Castelo</option><option>AF Vila Real</option><option>AF Viseu</option></select></div>
-    <div class="field"><label class="label">Email do encarregado</label><input class="input" id="insc-email" type="email" placeholder="pai@email.com"></div>
+    <div class="field"><label class="label">Email do encarregado <span style="color:var(--gold)">*</span></label><input class="input" id="insc-email" type="email" placeholder="pai@email.com"><div style="font-size:11px;color:var(--slate);margin-top:5px;line-height:1.4">Obrigatório — é a chave de acesso. A família entra com este email, e só vê o passaporte deste atleta. Escreve com atenção.</div></div>
     <div class="err" id="insc-err"></div>
     <button class="btn btn-primary" id="insc-btn" onclick="submeterInscricao()">Inscrever →</button>
     <button class="btn btn-secondary" style="margin-top:8px" onclick="fecharInscricao()">Cancelar</button>
@@ -262,22 +262,21 @@ let toastTimer=null;
 
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function showToast(msg,dur){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),dur||2500);}
-function linkConsentimento(token,nome){
-  if(!token){return;}
-  var url=location.origin+'/consentir.html?token='+token;
-  var msg='Olá! Para ativar o passaporte de '+(nome||'')+' na YourTalentBase, confirma o consentimento aqui: '+url;
+function avisoAcesso(email,nome){
+  if(!email){showToast('Atleta inscrito ✓ — falta o email do encarregado para o acesso');return;}
+  var url=location.origin+'/acesso.html';
+  var msg='Olá! Criámos o passaporte de '+(nome||'')+' na YourTalentBase 🙌\n\nPara acederes, entra aqui: '+url+'\nUsa este email: '+email+'\n\nVais receber um link por email para entrares — não precisas de password.';
   var ov=document.createElement('div');
   ov.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:20px';
   ov.innerHTML='<div style="max-width:430px;width:100%;background:#0d120f;border:1px solid #2A322B;border-radius:14px;padding:22px;color:#ECEFEA">'
-    +'<div style="font-weight:800;font-size:17px;margin-bottom:6px">Falta o consentimento do encarregado</div>'
-    +'<div style="font-size:13px;color:var(--dec);line-height:1.5;margin-bottom:14px">O passaporte de <b style="color:#ECEFEA">'+(nome||'')+'</b> fica inativo e invisível até o encarregado consentir. Envia-lhe este link:</div>'
-    +'<input readonly value="'+url+'" style="width:100%;background:#171D18;border:1px solid #2A322B;border-radius:8px;color:#ECEFEA;font-size:12px;padding:10px;margin-bottom:12px" onclick="this.select()">'
+    +'<div style="font-weight:800;font-size:17px;margin-bottom:6px">Avisar a família</div>'
+    +'<div style="font-size:13px;color:var(--dec);line-height:1.5;margin-bottom:14px">O acesso de <b style="color:#ECEFEA">'+(nome||'')+'</b> entra com o email <b style="color:#ECEFEA">'+email+'</b>. A família pede um link de entrada nesse email — não há password nem código a copiar.</div>'
     +'<div style="display:flex;gap:8px"><button id="_cwa" style="flex:1;background:transparent;border:1px solid #2A322B;color:#ECEFEA;border-radius:8px;padding:11px;font-weight:700;cursor:pointer">Enviar por WhatsApp</button>'
-    +'<button id="_ccp" style="flex:1;background:transparent;border:1px solid #2A322B;color:#ECEFEA;border-radius:8px;padding:11px;font-weight:700;cursor:pointer">Copiar link</button></div>'
+    +'<button id="_ccp" style="flex:1;background:transparent;border:1px solid #2A322B;color:#ECEFEA;border-radius:8px;padding:11px;font-weight:700;cursor:pointer">Copiar mensagem</button></div>'
     +'<button id="_ccl" style="width:100%;margin-top:10px;background:none;border:none;color:var(--dec);font-size:12px;cursor:pointer">Fechar</button></div>';
   document.body.appendChild(ov);
   ov.querySelector('#_cwa').onclick=function(){window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');};
-  ov.querySelector('#_ccp').onclick=function(){if(navigator.clipboard){navigator.clipboard.writeText(url);showToast('Link copiado ✓');}};
+  ov.querySelector('#_ccp').onclick=function(){if(navigator.clipboard){navigator.clipboard.writeText(msg);showToast('Mensagem copiada ✓');}};
   ov.querySelector('#_ccl').onclick=function(){ov.remove();};
   ov.onclick=function(e){if(e.target===ov){ov.remove();}};
 }
@@ -454,6 +453,7 @@ async function submeterInscricao(){
   if(!clube){err.style.display='block';err.textContent='Indica o clube';return;}
   if(!assoc){err.style.display='block';err.textContent='Escolhe a Associação de Futebol';return;}
   if(!/zerozero\.pt\/\S/i.test(zz)){err.style.display='block';err.textContent='Link ZeroZero obrigatório (perfil em zerozero.pt) — é como confirmamos que o atleta é real';return;}
+  if(!emailEnc||emailEnc.indexOf('@')<0||emailEnc.indexOf('.')<0){err.style.display='block';err.textContent='Email do encarregado obrigatório e válido — é a chave de acesso da família';return;}
   err.style.display='none';
   const btn=document.getElementById('insc-btn');btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;
   if(!USING_SB){showToast('Demo: inscrição não gravada');fecharInscricao();btn.innerHTML='Inscrever →';btn.disabled=false;return;}
@@ -483,19 +483,15 @@ async function submeterInscricao(){
       btn.innerHTML='Inscrever →'; btn.disabled=false;
       return;
     }
-    const{data:novoAtleta,error:insErr}=await supa.from('atletas_360').insert({
-      id:crypto.randomUUID(),
-      nome:nome, primeiro_nome:nome.split(' ')[0], ano_nascimento:ano,
-      escalao:'Sub-'+(2026-ano),
-      associacao:assoc,
-      posicao_principal:pos, clube_actual:clube, zerozero_url:zz,
-      estado:'pendente', visivel_b2b:false,
-      fonte:'treinador', fonte_nome:treinadorNome, fonte_email:treinadorEmail,
-      encarregado_email:emailEnc||null
-    }).select('id,token_consentimento').single();
+    const{data:rIns,error:insErr}=await supa.rpc('ytb_treinador_inscrever',{
+      p_nome:nome, p_ano:ano, p_assoc:assoc, p_pos:pos,
+      p_clube:clube, p_zz:zz, p_email_enc:emailEnc
+    });
     if(insErr)throw insErr;
+    if(!rIns||!rIns.ok)throw new Error('Inscrição recusada: '+((rIns&&rIns.motivo)||'erro'));
+    const novoAtleta={id:rIns.id};
     showToast('Atleta inscrito ✓');
-    linkConsentimento(novoAtleta&&novoAtleta.token_consentimento, nome);
+    avisoAcesso(emailEnc, nome);
     fecharInscricao();
     document.getElementById('insc-nome').value='';document.getElementById('insc-ano').value='';document.getElementById('insc-clube').value='';document.getElementById('insc-email').value='';document.getElementById('insc-zz').value='';
     carregarAtletas();
@@ -573,23 +569,13 @@ async function gerarAvaliacao(){
   let gravou=true;
   if(USING_SB){
     try{
-      const avId=crypto.randomUUID();
-      const{error:e1}=await supa.from('treinador_avaliacoes').insert({
-        id:avId,
-        atleta_id:atletaSel.id, treinador_id:treinadorUserId, treinador_email:treinadorEmail,
-        criterios:scores, debilidades:debs
+      // Uma só RPC, uma só transação: avaliação + plano + nota calculada NO SERVIDOR.
+      // Eventos 'avaliacao_treinador' e 'treino_prescrito' são emitidos pelos triggers.
+      const{data:rAv,error:eAv}=await supa.rpc('ytb_treinador_avaliar',{
+        p_atleta:atletaSel.id, p_criterios:scores, p_debilidades:debs, p_plano:plano
       });
-      if(e1)throw e1;
-      const{error:e2}=await supa.from('treinador_treinos').insert({id:crypto.randomUUID(), atleta_id:atletaSel.id, treinador_id:treinadorUserId, avaliacao_id:avId, plano:plano, fonte:'avaliacao'});
-      if(e2)throw e2;
-      // Atualiza o atleta na base 360: rating = nota da última avaliação, data, e fica visível no Scouting360.
-      // Histórico completo fica em treinador_avaliacoes (série temporal preservada).
-      const m = medias.geral; // média /5
-      const nota = m >= 4.7 ? 'A+' : m >= 4.3 ? 'A' : m >= 3.8 ? 'B+' : m >= 3.3 ? 'B' : m >= 2.8 ? 'C+' : m >= 2.3 ? 'C' : 'D';
-      await supa.from('atletas_360').update({
-        rating_geral: nota,
-        stats_actualizadas_em: new Date().toISOString()
-      }).eq('id', atletaSel.id);
+      if(eAv)throw eAv;
+      if(!rAv||!rAv.ok)throw new Error((rAv&&rAv.motivo)||'avaliacao_recusada');
     }catch(e){gravou=false;window._ultimoErroAval=(e&&e.message)||String(e);console.warn('save aval',e);}
   }
   const debLabels={tecnica:'Técnica individual',fisico:'Físico',decisao:'Tomada de decisão',tatica:'Tática / posicionamento',mental:'Mental / atitude'};
