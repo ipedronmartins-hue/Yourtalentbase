@@ -109,7 +109,7 @@ body{max-width:520px;margin:0 auto;padding-bottom:60px}
 </style></head><body>
 <nav class="nav"><a href="/" class="nav-logo"><div class="nav-badge">YT</div><div class="nav-name">Your<span>Talent</span>Base</div></a><button class="nav-logout" id="nav-logout" onclick="logout()">Sair</button><a href="/" class="nav-back" id="nav-back">← Voltar</a></nav>
 <div id="login-view">
-  <div class="login-wrap"><div class="login-icon">👨‍👧</div><div class="login-title">Área <span>Família</span></div><div class="login-sub">Avaliação · Treino diário · Reavaliação<br>Plataforma YTB Pro · 14,90€ + 9,90€/mês</div></div>
+  <div class="login-wrap"><div class="login-icon">👨‍👧</div><div class="login-title">Área <span>Família</span></div><div class="login-sub">O plano do treinador · Treino diário · Evolução<br>Entra com o email indicado na inscrição — enviamos um link mágico.</div></div>
   <div class="login-box" id="login-box-form">
     <div class="info-box">A entrada é validada pela YTB. Usa o email com que fizeste a inscrição. Recebes um link de acesso por email — sem password. O acesso abre quando o Admin confirmar o pagamento.</div>
     <div class="field"><label class="label">Email da inscrição</label><input class="input" id="email-input" type="email" autocomplete="off" placeholder="o teu email"></div>
@@ -300,7 +300,7 @@ async function processarSessao(){
       .eq('encarregado_email',sessionEmail);
     if(error)throw error;
     if(!atletas||!atletas.length){
-      if(estado)estado.innerHTML='<div class="estado-pend"><div class="big">🔍</div><div class="t">Sem acesso de família</div><div class="s">A conta '+esc(sessionEmail)+' ainda não está ligada a nenhum atleta. Assim que aderires ao YTB Pro Família, ligamos o teu acesso.</div><button class="btn btn-secondary" style="margin-top:12px" onclick="logout()">Usar outro email</button></div>';
+      if(estado)estado.innerHTML='<div class="estado-pend"><div class="big">🔍</div><div class="t">Sem acesso de família</div><div class="s">A conta '+esc(sessionEmail)+' ainda não está ligada a nenhum atleta. Pede ao treinador para confirmar este email na inscrição — assim que o admin aprovar, entras por aqui.</div><button class="btn btn-secondary" style="margin-top:12px" onclick="logout()">Usar outro email</button></div>';
       return;
     }
     const a=atletas[0];
@@ -354,6 +354,13 @@ async function carregarDados(){
         }
       }}catch(e){console.warn('scout',e);}
   }
+  // O plano do treinador (quando existe) é o plano que a família treina —
+  // o funil é: treinador avalia e prescreve → família recebe e executa.
+  const cp=await carregarPlanoTreinador();
+  if(cp){
+    if(!resultadoFinal)resultadoFinal={nome:nomeAtleta,posicao:'—',posicaoLabel:'Definida pelo treinador',score:null,debilidades:[]};
+    resultadoFinal.plano=cp.plano;resultadoFinal.fonte='treinador';resultadoFinal.created_at=cp.criado_em;
+  }
   if(!resultadoFinal){resultadoFinal={nome:nomeAtleta,posicao:'MED',posicaoLabel:'Geral',score:50,debilidades:['tecnica','fisico','decisao'],plano:planoFallback(),fonte:'base',created_at:new Date().toISOString()};}
   else if(!resultadoFinal.plano){resultadoFinal.plano=planoFallback();}
   if(USING_SB&&atletaId){try{const{data:treinos}=await supa.from('familia_treinos').select('*').eq('atleta_id',atletaId).order('created_at',{ascending:false}).limit(60);historico=(treinos||[]).map(normTreino);scoreConfianca=calcularConfiancaGlobal(historico);}catch(e){console.warn('hist',e);historico=[];}}
@@ -373,6 +380,47 @@ function normTreino(r){
     energia:r.energia||res.energia||'normal',
     submetido_por:r.submetido_por||res.submetido_por||''
   });
+}
+
+// ═══ PLANO DO TREINADOR (ytb_plano_atual) ═══
+// O plano prescrito vem com sessões como arrays diretos de exercícios e
+// campos abreviados (obj, ciclo.desc); normaliza para o shape do render.
+let planoTreinador=null; // {id, criado_em} quando a família treina o plano prescrito
+function normPlanoTreinador(p){
+  if(!Array.isArray(p)||!p.length)return null;
+  try{
+    return p.map(function(sem,si){
+      const ciclo=sem.ciclo||{};
+      return {
+        ciclo:{nome:ciclo.nome||('Semana '+(si+1)),emoji:ciclo.emoji||'⚽',descricao:ciclo.descricao||ciclo.desc||''},
+        sessoes:(sem.sessoes||[]).map(function(s,i){
+          const exs=Array.isArray(s)?s:((s&&s.exercicios)||[]);
+          return {n:(s&&s.n)||i+1,exercicios:exs.map(function(e){
+            return {id:e.id||('ex_'+si+'_'+i),nome:e.nome||'Exercício',objetivo:e.objetivo||e.obj||'',desc:e.desc||'',tempo:e.tempo||10};
+          })};
+        })
+      };
+    });
+  }catch(e){console.warn('normPlano',e);return null;}
+}
+async function carregarPlanoTreinador(){
+  if(!USING_SB||!atletaId)return null;
+  try{
+    const{data,error}=await supa.rpc('ytb_plano_atual',{p_atleta:atletaId});
+    if(error)throw error;
+    if(data&&data.tem&&data.plano){
+      const plano=normPlanoTreinador(data.plano);
+      if(plano){planoTreinador={id:data.prescrito_id,criado_em:data.criado_em};return{plano:plano,criado_em:data.criado_em};}
+    }
+  }catch(e){console.warn('plano_atual',e);}
+  return null;
+}
+function findSessaoDoExercicio(exId){
+  if(!resultadoFinal||!resultadoFinal.plano)return null;
+  const sem=resultadoFinal.plano[getCicloAtual()];
+  if(!sem||!sem.sessoes)return null;
+  for(const s of sem.sessoes){if((s.exercicios||[]).some(e=>e.id===exId))return s.n;}
+  return null;
 }
 
 // Mapa dos 11 critérios da ferramenta de scout → debilidades de treino
@@ -553,7 +601,7 @@ function renderAvaliacaoExistente(){if(!resultadoFinal){buildQuestionario();retu
 // ═══ TREINO ═══
 function renderTreino(){const c=document.getElementById('treino-area');if(!resultadoFinal||!resultadoFinal.plano){resultadoFinal=resultadoFinal||{plano:planoFallback(),fonte:'base',created_at:new Date().toISOString()};if(!resultadoFinal.plano)resultadoFinal.plano=planoFallback();}
   const cicloIdx=getCicloAtual();const semana=resultadoFinal.plano[cicloIdx]||resultadoFinal.plano[0];if(!semana){c.innerHTML='<div class="empty-state">A gerar plano...</div>';return;}
-  const fonteLabel={scout:'🔍 Baseado no Scout Report',familia:'📋 Baseado na avaliação parental',base:'📊 Plano base geral'}[resultadoFinal.fonte||'base'];
+  const fonteLabel={treinador:'👔 Plano prescrito pelo treinador',scout:'🔍 Baseado no Scout Report',familia:'📋 Baseado na avaliação parental',base:'📊 Plano base geral'}[resultadoFinal.fonte||'base'];
   let html='<div class="ciclo-info"><div style="font-size:9px;font-weight:700;color:var(--muted);margin-bottom:4px">'+fonteLabel+'</div><div class="dash-card-eyebrow" style="margin-bottom:6px">SEMANA '+(cicloIdx+1)+' DE 4 · '+semana.ciclo.nome.toUpperCase()+'</div><div class="ciclo-titulo">'+semana.ciclo.emoji+' Foco: '+semana.ciclo.descricao+'</div></div>';
   semana.sessoes.forEach((sessao,si)=>{const totalFeitos=sessao.exercicios.filter(ex=>jaFezExercicio(ex.id,cicloIdx,si)).length;const total=sessao.exercicios.length;const completa=totalFeitos===total;
     html+='<div class="dash-card"><div class="dash-card-header"><div class="dash-card-eyebrow">Sessão '+sessao.n+' de 3'+(completa?' · ✓ Concluída':'')+'</div><div class="dash-card-action">'+sessao.exercicios.reduce((s,e)=>s+e.tempo,0)+' min</div></div>';
@@ -596,7 +644,9 @@ async function registarDiario(){
 function jaFezExercicio(exId,ciclo,sessao){if(!resultadoFinal||!resultadoFinal.created_at)return false;const ini=new Date(resultadoFinal.created_at);const semanaIni=new Date(ini);semanaIni.setDate(semanaIni.getDate()+ciclo*7);const semanaFim=new Date(semanaIni);semanaFim.setDate(semanaFim.getDate()+7);return historico.some(t=>t.exercicio_id===exId&&new Date(t.created_at)>=semanaIni&&new Date(t.created_at)<=semanaFim);}
 
 // ═══ SUBMISSÃO MODAL ═══
-function abrirSubmissao(exId){let ex=null;Object.values(EXERCICIOS).forEach(arr=>{const f=arr.find(e=>e.id===exId);if(f)ex=f;});if(!ex)return;exercicioAtivo=ex;modalInputs={dificuldade:'media',energia:'normal'};
+function abrirSubmissao(exId){let ex=null;Object.values(EXERCICIOS).forEach(arr=>{const f=arr.find(e=>e.id===exId);if(f)ex=f;});
+  if(!ex&&resultadoFinal&&resultadoFinal.plano){resultadoFinal.plano.forEach(sem=>(sem.sessoes||[]).forEach(s=>(s.exercicios||[]).forEach(e=>{if(e.id===exId)ex=e;})));}
+  if(!ex)return;exercicioAtivo=ex;modalInputs={dificuldade:'media',energia:'normal'};
   document.getElementById('mod-eyebrow').innerHTML='⚽ Treino · '+esc(ex.nome.split(' · ')[0]);document.getElementById('mod-title').textContent=ex.nome;document.getElementById('mod-sub').textContent=ex.desc;document.getElementById('mod-objetivo').textContent=ex.objetivo;document.getElementById('in-completas').value=0;document.getElementById('in-tempo').value=ex.tempo;
   document.querySelectorAll('.choice-btn').forEach(b=>b.classList.toggle('selected',b.getAttribute('data-val')===modalInputs[b.getAttribute('data-field')]));document.getElementById('submitModal').classList.add('show');}
 function fecharModal(){document.getElementById('submitModal').classList.remove('show');}
@@ -608,7 +658,7 @@ async function submeterTreino(){if(!exercicioAtivo)return;const completas=parseI
   let treinoGravado=!USING_SB||!atletaId;
   if(USING_SB&&atletaId){
     try{
-      const{data,error}=await supa.rpc('ytb_treino_registar',{p_atleta:atletaId,p_exercicio:exercicioAtivo.nome,p_resultado:{exercicio_id:exercicioAtivo.id,bloco:submissao.bloco,completas:completas,dificuldade:modalInputs.dificuldade,energia:modalInputs.energia,submetido_por:submetidoPor},p_tempo:tempo,p_confianca:conf.confianca,p_flags:conf.flags});
+      const{data,error}=await supa.rpc('ytb_treino_registar',{p_atleta:atletaId,p_exercicio:exercicioAtivo.nome,p_resultado:{exercicio_id:exercicioAtivo.id,bloco:submissao.bloco,completas:completas,dificuldade:modalInputs.dificuldade,energia:modalInputs.energia,submetido_por:submetidoPor},p_tempo:tempo,p_confianca:conf.confianca,p_flags:conf.flags,p_prescrito_id:(planoTreinador?planoTreinador.id:null),p_semana:(planoTreinador?getCicloAtual()+1:null),p_sessao:(planoTreinador?findSessaoDoExercicio(exercicioAtivo.id):null)});
       if(error)throw error;
       treinoGravado=!!(data&&data.ok);
       if(data&&data.marco){marcosCache=null;setTimeout(()=>showToast('🏆 Marco: '+data.marco+' dias seguidos! ✨',4500),1200);}
@@ -727,7 +777,7 @@ async function submeterSessaoCompleta(){fecharTreinoAtivo();let falhas=0;for(con
   const sub={atleta_id:atletaId,exercicio_id:r.exId,exercicio_nome:r.nome,bloco:Object.keys(EXERCICIOS).find(k=>EXERCICIOS[k].some(e=>e.id===r.exId))||'',completas:r.completas,tempo:r.tempo,dificuldade:'media',energia:'normal',submetido_por:idadeAtleta<=12?'pai':'atleta',confianca:conf.confianca,flags:conf.flags};
   if(USING_SB&&atletaId){
     try{
-      const{data,error}=await supa.rpc('ytb_treino_registar',{p_atleta:atletaId,p_exercicio:r.nome,p_resultado:{exercicio_id:r.exId,bloco:sub.bloco,completas:r.completas,dificuldade:'media',energia:'normal',submetido_por:sub.submetido_por},p_tempo:r.tempo,p_confianca:conf.confianca,p_flags:conf.flags});
+      const{data,error}=await supa.rpc('ytb_treino_registar',{p_atleta:atletaId,p_exercicio:r.nome,p_resultado:{exercicio_id:r.exId,bloco:sub.bloco,completas:r.completas,dificuldade:'media',energia:'normal',submetido_por:sub.submetido_por},p_tempo:r.tempo,p_confianca:conf.confianca,p_flags:conf.flags,p_prescrito_id:(planoTreinador?planoTreinador.id:null),p_semana:(planoTreinador?ta.cicloIdx+1:null),p_sessao:(planoTreinador?ta.sessaoIdx+1:null)});
       if(error)throw error;
       if(!data||!data.ok)falhas++;
     }catch(e){falhas++;}
