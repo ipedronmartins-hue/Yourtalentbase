@@ -376,7 +376,7 @@ async function carregarAtletas(){
   }
   lista.innerHTML='<div class="empty-state"><span class="spinner"></span></div>';
   try{
-    const{data}=await supa.from('atletas_360').select('id,nome,primeiro_nome,ano_nascimento,clube,fonte_email').eq('fonte_email',treinadorEmail).order('nome');
+    const{data}=await supa.from('atletas_360').select('id,nome,primeiro_nome,ano_nascimento,clube,fonte_email,encarregado_email').eq('fonte_email',treinadorEmail).order('nome');
     meusAtletas=data||[];
     renderAtletas();
   }catch(e){
@@ -397,8 +397,33 @@ function renderAtletas(){
     return '<div class="atleta-card'+(sel?' sel':'')+'" onclick="selecionarAtleta(\''+a.id+'\')">'+
       '<div><div class="atleta-nome">'+esc(a.primeiro_nome||a.nome)+'</div>'+
       '<div class="atleta-meta">'+(id?('Sub-'+id+' · '):'')+esc(a.clube||'')+'</div></div>'+
-      '<div class="atleta-arrow">›</div></div>';
+      '<div style="display:flex;align-items:center;gap:10px">'+
+      (a.encarregado_email?'<button title="Enviar link de acesso à família" style="background:none;border:1px solid var(--border);border-radius:8px;padding:6px 9px;font-size:13px;cursor:pointer" onclick="reenviarLink(\''+a.id+'\',event)">✉️</button>':'')+
+      '<div class="atleta-arrow">›</div></div></div>';
   }).join('');
+}
+
+/* ════════ MAGIC LINK À FAMÍLIA ════════ */
+// O acesso da família nasce aqui: o treinador prescreve e envia o convite.
+// signInWithOtp só dispara o email — não toca na sessão do treinador.
+async function enviarLinkFamilia(email){
+  if(!USING_SB)return{ok:false,motivo:'demo'};
+  if(!email||email.indexOf('@')<1)return{ok:false,motivo:'sem_email'};
+  try{
+    const{error}=await supa.auth.signInWithOtp({
+      email:email.toLowerCase(),
+      options:{emailRedirectTo:window.location.origin+'/ytb-pro-pai-familia.html'}
+    });
+    if(error)throw error;
+    return{ok:true};
+  }catch(e){console.warn('link familia',e);return{ok:false,motivo:e.message||'erro'};}
+}
+async function reenviarLink(id,ev){
+  if(ev)ev.stopPropagation();
+  const a=meusAtletas.find(x=>x.id===id);
+  if(!a||!a.encarregado_email){showToast('Este atleta não tem email do encarregado');return;}
+  const r=await enviarLinkFamilia(a.encarregado_email);
+  showToast(r.ok?('📧 Link enviado a '+esc(a.encarregado_email)):('⚠ Envio falhou: '+esc(r.motivo)),3500);
 }
 
 function selecionarAtleta(id){
@@ -522,6 +547,14 @@ async function gerarAvaliacao(){
       if(data&&data.ok)gravado=true; else motivoFalha=(data&&data.motivo)||'erro';
     }catch(e){motivoFalha=e.message||'sem ligação';}
   }
+  // plano prescrito → o convite à família parte daqui (magic link)
+  let linkEstado='';
+  if(gravado){
+    if(atletaSel.encarregado_email){
+      const r=await enviarLinkFamilia(atletaSel.encarregado_email);
+      linkEstado=r.ok?'enviado':'falhou';
+    }else linkEstado='sem_email';
+  }
   const debLabels={tecnica:'Técnica individual',fisico:'Físico',decisao:'Tomada de decisão',tatica:'Tática / posicionamento',mental:'Mental / atitude'};
   document.getElementById('aval-result').innerHTML=
     '<div class="result-card"><div style="text-align:center;font-size:9px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:5px">Média geral</div>'+
@@ -529,8 +562,11 @@ async function gerarAvaliacao(){
     '<div style="font-size:9px;font-weight:800;letter-spacing:2px;color:var(--red);text-transform:uppercase;margin:16px 0 8px">Debilidades detetadas</div>'+
     debs.map(d=>'<div class="deb-item">⚠️ '+(debLabels[d]||d)+'</div>').join('')+
     (gravado?'':'<div style="background:rgba(255,80,80,.08);border:1px solid rgba(255,80,80,.35);border-radius:9px;padding:10px 12px;margin-top:11px;font-size:11px;line-height:1.5"><strong style="color:var(--red)">⚠ Não ficou gravado</strong> · '+esc(motivoFalha)+'. O plano abaixo é local — volta a concluir a avaliação com sessão ativa.</div>')+
+    (linkEstado==='enviado'?'<div style="background:rgba(80,200,120,.08);border:1px solid rgba(80,200,120,.35);border-radius:9px;padding:10px 12px;margin-top:11px;font-size:11px;line-height:1.5"><strong style="color:var(--green)">📧 Convite enviado à família</strong> · '+esc(atletaSel.encarregado_email)+' recebe um link mágico e entra direto neste plano.</div>':'')+
+    (linkEstado==='falhou'?'<div style="background:rgba(255,165,0,.08);border:1px solid rgba(255,165,0,.3);border-radius:9px;padding:10px 12px;margin-top:11px;font-size:11px;line-height:1.5"><strong style="color:var(--orange)">⚠ O plano ficou gravado, mas o email à família falhou.</strong> Reenvia com o botão ✉️ na lista de atletas.</div>':'')+
+    (linkEstado==='sem_email'?'<div style="background:rgba(255,165,0,.08);border:1px solid rgba(255,165,0,.3);border-radius:9px;padding:10px 12px;margin-top:11px;font-size:11px;line-height:1.5"><strong style="color:var(--orange)">Este atleta não tem email do encarregado.</strong> Sem email, a família não recebe o plano.</div>':'')+
     '<button class="btn btn-primary" style="margin-top:14px" onclick="setTabProgram(\'treino\')">Ver plano de treino →</button></div>';
-  showToast(gravado?'Avaliação guardada ✓ Treino gerado':'⚠ Avaliação NÃO gravada',gravado?2200:3500);
+  showToast(gravado?(linkEstado==='enviado'?'Avaliação guardada ✓ Link enviado à família 📧':'Avaliação guardada ✓ Treino gerado'):'⚠ Avaliação NÃO gravada',gravado?2600:3500);
 }
 
 /* ════════ TREINO ════════ */
