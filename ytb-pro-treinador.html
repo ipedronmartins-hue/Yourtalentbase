@@ -473,7 +473,7 @@ async function enviarLinkFamilia(email){
   try{
     const{error}=await supa.auth.signInWithOtp({
       email:email.toLowerCase(),
-      options:{emailRedirectTo:window.location.origin+'/ytb-pro-pai-familia.html'}
+      options:{emailRedirectTo:window.location.origin+'/acesso.html'}
     });
     if(error)throw error;
     return{ok:true};

@@ -52,6 +52,8 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:#fff;
 .foot{margin-top:18px;font-size:10px;color:var(--muted);text-align:center}
 .foot a{color:var(--slate)}
 </style>
+<link rel="stylesheet" href="/assets/css/ytb-vivo.css">
+<script src="/assets/js/ytb-vivo.js"></script>
 </head>
 <body>
 
@@ -114,7 +116,7 @@ function encaminhar(papel){
   } else if(papel === 'cliente'){
     window.location.href = 'scouting360-dashboard.html';
   } else if(papel === 'familia'){
-    window.location.href = 'ytb-pro-pai-familia.html';
+    window.location.href = 'acesso.html';
   } else if(papel === 'treinador'){
     window.location.href = 'ytb-pro-treinador.html';
   } else if(papel === 'clube'){
@@ -125,7 +127,7 @@ function encaminhar(papel){
   }
 }
 
-const DESTINOS = { 'ytb-pro-pai-familia.html':['familia','admin'], 'ytb-pro-treinador.html':['treinador','clube','admin'], 'scouts.html':['scout','admin'], 'scouting360-dashboard.html':['cliente','admin'], 'admin360.html':['admin'] };
+const DESTINOS = { 'acesso.html':['familia','admin'], 'ytb-pro-treinador.html':['treinador','clube','admin'], 'scouts.html':['scout','admin'], 'scouting360-dashboard.html':['cliente','admin'], 'admin360.html':['admin'] };
 function destinoPedido(){
   const d = new URLSearchParams(location.search).get('dest');
   return (d && DESTINOS[d]) ? d : null;

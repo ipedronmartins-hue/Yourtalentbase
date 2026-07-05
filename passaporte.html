@@ -12,6 +12,9 @@
 <script src="/assets/js/ytb-vivo.js"></script>
 <script src="/assets/js/ytb-config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/assets/js/vendor/qrcode.min.js"></script>
+<script src="/assets/js/vendor/html2pdf.bundle.min.js"></script>
+<script src="/assets/js/ytb-export.js"></script>
 <link rel="stylesheet" href="ytb.css">
 <style>
   :root{/* tokens próprios desta página */ --obs-bar:#3FA76E; --dec-bar2:#465147;}
@@ -170,6 +173,7 @@
     <div class="wrap">
       <a class="mono" href="/" title="Início" aria-label="Início">YTB</a>
       <span class="who" id="who">—</span>
+      <button id="btn-trocar" type="button" style="display:none" title="Trocar de atleta">↔</button>
       <button id="btn-share-top" type="button">Partilhar</button>
       <button id="btn-exit" type="button">Sair</button>
     </div>
@@ -408,15 +412,18 @@
     treinoCSS();
     supa.rpc('ytb_plano_atual',{p_atleta:atletaId}).then(function(res){
       var d=res&&res.data;
-      if(!d || !d.tem) return;            // sem plano → não mostra a secção
-      window.__treino={atleta:atletaId, prescrito:d.prescrito_id, plano:d.plano||[], feitas:(d.feitas||[])};
+      if(!d || !d.tem){ montarJornadaPP(); return; }   // sem plano → não mostra a secção
+      window.__treino={atleta:atletaId, prescrito:d.prescrito_id, plano:d.plano||[], feitas:(d.feitas||[]), treinadorNome:d.treinador_nome||null};
       renderTreino();
-    }).catch(function(){});
+      montarJornadaPP();
+    }).catch(function(){ montarJornadaPP(); });
   }
   function renderTreino(){
     var T=window.__treino, plano=T.plano||[];
     if(!plano.length) return;
-    var html='<div class="tr-head"><div class="tr-t">O teu treino</div><div class="tr-s">Plano da semana, à medida do que precisas de melhorar. Faz e diz como correu.</div></div>';
+    var html='<div class="tr-head"><div class="tr-t">O teu treino</div><div class="tr-s">Plano da semana, à medida do que precisas de melhorar. Faz e diz como correu.'
+      +(T.treinadorNome?(' Prescrito por <strong style="color:var(--text)">'+esc(T.treinadorNome)+'</strong>.'):'')+'</div>'
+      +'<button id="btn-plano-pdf" onclick="window.__trPDF()" style="margin-top:10px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:10px;padding:10px 16px;font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:13px;cursor:pointer">⬇ Exportar Plano em PDF</button></div>';
     plano.forEach(function(sem,wi){
       var ciclo=sem.ciclo||{};
       html+='<div class="tr-wk" data-w="'+wi+'">';
@@ -446,7 +453,9 @@
     });
     var sec=document.createElement('section'); sec.className='tr-sec'; sec.id='tr-sec'; sec.innerHTML=html;
     var app=document.getElementById('app');
-    if(app) app.insertBefore(sec, app.firstChild);
+    // ordem no ecrã: jornada → o que mudou → treino → diário/biometria → passaporte
+    var tools=document.getElementById('fam-tools');
+    if(app) app.insertBefore(sec, tools||app.firstChild);
     // abre a primeira semana que tenha sessão por fazer
     for(var w=0; w<plano.length; w++){
       var found=false;
@@ -512,6 +521,174 @@
       }).catch(function(){ btn.disabled=false; btn.textContent='Enviar e marcar feito'; alert('Sem ligação.'); });
     };
   };
+
+  // ===== FERRAMENTAS DA FAMÍLIA (o passaporte é a casa da família: tudo atualiza o passaporte) =====
+  window.__trPDF=function(){
+    var T=window.__treino, d=window.__d;
+    if(!T||!T.plano||!T.plano.length||!window.YTBExport){ toast('Ainda não há plano para exportar'); return; }
+    // semana atual = primeira com sessão por fazer (senão a última)
+    var wi=T.plano.length-1;
+    for(var w=0;w<T.plano.length;w++){ var pend=false; for(var s=0;s<(T.plano[w].sessoes||[]).length;s++){ if(!isFeita(w,s)){pend=true;break;} } if(pend){wi=w;break;} }
+    var sem=T.plano[wi]||{}, ciclo=sem.ciclo||{};
+    var exercicios=[];
+    (sem.sessoes||[]).forEach(function(sess,si){ (sess||[]).forEach(function(ex){ exercicios.push({nome:ex.nome,objetivo:ex.objetivo||ex.obj,desc:ex.desc,tempo:ex.tempo,sessao:si+1}); }); });
+    var prox=T.plano[wi+1];
+    var proximoObjetivo=(prox&&prox.ciclo)?(prox.ciclo.descricao||prox.ciclo.desc||prox.ciclo.nome||null):null;
+    var btn=document.getElementById('btn-plano-pdf'); if(btn){btn.disabled=true;btn.textContent='A gerar PDF…';}
+    function fim(){ if(btn){btn.disabled=false;btn.textContent='⬇ Exportar Plano em PDF';} }
+    YTBExport.planoPDF({
+      atletaId:T.atleta, atletaNome:(d&&d.identidade&&d.identidade.nome)||'Atleta',
+      clube:(d&&d.identidade&&d.identidade.clube)||'', escalao:(d&&d.identidade&&d.identidade.escalao)||'',
+      treinadorNome:T.treinadorNome, semanaAtual:wi+1, totalSemanas:T.plano.length,
+      cicloNome:ciclo.nome||'', cicloDescricao:ciclo.descricao||ciclo.desc||'',
+      exercicios:exercicios, proximoObjetivo:proximoObjetivo
+    }).then(fim).catch(function(){ fim(); toast('Não foi possível gerar o PDF'); });
+  };
+
+  function famCSS(){
+    if(document.getElementById('fam-css')) return;
+    var css='.fam-sec{margin:0 0 18px}'
+     +'#pp-jornada{margin-top:14px}'
+     +'.fam-chip{background:var(--bg3);border:1px solid var(--border);color:var(--slate);border-radius:100px;padding:8px 13px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:.14s}'
+     +'.fam-chip.on{border-color:var(--gold);color:var(--gold)}'
+     +'.fam-input{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:11px 12px;font-family:inherit;font-size:14px;outline:none}'
+     +'.fam-input:focus{border-color:var(--gold)}'
+     +'.fam-btn{width:100%;margin-top:10px;background:var(--text);border:none;color:#0A0D0A;border-radius:10px;padding:12px;font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:14px;text-transform:uppercase;letter-spacing:.05em;cursor:pointer}'
+     +'.fam-row{display:flex;gap:7px;margin-bottom:9px;flex-wrap:wrap}.fam-row .fam-chip{flex:1;min-width:70px;text-align:center}';
+    var st=document.createElement('style'); st.id='fam-css'; st.textContent=css; document.head.appendChild(st);
+  }
+
+  function montarJornadaPP(){
+    var mount=document.getElementById('pp-jornada');
+    if(!mount||!window.YTBVivo||!window.__raw) return;
+    var r=window.__raw, den=r.densidade||{}, ind=r.indicadores||{}, at=r.atividade||{};
+    var T=window.__treino||{};
+    var temAval=(den.avaliacoes||0)>0;
+    var temPlano=!!(T.plano&&T.plano.length);
+    var temTreinos=((T.feitas||[]).length>0)||((at.concluidos||0)>0);
+    var evol=(ind.evolucao_pct||0)>0||((r.marcos||[]).length>0);
+    var temScout=((r.relatorios||[]).length>0);
+    var flags=[true,temAval,temPlano,temTreinos,true,evol,temScout,false];
+    var atual=flags.indexOf(false); if(atual===-1)atual=flags.length-1;
+    var nomes=['Inscrição','Avaliação','Plano','Treinos','Passaporte','Evolução','Scout Report','Oportunidades'];
+    var etapas=nomes.map(function(nm,i){ return {nome:nm,estado:flags[i]?'done':(i===atual?'atual':'futuro')}; });
+    etapas[2].dica=temPlano?'Plano do treinador ativo':'Chega quando o treinador prescrever';
+    etapas[6].dica=temScout?'Observação profissional no passaporte':'Quando um scout observar o atleta';
+    etapas[7].dica='Liga a visibilidade para clubes na secção Privacidade';
+    if(temPlano) etapas[3].click=function(){ var s=document.getElementById('tr-sec'); if(s)s.scrollIntoView({behavior:'smooth'}); };
+    YTBVivo.jornada(mount,etapas,{aria:'Jornada de '+((r.identidade&&r.identidade.nome)||'atleta')});
+  }
+
+  function carregarOQM(atletaId){
+    var box=document.getElementById('fam-oqm'); if(!box) return;
+    supa.rpc('ytb_o_que_mudou',{p_atleta:atletaId}).then(function(res){
+      var d=res&&res.data; if(!d) return;
+      var nov=d.novidades||[], pen=d.pendencias||[];
+      if(!nov.length&&!pen.length){ box.innerHTML=''; return; }
+      var h='<div class="panel" style="border-left:3px solid var(--gold)">';
+      if(nov.length){
+        h+='<div class="eyebrow" style="color:var(--gold)">✨ O que mudou desde a última visita</div>';
+        nov.slice(0,5).forEach(function(n){
+          var dt=n.em?new Date(n.em).toLocaleDateString('pt-PT',{day:'2-digit',month:'short'}):'';
+          var dourado=/plano|marco|sequência/i.test(n.msg||'');
+          h+='<div class="vivo-reveal" style="display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);font-size:12.5px"><div style="color:'+(dourado?'var(--gold)':'var(--text)')+'">'+esc(n.msg||'')+'</div><div style="color:var(--muted);font-size:10px;white-space:nowrap">'+dt+'</div></div>';
+        });
+        h+='<button class="fam-btn" style="width:auto;padding:9px 16px;font-size:12px" onclick="window.__oqmVisto()">Entendido ✓</button>';
+      }
+      if(pen.length){
+        h+='<div class="eyebrow" style="margin-top:12px">📌 Para fazer</div>';
+        pen.forEach(function(p){ h+='<div style="padding:6px 0;font-size:12.5px;color:var(--slate);border-bottom:1px solid var(--border)">'+esc(p.msg||'')+'</div>'; });
+      }
+      h+='</div>';
+      box.innerHTML=h;
+      if(window.YTBVivo)YTBVivo.revelar(box);
+    }).catch(function(){});
+  }
+  window.__oqmVisto=function(){
+    supa.rpc('ytb_marcar_visto',{p_atleta:window.__famAtleta}).then(function(){
+      var b=document.getElementById('fam-oqm'); if(b)b.innerHTML='';
+      toast('Visto ✓');
+    }).catch(function(){ toast('Não foi possível marcar'); });
+  };
+
+  var diSel={tipo:'livre',min:60};
+  window.__diTipo=function(b){ diSel.tipo=b.getAttribute('data-tipo'); document.querySelectorAll('#di-tipos .fam-chip').forEach(function(c){c.classList.toggle('on',c===b);}); };
+  window.__diMin=function(b){ diSel.min=parseInt(b.getAttribute('data-min')); document.querySelectorAll('#di-mins .fam-chip').forEach(function(c){c.classList.toggle('on',c===b);}); };
+  window.__diGravar=function(){
+    var nota=(document.getElementById('di-nota').value||'').trim();
+    supa.rpc('ytb_diario_registar',{p_atleta:window.__famAtleta,p_atividade:diSel.tipo,p_minutos:diSel.min,p_nota:nota||null}).then(function(res){
+      var d=res&&res.data;
+      if(!d||!d.ok){ toast('⚠ Não gravado ('+((d&&d.motivo)||'erro')+')'); return; }
+      document.getElementById('di-nota').value='';
+      if(d.marco&&window.YTBVivo){ YTBVivo.marco(document.getElementById('diario-card')); toast('🏆 Marco: '+d.marco+' dias seguidos!'); }
+      else toast('Diário registado ✓'+(d.streak?(' · sequência: '+d.streak+' dia'+(d.streak>1?'s':'')):''));
+    }).catch(function(){ toast('⚠ Sem ligação'); });
+  };
+
+  function carregarBioHist(){
+    var el=document.getElementById('bio-hist'); if(!el) return;
+    supa.rpc('ytb_biometria_historico',{p_atleta:window.__famAtleta}).then(function(res){
+      var h=(res&&res.data)||[]; if(!h.length){ el.innerHTML=''; return; }
+      el.innerHTML=h.slice(-5).reverse().map(function(r){
+        var partes=[]; if(r.altura_cm!=null)partes.push(r.altura_cm+' cm'); if(r.peso_kg!=null)partes.push(r.peso_kg+' kg'); if(r.pe_eu!=null)partes.push('pé '+r.pe_eu);
+        var dt=r.medido_em?new Date(r.medido_em).toLocaleDateString('pt-PT'):'';
+        return '<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--slate);padding:5px 0;border-bottom:1px solid var(--border)"><span>'+dt+'</span><span>'+(partes.join(' · ')||'—')+'</span></div>';
+      }).join('');
+    }).catch(function(){});
+  }
+  window.__bioGravar=function(){
+    function num(id){ var v=parseFloat(String(document.getElementById(id).value||'').replace(',','.')); return isNaN(v)?null:v; }
+    var alt=num('bio-alt'),pes=num('bio-pes'),pe=num('bio-pe');
+    if(alt==null&&pes==null&&pe==null){ toast('Preenche pelo menos um valor'); return; }
+    supa.rpc('ytb_biometria_registar',{p_atleta:window.__famAtleta,p_altura_cm:alt,p_peso_kg:pes,p_pe_eu:pe}).then(function(res){
+      var d=res&&res.data;
+      if(!d||!d.ok){ toast('⚠ Não gravado ('+((d&&d.motivo)||'erro')+')'); return; }
+      ['bio-alt','bio-pes','bio-pe'].forEach(function(id){ document.getElementById(id).value=''; });
+      toast('Medição guardada ✓'); carregarBioHist();
+    }).catch(function(){ toast('⚠ Sem ligação'); });
+  };
+
+  function renderFamTools(){
+    var box=document.getElementById('fam-tools'); if(!box) return;
+    box.innerHTML='<div class="shead">Diário de treinos</div><div class="panel" id="diario-card">'
+     +'<div class="sub" style="margin-bottom:10px">Treinou fora do plano? Jogo, clube ou treino livre — tudo conta para a sequência e fica no percurso.</div>'
+     +'<div class="fam-row" id="di-tipos">'+[['livre','⚽ Livre'],['jogo','🏟️ Jogo'],['clube','🏃 Clube']].map(function(o){return '<button class="fam-chip'+(o[0]==='livre'?' on':'')+'" data-tipo="'+o[0]+'" onclick="window.__diTipo(this)">'+o[1]+'</button>';}).join('')+'</div>'
+     +'<div class="fam-row" id="di-mins">'+[30,45,60,90].map(function(m){return '<button class="fam-chip'+(m===60?' on':'')+'" data-min="'+m+'" onclick="window.__diMin(this)">'+m+'&#39;</button>';}).join('')+'</div>'
+     +'<input class="fam-input" id="di-nota" type="text" placeholder="Nota (opcional): onde, com quem, como correu">'
+     +'<button class="fam-btn" onclick="window.__diGravar()">Registar no diário →</button></div>'
+     +'<div class="shead">Crescimento</div><div class="panel" id="bio-card">'
+     +'<div class="sub" style="margin-bottom:10px">Altura, peso e pé — uma medição de vez em quando desenha a trajetória de crescimento. Nunca visível ao público.</div>'
+     +'<div class="fam-row"><input class="fam-input" id="bio-alt" type="number" inputmode="decimal" placeholder="Altura (cm)" style="flex:1"><input class="fam-input" id="bio-pes" type="number" inputmode="decimal" placeholder="Peso (kg)" style="flex:1"><input class="fam-input" id="bio-pe" type="number" inputmode="decimal" placeholder="Pé (EU)" style="flex:1"></div>'
+     +'<button class="fam-btn" onclick="window.__bioGravar()">Guardar medição →</button>'
+     +'<div id="bio-hist" style="margin-top:10px"></div></div>';
+    carregarBioHist();
+  }
+
+  function carregarFamiliaExtras(atletaId){
+    window.__famAtleta=atletaId;
+    famCSS();
+    var app=document.getElementById('app'); if(!app) return;
+    // inserção inversa: fam-tools primeiro, jornada por último → ordem final no ecrã:
+    // jornada → o que mudou → (treino insere-se antes de fam-tools) → diário/biometria → passaporte
+    ['fam-tools','fam-oqm','pp-jornada'].forEach(function(id){
+      if(document.getElementById(id)) return;
+      var el=document.createElement('section'); el.id=id; el.className='fam-sec';
+      app.insertBefore(el, app.firstChild);
+    });
+    montarJornadaPP();
+    carregarOQM(atletaId);
+    renderFamTools();
+    // trocar de atleta (irmãos ligados ao mesmo email)
+    supa.rpc('ytb_meus_atletas',{}).then(function(res){
+      var lista=(res&&res.data)||[];
+      if(lista.length>1){
+        var b=document.getElementById('btn-trocar');
+        if(b){ b.style.display='inline-block'; b.onclick=function(){ location.href='acesso.html'; }; }
+      }
+    }).catch(function(){});
+  }
+  window.__famExtras=carregarFamiliaExtras;
+  window.__famJornada=montarJornadaPP;
 
   function adminBanner(nome){
     var b=document.createElement('div');
@@ -595,7 +772,13 @@
     // modo família (magic link): só abre se o email autenticado for o encarregado deste atleta
     supa.rpc('ytb_passaporte_email',{ p_atleta: familiaAtleta }).then(function(res){
       if(res.error || !res.data){ window.location.href='acesso.html'; return; }   // sem sessão/sem direito → volta ao acesso
-      try{ show(mapFromRPC(res.data)); carregarTreino(familiaAtleta); carregarPrivacidade(familiaAtleta); }catch(e){ show(DEMO); }
+      try{
+        window.__raw=res.data;
+        show(mapFromRPC(res.data));
+        carregarFamiliaExtras(familiaAtleta);
+        carregarTreino(familiaAtleta);
+        carregarPrivacidade(familiaAtleta);
+      }catch(e){ show(DEMO); }
     }).catch(function(){ window.location.href='acesso.html'; });
   } else { show(DEMO); }   // sem backend ou sem sessão → demonstração (Coutinho)
 })();
