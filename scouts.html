@@ -561,14 +561,16 @@ async function carregarMeusAtletas(){
     area.innerHTML=meusAtletasCache.map(a=>{
       const badge=a.estado==='arquivado'?'arquivado':'aprovado';
       return '<div class="atleta-card">'
-        +'<div><div class="ac-nome">'+esc(a.nome)+'</div>'
-        +'<div class="ac-meta">'+(a.ano||'?')+' · '+esc(a.posicao||'—')+' · '+esc(a.clube||'—')+' <span class="ac-badge '+badge+'">'+esc(a.estado||'')+'</span></div></div>'
+        +'<div style="flex:1;min-width:0"><div class="ac-nome">'+esc(a.nome)+'</div>'
+        +'<div class="ac-meta">'+(a.ano||'?')+' · '+esc(a.posicao||'—')+' · '+esc(a.clube||'—')+' <span class="ac-badge '+badge+'">'+esc(a.estado||'')+'</span></div>'
+        +'<div class="ac-mini" id="ac-mini-'+a.id+'"></div></div>'
         +'<div class="ac-actions">'
         +'<button onclick="location.href=\'passaporte.html?scout='+a.id+'\'">📔</button>'
         +'<button onclick="usarAtletaNoReport(\''+a.id+'\')">📝</button>'
         +(a.estado!=='arquivado'?'<button onclick="arquivarAtleta(\''+a.id+'\')">🗄</button>':'')
         +'</div></div>';
     }).join('');
+    pintarMiniJornadas();
   }
   // alimenta o select do form de report
   const sel=document.getElementById('sr_atleta_sel');
@@ -576,6 +578,26 @@ async function carregarMeusAtletas(){
     sel.innerHTML='<option value="">— Novo / texto livre —</option>'
       +meusAtletasCache.filter(a=>a.estado!=='arquivado').map(a=>'<option value="'+a.id+'">'+esc(a.nome)+' ('+(a.ano||'?')+')</option>').join('');
   }
+}
+
+// mini-jornada por atleta: Criado → Report → Passaporte → Oportunidades
+// (o report liga-se por NOME — a tabela relatorios usa o nome, e o histórico traz os últimos 10)
+let meusReportsCache=null;
+function pintarMiniJornadas(){
+  if(!window.YTBVivo||!meusAtletasCache.length)return;
+  const reps=meusReportsCache||[];
+  meusAtletasCache.forEach(a=>{
+    const m=document.getElementById('ac-mini-'+a.id);
+    if(!m)return;
+    const temRep=reps.some(r=>(r.atleta||'').toLowerCase()===(a.nome||'').toLowerCase());
+    const etapas=[
+      {nome:'Criado',estado:'done'},
+      {nome:'Report',estado:temRep?'done':'atual',click:()=>usarAtletaNoReport(a.id),dica:temRep?'Report anexado ao passaporte':'Faz o primeiro scout report'},
+      {nome:'Passaporte',estado:'done',href:'passaporte.html?scout='+a.id},
+      {nome:'Oportunidades',estado:'futuro',dica:'A visibilidade para clubes nasce do consentimento da família'}
+    ];
+    YTBVivo.jornada(m,etapas,{min:300,aria:'Percurso de '+a.nome});
+  });
 }
 
 function esc(s){return (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
@@ -732,6 +754,7 @@ function buildSliders(){
 async function carregarHistorico(){
   let data=[];
   try{ const r=await supa.rpc('ytb_scout_meus_relatorios',{p_limit:10}); data=r.data||[]; }catch(e){ console.warn('historico',e); }
+  meusReportsCache=data; pintarMiniJornadas(); // atualiza a etapa "Report" nas mini-jornadas
   // créditos vêm do SERVIDOR (não da contagem de relatórios)
   let cr=0;
   if(scoutAtual && scoutAtual.papel==='admin'){

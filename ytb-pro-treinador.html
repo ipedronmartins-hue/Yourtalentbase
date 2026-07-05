@@ -363,6 +363,7 @@ async function renderRetorno(){
     const{data,error}=await supa.rpc('ytb_treinador_digest');
     if(error)throw error;
     digest=data;
+    digestCache=data||[]; // partilha com o mapa da jornada
   }catch(e){
     area.innerHTML='<div class="empty-state">⚠ Não foi possível carregar o retorno ('+esc(e.message||'erro')+').</div>';
     return;
@@ -534,7 +535,7 @@ function renderAvaliar(){
     return;
   }
   sub.textContent='A avaliar: '+esc(atletaSel.primeiro_nome||atletaSel.nome)+' · escala 1 (fraco) a 5 (excelente)';
-  let html='';
+  let html='<div id="jornada-treinador"></div>';
   Object.entries(CRITERIOS).forEach(([cat,items])=>{
     html+='<div class="crit-cat"><div class="crit-cat-h">'+CAT_INFO[cat].icon+' '+CAT_INFO[cat].label+'</div>';
     items.forEach(name=>{
@@ -547,6 +548,34 @@ function renderAvaliar(){
   html+='<button class="btn btn-primary" onclick="gerarAvaliacao()">Concluir avaliação e gerar treino →</button>';
   html+='<div id="aval-result"></div>';
   area.innerHTML=html;
+  montarJornadaTreinador();
+}
+
+/* ════════ MAPA VIVO DA JORNADA (por atleta, via digest já existente) ════════ */
+let digestCache=null;
+async function montarJornadaTreinador(){
+  const mount=document.getElementById('jornada-treinador');
+  if(!mount||!atletaSel||!window.YTBVivo)return;
+  if(USING_SB&&!digestCache){
+    try{const{data}=await supa.rpc('ytb_treinador_digest');digestCache=data||[];}catch(e){digestCache=[];}
+  }
+  if(!document.getElementById('jornada-treinador'))return; // tab mudou durante o fetch
+  const d=(digestCache||[]).find(x=>x.atleta_id===atletaSel.id)||{};
+  const avaliado=d.dias_desde_avaliacao!=null;
+  const plano=!!d.plano_prescrito_em;
+  const exec=(d.execucoes_desde_plano||0)>0;
+  const retorno=!!d.ultimo_feedback||d.confianca_media!=null;
+  const precisaReav=avaliado&&d.dias_desde_avaliacao>45;
+  const flags=[true,avaliado,plano,exec,retorno,false];
+  let atualIdx=flags.findIndex(f=>!f); if(atualIdx===-1)atualIdx=flags.length-1;
+  const nomes=['Inscrito','Avaliado','Plano','Família a treinar','Retorno','Reavaliação'];
+  const etapas=nomes.map((nm,i)=>({nome:nm,estado:flags[i]?'done':(i===atualIdx?'atual':'futuro')}));
+  if(precisaReav){etapas[5].estado='atual';}
+  etapas[3].dica=exec?((d.execucoes_desde_plano)+' treinos da família desde o último plano'):'A família ainda não treinou este plano';
+  etapas[4].dica=retorno?'Há feedback no tab Retorno':'Feedback e confiança chegam quando a família treinar';
+  etapas[5].dica=precisaReav?('Já passaram '+d.dias_desde_avaliacao+' dias — reavalia'):'Reavaliar a cada ~45 dias';
+  etapas[4].click=()=>{const t=document.querySelector('.tab[onclick*="retorno"]');if(t)t.click();};
+  YTBVivo.jornada(mount,etapas,{aria:'Jornada de '+(atletaSel.primeiro_nome||atletaSel.nome)});
 }
 
 function recolherScores(){
@@ -596,6 +625,7 @@ async function gerarAvaliacao(){
       if(data&&data.ok)gravado=true; else motivoFalha=(data&&data.motivo)||'erro';
     }catch(e){motivoFalha=e.message||'sem ligação';}
   }
+  if(gravado)digestCache=null; // plano novo → jornada re-deriva no próximo render
   // plano prescrito → o convite à família parte daqui (magic link)
   let linkEstado='';
   if(gravado){

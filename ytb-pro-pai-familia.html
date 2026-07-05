@@ -248,6 +248,7 @@ let historico=[],scoreConfianca=100,exercicioAtivo=null,modalInputs={dificuldade
 let emailInscricao='';
 let atletaId=null;
 let clubeAtleta='',escalaoAtleta='';
+let temScoutReport=false; // alimenta a etapa "Scout Report" do mapa da jornada
 let meusAtletas=[]; // irmãos ligados à mesma conta — alimenta o seletor e o "↔ trocar"
 
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
@@ -385,6 +386,7 @@ async function carregarDados(){
     // Scout report: se existir, as debilidades profissionais geram o plano (tem prioridade)
     // A tabela 'relatorios' liga ao atleta pelo NOME (não tem atleta_id).
     try{const{data:sr}=await supa.from('relatorios').select('*').eq('atleta',nomeAtleta).order('created_at',{ascending:false}).limit(1);
+      temScoutReport=!!(sr&&sr.length);
       if(sr&&sr.length){
         const rep=sr[0];
         const debsScout=debsFromScoutReport(rep.scores||{});
@@ -498,7 +500,7 @@ function setTab(name){
 // ═══ DASHBOARD ═══
 function renderDashboard(){
   const c=document.getElementById('dash-content');
-  if(!resultadoFinal){c.innerHTML='<div id="oqm-card"></div><div class="empty-state"><div class="empty-emoji">🎯</div>Faz a <strong style="color:var(--gold)">Avaliação inicial</strong> para começar.<br><br><button class="btn btn-primary" style="max-width:240px;margin:0 auto" onclick="setTab(\'avaliar\')">Fazer Avaliação →</button></div>';document.getElementById('streak-num').textContent='0';carregarOQueMudou();return;}
+  if(!resultadoFinal){c.innerHTML='<div id="jornada-mount"></div><div id="oqm-card"></div><div class="empty-state"><div class="empty-emoji">🎯</div>Faz a <strong style="color:var(--gold)">Avaliação inicial</strong> para começar.<br><br><button class="btn btn-primary" style="max-width:240px;margin:0 auto" onclick="setTab(\'avaliar\')">Fazer Avaliação →</button></div>';document.getElementById('streak-num').textContent='0';montarJornadaFamilia();carregarOQueMudou();return;}
   const streak=calcularStreak();document.getElementById('streak-num').textContent=streak;
   const proximo=getProximoTreino();
   let proximoHTML=proximo?'<div class="next-workout"><div class="next-eyebrow">Próximo treino · '+proximo.ciclo.emoji+' '+proximo.ciclo.nome+'</div><div class="next-title">'+esc(proximo.exercicio.nome)+'</div><div class="next-info"><strong>'+esc(proximo.exercicio.objetivo)+'</strong> · '+proximo.exercicio.tempo+' min · Sessão '+proximo.sessao+'/3</div><button class="btn btn-primary btn-small" onclick="abrirSubmissao(\''+proximo.exercicio.id+'\')">⚽ Treinar agora →</button></div>':'<div class="dash-card"><div class="dash-card-eyebrow">✓ Sem treinos pendentes</div><div class="dash-card-title">Bom trabalho esta semana!</div><div class="dash-card-sub">Próximo plano abre na próxima semana.</div></div>';
@@ -512,8 +514,33 @@ function renderDashboard(){
   const cicloAtual=getCicloAtual();let cicloHTML='<div class="ciclo-info"><div class="dash-card-eyebrow" style="margin-bottom:6px">CICLO DE 4 SEMANAS</div><div class="ciclo-row">';
   CICLOS.forEach((cc,i)=>{let st=i<cicloAtual?'done':i===cicloAtual?'current':'';cicloHTML+='<div class="ciclo-week '+st+'">'+cc.emoji+' '+cc.nome+'</div>';});
   cicloHTML+='</div><div class="ciclo-titulo">'+CICLOS[cicloAtual].emoji+' Semana '+(cicloAtual+1)+': '+CICLOS[cicloAtual].nome+'</div><div class="ciclo-foco">'+CICLOS[cicloAtual].descricao+'</div></div>';
-  c.innerHTML='<div id="oqm-card"></div>'+proximoHTML+cicloHTML+chartHTML+insHTML;
+  c.innerHTML='<div id="jornada-mount"></div><div id="oqm-card"></div>'+proximoHTML+cicloHTML+chartHTML+insHTML;
+  montarJornadaFamilia();
   carregarOQueMudou();
+}
+
+// ═══ MAPA VIVO DA JORNADA (derivado do estado já carregado — zero RPCs novas) ═══
+function montarJornadaFamilia(){
+  const mount=document.getElementById('jornada-mount');
+  if(!mount||!window.YTBVivo)return;
+  const temAval=!!resultadoFinal&&resultadoFinal.fonte!=='base';
+  const temPlanoT=!!planoTreinador;
+  const temPlano=temPlanoT||!!(temAval&&resultadoFinal.plano);
+  const temTreinos=historico.length>0;
+  const streak=(typeof calcularStreak==='function'&&resultadoFinal)?calcularStreak():0;
+  const evol=streak>0||historico.length>=6;
+  const flags=[true,temAval,temPlano,temTreinos,!!atletaId,evol,temScoutReport,false];
+  let atualIdx=flags.findIndex(f=>!f); if(atualIdx===-1)atualIdx=flags.length-1;
+  const nomes=['Inscrição','Avaliação','Plano','Treinos','Passaporte','Evolução','Scout Report','Oportunidades'];
+  const etapas=nomes.map((nm,i)=>({nome:nm,estado:flags[i]?'done':(i===atualIdx?'atual':'futuro')}));
+  etapas[1].click=()=>setTab('avaliar');
+  etapas[3].click=()=>setTab('treino');
+  etapas[5].click=()=>setTab('progresso');
+  if(atletaId)etapas[4].href='passaporte.html?atleta='+atletaId;
+  etapas[2].dica=temPlanoT?'Plano prescrito pelo treinador':(temPlano?'Plano local — o do treinador substitui-o quando chegar':'Chega com a avaliação');
+  etapas[6].dica=temScoutReport?'Observação profissional anexada ao passaporte':'Quando um scout observar o atleta';
+  etapas[7].dica='Ativa a visibilidade para clubes no Passaporte';
+  YTBVivo.jornada(mount,etapas,{aria:'Jornada de '+(nomeAtleta||'atleta')});
 }
 
 // ═══ O QUE MUDOU (novidades do livro-razão + pendências inteligentes) ═══

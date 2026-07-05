@@ -122,7 +122,7 @@
     if(!mount||!etapas||!etapas.length) return;
     opts=opts||{};
     var n=etapas.length, PAD=46, GAP_LBL=22;
-    var W=Math.max(560,n*90), H=64, cy=24;
+    var W=Math.max(opts.min||560,n*90), H=64, cy=24;
     var xs=etapas.map(function(_,i){ return PAD+(W-2*PAD)*(n===1?0:(i/(n-1))); });
     var lastDone=-1;
     etapas.forEach(function(e,i){ if(e.estado==='done'||e.estado==='atual') lastDone=i; });
@@ -143,14 +143,15 @@
     var wrap=document.createElement('div');
     wrap.className='vivo-jornada';
     wrap.innerHTML=s;
+    if(opts.min){ var sv=wrap.querySelector('svg'); if(sv) sv.style.minWidth=opts.min+'px'; }
     mount.innerHTML='';
     mount.appendChild(wrap);
     // liga cliques (etapas com href)
     var dots=wrap.querySelectorAll('.vivo-jn-dot');
     etapas.forEach(function(e,i){
-      if(!e.href||!dots[i]) return;
+      if((!e.href&&!e.click)||!dots[i]) return;
       dots[i].style.cursor='pointer';
-      dots[i].addEventListener('click',function(){ location.href=e.href; });
+      dots[i].addEventListener('click',function(){ if(e.click)e.click(); else location.href=e.href; });
     });
     // linha "desenha-se" quando visível
     var ld=wrap.querySelector('.vivo-jn-line-done');
