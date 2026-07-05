@@ -410,9 +410,21 @@ async function carregarAtletas(){
     const{data}=await supa.from('atletas_360').select('id,nome,primeiro_nome,ano_nascimento,clube_actual,escalao,fonte_email,encarregado_email').eq('fonte_email',treinadorEmail).order('nome');
     meusAtletas=data||[];
     renderAtletas();
+    preSelecionarDoHash();
   }catch(e){
     lista.innerHTML='<div class="empty-state">Erro a carregar atletas.</div>';
   }
+}
+
+// vindo de acompanhamento.html (links Avaliar/Prescrever levam #<nome do atleta>)
+function preSelecionarDoHash(){
+  try{
+    const h=decodeURIComponent((location.hash||'').slice(1));
+    if(!h||h.indexOf('=')!==-1)return; // hashes com '=' são tokens de auth, não nomes
+    const hl=h.toLowerCase();
+    const alvo=meusAtletas.find(a=>(a.nome||'').toLowerCase()===hl)||meusAtletas.find(a=>(a.primeiro_nome||'').toLowerCase()===hl);
+    if(alvo){selecionarAtleta(alvo.id);history.replaceState(null,'',location.pathname);}
+  }catch(e){}
 }
 
 function renderAtletas(){

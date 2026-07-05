@@ -114,7 +114,7 @@
           (a.evolucao_pct!=null?'<span class="s"><b class="up num">'+(a.evolucao_pct>=0?'+':'')+a.evolucao_pct+'%</b>evolução</span>':'<span class="s" style="color:var(--muted)">sem avaliação</span>')+
           '<span class="s"><b>'+esc(a.ultima||'—')+'</b></span>'+
         '</div>'+
-        '<div class="actions"><a href="pro-treinador.html'+relurl(a.nome)+'">Avaliar</a><a href="pro-treinador.html'+relurl(a.nome)+'">Prescrever</a><a class="go" href="passaporte.html'+relurl(a.nome)+'">Passaporte →</a></div>'+
+        '<div class="actions"><a href="ytb-pro-treinador.html'+relurl(a.nome)+'">Avaliar</a><a href="ytb-pro-treinador.html'+relurl(a.nome)+'">Prescrever</a><a class="go" href="passaporte.html'+relurl(a.nome)+'">Passaporte →</a></div>'+
         '</div>'+(attn?'<span class="attn-tag">precisa de atenção</span>':'')+'</div>';
     });
     html+='<div class="foot">'+(USING_SB?'YourTalentBase · acompanhamento':'<span class="demo-tag">Demonstração</span> · dados de exemplo')+'</div>';

@@ -114,18 +114,18 @@ function encaminhar(papel){
   } else if(papel === 'cliente'){
     window.location.href = 'scouting360-dashboard.html';
   } else if(papel === 'familia'){
-    window.location.href = 'pro-pai.html';
+    window.location.href = 'ytb-pro-pai-familia.html';
   } else if(papel === 'treinador'){
-    window.location.href = 'pro-treinador.html';
+    window.location.href = 'ytb-pro-treinador.html';
   } else if(papel === 'clube'){
-    window.location.href = 'pro-treinador.html';
+    window.location.href = 'ytb-pro-treinador.html';
   } else {
     // papel desconhecido - sem area propria ainda
     mostrarErro('A tua conta ainda nao tem area atribuida. Contacta-nos por WhatsApp.');
   }
 }
 
-const DESTINOS = { 'pro-pai.html':['familia','admin'], 'pro-treinador.html':['treinador','clube','admin'], 'scouting360-dashboard.html':['scout','cliente','admin'], 'admin360.html':['admin'] };
+const DESTINOS = { 'ytb-pro-pai-familia.html':['familia','admin'], 'ytb-pro-treinador.html':['treinador','clube','admin'], 'scouting360-dashboard.html':['scout','cliente','admin'], 'admin360.html':['admin'] };
 function destinoPedido(){
   const d = new URLSearchParams(location.search).get('dest');
   return (d && DESTINOS[d]) ? d : null;
