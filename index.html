@@ -8,6 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/ytb-vivo.css">
+<script src="/assets/js/ytb-vivo.js"></script>
 <style>
 :root{
   --bg:#080C08;--bg2:#0F1410;--bg3:#161D17;--bg4:#1A241A;
@@ -50,6 +52,33 @@ nav .wide{display:flex;align-items:center;justify-content:space-between;height:6
   background:radial-gradient(720px 460px at 26% 24%,rgba(0,212,106,.16),transparent 58%),
              radial-gradient(640px 440px at 84% 82%,rgba(212,175,55,.09),transparent 60%)}
 .hero .narrow{position:relative}
+@media(min-width:1080px){
+  .hero .narrow{max-width:1140px;display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:44px;align-items:center}
+}
+.persona-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px}
+.pchip{font-family:var(--fd);font-weight:800;font-size:12px;letter-spacing:1.6px;text-transform:uppercase;color:var(--slate);
+  background:transparent;border:1px solid var(--border2);border-radius:999px;padding:8px 16px;cursor:pointer;
+  transition:color .2s,border-color .2s,background .2s}
+.pchip:hover{color:var(--text);border-color:var(--slate)}
+.pchip.on{color:var(--gold);border-color:var(--gold-border);background:var(--gold-soft)}
+.hero-copy{position:relative;z-index:2}
+#ph-h1,#ph-sub{transition:opacity .28s ease}
+.ph-swap #ph-h1,.ph-swap #ph-sub{opacity:0}
+.hero-scene{position:relative;z-index:1;margin-top:30px;width:min(62vw,320px)}
+@media(min-width:1080px){.hero-scene{margin-top:0;width:auto}}
+.hero-scene svg{display:none;width:100%;height:auto}
+.hero-scene svg.on{display:block;animation:scin .5s ease}
+@keyframes scin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.vg-draw{stroke-dasharray:260;stroke-dashoffset:260;animation:vgdraw 1.4s ease .35s forwards}
+@keyframes vgdraw{to{stroke-dashoffset:0}}
+.vg-blink{opacity:0;animation:vgblink .5s ease forwards}
+.vg-blink.d1{animation-delay:.55s}.vg-blink.d2{animation-delay:.95s}.vg-blink.d3{animation-delay:1.35s}
+@keyframes vgblink{to{opacity:1}}
+.vg-pulse{transform-origin:center;transform-box:fill-box;animation:vgpulse 2.2s ease-out infinite}
+.vg-pulse.d2{animation-delay:.7s}.vg-pulse.d3{animation-delay:1.4s}
+@keyframes vgpulse{0%{transform:scale(.5);opacity:.8}80%,100%{transform:scale(2.2);opacity:0}}
+.vg-flow{stroke-dasharray:4 6;animation:vgflow 1.6s linear infinite}
+@keyframes vgflow{to{stroke-dashoffset:-20}}
 .hero h1{font-family:var(--fd);font-weight:900;font-size:clamp(2.9rem,9vw,6.2rem);line-height:.96;letter-spacing:-1px}
 .fade{background:linear-gradient(100deg,var(--text) 18%,var(--muted));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .hero .sub{font-size:clamp(15px,2vw,19px);color:var(--slate);max-width:30em;margin-top:26px;line-height:1.55}
@@ -152,6 +181,9 @@ footer .logo b{font-size:17px}
   html{scroll-behavior:auto}
   .cdot{transform:translate(-50%,-50%) scale(1)!important}
   .clabel{opacity:1!important}
+  .vg-draw{stroke-dashoffset:0}
+  .vg-blink{opacity:1}
+  .hero-scene svg.on{display:block}
 }
 </style>
 </head>
@@ -165,12 +197,103 @@ footer .logo b{font-size:17px}
 </nav>
 
 <header class="stage hero" id="top">
+  <canvas id="vivoCanvas" class="vivo-canvas" aria-hidden="true"></canvas>
   <div class="narrow">
-    <h1>A história do teu<br>filho está a <span class="fade">desaparecer</span>.</h1>
-    <p class="sub">Cada mudança de clube, cada época que passa, leva consigo tudo o que ele construiu. Até agora.</p>
-    <div class="hero-cta">
-      <a class="btn btn-primary btn-lg" href="acesso.html">Entrar <span class="arr">→</span></a>
-      <a class="btn btn-ghost btn-lg" href="#personas">Ver os percursos</a>
+    <div class="hero-copy">
+      <div class="persona-chips" role="tablist" aria-label="Escolhe o teu perfil">
+        <button class="pchip on" data-p="familia" role="tab">Família</button>
+        <button class="pchip" data-p="treinador" role="tab">Treinador</button>
+        <button class="pchip" data-p="clube" role="tab">Clube</button>
+        <button class="pchip" data-p="scout" role="tab">Scout</button>
+      </div>
+      <h1 id="ph-h1">A história do teu<br>filho está a <span class="fade">desaparecer</span>.</h1>
+      <p class="sub" id="ph-sub">Cada mudança de clube, cada época que passa, leva consigo tudo o que ele construiu. Até agora.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary btn-lg" id="ph-cta" href="acesso.html">Entrar <span class="arr">→</span></a>
+        <a class="btn btn-ghost btn-lg" href="#personas">Ver os percursos</a>
+      </div>
+    </div>
+    <div class="hero-scene" id="ph-scene" aria-hidden="true">
+      <!-- FAMÍLIA: pai e filho a acompanhar a evolução no telemóvel -->
+      <svg class="on" id="sc-familia" viewBox="0 0 340 260" xmlns="http://www.w3.org/2000/svg">
+        <rect x="150" y="24" rx="18" width="126" height="212" fill="var(--bg2)" stroke="var(--border2)"/>
+        <rect x="162" y="44" rx="7" width="102" height="156" fill="var(--bg)"/>
+        <rect x="170" y="56" rx="6" width="58" height="13" fill="rgba(0,212,106,.12)" stroke="rgba(0,212,106,.4)" stroke-width=".8"/>
+        <polyline class="vg-draw" points="172,182 190,170 204,174 222,150 238,140 254,116" fill="none" stroke="var(--up)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle class="vg-blink d3" cx="254" cy="116" r="4.5" fill="var(--up)"/>
+        <rect class="vg-blink d1" x="170" y="206" rx="4" width="40" height="8" fill="var(--bg3)"/>
+        <rect class="vg-blink d2" x="216" y="206" rx="4" width="40" height="8" fill="var(--bg3)"/>
+        <circle cx="84" cy="118" r="17" fill="var(--bg3)" stroke="var(--border2)"/>
+        <path d="M52 236 q32 -70 64 0 Z" fill="var(--bg3)" stroke="var(--border2)"/>
+        <circle cx="124" cy="158" r="12" fill="var(--bg3)" stroke="var(--border2)"/>
+        <path d="M102 236 q22 -50 44 0 Z" fill="var(--bg3)" stroke="var(--border2)"/>
+      </svg>
+      <!-- TREINADOR: a analisar atletas num computador -->
+      <svg id="sc-treinador" viewBox="0 0 340 260" xmlns="http://www.w3.org/2000/svg">
+        <rect x="58" y="34" rx="12" width="224" height="150" fill="var(--bg2)" stroke="var(--border2)"/>
+        <rect x="70" y="48" rx="6" width="200" height="122" fill="var(--bg)"/>
+        <g>
+          <rect x="82" y="60" rx="6" width="176" height="28" fill="var(--bg3)"/>
+          <circle cx="98" cy="74" r="8" fill="var(--bg4)" stroke="var(--border2)"/>
+          <rect x="114" y="70" rx="3" width="70" height="8" fill="var(--bg4)"/>
+          <circle class="vg-blink d1" cx="242" cy="74" r="7" fill="rgba(0,212,106,.18)" stroke="var(--up)" stroke-width="1.4"/>
+          <path class="vg-blink d1" d="M239 74 l2.4 2.6 4-5" fill="none" stroke="var(--up)" stroke-width="1.6" stroke-linecap="round"/>
+        </g>
+        <g>
+          <rect x="82" y="94" rx="6" width="176" height="28" fill="var(--bg3)"/>
+          <circle cx="98" cy="108" r="8" fill="var(--bg4)" stroke="var(--border2)"/>
+          <rect x="114" y="104" rx="3" width="54" height="8" fill="var(--bg4)"/>
+          <circle class="vg-blink d2" cx="242" cy="108" r="7" fill="rgba(0,212,106,.18)" stroke="var(--up)" stroke-width="1.4"/>
+          <path class="vg-blink d2" d="M239 108 l2.4 2.6 4-5" fill="none" stroke="var(--up)" stroke-width="1.6" stroke-linecap="round"/>
+        </g>
+        <g>
+          <rect x="82" y="128" rx="6" width="176" height="28" fill="var(--bg3)"/>
+          <circle cx="98" cy="142" r="8" fill="var(--bg4)" stroke="var(--border2)"/>
+          <rect x="114" y="138" rx="3" width="62" height="8" fill="var(--bg4)"/>
+          <circle class="vg-blink d3" cx="242" cy="142" r="7" fill="rgba(212,175,55,.16)" stroke="var(--gold)" stroke-width="1.4"/>
+          <path class="vg-blink d3" d="M242 138.5 v7 M238.5 142 h7" stroke="var(--gold)" stroke-width="1.6" stroke-linecap="round"/>
+        </g>
+        <path d="M120 184 h100 l14 26 H106 Z" fill="var(--bg2)" stroke="var(--border2)"/>
+        <polyline class="vg-draw" points="88,226 128,226 150,214 190,214" fill="none" stroke="var(--up)" stroke-width="2" stroke-linecap="round" opacity=".55"/>
+      </svg>
+      <!-- CLUBE: crista, prancheta tática e gestão -->
+      <svg id="sc-clube" viewBox="0 0 340 260" xmlns="http://www.w3.org/2000/svg">
+        <path d="M170 22 L258 50 V138 Q258 202 170 238 Q82 202 82 138 V50 Z" fill="var(--bg2)" stroke="var(--border2)" stroke-width="1.6"/>
+        <path d="M170 40 L240 62 V134 Q240 186 170 216 Q100 186 100 134 V62 Z" fill="var(--bg)" stroke="var(--border)"/>
+        <line x1="104" y1="128" x2="236" y2="128" stroke="var(--border2)" stroke-width="1.4"/>
+        <circle cx="170" cy="128" r="22" fill="none" stroke="var(--border2)" stroke-width="1.4"/>
+        <path class="vg-draw" d="M124 176 Q150 150 178 162 T232 118" fill="none" stroke="var(--up)" stroke-width="2.2" stroke-linecap="round"/>
+        <circle class="vg-blink d1" cx="124" cy="176" r="5" fill="var(--up)"/>
+        <circle class="vg-blink d2" cx="178" cy="162" r="5" fill="var(--up)"/>
+        <circle class="vg-blink d3" cx="232" cy="118" r="5.5" fill="var(--gold)"/>
+        <path class="vg-blink d2" d="M148 84 l7 7 12-14" fill="none" stroke="var(--gold)" stroke-width="2.4" stroke-linecap="round"/>
+      </svg>
+      <!-- SCOUT: mapa-múndi, jogadores observados e oportunidades -->
+      <svg id="sc-scout" viewBox="0 0 340 260" xmlns="http://www.w3.org/2000/svg">
+        <g fill="var(--slate)" opacity=".32">
+          <circle cx="72" cy="74" r="2.4"/><circle cx="86" cy="66" r="2.4"/><circle cx="100" cy="72" r="2.4"/><circle cx="82" cy="86" r="2.4"/><circle cx="96" cy="90" r="2.4"/><circle cx="68" cy="96" r="2.4"/>
+          <circle cx="96" cy="150" r="2.4"/><circle cx="108" cy="162" r="2.4"/><circle cx="100" cy="178" r="2.4"/><circle cx="112" cy="190" r="2.4"/><circle cx="90" cy="168" r="2.4"/>
+          <circle cx="168" cy="64" r="2.4"/><circle cx="182" cy="58" r="2.4"/><circle cx="178" cy="76" r="2.4"/><circle cx="192" cy="70" r="2.4"/><circle cx="164" cy="82" r="2.4"/>
+          <circle cx="176" cy="130" r="2.4"/><circle cx="188" cy="144" r="2.4"/><circle cx="180" cy="160" r="2.4"/><circle cx="192" cy="172" r="2.4"/>
+          <circle cx="252" cy="88" r="2.4"/><circle cx="266" cy="80" r="2.4"/><circle cx="278" cy="92" r="2.4"/><circle cx="262" cy="102" r="2.4"/><circle cx="274" cy="112" r="2.4"/>
+          <circle cx="256" cy="182" r="2.4"/><circle cx="268" cy="192" r="2.4"/><circle cx="278" cy="178" r="2.4"/>
+        </g>
+        <path class="vg-flow" d="M88 78 Q140 40 178 68" fill="none" stroke="rgba(0,212,106,.4)" stroke-width="1.4"/>
+        <path class="vg-flow" d="M182 70 Q230 60 264 90" fill="none" stroke="rgba(0,212,106,.4)" stroke-width="1.4"/>
+        <path class="vg-flow" d="M104 166 Q150 150 182 148" fill="none" stroke="rgba(0,212,106,.4)" stroke-width="1.4"/>
+        <g>
+          <circle class="vg-pulse" cx="88" cy="78" r="6" fill="none" stroke="var(--gold)" stroke-width="1.4"/>
+          <circle cx="88" cy="78" r="4" fill="var(--gold)"/>
+        </g>
+        <g>
+          <circle class="vg-pulse d2" cx="182" cy="148" r="6" fill="none" stroke="var(--gold)" stroke-width="1.4"/>
+          <circle cx="182" cy="148" r="4" fill="var(--gold)"/>
+        </g>
+        <g>
+          <circle class="vg-pulse d3" cx="264" cy="90" r="6" fill="none" stroke="var(--gold)" stroke-width="1.4"/>
+          <circle cx="264" cy="90" r="4" fill="var(--gold)"/>
+        </g>
+      </svg>
     </div>
   </div>
   <a class="scrollcue" href="#numero" aria-label="Continuar"><span>Scroll</span><span class="ln"></span></a>
@@ -403,6 +526,76 @@ footer .logo b{font-size:17px}
     document.querySelectorAll('[data-count]').forEach(countUp);
     drawCurve();
   }
+})();
+</script>
+<script>
+// ── HERO VIVO: persona + partículas (YTBVivo) ──
+(function(){
+  "use strict";
+  var reduce=false; try{reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(e){}
+  var PERSONAS={
+    familia:{h1:'A história do teu<br>filho está a <span class="fade">desaparecer</span>.',
+      sub:'Cada mudança de clube, cada época que passa, leva consigo tudo o que ele construiu. Até agora.',
+      cta:'Entrar', href:'acesso.html'},
+    treinador:{h1:'Vês o talento.<br>Agora <span class="fade">fica registado</span>.',
+      sub:'Avalia, prescreve e acompanha o impacto real de cada plano — semana a semana, com o retorno da família.',
+      cta:'Entrar como treinador', href:'ytb-pro-treinador.html'},
+    clube:{h1:'Decisões com prova.<br>Não com <span class="fade">achismo</span>.',
+      sub:'O percurso longitudinal de cada atleta, verificado por scouts e treinadores que o viram de perto.',
+      cta:'Explorar talento', href:'scouting360.html'},
+    scout:{h1:'A tua observação<br>entra na <span class="fade">história</span>.',
+      sub:'Cria o atleta, avalia-o no terreno e exporta o report — tudo converge no Passaporte Digital dele.',
+      cta:'Abrir o Scout Report', href:'scout-contexto.html'}
+  };
+  var ORDEM=['familia','treinador','clube','scout'];
+  var atual='familia', timer=null, fixado=false;
+  var h1=document.getElementById('ph-h1'), sub=document.getElementById('ph-sub'), cta=document.getElementById('ph-cta');
+  var copy=document.querySelector('.hero-copy');
+  if(!h1||!sub||!cta) return;
+
+  function aplicar(p){
+    h1.innerHTML=p.h1;
+    sub.textContent=p.sub;
+    cta.innerHTML=p.cta+' <span class="arr">→</span>';
+    cta.setAttribute('href',p.href);
+  }
+  function setPersona(k,anim){
+    var p=PERSONAS[k]; if(!p) return;
+    atual=k;
+    document.querySelectorAll('.pchip').forEach(function(c){c.classList.toggle('on',c.getAttribute('data-p')===k);});
+    document.querySelectorAll('.hero-scene svg').forEach(function(s){
+      s.classList.remove('on');
+      if(s.id==='sc-'+k){ void s.getBoundingClientRect(); s.classList.add('on'); }
+    });
+    if(anim&&!reduce&&copy){
+      copy.classList.add('ph-swap');
+      setTimeout(function(){ aplicar(p); copy.classList.remove('ph-swap'); },280);
+    } else aplicar(p);
+  }
+  document.querySelectorAll('.pchip').forEach(function(c){
+    c.addEventListener('click',function(){
+      fixado=true; if(timer){clearInterval(timer);timer=null;}
+      setPersona(c.getAttribute('data-p'),true);
+    });
+  });
+  if(!reduce){
+    timer=setInterval(function(){
+      if(fixado) return;
+      setPersona(ORDEM[(ORDEM.indexOf(atual)+1)%ORDEM.length],true);
+    },6000);
+    // parar a rotação quando o hero sai do ecrã (não trocar às escondidas)
+    if('IntersectionObserver' in window){
+      var hero=document.getElementById('top');
+      if(hero) new IntersectionObserver(function(en){
+        if(!en[0].isIntersecting&&timer){clearInterval(timer);timer=null;}
+        else if(en[0].isIntersecting&&!timer&&!fixado){
+          timer=setInterval(function(){ if(!fixado) setPersona(ORDEM[(ORDEM.indexOf(atual)+1)%ORDEM.length],true); },6000);
+        }
+      },{threshold:.2}).observe(hero);
+    }
+  }
+  // fundo vivo — decorativo, nunca dados reais (Constituição: menores)
+  if(window.YTBVivo){ YTBVivo.particulas(document.getElementById('vivoCanvas')); }
 })();
 </script>
 </body>
