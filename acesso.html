@@ -128,12 +128,15 @@
     text-transform:uppercase; color:var(--muted);
   }
   .demo b{color:var(--gold); font-weight:700}
+  .home-corner{position:fixed; top:18px; left:18px; color:var(--slate); text-decoration:none; font-size:21px; opacity:.65; transition:opacity .2s; z-index:5}
+  .home-corner:hover{opacity:1}
   .spin{display:inline-block; width:15px; height:15px; border:2px solid #1A1400; border-top-color:transparent; border-radius:50%; animation:sp .7s linear infinite; vertical-align:-2px; margin-right:7px}
   @keyframes sp{to{transform:rotate(360deg)}}
   @media (prefers-reduced-motion: reduce){*{animation:none !important; transition:none !important}}
 </style>
 </head>
 <body>
+  <a href="/" class="home-corner" title="Início" aria-label="Início">🏠</a>
   <main class="card" role="main">
     <div class="seal" aria-hidden="true">
       <svg class="ico-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2.2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/><circle cx="12" cy="15.3" r="1.1" fill="currentColor" stroke="none"/></svg>

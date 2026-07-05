@@ -43,6 +43,8 @@ body{padding-bottom:40px}
 /* MAIN */
 #main-view{display:none;max-width:600px;margin:0 auto;padding:0 16px}
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--border);margin-bottom:16px}
+.topbar-l{display:flex;align-items:center;gap:11px}
+.topbar-home{font-size:19px;text-decoration:none;color:var(--gold);flex:none;line-height:1}
 .topbar-name{font-size:14px;font-weight:700}.topbar-name .role{font-size:10px;color:var(--gold);font-weight:800;letter-spacing:1px;text-transform:uppercase}
 .topbar-out{background:none;border:1px solid var(--border);color:var(--slate);font-size:11px;padding:6px 12px;border-radius:7px;cursor:pointer}
 .tabs{display:flex;gap:4px;margin-bottom:18px;overflow-x:auto}
@@ -118,7 +120,10 @@ body{padding-bottom:40px}
 <!-- MAIN -->
 <div id="main-view">
   <div class="topbar">
-    <div class="topbar-name"><div class="role">🎓 Treinador</div><span id="tb-nome">—</span></div>
+    <div class="topbar-l">
+      <a href="/" class="topbar-home" title="Início" aria-label="Início">🏠</a>
+      <div class="topbar-name"><div class="role">🎓 Treinador</div><span id="tb-nome">—</span></div>
+    </div>
     <button class="topbar-out" onclick="logout()">Sair</button>
   </div>
 

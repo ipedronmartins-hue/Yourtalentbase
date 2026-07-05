@@ -88,10 +88,16 @@
     var ctx = montarContexto(raw);
     if(!global.html2pdf){ global.alert('Exportação indisponível (biblioteca de PDF não carregada).'); return Promise.reject(new Error('html2pdf ausente')); }
     var built = template(ctx);
+    // O host a capturar tem de ficar em position:static — esta versão do html2canvas
+    // devolve altura 0 (PDF em branco) quando o próprio elemento passado a .from() tem
+    // position:fixed/absolute. Por isso escondemos com um wrapper fixo por fora, e o
+    // elemento capturado fica em fluxo normal lá dentro (confirmado por teste isolado).
+    var wrap = document.createElement('div');
+    wrap.style.cssText = 'position:fixed;left:-9999px;top:0;';
     var host = document.createElement('div');
-    host.style.cssText = 'position:fixed;left:-9999px;top:0;';
     host.innerHTML = built.html;
-    document.body.appendChild(host);
+    wrap.appendChild(host);
+    document.body.appendChild(wrap);
     if(global.QRCode && ctx.passaporteUrl){
       try{
         new global.QRCode(document.getElementById(built.qrId), { text: ctx.passaporteUrl, width:70, height:70, correctLevel: global.QRCode.CorrectLevel.M });
@@ -103,7 +109,7 @@
       filename: nomeArq,
       html2canvas: { scale: 2, backgroundColor: '#ffffff' },
       jsPDF: { unit:'pt', format:'a4', orientation:'portrait' }
-    }).from(host).save().then(function(){ document.body.removeChild(host); }).catch(function(err){ document.body.removeChild(host); throw err; });
+    }).from(host).save().then(function(){ document.body.removeChild(wrap); }).catch(function(err){ document.body.removeChild(wrap); throw err; });
   }
 
   global.YTBExport = { planoPDF: planoPDF, montarContexto: montarContexto };
