@@ -110,7 +110,7 @@ function encaminhar(papel){
   if(papel === 'admin'){
     window.location.href = 'admin360.html';
   } else if(papel === 'scout'){
-    window.location.href = 'scouting360-dashboard.html';
+    window.location.href = 'scouts.html';
   } else if(papel === 'cliente'){
     window.location.href = 'scouting360-dashboard.html';
   } else if(papel === 'familia'){
@@ -125,7 +125,7 @@ function encaminhar(papel){
   }
 }
 
-const DESTINOS = { 'ytb-pro-pai-familia.html':['familia','admin'], 'ytb-pro-treinador.html':['treinador','clube','admin'], 'scouting360-dashboard.html':['scout','cliente','admin'], 'admin360.html':['admin'] };
+const DESTINOS = { 'ytb-pro-pai-familia.html':['familia','admin'], 'ytb-pro-treinador.html':['treinador','clube','admin'], 'scouts.html':['scout','admin'], 'scouting360-dashboard.html':['cliente','admin'], 'admin360.html':['admin'] };
 function destinoPedido(){
   const d = new URLSearchParams(location.search).get('dest');
   return (d && DESTINOS[d]) ? d : null;
