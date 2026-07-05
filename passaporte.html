@@ -303,7 +303,7 @@
     var pill={mar:'mar',obs:'obs',dec:'dec'}, mk={mar:'<span class="mk" style="color:var(--gold)">◆</span>',obs:'<span class="mk" style="color:var(--obs-bar)">•</span>',dec:'<span class="mk" style="color:var(--dec)">·</span>'};
     var plabel={mar:'marco',obs:'observado',dec:'declarado'};
     html+='<div class="shead">Linha temporal</div><div class="tl-list">'+d.timeline.map(function(r){
-      return '<div class="tl-row">'+mk[r[0]]+'<div class="ev"><div class="t">'+r[1]+'</div><div class="s">'+esc(r[2])+'</div></div><span class="pill '+pill[r[0]]+'">'+plabel[r[0]]+'</span><span class="when">'+esc(r[3])+'</span></div>';
+      return '<div class="tl-row vivo-reveal'+(r[0]==='mar'?' vivo-tl-marco':'')+'">'+mk[r[0]]+'<div class="ev"><div class="t">'+r[1]+'</div><div class="s">'+esc(r[2])+'</div></div><span class="pill '+pill[r[0]]+'">'+plabel[r[0]]+'</span><span class="when">'+esc(r[3])+'</span></div>';
     }).join('')+'</div>';
     // partilhar + rodapé
     html+='<button class="share" id="btn-share" type="button">Partilhar passaporte</button>';
@@ -312,6 +312,7 @@
     document.getElementById('app').innerHTML=html;
     document.getElementById('who').textContent=id.nome+' · '+id.clube;
     document.getElementById('btn-share').addEventListener('click',share);
+    if(window.YTBVivo)YTBVivo.revelar(); // timeline viva: rows revelam ao entrar no ecrã
   }
 
   function toast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},1900);}

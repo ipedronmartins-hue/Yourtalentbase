@@ -962,7 +962,13 @@ async function gerarReport(){
 
   renderReport();
   document.getElementById('reportModal').classList.add('show');
+  meusReportsCache=null; // repinta as mini-jornadas com o report novo
   carregarHistorico();
+  if(window.YTBVivo&&atletaIdReport){
+    // report anexado ao passaporte é um marco
+    const mj=document.getElementById('ac-mini-'+atletaIdReport);
+    if(mj)YTBVivo.marco(mj);
+  }
 }
 
 // ═══════════════════════════════════════════════

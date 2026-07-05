@@ -340,6 +340,15 @@ function mostrarMain(){
   document.getElementById('tb-nome').textContent=treinadorNome;
   carregarAtletas();
   carregarComissoes();
+  // iluminação: o tab Retorno brilha quando há atividade recente das famílias
+  if(USING_SB)supa.rpc('ytb_treinador_digest').then(r=>{if(r.data){digestCache=r.data;pintarGlowRetorno();}}).catch(()=>{});
+}
+
+function pintarGlowRetorno(){
+  const t=document.querySelector('.tab[onclick*="retorno"]');
+  if(!t||!digestCache)return;
+  const temNovidades=digestCache.some(d=>(d.execucoes_desde_plano||0)>0&&d.ultima_atividade&&(Date.now()-new Date(d.ultima_atividade).getTime())<7*86400000);
+  t.classList.toggle('vivo-glow',temNovidades);
 }
 
 function setTab(name){
@@ -364,6 +373,7 @@ async function renderRetorno(){
     if(error)throw error;
     digest=data;
     digestCache=data||[]; // partilha com o mapa da jornada
+    pintarGlowRetorno();
   }catch(e){
     area.innerHTML='<div class="empty-state">⚠ Não foi possível carregar o retorno ('+esc(e.message||'erro')+').</div>';
     return;
@@ -646,6 +656,12 @@ async function gerarAvaliacao(){
     (linkEstado==='sem_email'?'<div style="background:rgba(255,165,0,.08);border:1px solid rgba(255,165,0,.3);border-radius:9px;padding:10px 12px;margin-top:11px;font-size:11px;line-height:1.5"><strong style="color:var(--orange)">Este atleta não tem email do encarregado.</strong> Sem email, a família não recebe o plano.</div>':'')+
     '<button class="btn btn-primary" style="margin-top:14px" onclick="setTabProgram(\'treino\')">Ver plano de treino →</button></div>';
   showToast(gravado?(linkEstado==='enviado'?'Avaliação guardada ✓ Link enviado à família 📧':'Avaliação guardada ✓ Treino gerado'):'⚠ Avaliação NÃO gravada',gravado?2600:3500);
+  if(gravado&&window.YTBVivo){
+    // plano prescrito é um marco: flash dourado + linha causa-efeito jornada → resultado
+    YTBVivo.marco(document.getElementById('aval-result'));
+    YTBVivo.ligar(document.getElementById('tab-avaliar'),[['#jornada-treinador','#aval-result']]);
+    montarJornadaTreinador(); // re-deriva com o plano novo (digestCache foi invalidada)
+  }
 }
 
 /* ════════ TREINO ════════ */

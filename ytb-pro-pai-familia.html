@@ -515,8 +515,24 @@ function renderDashboard(){
   CICLOS.forEach((cc,i)=>{let st=i<cicloAtual?'done':i===cicloAtual?'current':'';cicloHTML+='<div class="ciclo-week '+st+'">'+cc.emoji+' '+cc.nome+'</div>';});
   cicloHTML+='</div><div class="ciclo-titulo">'+CICLOS[cicloAtual].emoji+' Semana '+(cicloAtual+1)+': '+CICLOS[cicloAtual].nome+'</div><div class="ciclo-foco">'+CICLOS[cicloAtual].descricao+'</div></div>';
   c.innerHTML='<div id="jornada-mount"></div><div id="oqm-card"></div>'+proximoHTML+cicloHTML+chartHTML+insHTML;
+  // iluminação: o tab Treino brilha enquanto há sessões pendentes esta semana
+  const tabTreino=document.querySelector('.tab[onclick*="treino"]');
+  if(tabTreino)tabTreino.classList.toggle('vivo-glow',!!proximo);
   montarJornadaFamilia();
+  montarLigacoesFamilia();
   carregarOQueMudou();
+}
+
+// ═══ LIGAÇÕES CAUSA-EFEITO (o que mudou → próximo treino → evolução) ═══
+function montarLigacoesFamilia(){
+  if(!window.YTBVivo)return;
+  const c=document.getElementById('dash-content');
+  if(!c)return;
+  const pares=[];
+  const oqm=c.querySelector('#oqm-card'), next=c.querySelector('.next-workout'), chart=c.querySelector('.chart-wrap');
+  if(oqm&&oqm.children.length&&next)pares.push(['#oqm-card','.next-workout']);
+  if(next&&chart)pares.push(['.next-workout','.chart-wrap']);
+  if(pares.length)YTBVivo.ligar(c,pares);
 }
 
 // ═══ MAPA VIVO DA JORNADA (derivado do estado já carregado — zero RPCs novas) ═══
@@ -565,7 +581,7 @@ function renderOQM(){
   let html='<div class="dash-card" style="border-left:3px solid var(--gold)">';
   if(nov.length){
     html+='<div class="dash-card-eyebrow">✨ O que mudou desde a última visita</div>';
-    nov.slice(0,5).forEach(n=>{const d=new Date(n.em).toLocaleDateString('pt-PT',{day:'2-digit',month:'short'});html+='<div style="display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px"><div style="color:#fff">'+esc(n.msg)+'</div><div style="color:var(--slate);font-size:10px;white-space:nowrap">'+d+'</div></div>';});
+    nov.slice(0,5).forEach(n=>{const d=new Date(n.em).toLocaleDateString('pt-PT',{day:'2-digit',month:'short'});const dourado=/plano|marco|sequência/i.test(n.msg||'');html+='<div class="vivo-reveal" style="display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px"><div style="color:'+(dourado?'var(--gold)':'#fff')+'">'+esc(n.msg)+'</div><div style="color:var(--slate);font-size:10px;white-space:nowrap">'+d+'</div></div>';});
     if(nov.length>5)html+='<div style="font-size:10px;color:var(--slate);padding-top:6px">+'+(nov.length-5)+' novidades mais antigas</div>';
     html+='<button class="btn btn-secondary" style="margin-top:10px;width:auto;padding:9px 16px;font-size:11px" onclick="marcarVisto()">Entendido ✓</button>';
   }
@@ -575,6 +591,15 @@ function renderOQM(){
   }
   html+='</div>';
   box.innerHTML=html;
+  if(window.YTBVivo){
+    YTBVivo.revelar(box);
+    // plano novo/atualizado é um marco: flash dourado no tab Treino (uma vez por carregamento)
+    if(!renderOQM._marcou&&nov.some(n=>/plano/i.test(n.msg||''))){
+      renderOQM._marcou=true;
+      YTBVivo.marco(document.querySelector('.tab[onclick*="treino"]'));
+    }
+  }
+  montarLigacoesFamilia();
 }
 async function marcarVisto(){
   try{const{error}=await supa.rpc('ytb_marcar_visto',{p_atleta:atletaId});if(error)throw error;}catch(e){showToast('⚠ Não foi possível marcar como visto');return;}
@@ -738,7 +763,7 @@ async function registarDiario(){
     const lbl={livre:'Treino livre',jogo:'Jogo',clube:'Treino no clube'}[diarioSel.tipo];
     historico.unshift({exercicio_nome:lbl,exercicio_id:'diario_'+diarioSel.tipo,bloco:'',completas:0,tempo:diarioSel.min,dificuldade:'media',energia:'normal',confianca:100,created_at:new Date().toISOString()});
     if(data.streak!=null){const sn=document.getElementById('streak-num');if(sn)sn.textContent=data.streak;}
-    if(data.marco){marcosCache=null;showToast('🏆 Marco: '+data.marco+' dias seguidos! Ficou registado no percurso ✨',4500);}
+    if(data.marco){marcosCache=null;showToast('🏆 Marco: '+data.marco+' dias seguidos! Ficou registado no percurso ✨',4500);if(window.YTBVivo)YTBVivo.marco(document.querySelector('.streak-badge'));}
     else{showToast('Diário registado ✓ Sequência: '+(data.streak||1)+' dia'+((data.streak||1)>1?'s':''));}
   }catch(e){showToast('⚠ Não gravado: '+(e.message||'erro'));}
 }
@@ -762,7 +787,7 @@ async function submeterTreino(){if(!exercicioAtivo)return;const completas=parseI
       const{data,error}=await supa.rpc('ytb_treino_registar',{p_atleta:atletaId,p_exercicio:exercicioAtivo.nome,p_resultado:{exercicio_id:exercicioAtivo.id,bloco:submissao.bloco,completas:completas,dificuldade:modalInputs.dificuldade,energia:modalInputs.energia,submetido_por:submetidoPor},p_tempo:tempo,p_confianca:conf.confianca,p_flags:conf.flags,p_prescrito_id:(planoTreinador?planoTreinador.id:null),p_semana:(planoTreinador?getCicloAtual()+1:null),p_sessao:(planoTreinador?findSessaoDoExercicio(exercicioAtivo.id):null)});
       if(error)throw error;
       treinoGravado=!!(data&&data.ok);
-      if(data&&data.marco){marcosCache=null;setTimeout(()=>showToast('🏆 Marco: '+data.marco+' dias seguidos! ✨',4500),1200);}
+      if(data&&data.marco){marcosCache=null;setTimeout(()=>showToast('🏆 Marco: '+data.marco+' dias seguidos! ✨',4500),1200);if(window.YTBVivo)YTBVivo.marco(document.querySelector('.streak-badge'));}
     }catch(e){console.warn('save treino',e);}
   }
   historico.unshift(Object.assign({},submissao,{created_at:new Date().toISOString()}));
