@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="/assets/js/ytb-config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="/assets/js/vendor/html2pdf.bundle.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--bg:#080C08;--bg2:#0F1410;--bg3:#161D17;--gold:#D4AF37;--gold-soft:rgba(212,175,55,.15);--gold-border:rgba(212,175,55,.3);--green:#00D46A;--blue:#4A9FE8;--red:#ff5050;--purple:#9F7AEA;--orange:#FFA500;--border:#1F2520;--white:#fff;--slate:#aaa;--muted:#666}
@@ -71,6 +71,19 @@ body{max-width:520px;margin:0 auto;padding-bottom:60px}
    ═══════════════════════════════════════════════ */
 .report-modal{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:2000;overflow-y:auto;display:none;padding:0}
 .report-modal.show{display:block}
+.na-modal{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:1900;overflow-y:auto;display:none;padding:20px 14px}
+.na-modal.show{display:block}
+.na-box{max-width:480px;margin:20px auto;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px}
+.atleta-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:13px 15px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.atleta-card .ac-nome{font-size:14px;font-weight:700;color:#fff}
+.atleta-card .ac-meta{font-size:11px;color:var(--slate);margin-top:2px}
+.atleta-card .ac-badge{font-size:9px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;padding:3px 8px;border-radius:999px}
+.ac-badge.aprovado{background:rgba(0,212,106,.15);color:var(--green)}
+.ac-badge.arquivado{background:rgba(255,255,255,.08);color:var(--muted)}
+.ac-actions{display:flex;gap:6px;flex-wrap:wrap}
+.ac-actions button{background:var(--bg3);border:1px solid var(--border);color:#fff;border-radius:8px;padding:6px 9px;font-size:12px;cursor:pointer}
+.dup-card{background:var(--bg3);border:1px solid var(--gold-border);border-radius:10px;padding:10px 12px;margin-bottom:8px;cursor:pointer}
+.dup-card:hover{border-color:var(--gold)}
 .report-toolbar{position:sticky;top:0;background:rgba(8,12,8,.97);backdrop-filter:blur(12px);padding:12px 16px;display:flex;gap:8px;border-bottom:1px solid var(--border);z-index:10}
 .report-toolbar button{flex:1;background:var(--bg3);border:1px solid var(--border);color:#fff;padding:10px 8px;border-radius:8px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer}
 .report-toolbar .btn-pdf{background:var(--gold);color:#000;border:none}
@@ -212,11 +225,83 @@ body{max-width:520px;margin:0 auto;padding-bottom:60px}
     </div>
   </div>
 
+  <div class="section-title">Os meus <span style="color:var(--gold)">atletas</span></div>
+  <div class="section-sub">Atletas que criaste. O Passaporte Digital nasce automaticamente quando inscreves um novo.</div>
+  <button class="btn btn-primary" style="margin-bottom:12px" onclick="abrirNovoAtleta()">+ Novo Atleta</button>
+  <div id="meus-atletas-area"><div style="text-align:center;padding:14px;color:var(--muted);font-size:12px">A carregar…</div></div>
+
+  <!-- MODAL NOVO ATLETA -->
+  <div class="na-modal" id="naModal">
+    <div class="na-box">
+      <div class="section-title" style="margin-bottom:2px">Novo <span style="color:var(--gold)">Atleta</span></div>
+      <div class="section-sub" style="margin-bottom:14px">O Passaporte Digital nasce já com estes dados.</div>
+      <div id="na-dup-area" style="display:none"></div>
+      <div id="na-form-area">
+        <div class="field"><label class="label">Nome completo</label><input class="input" id="na_nome" type="text"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div class="field"><label class="label">Data de nascimento</label><input class="input" id="na_nasc" type="date"></div>
+          <div class="field"><label class="label">Sexo</label>
+            <select class="input" id="na_sexo"><option value="">—</option><option value="M">Masculino</option><option value="F">Feminino</option></select>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div class="field"><label class="label">Posição</label>
+            <select class="input" id="na_pos">
+              <option value="">--</option>
+              <option value="GR">Guarda-Redes</option><option value="DC">Defesa Central</option>
+              <option value="LD">Lateral Direito</option><option value="LE">Lateral Esquerdo</option>
+              <option value="MD">Médio Defensivo</option><option value="MC">Médio Centro</option>
+              <option value="MO">Médio Ofensivo</option><option value="ED">Extremo Direito</option>
+              <option value="EE">Extremo Esquerdo</option><option value="PL">Ponta de Lança</option>
+              <option value="AV">Avançado</option>
+            </select>
+          </div>
+          <div class="field"><label class="label">Pé preferencial</label>
+            <select class="input" id="na_pe"><option value="">—</option><option>Direito</option><option>Esquerdo</option><option>Ambidextro</option></select>
+          </div>
+        </div>
+        <div class="field"><label class="label">Clube</label><input class="input" id="na_clube" type="text"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div class="field"><label class="label">Escalão</label><input class="input" id="na_escalao" type="text" placeholder="Sub-13 (auto se vazio)"></div>
+          <div class="field"><label class="label">Nacionalidade</label><input class="input" id="na_nacionalidade" type="text" placeholder="Portugal"></div>
+        </div>
+        <div class="field"><label class="label">Associação de Futebol</label>
+          <select class="input" id="na_assoc">
+            <option value="">—</option>
+            <option>AF Algarve</option><option>AF Angra do Heroísmo</option><option>AF Aveiro</option><option>AF Beja</option>
+            <option>AF Braga</option><option>AF Bragança</option><option>AF Castelo Branco</option><option>AF Coimbra</option>
+            <option>AF Évora</option><option>AF Guarda</option><option>AF Horta</option><option>AF Leiria</option>
+            <option>AF Lisboa</option><option>AF Madeira</option><option>AF Ponta Delgada</option><option>AF Portalegre</option>
+            <option>AF Porto</option><option>AF Santarém</option><option>AF Setúbal</option><option>AF Viana do Castelo</option>
+            <option>AF Vila Real</option><option>AF Viseu</option>
+          </select>
+        </div>
+        <div class="field"><label class="label">Sistema tático</label>
+          <input class="input" id="na_esquema" type="text" placeholder="4-3-3" list="na-esquema-lista">
+          <datalist id="na-esquema-lista"><option value="4-3-3"><option value="4-4-2"><option value="4-2-3-1"><option value="3-4-3"><option value="3-5-2"><option value="4-1-4-1"><option value="5-3-2"></datalist>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div class="field"><label class="label">Altura (cm)</label><input class="input" id="na_altura" type="number" step="0.5"></div>
+          <div class="field"><label class="label">Peso (kg)</label><input class="input" id="na_peso" type="number" step="0.1"></div>
+        </div>
+        <div class="field"><label class="label">Link ZeroZero (opcional)</label><input class="input" id="na_zz" type="url" placeholder="https://www.zerozero.pt/jogador/..."></div>
+        <div class="field"><label class="label">Vídeo (opcional)</label><input class="input" id="na_video" type="url" placeholder="https://..."></div>
+        <div class="field"><label class="label">Contacto do encarregado (opcional)</label><input class="input" id="na_email_enc" type="email" placeholder="pai@email.com"></div>
+        <div class="err" id="na-err" style="display:none"></div>
+        <button class="btn btn-primary" id="na-btn" onclick="submeterNovoAtleta()" style="margin-top:6px">Criar atleta e passaporte →</button>
+        <button class="btn btn-secondary" style="margin-top:8px" onclick="fecharNovoAtleta()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
   <div id="area-com-creditos">
     <div class="section-title">Novo <span style="color:var(--gold)">Scout Report</span></div>
     <div class="section-sub">Avaliação profissional · 25 critérios · Análise IA · PDF</div>
 
     <div class="form-card">
+      <div class="field"><label class="label">Atleta (opcional — escolhe um dos teus)</label>
+        <select class="input" id="sr_atleta_sel" onchange="preencherDeAtletaSelecionado()"><option value="">— Novo / texto livre —</option></select>
+      </div>
       <div class="field"><label class="label">Nome do Atleta</label><input class="input" id="sr_nome" type="text"></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
         <div class="field"><label class="label">Posição</label>
@@ -360,7 +445,7 @@ const CAT_INFO={
   mentais:{label:'Mentais',icon:'🎯',color:'#00D46A'}
 };
 
-const POS_LABELS={GR:'Guarda-Redes',DC:'Defesa Central',LD:'Lateral Direito',LE:'Lateral Esquerdo',MD:'Médio Defensivo',MC:'Médio Centro',MO:'Médio Ofensivo',ED:'Extremo Direito',EE:'Extremo Esquerdo',PL:'Ponta de Lança'};
+const POS_LABELS={GR:'Guarda-Redes',DC:'Defesa Central',LD:'Lateral Direito',LE:'Lateral Esquerdo',MD:'Médio Defensivo',MC:'Médio Centro',MO:'Médio Ofensivo',ED:'Extremo Direito',EE:'Extremo Esquerdo',PL:'Ponta de Lança',AV:'Avançado'};
 
 let scoutAtual=null;
 let creditosUsados=0;
@@ -445,7 +530,175 @@ function mostrarMain(){
   document.getElementById('nome-scout').textContent=scoutAtual.nome;
   buildSliders();
   carregarHistorico();
+  carregarMeusAtletas();
   document.getElementById('sr_data').value=new Date().toISOString().split('T')[0];
+  // vindo do Passaporte (modo scout) com "Novo Scout Report" → pré-seleciona o atleta
+  const params=new URLSearchParams(location.search);
+  const atletaUrl=params.get('atleta');
+  if(atletaUrl) setTimeout(()=>preSelecionarAtletaPorId(atletaUrl), 400);
+}
+
+// ═══════════════════════════════════════════════
+// OS MEUS ATLETAS + NOVO ATLETA (adenda: passaporte nasce na criação)
+// ═══════════════════════════════════════════════
+let meusAtletasCache=[];
+
+async function carregarMeusAtletas(){
+  const area=document.getElementById('meus-atletas-area');
+  try{
+    const{data,error}=await supa.rpc('ytb_scout_meus_atletas');
+    if(error)throw error;
+    meusAtletasCache=data||[];
+  }catch(e){
+    area.innerHTML='<div style="text-align:center;padding:14px;color:var(--red);font-size:12px">Erro a carregar atletas.</div>';
+    return;
+  }
+  if(!meusAtletasCache.length){
+    area.innerHTML='<div style="text-align:center;padding:14px;color:var(--muted);font-size:12px">Ainda não criaste nenhum atleta.</div>';
+  } else {
+    area.innerHTML=meusAtletasCache.map(a=>{
+      const badge=a.estado==='arquivado'?'arquivado':'aprovado';
+      return '<div class="atleta-card">'
+        +'<div><div class="ac-nome">'+esc(a.nome)+'</div>'
+        +'<div class="ac-meta">'+(a.ano||'?')+' · '+esc(a.posicao||'—')+' · '+esc(a.clube||'—')+' <span class="ac-badge '+badge+'">'+esc(a.estado||'')+'</span></div></div>'
+        +'<div class="ac-actions">'
+        +'<button onclick="location.href=\'passaporte.html?scout='+a.id+'\'">📔</button>'
+        +'<button onclick="usarAtletaNoReport(\''+a.id+'\')">📝</button>'
+        +(a.estado!=='arquivado'?'<button onclick="arquivarAtleta(\''+a.id+'\')">🗄</button>':'')
+        +'</div></div>';
+    }).join('');
+  }
+  // alimenta o select do form de report
+  const sel=document.getElementById('sr_atleta_sel');
+  if(sel){
+    sel.innerHTML='<option value="">— Novo / texto livre —</option>'
+      +meusAtletasCache.filter(a=>a.estado!=='arquivado').map(a=>'<option value="'+a.id+'">'+esc(a.nome)+' ('+(a.ano||'?')+')</option>').join('');
+  }
+}
+
+function esc(s){return (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function preencherDeAtletaSelecionado(){
+  const id=document.getElementById('sr_atleta_sel').value;
+  if(!id)return;
+  const a=meusAtletasCache.find(x=>x.id===id);
+  if(!a)return;
+  document.getElementById('sr_nome').value=a.nome||'';
+  if(a.posicao)document.getElementById('sr_pos').value=a.posicao;
+  document.getElementById('sr_clube').value=a.clube||'';
+  if(a.escalao)document.getElementById('sr_esc').value=a.escalao;
+}
+
+function usarAtletaNoReport(id){
+  document.getElementById('sr_atleta_sel').value=id;
+  preencherDeAtletaSelecionado();
+  document.getElementById('sr_nome').scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+function preSelecionarAtletaPorId(id){
+  const sel=document.getElementById('sr_atleta_sel');
+  if(sel && meusAtletasCache.some(a=>a.id===id)){
+    sel.value=id;
+    preencherDeAtletaSelecionado();
+  }
+}
+
+async function arquivarAtleta(id){
+  if(!confirm('Arquivar este atleta? Deixa de aparecer na tua lista ativa. (Eliminar continua reservado ao admin.)'))return;
+  try{
+    const{data,error}=await supa.rpc('ytb_scout_atleta_arquivar',{p_id:id});
+    if(error)throw error;
+    if(!data||!data.ok){alert('Não foi possível arquivar: '+((data&&data.motivo)||'erro'));return;}
+    carregarMeusAtletas();
+  }catch(e){alert('Erro: '+(e.message||'tenta de novo'));}
+}
+
+function abrirNovoAtleta(){
+  document.getElementById('na-dup-area').style.display='none';
+  document.getElementById('na-form-area').style.display='block';
+  document.getElementById('naModal').classList.add('show');
+}
+function fecharNovoAtleta(){
+  document.getElementById('naModal').classList.remove('show');
+}
+
+const NA_MOTIVOS={
+  sem_papel_scout:'A tua conta ainda não tem papel de scout aprovado.',
+  nome:'Indica o nome do atleta.',
+  ano_invalido:'Data de nascimento inválida.',
+  posicao_obrigatoria:'A posição é obrigatória.',
+  clube_obrigatorio:'O clube é obrigatório.',
+  sexo_invalido:'Sexo inválido.',
+  zerozero_invalido:'Link ZeroZero inválido.',
+  email_encarregado_invalido:'Email do encarregado inválido.',
+  altura_invalida:'Altura fora do intervalo razoável (80–220cm).',
+  peso_invalido:'Peso fora do intervalo razoável (15–120kg).'
+};
+
+async function submeterNovoAtleta(p_confirmar_novo, p_associar_a){
+  const err=document.getElementById('na-err');
+  err.style.display='none';
+  const nome=document.getElementById('na_nome').value.trim();
+  const nascStr=document.getElementById('na_nasc').value;
+  if(!nome){err.style.display='block';err.textContent='Indica o nome.';return;}
+  if(!nascStr){err.style.display='block';err.textContent='Indica a data de nascimento.';return;}
+  const nasc=new Date(nascStr+'T00:00:00');
+  const payload={
+    p_nome:nome, p_ano:nasc.getFullYear(), p_mes:nasc.getMonth()+1, p_dia:nasc.getDate(),
+    p_sexo:document.getElementById('na_sexo').value||null,
+    p_nacionalidade:document.getElementById('na_nacionalidade').value.trim()||null,
+    p_clube:document.getElementById('na_clube').value.trim(),
+    p_escalao:document.getElementById('na_escalao').value.trim()||null,
+    p_pos:document.getElementById('na_pos').value||null,
+    p_pe:document.getElementById('na_pe').value||null,
+    p_assoc:document.getElementById('na_assoc').value||null,
+    p_esquema:document.getElementById('na_esquema').value.trim()||null,
+    p_altura:parseFloat(document.getElementById('na_altura').value)||null,
+    p_peso:parseFloat(document.getElementById('na_peso').value)||null,
+    p_zz:document.getElementById('na_zz').value.trim()||null,
+    p_video:document.getElementById('na_video').value.trim()||null,
+    p_email_enc:document.getElementById('na_email_enc').value.trim()||null,
+    p_confirmar_novo:!!p_confirmar_novo,
+    p_associar_a:p_associar_a||null
+  };
+  const btn=document.getElementById('na-btn');
+  btn.disabled=true;btn.textContent='A criar…';
+  try{
+    const{data,error}=await supa.rpc('ytb_scout_atleta_criar',payload);
+    if(error)throw error;
+    if(data&&data.ok){
+      // Passaporte nasce já — o scout nunca volta atrás (adenda §5)
+      location.href='passaporte.html?scout='+data.id;
+      return;
+    }
+    if(data&&data.motivo==='duplicado_possivel'){
+      mostrarDuplicados(data.candidatos||[]);
+      btn.disabled=false;btn.textContent='Criar atleta e passaporte →';
+      return;
+    }
+    err.style.display='block';
+    err.textContent=NA_MOTIVOS[data&&data.motivo]||('Não foi possível criar ('+((data&&data.motivo)||'erro')+')');
+  }catch(e){
+    err.style.display='block';err.textContent='Erro: '+(e.message||'tenta de novo');
+  }
+  btn.disabled=false;btn.textContent='Criar atleta e passaporte →';
+}
+
+function mostrarDuplicados(candidatos){
+  const dupArea=document.getElementById('na-dup-area');
+  document.getElementById('na-form-area').style.display='none';
+  dupArea.style.display='block';
+  dupArea.innerHTML='<div style="font-size:13px;color:var(--gold);font-weight:700;margin-bottom:10px">⚠ Foi encontrado um atleta semelhante</div>'
+    +candidatos.map(c=>'<div class="dup-card" onclick="submeterNovoAtleta(false,\''+c.id+'\')">'
+      +'<div style="font-weight:700;font-size:13px">'+esc(c.nome)+'</div>'
+      +'<div style="font-size:11px;color:var(--slate)">'+(c.ano||'?')+' · '+esc(c.clube||'—')+'</div>'
+      +'<div style="font-size:10px;color:var(--gold);margin-top:4px">Associar a este →</div></div>').join('')
+    +'<button class="btn btn-primary" style="margin-top:10px" onclick="submeterNovoAtleta(true)">Criar novo mesmo assim</button>'
+    +'<button class="btn btn-secondary" style="margin-top:8px" onclick="voltarAoFormulario()">← Voltar e corrigir</button>';
+}
+function voltarAoFormulario(){
+  document.getElementById('na-dup-area').style.display='none';
+  document.getElementById('na-form-area').style.display='block';
 }
 
 document.getElementById('email').addEventListener('keypress',e=>{if(e.key==='Enter')enviarLink()});
