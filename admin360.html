@@ -640,7 +640,7 @@ function renderAtletas(){
       <td style="white-space:nowrap">
         <button class="action-btn" onclick="window.open('passaporte.html?admin=${a.id}','_blank')" title="Ver passaporte">👁</button>
         <button class="action-btn" onclick="editarAtleta('${a.id}')">✏️</button>
-        <button class="action-btn danger" onclick="apagarAtleta('${a.id}','${escapeHtml(a.nome)}')">🗑</button>
+        <button class="action-btn danger" onclick="apagarAtleta('${a.id}')">🗑</button>
       </td>
     </tr>
   `).join('');
@@ -1111,7 +1111,9 @@ async function rejeitarAtleta(id){
   } catch(e){ toast('Erro', 'error'); }
 }
 
-async function apagarAtleta(id, nome){
+async function apagarAtleta(id){
+  const alvo = allAtletas.find(x => x.id === id);
+  const nome = alvo ? alvo.nome : 'este atleta';
   if(!confirm(`Apagar PERMANENTEMENTE "${nome}"?\n\nEsta acção apaga também stats, histórico, avaliações.\n\nÉ irreversível.`)) return;
   if(!confirm('Confirma OUTRA VEZ: apagar para sempre?')) return;
   try {
@@ -1119,7 +1121,7 @@ async function apagarAtleta(id, nome){
     if(error){ toast('Erro: ' + error.message, 'error'); return; }
     toast('Atleta apagado', 'green');
     load();
-  } catch(e){ toast('Erro', 'error'); }
+  } catch(e){ toast('Erro: ' + (e && e.message || ''), 'error'); }
 }
 
 async function marcarWhatsAppPendente(id, enviado){
@@ -1153,6 +1155,13 @@ function editarAtleta(id){
         <div class="edit-field"><label class="edit-label">Mês</label><input class="edit-input" id="e_mes" type="number" min="1" max="12" value="${a.mes_nascimento || ''}"></div>
         <div class="edit-field"><label class="edit-label">Posição</label><input class="edit-input" id="e_pos" value="${escapeHtml(a.posicao_principal)}"></div>
         <div class="edit-field"><label class="edit-label">Pé</label><input class="edit-input" id="e_pe" value="${escapeHtml(a.pe_dominante || '')}"></div>
+        <div class="edit-field"><label class="edit-label">Sexo</label>
+          <select class="edit-select" id="e_sexo">
+            <option value="" ${!a.sexo ? 'selected' : ''}>—</option>
+            <option value="M" ${a.sexo === 'M' ? 'selected' : ''}>Masculino</option>
+            <option value="F" ${a.sexo === 'F' ? 'selected' : ''}>Feminino</option>
+          </select>
+        </div>
       </div>
     </div>
 
@@ -1208,6 +1217,19 @@ function editarAtleta(id){
       <div class="edit-grid">
         <div class="edit-field"><label class="edit-label">Nome EE</label><input class="edit-input" id="e_eenome" value="${escapeHtml(a.encarregado_nome || '')}"></div>
         <div class="edit-field"><label class="edit-label">WhatsApp EE</label><input class="edit-input" id="e_eetel" value="${escapeHtml(a.encarregado_telefone || '')}"></div>
+        <div class="edit-field full"><label class="edit-label">Email EE <span style="font-weight:400;color:#8a958a">(liga o atleta à família — envia o passaporte e o plano por magic link)</span></label><input class="edit-input" id="e_eeemail" type="email" value="${escapeHtml(a.encarregado_email || '')}"></div>
+      </div>
+    </div>
+
+    <div class="edit-section">
+      <div class="edit-sec-title">📏 Biometria <span style="font-weight:400;font-size:11px;color:#8a958a">(série temporal — cada registo fica no histórico do atleta)</span></div>
+      <div class="edit-grid">
+        <div class="edit-field"><label class="edit-label">Altura (cm)</label><input class="edit-input" id="e_bio_alt" type="number" step="0.1" min="80" max="220" placeholder="ex: 152"></div>
+        <div class="edit-field"><label class="edit-label">Peso (kg)</label><input class="edit-input" id="e_bio_pes" type="number" step="0.1" min="15" max="120" placeholder="ex: 44.5"></div>
+        <div class="edit-field"><label class="edit-label">Pé (tam. EU)</label><input class="edit-input" id="e_bio_pe" type="number" step="0.5" min="20" max="50" placeholder="ex: 37"></div>
+        <div class="edit-field"><label class="edit-label">Data da medição</label><input class="edit-input" id="e_bio_data" type="date" value="${new Date().toISOString().slice(0,10)}"></div>
+        <div class="edit-field full"><button type="button" class="action-btn" onclick="registarBiometriaAdmin('${a.id}')">📏 Registar medição</button></div>
+        <div class="edit-field full" id="e_bio_hist"><div style="font-size:12px;color:#8a958a">A carregar histórico…</div></div>
       </div>
     </div>
 
@@ -1230,6 +1252,45 @@ function editarAtleta(id){
 
   document.getElementById('modal-edit').classList.add('show');
   document.body.style.overflow = 'hidden';
+  carregarBiometriaAdmin(a.id);
+}
+
+function renderBioHistList(rows){
+  if(!rows || !rows.length) return '<div style="font-size:12px;color:#8a958a">Sem medições registadas.</div>';
+  return '<div style="display:flex;flex-direction:column;gap:6px">' + rows.map(r => {
+    const partes = [];
+    if(r.altura_cm != null) partes.push(r.altura_cm + ' cm');
+    if(r.peso_kg != null) partes.push(r.peso_kg + ' kg');
+    if(r.pe_eu != null) partes.push('pé ' + r.pe_eu);
+    return '<div style="font-size:12px;color:#c5cdc5;display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid #1c241c;padding:4px 0"><span>' + fmtDate(r.medido_em) + ' · ' + escapeHtml(r.fonte || '') + '</span><span>' + (partes.join(' · ') || '—') + '</span></div>';
+  }).join('') + '</div>';
+}
+
+async function carregarBiometriaAdmin(atletaId){
+  const el = document.getElementById('e_bio_hist');
+  if(!el) return;
+  try {
+    const { data, error } = await supa.from('atleta_biometria').select('*').eq('atleta_id', atletaId).order('medido_em', { ascending:false }).limit(10);
+    if(error){ el.innerHTML = '<div style="font-size:12px;color:#8a958a">Não foi possível carregar o histórico.</div>'; return; }
+    el.innerHTML = renderBioHistList(data);
+  } catch(e){ el.innerHTML = ''; }
+}
+
+async function registarBiometriaAdmin(atletaId){
+  const num = v => { const n = parseFloat(String(v||'').replace(',','.')); return isNaN(n) ? null : n; };
+  const altura = num(document.getElementById('e_bio_alt').value);
+  const peso = num(document.getElementById('e_bio_pes').value);
+  const pe = num(document.getElementById('e_bio_pe').value);
+  const dataMed = document.getElementById('e_bio_data').value || null;
+  if(altura == null && peso == null && pe == null){ toast('Preenche pelo menos um valor', 'error'); return; }
+  try {
+    const { data: res, error } = await supa.rpc('ytb_admin_biometria_registar', { p_atleta:atletaId, p_altura_cm:altura, p_peso_kg:peso, p_pe_eu:pe, p_medido_em:dataMed });
+    if(error){ toast('Erro: ' + error.message, 'error'); return; }
+    if(!res || !res.ok){ toast('Não foi possível registar: ' + ((res && res.motivo) || 'erro'), 'error'); return; }
+    toast('✓ Medição registada', 'green');
+    ['e_bio_alt','e_bio_pes','e_bio_pe'].forEach(id => document.getElementById(id).value = '');
+    carregarBiometriaAdmin(atletaId);
+  } catch(e){ toast('Erro: ' + (e && e.message || ''), 'error'); }
 }
 
 async function saveAtleta(){
@@ -1246,6 +1307,7 @@ async function saveAtleta(){
     mes_nascimento: num('e_mes'),
     posicao_principal: get('e_pos'),
     pe_dominante: nullIf(get('e_pe')),
+    sexo: nullIf(get('e_sexo')),
     clube_actual: get('e_clube'),
     equipa: nullIf(get('e_equipa')),
     escalao: get('e_esc'),
@@ -1259,6 +1321,7 @@ async function saveAtleta(){
     area_excelencia_3: nullIf(get('e_ex3')),
     encarregado_nome: nullIf(get('e_eenome')),
     encarregado_telefone: nullIf(get('e_eetel')),
+    encarregado_email: nullIf(get('e_eeemail')),
     epoca_ref: nullIf(get('e_epoca')),
     divisao: nullIf(get('e_div')),
     golos_epoca: num('e_golos'),
