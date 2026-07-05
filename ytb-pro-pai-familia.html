@@ -3,6 +3,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="/assets/js/ytb-config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/assets/js/vendor/qrcode.min.js"></script>
+<script src="/assets/js/vendor/html2pdf.bundle.min.js"></script>
+<script src="/assets/js/ytb-export.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{--bg:#080C08;--bg2:#0F1410;--bg3:#161D17;--bg4:#1A241A;--gold:#D4AF37;--gold-soft:rgba(212,175,55,.15);--gold-border:rgba(212,175,55,.3);--green:#00D46A;--green-soft:rgba(0,212,106,.12);--blue:#4A9FE8;--blue-soft:rgba(74,159,232,.12);--red:#ff5050;--red-soft:rgba(255,80,80,.1);--orange:#FFA500;--orange-soft:rgba(255,165,0,.12);--border:#1F2520;--white:#fff;--slate:#aaa;--muted:#666}
@@ -120,7 +123,7 @@ body{max-width:520px;margin:0 auto;padding-bottom:60px}
   <div class="contact-link">Ainda não tens inscrição? <a href="/inscrever.html">Inscrever →</a> ou <a href="https://wa.me/351913695846" target="_blank">fala connosco</a></div>
 </div>
 <div id="main-view">
-  <div class="welcome-bar"><div class="welcome-bar-info"><div class="welcome-bar-eyebrow">YTB Pro · Família</div><div class="welcome-bar-name" id="nome-atleta-show">Atleta</div></div><div class="streak-badge" onclick="abrirModoAtleta()" style="cursor:pointer" title="Modo Atleta"><div class="streak-num" id="streak-num">0</div><div class="streak-lbl">dias 👟</div></div></div>
+  <div class="welcome-bar"><div class="welcome-bar-info"><div class="welcome-bar-eyebrow">YTB Pro · Família</div><div class="welcome-bar-name" id="nome-atleta-show">Atleta</div></div><button id="trocar-atleta-btn" onclick="trocarAtleta()" style="display:none;background:none;border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:inherit">↔ trocar</button><div class="streak-badge" onclick="abrirModoAtleta()" style="cursor:pointer" title="Modo Atleta"><div class="streak-num" id="streak-num">0</div><div class="streak-lbl">dias 👟</div></div></div>
 
   <!-- MODO ATLETA (dentro da sessão da família, sem conta própria) -->
   <div class="modal" id="miudoModal">
@@ -242,6 +245,8 @@ let nomeAtleta='',idadeAtleta=null,respostas={},resultadoFinal=null,questStep=0;
 let historico=[],scoreConfianca=100,exercicioAtivo=null,modalInputs={dificuldade:'media',energia:'normal'};
 let emailInscricao='';
 let atletaId=null;
+let clubeAtleta='',escalaoAtleta='';
+let meusAtletas=[]; // irmãos ligados à mesma conta — alimenta o seletor e o "↔ trocar"
 
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
@@ -296,23 +301,57 @@ async function processarSessao(){
   try{
     // RLS: só devolve o atleta cujo encarregado_email == email autenticado
     const{data:atletas,error}=await supa.from('atletas_360')
-      .select('id,nome,primeiro_nome,ano_nascimento,encarregado_email')
+      .select('id,nome,primeiro_nome,ano_nascimento,encarregado_email,clube_actual,escalao')
       .eq('encarregado_email',sessionEmail);
     if(error)throw error;
     if(!atletas||!atletas.length){
       if(estado)estado.innerHTML='<div class="estado-pend"><div class="big">🔍</div><div class="t">Sem acesso de família</div><div class="s">A conta '+esc(sessionEmail)+' ainda não está ligada a nenhum atleta. Pede ao treinador para confirmar este email na inscrição — assim que o admin aprovar, entras por aqui.</div><button class="btn btn-secondary" style="margin-top:12px" onclick="logout()">Usar outro email</button></div>';
       return;
     }
-    const a=atletas[0];
-    atletaId=a.id;
-    nomeAtleta=a.primeiro_nome||a.nome;
-    idadeAtleta=2026-(a.ano_nascimento||2014);
-    mostrarMain();
-    verificarPlanoSeguinte();
+    meusAtletas=atletas;
+    if(atletas.length===1){ selecionarAtleta(atletas[0].id); return; }
+    let guardado=null;
+    try{ guardado=sessionStorage.getItem('ytb_familia_atleta_id'); }catch(e){}
+    if(guardado && atletas.some(x=>x.id===guardado)){ selecionarAtleta(guardado); return; }
+    mostrarSeletorAtletas();
   }catch(e){
     console.warn('verificar inscricao',e);
     if(estado)estado.innerHTML='<div class="estado-pend"><div class="big">⚠️</div><div class="t">Erro a verificar</div><div class="s">Não conseguimos confirmar a inscrição agora. Tenta recarregar a página.</div><button class="btn btn-secondary" style="margin-top:12px" onclick="logout()">Sair</button></div>';
   }
+}
+
+function mostrarSeletorAtletas(){
+  const estado=document.getElementById('estado-area');
+  const box=document.getElementById('login-box-form');
+  if(box)box.style.display='none';
+  if(!estado)return;
+  const cards=meusAtletas.map(a=>{
+    const idade=2026-(a.ano_nascimento||2014);
+    return '<button class="btn btn-secondary" style="text-align:left;display:flex;justify-content:space-between;align-items:center;gap:10px" onclick="selecionarAtleta(\''+a.id+'\')"><span>'+esc(a.primeiro_nome||a.nome)+'</span><span style="opacity:.6;font-size:12px">'+idade+' anos</span></button>';
+  }).join('');
+  estado.innerHTML='<div class="estado-pend"><div class="big">👨‍👩‍👧‍👦</div><div class="t">Escolhe o atleta</div><div class="s">Esta conta está ligada a '+meusAtletas.length+' atletas.</div>'
+    +'<div style="display:flex;flex-direction:column;gap:10px;margin-top:16px">'+cards+'</div></div>';
+}
+
+function selecionarAtleta(id){
+  const a=meusAtletas.find(x=>x.id===id);
+  if(!a)return;
+  atletaId=a.id;
+  nomeAtleta=a.primeiro_nome||a.nome;
+  idadeAtleta=2026-(a.ano_nascimento||2014);
+  clubeAtleta=a.clube_actual||'';
+  escalaoAtleta=a.escalao||'';
+  try{ sessionStorage.setItem('ytb_familia_atleta_id',a.id); }catch(e){}
+  mostrarMain();
+  verificarPlanoSeguinte();
+}
+
+function trocarAtleta(){
+  try{ sessionStorage.removeItem('ytb_familia_atleta_id'); }catch(e){}
+  document.getElementById('main-view').style.display='none';
+  document.getElementById('nav-logout').style.display='none';
+  document.getElementById('login-view').style.display='block';
+  mostrarSeletorAtletas();
 }
 
 async function logout(){
@@ -325,6 +364,8 @@ function mostrarMain(){
   document.getElementById('nav-logout').style.display='block';
   document.getElementById('nav-back').style.display='none';
   document.getElementById('nome-atleta-show').textContent=nomeAtleta;
+  const trocarBtn=document.getElementById('trocar-atleta-btn');
+  if(trocarBtn)trocarBtn.style.display=meusAtletas.length>1?'inline-block':'none';
   carregarDados();
 }
 document.getElementById('email-input').addEventListener('keypress',e=>{if(e.key==='Enter')login()});
@@ -386,6 +427,7 @@ function normTreino(r){
 // O plano prescrito vem com sessões como arrays diretos de exercícios e
 // campos abreviados (obj, ciclo.desc); normaliza para o shape do render.
 let planoTreinador=null; // {id, criado_em} quando a família treina o plano prescrito
+let treinadorNomeAtual=null;
 function normPlanoTreinador(p){
   if(!Array.isArray(p)||!p.length)return null;
   try{
@@ -410,7 +452,7 @@ async function carregarPlanoTreinador(){
     if(error)throw error;
     if(data&&data.tem&&data.plano){
       const plano=normPlanoTreinador(data.plano);
-      if(plano){planoTreinador={id:data.prescrito_id,criado_em:data.criado_em};return{plano:plano,criado_em:data.criado_em};}
+      if(plano){planoTreinador={id:data.prescrito_id,criado_em:data.criado_em};treinadorNomeAtual=data.treinador_nome||null;return{plano:plano,criado_em:data.criado_em};}
     }
   }catch(e){console.warn('plano_atual',e);}
   return null;
@@ -602,13 +644,43 @@ function renderAvaliacaoExistente(){if(!resultadoFinal){buildQuestionario();retu
 function renderTreino(){const c=document.getElementById('treino-area');if(!resultadoFinal||!resultadoFinal.plano){resultadoFinal=resultadoFinal||{plano:planoFallback(),fonte:'base',created_at:new Date().toISOString()};if(!resultadoFinal.plano)resultadoFinal.plano=planoFallback();}
   const cicloIdx=getCicloAtual();const semana=resultadoFinal.plano[cicloIdx]||resultadoFinal.plano[0];if(!semana){c.innerHTML='<div class="empty-state">A gerar plano...</div>';return;}
   const fonteLabel={treinador:'👔 Plano prescrito pelo treinador',scout:'🔍 Baseado no Scout Report',familia:'📋 Baseado na avaliação parental',base:'📊 Plano base geral'}[resultadoFinal.fonte||'base'];
-  let html='<div class="ciclo-info"><div style="font-size:9px;font-weight:700;color:var(--muted);margin-bottom:4px">'+fonteLabel+'</div><div class="dash-card-eyebrow" style="margin-bottom:6px">SEMANA '+(cicloIdx+1)+' DE 4 · '+semana.ciclo.nome.toUpperCase()+'</div><div class="ciclo-titulo">'+semana.ciclo.emoji+' Foco: '+semana.ciclo.descricao+'</div></div>';
+  let html='<div class="ciclo-info"><div style="font-size:9px;font-weight:700;color:var(--muted);margin-bottom:4px">'+fonteLabel+'</div><div class="dash-card-eyebrow" style="margin-bottom:6px">SEMANA '+(cicloIdx+1)+' DE 4 · '+semana.ciclo.nome.toUpperCase()+'</div><div class="ciclo-titulo">'+semana.ciclo.emoji+' Foco: '+semana.ciclo.descricao+'</div><button class="btn btn-secondary" id="btn-export-pdf" style="margin-top:10px" onclick="exportarPlanoPDF()">⬇ Exportar Plano em PDF</button></div>';
   semana.sessoes.forEach((sessao,si)=>{const totalFeitos=sessao.exercicios.filter(ex=>jaFezExercicio(ex.id,cicloIdx,si)).length;const total=sessao.exercicios.length;const completa=totalFeitos===total;
     html+='<div class="dash-card"><div class="dash-card-header"><div class="dash-card-eyebrow">Sessão '+sessao.n+' de 3'+(completa?' · ✓ Concluída':'')+'</div><div class="dash-card-action">'+sessao.exercicios.reduce((s,e)=>s+e.tempo,0)+' min</div></div>';
     sessao.exercicios.forEach((ex,ei)=>{const feito=jaFezExercicio(ex.id,cicloIdx,si);html+='<div class="ex-card '+(feito?'done':'')+'"><div class="ex-card-head"><div class="ex-card-num">Exercício '+(ei+1)+'</div><div class="ex-card-status '+(feito?'feito':'pendente')+'">'+(feito?'✓ Feito':'○ Pendente')+'</div></div><div class="ex-card-name">'+esc(ex.nome)+'</div><div class="ex-card-obj">🎯 '+esc(ex.objetivo)+'</div><div class="ex-card-desc">'+esc(ex.desc)+'</div><div class="ex-card-meta"><div class="ex-meta">⏱ '+ex.tempo+' min</div></div>'+(!feito?'<button class="ex-card-start" onclick="abrirSubmissao(\''+ex.id+'\')">Registar execução →</button>':'')+'</div>';});
     if(!completa)html+='<button class="btn btn-primary btn-small" style="margin-top:6px" onclick="iniciarSessao('+cicloIdx+','+si+')">▶ Treinar Sessão '+(si+1)+' com Timer</button>';
     html+='</div>';});
   c.innerHTML=diarioHTML()+html;}
+
+async function exportarPlanoPDF(){
+  if(!resultadoFinal||!resultadoFinal.plano){showToast('Ainda não há plano para exportar');return;}
+  const plano=resultadoFinal.plano;
+  const cicloIdx=getCicloAtual();
+  const semana=plano[cicloIdx]||plano[0];
+  if(!semana)return;
+  const proxima=plano[cicloIdx+1];
+  let proximoObjetivo=null;
+  if(proxima){
+    proximoObjetivo=proxima.ciclo.descricao||proxima.ciclo.nome||null;
+  }else{
+    const debLabels={tecnica:'Técnica individual',fisico:'Físico (velocidade/força)',decisao:'Tomada de decisão',posicionamento:'Posicionamento sem bola',mental:'Resiliência mental',pe_fraco:'Pé não-dominante',leitura:'Leitura de jogo'};
+    const debs=(resultadoFinal.debilidades||[]).map(d=>debLabels[d]||d);
+    if(debs.length)proximoObjetivo='Continuar a reforçar: '+debs.join(', ')+'.';
+  }
+  const exercicios=[];
+  semana.sessoes.forEach(s=>s.exercicios.forEach(e=>exercicios.push(Object.assign({},e,{sessao:s.n}))));
+  const btn=document.getElementById('btn-export-pdf');
+  if(btn){btn.disabled=true;btn.textContent='A gerar PDF…';}
+  try{
+    await YTBExport.planoPDF({
+      atletaId:atletaId, atletaNome:nomeAtleta, clube:clubeAtleta, escalao:escalaoAtleta,
+      treinadorNome:treinadorNomeAtual, semanaAtual:cicloIdx+1, totalSemanas:plano.length,
+      cicloNome:semana.ciclo.nome, cicloDescricao:semana.ciclo.descricao,
+      exercicios:exercicios, proximoObjetivo:proximoObjetivo
+    });
+  }catch(e){console.warn('export pdf',e);showToast('Não foi possível gerar o PDF');}
+  if(btn){btn.disabled=false;btn.textContent='⬇ Exportar Plano em PDF';}
+}
 
 // ═══ DIÁRIO DE TREINOS (livre / jogo / clube) ═══
 let diarioSel={tipo:'livre',min:60};

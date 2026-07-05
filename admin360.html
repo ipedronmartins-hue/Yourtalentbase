@@ -558,7 +558,7 @@ async function load(){
     allRelatorios = rel;
 
     let at = [];
-    try { const ra = await supa.from('atletas_360').select('id,nome,primeiro_nome,clube,fonte,fonte_email,fonte_nome,encarregado_email').eq('fonte','treinador').order('nome'); at = ra.data || []; } catch(e){ at = []; }
+    try { const ra = await supa.from('atletas_360').select('id,nome,primeiro_nome,clube_actual,fonte,fonte_email,fonte_nome,encarregado_email').eq('fonte','treinador').order('nome'); at = ra.data || []; } catch(e){ at = []; }
     allAtletasTreinador = at;
     // pagamentos já registados (para saber o que já foi pago por atleta)
     try { const rp = await supa.from('pagamentos').select('email,servico,nome'); window._pagamentos = rp.data || []; } catch(e){ window._pagamentos = []; }
@@ -723,7 +723,7 @@ function renderAtletasTreinador(){
     const entradaPaga = atletaJaPagou(a, 'miudo_treinador_entrada');
     return `
       <tr>
-        <td class="td-name"><strong>${escapeHtml(nome)}</strong>${a.clube ? '<div class="td-mute">' + escapeHtml(a.clube) + '</div>' : ''}</td>
+        <td class="td-name"><strong>${escapeHtml(nome)}</strong>${a.clube_actual ? '<div class="td-mute">' + escapeHtml(a.clube_actual) + '</div>' : ''}</td>
         <td class="td-mute">${escapeHtml(a.fonte_nome || a.fonte_email || '?')}</td>
         <td>${entradaPaga
           ? '<span class="pill pill-aprovado">paga ✓</span>'

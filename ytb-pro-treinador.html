@@ -7,6 +7,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="/assets/js/ytb-config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/assets/js/vendor/qrcode.min.js"></script>
+<script src="/assets/js/vendor/html2pdf.bundle.min.js"></script>
+<script src="/assets/js/ytb-export.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{--bg:#080C08;--bg2:#0F1410;--bg3:#161D17;--gold:#D4AF37;--gold-soft:rgba(212,175,55,.13);--gold-border:rgba(212,175,55,.35);--green:#00D46A;--red:#ff5050;--orange:#FFA500;--blue:#4A9FE8;--border:#1F2520;--white:#fff;--slate:#9aa39a;--muted:#5a615a}
@@ -399,12 +402,12 @@ if(supa){supa.auth.onAuthStateChange(()=>{processarSessao();});}
 async function carregarAtletas(){
   const lista=document.getElementById('lista-atletas');
   if(!USING_SB){
-    meusAtletas=[{id:'demo1',nome:'Atleta Demo',ano_nascimento:2014,clube:'Gondomar SC'}];
+    meusAtletas=[{id:'demo1',nome:'Atleta Demo',ano_nascimento:2014,clube_actual:'Gondomar SC',escalao:'Sub-13'}];
     renderAtletas();return;
   }
   lista.innerHTML='<div class="empty-state"><span class="spinner"></span></div>';
   try{
-    const{data}=await supa.from('atletas_360').select('id,nome,primeiro_nome,ano_nascimento,clube,fonte_email,encarregado_email').eq('fonte_email',treinadorEmail).order('nome');
+    const{data}=await supa.from('atletas_360').select('id,nome,primeiro_nome,ano_nascimento,clube_actual,escalao,fonte_email,encarregado_email').eq('fonte_email',treinadorEmail).order('nome');
     meusAtletas=data||[];
     renderAtletas();
   }catch(e){
@@ -424,7 +427,7 @@ function renderAtletas(){
     const sel=atletaSel&&atletaSel.id===a.id;
     return '<div class="atleta-card'+(sel?' sel':'')+'" onclick="selecionarAtleta(\''+a.id+'\')">'+
       '<div><div class="atleta-nome">'+esc(a.primeiro_nome||a.nome)+'</div>'+
-      '<div class="atleta-meta">'+(id?('Sub-'+id+' · '):'')+esc(a.clube||'')+'</div></div>'+
+      '<div class="atleta-meta">'+(id?('Sub-'+id+' · '):'')+esc(a.clube_actual||'')+'</div></div>'+
       '<div style="display:flex;align-items:center;gap:10px">'+
       (a.encarregado_email?'<button title="Enviar link de acesso à família" style="background:none;border:1px solid var(--border);border-radius:8px;padding:6px 9px;font-size:13px;cursor:pointer" onclick="reenviarLink(\''+a.id+'\',event)">✉️</button>':'')+
       '<div class="atleta-arrow">›</div></div></div>';
@@ -643,9 +646,39 @@ function renderTreino(){
           '<div class="ex-card-meta">⏱ '+ex.tempo+' min</div></div>';
       });
     });
+    html+='<button class="btn btn-secondary" id="btn-export-pdf-'+wi+'" style="margin-top:10px" onclick="exportarPlanoPDFTreinador('+wi+')">⬇ Exportar PDF desta semana</button>';
     html+='</div>';
   });
   c.innerHTML=html;
+}
+
+async function exportarPlanoPDFTreinador(wi){
+  if(!avalSel||!avalSel.plano)return;
+  const plano=avalSel.plano;
+  const sem=plano[wi];
+  if(!sem)return;
+  const proxima=plano[wi+1];
+  const proximoObjetivo=proxima?(proxima.ciclo.desc||proxima.ciclo.nome||null):null;
+  const exercicios=[];
+  sem.sessoes.forEach((sess,si)=>{ sess.forEach(ex=>{ exercicios.push({nome:ex.nome,objetivo:ex.obj,desc:ex.desc,tempo:ex.tempo,sessao:si+1}); }); });
+  const btn=document.getElementById('btn-export-pdf-'+wi);
+  if(btn){btn.disabled=true;btn.textContent='A gerar PDF…';}
+  try{
+    await YTBExport.planoPDF({
+      atletaId: atletaSel?atletaSel.id:null,
+      atletaNome: avalSel.nome,
+      clube: atletaSel?atletaSel.clube_actual:'',
+      escalao: atletaSel?atletaSel.escalao:'',
+      treinadorNome: treinadorNome,
+      semanaAtual: wi+1,
+      totalSemanas: plano.length,
+      cicloNome: sem.ciclo.nome,
+      cicloDescricao: sem.ciclo.desc,
+      exercicios: exercicios,
+      proximoObjetivo: proximoObjetivo
+    });
+  }catch(e){console.warn('export pdf treinador',e);showToast('Não foi possível gerar o PDF');}
+  if(btn){btn.disabled=false;btn.textContent='⬇ Exportar PDF desta semana';}
 }
 
 /* ════════ COMISSÕES ════════ */
