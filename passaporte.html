@@ -183,10 +183,15 @@
   var URL_=CFG.SUPABASE_URL||'', KEY=CFG.SUPABASE_KEY||'';
   var USING_SB=!!(URL_&&KEY&&window.supabase);
   // a sessão a ler depende do modo: família (?atleta=) vive em 'ytb-familia-auth',
-  // admin (?admin=) vive em 'ytb-auth'. Escolhe a chave certa para não falhar o auth.jwt().
+  // admin (?admin=) vive em 'ytb-auth', scout (?scout=) vive na chave por omissão do
+  // SDK (scouts.html não define storageKey próprio). Escolhe a chave certa para não
+  // falhar o auth.jwt().
   var _sk='ytb-auth';
   try{ if(new URLSearchParams(location.search).get('atleta')) _sk='ytb-familia-auth'; }catch(e){}
-  var supa=USING_SB?window.supabase.createClient(URL_,KEY,{auth:{persistSession:true,autoRefreshToken:true,storageKey:_sk}}):null;
+  try{ if(new URLSearchParams(location.search).get('scout')) _sk=null; }catch(e){}
+  var _authOpts={persistSession:true,autoRefreshToken:true};
+  if(_sk) _authOpts.storageKey=_sk;
+  var supa=USING_SB?window.supabase.createClient(URL_,KEY,{auth:_authOpts}):null;
 
   // ── DEMO (Coutinho) — espelha a forma que o ytb_passaporte vai devolver ──
   var DEMO={
@@ -511,6 +516,13 @@
     b.innerHTML='👁 MODO ADMIN · passaporte de '+esc(nome||'atleta')+' · vista de leitura';
     document.body.insertBefore(b, document.body.firstChild);
   }
+  function scoutBanner(nome, atletaId){
+    var b=document.createElement('div');
+    b.style.cssText='position:sticky;top:0;z-index:99;background:#1A241A;border-bottom:1px solid #2A322B;color:#D4AF37;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:13px;letter-spacing:.5px;text-align:center;padding:9px 14px;display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap';
+    b.innerHTML='<span>🔍 MODO SCOUT · atleta criado por ti · '+esc(nome||'atleta')+'</span>'
+      +'<a href="scouts.html?atleta='+encodeURIComponent(atletaId)+'" style="background:#D4AF37;color:#0A0D0A;border-radius:8px;padding:6px 14px;text-decoration:none;font-weight:800;letter-spacing:.3px">📝 Novo Scout Report</a>';
+    document.body.insertBefore(b, document.body.firstChild);
+  }
   function adminErro(msg){
     document.body.innerHTML='<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px;text-align:center;font-family:Plus Jakarta Sans,sans-serif;color:#ECEFEA;background:#080C08"><div><div style="font-size:42px;margin-bottom:14px">🔒</div><div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:23px;margin-bottom:8px">Sem acesso</div><div style="color:#9AA39A;font-size:14px;max-width:30em;margin:0 auto">'+esc(msg)+'</div></div></div>';
   }
@@ -559,12 +571,21 @@
   }
   var adminAtleta=null; try{adminAtleta=new URLSearchParams(location.search).get('admin');}catch(e){}
   var familiaAtleta=null; try{familiaAtleta=new URLSearchParams(location.search).get('atleta');}catch(e){}
+  var scoutAtleta=null; try{scoutAtleta=new URLSearchParams(location.search).get('scout');}catch(e){}
   if(USING_SB && adminAtleta){
     // modo admin: abre qualquer passaporte por ID (o RPC confirma que és admin)
     supa.rpc('ytb_passaporte_admin',{ p_atleta: adminAtleta }).then(function(res){
       if(res.error){ adminErro('Só administradores podem abrir passaportes por aqui.'); return; }
       if(!res.data){ adminErro('Sem acesso, ou este atleta não existe.'); return; }
       try{ var nm=(res.data.identidade&&res.data.identidade.nome)||'atleta'; show(mapFromRPC(res.data)); adminBanner(nm); }
+      catch(e){ adminErro('Não foi possível ler o passaporte deste atleta.'); }
+    }).catch(function(){ adminErro('Falha de ligação. Tenta novamente.'); });
+  } else if(USING_SB && scoutAtleta){
+    // modo scout: só abre o passaporte de um atleta que o próprio scout criou (admin vê qualquer um)
+    supa.rpc('ytb_passaporte_scout',{ p_atleta: scoutAtleta }).then(function(res){
+      if(res.error){ adminErro('Só scouts podem abrir passaportes por aqui.'); return; }
+      if(!res.data){ adminErro('Sem acesso, ou este atleta não existe, ou não foi criado por ti.'); return; }
+      try{ var nm=(res.data.identidade&&res.data.identidade.nome)||'atleta'; show(mapFromRPC(res.data)); scoutBanner(nm, scoutAtleta); }
       catch(e){ adminErro('Não foi possível ler o passaporte deste atleta.'); }
     }).catch(function(){ adminErro('Falha de ligação. Tenta novamente.'); });
   } else if(USING_SB && familiaAtleta){
