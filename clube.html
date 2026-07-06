@@ -92,11 +92,30 @@ body{max-width:520px;margin:0 auto;padding-bottom:60px}
 </div>
 
 <div id="main-view">
-  <div class="welcome-bar">
+  <div class="welcome-bar" id="welcome-bar">
     <img class="welcome-logo" id="wb-logo" style="display:none" alt="">
     <div style="flex:1;min-width:0">
       <div style="font-size:14px;font-weight:700;color:#fff" id="nome-clube">Organização</div>
       <div style="font-size:11px;color:var(--muted);margin-top:2px" id="plano-clube">—</div>
+    </div>
+    <button class="lote-rm" style="color:var(--gold);width:34px;height:34px;flex:none" title="Marca da organização" onclick="abrirMarca()">🎨</button>
+  </div>
+
+  <!-- MODAL MARCA PRÓPRIA -->
+  <div class="na-modal" id="marcaModal">
+    <div class="na-box">
+      <div class="section-title" style="margin-bottom:2px">Marca da <span style="color:var(--gold)">organização</span></div>
+      <div class="section-sub" style="margin-bottom:14px">O logo e a cor aparecem no teu painel e no passaporte dos teus atletas.</div>
+      <div class="field"><label class="label">URL do logo</label><input class="input" id="marca_logo" type="url" placeholder="https://..."></div>
+      <div class="field"><label class="label">Cor principal</label>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="color" id="marca_cor_picker" value="#D4AF37" style="width:44px;height:38px;border:1px solid var(--border);border-radius:8px;background:none;cursor:pointer;padding:2px">
+          <input class="input" id="marca_cor" type="text" placeholder="#D4AF37" style="flex:1">
+        </div>
+      </div>
+      <div class="err" id="marca-err" style="display:none"></div>
+      <button class="btn btn-primary" id="marca-btn" style="margin-top:6px" onclick="guardarMarca()">Guardar marca →</button>
+      <button class="btn btn-secondary" style="margin-top:8px" onclick="fecharMarca()">Fechar</button>
     </div>
   </div>
 
@@ -267,11 +286,54 @@ async function carregarMinhaConta(){
     document.getElementById('nome-clube').textContent=data.nome||'Organização';
     document.getElementById('plano-clube').textContent=(data.plano?('Plano '+data.plano):'—')+(data.estado_subscricao==='ativa'?'':' · '+data.estado_subscricao);
     document.getElementById('na-clube-nome').textContent=data.nome||'a tua organização';
-    if(data.logo_url){
-      const img=document.getElementById('wb-logo');
-      img.src=data.logo_url; img.style.display='block';
-    }
+    aplicarMarca(data.logo_url, data.cor_primaria);
   }catch(e){ console.warn('minha conta',e); }
+}
+
+function aplicarMarca(logoUrl, cor){
+  const img=document.getElementById('wb-logo');
+  if(logoUrl){ img.src=logoUrl; img.style.display='block'; }
+  else { img.style.display='none'; img.removeAttribute('src'); }
+  const bar=document.getElementById('welcome-bar');
+  bar.style.borderLeft=cor?('3px solid '+cor):'';
+}
+
+function abrirMarca(){
+  document.getElementById('marca-err').style.display='none';
+  document.getElementById('marca_logo').value=(minhaConta&&minhaConta.logo_url)||'';
+  const cor=(minhaConta&&minhaConta.cor_primaria)||'#D4AF37';
+  document.getElementById('marca_cor').value=cor;
+  document.getElementById('marca_cor_picker').value=cor;
+  document.getElementById('marcaModal').classList.add('show');
+}
+function fecharMarca(){ document.getElementById('marcaModal').classList.remove('show'); }
+document.addEventListener('DOMContentLoaded',function(){
+  const picker=document.getElementById('marca_cor_picker');
+  const texto=document.getElementById('marca_cor');
+  if(picker) picker.addEventListener('input',function(){ texto.value=picker.value; });
+  if(texto) texto.addEventListener('input',function(){ if(/^#[0-9A-Fa-f]{6}$/.test(texto.value)) picker.value=texto.value; });
+});
+
+async function guardarMarca(){
+  const err=document.getElementById('marca-err');
+  err.style.display='none';
+  const logo=document.getElementById('marca_logo').value.trim();
+  const cor=document.getElementById('marca_cor').value.trim();
+  if(cor && !/^#[0-9A-Fa-f]{6}$/.test(cor)){ err.style.display='block'; err.textContent='A cor tem de ser um código hex, ex.: #D4AF37.'; return; }
+  if(logo && !/^https?:\/\//i.test(logo)){ err.style.display='block'; err.textContent='O logo tem de ser um link http(s) válido.'; return; }
+  const btn=document.getElementById('marca-btn');
+  btn.disabled=true; btn.textContent='A guardar…';
+  try{
+    const{data,error}=await supa.rpc('ytb_clube_atualizar_marca',{p_logo_url:logo||null,p_cor:cor||null});
+    if(error)throw error;
+    if(!data||!data.ok){ err.style.display='block'; err.textContent='Não foi possível guardar ('+((data&&data.motivo)||'erro')+')'; btn.disabled=false; btn.textContent='Guardar marca →'; return; }
+    if(minhaConta){ minhaConta.logo_url=logo||null; minhaConta.cor_primaria=cor||null; }
+    aplicarMarca(logo||null, cor||null);
+    fecharMarca();
+  }catch(e){
+    err.style.display='block'; err.textContent='Erro: '+(e.message||'tenta de novo');
+  }
+  btn.disabled=false; btn.textContent='Guardar marca →';
 }
 
 // ═══════════════════════════════════════════════
