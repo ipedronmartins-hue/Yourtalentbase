@@ -575,13 +575,14 @@
     var temTreinos=((T.feitas||[]).length>0)||((at.concluidos||0)>0);
     var evol=(ind.evolucao_pct||0)>0||((r.marcos||[]).length>0);
     var temScout=((r.relatorios||[]).length>0);
-    var flags=[true,temAval,temPlano,temTreinos,true,evol,temScout,false];
+    var temInteresse=(den.interesses||0)>0;
+    var flags=[true,temAval,temPlano,temTreinos,true,evol,temScout,temInteresse];
     var atual=flags.indexOf(false); if(atual===-1)atual=flags.length-1;
     var nomes=['Inscrição','Avaliação','Plano','Treinos','Passaporte','Evolução','Scout Report','Oportunidades'];
     var etapas=nomes.map(function(nm,i){ return {nome:nm,estado:flags[i]?'done':(i===atual?'atual':'futuro')}; });
     etapas[2].dica=temPlano?'Plano do treinador ativo':'Chega quando o treinador prescrever';
     etapas[6].dica=temScout?'Observação profissional no passaporte':'Quando um scout observar o atleta';
-    etapas[7].dica='Liga a visibilidade para clubes na secção Privacidade';
+    etapas[7].dica=temInteresse?'Um clube mostrou interesse — a YTB contacta-te':'Liga a visibilidade para clubes na secção Privacidade';
     if(temPlano) etapas[3].click=function(){ var s=document.getElementById('tr-sec'); if(s)s.scrollIntoView({behavior:'smooth'}); };
     YTBVivo.jornada(mount,etapas,{aria:'Jornada de '+((r.identidade&&r.identidade.nome)||'atleta')});
   }
