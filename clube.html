@@ -55,6 +55,13 @@ body{max-width:520px;margin:0 auto;padding-bottom:60px}
 .dup-card{background:var(--bg3);border:1px solid var(--gold-border);border-radius:10px;padding:10px 12px;margin-bottom:8px;cursor:pointer}
 .dup-card:hover{border-color:var(--gold)}
 .empty-state{text-align:center;padding:30px 16px;color:var(--muted);font-size:13px;line-height:1.6}
+.lote-row{display:grid;grid-template-columns:2fr 1fr 1.3fr auto;gap:6px;margin-bottom:7px;align-items:center}
+.lote-row .input{padding:9px 8px;font-size:12.5px}
+.lote-rm{background:var(--bg3);border:1px solid var(--border);color:var(--red);border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:14px}
+.lote-resultado{border:1px solid var(--border);border-radius:9px;padding:9px 11px;margin-bottom:6px;font-size:12.5px}
+.lote-resultado.criado{border-color:rgba(0,212,106,.35);background:rgba(0,212,106,.06)}
+.lote-resultado.erro{border-color:rgba(255,80,80,.35);background:rgba(255,80,80,.06)}
+.lote-resultado.duplicado_possivel{border-color:var(--gold-border);background:var(--gold-soft)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -95,8 +102,25 @@ body{max-width:520px;margin:0 auto;padding-bottom:60px}
 
   <div class="section-title">Os meus <span style="color:var(--gold)">atletas</span></div>
   <div class="section-sub">Atletas da tua organização. O Passaporte Digital nasce automaticamente quando inscreves um novo.</div>
-  <button class="btn btn-primary" style="margin-bottom:12px" onclick="abrirNovoAtleta()">+ Novo Atleta</button>
+  <div style="display:flex;gap:8px;margin-bottom:12px">
+    <button class="btn btn-primary" onclick="abrirNovoAtleta()">+ Novo Atleta</button>
+    <button class="btn btn-secondary" onclick="abrirLote()">+ Inscrição em Lote</button>
+  </div>
   <div id="meus-atletas-area"><div style="text-align:center;padding:14px;color:var(--muted);font-size:12px">A carregar…</div></div>
+
+  <!-- MODAL INSCRIÇÃO EM LOTE -->
+  <div class="na-modal" id="loteModal">
+    <div class="na-box" style="max-width:560px">
+      <div class="section-title" style="margin-bottom:2px">Inscrição em <span style="color:var(--gold)">Lote</span></div>
+      <div class="section-sub" style="margin-bottom:14px">Para dias de inscrição (ex.: campos de férias). Nome, ano de nascimento e posição são obrigatórios por linha. Se houver um atleta parecido, essa linha não é criada — fica para tratares individualmente no "+ Novo Atleta".</div>
+      <div id="lote-linhas"></div>
+      <button class="btn btn-secondary" style="margin-top:4px" onclick="loteAdicionarLinha()">+ Adicionar linha</button>
+      <div class="err" id="lote-err" style="display:none;margin-top:10px"></div>
+      <div id="lote-resultados" style="margin-top:12px"></div>
+      <button class="btn btn-primary" id="lote-btn" style="margin-top:12px" onclick="submeterLote()">Inscrever →</button>
+      <button class="btn btn-secondary" style="margin-top:8px" onclick="fecharLote()">Fechar</button>
+    </div>
+  </div>
 
   <!-- MODAL NOVO ATLETA -->
   <div class="na-modal" id="naModal">
@@ -393,6 +417,67 @@ function mostrarDuplicados(candidatos){
 function voltarAoFormulario(){
   document.getElementById('na-dup-area').style.display='none';
   document.getElementById('na-form-area').style.display='block';
+}
+
+// ═══════════════════════════════════════════════
+// INSCRIÇÃO EM LOTE
+// ═══════════════════════════════════════════════
+const POS_OPCOES=[['','--'],['GR','Guarda-Redes'],['DC','Defesa Central'],['LD','Lateral Direito'],['LE','Lateral Esquerdo'],['MD','Médio Defensivo'],['MC','Médio Centro'],['MO','Médio Ofensivo'],['ED','Extremo Direito'],['EE','Extremo Esquerdo'],['PL','Ponta de Lança'],['AV','Avançado']];
+let loteSeq=0;
+function loteAdicionarLinha(){
+  loteSeq++;
+  const id='lr'+loteSeq;
+  const div=document.createElement('div');
+  div.className='lote-row';
+  div.id=id;
+  div.innerHTML='<input class="input" placeholder="Nome completo" data-f="nome">'
+    +'<input class="input" type="number" placeholder="Ano" data-f="ano">'
+    +'<select class="input" data-f="pos">'+POS_OPCOES.map(function(p){return '<option value="'+p[0]+'">'+p[1]+'</option>';}).join('')+'</select>'
+    +'<button type="button" class="lote-rm" onclick="document.getElementById(\''+id+'\').remove()">✕</button>';
+  document.getElementById('lote-linhas').appendChild(div);
+}
+function abrirLote(){
+  document.getElementById('lote-linhas').innerHTML='';
+  document.getElementById('lote-resultados').innerHTML='';
+  document.getElementById('lote-err').style.display='none';
+  for(let i=0;i<3;i++) loteAdicionarLinha();
+  document.getElementById('loteModal').classList.add('show');
+}
+function fecharLote(){
+  document.getElementById('loteModal').classList.remove('show');
+}
+const LOTE_MOTIVOS={nome:'nome em falta',ano_invalido:'ano de nascimento inválido',posicao_obrigatoria:'posição em falta'};
+async function submeterLote(){
+  const err=document.getElementById('lote-err');
+  err.style.display='none';
+  const linhas=Array.prototype.map.call(document.querySelectorAll('.lote-row'),function(row){
+    return {
+      nome:row.querySelector('[data-f="nome"]').value.trim(),
+      ano:parseInt(row.querySelector('[data-f="ano"]').value)||null,
+      pos:row.querySelector('[data-f="pos"]').value||null
+    };
+  }).filter(function(l){ return l.nome; }); // ignora linhas vazias
+  if(!linhas.length){ err.style.display='block'; err.textContent='Preenche pelo menos uma linha com nome.'; return; }
+  const btn=document.getElementById('lote-btn');
+  btn.disabled=true; btn.textContent='A inscrever…';
+  try{
+    const{data,error}=await supa.rpc('ytb_clube_atletas_lote',{p_lista:linhas});
+    if(error)throw error;
+    if(!data||!data.ok){ err.style.display='block'; err.textContent=NA_MOTIVOS[data&&data.motivo]||('Não foi possível processar ('+((data&&data.motivo)||'erro')+')'); btn.disabled=false; btn.textContent='Inscrever →'; return; }
+    const res=data.resultados||[];
+    document.getElementById('lote-resultados').innerHTML=res.map(function(r){
+      if(r.status==='criado') return '<div class="lote-resultado criado">✓ '+esc(r.nome)+' — criado</div>';
+      if(r.status==='duplicado_possivel') return '<div class="lote-resultado duplicado_possivel">⚠ '+esc(r.nome)+' — parecido com um atleta existente, não foi criado. Usa "+ Novo Atleta" para decidir.</div>';
+      return '<div class="lote-resultado erro">✗ '+esc(r.nome)+' — '+(LOTE_MOTIVOS[r.motivo]||r.motivo||'erro')+'</div>';
+    }).join('');
+    const criados=res.filter(function(r){return r.status==='criado';}).length;
+    document.getElementById('lote-linhas').innerHTML='';
+    for(let i=0;i<3;i++) loteAdicionarLinha();
+    if(criados>0) carregarMeusAtletas();
+  }catch(e){
+    err.style.display='block'; err.textContent='Erro: '+(e.message||'tenta de novo');
+  }
+  btn.disabled=false; btn.textContent='Inscrever →';
 }
 
 // ═══════════════════════════════════════════════
