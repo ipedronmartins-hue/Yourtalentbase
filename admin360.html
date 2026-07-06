@@ -17,9 +17,6 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-hei
 /* NAV */
 .nav{position:sticky;top:0;z-index:50;background:rgba(8,12,8,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;max-width:1400px;margin:0 auto}
 .nav-l{display:flex;align-items:center;gap:12px}
-.logo-b{width:30px;height:30px;background:var(--red);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:900;font-size:12px;color:#fff}
-.logo-n{font-family:'Barlow Condensed';font-weight:800;font-size:16px;letter-spacing:1.5px}
-.logo-n span{color:var(--red)}
 .admin-tag{font-size:9px;font-weight:800;letter-spacing:2px;color:var(--red);text-transform:uppercase;padding:3px 8px;border:1px solid rgba(255,74,74,.3);background:rgba(255,74,74,.06)}
 .nav-out{font-size:10px;color:var(--muted);cursor:pointer;text-decoration:none;padding:5px 10px;border:1px solid var(--border)}
 .nav-out:hover{border-color:var(--gold-border);color:#fff}
@@ -152,10 +149,7 @@ tr:last-child td{border-bottom:none}
 
 <nav class="nav">
   <div class="nav-l">
-    <a href="/" title="Início" aria-label="Início" style="display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit">
-      <div class="logo-b">YT</div>
-      <div class="logo-n">Your<span>Talent</span>Base</div>
-    </a>
+    <a href="/" title="Início" aria-label="Início" class="ytb-logo"><b>YTB</b><span>YourTalentBase</span></a>
     <span class="admin-tag">⚙️ Admin 360</span>
   </div>
   <a class="nav-out" onclick="logout()">Sair</a>

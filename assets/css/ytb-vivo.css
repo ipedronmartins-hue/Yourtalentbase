@@ -9,6 +9,12 @@
   --vivo-gold:#D4AF37; --vivo-up:#00D46A;
 }
 
+/* ── Marca unificada (substitui os badges quadrados "YT" antigos, cada
+   página tinha o seu próprio estilo de logótipo) ── */
+.ytb-logo{display:inline-flex;align-items:baseline;gap:8px;text-decoration:none;color:inherit;cursor:pointer}
+.ytb-logo b{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:20px;letter-spacing:.4px;color:var(--vivo-text)}
+.ytb-logo span{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--vivo-muted)}
+
 /* ── Transições entre páginas (cross-document, zero JS; no-op sem suporte) ── */
 @view-transition{ navigation:auto }
 ::view-transition-old(root){ animation:vivo-vt-out .18s ease both }

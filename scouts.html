@@ -16,10 +16,6 @@
 html,body{background:var(--bg);color:var(--white);font-family:'Plus Jakarta Sans',sans-serif;min-height:100vh}
 body{max-width:520px;margin:0 auto;padding-bottom:60px}
 .nav{position:sticky;top:0;z-index:100;background:rgba(8,12,8,.97);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:13px 18px;display:flex;align-items:center;justify-content:space-between}
-.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
-.nav-badge{width:32px;height:32px;background:var(--gold);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:900;font-size:13px;color:#000}
-.nav-name{font-family:'Barlow Condensed';font-weight:800;font-size:18px;letter-spacing:1.5px;color:#fff}
-.nav-name span{color:var(--gold)}
 .nav-back{font-size:12px;color:var(--slate);text-decoration:none}
 .nav-logout{font-size:11px;color:var(--red);cursor:pointer;background:none;border:none;font-family:inherit;display:none}
 
@@ -189,10 +185,7 @@ body{max-width:520px;margin:0 auto;padding-bottom:60px}
 <body>
 
 <nav class="nav">
-  <a href="/" class="nav-logo">
-    <div class="nav-badge">YT</div>
-    <div class="nav-name">Your<span>Talent</span>Base</div>
-  </a>
+  <a href="/" class="ytb-logo"><b>YTB</b><span>YourTalentBase</span></a>
   <button class="nav-logout" id="nav-logout" onclick="logout()">Sair</button>
   <a href="/" class="nav-back" id="nav-back">← Voltar</a>
 </nav>
