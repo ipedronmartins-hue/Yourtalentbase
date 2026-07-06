@@ -166,6 +166,12 @@
   .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--bg4);border:1px solid var(--border);color:var(--text);padding:11px 18px;border-radius:10px;font-size:13px;opacity:0;transition:.25s;z-index:50;pointer-events:none}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+  @media print{
+    :root{--bg:#fff;--bg2:#fff;--bg3:#f4f4f4;--bg4:#eee;--border:#ccc;--text:#111;--white:#111;--slate:#333;--muted:#555}
+    .top,.share,.toast,button{display:none!important}
+    body{background:#fff!important}
+  }
 </style>
 </head>
 <body>

@@ -2,7 +2,7 @@
 <html lang="pt">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Área Clube · YTB</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/css/ytb-vivo.css">
@@ -25,6 +25,7 @@ body{max-width:520px;margin:0 auto;padding-bottom:60px}
 .login-sub{font-size:13px;color:var(--slate);margin-bottom:24px}
 .login-box{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:22px;margin:0 18px 16px}
 .label{display:block;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;color:#fff}
+.req{color:var(--gold)}
 .input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:11px 13px;font-size:14px;color:#fff;font-family:inherit;outline:none}
 .input:focus{border-color:var(--gold)}
 .field{margin-bottom:12px}
@@ -63,6 +64,12 @@ body{max-width:520px;margin:0 auto;padding-bottom:60px}
 .lote-resultado.erro{border-color:rgba(255,80,80,.35);background:rgba(255,80,80,.06)}
 .lote-resultado.duplicado_possivel{border-color:var(--gold-border);background:var(--gold-soft)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+@media print{
+  :root{--bg:#fff;--bg2:#fff;--bg3:#f4f4f4;--border:#ccc;--white:#111;--slate:#333;--muted:#555}
+  .nav,button,.na-modal{display:none!important}
+  body{background:#fff!important}
+}
 </style>
 </head>
 <body>
@@ -156,7 +163,7 @@ body{max-width:520px;margin:0 auto;padding-bottom:60px}
           </div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          <div class="field"><label class="label">Posição</label>
+          <div class="field"><label class="label">Posição <span class="req">*</span></label>
             <select class="input" id="na_pos">
               <option value="">--</option>
               <option value="GR">Guarda-Redes</option><option value="DC">Defesa Central</option>
@@ -289,7 +296,11 @@ async function carregarMinhaConta(){
     document.getElementById('plano-clube').textContent=(data.plano?('Plano '+data.plano):'—')+(data.estado_subscricao==='ativa'?'':' · '+data.estado_subscricao);
     document.getElementById('na-clube-nome').textContent=data.nome||'a tua organização';
     aplicarMarca(data.logo_url, data.cor_primaria);
-  }catch(e){ console.warn('minha conta',e); }
+  }catch(e){
+    console.warn('minha conta',e);
+    document.getElementById('nome-clube').textContent='Erro ao carregar';
+    document.getElementById('plano-clube').textContent='Não foi possível ligar à conta. Recarrega a página.';
+  }
 }
 
 function aplicarMarca(logoUrl, cor){

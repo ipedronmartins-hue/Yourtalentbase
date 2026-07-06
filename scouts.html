@@ -2,7 +2,7 @@
 <html lang="pt">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Área Scout · YTB</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/css/ytb-vivo.css">
@@ -26,6 +26,7 @@ body{max-width:520px;margin:0 auto;padding-bottom:60px}
 .login-sub{font-size:13px;color:var(--slate);margin-bottom:24px}
 .login-box{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:22px;margin:0 18px 16px}
 .label{display:block;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;color:#fff}
+.req{color:var(--gold)}
 .input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:11px 13px;font-size:14px;color:#fff;font-family:inherit;outline:none}
 .input:focus{border-color:var(--gold)}
 .field{margin-bottom:12px}
@@ -240,7 +241,7 @@ body{max-width:520px;margin:0 auto;padding-bottom:60px}
           </div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          <div class="field"><label class="label">Posição</label>
+          <div class="field"><label class="label">Posição <span class="req">*</span></label>
             <select class="input" id="na_pos">
               <option value="">--</option>
               <option value="GR">Guarda-Redes</option><option value="DC">Defesa Central</option>
@@ -255,7 +256,7 @@ body{max-width:520px;margin:0 auto;padding-bottom:60px}
             <select class="input" id="na_pe"><option value="">—</option><option>Direito</option><option>Esquerdo</option><option>Ambidextro</option></select>
           </div>
         </div>
-        <div class="field"><label class="label">Clube</label><input class="input" id="na_clube" type="text"></div>
+        <div class="field"><label class="label">Clube <span class="req">*</span></label><input class="input" id="na_clube" type="text"></div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
           <div class="field"><label class="label">Escalão</label><input class="input" id="na_escalao" type="text" placeholder="Sub-13 (auto se vazio)"></div>
           <div class="field"><label class="label">Nacionalidade</label><input class="input" id="na_nacionalidade" type="text" placeholder="Portugal"></div>
@@ -299,7 +300,7 @@ body{max-width:520px;margin:0 auto;padding-bottom:60px}
       </div>
       <div class="field"><label class="label">Nome do Atleta</label><input class="input" id="sr_nome" type="text"></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <div class="field"><label class="label">Posição</label>
+        <div class="field"><label class="label">Posição <span class="req">*</span></label>
           <select class="input" id="sr_pos">
             <option value="">--</option>
             <option value="GR">Guarda-Redes</option>
@@ -887,6 +888,7 @@ async function gerarReport(){
   const stat=document.getElementById('gerar-status');
   btn.disabled=true;btn.textContent='⏳ A gerar análise IA...';
   stat.style.display='block';stat.textContent='A pensar... 10-25 segundos.';
+  const avisos=[];
 
   try{
     const ia=await chamarIA(dados);
@@ -896,7 +898,7 @@ async function gerarReport(){
     console.error('Erro IA:',e);
     dados.analise=gerarAnaliseFallback(dados);
     dados.posicoes={principal:dados.posicaoLabel,alternativa:'-',desenvolvimento:'-',texto:'Análise textual gerada localmente (IA indisponível).'};
-    stat.textContent='⚠ IA indisponível — usando análise local.';
+    avisos.push('IA indisponível — usando análise local.');
   }
 
   // Guardar Supabase — nomes alinhados com a tabela real 'relatorios'
@@ -945,13 +947,13 @@ async function gerarReport(){
     if(!rpcRes||!rpcRes.ok) throw new Error((rpcRes&&rpcRes.motivo)||'não foi possível gravar');
   }catch(e){
     console.error('Erro ao guardar relatório:',e);
-    stat.style.display='block';
-    stat.textContent='⚠ Relatório gerado mas NÃO guardado: '+(e.message||'erro')+'. Avisa o admin.';
+    avisos.push('Relatório gerado mas NÃO guardado: '+(e.message||'erro')+'. Avisa o admin.');
   }
 
   reportAtual=dados;
   btn.disabled=false;btn.textContent='⚡ Gerar Scout Report';
-  stat.style.display='none';
+  if(avisos.length){ stat.style.display='block'; stat.textContent='⚠ '+avisos.join(' '); }
+  else{ stat.style.display='none'; }
 
   renderReport();
   document.getElementById('reportModal').classList.add('show');

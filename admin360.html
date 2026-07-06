@@ -141,6 +141,12 @@ tr:last-child td{border-bottom:none}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
 .toast.error{background:var(--red);color:#fff}
 .toast.green{background:var(--green);color:#000}
+
+@media print{
+  :root{--bg:#fff;--bg2:#fff;--bg3:#f4f4f4;--bg4:#eee;--border:#ccc;--border2:#ccc;--text:#111;--white:#111;--slate:#333;--muted:#555}
+  .nav,.tabs,button,.nav-out,.modal-overlay,.toast{display:none!important}
+  body{background:#fff!important}
+}
 </style>
 <link rel="stylesheet" href="/assets/css/ytb-vivo.css">
 <script src="/assets/js/ytb-vivo.js"></script>

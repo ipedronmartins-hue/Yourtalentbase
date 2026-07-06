@@ -69,17 +69,17 @@
   <div class="err" id="err"></div>
 
   <div class="field">
-    <label class="label">Nome do atleta <span class="req">*</span></label>
+    <label class="label" for="f-nome">Nome do atleta <span class="req">*</span></label>
     <input class="input" id="f-nome" type="text" placeholder="Nome completo">
   </div>
 
   <div class="row">
     <div class="field">
-      <label class="label">Data de nascimento</label>
+      <label class="label" for="f-nasc">Data de nascimento <span class="req">*</span></label>
       <input class="input" id="f-nasc" type="date">
     </div>
     <div class="field">
-      <label class="label">Posição</label>
+      <label class="label" for="f-pos">Posição</label>
       <select class="input" id="f-pos">
         <option value="">—</option>
         <option value="GR">Guarda-Redes</option><option value="DC">Defesa Central</option>
@@ -93,12 +93,12 @@
   </div>
 
   <div class="field">
-    <label class="label">Clube</label>
+    <label class="label" for="f-clube">Clube</label>
     <input class="input" id="f-clube" type="text" placeholder="Clube atual">
   </div>
 
   <div class="field">
-    <label class="label">Esquema tático da equipa (opcional)</label>
+    <label class="label" for="f-esquema">Esquema tático da equipa (opcional)</label>
     <input class="input" id="f-esquema" type="text" placeholder="4-3-3" list="f-esquema-lista">
     <datalist id="f-esquema-lista">
       <option value="4-3-3"><option value="4-4-2"><option value="4-2-3-1">
@@ -107,7 +107,7 @@
   </div>
 
   <div class="field">
-    <label class="label">Associação de Futebol</label>
+    <label class="label" for="f-assoc">Associação de Futebol</label>
     <select class="input" id="f-assoc">
       <option value="">—</option>
       <option>AF Algarve</option><option>AF Angra do Heroísmo</option><option>AF Aveiro</option><option>AF Beja</option>
@@ -120,13 +120,13 @@
   </div>
 
   <div class="field">
-    <label class="label">Link ZeroZero <span class="req">*</span></label>
+    <label class="label" for="f-zz">Link ZeroZero <span class="req">*</span></label>
     <input class="input" id="f-zz" type="url" placeholder="https://www.zerozero.pt/jogador/...">
     <div class="hint">Obrigatório. É como confirmamos que o atleta é real — sem perfil ZeroZero, não conseguimos inscrever. Procura o nome em zerozero.pt e cola o link do perfil.</div>
   </div>
 
   <div class="field">
-    <label class="label">Contacto (email)</label>
+    <label class="label" for="f-email">Contacto (email)</label>
     <input class="input" id="f-email" type="email" placeholder="pai@email.com" inputmode="email">
     <div class="hint">Para te avisarmos quando o perfil for ativado.</div>
   </div>
