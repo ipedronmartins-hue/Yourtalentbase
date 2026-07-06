@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Área Clube · YTB</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/ytb-vivo.css">
+<script src="/assets/js/ytb-vivo.js"></script>
+<script src="/assets/js/ytb-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#080C08;--bg2:#0F1410;--bg3:#161D17;--gold:#D4AF37;--gold-soft:rgba(212,175,55,.15);--gold-border:rgba(212,175,55,.3);--green:#00D46A;--red:#ff5050;--border:#1F2520;--white:#fff;--slate:#aaa;--muted:#666}
+html,body{background:var(--bg);color:var(--white);font-family:'Plus Jakarta Sans',sans-serif;min-height:100vh}
+body{max-width:520px;margin:0 auto;padding-bottom:60px}
+.nav{position:sticky;top:0;z-index:100;background:rgba(8,12,8,.97);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:13px 18px;display:flex;align-items:center;justify-content:space-between}
+.nav-back{font-size:12px;color:var(--slate);text-decoration:none}
+.nav-logout{font-size:11px;color:var(--red);cursor:pointer;background:none;border:none;font-family:inherit;display:none}
+
+.login-wrap{padding:50px 22px 0;text-align:center}
+.login-icon{font-size:56px;margin-bottom:14px}
+.login-title{font-family:'Barlow Condensed';font-weight:900;font-size:36px;line-height:1;letter-spacing:-1px;margin-bottom:6px}
+.login-title span{color:var(--gold)}
+.login-sub{font-size:13px;color:var(--slate);margin-bottom:24px}
+.login-box{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:22px;margin:0 18px 16px}
+.label{display:block;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;color:#fff}
+.input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:11px 13px;font-size:14px;color:#fff;font-family:inherit;outline:none}
+.input:focus{border-color:var(--gold)}
+.field{margin-bottom:12px}
+.btn{display:inline-block;width:100%;background:var(--gold);color:#000;text-align:center;padding:13px;border-radius:9px;font-size:13px;font-weight:800;letter-spacing:.5px;border:none;cursor:pointer;font-family:inherit}
+.btn-primary{background:var(--gold);color:#000}
+.btn-secondary{background:var(--bg3);color:#fff;border:1px solid var(--border)}
+.err{color:var(--red);font-size:12px;text-align:center;margin-top:8px;display:none}
+.contact-link{text-align:center;font-size:11px;color:var(--slate);margin-top:14px}
+.contact-link a{color:var(--gold);text-decoration:none}
+
+#main-view{display:none;padding:0 18px}
+.welcome-bar{background:var(--bg2);border:1px solid var(--border);border-radius:11px;padding:14px;margin:14px 0 16px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.welcome-logo{width:38px;height:38px;border-radius:9px;object-fit:cover;flex:none;background:var(--bg3);border:1px solid var(--border)}
+.section-title{font-family:'Barlow Condensed';font-weight:900;font-size:24px;color:#fff;letter-spacing:-.5px;margin-bottom:4px}
+.section-sub{font-size:11px;color:var(--slate);margin-bottom:14px}
+
+.na-modal{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:1900;overflow-y:auto;display:none;padding:20px 14px}
+.na-modal.show{display:block}
+.na-box{max-width:480px;margin:20px auto;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px}
+.atleta-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:13px 15px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.atleta-card .ac-nome{font-size:14px;font-weight:700;color:#fff}
+.atleta-card .ac-meta{font-size:11px;color:var(--slate);margin-top:2px}
+.atleta-card .ac-badge{font-size:9px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;padding:3px 8px;border-radius:999px}
+.ac-badge.aprovado{background:rgba(0,212,106,.15);color:var(--green)}
+.ac-badge.arquivado{background:rgba(255,255,255,.08);color:var(--muted)}
+.ac-actions{display:flex;gap:6px;flex-wrap:wrap}
+.ac-actions button{background:var(--bg3);border:1px solid var(--border);color:#fff;border-radius:8px;padding:6px 9px;font-size:12px;cursor:pointer}
+.dup-card{background:var(--bg3);border:1px solid var(--gold-border);border-radius:10px;padding:10px 12px;margin-bottom:8px;cursor:pointer}
+.dup-card:hover{border-color:var(--gold)}
+.empty-state{text-align:center;padding:30px 16px;color:var(--muted);font-size:13px;line-height:1.6}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="ytb-logo"><b>YTB</b><span>YourTalentBase</span></a>
+  <button class="nav-logout" id="nav-logout" onclick="logout()">Sair</button>
+  <a href="/" class="nav-back" id="nav-back">← Voltar</a>
+</nav>
+
+<div id="login-view">
+  <div class="login-wrap">
+    <div class="login-icon">🏟️</div>
+    <div class="login-title">Área <span>Clube</span></div>
+    <div class="login-sub">Acesso reservado a organizações · Entra com o teu email</div>
+  </div>
+  <div class="login-box">
+    <div class="field">
+      <label class="label">O teu email</label>
+      <input class="input" id="email" type="email" autocomplete="email" placeholder="clube@email.com">
+    </div>
+    <div class="err" id="err">Não foi possível enviar o link.</div>
+    <div id="okmsg" style="display:none;color:var(--green);font-size:13px;margin:10px 0;line-height:1.5"></div>
+    <button class="btn btn-primary" id="loginBtn" onclick="enviarLink()">Receber link de acesso →</button>
+  </div>
+  <div class="contact-link">A tua organização ainda não tem acesso? <a href="#" id="wa-clube" target="_blank" rel="noopener">Pedir acesso por WhatsApp →</a></div>
+</div>
+
+<div id="main-view">
+  <div class="welcome-bar">
+    <img class="welcome-logo" id="wb-logo" style="display:none" alt="">
+    <div style="flex:1;min-width:0">
+      <div style="font-size:14px;font-weight:700;color:#fff" id="nome-clube">Organização</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:2px" id="plano-clube">—</div>
+    </div>
+  </div>
+
+  <div class="section-title">Os meus <span style="color:var(--gold)">atletas</span></div>
+  <div class="section-sub">Atletas da tua organização. O Passaporte Digital nasce automaticamente quando inscreves um novo.</div>
+  <button class="btn btn-primary" style="margin-bottom:12px" onclick="abrirNovoAtleta()">+ Novo Atleta</button>
+  <div id="meus-atletas-area"><div style="text-align:center;padding:14px;color:var(--muted);font-size:12px">A carregar…</div></div>
+
+  <!-- MODAL NOVO ATLETA -->
+  <div class="na-modal" id="naModal">
+    <div class="na-box">
+      <div class="section-title" style="margin-bottom:2px">Novo <span style="color:var(--gold)">Atleta</span></div>
+      <div class="section-sub" style="margin-bottom:14px">O Passaporte Digital nasce já com estes dados. O clube é sempre <strong id="na-clube-nome">a tua organização</strong>.</div>
+      <div id="na-dup-area" style="display:none"></div>
+      <div id="na-form-area">
+        <div class="field"><label class="label">Nome completo</label><input class="input" id="na_nome" type="text"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div class="field"><label class="label">Data de nascimento</label><input class="input" id="na_nasc" type="date"></div>
+          <div class="field"><label class="label">Sexo</label>
+            <select class="input" id="na_sexo"><option value="">—</option><option value="M">Masculino</option><option value="F">Feminino</option></select>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div class="field"><label class="label">Posição</label>
+            <select class="input" id="na_pos">
+              <option value="">--</option>
+              <option value="GR">Guarda-Redes</option><option value="DC">Defesa Central</option>
+              <option value="LD">Lateral Direito</option><option value="LE">Lateral Esquerdo</option>
+              <option value="MD">Médio Defensivo</option><option value="MC">Médio Centro</option>
+              <option value="MO">Médio Ofensivo</option><option value="ED">Extremo Direito</option>
+              <option value="EE">Extremo Esquerdo</option><option value="PL">Ponta de Lança</option>
+              <option value="AV">Avançado</option>
+            </select>
+          </div>
+          <div class="field"><label class="label">Pé preferencial</label>
+            <select class="input" id="na_pe"><option value="">—</option><option>Direito</option><option>Esquerdo</option><option>Ambidextro</option></select>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div class="field"><label class="label">Escalão</label><input class="input" id="na_escalao" type="text" placeholder="Sub-13 (auto se vazio)"></div>
+          <div class="field"><label class="label">Nacionalidade</label><input class="input" id="na_nacionalidade" type="text" placeholder="Portugal"></div>
+        </div>
+        <div class="field"><label class="label">Associação de Futebol</label>
+          <select class="input" id="na_assoc">
+            <option value="">—</option>
+            <option>AF Algarve</option><option>AF Angra do Heroísmo</option><option>AF Aveiro</option><option>AF Beja</option>
+            <option>AF Braga</option><option>AF Bragança</option><option>AF Castelo Branco</option><option>AF Coimbra</option>
+            <option>AF Évora</option><option>AF Guarda</option><option>AF Horta</option><option>AF Leiria</option>
+            <option>AF Lisboa</option><option>AF Madeira</option><option>AF Ponta Delgada</option><option>AF Portalegre</option>
+            <option>AF Porto</option><option>AF Santarém</option><option>AF Setúbal</option><option>AF Viana do Castelo</option>
+            <option>AF Vila Real</option><option>AF Viseu</option>
+          </select>
+        </div>
+        <div class="field"><label class="label">Sistema tático</label>
+          <input class="input" id="na_esquema" type="text" placeholder="4-3-3" list="na-esquema-lista">
+          <datalist id="na-esquema-lista"><option value="4-3-3"><option value="4-4-2"><option value="4-2-3-1"><option value="3-4-3"><option value="3-5-2"><option value="4-1-4-1"><option value="5-3-2"></datalist>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div class="field"><label class="label">Altura (cm)</label><input class="input" id="na_altura" type="number" step="0.5"></div>
+          <div class="field"><label class="label">Peso (kg)</label><input class="input" id="na_peso" type="number" step="0.1"></div>
+        </div>
+        <div class="field"><label class="label">Link ZeroZero (opcional)</label><input class="input" id="na_zz" type="url" placeholder="https://www.zerozero.pt/jogador/..."></div>
+        <div class="field"><label class="label">Vídeo (opcional)</label><input class="input" id="na_video" type="url" placeholder="https://..."></div>
+        <div class="field"><label class="label">Contacto do encarregado (opcional)</label><input class="input" id="na_email_enc" type="email" placeholder="pai@email.com"></div>
+        <div class="err" id="na-err" style="display:none"></div>
+        <button class="btn btn-primary" id="na-btn" onclick="submeterNovoAtleta()" style="margin-top:6px">Criar atleta e passaporte →</button>
+        <button class="btn btn-secondary" style="margin-top:8px" onclick="fecharNovoAtleta()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════
+const SUPABASE_URL='https://nhshnplaiolxwcfuijfo.supabase.co';
+const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oc2hucGxhaW9seHdjZnVpamZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NDQxNTAsImV4cCI6MjA4OTQyMDE1MH0.uyZiDun8495sjnHA6Wsk-Hou-3lubbNJfQqSYbMLSek';
+const supa=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+
+let clubeAtual=null; // {email, papel}
+let minhaConta=null; // {id,nome,logo_url,cor_primaria,plano,estado_subscricao}
+
+function esc(s){return (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+// ═══════════════════════════════════════════════
+// LOGIN
+// ═══════════════════════════════════════════════
+async function enviarLink(){
+  const email=document.getElementById('email').value.trim().toLowerCase();
+  const err=document.getElementById('err');
+  const ok=document.getElementById('okmsg');
+  const btn=document.getElementById('loginBtn');
+  err.style.display='none'; ok.style.display='none';
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ err.textContent='Escreve um email válido.'; err.style.display='block'; return; }
+  if(!supa){ err.textContent='Sistema não ligado. Tenta mais tarde.'; err.style.display='block'; return; }
+  btn.disabled=true; btn.textContent='A enviar...';
+  try{
+    const { error } = await supa.auth.signInWithOtp({ email: email, options:{ emailRedirectTo: window.location.href.split('#')[0].split('?')[0] } });
+    if(error) throw error;
+    ok.innerHTML='📩 Enviámos um link para <strong>'+esc(email)+'</strong>. Abre o email e clica para entrares.';
+    ok.style.display='block';
+    btn.textContent='Link enviado ✓';
+  }catch(e){
+    err.textContent='Não foi possível: '+(e.message||'erro'); err.style.display='block';
+    btn.disabled=false; btn.textContent='Receber link de acesso →';
+  }
+}
+
+async function logout(){ if(supa) await supa.auth.signOut(); location.reload(); }
+
+async function verificarSessao(){
+  if(!supa) return;
+  const { data:{ session } } = await supa.auth.getSession();
+  if(!session){ return; } // fica no login
+  const email=session.user.email;
+  const { data: perfil } = await supa.from('perfis').select('nome,papel,estado').eq('email',email).maybeSingle();
+  if(!perfil){
+    document.getElementById('err').textContent='A tua conta ainda não foi aprovada.';
+    document.getElementById('err').style.display='block';
+    return;
+  }
+  if(perfil.estado!=='aprovado' || (perfil.papel!=='clube' && perfil.papel!=='admin')){
+    document.getElementById('err').textContent='Conta sem acesso de clube (estado: '+perfil.estado+').';
+    document.getElementById('err').style.display='block';
+    return;
+  }
+  clubeAtual={ email:email, papel:perfil.papel };
+  mostrarMain();
+}
+
+async function mostrarMain(){
+  document.getElementById('login-view').style.display='none';
+  document.getElementById('main-view').style.display='block';
+  document.getElementById('nav-logout').style.display='block';
+  document.getElementById('nav-back').style.display='none';
+  await carregarMinhaConta();
+  carregarMeusAtletas();
+}
+
+async function carregarMinhaConta(){
+  try{
+    const{data,error}=await supa.rpc('ytb_clube_minha_conta');
+    if(error)throw error;
+    minhaConta=data;
+    if(!data||!data.ok){
+      document.getElementById('nome-clube').textContent='Sem organização associada';
+      document.getElementById('plano-clube').textContent='Contacta o suporte para ligar a tua conta a uma organização.';
+      return;
+    }
+    document.getElementById('nome-clube').textContent=data.nome||'Organização';
+    document.getElementById('plano-clube').textContent=(data.plano?('Plano '+data.plano):'—')+(data.estado_subscricao==='ativa'?'':' · '+data.estado_subscricao);
+    document.getElementById('na-clube-nome').textContent=data.nome||'a tua organização';
+    if(data.logo_url){
+      const img=document.getElementById('wb-logo');
+      img.src=data.logo_url; img.style.display='block';
+    }
+  }catch(e){ console.warn('minha conta',e); }
+}
+
+// ═══════════════════════════════════════════════
+// OS MEUS ATLETAS + NOVO ATLETA
+// ═══════════════════════════════════════════════
+let meusAtletasCache=[];
+
+async function carregarMeusAtletas(){
+  const area=document.getElementById('meus-atletas-area');
+  try{
+    const{data,error}=await supa.rpc('ytb_clube_meus_atletas');
+    if(error)throw error;
+    meusAtletasCache=data||[];
+  }catch(e){
+    area.innerHTML='<div style="text-align:center;padding:14px;color:var(--red);font-size:12px">Erro a carregar atletas.</div>';
+    return;
+  }
+  if(!meusAtletasCache.length){
+    area.innerHTML='<div class="empty-state"><div style="font-size:32px;margin-bottom:8px">⚽</div>Ainda não inscreveste nenhum atleta.<br>Carrega em "+ Novo Atleta" para começar.</div>';
+  } else {
+    area.innerHTML=meusAtletasCache.map(a=>{
+      const badge=a.estado==='arquivado'?'arquivado':'aprovado';
+      return '<div class="atleta-card">'
+        +'<div style="flex:1;min-width:0"><div class="ac-nome">'+esc(a.nome)+'</div>'
+        +'<div class="ac-meta">'+(a.ano||'?')+' · '+esc(a.posicao||'—')+' · '+esc(a.escalao||'—')+' <span class="ac-badge '+badge+'">'+esc(a.estado||'')+'</span></div>'
+        +'<div class="ac-mini" id="ac-mini-'+a.id+'"></div></div>'
+        +'<div class="ac-actions">'
+        +'<button onclick="location.href=\'passaporte.html?clube='+a.id+'\'">📔</button>'
+        +(a.estado!=='arquivado'?'<button onclick="arquivarAtleta(\''+a.id+'\')">🗄</button>':'')
+        +'</div></div>';
+    }).join('');
+    pintarMiniJornadas();
+  }
+}
+
+// mini-jornada por atleta: Inscrito → Passaporte → Oportunidades
+function pintarMiniJornadas(){
+  if(!window.YTBVivo||!meusAtletasCache.length)return;
+  meusAtletasCache.forEach(a=>{
+    const m=document.getElementById('ac-mini-'+a.id);
+    if(!m)return;
+    const etapas=[
+      {nome:'Inscrito',estado:'done'},
+      {nome:'Passaporte',estado:'done',href:'passaporte.html?clube='+a.id},
+      {nome:'Oportunidades',estado:'futuro',dica:'A visibilidade para clubes/scouts nasce do consentimento da família'}
+    ];
+    YTBVivo.jornada(m,etapas,{min:240,aria:'Percurso de '+a.nome});
+  });
+}
+
+async function arquivarAtleta(id){
+  if(!confirm('Arquivar este atleta? Deixa de aparecer na tua lista ativa. (Eliminar continua reservado ao admin.)'))return;
+  try{
+    const{data,error}=await supa.rpc('ytb_clube_atleta_arquivar',{p_id:id});
+    if(error)throw error;
+    if(!data||!data.ok){alert('Não foi possível arquivar: '+((data&&data.motivo)||'erro'));return;}
+    carregarMeusAtletas();
+  }catch(e){alert('Erro: '+(e.message||'tenta de novo'));}
+}
+
+function abrirNovoAtleta(){
+  document.getElementById('na-dup-area').style.display='none';
+  document.getElementById('na-form-area').style.display='block';
+  document.getElementById('naModal').classList.add('show');
+}
+function fecharNovoAtleta(){
+  document.getElementById('naModal').classList.remove('show');
+}
+
+const NA_MOTIVOS={
+  sem_papel_clube:'A tua conta ainda não tem papel de clube aprovado.',
+  sem_conta_associada:'A tua conta ainda não está associada a nenhuma organização. Contacta o suporte.',
+  nome:'Indica o nome do atleta.',
+  ano_invalido:'Data de nascimento inválida.',
+  posicao_obrigatoria:'A posição é obrigatória.',
+  sexo_invalido:'Sexo inválido.',
+  zerozero_invalido:'Link ZeroZero inválido.',
+  email_encarregado_invalido:'Email do encarregado inválido.',
+  altura_invalida:'Altura fora do intervalo razoável (80–220cm).',
+  peso_invalido:'Peso fora do intervalo razoável (15–120kg).'
+};
+
+async function submeterNovoAtleta(p_confirmar_novo, p_associar_a){
+  const err=document.getElementById('na-err');
+  err.style.display='none';
+  const nome=document.getElementById('na_nome').value.trim();
+  const nascStr=document.getElementById('na_nasc').value;
+  if(!nome){err.style.display='block';err.textContent='Indica o nome.';return;}
+  if(!nascStr){err.style.display='block';err.textContent='Indica a data de nascimento.';return;}
+  const nasc=new Date(nascStr+'T00:00:00');
+  const payload={
+    p_nome:nome, p_ano:nasc.getFullYear(), p_mes:nasc.getMonth()+1, p_dia:nasc.getDate(),
+    p_sexo:document.getElementById('na_sexo').value||null,
+    p_nacionalidade:document.getElementById('na_nacionalidade').value.trim()||null,
+    p_escalao:document.getElementById('na_escalao').value.trim()||null,
+    p_pos:document.getElementById('na_pos').value||null,
+    p_pe:document.getElementById('na_pe').value||null,
+    p_assoc:document.getElementById('na_assoc').value||null,
+    p_esquema:document.getElementById('na_esquema').value.trim()||null,
+    p_altura:parseFloat(document.getElementById('na_altura').value)||null,
+    p_peso:parseFloat(document.getElementById('na_peso').value)||null,
+    p_zz:document.getElementById('na_zz').value.trim()||null,
+    p_video:document.getElementById('na_video').value.trim()||null,
+    p_email_enc:document.getElementById('na_email_enc').value.trim()||null,
+    p_confirmar_novo:!!p_confirmar_novo,
+    p_associar_a:p_associar_a||null
+  };
+  const btn=document.getElementById('na-btn');
+  btn.disabled=true;btn.textContent='A criar…';
+  try{
+    const{data,error}=await supa.rpc('ytb_clube_atleta_criar',payload);
+    if(error)throw error;
+    if(data&&data.ok){
+      // Passaporte nasce já — mesmo princípio do scout, nunca volta atrás
+      location.href='passaporte.html?clube='+data.id;
+      return;
+    }
+    if(data&&data.motivo==='duplicado_possivel'){
+      mostrarDuplicados(data.candidatos||[]);
+      btn.disabled=false;btn.textContent='Criar atleta e passaporte →';
+      return;
+    }
+    err.style.display='block';
+    err.textContent=NA_MOTIVOS[data&&data.motivo]||('Não foi possível criar ('+((data&&data.motivo)||'erro')+')');
+  }catch(e){
+    err.style.display='block';err.textContent='Erro: '+(e.message||'tenta de novo');
+  }
+  btn.disabled=false;btn.textContent='Criar atleta e passaporte →';
+}
+
+function mostrarDuplicados(candidatos){
+  const dupArea=document.getElementById('na-dup-area');
+  document.getElementById('na-form-area').style.display='none';
+  dupArea.style.display='block';
+  dupArea.innerHTML='<div style="font-size:13px;color:var(--gold);font-weight:700;margin-bottom:10px">⚠ Foi encontrado um atleta semelhante</div>'
+    +candidatos.map(c=>'<div class="dup-card" onclick="submeterNovoAtleta(false,\''+c.id+'\')">'
+      +'<div style="font-weight:700;font-size:13px">'+esc(c.nome)+'</div>'
+      +'<div style="font-size:11px;color:var(--slate)">'+(c.ano||'?')+' · '+esc(c.clube||'—')+'</div>'
+      +'<div style="font-size:10px;color:var(--gold);margin-top:4px">Associar a este →</div></div>').join('')
+    +'<button class="btn btn-primary" style="margin-top:10px" onclick="submeterNovoAtleta(true)">Criar novo mesmo assim</button>'
+    +'<button class="btn btn-secondary" style="margin-top:8px" onclick="voltarAoFormulario()">← Voltar e corrigir</button>';
+}
+function voltarAoFormulario(){
+  document.getElementById('na-dup-area').style.display='none';
+  document.getElementById('na-form-area').style.display='block';
+}
+
+// ═══════════════════════════════════════════════
+// ARRANQUE
+// ═══════════════════════════════════════════════
+const wa=document.getElementById('wa-clube');
+if(wa) wa.href='https://wa.me/351913695846?text='+encodeURIComponent('Olá! 👋 Represento uma organização/clube e quero acesso à Área Clube da YourTalentBase. Podemos falar?');
+document.getElementById('email').addEventListener('keypress',e=>{if(e.key==='Enter')enviarLink();});
+document.addEventListener('DOMContentLoaded',verificarSessao);
+if(supa){ supa.auth.onAuthStateChange((_e,_s)=>{ verificarSessao(); }); }
+</script>
+</body>
+</html>
