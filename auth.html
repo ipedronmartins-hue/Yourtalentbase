@@ -113,14 +113,14 @@ function encaminhar(papel){
   } else if(papel === 'treinador'){
     window.location.href = 'ytb-pro-treinador.html';
   } else if(papel === 'clube'){
-    window.location.href = 'ytb-pro-treinador.html';
+    window.location.href = 'clube.html';
   } else {
     // papel desconhecido - sem area propria ainda
     mostrarErro('A tua conta ainda nao tem area atribuida. Contacta-nos por WhatsApp.');
   }
 }
 
-const DESTINOS = { 'acesso.html':['familia','admin'], 'ytb-pro-treinador.html':['treinador','clube','admin'], 'scouts.html':['scout','admin'], 'scouting360-dashboard.html':['cliente','admin'], 'admin360.html':['admin'] };
+const DESTINOS = { 'acesso.html':['familia','admin'], 'ytb-pro-treinador.html':['treinador','admin'], 'scouts.html':['scout','admin'], 'clube.html':['clube','admin'], 'scouting360-dashboard.html':['cliente','admin'], 'admin360.html':['admin'] };
 function destinoPedido(){
   const d = new URLSearchParams(location.search).get('dest');
   return (d && DESTINOS[d]) ? d : null;

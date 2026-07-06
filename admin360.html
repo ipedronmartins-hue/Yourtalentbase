@@ -409,7 +409,7 @@ tr:last-child td{border-bottom:none}
 <div class="modal-overlay" id="modal-clube" onclick="if(event.target.id==='modal-clube')closeModal('clube')">
   <div class="modal">
     <div class="modal-title">🏢 Novo Clube Subscritor</div>
-    <div class="modal-sub">Cria manualmente um clube B2B com password temporária.</div>
+    <div class="modal-sub">Cria o registo de negócio do clube/organização. O acesso real (papel + login) faz-se à parte, na tab Contas, depois de a pessoa entrar uma vez em clube.html.</div>
     <div class="edit-grid">
       <div class="edit-field full"><label class="edit-label">Nome do clube *</label><input class="edit-input" id="c_nome" type="text"></div>
       <div class="edit-field"><label class="edit-label">Responsável *</label><input class="edit-input" id="c_resp" type="text"></div>
@@ -423,7 +423,8 @@ tr:last-child td{border-bottom:none}
           <option value="enterprise">Enterprise · 299€/mês</option>
         </select>
       </div>
-      <div class="edit-field"><label class="edit-label">Password temporária</label><input class="edit-input" id="c_pwd" type="text" value="YTB#Clube2026"></div>
+      <div class="edit-field full"><label class="edit-label">URL do logo (marca própria, opcional)</label><input class="edit-input" id="c_logo" type="url" placeholder="https://..."></div>
+      <div class="edit-field"><label class="edit-label">Cor principal (opcional)</label><input class="edit-input" id="c_cor" type="text" placeholder="#D4AF37"></div>
       <div class="edit-field full"><label class="edit-label">Notas admin</label><textarea class="edit-textarea" id="c_notas"></textarea></div>
     </div>
     <div class="modal-btns">
@@ -1365,9 +1366,8 @@ async function creditarScout(){
 }
 
 function abrirNovoClube(){
-  ['c_nome','c_resp','c_cargo','c_email','c_tel','c_notas'].forEach(id => document.getElementById(id).value = '');
+  ['c_nome','c_resp','c_cargo','c_email','c_tel','c_logo','c_cor','c_notas'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('c_plano').value = 'clube-pro';
-  document.getElementById('c_pwd').value = 'YTB#Clube2026';
   document.getElementById('modal-clube').classList.add('show');
   document.body.style.overflow = 'hidden';
 }
@@ -1379,15 +1379,20 @@ async function saveClube(){
 
   const plano = get('c_plano');
   const valor = ({'clube-pro':49,'clube-pro-plus':119,'enterprise':299})[plano];
+  const cor = get('c_cor');
+  if(cor && !/^#[0-9A-Fa-f]{6}$/.test(cor)){ toast('A cor tem de ser um código hex, ex.: #D4AF37', 'error'); return; }
 
   try {
-    // v2: sem password_temporaria — o acesso real dá-se por papel (ytb_definir_papel) + magic link
-    const { error } = await supa.rpc('ytb_admin_clube_registar', {
+    // o acesso real (login + papel) dá-se à parte: a pessoa entra em clube.html com
+    // o próprio email, e o admin aprova o papel 'clube' na tab Contas
+    const { data, error } = await supa.rpc('ytb_admin_clube_registar', {
       p_nome: nome, p_resp: resp, p_email: email,
       p_tel: get('c_tel') || null, p_cargo: get('c_cargo') || null,
-      p_plano: plano, p_valor: valor, p_notas: get('c_notas') || null
+      p_plano: plano, p_valor: valor, p_notas: get('c_notas') || null,
+      p_logo_url: get('c_logo') || null, p_cor: cor || null
     });
     if(error){ toast('Erro: ' + error.message, 'error'); return; }
+    if(!data || !data.ok){ toast('Não foi possível criar: ' + ((data && data.motivo) || 'erro'), 'error'); return; }
     toast('Clube criado', 'green');
     closeModal('clube');
     load();
@@ -1514,10 +1519,11 @@ async function carregarContas(){
         <td>${escapeHtml(c.nome || '—')}</td>
         <td style="font-size:11px">${escapeHtml(c.email || '')}</td>
         <td>${(protegida || c.papel === 'admin') ? escapeHtml(c.papel || '—') : `<select onchange="mudarPapelConta('${c.email}', this.value)" style="background:#171D18;border:1px solid #2A322B;border-radius:7px;color:#ECEFEA;font-size:11px;padding:5px 7px;cursor:pointer">
-          <option value="" disabled${['treinador','scout','familia'].includes(c.papel)?'':' selected'}>— escolher —</option>
+          <option value="" disabled${['treinador','scout','familia','clube'].includes(c.papel)?'':' selected'}>— escolher —</option>
           <option value="treinador"${c.papel==='treinador'?' selected':''}>🎓 Treinador</option>
           <option value="scout"${c.papel==='scout'?' selected':''}>🔍 Scout</option>
           <option value="familia"${c.papel==='familia'?' selected':''}>👨‍👩‍👦 Família</option>
+          <option value="clube"${c.papel==='clube'?' selected':''}>🏟️ Clube</option>
         </select>`}</td>
         <td><span style="color:${cor};font-weight:700;font-size:11px;text-transform:uppercase">${escapeHtml(c.estado || '—')}</span></td>
         <td>${acao}</td>
