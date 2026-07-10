@@ -71,6 +71,17 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-hei
 /* TABLE */
 .table-wrap{background:var(--bg2);border:1px solid var(--border);overflow-x:auto;margin-bottom:18px}
 table{width:100%;border-collapse:collapse;font-size:12px;min-width:700px}
+/* telemóvel: tabelas cabem sem scroll horizontal (uso a uma mão no iPhone).
+   Na tabela de atletas escondem-se as colunas menos essenciais — Posição(2),
+   Fonte(4), Rating(5) e Vis(7) — ficando Atleta · Clube · Estado · Ações. */
+@media (max-width:640px){
+  table{min-width:0;font-size:11.5px}
+  th,td{padding:8px 8px}
+  #section-atletas thead th:nth-child(2),#section-atletas tbody td:nth-child(2),
+  #section-atletas thead th:nth-child(4),#section-atletas tbody td:nth-child(4),
+  #section-atletas thead th:nth-child(5),#section-atletas tbody td:nth-child(5),
+  #section-atletas thead th:nth-child(7),#section-atletas tbody td:nth-child(7){display:none}
+}
 th{padding:10px 12px;text-align:left;background:var(--bg3);color:var(--gold);font-weight:800;letter-spacing:1px;text-transform:uppercase;font-size:10px;border-bottom:1px solid var(--border);white-space:nowrap}
 td{padding:10px 12px;border-bottom:1px solid var(--border);color:#ddd;vertical-align:middle}
 tr:hover td{background:rgba(212,175,55,.04)}
