@@ -22,5 +22,4 @@ module.exports = [
   'montra.html',
   'termos.html',
   'privacidade.html',
-  'recuperar-link.html',
 ];
