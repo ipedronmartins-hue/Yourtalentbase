@@ -590,11 +590,11 @@ async function submeterInscricao(){
   err.style.display='none';
   const btn=document.getElementById('insc-btn');btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;
   if(!USING_SB){showToast('Demo: inscrição não gravada');fecharInscricao();btn.innerHTML='Inscrever →';btn.disabled=false;return;}
-  const MOTIVOS={sem_papel_treinador:'A tua conta ainda não tem papel de treinador aprovado.',dados_incompletos:'Nome e data de nascimento são obrigatórios.',zerozero_invalido:'Link ZeroZero inválido.',email_encarregado_invalido:'Email do encarregado inválido.',dia_invalido:'Dia de nascimento inválido.',mes_invalido:'Mês de nascimento inválido.'};
+  const MOTIVOS={sem_papel_treinador:'A tua conta ainda não tem papel de treinador aprovado.',dados_incompletos:'Nome e data de nascimento são obrigatórios.',posicao_obrigatoria:'A posição é obrigatória.',clube_obrigatorio:'O clube é obrigatório.',zerozero_invalido:'Link ZeroZero inválido.',email_encarregado_invalido:'Email do encarregado inválido.',dia_invalido:'Dia de nascimento inválido.',mes_invalido:'Mês de nascimento inválido.',teto_pendentes:'Tens 20 atletas à espera de aprovação. Aguarda que o admin confirme antes de inscrever mais.'};
   try{
     const{data,error}=await supa.rpc('ytb_treinador_inscrever',{p_nome:nome,p_ano:ano,p_assoc:assoc,p_pos:pos,p_clube:clube||null,p_zz:zz,p_email_enc:emailEnc,p_dia_nasc:dia,p_mes_nasc:mes,p_esquema:esquema});
     if(error)throw error;
-    if(!data||!data.ok){err.style.display='block';err.textContent=MOTIVOS[data&&data.motivo]||('Não foi gravado ('+((data&&data.motivo)||'erro')+')');btn.innerHTML='Inscrever →';btn.disabled=false;return;}
+    if(!data||!data.ok){err.style.display='block';err.textContent=(data&&data.detalhe)||MOTIVOS[data&&data.motivo]||('Não foi gravado ('+((data&&data.motivo)||'erro')+')');btn.innerHTML='Inscrever →';btn.disabled=false;return;}
     showToast('Atleta inscrito ✓');
     fecharInscricao();
     document.getElementById('insc-nome').value='';document.getElementById('insc-nasc').value='';document.getElementById('insc-clube').value='';document.getElementById('insc-pos').value='';document.getElementById('insc-assoc').value='';document.getElementById('insc-esquema').value='';document.getElementById('insc-zz').value='';document.getElementById('insc-email').value='';

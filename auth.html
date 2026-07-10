@@ -184,7 +184,14 @@ async function doLogin(){
     }
 
     // 3. Verificar estado
-    if(perfil.estado === 'bloqueado'){
+    if(perfil.estado === 'eliminado'){
+      mostrarErro('Esta conta foi eliminada e não tem acesso.');
+      await supa.auth.signOut();
+      btn.disabled = false; btn.textContent = 'Entrar →';
+      return;
+    }
+
+    if(perfil.estado === 'bloqueado' || perfil.estado === 'rejeitado'){
       mostrarErro('Conta bloqueada. Contacta o administrador.');
       await supa.auth.signOut();
       btn.disabled = false; btn.textContent = 'Entrar →';

@@ -1567,8 +1567,12 @@ async function carregarContas(){
       const cor = c.estado === 'aprovado' ? '#00D46A' : (c.estado === 'bloqueado' ? '#ff5050' : '#FFA500');
       let acao = '';
       if(protegida){ acao = '<span style="font-size:10px;color:#7a7a7a">🔒 protegida</span>'; }
-      else if(c.estado === 'aprovado'){ acao = `<button class="action-btn" style="border-color:rgba(255,80,80,.4);color:#ff5050" onclick="mudarEstadoConta('${c.email}','bloqueado')">🚫 Bloquear</button>`; }
-      else { acao = `<button class="action-btn" onclick="mudarEstadoConta('${c.email}','aprovado')">✓ ${c.estado === 'bloqueado' ? 'Reativar' : 'Aprovar'}</button>`; }
+      else if(c.estado === 'eliminado'){ acao = '<span style="font-size:10px;color:#7a7a7a">🗑️ eliminada</span>'; }
+      else {
+        if(c.estado === 'aprovado'){ acao = `<button class="action-btn" style="border-color:rgba(255,80,80,.4);color:#ff5050" onclick="mudarEstadoConta('${c.email}','bloqueado')">🚫 Bloquear</button>`; }
+        else { acao = `<button class="action-btn" onclick="mudarEstadoConta('${c.email}','aprovado')">✓ ${c.estado === 'bloqueado' ? 'Reativar' : 'Aprovar'}</button>`; }
+        acao += ` <button class="action-btn" style="border-color:rgba(255,80,80,.5);color:#ff5050;margin-left:4px" onclick="eliminarConta('${c.email}')">🗑️ Eliminar</button>`;
+      }
       return `<tr>
         <td>${escapeHtml(c.nome || '—')}</td>
         <td style="font-size:11px">${escapeHtml(c.email || '')}</td>
@@ -1598,6 +1602,18 @@ async function mudarEstadoConta(email, novoEstado){
   const { error } = await supa.rpc('ytb_admin_perfil_estado', { p_email: email, p_estado: novoEstado });
   if(error){ alert('Não foi possível: ' + (error.message || 'erro')); return; }
   carregarContas();
+}
+async function eliminarConta(email){
+  if(CONTAS_PROTEGIDAS.includes((email||'').toLowerCase())){ alert('Conta protegida — não pode ser eliminada.'); return; }
+  if(!confirm('ELIMINAR DEFINITIVAMENTE a conta ' + email + '?\n\nO acesso é removido para sempre e a identidade da pessoa é anonimizada.\nOs atletas que esta conta inscreveu NÃO são apagados — ficam com a fonte anonimizada (o passaporte pertence à criança).\n\nDiferente de bloquear (que é reversível). Confirmas?')) return;
+  if(!confirm('Confirma OUTRA VEZ: eliminar ' + email + ' definitivamente?')) return;
+  try {
+    const { data, error } = await supa.rpc('ytb_admin_perfil_eliminar', { p_email: email });
+    if(error){ toast('Erro: ' + error.message, 'error'); return; }
+    if(!data || !data.ok){ toast('Não foi possível: ' + ((data && data.motivo) || 'erro'), 'error'); return; }
+    toast('Conta eliminada · ' + (data.atletas_anonimizados||0) + ' atleta(s) anonimizado(s)', 'green');
+    carregarContas();
+  } catch(e){ toast('Erro: ' + (e && e.message || ''), 'error'); }
 }
 
 
