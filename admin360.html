@@ -179,10 +179,13 @@ tr:last-child td{border-bottom:none}
 
   <div class="kpi-row">
     <div class="kpi"><div class="kpi-n" id="k-total">—</div><div class="kpi-l">Total</div></div>
-    <div class="kpi" style="border-left-color:var(--orange)"><div class="kpi-n" id="k-pendentes">—</div><div class="kpi-l">Pendentes</div></div>
-    <div class="kpi" style="border-left-color:var(--blue)"><div class="kpi-n" id="k-pedidos">—</div><div class="kpi-l">Pedidos</div></div>
-    <div class="kpi" style="border-left-color:var(--purple)"><div class="kpi-n" id="k-clubes-sub">—</div><div class="kpi-l">Clubes Sub.</div></div>
+    <div class="kpi" style="border-left-color:var(--orange);cursor:pointer" onclick="showTab('pendentes')"><div class="kpi-n" id="k-pendentes">—</div><div class="kpi-l">Pendentes</div></div>
+    <div class="kpi" style="border-left-color:var(--blue);cursor:pointer" onclick="showTab('pedidos')"><div class="kpi-n" id="k-pedidos">—</div><div class="kpi-l">Pedidos</div></div>
+    <div class="kpi" style="border-left-color:var(--purple);cursor:pointer" onclick="showTab('clubes')"><div class="kpi-n" id="k-clubes-sub">—</div><div class="kpi-l">Clubes Sub.</div></div>
   </div>
+
+  <!-- FILA DE DECISÕES: à entrada, o que precisa de ação (não é lista de arquivo) -->
+  <div id="fila-decisoes" style="margin:0 0 16px"></div>
 
   <div class="fin-panel" id="finPanel">
     <div class="fin-head">
@@ -518,13 +521,37 @@ function ratingClass(r){ if(!r) return 'rating-D'; return 'rating-' + r.replace(
 function fmtDate(d){ if(!d) return '—'; return new Date(d).toLocaleDateString('pt-PT'); }
 function fmtPhone(p){ if(!p) return '—'; return p.replace(/[\s\-\(\)]/g,''); }
 
+// Fila de decisões: à entrada, o admin vê só o que precisa de ação e salta lá.
+function renderFilaDecisoes(pendentes, pedidos, registos){
+  const el = document.getElementById('fila-decisoes');
+  if(!el) return;
+  const itens = [];
+  if(pendentes > 0) itens.push({n:pendentes, txt:pendentes===1?'atleta por aprovar':'atletas por aprovar', tab:'pendentes', cor:'#FFA500'});
+  if(registos > 0)  itens.push({n:registos, txt:registos===1?'registo de treinador':'registos de treinador', tab:'treinadores', cor:'#FFA500'});
+  if(pedidos > 0)   itens.push({n:pedidos, txt:pedidos===1?'pedido de contacto':'pedidos de contacto', tab:'pedidos', cor:'#4A9FE8'});
+  if(!itens.length){
+    el.innerHTML = '<div style="background:rgba(0,212,106,.06);border:1px solid rgba(0,212,106,.25);border-radius:10px;padding:11px 14px;font-size:13px;color:#9fe0bb">✓ Nada à espera de decisão. Tudo tratado.</div>';
+    return;
+  }
+  el.innerHTML = '<div style="background:#12160f;border:1px solid #2a2f28;border-radius:10px;padding:12px 14px">'
+    + '<div style="font-size:10px;font-weight:800;letter-spacing:1.5px;color:#7a7a7a;text-transform:uppercase;margin-bottom:9px">A precisar de ti agora</div>'
+    + '<div style="display:flex;gap:8px;flex-wrap:wrap">'
+    + itens.map(i => '<button class="action-btn" style="border-color:'+i.cor+'66;color:#ECEFEA;font-size:13px;padding:8px 13px" onclick="showTab(\''+i.tab+'\')"><span style="color:'+i.cor+';font-weight:800">'+i.n+'</span> '+i.txt+' →</button>').join('')
+    + '</div></div>';
+}
+
 function showTab(tab, ev){
   if(tab === 'contas') carregarContas();
   if(tab === 'comissoes') carregarComissoes();
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  ev.currentTarget.classList.add('active');
+  // tolera chamadas programáticas (ex: a partir da fila de decisões) sem evento
+  let btn = ev && ev.currentTarget;
+  if(!btn){ btn = Array.from(document.querySelectorAll('.tab')).find(t => (t.getAttribute('onclick')||'').includes("'"+tab+"'")); }
+  if(btn){ btn.classList.add('active'); btn.scrollIntoView({inline:'center',block:'nearest'}); }
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.getElementById('section-' + tab).classList.add('active');
+  const sec = document.getElementById('section-' + tab);
+  if(sec) sec.classList.add('active');
+  try{ window.scrollTo({top:0,behavior:'smooth'}); }catch(e){}
 }
 
 function toast(msg, type){
@@ -583,6 +610,7 @@ async function load(){
     const elTrein = document.getElementById('tab-bg-trein');
     if(elTrein) elTrein.textContent = treinPend;
 
+    renderFilaDecisoes(allPendentes.length, pedAbertos, treinPend);
     renderAtletas();
     renderPendentes();
     renderPedidos();
