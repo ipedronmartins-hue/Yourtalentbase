@@ -283,9 +283,9 @@ tr:last-child td{border-bottom:none}
     <div class="table-wrap">
       <table>
         <thead>
-          <tr><th>Nome</th><th>Email</th><th>Papel</th><th>Estado</th><th>Acções</th></tr>
+          <tr><th>Conta</th><th>Papel</th><th>Estado</th><th>Acções</th></tr>
         </thead>
-        <tbody id="tbody-contas"><tr><td colspan="5" class="loading"><div class="spinner"></div></td></tr></tbody>
+        <tbody id="tbody-contas"><tr><td colspan="4" class="loading"><div class="spinner"></div></td></tr></tbody>
       </table>
     </div>
   </div>
@@ -1623,12 +1623,34 @@ FORMATO DA RESPOSTA:
 
 // ═══ Gestão de Contas (bloquear / reativar) ═══
 const CONTAS_PROTEGIDAS = ['ipedronmartins@gmail.com','yourtalentbase@gmail.com'];
+const PAPEL_INFO = {
+  admin:    { emoji:'⚙️',  label:'Admin',    cor:'#D4AF37' },
+  treinador:{ emoji:'🎓',  label:'Treinador',cor:'#4A9FE8' },
+  scout:    { emoji:'🔍',  label:'Scout',    cor:'#A78BFA' },
+  familia:  { emoji:'👨‍👩‍👦', label:'Família',  cor:'#00D46A' },
+  clube:    { emoji:'🏟️',  label:'Clube',    cor:'#D4AF37' }
+};
+function papelPill(papel){
+  const i = PAPEL_INFO[papel];
+  if(!i) return '<span style="display:inline-block;font-size:10px;font-weight:700;color:#8a958a;border:1px dashed #3a3f38;border-radius:100px;padding:3px 9px">— sem papel</span>';
+  return '<span style="display:inline-block;font-size:11px;font-weight:800;color:'+i.cor+';background:'+i.cor+'1a;border:1px solid '+i.cor+'55;border-radius:100px;padding:3px 10px;white-space:nowrap">'+i.emoji+' '+i.label+'</span>';
+}
+// email encurtado: 2 primeiros caracteres + domínio (o completo fica no title/hover)
+function mascararEmail(email){
+  const e = (email||'').trim();
+  const at = e.indexOf('@');
+  if(at < 1) return escapeHtml(e);
+  const local = e.slice(0, at), dom = e.slice(at);
+  const vis = local.slice(0, Math.min(2, local.length));
+  return '<span title="'+escapeHtml(e)+'">'+escapeHtml(vis)+'•••'+escapeHtml(dom)+'</span>';
+}
 async function carregarContas(){
   const tb = document.getElementById('tbody-contas');
   try {
-    const { data: contas, error } = await supa.from('perfis').select('*').order('estado').order('nome');
+    // ordenar por papel agrupa os iguais (família, treinador, scout…) — mais fácil de scanear
+    const { data: contas, error } = await supa.from('perfis').select('*').order('papel').order('nome');
     if(error) throw error;
-    if(!contas || !contas.length){ tb.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#7a7a7a;padding:20px">Sem contas registadas.</td></tr>'; return; }
+    if(!contas || !contas.length){ tb.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#7a7a7a;padding:20px">Sem contas registadas.</td></tr>'; return; }
     tb.innerHTML = contas.map(c => {
       const protegida = CONTAS_PROTEGIDAS.includes((c.email||'').toLowerCase());
       const cor = c.estado === 'aprovado' ? '#00D46A' : (c.estado === 'bloqueado' ? '#ff5050' : '#FFA500');
@@ -1640,21 +1662,26 @@ async function carregarContas(){
         else { acao = `<button class="action-btn" onclick="mudarEstadoConta('${c.email}','aprovado')">✓ ${c.estado === 'bloqueado' ? 'Reativar' : 'Aprovar'}</button>`; }
         acao += ` <button class="action-btn" style="border-color:rgba(255,80,80,.5);color:#ff5050;margin-left:4px" onclick="eliminarConta('${c.email}')">🗑️ Eliminar</button>`;
       }
+      // papel: crachá claro sempre; contas editáveis (não-mestre, não-admin) ganham
+      // um selo "▾ mudar" que abre o seletor de papel.
+      let papelCel = papelPill(c.papel);
+      if(!(protegida || c.papel === 'admin')){
+        papelCel += ` <select onchange="mudarPapelConta('${c.email}', this.value)" title="Mudar papel" style="background:#171D18;border:1px solid #2A322B;border-radius:7px;color:#8a958a;font-size:10px;padding:3px 5px;cursor:pointer;margin-left:6px">
+          <option value="" disabled selected>▾ mudar</option>
+          <option value="treinador">🎓 Treinador</option>
+          <option value="scout">🔍 Scout</option>
+          <option value="familia">👨‍👩‍👦 Família</option>
+          <option value="clube">🏟️ Clube</option>
+        </select>`;
+      }
       return `<tr>
-        <td>${escapeHtml(c.nome || '—')}</td>
-        <td style="font-size:11px">${escapeHtml(c.email || '')}</td>
-        <td>${(protegida || c.papel === 'admin') ? escapeHtml(c.papel || '—') : `<select onchange="mudarPapelConta('${c.email}', this.value)" style="background:#171D18;border:1px solid #2A322B;border-radius:7px;color:#ECEFEA;font-size:11px;padding:5px 7px;cursor:pointer">
-          <option value="" disabled${['treinador','scout','familia','clube'].includes(c.papel)?'':' selected'}>— escolher —</option>
-          <option value="treinador"${c.papel==='treinador'?' selected':''}>🎓 Treinador</option>
-          <option value="scout"${c.papel==='scout'?' selected':''}>🔍 Scout</option>
-          <option value="familia"${c.papel==='familia'?' selected':''}>👨‍👩‍👦 Família</option>
-          <option value="clube"${c.papel==='clube'?' selected':''}>🏟️ Clube</option>
-        </select>`}</td>
+        <td class="td-name"><strong>${escapeHtml(c.nome || '—')}</strong><div class="td-mute" style="font-size:11px">${mascararEmail(c.email)}</div></td>
+        <td>${papelCel}</td>
         <td><span style="color:${cor};font-weight:700;font-size:11px;text-transform:uppercase">${escapeHtml(c.estado || '—')}</span></td>
         <td>${acao}</td>
       </tr>`;
     }).join('');
-  } catch(e){ tb.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#ff5050;padding:20px">Erro a carregar contas: ' + escapeHtml(e.message || '') + '</td></tr>'; }
+  } catch(e){ tb.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#ff5050;padding:20px">Erro a carregar contas: ' + escapeHtml(e.message || '') + '</td></tr>'; }
 }
 async function mudarPapelConta(email, novoPapel){
   if(!novoPapel) return;
