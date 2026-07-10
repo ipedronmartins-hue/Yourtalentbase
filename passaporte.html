@@ -254,6 +254,35 @@
       '<path d="'+area+'" fill="url(#cg)"/><path d="'+line+'" fill="none" stroke="#00D46A" stroke-width="2.2"/>'+dots+'</svg></div>';
   }
 
+  var FALTA_LBL={sexo:'sexo do atleta',altura_pai:'altura do pai',altura_mae:'altura da mãe',altura_atual:'uma medição de altura'};
+  function morfoHTML(m){
+    var lock='<span class="lock">🔒 Privado · família · treinador · scout autorizado. Nunca visível ao público.</span>';
+    if(!m){
+      return '<div class="panel morfo">'+lock+'<div class="derived">Ainda sem dados para estimar a maturação.</div></div>';
+    }
+    function cell(l,v){ return '<div class="f"><div class="l">'+l+'</div><div class="v">'+(v!=null&&v!==''?esc(String(v)):'—')+'</div></div>'; }
+    var fields='<div class="fields">'+
+      cell('Altura atual', m.altura_atual!=null?(m.altura_atual+' cm'):null)+
+      cell('Altura adulta prevista', m.altura_prevista!=null?(m.altura_prevista+' cm'):null)+
+      cell('% já atingida', m.pct_atingida!=null?(m.pct_atingida+'%'):null)+
+      cell('Crescimento', m.velocidade_cm_ano!=null?(m.velocidade_cm_ano+' cm/ano'):null)+
+      '</div>';
+    var barra='';
+    if(m.pct_atingida!=null){
+      var p=Math.max(0,Math.min(100,m.pct_atingida));
+      var extra=(m.faltam_cm!=null&&m.faltam_cm>0)?(' · faltam ~'+m.faltam_cm+' cm.'):'.';
+      barra='<div class="barx" style="margin-top:12px"><i style="width:'+p+'%;background:var(--obs-bar)"></i></div>'+
+        '<div style="font-size:11px;color:var(--slate);margin-top:5px">Está a ~'+m.pct_atingida+'% da altura adulta prevista'+extra+'</div>';
+    }
+    var aviso='';
+    if(m.em_falta&&m.em_falta.length){
+      var partes=m.em_falta.map(function(k){return FALTA_LBL[k]||k;});
+      aviso='<div class="derived">Para completar a estimativa, falta: '+esc(partes.join(', '))+'.</div>';
+    }
+    var metodo='<div class="derived" style="opacity:.8">'+esc(m.metodo||'Estimativa')+'.</div>';
+    return '<div class="panel morfo">'+lock+fields+barra+aviso+metodo+'</div>';
+  }
+
   function render(d){
     var id=d.identidade, ind=d.indicadores;
     var html='';
@@ -305,11 +334,8 @@
     html+='<div class="shead">Marcos da Carreira</div><div class="marcos">'+d.marcos.map(function(m){return '<div class="marco"><span class="ic">'+m[0]+'</span><span class="tt">'+esc(m[1])+'</span><span class="wn">'+esc(m[2])+'</span></div>';}).join('')+'</div>';
     // carreira
     html+='<div class="shead">Carreira</div><div class="panel car">'+d.carreira.map(function(c){return '<div class="item"><div class="yr num">'+esc(c[0])+'</div><div class="cl">'+esc(c[1])+'<small>'+esc(c[2])+'</small></div></div>';}).join('')+'</div>';
-    // morfologia
-    html+='<div class="shead">Morfologia &amp; Maturação</div><div class="panel morfo">'+
-      '<span class="lock">🔒 Privado · família · treinador · scout autorizado</span>'+
-      '<div class="fields"><div class="f"><div class="l">Altura</div><div class="v">—</div></div><div class="f"><div class="l">Peso</div><div class="v">—</div></div><div class="f"><div class="l">Altura pai</div><div class="v">—</div></div><div class="f"><div class="l">Altura mãe</div><div class="v">—</div></div></div>'+
-      '<div class="derived">Em breve · altura adulta prevista · velocidade de crescimento · maturação. Nunca visível ao público.</div></div>';
+    // morfologia & maturação (estimativa; nunca pública)
+    html+='<div class="shead">Morfologia &amp; Maturação</div>'+morfoHTML(d.maturacao);
     // timeline
     var pill={mar:'mar',obs:'obs',dec:'dec'}, mk={mar:'<span class="mk" style="color:var(--gold)">◆</span>',obs:'<span class="mk" style="color:var(--obs-bar)">•</span>',dec:'<span class="mk" style="color:var(--dec)">·</span>'};
     var plabel={mar:'marco',obs:'observado',dec:'declarado'};
@@ -370,6 +396,7 @@
       dnaStats:[[nz(ind.horas_treino_extra)+'h','Treino extra acumulado'],[relTime(ind.ultimo_evento)||'—','Último evento']],
       atividade:[[String(nz(at.prescritos)),'Prescritos'],[String(nz(at.concluidos)),'Concluídos'],[String(nz(at.semanas_ativas)),'Semanas ativas'],[nz(ind.horas_treino_extra)+'h','Horas']],
       cognitivo: temCog?{acerto:Math.round(nz(cg.acerto_pct)), total:nz(cg.total), tipos:(cg.por_tipo||[]).map(function(t){return [cap(t.cenario),Math.round(nz(t.acerto_pct))];}), serie:(cg.serie||[]).map(function(p){return Math.round(nz(p.v));})}:null,
+      maturacao:r.maturacao||null,
       marcos:(r.marcos||[]).map(function(m){return ['◆',m.titulo||'',relTime(m.em)];}),
       carreira:(r.carreira||[]).map(function(c){return [c.epoca||'','',''];}),
       timeline:(r.timeline||[]).map(function(e){
@@ -655,6 +682,16 @@
       toast('Medição guardada ✓'); carregarBioHist();
     }).catch(function(){ toast('⚠ Sem ligação'); });
   };
+  window.__paisGravar=function(){
+    function num(id){ var v=parseFloat(String(document.getElementById(id).value||'').replace(',','.')); return isNaN(v)?null:v; }
+    var pai=num('bio-pai'),mae=num('bio-mae');
+    if(pai==null&&mae==null){ toast('Preenche pelo menos uma altura'); return; }
+    supa.rpc('ytb_biometria_pais_registar',{p_atleta:window.__famAtleta,p_altura_pai:pai,p_altura_mae:mae}).then(function(res){
+      var d=res&&res.data;
+      if(!d||!d.ok){ toast('⚠ Não gravado ('+((d&&d.motivo)||'erro')+')'); return; }
+      toast('Guardado ✓ — a estimativa atualiza no passaporte');
+    }).catch(function(){ toast('⚠ Sem ligação'); });
+  };
 
   function renderFamTools(){
     var box=document.getElementById('fam-tools'); if(!box) return;
@@ -668,7 +705,10 @@
      +'<div class="sub" style="margin-bottom:10px">Altura, peso e pé — uma medição de vez em quando desenha a trajetória de crescimento. Nunca visível ao público.</div>'
      +'<div class="fam-row"><input class="fam-input" id="bio-alt" type="number" inputmode="decimal" placeholder="Altura (cm)" style="flex:1"><input class="fam-input" id="bio-pes" type="number" inputmode="decimal" placeholder="Peso (kg)" style="flex:1"><input class="fam-input" id="bio-pe" type="number" inputmode="decimal" placeholder="Pé (EU)" style="flex:1"></div>'
      +'<button class="fam-btn" onclick="window.__bioGravar()">Guardar medição →</button>'
-     +'<div id="bio-hist" style="margin-top:10px"></div></div>';
+     +'<div id="bio-hist" style="margin-top:10px"></div>'
+     +'<div class="sub" style="margin:14px 0 8px;padding-top:12px;border-top:1px solid var(--border)">Altura dos pais — para estimar a altura adulta prevista. Basta uma vez.</div>'
+     +'<div class="fam-row"><input class="fam-input" id="bio-pai" type="number" inputmode="decimal" placeholder="Altura do pai (cm)" style="flex:1"><input class="fam-input" id="bio-mae" type="number" inputmode="decimal" placeholder="Altura da mãe (cm)" style="flex:1"></div>'
+     +'<button class="fam-btn" onclick="window.__paisGravar()">Guardar altura dos pais →</button></div>';
     carregarBioHist();
   }
 
