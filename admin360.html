@@ -40,6 +40,8 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-hei
 /* SECTIONS */
 .section{display:none}
 .section.active{display:block}
+.section.active + .section.active{margin-top:22px}
+.zona-sec-titulo{font-family:'Barlow Condensed';font-weight:900;font-size:15px;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin:0 0 10px;padding-bottom:7px;border-bottom:1px solid var(--border)}
 
 /* KPIs */
 .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px}
@@ -196,20 +198,17 @@ tr:last-child td{border-bottom:none}
     <div class="fin-grid" id="fin-grid"></div>
   </div>
 
+  <!-- 3 zonas: Decidir (o que precisa de ação) · Pessoas (atletas+contas) · Negócio (clubes/relatórios/pagamentos) -->
   <div class="tabs">
-    <button class="tab active" onclick="showTab('atletas',event)">📋 Atletas</button>
-    <button class="tab" onclick="showTab('pendentes',event)">⏳ Pendentes <span class="badge badge-red" id="tab-bg-pend">0</span></button>
-    <button class="tab" onclick="showTab('pedidos',event)">📞 Pedidos <span class="badge badge-red" id="tab-bg-ped">0</span></button>
-    <button class="tab" onclick="showTab('treinadores',event)">🎓 Registos <span class="badge badge-red" id="tab-bg-trein">0</span></button>
-    <button class="tab" onclick="showTab('relatorios',event)">📄 Relatórios</button>
-    <button class="tab" onclick="showTab('atletastreinador',event)">⚽ Atletas Treinador</button>
-    <button class="tab" onclick="showTab('clubes',event)">🏢 Clubes</button>
-    <button class="tab" onclick="showTab('contas',event)">👤 Contas</button>
-    <button class="tab" onclick="showTab('comissoes',event)">💶 Comissões</button>
+    <button class="tab active" onclick="showZona('decidir',event)">🔔 Decidir <span class="badge badge-red" id="zona-bg-decidir">0</span></button>
+    <button class="tab" onclick="showZona('pessoas',event)">👥 Pessoas</button>
+    <button class="tab" onclick="showZona('negocio',event)">💼 Negócio</button>
   </div>
+  <!-- contadores por secção mantidos (ocultos) para compatibilidade com load() -->
+  <span id="tab-bg-pend" style="display:none">0</span><span id="tab-bg-ped" style="display:none">0</span><span id="tab-bg-trein" style="display:none">0</span>
 
   <!-- ATLETAS -->
-  <div class="section active" id="section-atletas">
+  <div class="section" id="section-atletas">
     <div class="toolbar">
       <input class="search" id="s-atletas" type="search" placeholder="Procurar nome, clube, email...">
       <select class="f-select" id="f-estado">
@@ -524,6 +523,8 @@ function fmtPhone(p){ if(!p) return '—'; return p.replace(/[\s\-\(\)]/g,''); }
 // Fila de decisões: à entrada, o admin vê só o que precisa de ação e salta lá.
 function renderFilaDecisoes(pendentes, pedidos, registos){
   const el = document.getElementById('fila-decisoes');
+  const bd = document.getElementById('zona-bg-decidir');
+  if(bd){ const tot = (pendentes||0)+(pedidos||0)+(registos||0); bd.textContent = tot; bd.style.display = tot>0 ? '' : 'none'; }
   if(!el) return;
   const itens = [];
   if(pendentes > 0) itens.push({n:pendentes, txt:pendentes===1?'atleta por aprovar':'atletas por aprovar', tab:'pendentes', cor:'#FFA500'});
@@ -540,18 +541,44 @@ function renderFilaDecisoes(pendentes, pedidos, registos){
     + '</div></div>';
 }
 
-function showTab(tab, ev){
-  if(tab === 'contas') carregarContas();
-  if(tab === 'comissoes') carregarComissoes();
+// 3 zonas agrupam as 9 secções (que se mantêm intactas). Decidir primeiro.
+const ZONAS = {
+  decidir: ['pendentes','pedidos','treinadores'],
+  pessoas: ['atletas','contas'],
+  negocio: ['clubes','atletastreinador','relatorios','comissoes']
+};
+const SEC_TITULO = {
+  atletas:'📋 Atletas', pendentes:'⏳ Atletas por aprovar', pedidos:'📞 Pedidos de contacto',
+  treinadores:'🎓 Registos de treinador', relatorios:'📄 Relatórios',
+  atletastreinador:'⚽ Atletas de treinador · pagamentos', clubes:'🏢 Clubes',
+  contas:'👤 Contas', comissoes:'💶 Comissões'
+};
+function garantirTitulo(sec, id){
+  if(sec.querySelector('.zona-sec-titulo')) return;
+  const h = document.createElement('div');
+  h.className = 'zona-sec-titulo';
+  h.textContent = SEC_TITULO[id] || id;
+  sec.insertBefore(h, sec.firstChild);
+}
+function showZona(zona, ev){
+  const ids = ZONAS[zona]; if(!ids) return;
+  if(ids.includes('contas')) carregarContas();
+  if(ids.includes('comissoes')) carregarComissoes();
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  // tolera chamadas programáticas (ex: a partir da fila de decisões) sem evento
   let btn = ev && ev.currentTarget;
-  if(!btn){ btn = Array.from(document.querySelectorAll('.tab')).find(t => (t.getAttribute('onclick')||'').includes("'"+tab+"'")); }
-  if(btn){ btn.classList.add('active'); btn.scrollIntoView({inline:'center',block:'nearest'}); }
+  if(!btn){ btn = Array.from(document.querySelectorAll('.tab')).find(t => (t.getAttribute('onclick')||'').includes("'"+zona+"'")); }
+  if(btn) btn.classList.add('active');
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  const sec = document.getElementById('section-' + tab);
-  if(sec) sec.classList.add('active');
+  ids.forEach(id => { const s = document.getElementById('section-'+id); if(s){ garantirTitulo(s, id); s.classList.add('active'); } });
   try{ window.scrollTo({top:0,behavior:'smooth'}); }catch(e){}
+}
+// compatibilidade: chamadas antigas showTab('pendentes') abrem a zona certa e
+// fazem scroll até à secção (usado pela fila de decisões e pelos KPIs clicáveis).
+function showTab(tab, ev){
+  const zona = Object.keys(ZONAS).find(z => ZONAS[z].includes(tab)) || 'decidir';
+  showZona(zona);
+  const s = document.getElementById('section-'+tab);
+  if(s) setTimeout(() => s.scrollIntoView({behavior:'smooth',block:'start'}), 80);
 }
 
 function toast(msg, type){
@@ -611,6 +638,7 @@ async function load(){
     if(elTrein) elTrein.textContent = treinPend;
 
     renderFilaDecisoes(allPendentes.length, pedAbertos, treinPend);
+    if(!document.querySelector('.section.active')) showZona('decidir');
     renderAtletas();
     renderPendentes();
     renderPedidos();
