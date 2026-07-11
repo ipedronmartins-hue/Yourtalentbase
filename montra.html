@@ -54,6 +54,24 @@
   .c-club{display:flex;align-items:center;gap:6px;margin-top:11px;padding-top:11px;border-top:1px solid var(--border);font-size:12px;color:var(--muted)}
   .c-club .dot{width:5px;height:5px;border-radius:50%;background:var(--slate);flex:none}
 
+  /* v3: percurso e proveniência (nunca notas) */
+  .c-selo{display:inline-flex;align-items:center;gap:5px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:10px;letter-spacing:.8px;text-transform:uppercase;color:var(--gold);background:var(--gold-soft);border:1px solid var(--gold-border);border-radius:999px;padding:4px 9px;white-space:nowrap}
+  .c-ativo{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--up)}
+  .c-ativo .pulse{width:6px;height:6px;border-radius:50%;background:var(--up);flex:none}
+  .c-prova{display:flex;gap:2px;margin-top:12px;background:var(--bg);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+  .c-prova div{flex:1;text-align:center;padding:8px 2px}
+  .c-prova .v{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:17px;line-height:1;color:var(--text)}
+  .c-prova .l{font-size:8.5px;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);margin-top:3px}
+  .c-marco{display:flex;align-items:center;gap:6px;margin-top:9px;font-size:11.5px;color:var(--slate)}
+  .c-marco .mk{color:var(--gold);flex:none}
+  .c-desde{font-size:10.5px;color:var(--muted);margin-top:2px}
+
+  /* filtros simples (chips) */
+  .filtros{display:flex;gap:7px;overflow-x:auto;padding:2px 0 12px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .filtros::-webkit-scrollbar{display:none}
+  .fchip{flex:0 0 auto;background:var(--bg3);border:1px solid var(--border);color:var(--slate);border-radius:999px;padding:7px 13px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:11.5px;letter-spacing:.8px;text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:.14s}
+  .fchip.on{color:var(--up);border-color:rgba(0,212,106,.4);background:rgba(0,212,106,.08)}
+
   /* estados */
   .state{text-align:center;padding:60px 20px;color:var(--slate)}
   .state .ic{font-size:40px;opacity:.5;margin-bottom:14px}
@@ -90,6 +108,7 @@
     <p class="lead">Jovens jogadores com percurso verificado e acompanhamento real. Uma amostra pública — o perfil completo está reservado a scouts e clubes.</p>
   </div>
 
+  <div class="filtros" id="filtros" hidden></div>
   <div class="count" id="count"></div>
   <div class="grid" id="grid">
     <div class="skel"></div><div class="skel"></div><div class="skel"></div>
@@ -116,20 +135,55 @@
   var supa=USING_SB?window.supabase.createClient(URL_,KEY):null;
 
   var DEMO=[
-    {nome:'Vasco Martins',posicao:'MC',escalao:'Sub-12',clube:'Gondomar SC'},
-    {nome:'Ana Costa',posicao:'EE',escalao:'Sub-13',clube:'Boavista FC'},
-    {nome:'Rafael Neto',posicao:'PL',escalao:'Sub-11',clube:'Rio Ave'},
-    {nome:'Diogo Faria',posicao:'DC',escalao:'Sub-14',clube:'Padroense'}
+    {nome:'Vasco Martins',posicao:'MC',escalao:'Sub-12',clube:'Gondomar SC',associacao:'AF Porto',desde:2025,epocas:2,eventos:48,observadores:3,verificacao:'scout+treinador',ativo:true,marcos:[{titulo:'Sequência de 14 dias de treino'}]},
+    {nome:'Ana Costa',posicao:'EE',escalao:'Sub-13',clube:'Boavista FC',associacao:'AF Porto',desde:2026,epocas:1,eventos:21,observadores:2,verificacao:'scout',ativo:true,marcos:[{titulo:'Atleta inscrito'}]},
+    {nome:'Rafael Neto',posicao:'PL',escalao:'Sub-11',clube:'Rio Ave',associacao:'AF Porto',desde:2026,epocas:1,eventos:12,observadores:1,verificacao:null,ativo:false,marcos:[]},
+    {nome:'Diogo Faria',posicao:'DC',escalao:'Sub-14',clube:'Padroense',associacao:'AF Porto',desde:2025,epocas:2,eventos:33,observadores:2,verificacao:'treinador',ativo:true,marcos:[{titulo:'Época registada'}]}
   ];
 
   function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
   var POS={GR:'Guarda-Redes',DC:'Defesa Central',LD:'Lateral Direito',LE:'Lateral Esquerdo',MD:'Médio Defensivo',MC:'Médio Centro',MO:'Médio Ofensivo',ED:'Extremo Direito',EE:'Extremo Esquerdo',PL:'Ponta de Lança',AV:'Avançado'};
-  // v2: a montra mostra percurso, nunca classificações de menores (Constituição · nunca 1)
+  // v3: a montra mostra PERCURSO e PROVENIÊNCIA — nunca classificações de
+  // menores (Constituição · nunca 1). Selo só quando há verificação real.
+  function seloDe(v){
+    v=String(v||'').toLowerCase();
+    if(/trein/.test(v)&&/scout/.test(v)) return 'Scout + Treinador';
+    if(/scout/.test(v)) return 'Verificado por Scout';
+    if(/trein/.test(v)) return 'Verificado por Treinador';
+    return null; // sem selo — a ausência já comunica, sem rotular a criança
+  }
 
-  function render(lista){
+  var TODOS=[], filtro=null; // filtro = {k:'escalao'|'posicao', v:string}
+
+  function montarFiltros(lista){
+    var box=document.getElementById('filtros');
+    if(!lista || lista.length<2){ box.hidden=true; return; }
+    var escaloes=[], posicoes=[];
+    lista.forEach(function(a){
+      if(a.escalao && escaloes.indexOf(a.escalao)<0) escaloes.push(a.escalao);
+      if(a.posicao && posicoes.indexOf(a.posicao)<0) posicoes.push(a.posicao);
+    });
+    escaloes.sort(); posicoes.sort();
+    var h='<button class="fchip on" data-k="" data-v="">Todos</button>';
+    escaloes.forEach(function(e){ h+='<button class="fchip" data-k="escalao" data-v="'+esc(e)+'">'+esc(e)+'</button>'; });
+    posicoes.forEach(function(p){ h+='<button class="fchip" data-k="posicao" data-v="'+esc(p)+'">'+esc(POS[p]||p)+'</button>'; });
+    box.innerHTML=h; box.hidden=false;
+    box.querySelectorAll('.fchip').forEach(function(b){
+      b.addEventListener('click',function(){
+        box.querySelectorAll('.fchip').forEach(function(x){x.classList.remove('on');});
+        b.classList.add('on');
+        filtro=b.getAttribute('data-k')?{k:b.getAttribute('data-k'),v:b.getAttribute('data-v')}:null;
+        pintar();
+      });
+    });
+  }
+
+  function pintar(){
     var grid=document.getElementById('grid'), count=document.getElementById('count'), funnel=document.getElementById('funnel');
-    if(!lista||!lista.length){
-      grid.innerHTML='<div class="state" style="grid-column:1/-1"><div class="ic">◇</div><h2>Ainda sem atletas na montra</h2><p>Os atletas aparecem aqui quando as famílias escolhem torná-los públicos.</p></div>';
+    var lista=TODOS;
+    if(filtro) lista=TODOS.filter(function(a){ return String(a[filtro.k]||'')===filtro.v; });
+    if(!lista.length){
+      grid.innerHTML='<div class="state" style="grid-column:1/-1"><div class="ic">◇</div><h2>'+(TODOS.length?'Sem atletas neste filtro':'Ainda sem atletas na montra')+'</h2><p>'+(TODOS.length?'Escolhe outro escalão ou posição.':'Os atletas aparecem aqui quando as famílias escolhem torná-los públicos.')+'</p></div>';
       count.textContent='';
       funnel.hidden=false;
       return;
@@ -137,27 +191,45 @@
     count.textContent=lista.length+(lista.length===1?' atleta':' atletas');
     grid.innerHTML=lista.map(function(a){
       var pos=a.posicao?('<span class="c-pos">'+esc(a.posicao)+'</span>'):'<span></span>';
-      var rat='';
-      var meta=[POS[a.posicao]||a.posicao,a.escalao].filter(Boolean).join(' · ');
+      var selo=seloDe(a.verificacao);
+      var topoDir=selo?('<span class="c-selo">✦ '+esc(selo)+'</span>'):(a.ativo?'<span class="c-ativo"><span class="pulse"></span>ativo</span>':'');
+      var meta=[POS[a.posicao]||a.posicao,a.escalao,a.associacao].filter(Boolean).join(' · ');
+      var prova='<div class="c-prova">'
+        +'<div><div class="v">'+(a.epocas!=null?a.epocas:'—')+'</div><div class="l">'+(a.epocas===1?'época':'épocas')+'</div></div>'
+        +'<div><div class="v">'+(a.eventos!=null?a.eventos:'—')+'</div><div class="l">eventos</div></div>'
+        +'<div><div class="v">'+(a.observadores!=null?a.observadores:'—')+'</div><div class="l">'+(a.observadores===1?'observador':'observadores')+'</div></div>'
+        +'</div>';
+      var marco=(a.marcos&&a.marcos.length&&a.marcos[0]&&a.marcos[0].titulo)
+        ?('<div class="c-marco"><span class="mk">◆</span>'+esc(a.marcos[0].titulo)+'</div>'):'';
+      var rodape='';
+      if(a.clube) rodape+='<div class="c-club"><span class="dot"></span>'+esc(a.clube)
+        +(a.desde?('<span style="margin-left:auto" class="c-desde">percurso desde '+esc(String(a.desde))+(selo&&a.ativo?' · <span style="color:var(--up)">●</span> ativo':'')+'</span>'):'')
+        +'</div>';
       return '<div class="card">'
-        +'<div class="c-top">'+pos+rat+'</div>'
+        +'<div class="c-top">'+pos+topoDir+'</div>'
         +'<div class="c-name">'+esc(a.nome||'—')+'</div>'
         +'<div class="c-meta">'+esc(meta)+'</div>'
-        +(a.clube?'<div class="c-club"><span class="dot"></span>'+esc(a.clube)+'</div>':'')
+        +prova+marco+rodape
         +'</div>';
     }).join('');
     funnel.hidden=false;
   }
 
+  function arrancar(lista){
+    TODOS=lista||[];
+    montarFiltros(TODOS);
+    pintar();
+  }
+
   if(!USING_SB){
     document.getElementById('demo-banner').hidden=false;
-    render(DEMO);
+    arrancar(DEMO);
     return;
   }
   supa.rpc('ytb_montra',{}).then(function(res){
-    if(res.error){ render([]); return; }
-    render(res.data||[]);
-  }).catch(function(){ render([]); });
+    if(res.error){ arrancar([]); return; }
+    arrancar(res.data||[]);
+  }).catch(function(){ arrancar([]); });
 })();
 </script>
 </body>
