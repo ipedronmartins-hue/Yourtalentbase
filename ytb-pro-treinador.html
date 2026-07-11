@@ -12,6 +12,7 @@
 <script src="/assets/js/vendor/qrcode.min.js"></script>
 <script src="/assets/js/vendor/html2pdf.bundle.min.js"></script>
 <script src="/assets/js/ytb-export.js"></script>
+<script src="/assets/js/ytb-exercicios-anim.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{--bg:#080C08;--bg2:#0F1410;--bg3:#161D17;--gold:#D4AF37;--gold-soft:rgba(212,175,55,.13);--gold-border:rgba(212,175,55,.35);--green:#00D46A;--red:#ff5050;--orange:#FFA500;--blue:#4A9FE8;--border:#1F2520;--white:#fff;--slate:#9aa39a;--muted:#5a615a}
@@ -788,7 +789,9 @@ function renderTreino(){
       html+='<div style="font-size:11px;font-weight:800;color:var(--gold);margin:8px 0 6px">Sessão '+(si+1)+' · '+total+' min</div>';
       sess.forEach((ex,ei)=>{
         var intLbl=ex.intensidade>=3?'intensa':(ex.intensidade===2?'média':'leve');
-        html+='<div class="ex-card"><div class="ex-card-name">'+(ei+1)+'. '+esc(ex.nome)+'</div>'+
+        html+='<div class="ex-card">'+
+          '<div data-exanim data-exid="'+esc(ex.id||'')+'" data-exnome="'+esc(ex.nome||'')+'"></div>'+
+          '<div class="ex-card-name">'+(ei+1)+'. '+esc(ex.nome)+'</div>'+
           '<div class="ex-card-obj">🎯 '+esc(ex.obj)+'</div>'+
           '<div class="ex-card-desc">'+esc(ex.desc)+'</div>'+
           '<div class="ex-card-meta">⏱ '+ex.tempo+' min'+(ex.equip?' · 🎒 '+esc(ex.equip):'')+' · 💪 '+intLbl+'</div></div>';
@@ -798,6 +801,7 @@ function renderTreino(){
     html+='</div>';
   });
   c.innerHTML=html;
+  if(window.YTBExAnim)YTBExAnim.mountAll(c); // bonequinhos a demonstrar cada exercício
 }
 
 async function exportarPlanoPDFTreinador(wi){

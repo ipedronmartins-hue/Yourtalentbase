@@ -15,6 +15,7 @@
 <script src="/assets/js/vendor/qrcode.min.js"></script>
 <script src="/assets/js/vendor/html2pdf.bundle.min.js"></script>
 <script src="/assets/js/ytb-export.js"></script>
+<script src="/assets/js/ytb-exercicios-anim.js"></script>
 <link rel="stylesheet" href="ytb.css">
 <style>
   :root{/* tokens próprios desta página */ --obs-bar:#3FA76E; --dec-bar2:#465147;}
@@ -470,7 +471,9 @@
         html+='<button class="tr-ss-h" onclick="window.__trToggleSs('+wi+','+si+')"><span class="tr-ss-nm">Sessão '+(si+1)+' · '+min+' min</span><span class="tr-ss-st">'+(feita?'✓ feita':'▸')+'</span></button>';
         html+='<div class="tr-ss-b" id="tr-ssb-'+wi+'-'+si+'" style="display:none">';
         sess.forEach(function(ex,ei){
-          html+='<div class="tr-ex"><div class="tr-ex-nm">'+(ei+1)+'. '+esc(ex.nome||'')+'</div>'
+          html+='<div class="tr-ex">'
+            +'<div data-exanim data-exid="'+esc(ex.id||'')+'" data-exnome="'+esc(ex.nome||'')+'"></div>'
+            +'<div class="tr-ex-nm">'+(ei+1)+'. '+esc(ex.nome||'')+'</div>'
             +(ex.obj?'<div class="tr-ex-o">🎯 '+esc(ex.obj)+'</div>':'')
             +(ex.desc?'<div class="tr-ex-d">'+esc(ex.desc)+'</div>':'')
             +'<div class="tr-ex-m">⏱ '+(ex.tempo||0)+' min</div></div>';
@@ -486,6 +489,7 @@
       html+='</div></div>';
     });
     var sec=document.createElement('section'); sec.className='tr-sec'; sec.id='tr-sec'; sec.innerHTML=html;
+    if(window.YTBExAnim)YTBExAnim.mountAll(sec); // bonequinhos a demonstrar cada exercício
     var app=document.getElementById('app');
     // ordem no ecrã: jornada → o que mudou → treino → diário/biometria → passaporte
     var tools=document.getElementById('fam-tools');
@@ -505,6 +509,7 @@
     var ov=document.createElement('div'); ov.id='tr-cr';
     ov.style.cssText='position:fixed;inset:0;background:rgba(5,7,5,.97);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center';
     ov.innerHTML='<div id="cr-p" style="font-size:12px;color:#888;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px"></div>'
+      +'<div id="cr-anim" style="width:220px;max-width:64vw;margin-bottom:10px"></div>'
       +'<div id="cr-n" style="font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:30px;color:#ECEFEA;margin-bottom:6px"></div>'
       +'<div id="cr-o" style="font-size:14px;color:#00D46A;margin-bottom:10px"></div>'
       +'<div id="cr-d" style="font-size:13px;color:#aaa;max-width:340px;line-height:1.5;margin-bottom:26px"></div>'
@@ -515,7 +520,7 @@
       +'<button id="cr-x" style="background:transparent;border:1px solid #803;color:#f88;border-radius:10px;padding:12px 22px;font-size:14px;font-weight:800;font-family:inherit">✕ Sair</button></div>';
     document.body.appendChild(ov);
     function tick(){ var m=Math.max(0,Math.floor(resta/60)),sec=Math.max(0,resta%60); document.getElementById('cr-t').textContent=String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0'); }
-    function carrega(){ var ex=lista[i]; if(!ex){ fim(); return; } document.getElementById('cr-p').textContent='Exercício '+(i+1)+' de '+lista.length; document.getElementById('cr-n').textContent=ex.nome||''; document.getElementById('cr-o').textContent=ex.obj?('🎯 '+ex.obj):''; document.getElementById('cr-d').textContent=ex.desc||''; resta=(ex.tempo||1)*60; tick(); clearInterval(timer); timer=setInterval(function(){ if(!pausa){ resta--; tick(); if(resta<=0) prox(); } },1000); }
+    function carrega(){ var ex=lista[i]; if(!ex){ fim(); return; } document.getElementById('cr-p').textContent='Exercício '+(i+1)+' de '+lista.length; if(window.YTBExAnim){ var ca=document.getElementById('cr-anim'); if(ca){ YTBExAnim.mount(ca, ex); ca.classList.add('on'); } } document.getElementById('cr-n').textContent=ex.nome||''; document.getElementById('cr-o').textContent=ex.obj?('🎯 '+ex.obj):''; document.getElementById('cr-d').textContent=ex.desc||''; resta=(ex.tempo||1)*60; tick(); clearInterval(timer); timer=setInterval(function(){ if(!pausa){ resta--; tick(); if(resta<=0) prox(); } },1000); }
     function prox(){ i++; if(i>=lista.length) fim(); else carrega(); }
     function fim(){ clearInterval(timer); ov.remove(); window.__trFeedback(w,s); }
     document.getElementById('cr-pause').onclick=function(){ pausa=!pausa; this.textContent=pausa?'▶ Retomar':'⏸ Pausa'; };
