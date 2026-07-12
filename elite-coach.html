@@ -237,9 +237,7 @@ body{margin:0;padding:0;height:100vh;height:100dvh;width:100vw;position:relative
     <button class="mode-tab" data-mode="1" onclick="goToMode(1)">Simulações</button>
     <button class="mode-tab" data-mode="2" onclick="goToMode(2)">Cenários</button>
   </div>
-  <div class="tb-right">
-    <button class="pro-badge" id="proBadge" onclick="showProLogin()" title="Análise IA grátis · Clica para activar Pro">3/3</button>
-  </div>
+  <div class="tb-right"></div>
 </div>
 
 <!-- Name Setup (1ª vez) -->
@@ -270,10 +268,6 @@ body{margin:0;padding:0;height:100vh;height:100dvh;width:100vw;position:relative
       <div class="dash-context-label">Último cenário</div>
       <div class="dash-context-value" id="dashLastCen">—</div>
     </div>
-    <div class="dash-context-row">
-      <div class="dash-context-label">Análises IA este mês</div>
-      <div class="dash-context-value" id="dashIAUsage">0/3</div>
-    </div>
   </div>
 
   <div class="dash-cards">
@@ -282,7 +276,7 @@ body{margin:0;padding:0;height:100vh;height:100dvh;width:100vw;position:relative
       <div class="dash-card-info">
         <div class="dash-card-eyebrow" style="color:var(--gold)">Core · Preparar</div>
         <div class="dash-card-title">Preparar Jogo</div>
-        <div class="dash-card-desc">Editor táctico + IA UEFA · monta a equipa, define a tática</div>
+        <div class="dash-card-desc">A prancheta mudou-se para o YTB Coach AI · jogadas animadas + sessões por IA</div>
       </div>
       <div class="dash-card-arrow">›</div>
     </button>
@@ -313,14 +307,19 @@ body{margin:0;padding:0;height:100vh;height:100dvh;width:100vw;position:relative
 <div class="swiper-container">
 <div class="swiper" id="swiper">
 
-  <!-- ═══════ MODE 0: EDITOR (Tactics Lab) ═══════ -->
+  <!-- ═══════ MODE 0: a prancheta mudou-se para o YTB Coach AI ═══════
+       O editor embebido (tacticslab via iframe + password no cliente) foi
+       descomissionado — a prancheta profissional vive agora no Coach AI,
+       atrás de login real de treinador. -->
   <div class="swiper-page active" id="page-0">
-    <div class="editor-host" id="editorHost">
-      <div class="editor-loading" id="editorLoading">
-        <div class="spinner"></div>
-        <div style="font-size:12px;color:var(--slate);margin-top:10px">A carregar Tactics Lab...</div>
+    <div class="editor-host" id="editorHost" style="align-items:center;justify-content:center;text-align:center;padding:30px 22px">
+      <div style="max-width:420px">
+        <div style="font-size:52px;margin-bottom:12px">🎨</div>
+        <div style="font-family:'Barlow Condensed';font-weight:900;font-size:30px;line-height:1.05;margin-bottom:8px">A prancheta <span style="color:var(--gold)">cresceu</span></div>
+        <div style="font-size:13px;color:var(--slate);line-height:1.6;margin-bottom:18px">O editor táctico mudou-se para o <b style="color:#fff">YTB Coach AI</b>: campo fut7/9/11, jogadas animadas momento a momento, sessões de treino geradas por IA, presenças e convocatórias — feito para o tablet no balneário.</div>
+        <a href="ytb-coach-ai.html" style="display:inline-block;background:var(--gold);color:#000;font-weight:800;font-size:14px;padding:14px 26px;border-radius:11px;text-decoration:none">Abrir o YTB Coach AI →</a>
+        <div style="font-size:11px;color:var(--muted);margin-top:12px">9,90€/mês por treinador · acesso confirmado pelo admin</div>
       </div>
-      <iframe id="editorFrame" src="" frameborder="0" style="display:none"></iframe>
     </div>
   </div>
   <!-- ═══════ MODE 1: SIMULAÇÕES ═══════ -->
@@ -473,51 +472,6 @@ body{margin:0;padding:0;height:100vh;height:100dvh;width:100vw;position:relative
   </div>
 </div>
 
-<!-- Pro Login Modal -->
-<div class="share-modal" id="proLoginModal">
-  <div class="share-box">
-    <div class="share-title">Elite Coach <span>Pro</span></div>
-    <div class="share-sub">Análise IA UEFA ilimitada · Save plays · Exportação</div>
-    <div style="background:var(--gold-soft);border:1px solid var(--gold-border);border-radius:8px;padding:11px;margin-bottom:12px">
-      <div style="font-size:9px;font-weight:800;letter-spacing:2px;color:var(--gold);margin-bottom:3px">PREÇO</div>
-      <div style="font-family:'Barlow Condensed';font-weight:900;font-size:22px;color:#fff">4,90€/mês</div>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:11px">
-      <input id="proUser" placeholder="Utilizador (ex: Elite01)" style="background:var(--bg3);border:1px solid var(--border2);color:#fff;border-radius:8px;padding:11px;font-family:inherit;font-size:13px">
-      <input id="proPass" type="password" placeholder="Password" style="background:var(--bg3);border:1px solid var(--border2);color:#fff;border-radius:8px;padding:11px;font-family:inherit;font-size:13px">
-      <div id="proLoginErr" style="font-size:11px;color:var(--red);display:none;text-align:center">Credenciais incorrectas.</div>
-    </div>
-    <div class="share-options">
-      <button class="share-opt share-opt-wa" onclick="tryProLogin()">⚡ Entrar como Pro</button>
-      <a class="share-opt" href="https://wa.me/351913695846?text=Quero%20subscrever%20Elite%20Coach%20Pro" target="_blank">📱 Quero subscrever (WhatsApp)</a>
-    </div>
-    <button class="share-cancel" onclick="closeProLogin()">Cancelar</button>
-  </div>
-</div>
-
-<!-- Upgrade modal (3/3 atingido) -->
-<div class="share-modal" id="upgradeModal">
-  <div class="share-box">
-    <div style="font-size:38px;margin-bottom:6px">⚡</div>
-    <div class="share-title">Limite <span>atingido</span></div>
-    <div class="share-sub">Já fizeste 3 análises IA grátis este mês.<br>Para continuar com IA UEFA, activa Pro:</div>
-    <div style="background:var(--gold-soft);border:1px solid var(--gold-border);border-radius:8px;padding:11px;margin-bottom:12px;text-align:left">
-      <div style="font-size:9px;font-weight:800;letter-spacing:2px;color:var(--gold);margin-bottom:6px">⚡ ELITE COACH PRO · 4,90€/mês</div>
-      <div style="font-size:11px;color:var(--text);line-height:1.6">
-        ✓ Análise IA UEFA ilimitada<br>
-        ✓ Save plays no servidor<br>
-        ✓ Exportação avançada<br>
-        ✓ Acesso prioritário a novos cenários
-      </div>
-    </div>
-    <div class="share-options">
-      <button class="share-opt share-opt-wa" onclick="closeUpgradeModal();showProLogin()">⚡ Já sou Pro · Entrar</button>
-      <a class="share-opt" href="https://wa.me/351913695846?text=Quero%20subscrever%20Elite%20Coach%20Pro%20por%204%2C90%E2%82%AC%2Fm%C3%AAs" target="_blank">📱 Subscrever via WhatsApp</a>
-    </div>
-    <button class="share-cancel" onclick="closeUpgradeModal()">Voltar mais tarde</button>
-  </div>
-</div>
-
 <div class="toast" id="toast">—</div>
 
 <script src="elite-coach-data.js"></script>
@@ -548,10 +502,6 @@ function goToMode(mode) {
   pararAnimacaoSim();
   document.getElementById('simInfoModal').classList.remove('show');
 
-  // Lazy load editor when entering mode 0 (Editor)
-  if (mode === 0) loadEditor();
-
-  updateProBadge();
 }
 
 // Swipe gestures across whole body
@@ -969,173 +919,12 @@ function toggleInfoModal() {
   else mostrarInfoSim();
 }
 
-// ═══════════════════════════════════════════════════════
-// MODE 2: EDITOR (Tactics Lab via iframe)
-// ═══════════════════════════════════════════════════════
-const TACTICS_PASS = 'YTB#Tactics2026';
-let editorLoaded = false;
-let editorReady = false;
+// MODE 0: o editor embebido (tacticslab via iframe) foi descomissionado —
+// tinha password validada só no cliente e visível neste ficheiro, em repo
+// público (mesmo anti-padrão do admin.html eliminado). A prancheta vive
+// agora no ytb-coach-ai.html, atrás de login real de treinador. A página
+// do modo 0 é um convite estático para lá — sem iframe, sem segredos.
 
-// 10 Elite Coach Pro logins
-const ELITE_LOGINS = {
-  'Elite01': 'YTB#Elite#bmQW5SCZpI',
-  'Elite02': 'YTB#Elite#A6MMyjfOqC',
-  'Elite03': 'YTB#Elite#nwCyZWcHqW',
-  'Elite04': 'YTB#Elite#BfvkFXQwaJ',
-  'Elite05': 'YTB#Elite#yyYwkTzFiw',
-  'Elite06': 'YTB#Elite#srKfuuQIcM',
-  'Elite07': 'YTB#Elite#CApb8epFAA',
-  'Elite08': 'YTB#Elite#uODoMrgFpF',
-  'Elite09': 'YTB#Elite#sF74IkXM2A',
-  'Elite10': 'YTB#Elite#XwTora7eZ2'
-};
-
-// IA usage tracking — cookie based
-function getIAUsage() {
-  const month = new Date().toISOString().slice(0, 7); // YYYY-MM
-  const data = JSON.parse(localStorage.getItem('ytb-ia-usage') || '{}');
-  if (data.month !== month) {
-    return { month, count: 0 };
-  }
-  return data;
-}
-function incIAUsage() {
-  const u = getIAUsage();
-  u.count = (u.count || 0) + 1;
-  localStorage.setItem('ytb-ia-usage', JSON.stringify(u));
-  return u;
-}
-function isPro() {
-  return localStorage.getItem('ytb-elite-pro') === 'true';
-}
-const IA_FREE_LIMIT = 3;
-
-function loadEditor() {
-  if (editorLoaded) return;
-  editorLoaded = true;
-  const frame = document.getElementById('editorFrame');
-  frame.src = 'tacticslab.html';
-  frame.style.display = 'block';
-  frame.addEventListener('load', () => {
-    document.getElementById('editorLoading').style.display = 'none';
-    // Tentar auto-login com retry (caso postMessage falhe por timing)
-    let tries = 0;
-    const tryLogin = () => {
-      if (!frame.contentWindow) return;
-      try {
-        frame.contentWindow.postMessage({
-          type: 'tacticslab-autologin',
-          pass: TACTICS_PASS,
-          esc: 'Sub-12|fut11|11'
-        }, '*');
-        // Set IA permission
-        const u = getIAUsage();
-        const allow = isPro() || u.count < IA_FREE_LIMIT;
-        frame.contentWindow.postMessage({
-          type: allow ? 'tacticslab-allow-ia' : 'tacticslab-block-ia'
-        }, '*');
-      } catch(e) {}
-      tries++;
-      if (tries < 5) setTimeout(tryLogin, 400);
-    };
-    tryLogin();
-  });
-}
-
-// Listen for tacticslab signals
-window.addEventListener('message', e => {
-  if (!e.data || typeof e.data !== 'object') return;
-  if (e.data.type === 'tacticslab-ready') {
-    // Auto-login + check IA limit
-    const frame = document.getElementById('editorFrame');
-    if (frame && frame.contentWindow) {
-      frame.contentWindow.postMessage({
-        type: 'tacticslab-autologin',
-        pass: TACTICS_PASS,
-        esc: 'Sub-12|fut11|11'
-      }, '*');
-      // Set IA block based on Pro status / usage
-      const u = getIAUsage();
-      const allow = isPro() || u.count < IA_FREE_LIMIT;
-      frame.contentWindow.postMessage({
-        type: allow ? 'tacticslab-allow-ia' : 'tacticslab-block-ia'
-      }, '*');
-    }
-  }
-  if (e.data.type === 'tacticslab-ia-used') {
-    if (!isPro()) {
-      const u = incIAUsage();
-      updateProBadge();
-      // Re-check after increment
-      const remaining = IA_FREE_LIMIT - u.count;
-      if (remaining <= 0) {
-        // Block subsequent calls
-        const frame = document.getElementById('editorFrame');
-        if (frame && frame.contentWindow) {
-          frame.contentWindow.postMessage({ type: 'tacticslab-block-ia' }, '*');
-        }
-      } else if (remaining === 1) {
-        showToast('⚠️ Última análise IA grátis deste mês');
-      }
-    }
-  }
-  if (e.data.type === 'tacticslab-ia-blocked') {
-    showUpgradeModal();
-  }
-});
-
-// Pro login modal
-function showProLogin() {
-  document.getElementById('proLoginModal').classList.add('show');
-}
-function closeProLogin() {
-  document.getElementById('proLoginModal').classList.remove('show');
-}
-function tryProLogin() {
-  const u = document.getElementById('proUser').value.trim();
-  const p = document.getElementById('proPass').value.trim();
-  if (ELITE_LOGINS[u] && ELITE_LOGINS[u] === p) {
-    localStorage.setItem('ytb-elite-pro', 'true');
-    localStorage.setItem('ytb-elite-pro-user', u);
-    closeProLogin();
-    showToast('✅ Elite Coach Pro activado · IA ilimitada');
-    updateProBadge();
-  } else {
-    document.getElementById('proLoginErr').style.display = 'block';
-  }
-}
-function logoutPro() {
-  localStorage.removeItem('ytb-elite-pro');
-  localStorage.removeItem('ytb-elite-pro-user');
-  updateProBadge();
-  showToast('Sessão Elite Coach Pro terminada');
-}
-function updateProBadge() {
-  const badge = document.getElementById('proBadge');
-  if (isPro()) {
-    badge.textContent = '⚡ Pro';
-    badge.style.background = 'var(--gold)';
-    badge.style.color = '#000';
-    badge.onclick = logoutPro;
-    badge.title = 'Pro activo · clica para sair';
-  } else {
-    const u = getIAUsage();
-    const remaining = Math.max(0, IA_FREE_LIMIT - u.count);
-    badge.textContent = remaining + '/' + IA_FREE_LIMIT;
-    badge.style.background = 'var(--bg3)';
-    badge.style.color = '#fff';
-    badge.onclick = showProLogin;
-    badge.title = remaining + ' análises IA grátis este mês';
-  }
-}
-
-// Upgrade modal
-function showUpgradeModal() {
-  document.getElementById('upgradeModal').classList.add('show');
-}
-function closeUpgradeModal() {
-  document.getElementById('upgradeModal').classList.remove('show');
-}
 
 // ═══════════════════════════════════════════════════════
 // SHARE
@@ -1150,10 +939,6 @@ function abrirShare(prefix) {
     titulo = activeSim.titulo;
     desc = `${activeSim.contexto}\n\n📋 ${activeSim.relatorio}`;
     svgId = 'simPitchSvg';
-  } else if (prefix === 'ed') {
-    titulo = 'Jogada do Editor';
-    desc = 'Jogada criada no Elite Coach';
-    svgId = 'edPitchSvg';
   } else { showToast('Nada para partilhar'); return; }
 
   document.getElementById('shareModal').dataset.titulo = titulo;
@@ -1211,7 +996,6 @@ function showToast(msg) {
 // ═══════════════════════════════════════════════════════
 renderCenarios();
 renderSimulacoes();
-updateProBadge();
 
 // ═══════════════════════════════════════════════════════
 // DASHBOARD + NAME SETUP
@@ -1236,8 +1020,6 @@ function updateGreeting() {
   }
 }
 function updateDashContext() {
-  const u = getIAUsage();
-  document.getElementById('dashIAUsage').textContent = isPro() ? '⚡ Pro · ilimitado' : `${u.count}/${IA_FREE_LIMIT}`;
   const lastTactic = localStorage.getItem('ytb-last-tactic');
   const lastCen = localStorage.getItem('ytb-last-cen');
   if (lastTactic || lastCen) {
