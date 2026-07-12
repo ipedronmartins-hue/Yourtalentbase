@@ -16,6 +16,9 @@ html,body{background:var(--bg);color:var(--white);font-family:'Plus Jakarta Sans
 body{max-width:900px;margin:0 auto;padding-bottom:70px}
 .nav{position:sticky;top:0;z-index:100;background:rgba(8,12,8,.97);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:13px 18px;display:flex;align-items:center;justify-content:space-between}
 .nav-back{font-size:12px;color:var(--slate);text-decoration:none}
+.app-switch{display:flex;align-items:center;gap:6px;background:var(--gold-soft);border:1px solid var(--gold-border);color:var(--gold);
+  font-size:12px;font-weight:800;padding:8px 14px;border-radius:999px;text-decoration:none;white-space:nowrap}
+.app-switch:hover{background:var(--gold);color:#0A0D0A}
 .login-wrap{padding:50px 22px 0;text-align:center}
 .login-title{font-family:'Barlow Condensed';font-weight:900;font-size:36px;letter-spacing:-1px}
 .login-title span{color:var(--gold)}
@@ -76,7 +79,7 @@ body{max-width:900px;margin:0 auto;padding-bottom:70px}
 <body>
 <nav class="nav">
   <a href="/" class="ytb-logo"><b>YTB</b><span>Coach AI</span></a>
-  <a href="ytb-pro-treinador.html" class="nav-back">← Painel do treinador</a>
+  <a href="ytb-pro-treinador.html" class="app-switch" title="Outra ferramenta: gerir atletas e faturação">💼 Painel do treinador →</a>
 </nav>
 
 <div id="login-view">

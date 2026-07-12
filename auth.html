@@ -120,7 +120,7 @@ function encaminhar(papel){
   }
 }
 
-const DESTINOS = { 'acesso.html':['familia','admin'], 'ytb-pro-treinador.html':['treinador','admin'], 'scouts.html':['scout','admin'], 'clube.html':['clube','admin'], 'scouting360-dashboard.html':['cliente','admin'], 'admin360.html':['admin'] };
+const DESTINOS = { 'acesso.html':['familia','admin'], 'ytb-pro-treinador.html':['treinador','admin'], 'ytb-coach-ai.html':['treinador','admin'], 'scouts.html':['scout','admin'], 'clube.html':['clube','admin'], 'scouting360-dashboard.html':['cliente','admin'], 'admin360.html':['admin'] };
 function destinoPedido(){
   const d = new URLSearchParams(location.search).get('dest');
   return (d && DESTINOS[d]) ? d : null;

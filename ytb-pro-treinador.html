@@ -45,6 +45,10 @@ body{padding-bottom:40px}
 .topbar-home{font-size:19px;text-decoration:none;color:var(--gold);flex:none;line-height:1}
 .topbar-name{font-size:14px;font-weight:700}.topbar-name .role{font-size:10px;color:var(--gold);font-weight:800;letter-spacing:1px;text-transform:uppercase}
 .topbar-out{background:none;border:1px solid var(--border);color:var(--slate);font-size:11px;padding:6px 12px;border-radius:7px;cursor:pointer}
+.topbar-r{display:flex;align-items:center;gap:10px}
+.app-switch{display:flex;align-items:center;gap:6px;background:var(--gold-soft);border:1px solid var(--gold-border);color:var(--gold);
+  font-size:12px;font-weight:800;padding:8px 14px;border-radius:999px;text-decoration:none;white-space:nowrap}
+.app-switch:hover{background:var(--gold);color:#0A0D0A}
 .tabs{display:flex;gap:4px;margin-bottom:18px;overflow-x:auto}
 .tab{flex:1;min-width:fit-content;background:var(--bg2);border:1px solid var(--border);color:var(--slate);padding:10px 8px;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
 .tab.active{border-color:var(--gold);color:var(--gold);background:var(--gold-soft)}
@@ -128,11 +132,13 @@ body{padding-bottom:40px}
       <a href="/" class="topbar-home" title="Início" aria-label="Início">🏠</a>
       <div class="topbar-name"><div class="role">🎓 Treinador</div><span id="tb-nome">—</span></div>
     </div>
-    <button class="topbar-out" onclick="logout()">Sair</button>
+    <div class="topbar-r">
+      <a href="ytb-coach-ai.html" class="app-switch" title="Outra ferramenta: preparar treinos e jogos">🧠 Coach AI →</a>
+      <button class="topbar-out" onclick="logout()">Sair</button>
+    </div>
   </div>
 
   <div class="tabs">
-    <a href="ytb-coach-ai.html" class="tab" style="text-decoration:none;display:inline-block;text-align:center">🧠 Coach AI</a>
     <button class="tab active" onclick="setTab('atletas')">👥 Atletas</button>
     <button class="tab" onclick="setTab('avaliar')">📋 Avaliar</button>
     <button class="tab" onclick="setTab('retorno')">🔄 Retorno</button>
