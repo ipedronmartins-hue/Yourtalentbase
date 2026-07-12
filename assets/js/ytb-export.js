@@ -84,33 +84,59 @@
     return { html: html, qrId: qrId };
   }
 
-  function planoPDF(raw){
-    var ctx = montarContexto(raw);
-    if(!global.html2pdf){ global.alert('Exportação indisponível (biblioteca de PDF não carregada).'); return Promise.reject(new Error('html2pdf ausente')); }
+  // MOTOR v2: janela de impressão com TEXTO REAL (window.print → guardar como
+  // PDF). O motor anterior (html2pdf/html2canvas) rasterizava o HTML para
+  // imagem e falhava de formas diferentes em dispositivos diferentes — o
+  // fundador reportou "PDF sem nada escrito" mesmo depois da correção do
+  // wrapper fixo. Rasterização de canvas é frágil por natureza (fontes,
+  // timing, memória em telemóveis); imprimir texto a sério não é. O PDF
+  // resultante é selecionável e pesquisável. Em telemóvel, o diálogo de
+  // impressão do sistema tem "Guardar como PDF".
+  function abrirJanelaImpressao(ctx){
     var built = template(ctx);
-    // O host a capturar tem de ficar em position:static — esta versão do html2canvas
-    // devolve altura 0 (PDF em branco) quando o próprio elemento passado a .from() tem
-    // position:fixed/absolute. Por isso escondemos com um wrapper fixo por fora, e o
-    // elemento capturado fica em fluxo normal lá dentro (confirmado por teste isolado).
-    var wrap = document.createElement('div');
-    wrap.style.cssText = 'position:fixed;left:-9999px;top:0;';
-    var host = document.createElement('div');
-    host.innerHTML = built.html;
-    wrap.appendChild(host);
-    document.body.appendChild(wrap);
+    var win = global.open('', '_blank');
+    if(!win){
+      global.alert('O navegador bloqueou a janela de impressão. Permite pop-ups para exportar o plano.');
+      return null;
+    }
+    var doc = win.document;
+    doc.open();
+    doc.write('<!DOCTYPE html><html lang="pt"><head><meta charset="utf-8">'
+      + '<title>Plano de Treino · ' + esc(ctx.atletaNome) + ' · Semana ' + ctx.semanaAtual + '</title>'
+      + '<style>'
+      + '@page{size:A4;margin:12mm}'
+      + 'html,body{margin:0;padding:0;background:#fff}'
+      + '@media screen{body{background:#e8e8e8;padding:20px} .folha{max-width:760px;margin:0 auto;box-shadow:0 2px 14px rgba(0,0,0,.18)}}'
+      + '.no-print{position:sticky;top:0;display:flex;gap:10px;justify-content:center;padding:12px;background:#111;}'
+      + '.no-print button{font:700 14px Arial;padding:10px 18px;border-radius:8px;border:none;cursor:pointer;background:#D4AF37;color:#000}'
+      + '.no-print span{color:#bbb;font:12px Arial;align-self:center}'
+      + '@media print{.no-print{display:none}}'
+      + '</style></head><body>'
+      + '<div class="no-print"><button onclick="window.print()">🖨 Imprimir / Guardar PDF</button><span>No telemóvel: escolhe “Guardar como PDF” no diálogo.</span></div>'
+      + '<div class="folha">' + built.html + '</div>'
+      + '</body></html>');
+    doc.close();
     if(global.QRCode && ctx.passaporteUrl){
       try{
-        new global.QRCode(document.getElementById(built.qrId), { text: ctx.passaporteUrl, width:70, height:70, correctLevel: global.QRCode.CorrectLevel.M });
+        // qrcodejs desenha no documento da NOVA janela (elemento vive lá)
+        new global.QRCode(doc.getElementById(built.qrId), { text: ctx.passaporteUrl, width:70, height:70, correctLevel: global.QRCode.CorrectLevel.M });
       }catch(e){ /* segue sem QR se a biblioteca falhar */ }
     }
-    var nomeArq = 'Plano-' + String(ctx.atletaNome||'atleta').replace(/[^a-z0-9]+/gi,'-') + '-semana' + ctx.semanaAtual + '.pdf';
-    return global.html2pdf().set({
-      margin: 0,
-      filename: nomeArq,
-      html2canvas: { scale: 2, backgroundColor: '#ffffff' },
-      jsPDF: { unit:'pt', format:'a4', orientation:'portrait' }
-    }).from(host).save().then(function(){ document.body.removeChild(wrap); }).catch(function(err){ document.body.removeChild(wrap); throw err; });
+    return win;
   }
 
-  global.YTBExport = { planoPDF: planoPDF, montarContexto: montarContexto };
+  function planoPDF(raw){
+    var ctx = montarContexto(raw);
+    var win = abrirJanelaImpressao(ctx);
+    if(!win) return Promise.reject(new Error('popup bloqueado'));
+    // dá um instante ao layout/QR antes de abrir o diálogo de impressão
+    return new Promise(function(resolve){
+      setTimeout(function(){
+        try{ win.focus(); win.print(); }catch(e){ /* o utilizador ainda tem o botão na janela */ }
+        resolve();
+      }, 350);
+    });
+  }
+
+  global.YTBExport = { planoPDF: planoPDF, montarContexto: montarContexto, _abrirJanelaImpressao: abrirJanelaImpressao };
 })(window);
