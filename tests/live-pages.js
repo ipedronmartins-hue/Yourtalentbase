@@ -12,6 +12,7 @@ module.exports = [
   'inscrever.html',
   'passaporte.html',
   'ytb-pro-treinador.html',
+  'ytb-coach-ai.html',
   'scouts.html',
   'clube.html',
   'admin360.html',

@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>YTB Coach AI · Treinador</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/ytb-vivo.css">
+<script src="/assets/js/ytb-vivo.js"></script>
+<script src="/assets/js/ytb-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--bg:#080C08;--bg2:#0F1410;--bg3:#161D17;--gold:#D4AF37;--gold-soft:rgba(212,175,55,.14);--gold-border:rgba(212,175,55,.32);--green:#00D46A;--red:#ff5050;--orange:#E0A458;--blue:#5AA9E6;--border:#1F2520;--white:#ECEFEA;--slate:#9AA39A;--muted:#6B756C}
+html,body{background:var(--bg);color:var(--white);font-family:'Plus Jakarta Sans',sans-serif;min-height:100vh}
+body{max-width:900px;margin:0 auto;padding-bottom:70px}
+.nav{position:sticky;top:0;z-index:100;background:rgba(8,12,8,.97);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:13px 18px;display:flex;align-items:center;justify-content:space-between}
+.nav-back{font-size:12px;color:var(--slate);text-decoration:none}
+.login-wrap{padding:50px 22px 0;text-align:center}
+.login-title{font-family:'Barlow Condensed';font-weight:900;font-size:36px;letter-spacing:-1px}
+.login-title span{color:var(--gold)}
+.login-sub{font-size:13px;color:var(--slate);margin:6px 0 24px}
+.login-box{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:22px;margin:0 18px 16px;max-width:440px;margin-left:auto;margin-right:auto}
+.label{display:block;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;color:#fff}
+.input,select.input,textarea.input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px 13px;font-size:15px;color:#fff;font-family:inherit;outline:none}
+.input:focus{border-color:var(--gold)}
+.btn{display:inline-block;width:100%;background:var(--gold);color:#000;text-align:center;padding:15px;border-radius:11px;font-size:15px;font-weight:800;border:none;cursor:pointer;font-family:inherit}
+.btn-sec{background:var(--bg3);color:#fff;border:1px solid var(--border)}
+.btn:disabled{opacity:.5}
+.err{color:var(--red);font-size:12px;text-align:center;margin-top:8px;display:none}
+#main{display:none;padding:0 16px}
+.tabs{display:flex;gap:6px;margin:14px 0;overflow-x:auto;padding-bottom:2px}
+.tab{flex:1;min-width:120px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px 10px;color:var(--slate);font-family:'Barlow Condensed';font-weight:900;font-size:15px;letter-spacing:.5px;cursor:pointer;text-align:center}
+.tab.on{border-color:var(--gold);color:var(--gold);background:var(--gold-soft)}
+.sec{display:none}.sec.on{display:block}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px}
+.h{font-family:'Barlow Condensed';font-weight:900;font-size:22px;margin-bottom:4px}
+.s{font-size:12px;color:var(--slate);margin-bottom:12px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.chip{background:var(--bg3);border:1px solid var(--border);color:var(--slate);border-radius:999px;padding:12px 16px;font-size:14px;font-weight:700;cursor:pointer;min-height:46px}
+.chip.on{color:var(--green);border-color:rgba(0,212,106,.45);background:rgba(0,212,106,.08)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(min-width:700px){.grid2{grid-template-columns:1fr 1fr 1fr 1fr}}
+.step{display:flex;align-items:center;gap:12px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:8px 10px}
+.step button{width:44px;height:44px;border-radius:9px;border:1px solid var(--border);background:var(--bg2);color:#fff;font-size:20px;cursor:pointer}
+.step .v{flex:1;text-align:center;font-family:'Barlow Condensed';font-weight:900;font-size:24px}
+.bloco{border:1px solid var(--border);border-radius:11px;padding:13px;margin-bottom:9px;background:var(--bg3)}
+.bloco .bt{font-family:'Barlow Condensed';font-weight:900;font-size:16px;color:var(--gold)}
+.bloco .bm{font-size:11px;color:var(--muted);margin-bottom:6px}
+.ex{border-top:1px solid var(--border);padding:9px 0}
+.ex .en{font-weight:800;font-size:14px}
+.ex .eo{font-size:12px;color:var(--green)}
+.ex .ed{font-size:12.5px;color:var(--slate);line-height:1.5;margin-top:3px}
+.ex .ev{font-size:11.5px;color:var(--blue);margin-top:3px}
+.linha{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--bg3);border:1px solid var(--border);border-radius:11px;padding:12px 14px;margin-bottom:8px}
+.linha .nm{font-weight:700;font-size:15px}
+.linha .mt{font-size:11px;color:var(--muted)}
+.pbtn{min-width:118px;min-height:48px;border-radius:10px;border:1px solid var(--border);font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;background:var(--bg2);color:var(--slate)}
+.pbtn.presente{background:rgba(0,212,106,.14);border-color:rgba(0,212,106,.5);color:var(--green)}
+.pbtn.falta{background:rgba(255,80,80,.12);border-color:rgba(255,80,80,.5);color:var(--red)}
+.pbtn.justificada{background:rgba(224,164,88,.12);border-color:rgba(224,164,88,.5);color:var(--orange)}
+.campo{width:100%;max-width:560px;margin:0 auto;display:block}
+.pos{cursor:pointer}
+.pos circle{fill:var(--bg3);stroke:var(--border);stroke-width:2}
+.pos.on circle{fill:rgba(0,212,106,.25);stroke:var(--green)}
+.pos.sel circle{stroke:var(--gold);stroke-width:3}
+.pos text{fill:var(--white);font:800 13px 'Barlow Condensed';text-anchor:middle}
+.pos .pn{font-size:9px;fill:var(--slate)}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--gold);color:#000;padding:12px 20px;border-radius:100px;font-weight:800;font-size:13px;z-index:300;opacity:0;transition:.3s;pointer-events:none;max-width:88vw;text-align:center}
+.toast.show{opacity:1}
+.spinner{display:inline-block;width:15px;height:15px;border:2px solid rgba(0,0,0,.3);border-top-color:#000;border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media print{.nav,.tabs,button,.chips,.step{display:none!important}body{background:#fff;color:#111}.card,.bloco{background:#fff;border-color:#ccc}.h,.bt{color:#111}.ed,.s,.bm{color:#444}}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <a href="/" class="ytb-logo"><b>YTB</b><span>Coach AI</span></a>
+  <a href="ytb-pro-treinador.html" class="nav-back">← Painel do treinador</a>
+</nav>
+
+<div id="login-view">
+  <div class="login-wrap">
+    <div style="font-size:52px;margin-bottom:10px">🧠</div>
+    <div class="login-title">YTB <span>Coach AI</span></div>
+    <div class="login-sub">Sessões, microciclos, presenças e convocatórias — para treinadores</div>
+  </div>
+  <div class="login-box">
+    <label class="label">O teu email</label>
+    <input class="input" id="email" type="email" autocomplete="email" placeholder="treinador@email.com">
+    <div class="err" id="lerr">Não foi possível enviar o link.</div>
+    <div id="lok" style="display:none;color:var(--green);font-size:13px;margin:10px 0"></div>
+    <button class="btn" id="lbtn" onclick="login()" style="margin-top:12px">Receber link de acesso →</button>
+  </div>
+</div>
+
+<div id="main">
+  <div class="tabs">
+    <button class="tab on" data-t="sessao" onclick="tab('sessao')">⚡ Sessão</button>
+    <button class="tab" data-t="micro" onclick="tab('micro')">📅 Microciclo</button>
+    <button class="tab" data-t="pres" onclick="tab('pres')">✅ Presenças</button>
+    <button class="tab" data-t="conv" onclick="tab('conv')">📣 Convocatória</button>
+  </div>
+
+  <!-- SESSÃO -->
+  <div class="sec on" id="sec-sessao">
+    <div class="card">
+      <div class="h">Gerar <span style="color:var(--gold)">sessão de treino</span></div>
+      <div class="s">Escolhe o contexto — a IA desenha a sessão completa, adaptada ao escalão, ao espaço e ao material que tens.</div>
+      <label class="label">Escalão</label>
+      <div class="chips" id="c-esc"></div>
+      <label class="label">Formato</label>
+      <div class="chips" id="c-fmt"></div>
+      <div class="grid2" style="margin-bottom:12px">
+        <div><label class="label">Nº de atletas</label>
+          <div class="step"><button onclick="stepN(-1)">−</button><div class="v" id="v-n">12</div><button onclick="stepN(1)">+</button></div></div>
+        <div><label class="label">Duração</label>
+          <div class="chips" id="c-dur" style="margin:0"></div></div>
+      </div>
+      <label class="label">Material disponível</label>
+      <div class="chips" id="c-mat"></div>
+      <label class="label">Foco da sessão</label>
+      <div class="chips" id="c-foco"></div>
+      <button class="btn" id="btn-gerar" onclick="gerarSessao()">🧠 Gerar sessão com IA</button>
+      <div class="err" id="serr"></div>
+    </div>
+    <div id="sessao-out"></div>
+  </div>
+
+  <!-- MICROCICLO -->
+  <div class="sec" id="sec-micro">
+    <div class="card">
+      <div class="h">Microciclo <span style="color:var(--gold)">da semana</span></div>
+      <div class="s">Três sessões progressivas até ao jogo (MD-4 volume · MD-2 intensidade · MD-1 ativação). Usa os mesmos seletores da Sessão.</div>
+      <button class="btn" id="btn-micro" onclick="gerarMicro()">🧠 Gerar microciclo (3 sessões)</button>
+    </div>
+    <div id="micro-out"></div>
+  </div>
+
+  <!-- PRESENÇAS -->
+  <div class="sec" id="sec-pres">
+    <div class="card">
+      <div class="h">Presenças <span style="color:var(--gold)">de hoje</span></div>
+      <div class="s">Toca no estado de cada atleta e guarda — fica no passaporte de cada um. 5-6 toques e está feito.</div>
+      <div id="pres-lista"><div class="s">A carregar plantel…</div></div>
+      <button class="btn" id="btn-pres" onclick="guardarPresencas()" style="margin-top:8px">Guardar presenças →</button>
+    </div>
+  </div>
+
+  <!-- CONVOCATÓRIA -->
+  <div class="sec" id="sec-conv">
+    <div class="card">
+      <div class="h">Convocatória <span style="color:var(--gold)">com campo</span></div>
+      <div class="s">Toca numa posição no campo e depois num atleta (ou vice-versa). Os números seguem as características clássicas de cada posição.</div>
+      <div class="chips" id="cv-fmt"></div>
+      <svg class="campo" id="campo" viewBox="0 0 300 420" xmlns="http://www.w3.org/2000/svg"></svg>
+      <div id="pos-desc" style="font-size:12px;color:var(--slate);text-align:center;min-height:32px;padding:6px 4px"></div>
+      <label class="label">Plantel (ordenado por presenças nos últimos 30 dias)</label>
+      <div id="cv-lista"><div class="s">A carregar…</div></div>
+      <label class="label" style="margin-top:10px">Estratégia para o banco</label>
+      <textarea class="input" id="cv-banco" rows="3" placeholder="Quem entra, quando, e para quê…"></textarea>
+      <button class="btn btn-sec" onclick="sugerirBanco()" style="margin-top:8px">💡 Sugerir estratégia (IA)</button>
+      <div class="grid2" style="margin-top:10px">
+        <div><label class="label">Data do jogo</label><input class="input" id="cv-data" type="date"></div>
+        <div><label class="label">Adversário</label><input class="input" id="cv-adv" type="text" placeholder="Nome do adversário"></div>
+      </div>
+      <button class="btn" id="btn-conv" onclick="guardarConv()" style="margin-top:12px">Guardar convocatória →</button>
+      <div class="err" id="cverr"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+var CFG=window.YTB_CONFIG||{}, USING_SB=!!(CFG.SUPABASE_URL&&CFG.SUPABASE_KEY&&window.supabase);
+var supa=USING_SB?window.supabase.createClient(CFG.SUPABASE_URL,CFG.SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:'ytb-auth',flowType:'pkce'}}):null;
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+var toastT=null;function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(function(){t.classList.remove('show');},2800);}
+function tab(t){document.querySelectorAll('.tab').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-t')===t);});document.querySelectorAll('.sec').forEach(function(s){s.classList.remove('on');});document.getElementById('sec-'+t).classList.add('on');if(t==='pres')carregarPlantel();if(t==='conv')carregarConv();}
+
+/* ── seletores ── */
+var SEL={escalao:'Sub-11',formato:'fut7',n:12,dur:75,material:['bolas','coletes','cones'],foco:'posse'};
+var ESCALOES=['Sub-10','Sub-11','Sub-12','Sub-13','Sub-15','Sub-17','Sub-19','Seniores'];
+var MATERIAIS=[['bolas','⚽ Bolas'],['coletes','🎽 Coletes'],['cones','🔺 Cones'],['balizas','🥅 Balizas pequenas'],['escada','🪜 Escada'],['barreiras','🚧 Barreiras']];
+var FOCOS=[['posse','Posse'],['finalizacao','Finalização'],['transicao','Transições'],['defesa','Defesa'],['fisico','Físico'],['jogo','Jogo']];
+function chips(id,itens,get,set,multi){
+  var box=document.getElementById(id);
+  box.innerHTML=itens.map(function(it){var v=Array.isArray(it)?it[0]:it,l=Array.isArray(it)?it[1]:it;
+    var on=multi?get().indexOf(v)>=0:get()===v;
+    return '<button class="chip'+(on?' on':'')+'" data-v="'+esc(v)+'">'+esc(l)+'</button>';}).join('');
+  box.querySelectorAll('.chip').forEach(function(b){b.addEventListener('click',function(){
+    var v=b.getAttribute('data-v');
+    if(multi){var a=get();var i=a.indexOf(v);if(i>=0)a.splice(i,1);else a.push(v);set(a);}else set(v);
+    chips(id,itens,get,set,multi);
+    if(id==='cv-fmt')desenharCampo();
+  });});
+}
+function montarSeletores(){
+  chips('c-esc',ESCALOES,function(){return SEL.escalao},function(v){SEL.escalao=v});
+  chips('c-fmt',[['fut7','Fut7'],['fut9','Fut9'],['fut11','Fut11']],function(){return SEL.formato},function(v){SEL.formato=v});
+  chips('c-dur',[[60,'60′'],[75,'75′'],[90,'90′']].map(function(x){return [String(x[0]),x[1]]}),function(){return String(SEL.dur)},function(v){SEL.dur=parseInt(v)});
+  chips('c-mat',MATERIAIS,function(){return SEL.material},function(a){SEL.material=a},true);
+  chips('c-foco',FOCOS,function(){return SEL.foco},function(v){SEL.foco=v});
+  chips('cv-fmt',[['fut7','Fut7'],['fut9','Fut9'],['fut11','Fut11']],function(){return SEL.formato},function(v){SEL.formato=v});
+}
+function stepN(d){SEL.n=Math.max(4,Math.min(30,SEL.n+d));document.getElementById('v-n').textContent=SEL.n;}
+
+/* ── IA + fallback local ── */
+function promptSessao(){
+  return 'És treinador-formador UEFA de futebol jovem em Portugal. Desenha UMA sessão de treino.\n'
+    +'Contexto: escalão '+SEL.escalao+', formato '+SEL.formato+', '+SEL.n+' atletas, '+SEL.dur+' minutos, material: '+SEL.material.join(', ')+'. Foco: '+SEL.foco+'.\n'
+    +'REGRAS: adequa a complexidade e a carga ao escalão (Sub-10/11: lúdico, muitos toques, zero tática abstrata; Seniores: intensidade real). Usa SÓ o material indicado. Todos os atletas em atividade (nada de filas longas).\n'
+    +'Responde APENAS com JSON válido, sem markdown: {"titulo":"...","blocos":[{"nome":"Aquecimento","min":12,"exercicios":[{"nome":"...","organizacao":"espaço e grupos, ex: 2 grupos de 6, quadrado 15x15","instrucoes":"o que fazer e o que corrigir","variante":"progressão ou simplificação"}]},...]} com 4 blocos (Aquecimento, Parte principal, Jogo, Retorno à calma) somando ~'+SEL.dur+' min.';
+}
+function fallbackSessao(){
+  var dur=SEL.dur, aq=Math.round(dur*.18), pr=Math.round(dur*.42), jg=Math.round(dur*.3), rc=dur-aq-pr-jg;
+  var focoL={posse:'posse de bola',finalizacao:'finalização',transicao:'transições',defesa:'organização defensiva',fisico:'capacidade física',jogo:'jogo formal'}[SEL.foco]||SEL.foco;
+  return {titulo:'Sessão '+focoL+' · '+SEL.escalao+' ('+SEL.formato+')',blocos:[
+    {nome:'Aquecimento',min:aq,exercicios:[{nome:'Ativação com bola',organizacao:'todos com bola num quadrado 20x20',instrucoes:'condução livre, ao sinal muda de direção; mobilidade articular intercalada',variante:'acrescenta perseguição a pares'}]},
+    {nome:'Parte principal',min:pr,exercicios:[
+      {nome:'Rondo adaptado ao foco',organizacao:'grupos de '+Math.max(4,Math.round(SEL.n/2))+', quadrado 12x12',instrucoes:'2 toques; quem perde troca; corrige ângulos de apoio',variante:'limita a 1 toque para escalões mais velhos'},
+      {nome:'Exercício de '+focoL,organizacao:'meio-campo, 2 equipas',instrucoes:'situação condicionada ao foco escolhido; instrução curta, muita repetição',variante:'acrescenta limite de tempo por ataque'}]},
+    {nome:'Jogo',min:jg,exercicios:[{nome:'Jogo condicionado',organizacao:SEL.formato+' reduzido conforme o plantel',instrucoes:'pontuação extra quando o objetivo do foco acontece',variante:'jogo livre nos últimos minutos'}]},
+    {nome:'Retorno à calma',min:rc,exercicios:[{nome:'Alongamentos e conversa',organizacao:'círculo central',instrucoes:'alongar suave; pergunta a 2-3 atletas o que aprenderam',variante:'—'}]}]};
+}
+function chamarIA(prompt,maxTokens){
+  return fetch('/api/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt,max_tokens:maxTokens||1400})})
+    .then(function(r){if(!r.ok)throw new Error('API '+r.status);return r.json();})
+    .then(function(j){var t='';(j.content||[]).forEach(function(c){if(c.type==='text')t+=c.text;});return t.trim();});
+}
+function parseJSON(t){t=t.replace(/^```json?/i,'').replace(/```$/,'').trim();var i=t.indexOf('{'),f=t.lastIndexOf('}');if(i<0||f<0)throw new Error('sem JSON');return JSON.parse(t.slice(i,f+1));}
+
+function renderSessao(plano,origem,mount){
+  var total=(plano.blocos||[]).reduce(function(s,b){return s+(b.min||0);},0);
+  var h='<div class="card"><div class="h">'+esc(plano.titulo||'Sessão')+'</div>'
+    +'<div class="s">'+SEL.escalao+' · '+SEL.formato+' · '+SEL.n+' atletas · '+total+' min · '+(origem==='ia'?'🧠 gerada por IA':'📋 modelo local')+'</div>';
+  (plano.blocos||[]).forEach(function(b){
+    h+='<div class="bloco"><div class="bt">'+esc(b.nome)+' <span style="color:var(--slate);font-size:12px">· '+(b.min||0)+' min</span></div>';
+    (b.exercicios||[]).forEach(function(e){
+      h+='<div class="ex"><div class="en">'+esc(e.nome)+'</div>'
+        +(e.organizacao?'<div class="eo">📐 '+esc(e.organizacao)+'</div>':'')
+        +(e.instrucoes?'<div class="ed">'+esc(e.instrucoes)+'</div>':'')
+        +(e.variante&&e.variante!=='—'?'<div class="ev">↗ Variante: '+esc(e.variante)+'</div>':'')+'</div>';
+    });
+    h+='</div>';
+  });
+  h+='<div style="display:flex;gap:8px;margin-top:6px"><button class="btn" style="flex:1" onclick="guardarSessao()">💾 Guardar</button><button class="btn btn-sec" style="flex:1" onclick="window.print()">🖨 Imprimir</button></div></div>';
+  document.getElementById(mount).innerHTML=h;
+}
+var ultimaSessao=null,ultimaOrigem='local';
+function gerarSessao(){
+  var b=document.getElementById('btn-gerar');b.disabled=true;b.innerHTML='<span class="spinner"></span> A desenhar a sessão…';
+  chamarIA(promptSessao()).then(function(t){ultimaSessao=parseJSON(t);ultimaOrigem='ia';})
+  .catch(function(){ultimaSessao=fallbackSessao();ultimaOrigem='local';toast('IA indisponível — usei o modelo local');})
+  .then(function(){renderSessao(ultimaSessao,ultimaOrigem,'sessao-out');b.disabled=false;b.textContent='🧠 Gerar sessão com IA';});
+}
+function guardarSessao(){
+  if(!ultimaSessao){toast('Gera primeiro uma sessão');return;}
+  supa.rpc('ytb_coach_sessao_criar',{p_titulo:ultimaSessao.titulo||'Sessão',p_data:new Date().toISOString().slice(0,10),p_escalao:SEL.escalao,p_formato:SEL.formato,p_n_atletas:SEL.n,p_duracao:SEL.dur,p_material:SEL.material,p_foco:SEL.foco,p_plano:ultimaSessao,p_origem:ultimaOrigem})
+    .then(function(r){var d=r.data;if(r.error||!d||!d.ok){toast('⚠ Não guardado ('+((d&&d.motivo)||'erro')+')');return;}toast('Sessão guardada ✓');});
+}
+function gerarMicro(){
+  var b=document.getElementById('btn-micro');b.disabled=true;b.innerHTML='<span class="spinner"></span> A desenhar a semana…';
+  var dias=[['MD-4','volume e técnica — longe do jogo','posse'],['MD-2','intensidade e situações de jogo',SEL.foco],['MD-1','ativação curta e bolas paradas — véspera','jogo']];
+  var out=[],i=0;
+  function um(){
+    if(i>=dias.length){
+      var h='';out.forEach(function(o,ix){var tot=(o.plano.blocos||[]).reduce(function(s,x){return s+(x.min||0);},0);
+        h+='<div class="card"><div class="h">'+esc(dias[ix][0])+' · '+esc(o.plano.titulo||'')+'</div><div class="s">'+esc(dias[ix][1])+' · '+tot+' min · '+(o.origem==='ia'?'🧠 IA':'📋 local')+'</div>';
+        (o.plano.blocos||[]).forEach(function(bl){h+='<div class="bloco"><div class="bt">'+esc(bl.nome)+' · '+(bl.min||0)+'′</div>';(bl.exercicios||[]).forEach(function(e){h+='<div class="ex"><div class="en">'+esc(e.nome)+'</div>'+(e.instrucoes?'<div class="ed">'+esc(e.instrucoes)+'</div>':'')+'</div>';});h+='</div>';});
+        h+='</div>';});
+      h+='<div class="card"><button class="btn" onclick="guardarMicro()">💾 Guardar as 3 sessões</button></div>';
+      document.getElementById('micro-out').innerHTML=h;window.__micro=out;
+      b.disabled=false;b.textContent='🧠 Gerar microciclo (3 sessões)';return;
+    }
+    var focoOrig=SEL.foco;SEL.foco=dias[i][2];
+    var dia=dias[i][0];
+    chamarIA(promptSessao()+'\nEsta é a sessão '+dia+' ('+dias[i][1]+') do microciclo semanal — ajusta a carga a isso.',1200)
+      .then(function(t){out.push({plano:parseJSON(t),origem:'ia',dia:dia});})
+      .catch(function(){out.push({plano:fallbackSessao(),origem:'local',dia:dia});})
+      .then(function(){SEL.foco=focoOrig;i++;um();});
+  }
+  um();
+}
+function guardarMicro(){
+  var out=window.__micro||[];if(!out.length)return;
+  var hoje=new Date(), i=0;
+  function um(){
+    if(i>=out.length){toast('Microciclo guardado ✓ ('+out.length+' sessões)');return;}
+    var d=new Date(hoje);d.setDate(d.getDate()+i*2);
+    supa.rpc('ytb_coach_sessao_criar',{p_titulo:out[i].dia+' · '+(out[i].plano.titulo||'Sessão'),p_data:d.toISOString().slice(0,10),p_escalao:SEL.escalao,p_formato:SEL.formato,p_n_atletas:SEL.n,p_duracao:SEL.dur,p_material:SEL.material,p_foco:SEL.foco,p_plano:out[i].plano,p_origem:out[i].origem})
+      .then(function(){i++;um();});
+  }
+  um();
+}
+
+/* ── presenças (5-6 toques) ── */
+var plantel=[],presEstado={};
+function carregarPlantel(){
+  supa.rpc('ytb_coach_stats').then(function(r){
+    plantel=r.data||[];
+    var box=document.getElementById('pres-lista');
+    if(!plantel.length){box.innerHTML='<div class="s">Ainda não tens atletas inscritos. Inscreve-os no <a href="ytb-pro-treinador.html" style="color:var(--gold)">painel do treinador</a>.</div>';return;}
+    box.innerHTML=plantel.map(function(a){
+      var st=presEstado[a.atleta_id]||'presente';presEstado[a.atleta_id]=st;
+      return '<div class="linha"><div><div class="nm">'+esc(a.nome)+'</div><div class="mt">'+esc(a.posicao||'')+' · '+esc(a.escalao||'')+'</div></div>'
+        +'<button class="pbtn '+st+'" data-a="'+a.atleta_id+'">'+rot(st)+'</button></div>';
+    }).join('');
+    box.querySelectorAll('.pbtn').forEach(function(b){b.addEventListener('click',function(){
+      var id=b.getAttribute('data-a'),ordem=['presente','falta','justificada'];
+      var novo=ordem[(ordem.indexOf(presEstado[id])+1)%3];presEstado[id]=novo;
+      b.className='pbtn '+novo;b.textContent=rot(novo);
+    });});
+  });
+}
+function rot(s){return s==='presente'?'✔ Presente':(s==='falta'?'✖ Falta':'📝 Justificada');}
+function guardarPresencas(){
+  if(!plantel.length){toast('Sem plantel');return;}
+  var b=document.getElementById('btn-pres');b.disabled=true;b.innerHTML='<span class="spinner"></span> A guardar…';
+  var hoje=new Date().toISOString().slice(0,10);
+  supa.rpc('ytb_coach_sessao_criar',{p_titulo:'Treino '+hoje,p_data:hoje,p_escalao:SEL.escalao,p_formato:SEL.formato,p_n_atletas:plantel.length,p_duracao:null,p_material:null,p_foco:null,p_plano:null,p_origem:'local'})
+    .then(function(r){
+      var d=r.data;if(r.error||!d||!d.ok)throw new Error((d&&d.motivo)||'erro');
+      var lista=plantel.map(function(a){return {atleta_id:a.atleta_id,estado:presEstado[a.atleta_id]||'presente'};});
+      return supa.rpc('ytb_coach_presencas_marcar',{p_sessao:d.id,p_lista:lista});
+    })
+    .then(function(r){var d=r.data;if(r.error||!d||!d.ok)throw new Error((d&&d.motivo)||'erro');toast('✓ '+d.marcadas+' presenças no passaporte de cada atleta');})
+    .catch(function(e){toast('⚠ '+e.message);})
+    .then(function(){b.disabled=false;b.textContent='Guardar presenças →';});
+}
+
+/* ── convocatória: campo numerado ── */
+var POSICOES={
+  fut7:[[1,'GR',150,385,'Guarda-redes: seguro com as mãos, primeiro a construir'],[2,'DEF',90,310,'Defesa direito: forte no 1x1, passe seguro'],[3,'DEF',210,310,'Defesa esquerdo: leitura e cobertura'],[4,'MC',150,240,'Médio: motor da equipa, recebe e distribui'],[5,'ALA',60,170,'Ala direito: largura e velocidade'],[6,'ALA',240,170,'Ala esquerdo: 1x1 e cruzamento'],[7,'PL',150,95,'Ponta de lança: finalização e desmarcação']],
+  fut9:[[1,'GR',150,390,'Guarda-redes'],[2,'LD',70,320,'Lateral direito: sobe e fecha'],[3,'DC',150,330,'Central: manda na linha'],[4,'LE',230,320,'Lateral esquerdo'],[5,'MDC',150,265,'Médio defensivo: equilíbrio'],[6,'MC',90,205,'Médio: ligação'],[8,'MC',210,205,'Médio: chegada à área'],[7,'EX',70,120,'Extremo: profundidade'],[9,'PL',180,100,'Ponta de lança: referência']],
+  fut11:[[1,'GR',150,395,'Guarda-redes: jogo aéreo e com os pés'],[2,'LD',60,330,'Lateral direito: corredor todo'],[3,'DC',115,345,'Central direito: duelos e saída'],[4,'DC',185,345,'Central esquerdo: antecipação'],[5,'LE',240,330,'Lateral esquerdo'],[6,'MDC',150,280,'Médio defensivo: escudo e 1ª fase'],[8,'MC',95,220,'Médio centro: box-to-box'],[10,'MO',185,215,'Médio ofensivo: última linha de passe'],[7,'ED',55,140,'Extremo direito: 1x1 e cruzamento'],[11,'EE',245,140,'Extremo esquerdo: dentro para rematar'],[9,'PL',150,95,'Ponta de lança: finalizador']]
+};
+var conv={},posSel=null,cvStats=[];
+function desenharCampo(){
+  var svg=document.getElementById('campo');
+  var pos=POSICOES[SEL.formato]||POSICOES.fut7;
+  var h='<rect x="6" y="6" width="288" height="408" rx="10" fill="rgba(0,212,106,.05)" stroke="var(--border)" stroke-width="2"/>'
+    +'<line x1="6" y1="210" x2="294" y2="210" stroke="var(--border)" stroke-width="1.5"/>'
+    +'<circle cx="150" cy="210" r="34" fill="none" stroke="var(--border)" stroke-width="1.5"/>'
+    +'<rect x="85" y="6" width="130" height="46" fill="none" stroke="var(--border)" stroke-width="1.5"/>'
+    +'<rect x="85" y="368" width="130" height="46" fill="none" stroke="var(--border)" stroke-width="1.5"/>';
+  pos.forEach(function(p){
+    var num=p[0],ocupado=conv[num];
+    h+='<g class="pos'+(ocupado?' on':'')+(posSel===num?' sel':'')+'" data-n="'+num+'" transform="translate('+p[2]+','+p[3]+')">'
+      +'<circle r="21"/>'
+      +'<text y="-1">'+num+'</text>'
+      +'<text class="pn" y="13">'+(ocupado?esc(primNome(ocupado.nome)):p[1])+'</text></g>';
+  });
+  svg.innerHTML=h;
+  svg.querySelectorAll('.pos').forEach(function(g){g.addEventListener('click',function(){
+    var n=parseInt(g.getAttribute('data-n'));
+    var meta=pos.find(function(x){return x[0]===n;});
+    document.getElementById('pos-desc').textContent='#'+n+' · '+meta[4];
+    if(conv[n]&&posSel===n){delete conv[n];posSel=null;}
+    else posSel=n;
+    desenharCampo();pintarCvLista();
+  });});
+}
+function primNome(n){return String(n||'').split(' ')[0];}
+function carregarConv(){
+  desenharCampo();
+  supa.rpc('ytb_coach_stats').then(function(r){
+    cvStats=(r.data||[]).slice().sort(function(a,b){return (b.presencas_30d||0)-(a.presencas_30d||0);});
+    pintarCvLista();
+  });
+}
+function pintarCvLista(){
+  var box=document.getElementById('cv-lista');
+  if(!cvStats.length){box.innerHTML='<div class="s">Sem plantel ainda.</div>';return;}
+  var usados={};Object.keys(conv).forEach(function(k){usados[conv[k].atleta_id]=parseInt(k);});
+  box.innerHTML=cvStats.map(function(a){
+    var num=usados[a.atleta_id];
+    return '<div class="linha" style="cursor:pointer" data-a="'+a.atleta_id+'"><div><div class="nm">'+(num?('<span style="color:var(--gold)">#'+num+'</span> '):'')+esc(a.nome)+'</div>'
+      +'<div class="mt">'+esc(a.posicao||'')+' · '+(a.presencas_30d||0)+' presenças/30d'+(a.faltas_30d?(' · '+a.faltas_30d+' faltas'):'')+'</div></div>'
+      +'<div style="font-size:12px;color:'+(num?'var(--gold)':'var(--muted)')+'">'+(num?'titular':'banco')+'</div></div>';
+  }).join('');
+  box.querySelectorAll('.linha').forEach(function(l){l.addEventListener('click',function(){
+    var id=l.getAttribute('data-a'),a=cvStats.find(function(x){return x.atleta_id===id;});
+    if(posSel==null){toast('Toca primeiro numa posição no campo');return;}
+    Object.keys(conv).forEach(function(k){if(conv[k].atleta_id===id)delete conv[k];});
+    conv[posSel]={atleta_id:id,nome:a.nome};posSel=null;
+    desenharCampo();pintarCvLista();
+  });});
+}
+function sugerirBanco(){
+  var titulares=Object.keys(conv).map(function(k){return conv[k].nome;});
+  var banco=cvStats.filter(function(a){return !titulares.includes(a.nome);}).map(function(a){return a.nome+' ('+(a.posicao||'?')+')';});
+  var p='És treinador de futebol jovem. Formato '+SEL.formato+', escalão '+SEL.escalao+'. Titulares: '+(titulares.join(', ')||'ainda por definir')+'. No banco: '+(banco.join(', ')||'ninguém')+'.\nEscreve 3-4 frases práticas de estratégia para o banco: quem entra primeiro e porquê, por volta de que minuto, e que instrução dar a cada um ao entrar. Direto, PT-PT, sem markdown.';
+  var ta=document.getElementById('cv-banco');ta.value='A pensar…';
+  chamarIA(p,400).then(function(t){ta.value=t;}).catch(function(){ta.value='';toast('IA indisponível — escreve tu a estratégia');});
+}
+function guardarConv(){
+  var lista=Object.keys(conv).map(function(k){return {atleta_id:conv[k].atleta_id,numero:parseInt(k),papel:'titular'};});
+  var titularesIds=lista.map(function(x){return x.atleta_id;});
+  cvStats.forEach(function(a){if(titularesIds.indexOf(a.atleta_id)<0)lista.push({atleta_id:a.atleta_id,numero:null,papel:'suplente'});});
+  if(!lista.length){toast('Sem plantel');return;}
+  var b=document.getElementById('btn-conv');b.disabled=true;b.innerHTML='<span class="spinner"></span> A guardar…';
+  supa.rpc('ytb_coach_convocatoria_criar',{p_data:document.getElementById('cv-data').value||null,p_adversario:document.getElementById('cv-adv').value||null,p_formato:SEL.formato,p_lista:lista,p_banco:document.getElementById('cv-banco').value||null})
+    .then(function(r){var d=r.data;if(r.error||!d||!d.ok)throw new Error((d&&d.motivo)||'erro');toast('✓ Convocatória guardada — "Convocado" no passaporte de cada um');})
+    .catch(function(e){toast('⚠ '+e.message);})
+    .then(function(){b.disabled=false;b.textContent='Guardar convocatória →';});
+}
+
+/* ── login (mesmo padrão do painel do treinador) ── */
+function login(){
+  var email=(document.getElementById('email').value||'').trim().toLowerCase();
+  var err=document.getElementById('lerr');
+  if(!email||email.indexOf('@')<1){err.style.display='block';err.textContent='Insere um email válido';return;}
+  err.style.display='none';
+  var b=document.getElementById('lbtn');b.disabled=true;b.textContent='A enviar…';
+  supa.auth.signInWithOtp({email:email,options:{emailRedirectTo:location.href.split('#')[0].split('?')[0]}}).then(function(r){
+    if(r.error){err.style.display='block';err.textContent='Não foi possível enviar o link.';b.disabled=false;b.textContent='Receber link de acesso →';return;}
+    document.getElementById('lok').style.display='block';
+    document.getElementById('lok').textContent='Link enviado para '+email+' — abre-o para entrares.';
+    b.textContent='Link enviado ✓';
+  });
+}
+function mostrarMain(){document.getElementById('login-view').style.display='none';document.getElementById('main').style.display='block';montarSeletores();}
+(function(){
+  if(!USING_SB){mostrarMain();return;}
+  supa.auth.getSession().then(function(res){
+    var s=res&&res.data&&res.data.session;if(!s){return;}
+    supa.from('perfis').select('papel,estado').eq('email',s.user.email.toLowerCase()).maybeSingle().then(function(p){
+      var perfil=p&&p.data;
+      if(perfil&&perfil.estado==='aprovado'&&(perfil.papel==='treinador'||perfil.papel==='admin'))mostrarMain();
+      else{document.querySelector('.login-sub').textContent='Esta área é para treinadores aprovados. A tua conta não tem esse papel.';}
+    });
+  });
+  supa.auth.onAuthStateChange(function(_e,s){if(s)location.reload();});
+})();
+</script>
+</body>
+</html>
