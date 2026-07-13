@@ -778,37 +778,77 @@ function gerarPlano(debs, idadeAtleta){
   return plano;
 }
 
+function semanaParaHTML(sem, wi, comExport){
+  let html='<div class="dash-card"><div class="dash-card-eyebrow">Semana '+(wi+1)+' · '+sem.ciclo.emoji+' '+sem.ciclo.nome+'</div>'+
+    '<div style="font-size:11px;color:var(--slate);margin-bottom:10px">'+sem.ciclo.desc+'</div>';
+  sem.sessoes.forEach((sess,si)=>{
+    const total=sess.reduce((s,e)=>s+e.tempo,0);
+    html+='<div style="font-size:11px;font-weight:800;color:var(--gold);margin:8px 0 6px">Sessão '+(si+1)+' · '+total+' min</div>';
+    sess.forEach((ex,ei)=>{
+      var intLbl=ex.intensidade>=3?'intensa':(ex.intensidade===2?'média':'leve');
+      html+='<div class="ex-card">'+
+        '<div data-exanim data-exid="'+esc(ex.id||'')+'" data-exnome="'+esc(ex.nome||'')+'"></div>'+
+        '<div class="ex-card-name">'+(ei+1)+'. '+esc(ex.nome)+'</div>'+
+        '<div class="ex-card-obj">🎯 '+esc(ex.obj)+'</div>'+
+        '<div class="ex-card-desc">'+esc(ex.desc)+'</div>'+
+        '<div class="ex-card-meta">⏱ '+ex.tempo+' min'+(ex.equip?' · 🎒 '+esc(ex.equip):'')+' · 💪 '+intLbl+'</div></div>';
+    });
+  });
+  if(comExport)html+='<button class="btn btn-secondary" id="btn-export-pdf-'+wi+'" style="margin-top:10px" onclick="exportarPlanoPDFTreinador('+wi+')">⬇ Exportar PDF desta semana</button>';
+  html+='</div>';
+  return html;
+}
 function renderTreino(){
   const c=document.getElementById('treino-area');
   if(!avalSel||!avalSel.plano){
     c.innerHTML='<div class="empty-state"><div class="empty-emoji">⚽</div>Faz uma avaliação primeiro para gerar o treino.</div>';
     return;
   }
-  const semana=avalSel.plano[0];
   var idadePlano=idadeDoAtleta(atletaSel);
   let html='<div class="dash-card"><div class="dash-card-eyebrow">Plano para '+esc(avalSel.nome)+' · 4 semanas</div>'+
     '<div style="font-size:12px;color:var(--slate);line-height:1.5">Treino caseiro focado nas debilidades, <strong>adaptado à idade</strong>'+(idadePlano?(' ('+idadePlano+' anos)'):'')+' — a intensidade sobe ao longo das semanas e os exercícios de impacto só entram na idade certa. Cada sessão ~20-25 min.</div></div>';
-  avalSel.plano.forEach((sem,wi)=>{
-    html+='<div class="dash-card"><div class="dash-card-eyebrow">Semana '+(wi+1)+' · '+sem.ciclo.emoji+' '+sem.ciclo.nome+'</div>'+
-      '<div style="font-size:11px;color:var(--slate);margin-bottom:10px">'+sem.ciclo.desc+'</div>';
-    sem.sessoes.forEach((sess,si)=>{
-      const total=sess.reduce((s,e)=>s+e.tempo,0);
-      html+='<div style="font-size:11px;font-weight:800;color:var(--gold);margin:8px 0 6px">Sessão '+(si+1)+' · '+total+' min</div>';
-      sess.forEach((ex,ei)=>{
-        var intLbl=ex.intensidade>=3?'intensa':(ex.intensidade===2?'média':'leve');
-        html+='<div class="ex-card">'+
-          '<div data-exanim data-exid="'+esc(ex.id||'')+'" data-exnome="'+esc(ex.nome||'')+'"></div>'+
-          '<div class="ex-card-name">'+(ei+1)+'. '+esc(ex.nome)+'</div>'+
-          '<div class="ex-card-obj">🎯 '+esc(ex.obj)+'</div>'+
-          '<div class="ex-card-desc">'+esc(ex.desc)+'</div>'+
-          '<div class="ex-card-meta">⏱ '+ex.tempo+' min'+(ex.equip?' · 🎒 '+esc(ex.equip):'')+' · 💪 '+intLbl+'</div></div>';
-      });
-    });
-    html+='<button class="btn btn-secondary" id="btn-export-pdf-'+wi+'" style="margin-top:10px" onclick="exportarPlanoPDFTreinador('+wi+')">⬇ Exportar PDF desta semana</button>';
-    html+='</div>';
-  });
+  avalSel.plano.forEach((sem,wi)=>{ html+=semanaParaHTML(sem,wi,true); });
+  html+='<div class="dash-card" id="hist-treinos"><div class="dash-card-eyebrow">📜 Histórico de treinos prescritos</div><div style="font-size:11px;color:var(--slate)">A carregar…</div></div>';
   c.innerHTML=html;
   if(window.YTBExAnim)YTBExAnim.mountAll(c); // bonequinhos a demonstrar cada exercício
+  carregarHistoricoTreinos();
+}
+
+async function carregarHistoricoTreinos(){
+  const box=document.getElementById('hist-treinos'); if(!box||!atletaSel)return;
+  const debLbl={tecnica:'Técnica',fisico:'Físico',decisao:'Decisão',tatica:'Tática',mental:'Mental'};
+  try{
+    const{data,error}=await supa.rpc('ytb_treinador_treinos_historico',{p_atleta:atletaSel.id});
+    if(error)throw error;
+    const lista=data||[];
+    if(!lista.length){ box.innerHTML='<div class="dash-card-eyebrow">📜 Histórico de treinos prescritos</div><div style="font-size:11px;color:var(--slate)">Ainda só há este plano — sem prescrições anteriores.</div>'; return; }
+    let h='<div class="dash-card-eyebrow">📜 Histórico de treinos prescritos <span style="color:var(--slate);font-weight:400">('+lista.length+')</span></div>';
+    lista.forEach((t,i)=>{
+      const dt=new Date(t.criado_em).toLocaleDateString('pt-PT',{day:'2-digit',month:'short',year:'numeric'});
+      const debs=(t.debilidades||[]).map(d=>debLbl[d]||d).join(', ')||'—';
+      const ciclos=(t.ciclos||[]).filter(Boolean).join(' → ')||'—';
+      h+='<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">'
+        +'<div style="min-width:0"><div style="font-size:12.5px;font-weight:700">'+esc(dt)+(t.nota!=null?(' · nota '+t.nota):'')+'</div>'
+        +'<div style="font-size:11px;color:var(--slate);margin-top:2px">'+esc(t.n_semanas)+' semanas · '+esc(debs)+'</div>'
+        +'<div style="font-size:10.5px;color:var(--muted);margin-top:1px">'+esc(ciclos)+'</div></div>'
+        +'<button class="btn btn-secondary" style="flex:none;padding:7px 12px;font-size:11px" onclick="verTreinoHistorico(\''+t.id+'\','+i+')">Ver plano</button></div>'
+        +'<div id="hist-detalhe-'+i+'" style="display:none;margin:8px 0 4px"></div>';
+    });
+    box.innerHTML=h;
+  }catch(e){ box.innerHTML='<div class="dash-card-eyebrow">📜 Histórico de treinos prescritos</div><div style="font-size:11px;color:var(--red)">⚠ Não foi possível carregar</div>'; }
+}
+async function verTreinoHistorico(id, i){
+  const alvo=document.getElementById('hist-detalhe-'+i);
+  if(!alvo)return;
+  if(alvo.style.display==='block'){ alvo.style.display='none'; return; }
+  alvo.style.display='block'; alvo.innerHTML='<div style="font-size:11px;color:var(--slate)">A carregar plano…</div>';
+  try{
+    const{data,error}=await supa.rpc('ytb_treinador_treino_ver',{p_treino_id:id});
+    if(error||!data||!data.ok){ alvo.innerHTML='<div style="font-size:11px;color:var(--red)">⚠ Não disponível</div>'; return; }
+    let h=''; (data.plano||[]).forEach((sem,wi)=>{ h+=semanaParaHTML(sem,wi,false); });
+    alvo.innerHTML=h;
+    if(window.YTBExAnim)YTBExAnim.mountAll(alvo);
+  }catch(e){ alvo.innerHTML='<div style="font-size:11px;color:var(--red)">⚠ Sem ligação</div>'; }
 }
 
 async function exportarPlanoPDFTreinador(wi){
