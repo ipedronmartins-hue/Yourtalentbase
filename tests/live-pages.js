@@ -6,6 +6,7 @@
 // Ao adicionar uma página nova à navegação real, acrescentar aqui também.
 module.exports = [
   'index.html',
+  'como-funciona.html',
   'acesso.html',
   'auth.html',
   'registar.html',

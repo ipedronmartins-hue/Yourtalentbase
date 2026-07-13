@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Como funciona · YourTalentBase</title>
+<meta name="description" content="Uma volta pela YourTalentBase: o Passaporte Digital, a montra pública, o CoachBase dos treinadores e as ferramentas de scouts e clubes — a funcionar de verdade, não em desenhos.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/ytb-vivo.css">
+<script src="/assets/js/ytb-vivo.js"></script>
+<style>
+:root{
+  --bg:#080C08;--bg2:#0F1410;--bg3:#161D17;--bg4:#1A241A;
+  --border:#1F2520;--border2:#2A322B;
+  --text:#ECEFEA;--slate:#9AA39A;--muted:#6B756C;
+  --gold:#D4AF37;--gold-bright:#F5C842;--gold-soft:rgba(212,175,55,.14);--gold-border:rgba(212,175,55,.32);
+  --up:#00D46A;--down:#ff5050;
+  --fd:'Barlow Condensed',system-ui,sans-serif;--fb:'Plus Jakarta Sans',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--fb);-webkit-font-smoothing:antialiased;line-height:1.6}
+a{color:inherit;text-decoration:none}
+.narrow{max-width:880px;margin:0 auto;padding:0 24px}
+.wide{max-width:1200px;margin:0 auto;padding:0 24px}
+.eyebrow{font-family:var(--fd);font-weight:800;font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--slate)}
+nav{position:sticky;top:0;z-index:50;background:rgba(8,12,8,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+nav .wide{display:flex;align-items:center;justify-content:space-between;height:64px}
+.logo{display:inline-flex;align-items:baseline;gap:9px}
+.logo b{font-family:var(--fd);font-weight:900;font-size:21px}
+.logo span{font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:var(--muted)}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:var(--fd);font-weight:800;font-size:13px;
+  letter-spacing:.6px;text-transform:uppercase;border-radius:10px;padding:11px 20px;cursor:pointer;border:1px solid transparent}
+.btn-primary{background:var(--gold);color:#0A0D0A}
+.btn-ghost{background:transparent;color:var(--text);border-color:var(--border2)}
+.hero{padding:70px 0 40px;text-align:center}
+.hero h1{font-family:var(--fd);font-weight:900;font-size:clamp(2.2rem,6vw,4rem);line-height:1.02;letter-spacing:-.5px;margin-bottom:16px}
+.hero .fade{color:var(--gold)}
+.hero p{color:var(--slate);max-width:34em;margin:0 auto 26px;font-size:clamp(14px,1.7vw,16.5px)}
+.modulo{padding:56px 0;border-top:1px solid var(--border)}
+.modulo-head{max-width:640px;margin:0 auto 26px;text-align:center}
+.modulo-head h2{font-family:var(--fd);font-weight:900;font-size:clamp(1.7rem,3.6vw,2.5rem);line-height:1.05;margin:8px 0 10px}
+.modulo-head p{color:var(--slate);font-size:14.5px}
+.frame-shell{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:10px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.frame-shell .bar{display:flex;gap:6px;padding:4px 8px 10px}
+.frame-shell .bar i{width:9px;height:9px;border-radius:50%;background:var(--border2);display:block}
+.frame-shell iframe{width:100%;border:0;border-radius:10px;background:var(--bg)}
+.live-tag{display:inline-flex;align-items:center;gap:6px;font-family:var(--fd);font-weight:800;font-size:10px;
+  letter-spacing:1.5px;text-transform:uppercase;color:var(--up);background:rgba(0,212,106,.1);border:1px solid rgba(0,212,106,.3);
+  border-radius:999px;padding:4px 10px;margin-bottom:10px}
+.live-tag .dot{width:6px;height:6px;border-radius:50%;background:var(--up);animation:pulso 1.6s ease-in-out infinite}
+@keyframes pulso{0%,100%{opacity:1}50%{opacity:.3}}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;max-width:960px;margin:0 auto}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px}
+.card .ic{font-size:26px;margin-bottom:8px}
+.card b{font-family:var(--fd);font-weight:800;font-size:16px;display:block;margin-bottom:4px}
+.card p{color:var(--slate);font-size:12.5px;line-height:1.55}
+.card a.cta{display:inline-block;margin-top:12px;font-size:12px;font-weight:800;color:var(--gold)}
+.persona-block{display:grid;gap:24px;max-width:760px;margin:0 auto}
+@media(min-width:760px){.persona-block{grid-template-columns:1fr 1fr}}
+.persona-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:22px}
+.persona-card .ic{font-size:30px;margin-bottom:10px}
+.persona-card h3{font-family:var(--fd);font-weight:900;font-size:20px;margin-bottom:6px}
+.persona-card p{color:var(--slate);font-size:13.5px;line-height:1.6;margin-bottom:14px}
+.persona-card ul{list-style:none;margin-bottom:16px}
+.persona-card li{font-size:12.5px;color:var(--text);padding:4px 0 4px 18px;position:relative}
+.persona-card li::before{content:"✦";position:absolute;left:0;color:var(--gold);font-size:10px;top:6px}
+.closing{padding:70px 0;text-align:center;border-top:1px solid var(--border)}
+.closing h2{font-family:var(--fd);font-weight:900;font-size:clamp(1.8rem,4vw,2.8rem);margin-bottom:10px}
+.closing p{color:var(--slate);margin-bottom:24px}
+.foot{padding:24px 0 40px;text-align:center;font-size:11px;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wide">
+    <a class="logo" href="index.html"><b>YTB</b><span>YourTalentBase</span></a>
+    <a class="btn btn-ghost" href="index.html">← Voltar à home</a>
+  </div>
+</nav>
+
+<header class="hero narrow">
+  <span class="eyebrow">Uma volta pela plataforma</span>
+  <h1>Isto não é um desenho.<br>É a <span class="fade">app a funcionar</span>.</h1>
+  <p>Os módulos abaixo com a etiqueta <b style="color:var(--up)">● ao vivo</b> são a aplicação real, embutida tal como está em produção — não capturas de ecrã, não maquetes. O resto é descrito com exatidão, porque envolve dados de crianças que não mostramos sem sessão iniciada.</p>
+</header>
+
+<!-- MONTRA — ao vivo, pública -->
+<section class="modulo">
+  <div class="narrow modulo-head">
+    <span class="eyebrow">Montra pública</span>
+    <h2>O percurso do atleta,<br><span style="color:var(--gold)">sem login</span></h2>
+    <p>Qualquer pessoa vê aqui percurso e proveniência — nunca notas ou classificações de menores. É o que um clube ou um pai encontra ao pesquisar por um atleta.</p>
+  </div>
+  <div class="wide">
+    <div class="live-tag"><span class="dot"></span>Ao vivo — dados reais</div>
+    <div class="frame-shell">
+      <div class="bar"><i></i><i></i><i></i></div>
+      <iframe src="montra.html" height="620" loading="lazy" title="Montra pública da YourTalentBase"></iframe>
+    </div>
+  </div>
+</section>
+
+<!-- COACHBASE — ao vivo, modo demonstração -->
+<section class="modulo">
+  <div class="narrow modulo-head">
+    <span class="eyebrow">CoachBase</span>
+    <h2>A bancada do <span style="color:var(--gold)">treinador</span></h2>
+    <p>Prancheta com jogadas animadas, sessões geradas a partir de um banco de 89 exercícios por escalão competitivo, táticas nomeadas (4-3-3, 4-4-2…) e a leitura do adversário por IA. Experimenta a prancheta e o gerador de sessões já — sem criar conta.</p>
+  </div>
+  <div class="wide">
+    <div class="live-tag"><span class="dot"></span>Ao vivo — modo demonstração, nada fica guardado</div>
+    <div class="frame-shell">
+      <div class="bar"><i></i><i></i><i></i></div>
+      <iframe src="coachbase.html?demo=1" height="900" loading="lazy" title="CoachBase em modo demonstração"></iframe>
+    </div>
+  </div>
+</section>
+
+<!-- OS RESTANTES MÓDULOS — descritos, não fingidos (dados reais de menores) -->
+<section class="modulo">
+  <div class="narrow modulo-head">
+    <span class="eyebrow">O resto da casa</span>
+    <h2>Estes envolvem <span style="color:var(--gold)">dados reais</span> de crianças —<br>por isso não os simulamos aqui</h2>
+    <p>Passaporte, ficha de scouting e painel de clube só se veem com sessão autenticada, de propósito. Aqui vai exatamente o que cada um faz.</p>
+  </div>
+  <div class="narrow persona-block">
+    <div class="persona-card">
+      <div class="ic">📖</div>
+      <h3>Passaporte Digital</h3>
+      <p>A casa da família. Um registo vivo do desenvolvimento do atleta — nunca apagado, nunca perdido numa mudança de clube.</p>
+      <ul>
+        <li>Timeline de eventos vinda do livro-razão</li>
+        <li>Plano do treinador da semana, com PDF</li>
+        <li>Biometria e maturação (estimativa, não diagnóstico)</li>
+        <li>Diário livre do atleta e dos pais</li>
+      </ul>
+      <a class="cta" href="inscrever.html">Criar o passaporte grátis →</a>
+    </div>
+    <div class="persona-card">
+      <div class="ic">🔍</div>
+      <h3>Scout Report</h3>
+      <p>O scout cria o atleta, avalia no terreno e exporta o relatório — e essa observação entra direto no passaporte do miúdo.</p>
+      <ul>
+        <li>Ficha técnica por posição</li>
+        <li>Deteção de duplicados antes de criar</li>
+        <li>Exportação em PDF, self-hosted</li>
+      </ul>
+      <a class="cta" href="scouts.html">Abrir a área de scout →</a>
+    </div>
+    <div class="persona-card">
+      <div class="ic">🎓</div>
+      <h3>Pro Treinador</h3>
+      <p>O escritório do treinador: avalia, prescreve planos individuais e acompanha o impacto — com o retorno da família semana a semana.</p>
+      <ul>
+        <li>Avaliação por posição e debilidades</li>
+        <li>Plano de 4 semanas com progressão por idade</li>
+        <li>Digest do que mudou desde a última visita</li>
+      </ul>
+      <a class="cta" href="ytb-pro-treinador.html">Entrar como treinador →</a>
+    </div>
+    <div class="persona-card">
+      <div class="ic">🏟️</div>
+      <h3>Academias e Clubes</h3>
+      <p>Regista o plantel em bloco, com a marca da organização — logo e cor — a aparecer no passaporte de cada atleta.</p>
+      <ul>
+        <li>Inscrição em lote de vários atletas</li>
+        <li>Marca própria (logo + cor)</li>
+        <li>Painel espelhado do Scout Report</li>
+      </ul>
+      <a class="cta" href="clube.html">Gerir a minha academia →</a>
+    </div>
+  </div>
+</section>
+
+<section class="closing narrow">
+  <h2>Nunca vendemos acesso a menores.<br>Isso é a linha da marca.</h2>
+  <p>A família entra grátis, sempre. Paga-se o serviço de desenvolvimento — treinador, scout, clube — nunca a criança.</p>
+  <a class="btn btn-primary" href="index.html#personas">Ver todas as portas de entrada →</a>
+</section>
+
+<div class="foot">YourTalentBase · <a href="termos.html" style="color:var(--slate)">Termos</a> · <a href="privacidade.html" style="color:var(--slate)">Privacidade</a></div>
+
+</body>
+</html>

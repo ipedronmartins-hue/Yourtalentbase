@@ -130,6 +130,7 @@ body{max-width:900px;margin:0 auto;padding-bottom:70px}
     <div id="lok" style="display:none;color:var(--green);font-size:13px;margin:10px 0"></div>
     <button class="btn" id="lbtn" onclick="login()" style="margin-top:12px">Receber link de acesso →</button>
   </div>
+  <button class="btn btn-sec" onclick="experimentarSemEntrar()" style="max-width:440px;margin:0 auto;display:block">🔍 Experimentar sem entrar</button>
 </div>
 
 <div id="main">
@@ -1187,11 +1188,18 @@ function login(){
     b.textContent='Link enviado ✓';
   });
 }
-var jaEntrou=false;
+var jaEntrou=false, MODO_DEMO=false;
 function mostrarMain(){
   if(jaEntrou)return; jaEntrou=true;
   document.getElementById('login-view').style.display='none';document.getElementById('main').style.display='block';montarSeletores();PR.init();BAL.initOrdem();
+  if(MODO_DEMO){
+    var b=document.createElement('div');
+    b.style.cssText='position:sticky;top:53px;z-index:99;background:var(--gold);color:#000;font-size:12px;font-weight:800;text-align:center;padding:8px 12px';
+    b.textContent='🔍 Modo demonstração — a prancheta e as sessões são reais, mas nada fica guardado. Cria a tua conta para guardar, ver o teu plantel e postar no Balneário.';
+    document.getElementById('main').prepend(b);
+  }
 }
+function experimentarSemEntrar(){ MODO_DEMO=true; mostrarMain(); }
 // Processa a sessão SEM location.reload(): o onAuthStateChange dispara
 // logo ao carregar a página quando já há sessão (INITIAL_SESSION) e a cada
 // refresh de token — recarregar aqui cria um ciclo infinito entrar/sair
@@ -1208,6 +1216,7 @@ function processarSessao(s){
   });
 }
 (function(){
+  if(new URLSearchParams(location.search).get('demo')==='1'){experimentarSemEntrar();return;}
   if(!USING_SB){mostrarMain();return;}
   supa.auth.getSession().then(function(res){
     var s=res&&res.data&&res.data.session;
