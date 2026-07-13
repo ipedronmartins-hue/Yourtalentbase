@@ -311,6 +311,9 @@ function tab(t){document.querySelectorAll('.tab').forEach(function(b){b.classLis
 
 /* ── seletores ── */
 var SEL={escalao:'Sub-11',formato:'fut7',n:12,dur:75,material:['bolas','coletes','cones'],foco:'posse',tatica:'4-4-2'};
+var LS_TATICA='ytbCoachTatica';
+(function(){try{var t=localStorage.getItem(LS_TATICA);if(t)SEL.tatica=t;}catch(e){}})();
+function guardarTaticaEscolhida(v){SEL.tatica=v;try{localStorage.setItem(LS_TATICA,v);}catch(e){}}
 var ESCALOES=['Sub-10','Sub-11','Sub-12','Sub-13','Sub-15','Sub-17','Sub-19','Seniores'];
 var MATERIAIS=[['bolas','⚽ Bolas'],['coletes','🎽 Coletes'],['cones','🔺 Cones'],['balizas','🥅 Balizas pequenas'],['escada','🪜 Escada'],['barreiras','🚧 Barreiras']];
 var FOCOS=[['posse','Posse'],['finalizacao','Finalização'],['transicao','Transições'],['defesa','Defesa'],['fisico','Físico'],['jogo','Jogo']];
@@ -586,7 +589,7 @@ function chips(id,itens,get,set,multi){
 }
 function chipsTatica(id){
   var itens=Object.keys(TATICAS).map(function(k){return [k,TATICAS[k].label.split(' ·')[0]];});
-  chips(id,itens,function(){return SEL.tatica},function(v){SEL.tatica=v;pintarInfoTatica();if(window.PR)PR.reformatar();});
+  chips(id,itens,function(){return SEL.tatica},function(v){guardarTaticaEscolhida(v);pintarInfoTatica();if(window.PR)PR.reformatar();});
 }
 function pintarInfoTatica(){
   var box=document.getElementById('tatica-info');if(!box)return;
