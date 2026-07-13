@@ -843,18 +843,33 @@ function login(){
     b.textContent='Link enviado ✓';
   });
 }
-function mostrarMain(){document.getElementById('login-view').style.display='none';document.getElementById('main').style.display='block';montarSeletores();PR.init();BAL.initOrdem();}
+var jaEntrou=false;
+function mostrarMain(){
+  if(jaEntrou)return; jaEntrou=true;
+  document.getElementById('login-view').style.display='none';document.getElementById('main').style.display='block';montarSeletores();PR.init();BAL.initOrdem();
+}
+// Processa a sessão SEM location.reload(): o onAuthStateChange dispara
+// logo ao carregar a página quando já há sessão (INITIAL_SESSION) e a cada
+// refresh de token — recarregar aqui cria um ciclo infinito entrar/sair
+// (bug reportado pelo fundador; o mesmo padrão já tinha mordido no admin).
+var aProcessar=false;
+function processarSessao(s){
+  if(jaEntrou||aProcessar||!s)return;
+  aProcessar=true;
+  supa.from('perfis').select('papel,estado').eq('email',s.user.email.toLowerCase()).maybeSingle().then(function(p){
+    aProcessar=false;
+    var perfil=p&&p.data;
+    if(perfil&&perfil.estado==='aprovado'&&(perfil.papel==='treinador'||perfil.papel==='admin'))mostrarMain();
+    else{document.querySelector('.login-sub').textContent='Esta área é para treinadores aprovados. A tua conta não tem esse papel.';}
+  });
+}
 (function(){
   if(!USING_SB){mostrarMain();return;}
   supa.auth.getSession().then(function(res){
-    var s=res&&res.data&&res.data.session;if(!s){return;}
-    supa.from('perfis').select('papel,estado').eq('email',s.user.email.toLowerCase()).maybeSingle().then(function(p){
-      var perfil=p&&p.data;
-      if(perfil&&perfil.estado==='aprovado'&&(perfil.papel==='treinador'||perfil.papel==='admin'))mostrarMain();
-      else{document.querySelector('.login-sub').textContent='Esta área é para treinadores aprovados. A tua conta não tem esse papel.';}
-    });
+    var s=res&&res.data&&res.data.session;
+    if(s)processarSessao(s);
   });
-  supa.auth.onAuthStateChange(function(_e,s){if(s)location.reload();});
+  supa.auth.onAuthStateChange(function(_e,s){ if(s)processarSessao(s); });
 })();
 </script>
 </body>
