@@ -1,0 +1,14 @@
+{
+  "name": "Passaporte Digital · YourTalentBase",
+  "short_name": "Passaporte",
+  "description": "O percurso do teu atleta, guardado para a vida — plano do treinador, diário, biometria e evolução",
+  "start_url": "/acesso.html",
+  "display": "standalone",
+  "background_color": "#080C08",
+  "theme_color": "#080C08",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "icons/passaporte-192.svg", "sizes": "192x192", "type": "image/svg+xml" },
+    { "src": "icons/passaporte-512.svg", "sizes": "512x512", "type": "image/svg+xml" }
+  ]
+}

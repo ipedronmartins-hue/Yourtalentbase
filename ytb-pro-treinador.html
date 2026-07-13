@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>YTB Pro · Treinador</title>
+<meta name="theme-color" content="#080C08">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Pro Treinador">
+<link rel="manifest" href="manifest-treinador.json">
+<link rel="apple-touch-icon" href="/icons/treinador-192.svg">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/css/ytb-vivo.css">
 <script src="/assets/js/ytb-vivo.js"></script>
@@ -908,6 +915,9 @@ async function carregarComissoes(){
   }catch(e){
     area.innerHTML='<div class="empty-state">Erro a carregar comissões.</div>';
   }
+}
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){ navigator.serviceWorker.register('sw-treinador.js').catch(function(){}); });
 }
 </script>
 </body>
