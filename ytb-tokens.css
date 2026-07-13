@@ -1,0 +1,44 @@
+/* ============================================================================
+   YourTalentBase · TOKENS (ytb-tokens.css)
+   Só variáveis de cor/tipografia/forma — sem nenhuma regra de elemento ou
+   classe. Pensado para ser importado em segurança por QUALQUER página, sem
+   risco de colidir com o CSS próprio dela (ao contrário de importar o
+   ytb.css inteiro, que também estiliza elementos nus e classes .btn/.card).
+   ytb.css importa este ficheiro para si próprio — muda-se a cor aqui, muda
+   em todo o lado, incluindo nas páginas que só ligam este ficheiro.
+   ============================================================================ */
+
+:root{
+  /* — superfícies — */
+  --bg:#080C08;   --bg2:#0F1410;  --bg3:#161D17;  --bg4:#1A241A;
+  --border:#1F2520;  --border2:#2A322B;
+
+  /* — texto — */
+  --text:#ECEFEA;  --slate:#9AA39A;  --muted:#6B756C;
+  --white:#ECEFEA;                 /* alias legado → off-white aprovado */
+
+  /* — marca (dourado RESERVADO a selo de verificação + marcos) — */
+  --gold:#D4AF37;  --gold-bright:#F5C842;
+  --gold-soft:rgba(212,175,55,.14);  --gold-border:rgba(212,175,55,.32);
+
+  /* — sinais (com aliases legados) — */
+  --up:#00D46A;    --green:#00D46A;       /* subida / positivo */
+  --down:#ff5050;  --red:#ff5050;         /* descida / erro */
+  --warn:#E0A458;  --orange:#E0A458;      /* aviso / pendente */
+  --blue:#5AA9E6;  --purple:#A78BFA;
+
+  /* — proveniência do dado — */
+  --obs:#D3E7D9;   /* observado (scout/treinador) */
+  --dec:#8E978E;   /* declarado (família) */
+
+  /* — tipografia (duas convenções de nome coexistentes no repo) — */
+  --font-display:'Barlow Condensed', system-ui, sans-serif;
+  --font-body:'Plus Jakarta Sans', system-ui, sans-serif;
+  --fd:'Barlow Condensed', system-ui, sans-serif;
+  --fb:'Plus Jakarta Sans', system-ui, sans-serif;
+
+  /* — forma / ritmo — */
+  --r:14px;  --r-sm:9px;  --r-lg:20px;
+  --maxw:980px;
+  --shadow:0 1px 0 rgba(255,255,255,.02), 0 8px 30px rgba(0,0,0,.35);
+}

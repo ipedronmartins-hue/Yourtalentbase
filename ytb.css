@@ -6,39 +6,10 @@
    ============================================================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-
-:root{
-  /* — superfícies — */
-  --bg:#080C08;   --bg2:#0F1410;  --bg3:#161D17;  --bg4:#1A241A;
-  --border:#1F2520;  --border2:#2A322B;
-
-  /* — texto — */
-  --text:#ECEFEA;  --slate:#9AA39A;  --muted:#6B756C;
-  --white:#ECEFEA;                 /* alias legado → off-white aprovado */
-
-  /* — marca (dourado RESERVADO a selo de verificação + marcos) — */
-  --gold:#D4AF37;  --gold-bright:#F5C842;
-  --gold-soft:rgba(212,175,55,.14);  --gold-border:rgba(212,175,55,.32);
-
-  /* — sinais (com aliases legados) — */
-  --up:#00D46A;    --green:#00D46A;       /* subida / positivo */
-  --down:#ff5050;  --red:#ff5050;         /* descida / erro */
-  --warn:#E0A458;  --orange:#E0A458;      /* aviso / pendente */
-  --blue:#5AA9E6;  --purple:#A78BFA;
-
-  /* — proveniência do dado — */
-  --obs:#D3E7D9;   /* observado (scout/treinador) */
-  --dec:#8E978E;   /* declarado (família) */
-
-  /* — tipografia — */
-  --font-display:'Barlow Condensed', system-ui, sans-serif;
-  --font-body:'Plus Jakarta Sans', system-ui, sans-serif;
-
-  /* — forma / ritmo — */
-  --r:14px;  --r-sm:9px;  --r-lg:20px;
-  --maxw:980px;
-  --shadow:0 1px 0 rgba(255,255,255,.02), 0 8px 30px rgba(0,0,0,.35);
-}
+@import url('ytb-tokens.css');
+/* :root (cores/tipografia/forma) vive em ytb-tokens.css — partilhado
+   também por páginas que não querem herdar os estilos de elemento/classe
+   abaixo. Mudar uma cor aqui é mudar lá. */
 
 /* ============================ BASE ======================================== */
 *{box-sizing:border-box}

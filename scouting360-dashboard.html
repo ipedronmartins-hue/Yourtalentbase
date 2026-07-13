@@ -7,15 +7,13 @@
 <meta name="robots" content="noindex,nofollow">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,700;0,800;0,900;1,900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="ytb-tokens.css">
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --bg:#080C08;--bg2:#0F1410;--bg3:#161D17;
-  --gold:#D4AF37;--gold-soft:rgba(212,175,55,.14);--gold-border:rgba(212,175,55,.32);
-  --gold-bright:#F5C842;--gold-deep:#A8862C;
-  --green:#00D46A;--orange:#E0A458;--red:#ff5050;--blue:#5AA9E6;--purple:#A78BFA;
-  --silver:#C0C0C0;--bronze:#CD7F32;
-  --border:#1F2520;--white:#ECEFEA;--slate:#9AA39A;--muted:#6B756C;
+  /* só o que é mesmo exclusivo desta página (medalhas do ranking) — o
+     resto da paleta vem do ytb-tokens.css */
+  --gold-deep:#A8862C;--silver:#C0C0C0;--bronze:#CD7F32;
 }
 body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:#fff;min-height:100vh;-webkit-font-smoothing:antialiased}
 
