@@ -618,7 +618,10 @@ let activeCenario = null;
 let cenAnimId = null, cenAnimStart = 0, cenAnimating = false;
 
 // ═══ R4 · Ligação ao Passaporte Digital ═══
-const EC_SB_URL = 'https://nhshnplaiolxwcfuijfo.supabase.co/rest/v1/elite_coach_resultados';
+// Escrita por RPC security definer (migração 035a) — o POST direto à tabela
+// esteve morto desde a migração 009 (policy pública removida sem substituto):
+// 0 linhas de sempre; tudo caía na fila offline sem nunca sair de lá.
+const EC_RPC_URL = 'https://nhshnplaiolxwcfuijfo.supabase.co/rest/v1/rpc/ytb_ec_registar';
 const EC_SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oc2hucGxhaW9seHdjZnVpamZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NDQxNTAsImV4cCI6MjA4OTQyMDE1MH0.uyZiDun8495sjnHA6Wsk-Hou-3lubbNJfQqSYbMLSek';
 let ecAtleta = null;
 (function ecIdentidade(){
@@ -632,15 +635,23 @@ let ecAtleta = null;
     }
   } catch(e){ ecAtleta = null; }
 })();
+async function ecEnviar(registo){
+  const r = await fetch(EC_RPC_URL, {
+    method:'POST',
+    headers:{ 'apikey':EC_SB_KEY, 'Authorization':'Bearer '+EC_SB_KEY, 'Content-Type':'application/json' },
+    body: JSON.stringify({
+      p_atleta: registo.atleta_id, p_cenario_id: registo.cenario_id, p_correto: registo.correto,
+      p_opcao: registo.opcao||null, p_consequencia: registo.consequencia||null,
+      p_debilidade: registo.debilidade||null, p_posicao: registo.posicao||null
+    })
+  });
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  const d = await r.json().catch(()=>null);
+  if(!d || !d.ok) throw new Error('rpc:'+(d&&d.motivo||'erro'));
+}
 async function ecGravar(registo){
-  try {
-    const r = await fetch(EC_SB_URL, {
-      method:'POST',
-      headers:{ 'apikey':EC_SB_KEY, 'Authorization':'Bearer '+EC_SB_KEY, 'Content-Type':'application/json', 'Prefer':'return=minimal' },
-      body: JSON.stringify(registo)
-    });
-    if(!r.ok) throw new Error('HTTP '+r.status);
-  } catch(e){
+  try { await ecEnviar(registo); }
+  catch(e){
     try{ const f=JSON.parse(localStorage.getItem('ec-fila')||'[]'); f.push(registo); localStorage.setItem('ec-fila', JSON.stringify(f)); }catch(_){}
   }
 }
@@ -649,8 +660,10 @@ async function ecGravar(registo){
   if(!fila.length) return;
   const falhados=[];
   for(const reg of fila){
-    try{ const r=await fetch(EC_SB_URL,{method:'POST',headers:{'apikey':EC_SB_KEY,'Authorization':'Bearer '+EC_SB_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify(reg)}); if(!r.ok) falhados.push(reg); }
-    catch(e){ falhados.push(reg); }
+    try{ await ecEnviar(reg); }
+    catch(e){ if(!String(e).startsWith('Error: rpc:')) falhados.push(reg); }
+    // respostas rpc:atleta_invalido/cenario_invalido são registos podres da era
+    // do endpoint morto — descartam-se em vez de reencher a fila para sempre.
   }
   localStorage.setItem('ec-fila', JSON.stringify(falhados));
 })();
