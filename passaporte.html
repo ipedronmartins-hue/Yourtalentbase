@@ -268,18 +268,20 @@
       return '<div class="panel morfo">'+lock+'<div class="derived">Ainda sem dados para estimar a maturação.</div></div>';
     }
     function cell(l,v){ return '<div class="f"><div class="l">'+l+'</div><div class="v">'+(v!=null&&v!==''?esc(String(v)):'—')+'</div></div>'; }
+    var faixaTxt=(m.altura_prevista_min!=null&&m.altura_prevista_max!=null)?(m.altura_prevista_min+'–'+m.altura_prevista_max+' cm'):null;
     var fields='<div class="fields">'+
       cell('Altura atual', m.altura_atual!=null?(m.altura_atual+' cm'):null)+
-      cell('Altura adulta prevista', m.altura_prevista!=null?(m.altura_prevista+' cm'):null)+
-      cell('% já atingida', m.pct_atingida!=null?(m.pct_atingida+'%'):null)+
+      cell('Faixa provável na idade adulta', faixaTxt)+
       cell('Crescimento', m.velocidade_cm_ano!=null?(m.velocidade_cm_ano+' cm/ano'):null)+
       '</div>';
     var barra='';
-    if(m.pct_atingida!=null){
+    if(m.estado==='acima_da_faixa'){
+      barra='<div style="font-size:13px;color:var(--slate);margin-top:12px;line-height:1.45">Já cresceu além da faixa provável a partir da altura dos pais — não é um erro, acontece. A partir daqui, o histórico de medições conta mais do que esta estimativa de partida.</div>';
+    } else if(m.pct_atingida!=null){
       var p=Math.max(0,Math.min(100,m.pct_atingida));
-      var extra=(m.faltam_cm!=null&&m.faltam_cm>0)?(' · faltam ~'+m.faltam_cm+' cm.'):'.';
+      var extra=(m.faltam_cm!=null&&m.faltam_cm>0)?(' · faltam ~'+m.faltam_cm+' cm até ao topo da faixa.'):'.';
       barra='<div class="barx" style="margin-top:12px"><i style="width:'+p+'%;background:var(--obs-bar)"></i></div>'+
-        '<div style="font-size:13px;color:var(--slate);margin-top:6px;line-height:1.45">Está a ~'+m.pct_atingida+'% da altura adulta prevista'+extra+'</div>';
+        '<div style="font-size:13px;color:var(--slate);margin-top:6px;line-height:1.45">'+(m.estado==='na_faixa'?'Já está dentro da faixa provável':('Está a ~'+m.pct_atingida+'% do centro da faixa provável'))+extra+'</div>';
     }
     var aviso='';
     if(m.em_falta&&m.em_falta.length){
@@ -362,8 +364,9 @@
   function toast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},1900);}
   function share(){
     var d=window.__d; var txt=(d?d.identidade.nome:'')+' — passaporte digital · YourTalentBase';
-    if(navigator.share){navigator.share({title:'Passaporte do Atleta',text:txt}).catch(function(){});}
-    else{ toast('Link copiado'); try{navigator.clipboard&&navigator.clipboard.writeText(location.href);}catch(e){} }
+    var url=location.href;
+    if(navigator.share){navigator.share({title:'Passaporte do Atleta',text:txt,url:url}).catch(function(){});}
+    else{ toast('Link copiado'); try{navigator.clipboard&&navigator.clipboard.writeText(txt+'\n'+url);}catch(e){} }
   }
   document.getElementById('btn-share-top').addEventListener('click',share);
   document.getElementById('btn-exit').addEventListener('click',function(){
