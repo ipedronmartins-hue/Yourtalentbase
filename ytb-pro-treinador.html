@@ -149,7 +149,7 @@ body{padding-bottom:40px}
     <button class="tab active" onclick="setTab('atletas')">👥 Atletas</button>
     <button class="tab" onclick="setTab('avaliar')">📋 Avaliar</button>
     <button class="tab" onclick="setTab('retorno')">🔄 Retorno</button>
-    <button class="tab" onclick="setTab('treino')">⚽ Treino</button>
+    <button class="tab" onclick="setTab('treino')">🎯 Objetivo</button>
     <button class="tab" onclick="setTab('comissoes')">💰 Comissões</button>
   </div>
 
@@ -180,10 +180,10 @@ body{padding-bottom:40px}
     <div id="retorno-area"></div>
   </div>
 
-  <!-- TREINO -->
+  <!-- OBJETIVO (missões da semana; "exercício" mantém-se nos detalhes — é linguagem de treinador) -->
   <div class="tab-panel" id="tab-treino">
-    <div class="section-title">Plano de <span>treino</span></div>
-    <div class="section-sub">Exercícios caseiros, espaços curtos, focados nas debilidades detetadas.</div>
+    <div class="section-title">Objetivo e <span>missões</span></div>
+    <div class="section-sub">2 missões técnicas por semana (~15 min, em casa) + 1 missão de decisão no Elite Coach — focadas nas debilidades detetadas. Nos dias de treino do clube, nada.</div>
     <div id="treino-area"></div>
   </div>
 
@@ -757,7 +757,7 @@ async function gerarAvaliacao(){
     (linkEstado==='enviado'?'<div style="background:rgba(80,200,120,.08);border:1px solid rgba(80,200,120,.35);border-radius:9px;padding:10px 12px;margin-top:11px;font-size:11px;line-height:1.5"><strong style="color:var(--green)">📧 Convite enviado à família</strong> · '+esc(atletaSel.encarregado_email)+' recebe um link mágico e entra direto neste plano.</div>':'')+
     (linkEstado==='falhou'?'<div style="background:rgba(255,165,0,.08);border:1px solid rgba(255,165,0,.3);border-radius:9px;padding:10px 12px;margin-top:11px;font-size:11px;line-height:1.5"><strong style="color:var(--orange)">⚠ O plano ficou gravado, mas o email à família falhou.</strong> Reenvia com o botão ✉️ na lista de atletas.</div>':'')+
     (linkEstado==='sem_email'?'<div style="background:rgba(255,165,0,.08);border:1px solid rgba(255,165,0,.3);border-radius:9px;padding:10px 12px;margin-top:11px;font-size:11px;line-height:1.5"><strong style="color:var(--orange)">Este atleta não tem email do encarregado.</strong> Sem email, a família não recebe o plano.</div>':'')+
-    '<button class="btn btn-primary" style="margin-top:14px" onclick="setTabProgram(\'treino\')">Ver plano de treino →</button></div>';
+    '<button class="btn btn-primary" style="margin-top:14px" onclick="setTabProgram(\'treino\')">Ver objetivo e missões →</button></div>';
   showToast(gravado?(linkEstado==='enviado'?'Avaliação guardada ✓ Link enviado à família 📧':'Avaliação guardada ✓ Treino gerado'):'⚠ Avaliação NÃO gravada',gravado?2600:3500);
   if(gravado&&window.YTBVivo){
     // plano prescrito é um marco: flash dourado + linha causa-efeito jornada → resultado
@@ -813,7 +813,7 @@ function semanaParaHTML(sem, wi, comExport){
     '<div style="font-size:11px;color:var(--slate);margin-bottom:10px">'+sem.ciclo.desc+'</div>';
   sem.sessoes.forEach((sess,si)=>{
     const total=sess.reduce((s,e)=>s+e.tempo,0);
-    html+='<div style="font-size:11px;font-weight:800;color:var(--gold);margin:8px 0 6px">Sessão '+(si+1)+' · '+total+' min</div>';
+    html+='<div style="font-size:11px;font-weight:800;color:var(--gold);margin:8px 0 6px">Missão Técnica '+(si+1)+' · '+total+' min</div>';
     sess.forEach((ex,ei)=>{
       var intLbl=ex.intensidade>=3?'intensa':(ex.intensidade===2?'média':'leve');
       html+='<div class="ex-card">'+
