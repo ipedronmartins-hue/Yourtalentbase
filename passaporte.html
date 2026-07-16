@@ -293,6 +293,32 @@
     return '<div class="panel morfo">'+lock+fields+barra+aviso+metodo+'</div>';
   }
 
+  function devScoreHTML(ds){
+    if(ds.estado!=='ok'){
+      return '<div class="panel"><div class="sub" style="margin:0">O score está a construir-se — cumpre as missões da semana e regista os jogos. Precisa de pelo menos 2 avaliações do treinador em dias diferentes ou 4 semanas de atividade.</div></div>';
+    }
+    var tend={subiu:['↗ a subir','var(--up)'],estavel:['→ estável','var(--slate)'],desceu:['↘ a descer','var(--orange, #E8A33D)']}[ds.tendencia]||['',''];
+    var c=ds.componentes||{};
+    var linhas=[];
+    if(c.adesao) linhas.push(['Missões cumpridas', c.adesao.feitas+' de '+Math.round(c.adesao.esperadas), Math.round((c.adesao.ratio||0)*100)]);
+    if(c.consistencia) linhas.push(['Consistência', c.consistencia.semanas_ativas+' de '+Math.round(c.consistencia.de)+' semanas', Math.round((c.consistencia.ratio||0)*100)]);
+    if(c.tendencia) linhas.push(['Avaliação do treinador', c.tendencia.de+' → '+c.tendencia.para, Math.round(((c.tendencia.delta+0.5)/1)*100)]);
+    if(c.cognitivo) linhas.push(['Decisões certas', c.cognitivo.certos+' de '+c.cognitivo.total, Math.round(100*c.cognitivo.certos/Math.max(1,c.cognitivo.total))]);
+    var desde=ds.desde?new Date(ds.desde).toLocaleDateString('pt-PT',{day:'numeric',month:'short'}):'';
+    return '<div class="panel">'+
+      '<div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap">'+
+        '<div><div class="num" style="font-family:\'Barlow Condensed\',sans-serif;font-weight:900;font-size:54px;line-height:.9;color:var(--up)">'+ds.score+'</div>'+
+        '<div style="font-size:10.5px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-top:5px">de 100</div></div>'+
+        (tend[0]?'<div style="font-size:14px;font-weight:700;color:'+tend[1]+';padding-bottom:14px">'+tend[0]+'</div>':'')+
+      '</div>'+
+      '<div class="barx" style="margin-top:12px"><i style="width:'+Math.max(0,Math.min(100,ds.score))+'%;background:var(--up)"></i></div>'+
+      '<div class="sub" style="margin:10px 0 0">Mede o teu desenvolvimento — não o teu talento. Compara-te só contigo próprio'+(desde?(', desde '+esc(desde)):'')+'. Sobe com missões cumpridas, consistência e a avaliação do treinador.</div>'+
+      (linhas.length?('<div class="dna-grid" style="margin-top:14px">'+linhas.map(function(l){
+        return '<div class="trait"><div class="tl"><span>'+esc(l[0])+'</span><b class="num" style="color:var(--text)">'+esc(l[1])+'</b></div><div class="barx"><i style="width:'+Math.max(0,Math.min(100,l[2]))+'%;background:var(--obs-bar)"></i></div></div>';
+      }).join('')+'</div>'):'')+
+      '</div>';
+  }
+
   function render(d){
     var id=d.identidade, ind=d.indicadores;
     var html='';
@@ -340,6 +366,9 @@
       '</div>'+
       '<div class="dna-grid" style="margin-top:16px">'+cg.tipos.map(function(t){return '<div class="trait"><div class="tl"><span>'+esc(t[0])+'</span><b class="obs num">'+t[1]+'%</b></div><div class="barx"><i style="width:'+t[1]+'%;background:var(--obs-bar)"></i></div></div>';}).join('')+'</div>'+
       '</div>'; }
+    // Development Score — mede desenvolvimento, nunca talento; só contra o
+    // próprio histórico (sem comparações entre atletas, por desenho)
+    if(d.devScore){ html+='<div class="shead">Development Score</div>'+devScoreHTML(d.devScore); }
     // marcos
     html+='<div class="shead">Marcos da Carreira</div><div class="marcos">'+d.marcos.map(function(m){return '<div class="marco"><span class="ic">'+m[0]+'</span><span class="tt">'+esc(m[1])+'</span><span class="wn">'+esc(m[2])+'</span></div>';}).join('')+'</div>';
     // carreira
@@ -408,6 +437,7 @@
       atividade:[[String(nz(at.prescritos)),'Prescritos'],[String(nz(at.concluidos)),'Concluídos'],[String(nz(at.semanas_ativas)),'Semanas ativas'],[nz(ind.horas_treino_extra)+'h','Horas']],
       cognitivo: temCog?{acerto:Math.round(nz(cg.acerto_pct)), total:nz(cg.total), tipos:(cg.por_tipo||[]).map(function(t){return [cap(t.cenario),Math.round(nz(t.acerto_pct))];}), serie:(cg.serie||[]).map(function(p){return Math.round(nz(p.v));})}:null,
       maturacao:r.maturacao||null,
+      devScore:r.dev_score||null,
       marcos:(r.marcos||[]).map(function(m){return ['◆',m.titulo||'',relTime(m.em)];}),
       carreira:(r.carreira||[]).map(function(c){return [c.epoca||'','',''];}),
       timeline:(r.timeline||[]).map(function(e){
