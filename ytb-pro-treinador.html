@@ -752,6 +752,10 @@ async function gerarAvaliacao(){
 
 /* ════════ TREINO ════════ */
 // idade em anos; se desconhecida, assume-se 12 (conservador — não liberta alta intensidade).
+// 2 missões técnicas/semana (~10-15 min cada), não 3 sessões de 3: os miúdos já
+// treinam 3-4× no clube — a YTB ocupa os dias livres com pouco, não compete por
+// tempo que a família não tem. A carga cognitiva da semana é a Missão de Decisão
+// (cenário Elite Coach), que não sai deste gerador — é zero carga física.
 function gerarPlano(debs, idadeAtleta){
   const idade = (idadeAtleta && idadeAtleta>0) ? idadeAtleta : 12;
   const seguro = e => (e.idadeMin||0) <= idade;            // BARREIRA DE SEGURANÇA por idade
@@ -762,7 +766,7 @@ function gerarPlano(debs, idadeAtleta){
     // progressão: a intensidade-alvo sobe ao longo dos 4 ciclos, limitada pela idade
     const intAlvo = Math.min(1 + ci, tetoIdade);
     const sessoes=[];
-    for(let s=0;s<3;s++){
+    for(let s=0;s<2;s++){
       // pool: exercícios das debilidades que a idade permite
       let pool=[];
       debs.forEach(d=>{ (EXERCICIOS[d]||[]).forEach(e=>{ if(seguro(e)) pool.push(e); }); });
@@ -777,6 +781,8 @@ function gerarPlano(debs, idadeAtleta){
         const ex=base[(s*3+sessao.length+ci*2+g-1)%base.length];
         if(!usados.has(ex.id)){ sessao.push(ex); usados.add(ex.id); }
         if(usados.size>=base.length) break;
+        // missão curta: para com 2 exercícios se já leva >= 12 min
+        if(sessao.length>=2 && sessao.reduce((a,e)=>a+(e.tempo||0),0)>=12) break;
       }
       sessoes.push(sessao);
     }

@@ -449,6 +449,7 @@ body{margin:0;padding:0;height:100vh;height:100dvh;width:100vw;position:relative
 <div class="toast" id="toast">—</div>
 
 <script src="elite-coach-data.js"></script>
+<script src="/assets/js/ytb-objetivos.js"></script>
 <script>
 // ═══════════════════════════════════════════════════════
 // MODE NAVIGATION + SWIPE
@@ -667,16 +668,25 @@ async function ecGravar(registo){
   }
   localStorage.setItem('ec-fila', JSON.stringify(falhados));
 })();
-const EC_DEB_MATCH = { tecnica:['1×1','execução','drible'], decisao:['decisão','passe'], leitura:['leitura'], posicionamento:['posicionamento','profundidade'], mental:['adversidade','emocional','concentração','mentalidade'], pe_fraco:['execução'], fisico:[] };
-function ecRecomendado(c){
-  if(!ecAtleta || !ecAtleta.debs || !ecAtleta.debs.length) return false;
-  const d = (c.debilidade||'').toLowerCase();
-  return ecAtleta.debs.some(k => (EC_DEB_MATCH[k]||[]).some(t => d.includes(t)));
+// debs antigas (links da era pré-buckets) → bucket canónico do YTBObjetivos
+const EC_DEB_ALIAS = { pe_fraco:'tecnica', leitura:'tatica', posicionamento:'tatica', velocidade_rank_baixo:'fisico' };
+function ecCenariosRecomendados(){
+  // conjunto de índices de CENARIOS recomendados para as debs do atleta —
+  // fonte única: YTBObjetivos (inclui o fallback fisico→decisão, que o antigo
+  // EC_DEB_MATCH não tinha: debs=fisico nunca acendia recomendação nenhuma)
+  const rec = new Set();
+  if(!ecAtleta || !ecAtleta.debs || !ecAtleta.debs.length || !window.YTBObjetivos) return rec;
+  ecAtleta.debs.forEach(d => {
+    const bucket = EC_DEB_ALIAS[d] || d;
+    (YTBObjetivos.cenariosDoObjetivo(bucket)||[]).forEach(i => rec.add(i));
+  });
+  return rec;
 }
 
 function renderCenarios() {
   const grid = document.getElementById('cenariosGrid');
-  const ordenados = CENARIOS.map((c, i) => ({ c: c, i: i, rec: ecRecomendado(c) })).sort((a, b) => (b.rec?1:0) - (a.rec?1:0));
+  const recSet = ecCenariosRecomendados();
+  const ordenados = CENARIOS.map((c, i) => ({ c: c, i: i, rec: recSet.has(i) })).sort((a, b) => (b.rec?1:0) - (a.rec?1:0));
   grid.innerHTML = ordenados.map(({c, i, rec}) => `
     <button class="cen-card" style="border-left-color:${c.cor}${rec ? ';box-shadow:0 0 0 1px #D4AF37 inset' : ''}" onclick="abrirCenario(${i})">
       ${rec ? '<div style="font-size:9px;font-weight:800;letter-spacing:1px;color:#D4AF37;text-transform:uppercase;margin-bottom:4px">⭐ Recomendado' + (ecAtleta && ecAtleta.nome ? ' para ' + ecAtleta.nome : '') + '</div>' : ''}
@@ -1049,6 +1059,11 @@ document.getElementById('nameInput').addEventListener('keydown', e => {
 });
 
 // Init flow
+// Atleta que chega por Missão de Decisão (link do passaporte traz ?nome=):
+// não faz sentido travá-lo com "Como te chamamos?" — o nome já vem no link.
+if (!getMisterName() && ecAtleta && ecAtleta.nome) {
+  localStorage.setItem('ytb-mister-name', ecAtleta.nome);
+}
 const savedName = getMisterName();
 if (!savedName) {
   // 1ª vez: mostrar setup

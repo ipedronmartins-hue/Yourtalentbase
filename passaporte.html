@@ -22,6 +22,7 @@
 <script src="/assets/js/vendor/html2pdf.bundle.min.js"></script>
 <script src="/assets/js/ytb-export.js"></script>
 <script src="/assets/js/ytb-exercicios-anim.js"></script>
+<script src="/assets/js/ytb-objetivos.js"></script>
 <link rel="stylesheet" href="ytb.css">
 <style>
   :root{/* tokens próprios desta página */ --obs-bar:#3FA76E; --dec-bar2:#465147;}
@@ -457,27 +458,75 @@
     supa.rpc('ytb_plano_atual',{p_atleta:atletaId}).then(function(res){
       var d=res&&res.data;
       if(!d || !d.tem){ montarJornadaPP(); return; }   // sem plano → não mostra a secção
-      window.__treino={atleta:atletaId, prescrito:d.prescrito_id, plano:d.plano||[], feitas:(d.feitas||[]), treinadorNome:d.treinador_nome||null};
+      window.__treino={atleta:atletaId, prescrito:d.prescrito_id, plano:d.plano||[], feitas:(d.feitas||[]),
+        treinadorNome:d.treinador_nome||null, debilidades:d.debilidades||[], ultimoCheckinJogo:d.ultimo_checkin_jogo||null};
       renderTreino();
       montarJornadaPP();
     }).catch(function(){ montarJornadaPP(); });
   }
+  function primeiroNome(){
+    var d=window.__d; var n=(d&&d.identidade&&d.identidade.nome)||'';
+    return n.split(' ')[0]||'';
+  }
   function renderTreino(){
     var T=window.__treino, plano=T.plano||[];
     if(!plano.length) return;
-    var html='<div class="tr-head"><div class="tr-t">O teu treino</div><div class="tr-s">Plano da semana, à medida do que precisas de melhorar. Faz e diz como correu.'
-      +(T.treinadorNome?(' Prescrito por <strong style="color:var(--text)">'+esc(T.treinadorNome)+'</strong>.'):'')+'</div>'
-      +'<button id="btn-plano-pdf" onclick="window.__trPDF()" style="margin-top:10px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:10px;padding:11px 16px;font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:14px;cursor:pointer">⬇ Exportar Plano em PDF</button></div>';
+    var obj=window.YTBObjetivos?YTBObjetivos.objetivoDoPlano(T.debilidades):null;
+    var nome=primeiroNome();
+
+    // progresso: missões técnicas cumpridas / total
+    var totSess=0, feitasN=0;
+    plano.forEach(function(sem,wi){ (sem.sessoes||[]).forEach(function(_,si){ totSess++; if(isFeita(wi,si)) feitasN++; }); });
+    var pct=totSess?Math.round(100*feitasN/totSess):0;
+
+    var html='<div class="tr-head">';
+    if(obj){
+      html+='<div style="font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:6px">🎯 O objetivo '+(nome?('do '+esc(nome)):'desta fase')+'</div>'
+        +'<div class="tr-t">'+obj.objetivo.icon+' '+esc(obj.objetivo.titulo)+'</div>'
+        +'<div class="tr-s">'+esc(obj.objetivo.sub)
+        +(T.treinadorNome?(' Definido a partir da avaliação de <strong style="color:var(--text)">'+esc(T.treinadorNome)+'</strong>.'):'')+'</div>';
+      if(obj.secundarios.length){
+        html+='<div style="font-size:12.5px;color:var(--muted);margin-top:6px">A seguir: '+obj.secundarios.map(function(s){return esc(s.objetivo.titulo);}).join(' · ')+'</div>';
+      }
+    } else {
+      html+='<div class="tr-t">O teu Objetivo</div><div class="tr-s">Missões curtas para os dias sem treino do clube.'
+        +(T.treinadorNome?(' De <strong style="color:var(--text)">'+esc(T.treinadorNome)+'</strong>.'):'')+'</div>';
+    }
+    html+='<div class="barx" style="margin-top:12px"><i style="width:'+pct+'%;background:var(--up)"></i></div>'
+      +'<div style="font-size:13px;color:var(--slate);margin-top:6px">'+feitasN+' de '+totSess+' missões técnicas cumpridas · '+pct+'%</div>'
+      +'<button id="btn-plano-pdf" onclick="window.__trPDF()" style="margin-top:12px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:10px;padding:11px 16px;font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:14px;cursor:pointer">⬇ Exportar em PDF</button></div>';
+
+    // check-in pós-jogo: 1 pergunta ligada ao objetivo; esconde 4 dias após responder
+    var mostraCheckin=true;
+    if(T.ultimoCheckinJogo){
+      var dias=(Date.now()-new Date(T.ultimoCheckinJogo).getTime())/86400000;
+      if(dias<4) mostraCheckin=false;
+    }
+    if(mostraCheckin && obj){
+      html+='<div class="tr-wk" id="ck-jogo" style="border-color:var(--gold-border)">'
+        +'<div style="padding:15px 16px">'
+        +'<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:900;font-size:19px;margin-bottom:3px">⚽ Houve jogo?</div>'
+        +'<div style="font-size:13.5px;color:var(--slate);line-height:1.5;margin-bottom:12px">No último jogo, sentiste dificuldade em <strong style="color:var(--text)">'+esc(obj.objetivo.verbo)+'</strong>?</div>'
+        +'<div id="ck-dots" style="display:flex;gap:7px;margin-bottom:4px">'
+        +[1,2,3,4,5].map(function(n){return '<button onclick="window.__ckSel('+n+')" id="ck-d-'+n+'" style="flex:1;min-height:44px;background:var(--bg);border:1px solid var(--border);color:var(--slate);border-radius:9px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer">'+n+'</button>';}).join('')
+        +'</div>'
+        +'<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:10px"><span>nada</span><span>muita dificuldade</span></div>'
+        +'<input id="ck-nota" type="text" maxlength="200" placeholder="Queres contar mais? (opcional)" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:12px 13px;font-family:inherit;font-size:16px;outline:none">'
+        +'<button id="ck-send" onclick="window.__ckEnviar()" style="width:100%;margin-top:10px;background:var(--text);border:none;color:#0A0D0A;border-radius:10px;padding:13px;font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:15px;text-transform:uppercase;letter-spacing:.05em;cursor:pointer">Enviar ao treinador</button>'
+        +'</div></div>';
+    }
+
     plano.forEach(function(sem,wi){
       var ciclo=sem.ciclo||{};
       html+='<div class="tr-wk" data-w="'+wi+'">';
       html+='<button class="tr-wk-h" onclick="window.__trToggleWk('+wi+')"><span>'+esc((ciclo.emoji||'')+' Semana '+(wi+1)+' · '+(ciclo.nome||''))+'</span><span class="tr-chev" id="tr-chev-'+wi+'">▸</span></button>';
       html+='<div class="tr-wk-b" id="tr-wk-'+wi+'" style="display:none">';
+      var nSess=(sem.sessoes||[]).length;
       (sem.sessoes||[]).forEach(function(sess,si){
         var min=sess.reduce(function(a,e){return a+(e.tempo||0);},0);
         var feita=isFeita(wi,si);
         html+='<div class="tr-ss'+(feita?' done':'')+'" id="tr-ss-'+wi+'-'+si+'">';
-        html+='<button class="tr-ss-h" onclick="window.__trToggleSs('+wi+','+si+')"><span class="tr-ss-nm">Sessão '+(si+1)+' · '+min+' min</span><span class="tr-ss-st">'+(feita?'✓ feita':'▸')+'</span></button>';
+        html+='<button class="tr-ss-h" onclick="window.__trToggleSs('+wi+','+si+')"><span class="tr-ss-nm">⚡ Missão Técnica'+(nSess>1?(' '+(si+1)):'')+' · '+min+' min</span><span class="tr-ss-st">'+(feita?'✓ cumprida':'▸')+'</span></button>';
         html+='<div class="tr-ss-b" id="tr-ssb-'+wi+'-'+si+'" style="display:none">';
         sess.forEach(function(ex,ei){
           html+='<div class="tr-ex">'
@@ -489,27 +538,56 @@
         });
         if(!feita){
           html+='<div class="tr-act"><button class="tr-go" onclick="window.__trCrono('+wi+','+si+')">▶ Fazer com cronómetro</button>'
-            +'<button class="tr-done" onclick="window.__trFeedback('+wi+','+si+')">✓ Já fiz</button></div>';
+            +'<button class="tr-done" onclick="window.__trFeedback('+wi+','+si+')">✓ Missão cumprida</button></div>';
         } else {
-          html+='<div class="tr-donemsg">Boa! Esta sessão já está registada no teu passaporte.</div>';
+          html+='<div class="tr-donemsg">Boa! Esta missão já conta para o teu objetivo.</div>';
         }
         html+='</div></div>';
       });
+      // Missão de Decisão: cenário do Elite Coach ligado ao objetivo, roda por semana.
+      // Zero carga física — serve os dias em que o corpo já treinou no clube.
+      if(obj && window.YTBObjetivos){
+        var cIdx=YTBObjetivos.missaoDecisaoDaSemana(obj.bucket, wi);
+        var link='elite-coach.html?atleta='+encodeURIComponent(T.atleta)+'&debs='+encodeURIComponent(obj.bucket)+'&nome='+encodeURIComponent(nome)+'&c='+(cIdx+1);
+        html+='<a href="'+link+'" style="display:flex;align-items:center;gap:11px;background:rgba(155,109,255,.06);border:1px solid rgba(155,109,255,.3);border-radius:11px;padding:13px 14px;margin-top:9px;text-decoration:none;color:var(--text)">'
+          +'<span style="font-size:22px">🧠</span>'
+          +'<span style="flex:1"><span style="display:block;font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:15px">Missão de Decisão · cenário de jogo</span>'
+          +'<span style="display:block;font-size:12px;color:var(--slate);margin-top:2px">≈5 min no telemóvel · vês o lance, decides, percebes porquê</span></span>'
+          +'<span style="color:var(--slate);font-size:16px">▶</span></a>';
+      }
       html+='</div></div>';
     });
     var sec=document.createElement('section'); sec.className='tr-sec'; sec.id='tr-sec'; sec.innerHTML=html;
     if(window.YTBExAnim)YTBExAnim.mountAll(sec); // bonequinhos a demonstrar cada exercício
     var app=document.getElementById('app');
-    // ordem no ecrã: jornada → o que mudou → treino → diário/biometria → passaporte
+    // ordem no ecrã: jornada → o que mudou → objetivo/missões → diário/biometria → passaporte
     var tools=document.getElementById('fam-tools');
     if(app) app.insertBefore(sec, tools||app.firstChild);
-    // abre a primeira semana que tenha sessão por fazer
+    // abre a primeira semana que tenha missão por cumprir
     for(var w=0; w<plano.length; w++){
       var found=false;
       for(var s=0;s<(plano[w].sessoes||[]).length;s++){ if(!isFeita(w,s)){ window.__trToggleWk(w); found=true; break; } }
       if(found) break;
     }
   }
+  window.__ckVal=0;
+  window.__ckSel=function(n){
+    window.__ckVal=n;
+    for(var i=1;i<=5;i++){ var b=document.getElementById('ck-d-'+i); if(b){ b.style.background=i<=n?'var(--gold-soft)':'var(--bg)'; b.style.borderColor=i<=n?'var(--gold)':'var(--border)'; b.style.color=i<=n?'var(--gold)':'var(--slate)'; } }
+  };
+  window.__ckEnviar=function(){
+    var n=window.__ckVal;
+    if(!n){ toast('Escolhe de 1 a 5 primeiro'); return; }
+    var btn=document.getElementById('ck-send'); if(btn){btn.disabled=true;btn.textContent='A enviar…';}
+    var nota=(document.getElementById('ck-nota')||{}).value||'';
+    supa.rpc('ytb_jogo_checkin',{p_atleta:window.__treino.atleta,p_dificuldade:n,p_nota:nota.trim()||null}).then(function(res){
+      var d=res&&res.data;
+      if(!d||!d.ok){ if(btn){btn.disabled=false;btn.textContent='Enviar ao treinador';} toast('Não foi possível enviar'); return; }
+      var card=document.getElementById('ck-jogo');
+      if(card) card.innerHTML='<div style="padding:15px 16px"><div style="font-size:14px;color:var(--up);line-height:1.5">✓ Enviado. O treinador vê isto no retorno da semana — obrigado pela honestidade.</div></div>';
+      window.__treino.ultimoCheckinJogo=new Date().toISOString();
+    }).catch(function(){ if(btn){btn.disabled=false;btn.textContent='Enviar ao treinador';} toast('Sem ligação'); });
+  };
   window.__trToggleWk=function(w){ var b=document.getElementById('tr-wk-'+w), ch=document.getElementById('tr-chev-'+w); if(!b)return; var open=b.style.display!=='none'; b.style.display=open?'none':'block'; if(ch)ch.textContent=open?'▸':'▾'; };
   window.__trToggleSs=function(w,s){ var b=document.getElementById('tr-ssb-'+w+'-'+s); if(!b)return; b.style.display=(b.style.display!=='none')?'none':'block'; };
   window.__trCrono=function(w,s){
