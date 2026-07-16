@@ -455,12 +455,20 @@
   function carregarTreino(atletaId){
     if(!USING_SB || !atletaId) return;
     treinoCSS();
-    supa.rpc('ytb_plano_atual',{p_atleta:atletaId}).then(function(res){
-      var d=res&&res.data;
-      if(!d || !d.tem){ montarJornadaPP(); return; }   // sem plano → não mostra a secção
-      window.__treino={atleta:atletaId, prescrito:d.prescrito_id, plano:d.plano||[], feitas:(d.feitas||[]),
-        treinadorNome:d.treinador_nome||null, debilidades:d.debilidades||[], ultimoCheckinJogo:d.ultimo_checkin_jogo||null};
-      renderTreino();
+    // plano e calendário de jogos em paralelo — o check-in cego só aparece
+    // quando NÃO há jogo agendado por responder (o calendário tem prioridade)
+    Promise.all([
+      supa.rpc('ytb_plano_atual',{p_atleta:atletaId}).catch(function(){return null;}),
+      supa.rpc('ytb_jogos_lista',{p_atleta:atletaId}).catch(function(){return null;})
+    ]).then(function(rs){
+      var d=rs[0]&&rs[0].data, jg=rs[1]&&rs[1].data;
+      window.__jogos={atleta:atletaId, por_responder:(jg&&jg.por_responder)||[], proximos:(jg&&jg.proximos)||[], ultimos:(jg&&jg.ultimos)||[]};
+      if(d && d.tem){
+        window.__treino={atleta:atletaId, prescrito:d.prescrito_id, plano:d.plano||[], feitas:(d.feitas||[]),
+          treinadorNome:d.treinador_nome||null, debilidades:d.debilidades||[], ultimoCheckinJogo:d.ultimo_checkin_jogo||null};
+        renderTreino();
+      }
+      renderJogos();
       montarJornadaPP();
     }).catch(function(){ montarJornadaPP(); });
   }
@@ -496,12 +504,14 @@
       +'<div style="font-size:13px;color:var(--slate);margin-top:6px">'+feitasN+' de '+totSess+' missões técnicas cumpridas · '+pct+'%</div>'
       +'<button id="btn-plano-pdf" onclick="window.__trPDF()" style="margin-top:12px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:10px;padding:11px 16px;font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:14px;cursor:pointer">⬇ Exportar em PDF</button></div>';
 
-    // check-in pós-jogo: 1 pergunta ligada ao objetivo; esconde 4 dias após responder
+    // check-in pós-jogo cego: 1 pergunta ligada ao objetivo; esconde 4 dias após
+    // responder E cede a vez quando há jogo do calendário por responder (035d)
     var mostraCheckin=true;
     if(T.ultimoCheckinJogo){
       var dias=(Date.now()-new Date(T.ultimoCheckinJogo).getTime())/86400000;
       if(dias<4) mostraCheckin=false;
     }
+    if(window.__jogos && window.__jogos.por_responder.length) mostraCheckin=false;
     if(mostraCheckin && obj){
       html+='<div class="tr-wk" id="ck-jogo" style="border-color:var(--gold-border)">'
         +'<div style="padding:15px 16px">'
@@ -587,6 +597,139 @@
       if(card) card.innerHTML='<div style="padding:15px 16px"><div style="font-size:14px;color:var(--up);line-height:1.5">✓ Enviado. O treinador vê isto no retorno da semana — obrigado pela honestidade.</div></div>';
       window.__treino.ultimoCheckinJogo=new Date().toISOString();
     }).catch(function(){ if(btn){btn.disabled=false;btn.textContent='Enviar ao treinador';} toast('Sem ligação'); });
+  };
+
+  // ===== CALENDÁRIO DE JOGOS (035d): a família marca; a app pergunta depois =====
+  function fmtJogoData(iso){
+    var d=new Date(iso);
+    var s=d.toLocaleDateString('pt-PT',{weekday:'short',day:'2-digit',month:'short'});
+    var h=d.getHours(), m=d.getMinutes();
+    if(h||m) s+=' '+String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');
+    return s;
+  }
+  function renderJogos(){
+    var J=window.__jogos; if(!J) return;
+    var velho=document.getElementById('jogos-sec'); if(velho) velho.remove();
+    var obj=(window.__treino&&window.YTBObjetivos)?YTBObjetivos.objetivoDoPlano(window.__treino.debilidades):null;
+    var html='';
+
+    // 1. jogos por responder — a pergunta que o fundador pediu: como correu,
+    //    golos, assistências, minutos (e a dificuldade no objetivo, se houver)
+    J.por_responder.forEach(function(j){
+      html+='<div class="tr-wk" id="jg-'+j.id+'" style="border-color:var(--gold-border)"><div style="padding:15px 16px">'
+        +'<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:900;font-size:19px;margin-bottom:2px">⚽ Como correu o jogo'+(j.adversario?(' vs '+esc(j.adversario)):'')+'?</div>'
+        +'<div style="font-size:12px;color:var(--muted);margin-bottom:12px">'+fmtJogoData(j.data_jogo)+'</div>'
+        +'<div style="display:flex;gap:7px;margin-bottom:12px" id="jg-como-'+j.id+'">'
+        +['😖','😕','🙂','😄','🔥'].map(function(f,i){return '<button onclick="window.__jgComo(\''+j.id+'\','+(i+1)+')" data-v="'+(i+1)+'" style="flex:1;min-height:46px;background:var(--bg);border:1px solid var(--border);border-radius:9px;font-size:22px;cursor:pointer;filter:grayscale(1);opacity:.55">'+f+'</button>';}).join('')
+        +'</div>'
+        +'<div style="display:flex;gap:8px;margin-bottom:10px">'
+        +'<label style="flex:1;font-size:11px;color:var(--slate)">⚽ Golos<input id="jg-golos-'+j.id+'" type="number" min="0" max="20" value="0" style="width:100%;margin-top:3px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:9px;padding:10px;font-family:inherit;font-size:16px;outline:none"></label>'
+        +'<label style="flex:1;font-size:11px;color:var(--slate)">🅰 Assist.<input id="jg-assist-'+j.id+'" type="number" min="0" max="20" value="0" style="width:100%;margin-top:3px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:9px;padding:10px;font-family:inherit;font-size:16px;outline:none"></label>'
+        +'<label style="flex:1;font-size:11px;color:var(--slate)">⏱ Minutos<input id="jg-min-'+j.id+'" type="number" min="0" max="120" placeholder="—" style="width:100%;margin-top:3px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:9px;padding:10px;font-family:inherit;font-size:16px;outline:none"></label>'
+        +'</div>';
+      if(obj){
+        html+='<div style="font-size:12.5px;color:var(--slate);margin-bottom:6px">E sentiste dificuldade em <strong style="color:var(--text)">'+esc(obj.objetivo.verbo)+'</strong>? <span style="color:var(--muted)">(opcional)</span></div>'
+          +'<div style="display:flex;gap:7px;margin-bottom:10px" id="jg-dif-'+j.id+'">'
+          +[1,2,3,4,5].map(function(n){return '<button onclick="window.__jgDif(\''+j.id+'\','+n+')" data-v="'+n+'" style="flex:1;min-height:40px;background:var(--bg);border:1px solid var(--border);color:var(--slate);border-radius:9px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer">'+n+'</button>';}).join('')
+          +'</div>';
+      }
+      html+='<input id="jg-nota-'+j.id+'" type="text" maxlength="200" placeholder="Um momento do jogo que queiras guardar? (opcional)" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:12px 13px;font-family:inherit;font-size:16px;outline:none">'
+        +'<button id="jg-send-'+j.id+'" onclick="window.__jgEnviar(\''+j.id+'\')" style="width:100%;margin-top:10px;background:var(--text);border:none;color:#0A0D0A;border-radius:10px;padding:13px;font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:15px;text-transform:uppercase;letter-spacing:.05em;cursor:pointer">Registar jogo</button>'
+        +'</div></div>';
+    });
+
+    // 2. próximos jogos + marcar novo
+    html+='<div class="tr-wk"><div style="padding:15px 16px">'
+      +'<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:900;font-size:19px;margin-bottom:10px">🗓 Jogos</div>';
+    if(J.proximos.length){
+      J.proximos.forEach(function(j){
+        html+='<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);font-size:13.5px">'
+          +'<span style="color:var(--gold)">📅</span><span style="flex:1">'+fmtJogoData(j.data_jogo)+(j.adversario?(' · vs <strong>'+esc(j.adversario)+'</strong>'):'')+'</span>'
+          +'<button onclick="window.__jgApagar(\''+j.id+'\')" title="Desmarcar" style="background:none;border:none;color:var(--muted);font-size:15px;cursor:pointer;padding:6px">✕</button></div>';
+      });
+    } else if(!J.por_responder.length){
+      html+='<div style="font-size:13px;color:var(--slate);margin-bottom:4px">Marca aqui os próximos jogos — depois do apito, a app pergunta como correu e o passaporte regista tudo.</div>';
+    }
+    if(J.ultimos.length){
+      html+='<div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin:12px 0 4px">Últimos jogos</div>';
+      J.ultimos.forEach(function(j){
+        var r=j.resultado||{};
+        var partes=[];
+        if(r.golos) partes.push('⚽ '+r.golos);
+        if(r.assistencias) partes.push('🅰 '+r.assistencias);
+        if(r.minutos!=null) partes.push('⏱ '+r.minutos+"'");
+        html+='<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);font-size:12.5px;color:var(--slate)">'
+          +'<span style="flex:1">'+fmtJogoData(j.data_jogo)+(j.adversario?(' · vs '+esc(j.adversario)):'')+'</span>'
+          +'<span>'+(partes.join(' · ')||'✓')+'</span></div>';
+      });
+    }
+    html+='<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">'
+      +'<input id="jg-nova-data" type="date" style="flex:1;min-width:120px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:9px;padding:10px;font-family:inherit;font-size:15px;outline:none">'
+      +'<input id="jg-nova-hora" type="time" value="10:00" style="width:92px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:9px;padding:10px;font-family:inherit;font-size:15px;outline:none">'
+      +'<input id="jg-novo-adv" type="text" maxlength="60" placeholder="Adversário (opcional)" style="flex:2;min-width:140px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:9px;padding:10px 12px;font-family:inherit;font-size:16px;outline:none">'
+      +'<button onclick="window.__jgAgendar()" style="background:var(--bg4);border:1px solid var(--border2);color:var(--text);border-radius:9px;padding:10px 16px;font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:14px;cursor:pointer">+ Marcar jogo</button>'
+      +'</div>'
+      +'</div></div>';
+
+    var sec=document.createElement('section'); sec.className='tr-sec'; sec.id='jogos-sec'; sec.innerHTML=html;
+    var app=document.getElementById('app'); if(!app) return;
+    var tr=document.getElementById('tr-sec');
+    if(tr && tr.nextSibling) app.insertBefore(sec, tr.nextSibling);
+    else if(tr) app.appendChild(sec);
+    else app.insertBefore(sec, document.getElementById('fam-tools')||app.firstChild);
+  }
+  window.__jgVals={};
+  window.__jgComo=function(id,n){
+    (window.__jgVals[id]=window.__jgVals[id]||{}).como=n;
+    var row=document.getElementById('jg-como-'+id); if(!row) return;
+    Array.prototype.forEach.call(row.children,function(b){ var v=+b.getAttribute('data-v'); b.style.filter=v===n?'none':'grayscale(1)'; b.style.opacity=v===n?'1':'.55'; b.style.borderColor=v===n?'var(--gold)':'var(--border)'; });
+  };
+  window.__jgDif=function(id,n){
+    (window.__jgVals[id]=window.__jgVals[id]||{}).dif=n;
+    var row=document.getElementById('jg-dif-'+id); if(!row) return;
+    Array.prototype.forEach.call(row.children,function(b){ var v=+b.getAttribute('data-v'); b.style.background=v<=n?'var(--gold-soft)':'var(--bg)'; b.style.borderColor=v<=n?'var(--gold)':'var(--border)'; b.style.color=v<=n?'var(--gold)':'var(--slate)'; });
+  };
+  window.__jgEnviar=function(id){
+    var vals=window.__jgVals[id]||{};
+    if(!vals.como){ toast('Diz primeiro como correu (carrega numa carinha)'); return; }
+    var btn=document.getElementById('jg-send-'+id); if(btn){btn.disabled=true;btn.textContent='A registar…';}
+    var golos=parseInt((document.getElementById('jg-golos-'+id)||{}).value)||0;
+    var assist=parseInt((document.getElementById('jg-assist-'+id)||{}).value)||0;
+    var minRaw=(document.getElementById('jg-min-'+id)||{}).value;
+    var minutos=minRaw===''||minRaw==null?null:(parseInt(minRaw)||0);
+    var nota=((document.getElementById('jg-nota-'+id)||{}).value||'').trim()||null;
+    supa.rpc('ytb_jogo_responder',{p_jogo:id,p_como_correu:vals.como,p_golos:golos,p_assistencias:assist,p_minutos:minutos,p_dificuldade:vals.dif||null,p_nota:nota}).then(function(res){
+      var d=res&&res.data;
+      if(!d||!d.ok){ if(btn){btn.disabled=false;btn.textContent='Registar jogo';} toast('Não foi possível registar ('+((d&&d.motivo)||'erro')+')'); return; }
+      var card=document.getElementById('jg-'+id);
+      if(card) card.innerHTML='<div style="padding:15px 16px"><div style="font-size:14px;color:var(--up);line-height:1.5">✓ Jogo registado no passaporte'+(golos?(' — '+golos+' golo'+(golos===1?'':'s')+'!'):'')+' As estatísticas da época já contam com ele.</div></div>';
+      window.__jogos.por_responder=window.__jogos.por_responder.filter(function(j){return j.id!==id;});
+    }).catch(function(){ if(btn){btn.disabled=false;btn.textContent='Registar jogo';} toast('Sem ligação'); });
+  };
+  window.__jgAgendar=function(){
+    var data=(document.getElementById('jg-nova-data')||{}).value;
+    if(!data){ toast('Escolhe a data do jogo'); return; }
+    var hora=(document.getElementById('jg-nova-hora')||{}).value||'10:00';
+    var adv=((document.getElementById('jg-novo-adv')||{}).value||'').trim()||null;
+    var iso=new Date(data+'T'+hora).toISOString();
+    supa.rpc('ytb_jogo_agendar',{p_atleta:window.__jogos.atleta,p_data:iso,p_adversario:adv}).then(function(res){
+      var d=res&&res.data;
+      if(!d||!d.ok){ toast('Não foi possível marcar ('+((d&&d.motivo)||'erro')+')'); return; }
+      toast('Jogo marcado');
+      var novo={id:d.id,data_jogo:iso,adversario:adv};
+      if(new Date(iso)<=new Date()) window.__jogos.por_responder.unshift(novo); else window.__jogos.proximos.push(novo);
+      window.__jogos.proximos.sort(function(a,b){return new Date(a.data_jogo)-new Date(b.data_jogo);});
+      renderJogos();
+    }).catch(function(){ toast('Sem ligação'); });
+  };
+  window.__jgApagar=function(id){
+    supa.rpc('ytb_jogo_apagar',{p_jogo:id}).then(function(res){
+      var d=res&&res.data;
+      if(!d||!d.ok){ toast('Não foi possível desmarcar'); return; }
+      window.__jogos.proximos=window.__jogos.proximos.filter(function(j){return j.id!==id;});
+      window.__jogos.por_responder=window.__jogos.por_responder.filter(function(j){return j.id!==id;});
+      renderJogos();
+    }).catch(function(){ toast('Sem ligação'); });
   };
   window.__trToggleWk=function(w){ var b=document.getElementById('tr-wk-'+w), ch=document.getElementById('tr-chev-'+w); if(!b)return; var open=b.style.display!=='none'; b.style.display=open?'none':'block'; if(ch)ch.textContent=open?'▸':'▾'; };
   window.__trToggleSs=function(w,s){ var b=document.getElementById('tr-ssb-'+w+'-'+s); if(!b)return; b.style.display=(b.style.display!=='none')?'none':'block'; };
