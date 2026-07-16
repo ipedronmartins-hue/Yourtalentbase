@@ -468,15 +468,32 @@ async function renderRetorno(){
     area.innerHTML='<div class="empty-state"><div class="empty-emoji">🔄</div>Ainda sem retorno.<br>Inscreve e avalia atletas — quando as famílias treinarem, vês aqui o resultado.</div>';
     return;
   }
+  // mesma prioridade do briefing de segunda (acompanhamento.html):
+  // quem precisa do treinador primeiro, não quem mexeu por último
+  const prioridadeDe=d=>{
+    let p=0, acao=null;
+    if(d.dias_desde_avaliacao==null||d.dias_desde_avaliacao>45){p+=3;acao=acao||'Reavaliar';}
+    const ck=d.ultimo_checkin_jogo;
+    if(ck&&ck.dificuldade!=null&&ck.dificuldade>=4){p+=2;acao=acao||'Rever o objetivo';}
+    if(d.plano_prescrito_em&&!d.execucoes_desde_plano){p+=2;acao=acao||'Falar com a família';}
+    if(d.confianca_media!=null&&d.confianca_media<60)p+=1;
+    if(!d.ultima_atividade||(Date.now()-new Date(d.ultima_atividade).getTime())/86400000>14){p+=1;acao=acao||'Falar com a família';}
+    return {p,acao};
+  };
+  digest.sort((a,b)=>prioridadeDe(b).p-prioridadeDe(a).p);
   let html='';
   digest.forEach(d=>{
     const ult=d.ultima_atividade?new Date(d.ultima_atividade).toLocaleDateString('pt-PT',{day:'2-digit',month:'short'}):null;
     const diasAval=d.dias_desde_avaliacao;
     const precisaAval=diasAval==null||diasAval>45;
     const conf=d.confianca_media;
+    const pri=prioridadeDe(d);
+    const ds=(d.dev_score&&d.dev_score.estado==='ok')?d.dev_score:null;
     html+='<div class="dash-card">'
-      +'<div class="dash-card-header"><div class="dash-card-eyebrow">'+esc(d.nome||'Atleta')+(d.escalao?' · '+esc(d.escalao):'')+'</div>'
+      +'<div class="dash-card-header"><div class="dash-card-eyebrow">'+esc(d.nome||'Atleta')+(d.escalao?' · '+esc(d.escalao):'')
+      +(ds?' · <span style="color:var(--gold)">Score '+ds.score+(ds.tendencia==='subiu'?' ↗':ds.tendencia==='desceu'?' ↘':'')+'</span>':'')+'</div>'
       +(ult?'<div class="dash-card-action">último treino: '+ult+'</div>':'')+'</div>'
+      +(pri.acao?'<div style="font-size:11px;color:var(--gold);margin:2px 0 4px">→ o sistema recomenda: <b>'+esc(pri.acao)+'</b></div>':'')
       +'<div style="display:flex;gap:14px;margin:8px 0 4px;flex-wrap:wrap">'
       +'<div><div style="font-family:\'Barlow Condensed\';font-weight:900;font-size:26px;color:var(--gold);line-height:1">'+(d.execucoes_desde_plano||0)+'</div><div style="font-size:9px;letter-spacing:1px;color:var(--slate);text-transform:uppercase">treinos desde o plano</div></div>'
       +'<div><div style="font-family:\'Barlow Condensed\';font-weight:900;font-size:26px;color:var(--blue);line-height:1">'+(d.execucoes_total||0)+'</div><div style="font-size:9px;letter-spacing:1px;color:var(--slate);text-transform:uppercase">treinos no total</div></div>'

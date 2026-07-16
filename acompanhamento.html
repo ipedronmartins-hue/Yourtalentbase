@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#080C08">
-<title>Acompanhamento · Treinador</title>
+<title>O teu início de semana · Treinador</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -61,7 +61,7 @@
 </head>
 <body>
   <header class="top"><div class="wrap">
-    <a class="mono" href="/" title="Início" aria-label="Início" style="text-decoration:none">YTB</a><span class="ttl">Acompanhamento</span><span class="who" id="who">—</span>
+    <a class="mono" href="/" title="Início" aria-label="Início" style="text-decoration:none">YTB</a><span class="ttl">Início de semana</span><span class="who" id="who">—</span>
   </div></header>
   <main class="wrap" id="app" aria-live="polite"></main>
 
@@ -73,81 +73,119 @@
   var USING_SB=!!(URL_&&KEY&&window.supabase);
   var supa=USING_SB?window.supabase.createClient(URL_,KEY):null;
 
-  // DEMO — espelha ytb_acompanhamento (+ campos de identidade que o RPC pode juntar)
+  // DEMO — só sem Supabase configurado (nunca em produção; a antiga versão
+  // caía em DEMO sempre porque chamava uma RPC que não existia)
   var DEMO=[
-    {nome:"Neto",pos:"DC",escalao:"Sub-19",prescritos:6,concluidos:0,evolucao_pct:null,ultima:"há 3 sem"},
-    {nome:"Vitinha",pos:"EE",escalao:"Sub-11",prescritos:8,concluidos:5,evolucao_pct:5,ultima:"há 4 dias"},
-    {nome:"Coutinho",pos:"MC",escalao:"Sub-13",prescritos:12,concluidos:9,evolucao_pct:11,ultima:"há 2 dias"},
-    {nome:"Pepê",pos:"PL",escalao:"Sub-15",prescritos:10,concluidos:10,evolucao_pct:18,ultima:"ontem"}
+    {nome:"Vitinha",escalao:"Sub-11",dias_desde_avaliacao:52,plano_prescrito_em:"2026-06-01",execucoes_desde_plano:0,execucoes_total:5,confianca_media:55,ultimo_feedback:"Custou o pé fraco",ultima_atividade:null,ultimo_checkin_jogo:{dificuldade:4,nota:"Difícil receber de costas"},dev_score:{estado:'ok',score:38,tendencia:'estavel'}},
+    {nome:"Coutinho",escalao:"Sub-13",dias_desde_avaliacao:12,plano_prescrito_em:"2026-07-01",execucoes_desde_plano:6,execucoes_total:22,confianca_media:82,ultimo_feedback:"Semana boa",ultima_atividade:new Date(Date.now()-2*86400000).toISOString(),ultimo_checkin_jogo:null,dev_score:{estado:'ok',score:71,tendencia:'subiu'}},
+    {nome:"Pepê",escalao:"Sub-15",dias_desde_avaliacao:8,plano_prescrito_em:"2026-07-08",execucoes_desde_plano:4,execucoes_total:31,confianca_media:90,ultimo_feedback:null,ultima_atividade:new Date(Date.now()-86400000).toISOString(),ultimo_checkin_jogo:null,dev_score:{estado:'ok',score:84,tendencia:'subiu'}}
   ];
 
-  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
-  function adesao(a){return a.prescritos>0?Math.min(100,Math.round(100*a.concluidos/a.prescritos)):0;}
-  function lvl(p){return p>=80?'var(--up)':p>=50?'var(--warn)':'var(--down)';}
-  function ring(p){
-    var r=20,c=2*Math.PI*r,off=c*(1-p/100),col=lvl(p);
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function ring(score){
+    var r=20,c=2*Math.PI*r;
+    if(score==null){
+      return '<svg class="ring" width="56" height="56" viewBox="0 0 56 56" aria-hidden="true">'+
+        '<circle cx="28" cy="28" r="20" fill="none" stroke="#1F2520" stroke-width="4"/>'+
+        '<text x="28" y="33" text-anchor="middle" font-family="Barlow Condensed" font-weight="800" font-size="15" fill="#7a7a7a">—</text></svg>';
+    }
+    var off=c*(1-score/100), col=score>=70?'var(--up)':score>=45?'var(--warn)':'var(--down)';
     return '<svg class="ring" width="56" height="56" viewBox="0 0 56 56" aria-hidden="true">'+
       '<circle cx="28" cy="28" r="20" fill="none" stroke="#1F2520" stroke-width="4"/>'+
       '<circle cx="28" cy="28" r="20" fill="none" stroke="'+col+'" stroke-width="4" stroke-linecap="round" stroke-dasharray="'+c.toFixed(1)+'" stroke-dashoffset="'+off.toFixed(1)+'" transform="rotate(-90 28 28)"/>'+
-      '<text x="28" y="33" text-anchor="middle" font-family="Barlow Condensed" font-weight="800" font-size="17" fill="#ECEFEA">'+p+'</text></svg>';
+      '<text x="28" y="33" text-anchor="middle" font-family="Barlow Condensed" font-weight="800" font-size="17" fill="#ECEFEA">'+score+'</text></svg>';
   }
   function relurl(nome){return '#'+encodeURIComponent(nome);}
-
-  function render(list){
-    list=list.slice().sort(function(a,b){return adesao(a)-adesao(b);});  // quem precisa de atenção primeiro
-    var n=list.length;
-    var media = n? Math.round(list.reduce(function(s,a){return s+adesao(a);},0)/n):0;
-    var cumpridas = list.reduce(function(s,a){return s+a.concluidos;},0);
-
-    var html='<div class="summary">'+
-      '<div class="cell"><div class="v num">'+n+'</div><div class="l">Atletas</div></div>'+
-      '<div class="cell"><div class="v num" style="color:'+lvl(media)+'">'+media+'<span style="font-size:16px">%</span></div><div class="l">Adesão média</div></div>'+
-      '<div class="cell"><div class="v num">'+cumpridas+'</div><div class="l">Sessões cumpridas</div></div>'+
-      '</div>';
-
-    html+='<div class="shead">Os teus atletas</div>';
-    list.forEach(function(a){
-      var p=adesao(a), attn=p<50;
-      html+='<div class="athlete'+(attn?' attn':'')+'">'+ring(p)+
-        '<div class="info"><div class="name">'+esc(a.nome)+'</div>'+
-        '<div class="meta"><span class="pos">'+esc(a.pos)+'</span>'+esc(a.escalao)+'</div>'+
-        '<div class="stat">'+
-          '<span class="s"><b class="num">'+a.concluidos+'/'+a.prescritos+'</b>sessões</span>'+
-          (a.evolucao_pct!=null?'<span class="s"><b class="up num">'+(a.evolucao_pct>=0?'+':'')+a.evolucao_pct+'%</b>evolução</span>':'<span class="s" style="color:var(--muted)">sem avaliação</span>')+
-          '<span class="s"><b>'+esc(a.ultima||'—')+'</b></span>'+
-        '</div>'+
-        '<div class="actions"><a href="ytb-pro-treinador.html'+relurl(a.nome)+'">Avaliar</a><a href="ytb-pro-treinador.html'+relurl(a.nome)+'">Prescrever</a><a class="go" href="passaporte.html'+relurl(a.nome)+'">Passaporte →</a></div>'+
-        '</div>'+(attn?'<span class="attn-tag">precisa de atenção</span>':'')+'</div>';
-    });
-    html+='<div class="foot">'+(USING_SB?'YourTalentBase · acompanhamento':'<span class="demo-tag">Demonstração</span> · dados de exemplo')+'</div>';
-    document.getElementById('app').innerHTML=html;
-    document.getElementById('who').textContent=USING_SB?'':'Mister (demo)';
-  }
-
-  // tradutor: forma do ytb_acompanhamento → forma do render
   function relTime(iso){
-    if(!iso) return '—';
+    if(!iso) return null;
     var then=new Date(iso), now=new Date(), d=Math.floor((now-then)/86400000);
-    if(isNaN(d)) return '—';
+    if(isNaN(d)) return null;
     if(d<=0) return 'hoje'; if(d===1) return 'ontem';
     if(d<7) return 'há '+d+' dias';
     if(d<14) return 'há 1 sem'; if(d<31) return 'há '+Math.floor(d/7)+' sem';
     if(d<365){ var m=Math.max(1,Math.round(d/30)); return 'há '+m+(m===1?' mês':' meses'); }
     var y=Math.floor(d/365); return 'há '+y+(y===1?' ano':' anos');
   }
-  function mapRow(r){
-    return { nome:r.nome||'—', pos:r.posicao||'', escalao:r.escalao||'',
-      prescritos:r.prescritos||0, concluidos:r.concluidos||0,
-      evolucao_pct:(r.evolucao_pct===null||r.evolucao_pct===undefined)?null:Math.round(r.evolucao_pct),
-      ultima:relTime(r.ultima) };
+
+  // prioridade da semana: vetorização da lógica que já vivia no mapa da
+  // jornada do treinador (dias>45, plano sem execuções) + sinais novos
+  // (check-in de jogo difícil, confiança baixa, silêncio de 14 dias).
+  // A ação recomendada é a regra mais grave que disparou — linguagem
+  // "o sistema recomenda", nunca "a IA decide".
+  function prioridade(a){
+    var pontos=0, acao=null;
+    var semAval = a.dias_desde_avaliacao==null || a.dias_desde_avaliacao>45;
+    if(semAval){ pontos+=3; acao=acao||'Reavaliar'; }
+    var ck=a.ultimo_checkin_jogo;
+    if(ck && ck.dificuldade!=null && ck.dificuldade>=4){ pontos+=2; acao=acao||'Rever o objetivo'; }
+    if(a.plano_prescrito_em && !a.execucoes_desde_plano){ pontos+=2; acao=acao||'Falar com a família'; }
+    if(a.confianca_media!=null && a.confianca_media<60) pontos+=1;
+    var silencio = !a.ultima_atividade || (Date.now()-new Date(a.ultima_atividade).getTime())/86400000>14;
+    if(silencio){ pontos+=1; acao=acao||'Falar com a família'; }
+    return {pontos:pontos, acao:acao};
+  }
+
+  function cartao(a, pri){
+    var ds=(a.dev_score&&a.dev_score.estado==='ok')?a.dev_score:null;
+    var tend=ds?({subiu:' <span style="color:var(--up)">↗</span>',desceu:' <span style="color:var(--down)">↘</span>'}[ds.tendencia]||''):'';
+    var ck=a.ultimo_checkin_jogo;
+    var fala=null;
+    if(ck&&ck.nota) fala='⚽ «'+ck.nota+'»';
+    else if(a.ultimo_feedback) fala='💬 «'+a.ultimo_feedback+'»';
+    return '<div class="athlete'+(pri.pontos>=3?' attn':'')+'">'+ring(ds?ds.score:null)+
+      '<div class="info"><div class="name">'+esc(a.nome)+tend+'</div>'+
+      '<div class="meta">'+esc(a.escalao||'')+(a.dias_desde_avaliacao!=null?(' · avaliado há '+a.dias_desde_avaliacao+'d'):' · sem avaliação tua')+'</div>'+
+      '<div class="stat">'+
+        '<span class="s"><b class="num">'+(a.execucoes_desde_plano||0)+'</b>missões desde o plano</span>'+
+        (a.confianca_media!=null?'<span class="s"><b class="num">'+a.confianca_media+'%</b>confiança</span>':'')+
+        (relTime(a.ultima_atividade)?'<span class="s"><b>'+esc(relTime(a.ultima_atividade))+'</b></span>':'<span class="s" style="color:var(--muted)">sem atividade</span>')+
+      '</div>'+
+      (fala?'<div style="font-size:11.5px;color:#cfd6cf;background:rgba(255,255,255,.04);border-radius:8px;padding:7px 9px;margin-top:8px">'+esc(fala)+'</div>':'')+
+      (pri.acao?'<div style="font-size:11px;color:var(--gold);margin-top:8px">→ o sistema recomenda: <b>'+esc(pri.acao)+'</b></div>':'')+
+      '<div class="actions"><a href="ytb-pro-treinador.html'+relurl(a.nome)+'">Avaliar</a><a href="ytb-pro-treinador.html'+relurl(a.nome)+'">Prescrever</a><a class="go" href="passaporte.html'+relurl(a.nome)+'">Passaporte →</a></div>'+
+      '</div>'+(pri.pontos>=3?'<span class="attn-tag">prioridade</span>':'')+'</div>';
+  }
+
+  function render(list){
+    var comPri=list.map(function(a){return {a:a, pri:prioridade(a)};});
+    comPri.sort(function(x,y){return y.pri.pontos-x.pri.pontos || String(x.a.nome).localeCompare(String(y.a.nome));});
+    var prioritarios=comPri.filter(function(x){return x.pri.pontos>0;}).slice(0,5);
+    var resto=comPri.filter(function(x){return prioritarios.indexOf(x)===-1;});
+    var missoes=list.reduce(function(s,a){return s+(a.execucoes_desde_plano||0);},0);
+
+    var html='<div class="summary">'+
+      '<div class="cell"><div class="v num">'+list.length+'</div><div class="l">Atletas</div></div>'+
+      '<div class="cell"><div class="v num" style="color:'+(prioritarios.length?'var(--warn)':'var(--up)')+'">'+prioritarios.length+'</div><div class="l">Prioridades</div></div>'+
+      '<div class="cell"><div class="v num">'+missoes+'</div><div class="l">Missões desde o plano</div></div>'+
+      '</div>';
+
+    if(prioritarios.length){
+      html+='<div class="shead">Prioridade desta semana</div>';
+      prioritarios.forEach(function(x){ html+=cartao(x.a,x.pri); });
+    }
+    if(resto.length){
+      html+='<div class="shead">'+(prioritarios.length?'Os restantes':'Os teus atletas')+'</div>';
+      resto.forEach(function(x){ html+=cartao(x.a,x.pri); });
+    }
+    if(!list.length){
+      html+='<div class="shead">Os teus atletas</div><div style="font-size:13px;color:var(--slate);padding:14px 2px">Ainda sem atletas. Inscreve e avalia no <a href="ytb-pro-treinador.html" style="color:var(--gold)">painel do treinador</a> — o teu início de semana monta-se sozinho a partir daí.</div>';
+    }
+    html+='<div class="foot">'+(USING_SB?'YourTalentBase · o treinador confirma, não prepara':'<span class="demo-tag">Demonstração</span> · dados de exemplo')+'</div>';
+    document.getElementById('app').innerHTML=html;
+    document.getElementById('who').textContent=USING_SB?'':'Mister (demo)';
   }
 
   if(!USING_SB){ render(DEMO); }
   else{
-    supa.rpc('ytb_acompanhamento',{}).then(function(res){
-      if(res.error||!res.data||!res.data.length){ render(DEMO); return; }
-      render(res.data.map(mapRow));
-    }).catch(function(){ render(DEMO); });
+    supa.rpc('ytb_treinador_digest').then(function(res){
+      if(res.error || res.data==null){
+        document.getElementById('app').innerHTML='<div style="font-size:14px;color:var(--slate);padding:26px 2px;line-height:1.6">Para veres o teu início de semana, entra primeiro como treinador no <a href="ytb-pro-treinador.html" style="color:var(--gold)">painel do treinador</a> — a sessão fica válida aqui também.</div>';
+        return;
+      }
+      render(res.data||[]);
+    }).catch(function(){
+      document.getElementById('app').innerHTML='<div style="font-size:14px;color:var(--slate);padding:26px 2px">Não foi possível carregar. Verifica a ligação e tenta de novo.</div>';
+    });
   }
 })();
 </script>
