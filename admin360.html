@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Console · Scouting 360 YTB</title>
 <meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#080C08">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="YTB Admin">
+<link rel="manifest" href="manifest-admin.json">
+<link rel="apple-touch-icon" href="/icons/admin-192.svg">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,700;0,800;0,900;1,900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <!-- Design system único: fonte dos tokens aprovados (ver ytb.css) -->
@@ -188,7 +195,10 @@ tr:last-child td{border-bottom:none}
   <div class="head">
     <div class="eyebrow">Console Administração</div>
     <h1 class="h1">Gestão <em>Scouting 360</em></h1>
-    <button class="action-btn success" onclick="creditarScout()" style="margin-top:8px;padding:8px 14px;font-size:11px">+ Créditos Scout (39,90€ = 3 PDF)</button>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+      <button class="action-btn success" onclick="creditarScout()" style="padding:8px 14px;font-size:11px">+ Créditos Scout (39,90€ = 3 PDF)</button>
+      <button class="action-btn" id="btn-push" onclick="ativarNotificacoesPush()" style="padding:8px 14px;font-size:11px">🔔 Ativar notificações</button>
+    </div>
   </div>
 
   <div class="kpi-row">
@@ -218,6 +228,11 @@ tr:last-child td{border-bottom:none}
   </div>
   <!-- contadores por secção mantidos (ocultos) para compatibilidade com load() -->
   <span id="tab-bg-pend" style="display:none">0</span><span id="tab-bg-ped" style="display:none">0</span><span id="tab-bg-trein" style="display:none">0</span>
+
+  <!-- POR TREINADOR (pastas: clica num treinador, chega aos atletas dele) -->
+  <div class="section" id="section-portreinador">
+    <div id="grid-portreinador" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-bottom:22px"></div>
+  </div>
 
   <!-- ATLETAS -->
   <div class="section" id="section-atletas">
@@ -266,16 +281,39 @@ tr:last-child td{border-bottom:none}
         <div id="com-total-pend" style="font-size:28px;font-weight:800;color:#E8A33D;margin-top:4px">—</div>
       </div>
       <div style="flex:1;min-width:160px;background:#161B16;border:1px solid #2a2f28;border-radius:10px;padding:14px">
-        <div style="font-size:11px;color:#8A958A;text-transform:uppercase;letter-spacing:1px">Já pago</div>
+        <div style="font-size:11px;color:#8A958A;text-transform:uppercase;letter-spacing:1px">Já pago (treinador)</div>
         <div id="com-total-pago" style="font-size:28px;font-weight:800;color:#27AE60;margin-top:4px">—</div>
       </div>
+      <div style="flex:1;min-width:160px;background:#161B16;border:1px solid #2a2f28;border-radius:10px;padding:14px">
+        <div style="font-size:11px;color:#8A958A;text-transform:uppercase;letter-spacing:1px">A pagar às academias</div>
+        <div id="com-total-academia-pend" style="font-size:28px;font-weight:800;color:#4A9FE8;margin-top:4px">—</div>
+      </div>
     </div>
+
+    <div style="background:#161B16;border:1px solid #2a2f28;border-radius:10px;padding:14px;margin-bottom:14px">
+      <div style="font-size:11px;color:#8A958A;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Registar cobrança recebida</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <select class="f-select" id="cob-tipo" style="min-width:170px">
+          <option value="avaliacao">Avaliação (39,90€ · 19,90€ treinador)</option>
+          <option value="mensalidade">Mensalidade (9,90€ · 4,90€ treinador)</option>
+          <option value="coachbase">CoachBase avulso (9,90€ · 100% YTB)</option>
+          <option value="scout">Scout Report (39,90€ · 100% YTB)</option>
+          <option value="academia_atleta">Academia por atleta (30/30/40)</option>
+        </select>
+        <input class="search" id="cob-atleta" type="text" placeholder="Nome do atleta (opcional)" style="min-width:160px">
+        <input class="search" id="cob-treinador" type="text" placeholder="Email do treinador" style="min-width:180px">
+        <input class="search" id="cob-valor" type="number" step="0.01" placeholder="Valor total recebido (€)" style="min-width:160px">
+        <button class="action-btn success" onclick="registarCobranca()">+ Registar</button>
+      </div>
+      <div style="font-size:11px;color:#8A958A;margin-top:8px">A repartição (treinador/academia/YTB) é calculada automaticamente pelo tipo — nunca à mão.</div>
+    </div>
+
     <div class="table-wrap">
       <table>
         <thead>
-          <tr><th>Treinador</th><th>Atleta</th><th>Tipo</th><th>Comissão</th><th>Mês</th><th>Estado</th><th>Acção</th></tr>
+          <tr><th>Treinador</th><th>Atleta</th><th>Tipo</th><th>Total</th><th>Treinador</th><th>Academia</th><th>Mês</th><th>Acção</th></tr>
         </thead>
-        <tbody id="tbody-comissoes"><tr><td colspan="7" class="loading"><div class="spinner"></div></td></tr></tbody>
+        <tbody id="tbody-comissoes"><tr><td colspan="8" class="loading"><div class="spinner"></div></td></tr></tbody>
       </table>
     </div>
   </div>
@@ -556,14 +594,14 @@ function renderFilaDecisoes(pendentes, pedidos, registos){
 // 3 zonas agrupam as 9 secções (que se mantêm intactas). Decidir primeiro.
 const ZONAS = {
   decidir: ['pendentes','pedidos','treinadores'],
-  pessoas: ['atletas','contas'],
+  pessoas: ['portreinador','atletas','contas'],
   negocio: ['clubes','atletastreinador','relatorios','comissoes']
 };
 const SEC_TITULO = {
   atletas:'📋 Atletas', pendentes:'⏳ Atletas por aprovar', pedidos:'📞 Pedidos de contacto',
   treinadores:'🎓 Registos de treinador', relatorios:'📄 Relatórios',
   atletastreinador:'⚽ Atletas de treinador · pagamentos', clubes:'🏢 Clubes',
-  contas:'👤 Contas', comissoes:'💶 Comissões'
+  contas:'👤 Contas', comissoes:'💶 Comissões', portreinador:'📁 Atletas por treinador'
 };
 function garantirTitulo(sec, id){
   if(sec.querySelector('.zona-sec-titulo')) return;
@@ -658,12 +696,42 @@ async function load(){
     renderTreinadores();
     renderRelatorios();
     renderAtletasTreinador();
+    renderPorTreinador();
     carregarDashboard();
 
   } catch(err){
     console.error(err);
     toast('Erro a carregar: ' + (err.message || err), 'error');
   }
+}
+
+// ════════════════ POR TREINADOR (pastas) ════════════════
+function renderPorTreinador(){
+  const grid = document.getElementById('grid-portreinador');
+  if(!grid) return;
+  const treinadores = allTreinadores.filter(t => t.papel === 'treinador' && t.estado === 'aprovado');
+  if(!treinadores.length){
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="empty-icon">📁</div>Ainda sem treinadores aprovados.</div>';
+    return;
+  }
+  grid.innerHTML = treinadores.map(t => {
+    const n = allAtletasTreinador.filter(a => (a.fonte_email||'').toLowerCase() === (t.email||'').toLowerCase()).length;
+    return `<button onclick="abrirAtletasDoTreinador('${escapeHtml(t.email||'')}')" style="text-align:left;cursor:pointer;background:var(--bg2,#12160f);border:1px solid var(--border2,#2a2f28);border-radius:11px;padding:14px;color:inherit;font-family:inherit">
+      <div style="font-size:22px;margin-bottom:6px">📁</div>
+      <div style="font-weight:800;font-size:14px">${escapeHtml(t.nome||t.email||'—')}</div>
+      <div style="font-size:11px;color:var(--muted,#7a7a7a);margin-top:3px">${escapeHtml(t.email||'')}</div>
+      <div style="font-size:12px;margin-top:8px;color:var(--gold,#D4AF37);font-weight:700">${n} ${n===1?'atleta':'atletas'} →</div>
+    </button>`;
+  }).join('');
+}
+function abrirAtletasDoTreinador(email){
+  showZona('pessoas');
+  const busca = document.getElementById('s-atletas');
+  const fonte = document.getElementById('f-fonte');
+  if(fonte) fonte.value = 'treinador';
+  if(busca){ busca.value = email; renderAtletas(); }
+  const sec = document.getElementById('section-atletas');
+  if(sec) sec.scrollIntoView({behavior:'smooth', block:'start'});
 }
 
 // ════════════════ ATLETAS ════════════════
@@ -1718,35 +1786,121 @@ async function carregarComissoes(){
   try {
     const { data: coms, error } = await supa.from('comissoes').select('*').order('pago_ao_treinador').order('criado_em', { ascending: false });
     if(error) throw error;
-    if(!coms || !coms.length){ tb.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#7a7a7a;padding:20px">Ainda não há comissões registadas.</td></tr>'; document.getElementById('com-total-pend').textContent='0,00€'; document.getElementById('com-total-pago').textContent='0,00€'; return; }
-    let pend=0, pago=0;
-    coms.forEach(c => { const v=Number(c.comissao||0); if(c.pago_ao_treinador) pago+=v; else pend+=v; });
+    if(!coms || !coms.length){ tb.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#7a7a7a;padding:20px">Ainda não há cobranças registadas.</td></tr>'; document.getElementById('com-total-pend').textContent='0,00€'; document.getElementById('com-total-pago').textContent='0,00€'; document.getElementById('com-total-academia-pend').textContent='0,00€'; return; }
+    let pend=0, pago=0, academiaPend=0;
+    coms.forEach(c => {
+      const v=Number(c.comissao||0); if(c.pago_ao_treinador) pago+=v; else pend+=v;
+      const va=Number(c.valor_academia||0); if(va>0 && !c.pago_academia) academiaPend+=va;
+    });
     document.getElementById('com-total-pend').textContent = pend.toFixed(2).replace('.',',')+'€';
     document.getElementById('com-total-pago').textContent = pago.toFixed(2).replace('.',',')+'€';
+    document.getElementById('com-total-academia-pend').textContent = academiaPend.toFixed(2).replace('.',',')+'€';
+    const eur = n => Number(n||0).toFixed(2).replace('.',',')+'€';
     tb.innerHTML = coms.map(c => {
-      const v = Number(c.comissao||0).toFixed(2).replace('.',',')+'€';
-      const estado = c.pago_ao_treinador
-        ? '<span style="color:#27AE60;font-weight:700;font-size:11px">✓ PAGO</span>'
-        : '<span style="color:#E8A33D;font-weight:700;font-size:11px">POR PAGAR</span>';
-      const acao = c.pago_ao_treinador
-        ? `<button class="action-btn" style="border-color:#444;color:#999" onclick="marcarComissao('${c.id}', false)">↩ Reverter</button>`
-        : `<button class="action-btn" onclick="marcarComissao('${c.id}', true)">✓ Marcar paga</button>`;
+      const acaoTrein = Number(c.comissao||0) <= 0 ? '—' : (c.pago_ao_treinador
+        ? '<span style="color:#27AE60;font-size:11px">✓ pago</span>'
+        : `<button class="action-btn" style="font-size:11px;padding:5px 9px" onclick="marcarComissaoPaga('${c.id}','treinador')">Marcar pago</button>`);
+      const acaoAcademia = Number(c.valor_academia||0) <= 0 ? '—' : (c.pago_academia
+        ? '<span style="color:#27AE60;font-size:11px">✓ pago</span>'
+        : `<button class="action-btn" style="font-size:11px;padding:5px 9px" onclick="marcarComissaoPaga('${c.id}','academia')">Marcar pago</button>`);
       return `<tr>
         <td style="font-size:11px">${escapeHtml(c.treinador_email||'—')}</td>
         <td>${escapeHtml(c.atleta_nome||'—')}</td>
         <td><span style="font-size:11px;text-transform:uppercase">${escapeHtml(c.tipo||'—')}</span></td>
-        <td style="font-weight:700;color:#D4AF37">${v}</td>
+        <td style="font-size:11px">${eur(c.valor_pago)}</td>
+        <td style="font-weight:700;color:#D4AF37">${eur(c.comissao)} ${acaoTrein}</td>
+        <td style="font-weight:700;color:#4A9FE8">${eur(c.valor_academia)} ${acaoAcademia}</td>
         <td style="font-size:11px">${escapeHtml(c.mes||'—')}</td>
-        <td>${estado}</td>
-        <td>${acao}</td>
+        <td style="font-size:10px;color:#7a7a7a">${c.criado_em ? new Date(c.criado_em).toLocaleDateString('pt-PT') : '—'}</td>
       </tr>`;
     }).join('');
-  } catch(e){ tb.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#ff5050;padding:20px">Erro: ' + escapeHtml(e.message||'') + '</td></tr>'; }
+  } catch(e){ tb.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#ff5050;padding:20px">Erro: ' + escapeHtml(e.message||'') + '</td></tr>'; }
 }
-async function marcarComissao(id, pago){
-  alert('Comissões descontinuadas pela Constituição YTB (modelo aprovado não tem comissão de treinador). O registo mantém-se apenas como arquivo.');
+async function registarCobranca(){
+  const tipo = document.getElementById('cob-tipo').value;
+  const atleta = document.getElementById('cob-atleta').value.trim() || null;
+  const treinador = document.getElementById('cob-treinador').value.trim();
+  const valor = parseFloat(document.getElementById('cob-valor').value);
+  if(!treinador){ toast('Indica o email do treinador.', 'error'); return; }
+  if(!valor || valor <= 0){ toast('Indica o valor recebido.', 'error'); return; }
+  try{
+    const { data } = await supa.rpc('ytb_admin_registar_cobranca', { p_tipo: tipo, p_atleta_nome: atleta, p_treinador_email: treinador, p_valor_pago: valor });
+    if(!data || !data.ok){ toast('Não foi possível registar: ' + (data && data.motivo || 'erro'), 'error'); return; }
+    document.getElementById('cob-atleta').value = '';
+    document.getElementById('cob-treinador').value = '';
+    document.getElementById('cob-valor').value = '';
+    toast('Cobrança registada.');
+    carregarComissoes();
+  }catch(e){ toast('Erro: ' + (e.message||e), 'error'); }
+}
+async function marcarComissaoPaga(id, alvo){
+  try{
+    const { data } = await supa.rpc('ytb_admin_marcar_pago', { p_id: id, p_alvo: alvo });
+    if(!data || !data.ok){ toast('Não foi possível marcar como pago.', 'error'); return; }
+    carregarComissoes();
+  }catch(e){ toast('Erro: ' + (e.message||e), 'error'); }
+}
+/* ════════ NOTIFICAÇÕES PUSH (PWA) ════════ */
+const VAPID_PUBLIC_KEY = 'BHk2caf8h0OxO1tAeEFJaEMh38bjSqOuMD9Zea2hU65spqdNaJqmwK1ulCIa_5PrZgEpZlryXkfCV8Tsh6tNYds';
+
+function urlBase64ToUint8Array(base64String){
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const raw = atob(base64);
+  return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
 }
 
+async function atualizarBotaoPush(){
+  const btn = document.getElementById('btn-push');
+  if(!btn || !('serviceWorker' in navigator) || !('PushManager' in window)) return;
+  try{
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.getSubscription();
+    btn.textContent = sub ? '🔔 Notificações ativas' : '🔔 Ativar notificações';
+  }catch(e){}
+}
+
+async function ativarNotificacoesPush(){
+  if(!('serviceWorker' in navigator) || !('PushManager' in window)){
+    alert('Este browser não suporta notificações push. Instala o admin como app num telemóvel/computador com Chrome, Edge ou Safari recentes.');
+    return;
+  }
+  const btn = document.getElementById('btn-push');
+  if(btn){ btn.disabled = true; btn.textContent = 'A ativar…'; }
+  try{
+    const permissao = await Notification.requestPermission();
+    if(permissao !== 'granted'){
+      toast('Permissão de notificações recusada.', 'error');
+      return;
+    }
+    const reg = await navigator.serviceWorker.register('sw-admin.js');
+    await navigator.serviceWorker.ready;
+    let sub = await reg.pushManager.getSubscription();
+    if(!sub){
+      sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+      });
+    }
+    const json = sub.toJSON();
+    const { data } = await supa.rpc('ytb_push_subscrever', {
+      p_endpoint: json.endpoint, p_p256dh: json.keys.p256dh, p_auth: json.keys.auth
+    });
+    if(data && data.ok){ toast('Notificações ativas neste dispositivo.'); }
+    else { toast('Não foi possível gravar a subscrição.', 'error'); }
+  }catch(e){
+    toast('Erro a ativar notificações: ' + (e.message||e), 'error');
+  }finally{
+    await atualizarBotaoPush();
+    if(btn) btn.disabled = false;
+  }
+}
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw-admin.js').then(() => atualizarBotaoPush()).catch(() => {});
+  });
+}
 </script>
 
 </body>
