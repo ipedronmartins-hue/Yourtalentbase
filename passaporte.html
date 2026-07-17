@@ -322,9 +322,8 @@
 
   function render(d){
     var id=d.identidade, ind=d.indicadores;
-    var html='';
+    var html='<section id="grupo-passaporte" class="fam-group"><div class="fam-group-head"><span class="eyebrow">O Passaporte</span><h2>O percurso dele</h2></div>';
     // identidade + curva
-    html+='<div style="padding:18px 2px 0"><span class="eyebrow">O Passaporte</span></div>';
     html+='<div class="pcard"><div class="head">'+
       '<div class="photo">'+(id.foto?'<div class="pp" style="background-image:url('+esc(id.foto)+')"></div>':'')+'</div>'+
       '<div class="idblock"><div class="name">'+esc(id.nome)+'</div><div class="meta"><span class="pos">'+esc(id.pos)+'</span>'+esc(id.clube)+' · '+esc(id.pos_full)+'</div></div>'+
@@ -389,6 +388,7 @@
     // partilhar + rodapé
     html+='<button class="share" id="btn-share" type="button">Partilhar passaporte</button>';
     html+='<div class="foot">'+(USING_SB?'YourTalentBase · passaporte verificado':'<span class="demo-tag">Demonstração</span> · dados de exemplo (Coutinho)')+'</div>';
+    html+='</section>';
 
     document.getElementById('app').innerHTML=html;
     document.getElementById('who').textContent=id.nome+' · '+id.clube;
@@ -608,10 +608,10 @@
     });
     var sec=document.createElement('section'); sec.className='tr-sec'; sec.id='tr-sec'; sec.innerHTML=html;
     if(window.YTBExAnim)YTBExAnim.mountAll(sec); // bonequinhos a demonstrar cada exercício
-    var app=document.getElementById('app');
-    // ordem no ecrã: jornada → o que mudou → objetivo/missões → diário/biometria → passaporte
-    var tools=document.getElementById('fam-tools');
-    if(app) app.insertBefore(sec, tools||app.firstChild);
+    // vive dentro do grupo "Esta semana", depois de jornada + o que mudou
+    var grupo=document.getElementById('grupo-semana');
+    if(grupo) grupo.appendChild(sec);
+    else { var app=document.getElementById('app'); if(app) app.insertBefore(sec, app.firstChild); }
     // abre a primeira semana que tenha missão por cumprir
     for(var w=0; w<plano.length; w++){
       var found=false;
@@ -711,11 +711,11 @@
       +'</div></div>';
 
     var sec=document.createElement('section'); sec.className='tr-sec'; sec.id='jogos-sec'; sec.innerHTML=html;
-    var app=document.getElementById('app'); if(!app) return;
+    // vive dentro do grupo "Esta semana", logo a seguir às missões
+    var grupo=document.getElementById('grupo-semana'); if(!grupo) return;
     var tr=document.getElementById('tr-sec');
-    if(tr && tr.nextSibling) app.insertBefore(sec, tr.nextSibling);
-    else if(tr) app.appendChild(sec);
-    else app.insertBefore(sec, document.getElementById('fam-tools')||app.firstChild);
+    if(tr) grupo.insertBefore(sec, tr.nextSibling);
+    else grupo.appendChild(sec);
   }
   window.__jgVals={};
   window.__jgComo=function(id,n){
@@ -857,6 +857,11 @@
     if(document.getElementById('fam-css')) return;
     var css='.fam-sec{margin:0 0 18px}'
      +'#pp-jornada{margin-top:14px}'
+     +'.fam-group{margin-top:44px}'
+     +'.fam-group:first-child{margin-top:0}'
+     +'.fam-group-head{margin:0 2px 16px}'
+     +'.fam-group-head .eyebrow{display:block;margin-bottom:4px}'
+     +'.fam-group-head h2{font-family:\'Barlow Condensed\',sans-serif;font-weight:900;font-size:22px;letter-spacing:-.2px;color:var(--text)}'
      +'.fam-chip{background:var(--bg3);border:1px solid var(--border);color:var(--slate);border-radius:100px;padding:9px 14px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;transition:.14s}'
      +'.fam-chip.on{border-color:var(--gold);color:var(--gold)}'
      // 16px é o mínimo — abaixo disso o Safari em iOS faz zoom automático da
@@ -1093,12 +1098,20 @@
     window.__famAtleta=atletaId;
     famCSS();
     var app=document.getElementById('app'); if(!app) return;
-    // inserção inversa: fam-tools primeiro, jornada por último → ordem final no ecrã:
-    // jornada → o que mudou → (treino insere-se antes de fam-tools) → diário/biometria → passaporte
-    ['fam-tools','fam-oqm','pp-jornada'].forEach(function(id){
-      if(document.getElementById(id)) return;
-      var el=document.createElement('section'); el.id=id; el.className='fam-sec';
-      app.insertBefore(el, app.firstChild);
+    // grupos por género de função, inseridos em ordem inversa (cada insertBefore
+    // empurra para a frente) — ordem final no ecrã: esta semana → atualizar dados → passaporte
+    [
+      {id:'grupo-dados', eyebrow:'Atualizar dados', titulo:'A tua contribuição', filhos:['fam-tools']},
+      {id:'grupo-semana', eyebrow:'Esta semana', titulo:'O que fazer agora', filhos:['pp-jornada','fam-oqm']}
+    ].forEach(function(g){
+      if(document.getElementById(g.id)) return;
+      var sec=document.createElement('section'); sec.id=g.id; sec.className='fam-group';
+      sec.innerHTML='<div class="fam-group-head"><span class="eyebrow">'+esc(g.eyebrow)+'</span><h2>'+esc(g.titulo)+'</h2></div>';
+      g.filhos.forEach(function(fid){
+        var el=document.createElement('section'); el.id=fid; el.className='fam-sec';
+        sec.appendChild(el);
+      });
+      app.insertBefore(sec, app.firstChild);
     });
     montarJornadaPP();
     carregarOQM(atletaId);
@@ -1188,7 +1201,17 @@
       });
       h+='<button id="priv-revogar" style="margin-top:14px;width:100%;padding:12px;border-radius:10px;border:1px solid rgba(255,80,80,.35);background:rgba(255,80,80,.07);color:#ff8080;font-weight:700;font-size:14px;cursor:pointer">Revogar todas as autorizações</button>'
         +'<div style="font-size:12px;color:#6B756C;margin-top:8px;line-height:1.5">Revogar retira o atleta de toda a visibilidade de imediato. Para apagamento definitivo dos dados, fala connosco pelo WhatsApp.</div></section>';
-      var d=document.createElement('div'); d.innerHTML=h; document.body.appendChild(d);
+      var d=document.createElement('div'); d.innerHTML=h;
+      var app=document.getElementById('app');
+      if(app){
+        var grupo=document.getElementById('grupo-privacidade');
+        if(!grupo){
+          grupo=document.createElement('section'); grupo.id='grupo-privacidade'; grupo.className='fam-group';
+          grupo.innerHTML='<div class="fam-group-head"><span class="eyebrow">Privacidade</span><h2>O que é visível</h2></div>';
+          app.appendChild(grupo);
+        }
+        grupo.appendChild(d);
+      } else { document.body.appendChild(d); }
       d.querySelectorAll('.priv-tgl').forEach(function(b){
         b.addEventListener('click',function(){
           var novo=b.getAttribute('data-on')!=='1';
