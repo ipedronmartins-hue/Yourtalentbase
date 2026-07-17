@@ -497,8 +497,8 @@
     // plano e calendário de jogos em paralelo — o check-in cego só aparece
     // quando NÃO há jogo agendado por responder (o calendário tem prioridade)
     Promise.all([
-      supa.rpc('ytb_plano_atual',{p_atleta:atletaId}).catch(function(){return null;}),
-      supa.rpc('ytb_jogos_lista',{p_atleta:atletaId}).catch(function(){return null;})
+      Promise.resolve(supa.rpc('ytb_plano_atual',{p_atleta:atletaId})).catch(function(){return null;}),
+      Promise.resolve(supa.rpc('ytb_jogos_lista',{p_atleta:atletaId})).catch(function(){return null;})
     ]).then(function(rs){
       var d=rs[0]&&rs[0].data, jg=rs[1]&&rs[1].data;
       window.__jogos={atleta:atletaId, por_responder:(jg&&jg.por_responder)||[], proximos:(jg&&jg.proximos)||[], ultimos:(jg&&jg.ultimos)||[]};
