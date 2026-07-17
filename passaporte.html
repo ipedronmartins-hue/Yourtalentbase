@@ -203,13 +203,14 @@
   var URL_=CFG.SUPABASE_URL||'', KEY=CFG.SUPABASE_KEY||'';
   var USING_SB=!!(URL_&&KEY&&window.supabase);
   // a sessão a ler depende do modo: família (?atleta=) vive em 'ytb-familia-auth',
-  // admin (?admin=) vive em 'ytb-auth', scout (?scout=) e clube (?clube=) vivem na
-  // chave por omissão do SDK (scouts.html/clube.html não definem storageKey próprio).
-  // Escolhe a chave certa para não falhar o auth.jwt().
+  // admin (?admin=) vive em 'ytb-auth', scout (?scout=), clube (?clube=) e
+  // treinador (?treinador=) vivem na chave por omissão do SDK (essas páginas
+  // não definem storageKey próprio). Escolhe a chave certa para não falhar o auth.jwt().
   var _sk='ytb-auth';
   try{ if(new URLSearchParams(location.search).get('atleta')) _sk='ytb-familia-auth'; }catch(e){}
   try{ if(new URLSearchParams(location.search).get('scout')) _sk=null; }catch(e){}
   try{ if(new URLSearchParams(location.search).get('clube')) _sk=null; }catch(e){}
+  try{ if(new URLSearchParams(location.search).get('treinador')) _sk=null; }catch(e){}
   var _authOpts={persistSession:true,autoRefreshToken:true};
   if(_sk) _authOpts.storageKey=_sk;
   var supa=USING_SB?window.supabase.createClient(URL_,KEY,{auth:_authOpts}):null;
@@ -371,8 +372,12 @@
     if(d.devScore){ html+='<div class="shead">Development Score</div>'+devScoreHTML(d.devScore); }
     // marcos
     html+='<div class="shead">Marcos da Carreira</div><div class="marcos">'+d.marcos.map(function(m){return '<div class="marco"><span class="ic">'+m[0]+'</span><span class="tt">'+esc(m[1])+'</span><span class="wn">'+esc(m[2])+'</span></div>';}).join('')+'</div>';
-    // carreira
-    html+='<div class="shead">Carreira</div><div class="panel car">'+d.carreira.map(function(c){return '<div class="item"><div class="yr num">'+esc(c[0])+'</div><div class="cl">'+esc(c[1])+'<small>'+esc(c[2])+'</small></div></div>';}).join('')+'</div>';
+    // carreira (registada pela família, época a época — nunca inventada)
+    html+='<div class="shead">Carreira</div><div class="panel car">'+
+      (d.carreira.length
+        ? d.carreira.map(function(c){return '<div class="item"><div class="yr num">'+esc(c[0])+'</div><div class="cl">'+esc(c[1])+'<small>'+esc(c[2])+'</small></div></div>';}).join('')
+        : '<div class="sub" style="margin:0">O percurso ainda não foi registado — a família pode preenchê-lo época a época, mais abaixo.</div>')
+      +'</div>';
     // morfologia & maturação (estimativa; nunca pública)
     html+='<div class="shead">Morfologia &amp; Maturação</div>'+morfoHTML(d.maturacao);
     // timeline
@@ -439,7 +444,11 @@
       maturacao:r.maturacao||null,
       devScore:r.dev_score||null,
       marcos:(r.marcos||[]).map(function(m){return ['◆',m.titulo||'',relTime(m.em)];}),
-      carreira:(r.carreira||[]).map(function(c){return [c.epoca||'','',''];}),
+      carreira:(r.carreira||[]).map(function(c){
+        var tit=(c.titulos&&c.titulos.length)?('🏆 '+c.titulos.join(' · ')):(c.classificacao||'');
+        var linha2=[c.clube,c.escalao,c.divisao].filter(Boolean).join(' · ');
+        return [c.epoca||'', linha2, tit];
+      }),
       timeline:(r.timeline||[]).map(function(e){
         var tp = e.categoria==='marco'?'mar':(e.origem==='declarado'?'dec':'obs');
         var title=esc(e.titulo||'');
@@ -980,6 +989,14 @@
      +'<div class="fam-row"><input class="fam-input" id="ep-golos" type="number" inputmode="numeric" placeholder="Golos" style="flex:1"><input class="fam-input" id="ep-jogos" type="number" inputmode="numeric" placeholder="Jogos" style="flex:1"><input class="fam-input" id="ep-assist" type="number" inputmode="numeric" placeholder="Assist." style="flex:1"></div>'
      +'<div class="fam-row"><input class="fam-input" id="ep-goleq" type="number" inputmode="numeric" placeholder="Golos da equipa" style="flex:1"><input class="fam-input" id="ep-class" type="text" placeholder="Classificação (ex: 3º de 12)" style="flex:2"></div>'
      +'<button class="fam-btn" onclick="window.__epocaGravar()">Guardar estatísticas →</button></div>'
+     +'<div class="shead">O percurso dele</div><div class="panel" id="carreira-card">'
+     +'<div class="sub" style="margin-bottom:10px">Época a época: clube, escalão e conquistas. É isto que os clubes e scouts veem como carreira — quem sabe a história és tu.</div>'
+     +'<div id="car-lista" style="margin-bottom:10px"></div>'
+     +'<div class="fam-row"><input class="fam-input" id="car-epoca" type="text" placeholder="Época (ex: 24/25)" style="flex:1"><input class="fam-input" id="car-clube" type="text" placeholder="Clube" style="flex:2"></div>'
+     +'<div class="fam-row"><input class="fam-input" id="car-escalao" type="text" placeholder="Escalão (ex: Sub-10)" style="flex:1"><input class="fam-input" id="car-divisao" type="text" placeholder="Divisão (opcional)" style="flex:2"></div>'
+     +'<div class="fam-row"><input class="fam-input" id="car-class" type="text" placeholder="Classificação (ex: 4º lugar)" style="flex:1"><input class="fam-input" id="car-titulo" type="text" placeholder="Título? (ex: Campeão Divisão Elite)" style="flex:2"></div>'
+     +'<button class="fam-btn" onclick="window.__carreiraGravar()">Guardar época →</button>'
+     +'<div class="sub" style="margin:8px 0 0;font-size:12px">Para corrigir uma época, volta a guardá-la com os dados certos — substitui a antiga. Títulos novos ficam como marcos no passaporte.</div></div>'
      +'<div class="shead">Diário de treinos</div><div class="panel" id="diario-card">'
      +'<div class="sub" style="margin-bottom:10px">Treinou fora do plano? Jogo, clube ou treino livre — tudo conta para a sequência e fica no percurso.</div>'
      +'<div class="fam-row" id="di-tipos">'+[['livre','⚽ Livre'],['jogo','🏟️ Jogo'],['clube','🏃 Clube']].map(function(o){return '<button class="fam-chip'+(o[0]==='livre'?' on':'')+'" data-tipo="'+o[0]+'" onclick="window.__diTipo(this)">'+o[1]+'</button>';}).join('')+'</div>'
@@ -996,7 +1013,40 @@
      +'<button class="fam-btn" onclick="window.__paisGravar()">Guardar altura dos pais →</button></div>';
     carregarBioHist();
     carregarPerfilForm();
+    carregarCarreiraLista();
   }
+
+  function carregarCarreiraLista(){
+    var el=document.getElementById('car-lista'); if(!el) return;
+    supa.rpc('ytb_carreira_lista',{p_atleta:window.__famAtleta}).then(function(res){
+      var l=(res&&res.data)||[];
+      if(!l.length){ el.innerHTML='<div style="font-size:13px;color:var(--muted)">Ainda sem épocas registadas.</div>'; return; }
+      el.innerHTML=l.map(function(c){
+        var tit=(c.titulos&&c.titulos.length)?(' · <span style="color:var(--gold)">🏆 '+esc(c.titulos.join(' · '))+'</span>'):(c.classificacao?(' · '+esc(c.classificacao)):'');
+        return '<div style="display:flex;gap:10px;align-items:baseline;padding:7px 0;border-bottom:1px solid var(--border);font-size:13.5px">'
+          +'<b class="num" style="font-family:\'Barlow Condensed\',sans-serif;min-width:44px">'+esc(c.epoca)+'</b>'
+          +'<span style="flex:1;color:var(--slate)">'+esc([c.clube,c.escalao,c.divisao].filter(Boolean).join(' · '))+tit+'</span></div>';
+      }).join('');
+    }).catch(function(){});
+  }
+  window.__carreiraGravar=function(){
+    function s(id){ var v=(document.getElementById(id).value||'').trim(); return v===''?null:v; }
+    var b=document.getElementById('carreira-card').querySelector('.fam-btn');
+    b.disabled=true; b.textContent='A guardar…';
+    supa.rpc('ytb_carreira_registar',{
+      p_atleta:window.__famAtleta, p_epoca:s('car-epoca'), p_clube:s('car-clube'), p_escalao:s('car-escalao'),
+      p_divisao:s('car-divisao'), p_classificacao:s('car-class'), p_titulo:s('car-titulo')
+    }).then(function(res){
+      var d=res&&res.data; b.disabled=false; b.textContent='Guardar época →';
+      if(!d||!d.ok){
+        var motivos={epoca_invalida:'época no formato 24/25', clube_escalao_obrigatorios:'clube e escalão são obrigatórios'};
+        toast('⚠ '+(motivos[(d&&d.motivo)]||'Não gravado')); return;
+      }
+      ['car-epoca','car-clube','car-escalao','car-divisao','car-class','car-titulo'].forEach(function(id){ document.getElementById(id).value=''; });
+      toast('Época guardada ✓ — já está no passaporte');
+      carregarCarreiraLista();
+    }).catch(function(){ b.disabled=false; b.textContent='Guardar época →'; toast('⚠ Sem ligação'); });
+  };
 
   function carregarPerfilForm(){
     supa.rpc('ytb_familia_perfil_atual',{p_atleta:window.__famAtleta}).then(function(res){
@@ -1069,6 +1119,18 @@
     var b=document.createElement('div');
     b.style.cssText='position:sticky;top:0;z-index:99;background:#1A241A;border-bottom:1px solid #2A322B;color:#D4AF37;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:14px;letter-spacing:.4px;text-align:center;padding:10px 14px';
     b.innerHTML='👁 MODO ADMIN · passaporte de '+esc(nome||'atleta')+' · vista de leitura';
+    document.body.insertBefore(b, document.body.firstChild);
+  }
+  function treinadorBanner(nome){
+    var b=document.createElement('div');
+    b.style.cssText='position:sticky;top:0;z-index:99;background:#1A241A;border-bottom:1px solid #2A322B;color:#D4AF37;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:14px;letter-spacing:.4px;text-align:center;padding:10px 14px';
+    b.innerHTML='⚽ MODO TREINADOR · passaporte de '+esc(nome||'atleta')+' · vista de leitura';
+    document.body.insertBefore(b, document.body.firstChild);
+  }
+  function demoBanner(){
+    var b=document.createElement('div');
+    b.style.cssText='position:sticky;top:0;z-index:99;background:#241A1A;border-bottom:1px solid #3A2B2B;color:#E8A33D;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:14px;letter-spacing:.4px;text-align:center;padding:10px 14px';
+    b.textContent='⚠ DEMONSTRAÇÃO · dados de exemplo, nenhum atleta real';
     document.body.insertBefore(b, document.body.firstChild);
   }
   function scoutBanner(nome, atletaId){
@@ -1152,6 +1214,7 @@
   var familiaAtleta=null; try{familiaAtleta=new URLSearchParams(location.search).get('atleta');}catch(e){}
   var scoutAtleta=null; try{scoutAtleta=new URLSearchParams(location.search).get('scout');}catch(e){}
   var clubeAtleta=null; try{clubeAtleta=new URLSearchParams(location.search).get('clube');}catch(e){}
+  var treinadorAtleta=null; try{treinadorAtleta=new URLSearchParams(location.search).get('treinador');}catch(e){}
   if(USING_SB && adminAtleta){
     // modo admin: abre qualquer passaporte por ID (o RPC confirma que és admin)
     supa.rpc('ytb_passaporte_admin',{ p_atleta: adminAtleta }).then(function(res){
@@ -1176,6 +1239,14 @@
       try{ var nm=(res.data.identidade&&res.data.identidade.nome)||'atleta'; show(mapFromRPC(res.data)); clubeBanner(nm); }
       catch(e){ adminErro('Não foi possível ler o passaporte deste atleta.'); }
     }).catch(function(){ adminErro('Falha de ligação. Tenta novamente.'); });
+  } else if(USING_SB && treinadorAtleta){
+    // modo treinador: só abre o passaporte dos SEUS atletas (mesma regra do digest)
+    supa.rpc('ytb_passaporte_treinador',{ p_atleta: treinadorAtleta }).then(function(res){
+      if(res.error){ adminErro('Só treinadores podem abrir passaportes por aqui.'); return; }
+      if(!res.data){ adminErro('Sem acesso — entra primeiro no painel do treinador, ou este atleta não é teu.'); return; }
+      try{ var nm=(res.data.identidade&&res.data.identidade.nome)||'atleta'; show(mapFromRPC(res.data)); treinadorBanner(nm); }
+      catch(e){ adminErro('Não foi possível ler o passaporte deste atleta.'); }
+    }).catch(function(){ adminErro('Falha de ligação. Tenta novamente.'); });
   } else if(USING_SB && familiaAtleta){
     // modo família (magic link): só abre se o email autenticado for o encarregado deste atleta
     supa.rpc('ytb_passaporte_email',{ p_atleta: familiaAtleta }).then(function(res){
@@ -1186,9 +1257,18 @@
         carregarFamiliaExtras(familiaAtleta);
         carregarTreino(familiaAtleta);
         carregarPrivacidade(familiaAtleta);
-      }catch(e){ show(DEMO); }
+      }catch(e){
+        // NUNCA cair em dados de exemplo com sessão real — um erro de render
+        // não pode vestir dados falsos de dados verdadeiros.
+        adminErro('Não foi possível mostrar o passaporte. Atualiza a página; se persistir, avisa-nos.');
+        try{ console.error('passaporte família:', e); }catch(_){}
+      }
     }).catch(function(){ window.location.href='acesso.html'; });
-  } else { show(DEMO); }   // sem backend ou sem sessão → demonstração (Coutinho)
+  } else if(USING_SB){
+    // produção sem parâmetro nenhum: não há "passaporte genérico" — a entrada
+    // da família é o acesso (o DEMO só existe sem backend configurado)
+    window.location.href='acesso.html';
+  } else { show(DEMO); demoBanner(); }   // sem backend → demonstração (Coutinho)
 })();
 if('serviceWorker' in navigator){
   window.addEventListener('load',function(){ navigator.serviceWorker.register('sw-familia.js').catch(function(){}); });

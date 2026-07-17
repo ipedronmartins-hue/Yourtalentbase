@@ -142,7 +142,8 @@
       '</div>'+
       (fala?'<div style="font-size:11.5px;color:#cfd6cf;background:rgba(255,255,255,.04);border-radius:8px;padding:7px 9px;margin-top:8px">'+esc(fala)+'</div>':'')+
       (pri.acao?'<div style="font-size:11px;color:var(--gold);margin-top:8px">→ o sistema recomenda: <b>'+esc(pri.acao)+'</b></div>':'')+
-      '<div class="actions"><a href="ytb-pro-treinador.html'+relurl(a.nome)+'">Avaliar</a><a href="ytb-pro-treinador.html'+relurl(a.nome)+'">Prescrever</a><a class="go" href="passaporte.html'+relurl(a.nome)+'">Passaporte →</a></div>'+
+      '<div class="actions"><a href="ytb-pro-treinador.html'+relurl(a.nome)+'">Avaliar</a><a href="ytb-pro-treinador.html'+relurl(a.nome)+'">Prescrever</a>'+
+      (a.atleta_id?'<a class="go" href="passaporte.html?treinador='+encodeURIComponent(a.atleta_id)+'">Passaporte →</a>':'')+'</div>'+
       '</div>'+(pri.pontos>=3?'<span class="attn-tag">prioridade</span>':'')+'</div>';
   }
 

@@ -494,6 +494,7 @@ async function renderRetorno(){
       +(ds?' · <span style="color:var(--gold)">Score '+ds.score+(ds.tendencia==='subiu'?' ↗':ds.tendencia==='desceu'?' ↘':'')+'</span>':'')+'</div>'
       +(ult?'<div class="dash-card-action">último treino: '+ult+'</div>':'')+'</div>'
       +(pri.acao?'<div style="font-size:11px;color:var(--gold);margin:2px 0 4px">→ o sistema recomenda: <b>'+esc(pri.acao)+'</b></div>':'')
+      +'<a href="passaporte.html?treinador='+encodeURIComponent(d.atleta_id)+'" style="font-size:11px;color:var(--slate);text-decoration:none;border:1px solid var(--border);border-radius:7px;padding:4px 9px;display:inline-block;margin:2px 0 4px">📔 Passaporte →</a>'
       +'<div style="display:flex;gap:14px;margin:8px 0 4px;flex-wrap:wrap">'
       +'<div><div style="font-family:\'Barlow Condensed\';font-weight:900;font-size:26px;color:var(--gold);line-height:1">'+(d.execucoes_desde_plano||0)+'</div><div style="font-size:9px;letter-spacing:1px;color:var(--slate);text-transform:uppercase">treinos desde o plano</div></div>'
       +'<div><div style="font-family:\'Barlow Condensed\';font-weight:900;font-size:26px;color:var(--blue);line-height:1">'+(d.execucoes_total||0)+'</div><div style="font-size:9px;letter-spacing:1px;color:var(--slate);text-transform:uppercase">treinos no total</div></div>'
