@@ -330,202 +330,113 @@ const CENARIOS = [
     ],
     treino: ['2v1 em campo reduzido', 'Fixar o defesa antes do passe', 'Decisão com cabeça levantada'],
     dica: 'No 2v1, a bola FIXA o defesa. Obriga-o a escolher-te — e nesse momento o teu colega fica livre.'
-  }
-];
-
-// ─── 12 SIMULAÇÕES TÁTICAS ──────────────────────────────
-// Animações sem decisão: mostram padrões com pop-ups de dicas durante e relatório no fim
-const SIMULACOES = [
-  {
-    id: 'S01', titulo: 'Saída de pressão alta · 4-3-3 vs 4-4-2',
-    icon: '🛡️', cor: '#4A9FE8', nivel: 'Sub-13+',
-    contexto: 'O adversário pressiona alto com 2 atacantes. Vamos sair limpo pelo lateral.',
-    duracao: 6000,
-    frames: [
-      { t: 0, players: { gr: { x: 250, y: 690, team: 'us', label: 'GR' }, dcL: { x: 170, y: 600, team: 'us', label: 'DC' }, dcR: { x: 330, y: 600, team: 'us', label: 'DC' }, latL: { x: 70, y: 530, team: 'us', label: 'LE' }, latR: { x: 430, y: 530, team: 'us', label: 'LD' }, mc: { x: 250, y: 460, team: 'us', label: 'MC' }, av1: { x: 200, y: 540, team: 'them' }, av2: { x: 300, y: 540, team: 'them' } }, ball: { owner: 'gr' } },
-      { t: 1500, players: { gr: { x: 250, y: 690, team: 'us' }, dcL: { x: 130, y: 590, team: 'us' }, dcR: { x: 370, y: 590, team: 'us' }, latL: { x: 70, y: 510, team: 'us' }, latR: { x: 430, y: 510, team: 'us', highlight: true }, mc: { x: 250, y: 460, team: 'us' }, av1: { x: 180, y: 560, team: 'them' }, av2: { x: 300, y: 560, team: 'them' } }, ball: { owner: 'gr' }, dica: 'Centrais abrem. Lateral livre na ala direita.' },
-      { t: 3000, players: { gr: { x: 250, y: 690, team: 'us' }, dcL: { x: 130, y: 590, team: 'us' }, dcR: { x: 370, y: 590, team: 'us' }, latL: { x: 70, y: 510, team: 'us' }, latR: { x: 430, y: 510, team: 'us', highlight: true }, mc: { x: 250, y: 460, team: 'us' }, av1: { x: 180, y: 560, team: 'them' }, av2: { x: 300, y: 560, team: 'them' } }, ball: { x: 430, y: 510 }, dica: 'GR vê o lateral livre e bate longo no espaço.' },
-      { t: 4500, players: { gr: { x: 250, y: 690, team: 'us' }, dcL: { x: 130, y: 590, team: 'us' }, dcR: { x: 370, y: 590, team: 'us' }, latL: { x: 70, y: 510, team: 'us' }, latR: { x: 430, y: 510, team: 'us', highlight: true }, mc: { x: 280, y: 420, team: 'us' }, av1: { x: 180, y: 560, team: 'them' }, av2: { x: 300, y: 560, team: 'them' } }, ball: { owner: 'latR' }, dica: 'Lateral domina, médio aproxima para apoio.' },
-      { t: 6000, players: { gr: { x: 250, y: 690, team: 'us' }, dcL: { x: 130, y: 590, team: 'us' }, dcR: { x: 370, y: 590, team: 'us' }, latL: { x: 70, y: 510, team: 'us' }, latR: { x: 430, y: 470, team: 'us', highlight: true }, mc: { x: 320, y: 380, team: 'us' }, av1: { x: 180, y: 560, team: 'them' }, av2: { x: 300, y: 560, team: 'them' } }, ball: { owner: 'latR' }, dica: 'Saída limpa. Equipa progride com posse.' }
-    ],
-    relatorio: 'Saída de pressão pelo corredor livre. Princípio: adversário com 2 atacantes não consegue cobrir todas as opções. Sai pelo lado oposto à pressão.',
-    dicas: ['GR observa antes de jogar — ler onde está a pressão', 'Centrais abrem para criar opções amplas', 'Lateral livre é sempre prioridade na construção'],
-    treino: ['Saída desde GR contra 2 atacantes', 'Comunicação entre defesas']
   },
   {
-    id: 'S02', titulo: 'Transição rápida após recuperação',
-    icon: '⚡', cor: '#E05050', nivel: 'Sub-13+',
-    contexto: 'Recuperaste a bola no meio-campo. Adversário está fora de posição.',
-    duracao: 6000,
+    id: 'C19', titulo: 'Receção de pé fraco sob marcação', posicao: 'Extremo / Lateral',
+    debilidade: 'Controlo do pé fraco', icon: '🦶', cor: '#4AE87A', nivel: 'Sub-11+',
+    situacao: 'Recebes na ala pelo teu pé fraco. O lateral adversário fecha o corredor forte, obrigando-te a decidir com o pé que treinas menos.',
+    duracao: 4200,
     frames: [
-      { t: 0, players: { mc: { x: 250, y: 380, team: 'us', label: 'MC', highlight: true }, latR: { x: 420, y: 350, team: 'us', label: 'LD' }, av: { x: 250, y: 250, team: 'us', label: 'AV' }, ext: { x: 80, y: 280, team: 'us', label: 'EE' }, adv1: { x: 250, y: 320, team: 'them' }, adv2: { x: 200, y: 250, team: 'them' }, adv3: { x: 320, y: 200, team: 'them' } }, ball: { owner: 'mc' } },
-      { t: 1500, players: { mc: { x: 250, y: 380, team: 'us', highlight: true }, latR: { x: 420, y: 320, team: 'us' }, av: { x: 250, y: 220, team: 'us' }, ext: { x: 80, y: 260, team: 'us' }, adv1: { x: 250, y: 320, team: 'them' }, adv2: { x: 200, y: 250, team: 'them' }, adv3: { x: 320, y: 200, team: 'them' } }, ball: { owner: 'mc' }, dica: 'Recuperaste! Procura linha vertical rápida.' },
-      { t: 3000, players: { mc: { x: 250, y: 380, team: 'us', highlight: true }, latR: { x: 420, y: 280, team: 'us' }, av: { x: 250, y: 180, team: 'us' }, ext: { x: 80, y: 240, team: 'us' }, adv1: { x: 250, y: 320, team: 'them' }, adv2: { x: 200, y: 250, team: 'them' }, adv3: { x: 320, y: 200, team: 'them' } }, ball: { x: 250, y: 280 }, dica: 'Passe vertical para o avante em rutura.' },
-      { t: 4500, players: { mc: { x: 250, y: 380, team: 'us' }, latR: { x: 420, y: 250, team: 'us' }, av: { x: 250, y: 180, team: 'us', highlight: true }, ext: { x: 80, y: 220, team: 'us' }, adv1: { x: 250, y: 320, team: 'them' }, adv2: { x: 200, y: 250, team: 'them' }, adv3: { x: 320, y: 220, team: 'them' } }, ball: { owner: 'av' }, dica: 'Avante recebe entre linhas com espaço.' },
-      { t: 6000, players: { mc: { x: 250, y: 380, team: 'us' }, latR: { x: 420, y: 200, team: 'us' }, av: { x: 250, y: 130, team: 'us', highlight: true }, ext: { x: 100, y: 180, team: 'us' }, adv1: { x: 250, y: 320, team: 'them' }, adv2: { x: 200, y: 280, team: 'them' }, adv3: { x: 320, y: 240, team: 'them' } }, ball: { owner: 'av' }, dica: 'Defesa em desvantagem. Finaliza ou serve.' }
+      { t: 0, players: { meu: { x: 120, y: 400, team: 'us', label: 'TU', highlight: true }, adv: { x: 90, y: 380, team: 'them', label: 'Adv' }, apoio: { x: 220, y: 460, team: 'us', label: 'Méd' }, lateral: { x: 80, y: 520, team: 'us', label: 'Lat' }, avante: { x: 200, y: 220, team: 'us', label: 'Av' } }, ball: { owner: 'meu' }, indica: 'Bola chega ao pé fraco. Adversário fecha o lado forte.' },
+      { t: 1500, players: { meu: { x: 120, y: 400, team: 'us', highlight: true }, adv: { x: 95, y: 385, team: 'them' }, apoio: { x: 220, y: 460, team: 'us' }, lateral: { x: 80, y: 520, team: 'us' }, avante: { x: 200, y: 220, team: 'us' } }, ball: { owner: 'meu' }, indica: 'O QUE FAZES?' },
+      { t: 4200, players: { meu: { x: 120, y: 400, team: 'us', highlight: true }, adv: { x: 95, y: 385, team: 'them' }, apoio: { x: 220, y: 460, team: 'us' }, lateral: { x: 80, y: 520, team: 'us' }, avante: { x: 200, y: 220, team: 'us' } }, ball: { owner: 'meu' }, indica: 'O QUE FAZES?' }
     ],
-    relatorio: 'Transição ofensiva rápida explora o desequilíbrio adversário. 3 segundos após recuperação são ouro.',
-    dicas: ['Após recuperar, vertical primeiro lateral depois', 'Avante deve atacar espaço não a bola', 'Lateral acompanha em segunda linha'],
-    treino: ['Drill 3v2 com transição', 'Sprint após recuperação simulada']
+    opcoes: [
+      { id: 'A', texto: 'Forças o corte para o pé forte', certa: false, feedback: 'Perdeste tempo a trocar de pé — o adversário reajustou e cortou a bola.', consequencia: 'perda' },
+      { id: 'B', texto: 'Jogas de primeira com o pé fraco para o apoio', certa: true, feedback: 'De primeira, sem hesitar — o pé fraco não te travou. Bola limpa no apoio.', consequencia: 'sucesso' },
+      { id: 'C', texto: 'Proteges a bola e esperas ajuda', certa: false, feedback: 'Atrasaste demasiado — a linha adversária teve tempo de fechar o espaço.', consequencia: 'neutro' }
+    ],
+    treino: ['Passe de pé fraco contra a parede', '1 toque só com o pé não-dominante', 'Receção orientada para o corredor livre'],
+    dica: 'O pé fraco não precisa de ser perfeito — só precisa de ser rápido. Um toque simples vale mais que uma jogada bonita atrasada.'
   },
   {
-    id: 'S03', titulo: 'Construção contra bloco médio',
-    icon: '🎯', cor: '#D4AF37', nivel: 'Sub-13+',
-    contexto: 'Adversário em bloco médio organizado. Como progredir com posse?',
-    duracao: 6000,
+    id: 'C20', titulo: 'Amortecimento aéreo em zona de pressão', posicao: 'Médio',
+    debilidade: 'Primeiro toque sob pressão', icon: '⚡', cor: '#D4AF37', nivel: 'Sub-12+',
+    situacao: 'Bola longa cai perto de ti, no meio-campo, com dois adversários a fechar. Tens meio segundo para decidir o amortecimento.',
+    duracao: 4200,
     frames: [
-      { t: 0, players: { gr: { x: 250, y: 690, team: 'us', label: 'GR' }, dcL: { x: 180, y: 600, team: 'us', label: 'DC' }, dcR: { x: 320, y: 600, team: 'us', label: 'DC' }, mc: { x: 250, y: 480, team: 'us', label: 'MC' }, latR: { x: 420, y: 500, team: 'us', label: 'LD' }, latL: { x: 80, y: 500, team: 'us', label: 'LE' }, adv1: { x: 200, y: 400, team: 'them' }, adv2: { x: 300, y: 400, team: 'them' }, adv3: { x: 250, y: 350, team: 'them' } }, ball: { owner: 'dcR' } },
-      { t: 1500, players: { gr: { x: 250, y: 690, team: 'us' }, dcL: { x: 180, y: 600, team: 'us' }, dcR: { x: 320, y: 600, team: 'us', highlight: true }, mc: { x: 250, y: 480, team: 'us' }, latR: { x: 420, y: 470, team: 'us' }, latL: { x: 80, y: 500, team: 'us' }, adv1: { x: 200, y: 400, team: 'them' }, adv2: { x: 300, y: 400, team: 'them' }, adv3: { x: 250, y: 350, team: 'them' } }, ball: { owner: 'dcR' }, dica: 'Central com bola. Procurar linha entre 2 adversários.' },
-      { t: 3000, players: { gr: { x: 250, y: 690, team: 'us' }, dcL: { x: 180, y: 600, team: 'us' }, dcR: { x: 320, y: 600, team: 'us' }, mc: { x: 270, y: 460, team: 'us', highlight: true }, latR: { x: 420, y: 450, team: 'us' }, latL: { x: 80, y: 500, team: 'us' }, adv1: { x: 200, y: 400, team: 'them' }, adv2: { x: 300, y: 400, team: 'them' }, adv3: { x: 250, y: 350, team: 'them' } }, ball: { x: 270, y: 480 }, dica: 'Passe entre linhas para o médio.' },
-      { t: 4500, players: { gr: { x: 250, y: 690, team: 'us' }, dcL: { x: 180, y: 600, team: 'us' }, dcR: { x: 320, y: 600, team: 'us' }, mc: { x: 270, y: 460, team: 'us', highlight: true }, latR: { x: 420, y: 400, team: 'us' }, latL: { x: 80, y: 500, team: 'us' }, adv1: { x: 220, y: 430, team: 'them' }, adv2: { x: 320, y: 430, team: 'them' }, adv3: { x: 270, y: 380, team: 'them' } }, ball: { owner: 'mc' }, dica: 'Médio rodou, defesa fechou. Procurar lateral livre.' },
-      { t: 6000, players: { gr: { x: 250, y: 690, team: 'us' }, dcL: { x: 180, y: 600, team: 'us' }, dcR: { x: 320, y: 600, team: 'us' }, mc: { x: 270, y: 460, team: 'us' }, latR: { x: 420, y: 380, team: 'us', highlight: true }, latL: { x: 80, y: 500, team: 'us' }, adv1: { x: 220, y: 430, team: 'them' }, adv2: { x: 320, y: 430, team: 'them' }, adv3: { x: 270, y: 380, team: 'them' } }, ball: { owner: 'latR' }, dica: 'Lateral progride em zona ofensiva.' }
+      { t: 0, players: { meu: { x: 250, y: 380, team: 'us', label: 'TU', highlight: true }, adv1: { x: 220, y: 350, team: 'them', label: 'Adv' }, adv2: { x: 290, y: 400, team: 'them', label: 'Adv' }, apoio: { x: 180, y: 460, team: 'us', label: 'Méd' }, lateral: { x: 400, y: 420, team: 'us', label: 'Lat' } }, ball: { x: 250, y: 200 }, indica: 'Bola longa a cair. Dois adversários a fechar.' },
+      { t: 1500, players: { meu: { x: 250, y: 380, team: 'us', highlight: true }, adv1: { x: 225, y: 360, team: 'them' }, adv2: { x: 285, y: 390, team: 'them' }, apoio: { x: 190, y: 450, team: 'us' }, lateral: { x: 390, y: 415, team: 'us' } }, ball: { x: 250, y: 340 }, indica: 'O QUE FAZES?' },
+      { t: 4200, players: { meu: { x: 250, y: 380, team: 'us', highlight: true }, adv1: { x: 225, y: 360, team: 'them' }, adv2: { x: 285, y: 390, team: 'them' }, apoio: { x: 190, y: 450, team: 'us' }, lateral: { x: 390, y: 415, team: 'us' } }, ball: { x: 250, y: 340 }, indica: 'O QUE FAZES?' }
     ],
-    relatorio: 'Construção paciente com central → médio → lateral. Princípio: passar entre linhas para fixar pressão e libertar zona oposta.',
-    dicas: ['Central deve procurar passe vertical antes do horizontal', 'Médio rodar com primeiro toque', 'Lateral é a saída quando o meio fica fechado'],
-    treino: ['Posse 4v4+1 em zona reduzida', 'Passe entre linhas com pressão']
+    opcoes: [
+      { id: 'A', texto: 'Amorteces para a frente e viras', certa: false, feedback: 'O toque longo deu tempo aos dois adversários para recuperarem e cortarem.', consequencia: 'perda' },
+      { id: 'B', texto: 'Amorteces de lado, para fora da pressão', certa: true, feedback: 'Saíste da pressão com um toque curto e limpo — bola controlada, jogo continua.', consequencia: 'sucesso' },
+      { id: 'C', texto: 'Deixas a bola quicar antes de tocar', certa: false, feedback: 'O ressalto deu tempo aos dois adversários a fecharem-te de vez.', consequencia: 'neutro' }
+    ],
+    treino: ['Amortecimento de bola lançada, 1 toque', 'Controlo orientado sob pressão de 2 adversários', 'Receção de costas com viragem rápida'],
+    dica: 'O primeiro toque decide o resto da jogada. Amortece SEMPRE para longe da pressão, nunca para o meio dela.'
   },
   {
-    id: 'S04', titulo: 'Pressing alto coordenado',
-    icon: '🔥', cor: '#E05050', nivel: 'Sub-15+',
-    contexto: 'Equipa em bloco alto. Como pressionar coordenado para roubar bola?',
-    duracao: 6000,
+    id: 'C21', titulo: 'Proteger bola de costas para a baliza', posicao: 'Avançado',
+    debilidade: 'Proteção de bola', icon: '💪', cor: '#FF8C42', nivel: 'Sub-12+',
+    situacao: 'Recebes de costas para a baliza adversária, marcado de perto. Não tens espaço para te virares.',
+    duracao: 4200,
     frames: [
-      { t: 0, players: { av: { x: 250, y: 250, team: 'us', label: 'AV' }, extL: { x: 130, y: 280, team: 'us', label: 'EE' }, extR: { x: 370, y: 280, team: 'us', label: 'ED' }, mcL: { x: 200, y: 380, team: 'us', label: 'MC' }, mcR: { x: 300, y: 380, team: 'us', label: 'MC' }, dc: { x: 250, y: 580, team: 'them' }, latL: { x: 130, y: 600, team: 'them' }, latR: { x: 370, y: 600, team: 'them' } }, ball: { owner: 'dc' } },
-      { t: 1500, players: { av: { x: 250, y: 320, team: 'us', label: 'AV', highlight: true }, extL: { x: 150, y: 350, team: 'us' }, extR: { x: 350, y: 350, team: 'us' }, mcL: { x: 200, y: 380, team: 'us' }, mcR: { x: 300, y: 380, team: 'us' }, dc: { x: 250, y: 580, team: 'them' }, latL: { x: 130, y: 600, team: 'them' }, latR: { x: 370, y: 600, team: 'them' } }, ball: { owner: 'dc' }, dica: 'Avante pressiona o central. Extremos fecham laterais.' },
-      { t: 3000, players: { av: { x: 250, y: 380, team: 'us', highlight: true }, extL: { x: 150, y: 410, team: 'us' }, extR: { x: 350, y: 410, team: 'us' }, mcL: { x: 200, y: 400, team: 'us' }, mcR: { x: 300, y: 400, team: 'us' }, dc: { x: 250, y: 550, team: 'them' }, latL: { x: 130, y: 580, team: 'them' }, latR: { x: 370, y: 580, team: 'them' } }, ball: { owner: 'dc' }, dica: 'Central forçado a tomar decisão sob pressão.' },
-      { t: 4500, players: { av: { x: 250, y: 420, team: 'us', highlight: true }, extL: { x: 130, y: 480, team: 'us' }, extR: { x: 370, y: 480, team: 'us' }, mcL: { x: 200, y: 420, team: 'us' }, mcR: { x: 300, y: 420, team: 'us' }, dc: { x: 250, y: 550, team: 'them' }, latL: { x: 130, y: 580, team: 'them' }, latR: { x: 370, y: 580, team: 'them' } }, ball: { x: 130, y: 580 }, dica: 'Central passa para lateral pressionado. Bola perdida.' },
-      { t: 6000, players: { av: { x: 250, y: 420, team: 'us' }, extL: { x: 130, y: 580, team: 'us', highlight: true }, extR: { x: 370, y: 480, team: 'us' }, mcL: { x: 200, y: 450, team: 'us' }, mcR: { x: 300, y: 420, team: 'us' }, dc: { x: 250, y: 550, team: 'them' }, latL: { x: 130, y: 580, team: 'them' }, latR: { x: 370, y: 580, team: 'them' } }, ball: { owner: 'extL' }, dica: 'Recuperação alta. Posse em zona perigosa.' }
+      { t: 0, players: { meu: { x: 250, y: 250, team: 'us', label: 'TU', highlight: true }, adv: { x: 250, y: 220, team: 'them', label: 'Adv' }, apoio: { x: 180, y: 320, team: 'us', label: 'Méd' }, lateral: { x: 350, y: 340, team: 'us', label: 'Lat' } }, ball: { owner: 'meu' }, indica: 'Recebes de costas. Adversário colado.' },
+      { t: 1500, players: { meu: { x: 250, y: 250, team: 'us', highlight: true }, adv: { x: 250, y: 228, team: 'them' }, apoio: { x: 195, y: 330, team: 'us' }, lateral: { x: 340, y: 335, team: 'us' } }, ball: { owner: 'meu' }, indica: 'O QUE FAZES?' },
+      { t: 4200, players: { meu: { x: 250, y: 250, team: 'us', highlight: true }, adv: { x: 250, y: 228, team: 'them' }, apoio: { x: 195, y: 330, team: 'us' }, lateral: { x: 340, y: 335, team: 'us' } }, ball: { owner: 'meu' }, indica: 'O QUE FAZES?' }
     ],
-    relatorio: 'Pressing coordenado em "armadilha lateral". Avante força o passe no lateral, extremo intercepta.',
-    dicas: ['Avante NUNCA pressiona sozinho', 'Extremos fecham linhas externas', 'Médios cobrem o meio para evitar passe interior'],
-    treino: ['Pressing 4v4 com gatilhos', 'Coordenação entre linhas']
+    opcoes: [
+      { id: 'A', texto: 'Tentas virar-te à força', certa: false, feedback: 'O adversário estava mais forte no duelo — perdeste a bola a tentar virar.', consequencia: 'perda' },
+      { id: 'B', texto: 'Proteges com o corpo e devolves ao apoio', certa: true, feedback: 'Protegeste bem e devolveste simples — a equipa manteve a posse e reorganizou.', consequencia: 'sucesso' },
+      { id: 'C', texto: 'Tentas um passe longo sem olhar', certa: false, feedback: 'Sem visão do que estava atrás de ti, o passe saiu sem destino certo.', consequencia: 'neutro' }
+    ],
+    treino: ['Proteção de bola com o corpo entre a bola e o adversário', 'Jogo de costas com 1 toque de saída', 'Domínio orientado sob marcação de perto'],
+    dica: 'Nem sempre é para virar. Às vezes a melhor decisão é devolver simples e deixar a equipa reorganizar o ataque.'
   },
   {
-    id: 'S05', titulo: 'Defesa contra cruzamento',
-    icon: '🧱', cor: '#4A9FE8', nivel: 'Sub-12+',
-    contexto: 'Adversário cruzou da ala. Como defender a área?',
-    duracao: 5500,
+    id: 'C22', titulo: 'Substituído a meio do jogo', posicao: 'Todos',
+    debilidade: 'Reação emocional à substituição', icon: '🚶', cor: '#A78BFA', nivel: 'Sub-11+',
+    situacao: 'O treinador chama o teu número aos 55 minutos. Estavas a jogar bem e não percebes porquê.',
+    duracao: 4500,
     frames: [
-      { t: 0, players: { gr: { x: 250, y: 700, team: 'us', label: 'GR' }, dc1: { x: 200, y: 640, team: 'us', label: 'DC' }, dc2: { x: 300, y: 640, team: 'us', label: 'DC' }, latL: { x: 100, y: 600, team: 'us' }, latR: { x: 400, y: 600, team: 'us' }, adv1: { x: 220, y: 580, team: 'them' }, adv2: { x: 280, y: 600, team: 'them' }, cruzador: { x: 80, y: 530, team: 'them' } }, ball: { owner: 'cruzador' } },
-      { t: 1500, players: { gr: { x: 250, y: 700, team: 'us' }, dc1: { x: 220, y: 630, team: 'us', highlight: true }, dc2: { x: 280, y: 630, team: 'us', highlight: true }, latL: { x: 100, y: 600, team: 'us' }, latR: { x: 400, y: 600, team: 'us' }, adv1: { x: 220, y: 590, team: 'them' }, adv2: { x: 280, y: 610, team: 'them' }, cruzador: { x: 80, y: 530, team: 'them' } }, ball: { owner: 'cruzador' }, dica: 'Centrais marcam atacantes corpo a corpo.' },
-      { t: 3000, players: { gr: { x: 250, y: 700, team: 'us' }, dc1: { x: 220, y: 620, team: 'us', highlight: true }, dc2: { x: 280, y: 620, team: 'us' }, latL: { x: 100, y: 580, team: 'us' }, latR: { x: 400, y: 580, team: 'us' }, adv1: { x: 220, y: 600, team: 'them' }, adv2: { x: 280, y: 615, team: 'them' }, cruzador: { x: 80, y: 530, team: 'them' } }, ball: { x: 200, y: 580 }, dica: 'Bola cruzada. Central ataca o ponto.' },
-      { t: 4500, players: { gr: { x: 250, y: 700, team: 'us' }, dc1: { x: 200, y: 580, team: 'us', highlight: true }, dc2: { x: 280, y: 620, team: 'us' }, latL: { x: 100, y: 580, team: 'us' }, latR: { x: 400, y: 580, team: 'us' }, adv1: { x: 220, y: 600, team: 'them' }, adv2: { x: 280, y: 615, team: 'them' }, cruzador: { x: 80, y: 530, team: 'them' } }, ball: { x: 200, y: 570 }, dica: 'Central afasta de cabeça antes do atacante.' },
-      { t: 5500, players: { gr: { x: 250, y: 700, team: 'us' }, dc1: { x: 200, y: 580, team: 'us', highlight: true }, dc2: { x: 280, y: 620, team: 'us' }, latL: { x: 100, y: 580, team: 'us' }, latR: { x: 400, y: 580, team: 'us' }, adv1: { x: 220, y: 600, team: 'them' }, adv2: { x: 280, y: 615, team: 'them' }, cruzador: { x: 80, y: 530, team: 'them' } }, ball: { x: 350, y: 450 }, dica: 'Bola afastada. Equipa reorganiza-se.' }
+      { t: 0, players: { meu: { x: 250, y: 300, team: 'us', label: 'TU', highlight: true }, treinador: { x: 60, y: 500, team: 'us', label: 'Mister' }, colega: { x: 340, y: 280, team: 'us', label: 'Colega' } }, ball: { x: 340, y: 260 }, indica: 'O treinador chama o teu número.' },
+      { t: 1500, players: { meu: { x: 250, y: 300, team: 'us', highlight: true }, treinador: { x: 60, y: 500, team: 'us' }, colega: { x: 340, y: 280, team: 'us' } }, ball: { x: 340, y: 260 }, indica: 'O QUE FAZES?' },
+      { t: 4500, players: { meu: { x: 250, y: 300, team: 'us', highlight: true }, treinador: { x: 60, y: 500, team: 'us' }, colega: { x: 340, y: 280, team: 'us' } }, ball: { x: 340, y: 260 }, indica: 'O QUE FAZES?' }
     ],
-    relatorio: 'Defesa do cruzamento depende de antecipação e contacto. Central deve atacar a bola, nunca ficar à espera.',
-    dicas: ['Atacar o ponto, não esperar a bola', 'Marcação corpo a corpo no cruzamento', 'Reorganizar imediatamente após afastar'],
-    treino: ['Cabeceamento defensivo', 'Marcação na área']
+    opcoes: [
+      { id: 'A', texto: 'Sais devagar, a mostrar que discordas', certa: false, feedback: 'O treinador viu — e essa atitude conta mais do que pensas na próxima escolha dele.', consequencia: 'perda' },
+      { id: 'B', texto: 'Sais a aplaudir os colegas, sais rápido', certa: true, feedback: 'Saíste como profissional. O treinador reparou, e os colegas sentiram o teu apoio.', consequencia: 'sucesso' },
+      { id: 'C', texto: 'Sais em silêncio, sem olhar para ninguém', certa: false, feedback: 'Ninguém percebeu o que sentias — nem o treinador, nem a equipa.', consequencia: 'neutro' }
+    ],
+    treino: ['Conversa com o treinador sobre o motivo da substituição', 'Rotina pessoal para os minutos fora do jogo', 'Apoio ativo ao banco quando não jogas'],
+    dica: 'Como sais do campo diz mais sobre ti do que qualquer jogada. O treinador está sempre a decidir quem entra a seguir.'
   },
   {
-    id: 'S06', titulo: 'Posse em zona reduzida',
-    icon: '🎯', cor: '#D4AF37', nivel: 'Sub-13+',
-    contexto: 'Equipa controla a posse num espaço apertado. Como manter o ritmo?',
-    duracao: 6000,
+    id: 'C23', titulo: 'Erraste o passe, a equipa sofreu', posicao: 'Todos',
+    debilidade: 'Concentração após erro', icon: '😔', cor: '#A78BFA', nivel: 'Sub-11+',
+    situacao: 'O teu passe atrasado foi intercetado. Trinta segundos depois, a equipa adversária marca. Sentes o peso do erro.',
+    duracao: 4500,
     frames: [
-      { t: 0, players: { mcL: { x: 200, y: 420, team: 'us', label: 'MC' }, mcR: { x: 300, y: 420, team: 'us', label: 'MC' }, mo: { x: 250, y: 350, team: 'us', label: 'MO' }, av: { x: 250, y: 250, team: 'us', label: 'AV' }, adv1: { x: 230, y: 380, team: 'them' }, adv2: { x: 280, y: 380, team: 'them' }, adv3: { x: 250, y: 300, team: 'them' } }, ball: { owner: 'mcL' } },
-      { t: 1500, players: { mcL: { x: 200, y: 420, team: 'us', highlight: true }, mcR: { x: 320, y: 420, team: 'us' }, mo: { x: 240, y: 360, team: 'us' }, av: { x: 250, y: 250, team: 'us' }, adv1: { x: 230, y: 380, team: 'them' }, adv2: { x: 280, y: 380, team: 'them' }, adv3: { x: 250, y: 300, team: 'them' } }, ball: { owner: 'mcL' }, dica: 'Médio com bola. Triângulo formado com colegas.' },
-      { t: 3000, players: { mcL: { x: 200, y: 420, team: 'us' }, mcR: { x: 320, y: 420, team: 'us', highlight: true }, mo: { x: 240, y: 360, team: 'us' }, av: { x: 250, y: 250, team: 'us' }, adv1: { x: 230, y: 380, team: 'them' }, adv2: { x: 280, y: 380, team: 'them' }, adv3: { x: 250, y: 300, team: 'them' } }, ball: { x: 320, y: 420 }, dica: 'Passe horizontal para fugir da pressão.' },
-      { t: 4500, players: { mcL: { x: 200, y: 420, team: 'us' }, mcR: { x: 320, y: 420, team: 'us' }, mo: { x: 270, y: 350, team: 'us', highlight: true }, av: { x: 250, y: 250, team: 'us' }, adv1: { x: 250, y: 400, team: 'them' }, adv2: { x: 300, y: 380, team: 'them' }, adv3: { x: 270, y: 310, team: 'them' } }, ball: { x: 270, y: 350 }, dica: 'Passe vertical para o médio ofensivo entre linhas.' },
-      { t: 6000, players: { mcL: { x: 200, y: 420, team: 'us' }, mcR: { x: 320, y: 420, team: 'us' }, mo: { x: 270, y: 350, team: 'us' }, av: { x: 250, y: 220, team: 'us', highlight: true }, adv1: { x: 250, y: 400, team: 'them' }, adv2: { x: 300, y: 380, team: 'them' }, adv3: { x: 270, y: 320, team: 'them' } }, ball: { owner: 'av' }, dica: 'Avante recebe em zona avançada. Posse com progressão.' }
+      { t: 0, players: { meu: { x: 250, y: 350, team: 'us', label: 'TU', highlight: true }, colega: { x: 180, y: 300, team: 'us', label: 'Colega' }, adv: { x: 300, y: 200, team: 'them', label: 'Adv' } }, ball: { x: 300, y: 100 }, indica: 'Golo sofrido depois do teu erro.' },
+      { t: 1500, players: { meu: { x: 250, y: 350, team: 'us', highlight: true }, colega: { x: 200, y: 320, team: 'us' }, adv: { x: 300, y: 200, team: 'them' } }, ball: { x: 250, y: 350 }, indica: 'O QUE FAZES?' },
+      { t: 4500, players: { meu: { x: 250, y: 350, team: 'us', highlight: true }, colega: { x: 200, y: 320, team: 'us' }, adv: { x: 300, y: 200, team: 'them' } }, ball: { x: 250, y: 350 }, indica: 'O QUE FAZES?' }
     ],
-    relatorio: 'Posse em zona reduzida exige movimento constante. Triângulos sempre disponíveis. Pacientemente progride entre linhas.',
-    dicas: ['Sempre 3 opções de passe', 'Toque rápido para fugir da pressão', 'Vertical quando o defesa fixa'],
-    treino: ['Rondo 4v2', 'Posse 5v5+2 em quadrado pequeno']
+    opcoes: [
+      { id: 'A', texto: 'Ficas a pensar no erro nas jogadas seguintes', certa: false, feedback: 'A cabeça ficou no golo sofrido — e o segundo erro veio a seguir, ainda pior.', consequencia: 'perda' },
+      { id: 'B', texto: 'Pedes a bola já a seguir, sem medo', certa: true, feedback: 'Voltaste a pedir bola de imediato — a equipa sentiu que não te escondeste do erro.', consequencia: 'sucesso' },
+      { id: 'C', texto: 'Jogas só passes seguros o resto do jogo', certa: false, feedback: 'Deixaste de arriscar — a equipa perdeu a tua criatividade pelo resto da partida.', consequencia: 'neutro' }
+    ],
+    treino: ['Rotina de reset de 5 segundos após erro', 'Pedir bola logo a seguir a uma falha', 'Análise de vídeo sem julgamento, só correção'],
+    dica: 'Um erro é um passe. O que decide o jogo é o passe seguinte, não o que já foi.'
   },
   {
-    id: 'S07', titulo: 'Escanteio ofensivo · Esquema curto',
-    icon: '⚓', cor: '#9F7AEA', nivel: 'Sub-13+',
-    contexto: 'Canto ofensivo. Esquema treinado de bola curta.',
-    duracao: 5500,
+    id: 'C24', titulo: 'Cobertura quando o companheiro é ultrapassado', posicao: 'Defesa',
+    debilidade: 'Leitura da cobertura defensiva', icon: '🧲', cor: '#4A9FE8', nivel: 'Sub-12+',
+    situacao: 'O teu central companheiro foi batido no 1×1. O atacante avança para a área. Tens de decidir a cobertura.',
+    duracao: 4200,
     frames: [
-      { t: 0, players: { batedor: { x: 30, y: 60, team: 'us', label: 'Bat' }, apoio: { x: 110, y: 110, team: 'us', label: 'Méd' }, av1: { x: 220, y: 80, team: 'us', label: 'Av' }, av2: { x: 300, y: 100, team: 'us', label: 'Av' }, dc: { x: 320, y: 200, team: 'us', label: 'DC' }, gr: { x: 250, y: 30, team: 'them', label: 'GR' }, df1: { x: 220, y: 80, team: 'them' }, df2: { x: 290, y: 90, team: 'them' } }, ball: { owner: 'batedor' } },
-      { t: 1500, players: { batedor: { x: 30, y: 60, team: 'us', highlight: true }, apoio: { x: 110, y: 110, team: 'us' }, av1: { x: 220, y: 80, team: 'us' }, av2: { x: 300, y: 100, team: 'us' }, dc: { x: 320, y: 200, team: 'us' }, gr: { x: 250, y: 30, team: 'them' }, df1: { x: 220, y: 80, team: 'them' }, df2: { x: 290, y: 90, team: 'them' } }, ball: { owner: 'batedor' }, dica: 'Bola curta para o apoio que aproxima.' },
-      { t: 3000, players: { batedor: { x: 30, y: 60, team: 'us' }, apoio: { x: 110, y: 110, team: 'us', highlight: true }, av1: { x: 220, y: 80, team: 'us' }, av2: { x: 300, y: 100, team: 'us' }, dc: { x: 320, y: 200, team: 'us' }, gr: { x: 250, y: 30, team: 'them' }, df1: { x: 220, y: 80, team: 'them' }, df2: { x: 290, y: 90, team: 'them' } }, ball: { owner: 'apoio' }, dica: 'Apoio ganha 1v1 e ganha ângulo de cruzamento.' },
-      { t: 4200, players: { batedor: { x: 30, y: 60, team: 'us' }, apoio: { x: 150, y: 130, team: 'us', highlight: true }, av1: { x: 220, y: 80, team: 'us' }, av2: { x: 300, y: 100, team: 'us' }, dc: { x: 320, y: 200, team: 'us' }, gr: { x: 250, y: 30, team: 'them' }, df1: { x: 220, y: 80, team: 'them' }, df2: { x: 290, y: 90, team: 'them' } }, ball: { x: 250, y: 90 }, dica: 'Cruzamento rasteiro no ponto de baliza.' },
-      { t: 5500, players: { batedor: { x: 30, y: 60, team: 'us' }, apoio: { x: 150, y: 130, team: 'us' }, av1: { x: 250, y: 60, team: 'us', highlight: true }, av2: { x: 300, y: 100, team: 'us' }, dc: { x: 320, y: 200, team: 'us' }, gr: { x: 250, y: 30, team: 'them' }, df1: { x: 220, y: 90, team: 'them' }, df2: { x: 290, y: 90, team: 'them' } }, ball: { owner: 'av1' }, dica: 'Avante chega à frente do defesa e remata.' }
+      { t: 0, players: { meu: { x: 320, y: 550, team: 'us', label: 'TU', highlight: true }, central: { x: 200, y: 480, team: 'us', label: 'DC' }, atacante: { x: 210, y: 420, team: 'them', label: 'Av' }, gr: { x: 250, y: 690, team: 'us', label: 'GR' } }, ball: { owner: 'atacante' }, indica: 'O teu colega foi batido. Atacante avança.' },
+      { t: 1500, players: { meu: { x: 290, y: 520, team: 'us', highlight: true }, central: { x: 220, y: 460, team: 'us' }, atacante: { x: 240, y: 460, team: 'them' }, gr: { x: 250, y: 690, team: 'us' } }, ball: { owner: 'atacante' }, indica: 'O QUE FAZES?' },
+      { t: 4200, players: { meu: { x: 290, y: 520, team: 'us', highlight: true }, central: { x: 220, y: 460, team: 'us' }, atacante: { x: 240, y: 460, team: 'them' }, gr: { x: 250, y: 690, team: 'us' } }, ball: { owner: 'atacante' }, indica: 'O QUE FAZES?' }
     ],
-    relatorio: 'Esquema curto evita o cruzamento aéreo previsível. Apoio ganha ângulo, cruzamento rasteiro à entrada do ponto.',
-    dicas: ['Surpresa: maioria espera cruzamento direto', 'Apoio deve ter qualidade de cruzamento rasteiro', 'Avante chega lançado, não parado'],
-    treino: ['Esquemas de bola parada coordenados', 'Cruzamento rasteiro com precisão']
-  },
-  {
-    id: 'S08', titulo: 'Inferioridade numérica defensiva (3v2)',
-    icon: '🛡️', cor: '#4A9FE8', nivel: 'Sub-13+',
-    contexto: '3 atacantes contra 2 defesas. Ganhar tempo é prioridade.',
-    duracao: 5500,
-    frames: [
-      { t: 0, players: { dc1: { x: 200, y: 500, team: 'us', label: 'DC' }, dc2: { x: 300, y: 500, team: 'us', label: 'DC' }, adv1: { x: 200, y: 380, team: 'them' }, adv2: { x: 300, y: 380, team: 'them' }, adv3: { x: 250, y: 350, team: 'them' } }, ball: { owner: 'adv3' } },
-      { t: 1500, players: { dc1: { x: 220, y: 480, team: 'us', highlight: true }, dc2: { x: 280, y: 480, team: 'us' }, adv1: { x: 200, y: 410, team: 'them' }, adv2: { x: 300, y: 410, team: 'them' }, adv3: { x: 250, y: 380, team: 'them' } }, ball: { owner: 'adv3' }, dica: 'Defesas recuam mantendo distância. Não atacar.' },
-      { t: 3000, players: { dc1: { x: 230, y: 470, team: 'us', highlight: true }, dc2: { x: 280, y: 480, team: 'us' }, adv1: { x: 200, y: 440, team: 'them' }, adv2: { x: 300, y: 440, team: 'them' }, adv3: { x: 250, y: 410, team: 'them' } }, ball: { owner: 'adv3' }, dica: 'Próximo de defesa direita, vai ter de decidir.' },
-      { t: 4500, players: { dc1: { x: 230, y: 470, team: 'us' }, dc2: { x: 280, y: 480, team: 'us', highlight: true }, adv1: { x: 200, y: 460, team: 'them' }, adv2: { x: 300, y: 460, team: 'them' }, adv3: { x: 250, y: 430, team: 'them' } }, ball: { owner: 'adv3' }, dica: 'Defesa direita força o passe lateral.' },
-      { t: 5500, players: { dc1: { x: 250, y: 470, team: 'us' }, dc2: { x: 320, y: 460, team: 'us' }, adv1: { x: 200, y: 460, team: 'them' }, adv2: { x: 300, y: 460, team: 'them', highlight: true }, adv3: { x: 250, y: 430, team: 'them' } }, ball: { x: 320, y: 460 }, dica: 'Passe interceptado. Tempo ganho permitiu apoio chegar.' }
+    opcoes: [
+      { id: 'A', texto: 'Avanças a dobrar em cima do atacante', certa: false, feedback: 'Deixaste o teu próprio marcado livre — o passe lateral custou o golo.', consequencia: 'perda' },
+      { id: 'B', texto: 'Fechas a linha de passe e reduzes o espaço da baliza', certa: true, feedback: 'Cobertura inteligente — obrigaste o atacante para fora, sem deixar ninguém livre.', consequencia: 'sucesso' },
+      { id: 'C', texto: 'Ficas parado a gritar instruções', certa: false, feedback: 'A comunicação chegou tarde — o atacante já tinha entrado na área.', consequencia: 'neutro' }
     ],
-    relatorio: 'Em inferioridade, missão é ATRASAR. Recuar mantendo a equipa entre bola e baliza. Forçar passe lateral, nunca atacar o portador.',
-    dicas: ['Recuar é a primeira opção', 'Atacar bola só com apoio', 'Forçar passe lateral, evitar passe vertical'],
-    treino: ['2v3 defensivo com objectivo de atrasar', 'Cobertura entre defensores']
-  },
-  {
-    id: 'S09', titulo: 'Profundidade na ala',
-    icon: '🚀', cor: '#4AE87A', nivel: 'Sub-12+',
-    contexto: 'Lateral em projecção ofensiva. Como criar profundidade?',
-    duracao: 5500,
-    frames: [
-      { t: 0, players: { mc: { x: 250, y: 480, team: 'us', label: 'MC' }, latR: { x: 420, y: 380, team: 'us', label: 'LD' }, extR: { x: 380, y: 280, team: 'us', label: 'ED' }, av: { x: 250, y: 230, team: 'us', label: 'AV' }, df: { x: 380, y: 320, team: 'them' } }, ball: { owner: 'mc' } },
-      { t: 1500, players: { mc: { x: 250, y: 480, team: 'us' }, latR: { x: 420, y: 350, team: 'us' }, extR: { x: 320, y: 250, team: 'us', highlight: true }, av: { x: 250, y: 230, team: 'us' }, df: { x: 380, y: 320, team: 'them' } }, ball: { owner: 'mc' }, dica: 'Extremo corta para dentro, abre espaço para o lateral.' },
-      { t: 3000, players: { mc: { x: 250, y: 480, team: 'us' }, latR: { x: 420, y: 280, team: 'us', highlight: true }, extR: { x: 320, y: 250, team: 'us' }, av: { x: 250, y: 200, team: 'us' }, df: { x: 380, y: 320, team: 'them' } }, ball: { x: 420, y: 280 }, dica: 'Passe vertical para o lateral em rutura.' },
-      { t: 4500, players: { mc: { x: 250, y: 480, team: 'us' }, latR: { x: 420, y: 230, team: 'us', highlight: true }, extR: { x: 280, y: 230, team: 'us' }, av: { x: 250, y: 180, team: 'us' }, df: { x: 380, y: 270, team: 'them' } }, ball: { owner: 'latR' }, dica: 'Lateral progride com bola, defesa em desvantagem.' },
-      { t: 5500, players: { mc: { x: 250, y: 480, team: 'us' }, latR: { x: 420, y: 180, team: 'us', highlight: true }, extR: { x: 280, y: 200, team: 'us' }, av: { x: 250, y: 150, team: 'us' }, df: { x: 380, y: 230, team: 'them' } }, ball: { owner: 'latR' }, dica: 'Lateral chega à linha. Cruzamento iminente.' }
-    ],
-    relatorio: 'Lateral cria profundidade quando o extremo abre espaço cortando para dentro. Movimento de "permuta".',
-    dicas: ['Extremo corta para dentro = lateral sobe', 'Passe vertical no momento certo', 'Sincronização é essencial'],
-    treino: ['Permutas extremo-lateral', 'Passes em rutura']
-  },
-  {
-    id: 'S10', titulo: 'Bloco baixo defensivo',
-    icon: '🔒', cor: '#4A9FE8', nivel: 'Sub-15+',
-    contexto: 'A defender vantagem. Como organizar bloco baixo eficaz?',
-    duracao: 6000,
-    frames: [
-      { t: 0, players: { gr: { x: 250, y: 700, team: 'us', label: 'GR' }, dc1: { x: 200, y: 620, team: 'us' }, dc2: { x: 300, y: 620, team: 'us' }, latL: { x: 100, y: 600, team: 'us' }, latR: { x: 400, y: 600, team: 'us' }, mc1: { x: 200, y: 540, team: 'us' }, mc2: { x: 300, y: 540, team: 'us' }, mo: { x: 250, y: 480, team: 'us' }, adv1: { x: 250, y: 420, team: 'them' } }, ball: { owner: 'adv1' } },
-      { t: 2000, players: { gr: { x: 250, y: 700, team: 'us' }, dc1: { x: 200, y: 620, team: 'us', highlight: true }, dc2: { x: 300, y: 620, team: 'us', highlight: true }, latL: { x: 130, y: 590, team: 'us' }, latR: { x: 370, y: 590, team: 'us' }, mc1: { x: 220, y: 530, team: 'us' }, mc2: { x: 290, y: 530, team: 'us' }, mo: { x: 250, y: 480, team: 'us' }, adv1: { x: 250, y: 440, team: 'them' } }, ball: { owner: 'adv1' }, dica: 'Linhas curtas: 8m entre defesa e meio-campo.' },
-      { t: 4000, players: { gr: { x: 250, y: 700, team: 'us' }, dc1: { x: 200, y: 620, team: 'us', highlight: true }, dc2: { x: 300, y: 620, team: 'us', highlight: true }, latL: { x: 130, y: 590, team: 'us' }, latR: { x: 370, y: 590, team: 'us' }, mc1: { x: 220, y: 530, team: 'us' }, mc2: { x: 290, y: 530, team: 'us' }, mo: { x: 250, y: 480, team: 'us' }, adv1: { x: 250, y: 470, team: 'them', highlight: true } }, ball: { owner: 'adv1' }, dica: 'Adversário aproxima. Bloco mantém forma compacta.' },
-      { t: 6000, players: { gr: { x: 250, y: 700, team: 'us' }, dc1: { x: 200, y: 620, team: 'us', highlight: true }, dc2: { x: 300, y: 620, team: 'us', highlight: true }, latL: { x: 130, y: 590, team: 'us' }, latR: { x: 370, y: 590, team: 'us' }, mc1: { x: 220, y: 530, team: 'us' }, mc2: { x: 290, y: 530, team: 'us' }, mo: { x: 250, y: 480, team: 'us' }, adv1: { x: 250, y: 480, team: 'them' } }, ball: { x: 320, y: 510 }, dica: 'Bloco força jogo lateral. Sem espaços interiores.' }
-    ],
-    relatorio: 'Bloco baixo eficaz: linhas curtas (8m), centro fechado, força jogo para fora. Paciência e disciplina colectiva.',
-    dicas: ['Linhas próximas: máximo 10m entre linhas', 'Centro fechado, ala aberta', 'Não atacar bola, esperar erro adversário'],
-    treino: ['Bloco baixo 11v11 simulado', 'Manter linhas com bola em movimento']
-  },
-  {
-    id: 'S11', titulo: 'Combinação ofensiva (1-2)',
-    icon: '⚡', cor: '#D4AF37', nivel: 'Sub-12+',
-    contexto: 'Combinação simples para ultrapassar 1 adversário.',
-    duracao: 5500,
-    frames: [
-      { t: 0, players: { p1: { x: 200, y: 350, team: 'us', label: 'A' }, p2: { x: 320, y: 320, team: 'us', label: 'B' }, adv: { x: 250, y: 300, team: 'them' } }, ball: { owner: 'p1' } },
-      { t: 1500, players: { p1: { x: 200, y: 350, team: 'us', highlight: true }, p2: { x: 320, y: 320, team: 'us' }, adv: { x: 230, y: 320, team: 'them' } }, ball: { owner: 'p1' }, dica: 'A com bola, B oferece linha de passe.' },
-      { t: 2500, players: { p1: { x: 200, y: 350, team: 'us' }, p2: { x: 320, y: 320, team: 'us', highlight: true }, adv: { x: 230, y: 320, team: 'them' } }, ball: { x: 320, y: 320 }, dica: 'Passe para B (curto).' },
-      { t: 3500, players: { p1: { x: 240, y: 280, team: 'us', highlight: true }, p2: { x: 320, y: 320, team: 'us' }, adv: { x: 230, y: 320, team: 'them' } }, ball: { owner: 'p2' }, dica: 'A acelera para o espaço atrás do adversário.' },
-      { t: 4500, players: { p1: { x: 280, y: 240, team: 'us', highlight: true }, p2: { x: 320, y: 320, team: 'us' }, adv: { x: 230, y: 320, team: 'them' } }, ball: { x: 290, y: 260 }, dica: 'B devolve na profundidade.' },
-      { t: 5500, players: { p1: { x: 290, y: 220, team: 'us', highlight: true }, p2: { x: 320, y: 320, team: 'us' }, adv: { x: 230, y: 320, team: 'them' } }, ball: { owner: 'p1' }, dica: 'A recebe sozinho. Adversário ultrapassado.' }
-    ],
-    relatorio: 'Combinação 1-2 é a forma mais simples de ultrapassar 1 adversário. Cuidado: timing é tudo.',
-    dicas: ['B deve estar 5-7m da bola', 'A acelera assim que dá passe', 'Devolução na profundidade, não nos pés'],
-    treino: ['Combinação 1-2 com cone (adversário fictício)', 'Combinação 1-2 com defensor activo']
-  },
-  {
-    id: 'S12', titulo: 'Saída a três contra pressão',
-    icon: '📐', cor: '#9F7AEA', nivel: 'Sub-15+',
-    contexto: '3 jogadores formam triângulo para construir contra pressing alto.',
-    duracao: 6000,
-    frames: [
-      { t: 0, players: { dc1: { x: 180, y: 600, team: 'us', label: 'DC' }, dc2: { x: 320, y: 600, team: 'us', label: 'DC' }, mc: { x: 250, y: 520, team: 'us', label: 'MC' }, av1: { x: 200, y: 540, team: 'them' }, av2: { x: 300, y: 540, team: 'them' } }, ball: { owner: 'dc1' } },
-      { t: 1500, players: { dc1: { x: 160, y: 590, team: 'us', highlight: true }, dc2: { x: 340, y: 590, team: 'us' }, mc: { x: 250, y: 510, team: 'us' }, av1: { x: 200, y: 550, team: 'them' }, av2: { x: 300, y: 540, team: 'them' } }, ball: { owner: 'dc1' }, dica: 'Centrais abrem para criar largura.' },
-      { t: 3000, players: { dc1: { x: 160, y: 590, team: 'us' }, dc2: { x: 340, y: 590, team: 'us' }, mc: { x: 250, y: 510, team: 'us', highlight: true }, av1: { x: 220, y: 555, team: 'them' }, av2: { x: 300, y: 540, team: 'them' } }, ball: { x: 250, y: 510 }, dica: 'Médio entra entre as linhas adversárias.' },
-      { t: 4500, players: { dc1: { x: 160, y: 590, team: 'us' }, dc2: { x: 340, y: 590, team: 'us' }, mc: { x: 250, y: 510, team: 'us', highlight: true }, av1: { x: 230, y: 540, team: 'them' }, av2: { x: 290, y: 540, team: 'them' } }, ball: { owner: 'mc' }, dica: 'Médio rodou de primeira. Frente livre.' },
-      { t: 6000, players: { dc1: { x: 160, y: 590, team: 'us' }, dc2: { x: 340, y: 590, team: 'us' }, mc: { x: 270, y: 460, team: 'us', highlight: true }, av1: { x: 230, y: 540, team: 'them' }, av2: { x: 290, y: 540, team: 'them' } }, ball: { owner: 'mc' }, dica: 'Equipa progride com posse. Pressing batido.' }
-    ],
-    relatorio: 'Triângulo defensivo (2 centrais + médio) bate pressing alto se houver paciência e timing.',
-    dicas: ['Centrais separam-se ao máximo', 'Médio fica entre linhas adversárias', 'Médio rodar de primeira ao receber'],
-    treino: ['Saída a três contra 2 atacantes', 'Posicionamento entre linhas']
+    treino: ['Cobertura defensiva 2x1 em campo reduzido', 'Leitura de quando dobrar vs. quando fechar espaço', 'Comunicação defensiva sob pressão'],
+    dica: 'Dobrar sem necessidade cria um buraco novo. A primeira pergunta é sempre: "se eu sair, quem fica livre?"'
   }
 ];

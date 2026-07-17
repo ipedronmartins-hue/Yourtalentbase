@@ -68,7 +68,13 @@
     'Reação à adversidade': 'mental',
     'Controlo emocional': 'mental',
     'Concentração': 'mental',
-    'Tomada de decisão': 'decisao'
+    'Tomada de decisão': 'decisao',
+    'Controlo do pé fraco': 'tecnica',
+    'Primeiro toque sob pressão': 'tecnica',
+    'Proteção de bola': 'tecnica',
+    'Reação emocional à substituição': 'mental',
+    'Concentração após erro': 'mental',
+    'Leitura da cobertura defensiva': 'tatica'
   };
 
   function bucketDoCenario(debilidadeStr) {
@@ -101,9 +107,9 @@
   // usa a tabela estática de ids abaixo quando chamado de outras páginas.
   var CENARIOS_POR_BUCKET = {
     decisao: [0, 2, 3, 7, 10, 11, 17],
-    tatica: [1, 5, 8, 9, 12, 13],
-    mental: [4, 14, 15, 16],
-    tecnica: [6],
+    tatica: [1, 5, 8, 9, 12, 13, 23],
+    mental: [4, 14, 15, 16, 21, 22],
+    tecnica: [6, 18, 19, 20],
     fisico: [] // não há cenário físico — a missão física é a técnica em campo
   };
   function cenariosDoObjetivo(bucket) {
