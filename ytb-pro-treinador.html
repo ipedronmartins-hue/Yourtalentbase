@@ -79,6 +79,20 @@ body{padding-bottom:40px}
 .slider{width:100%;height:5px;-webkit-appearance:none;background:var(--border);border-radius:100px;outline:none}
 .slider::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;background:var(--gold);border-radius:50%;cursor:pointer}
 .slider::-moz-range-thumb{width:18px;height:18px;background:var(--gold);border-radius:50%;cursor:pointer;border:none}
+/* avaliação nível 1 — um toque por bucket */
+.bk-row{background:var(--bg2);border:1px solid var(--border);border-radius:13px;padding:14px 15px;margin-bottom:9px}
+.bk-head{display:flex;align-items:baseline;gap:8px;margin-bottom:3px}
+.bk-nome{font-family:'Barlow Condensed';font-weight:900;font-size:18px}
+.bk-sub{font-size:11.5px;color:var(--slate);margin-bottom:10px}
+.bk-dots{display:flex;gap:7px}
+.bk-dots button{flex:1;min-height:44px;background:var(--bg3);border:1px solid var(--border);color:var(--slate);border-radius:9px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;transition:.12s}
+.bk-dots button.on{background:var(--gold-soft,rgba(212,175,55,.12));border-color:var(--gold);color:var(--gold)}
+.bk-dots button.on.fraco{background:rgba(255,80,80,.1);border-color:var(--red);color:var(--red)}
+.bk-esc{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:5px}
+.bk-det{background:none;border:none;color:var(--slate);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;padding:8px 0 0;display:block}
+.bk-det:hover{color:var(--text)}
+.bk-det-body{display:none;margin-top:10px;border-top:1px solid var(--border);padding-top:10px}
+.bk-det-body.on{display:block}
 .deb-item{background:rgba(255,80,80,.08);border:1px solid rgba(255,80,80,.2);border-radius:8px;padding:9px 12px;font-size:12px;margin-bottom:6px}
 .result-card{background:var(--bg2);border:1px solid var(--gold-border);border-radius:12px;padding:18px;margin-top:16px}
 .score-big{font-family:'Barlow Condensed';font-weight:900;font-size:54px;text-align:center;color:var(--gold);line-height:1}
@@ -250,22 +264,33 @@ const USING_SB=!!(SUPABASE_URL&&SUPABASE_KEY&&window.supabase);
 const supa=USING_SB?window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY):null;
 if(!USING_SB)document.getElementById('demoFlag').style.display='block';
 
-/* ════════ 25 CRITÉRIOS (iguais ao scout report) ════════ */
-const CRITERIOS={
-  tecnicos:['1x1 Defensivo','1x1 Ofensivo','Recepção','Passe','Condução','Finalização','Jogo Aéreo','Velocidade de Execução'],
-  tacticos:['Inteligência Táctica','Tomada de Decisão','Reacção à Perda','Dinâmica Ofensiva','Dinâmica Defensiva'],
-  fisicos:['Velocidade','Força','Resistência','Intensidade'],
-  mentais:['Liderança','Reacção à Adversidade','Carácter','Ambição','Agressividade','Espírito Colectivo','Compromisso','Dinâmica de Grupo']
-};
-const CAT_INFO={tecnicos:{label:'Técnicos',icon:'⚽'},tacticos:{label:'Tácticos',icon:'🧠'},fisicos:{label:'Físicos',icon:'💪'},mentais:{label:'Mentais',icon:'🎯'}};
-
-/* mapeia critério fraco → tipo de debilidade para o treino */
+/* mapeia critério de detalhe fraco → tipo de debilidade para o treino.
+   As chaves são também a lista completa de critérios do nível 2 (herdadas do
+   instrumento de 25 critérios do scout report — que continua a ser o certo
+   para scouts; aqui viram detalhe opcional por bucket). */
 const CRIT_DEB={
   '1x1 Defensivo':'tatica','1x1 Ofensivo':'tecnica','Recepção':'tecnica','Passe':'tecnica','Condução':'tecnica','Finalização':'tecnica','Jogo Aéreo':'fisico','Velocidade de Execução':'tecnica',
   'Inteligência Táctica':'tatica','Tomada de Decisão':'decisao','Reacção à Perda':'tatica','Dinâmica Ofensiva':'tatica','Dinâmica Defensiva':'tatica',
   'Velocidade':'fisico','Força':'fisico','Resistência':'fisico','Intensidade':'fisico',
   'Liderança':'mental','Reacção à Adversidade':'mental','Carácter':'mental','Ambição':'mental','Agressividade':'mental','Espírito Colectivo':'mental','Compromisso':'mental','Dinâmica de Grupo':'mental'
 };
+
+/* ── avaliação em 2 níveis (Constituição: campo ≤30s/atleta) ──
+   Nível 1: os 5 buckets do produto — é SÓ isto que o plano, o Objetivo da
+   família e a Missão de Decisão consomem (os 25 critérios colapsavam aqui).
+   Nível 2 (opcional): detalhar um bucket abre os critérios de sempre desse
+   bucket. Os 25 completos continuam a ser o instrumento do scout report —
+   momento diferente, profundidade diferente. */
+const BUCKETS=[
+  ['tecnica','⚽','Técnica','receção, passe, condução, finalização'],
+  ['decisao','🧠','Decisão','escolhas com bola, velocidade a decidir'],
+  ['tatica','🧭','Tática','posicionamento, leitura, jogo sem bola'],
+  ['fisico','⚡','Físico','velocidade, força, resistência'],
+  ['mental','🔥','Mental','atitude, foco, reação à adversidade']
+];
+const BUCKET_LBL={tecnica:'Técnica',decisao:'Decisão',tatica:'Tática',fisico:'Físico',mental:'Mental'};
+const BUCKET_CRITS={};
+Object.entries(CRIT_DEB).forEach(([crit,b])=>{ (BUCKET_CRITS[b]=BUCKET_CRITS[b]||[]).push(crit); });
 
 /* ════════ EXERCÍCIOS CASEIROS (espaço curto, sem grandes remates) ════════ */
 // Biblioteca de exercícios. Cada um tem:
@@ -639,7 +664,8 @@ async function submeterInscricao(){
 }
 </script>
 <script>
-/* ════════ AVALIAÇÃO (25 critérios) ════════ */
+/* ════════ AVALIAÇÃO (2 níveis: 5 buckets no campo, detalhe opcional) ════════ */
+let avNivel1={};
 function renderAvaliar(){
   const area=document.getElementById('avaliar-area');
   const sub=document.getElementById('avaliar-sub');
@@ -648,21 +674,46 @@ function renderAvaliar(){
     area.innerHTML='<div class="empty-state"><div class="empty-emoji">📋</div>Nenhum atleta selecionado.</div>';
     return;
   }
-  sub.textContent='A avaliar: '+esc(atletaSel.primeiro_nome||atletaSel.nome)+' · escala 1 (fraco) a 5 (excelente)';
+  sub.textContent='A avaliar: '+esc(atletaSel.primeiro_nome||atletaSel.nome)+' · um toque por área · 1 (prioridade) a 5 (forte)';
+  avNivel1={tecnica:3,decisao:3,tatica:3,fisico:3,mental:3};
   let html='<div id="jornada-treinador"></div>';
-  Object.entries(CRITERIOS).forEach(([cat,items])=>{
-    html+='<div class="crit-cat"><div class="crit-cat-h">'+CAT_INFO[cat].icon+' '+CAT_INFO[cat].label+'</div>';
-    items.forEach(name=>{
-      const id='av_'+name.replace(/[^a-z]/gi,'_').toLowerCase();
-      html+='<div class="slider-row"><div class="slider-label"><span class="slider-name">'+name+'</span><span class="slider-val" id="v_'+id+'">3</span></div>'+
-        '<input class="slider" type="range" id="'+id+'" min="1" max="5" step="1" value="3" oninput="document.getElementById(\'v_'+id+'\').textContent=this.value"></div>';
-    });
-    html+='</div>';
+  BUCKETS.forEach(function(b){
+    const k=b[0];
+    html+='<div class="bk-row" id="bk-'+k+'">'
+      +'<div class="bk-head"><span>'+b[1]+'</span><span class="bk-nome">'+b[2]+'</span></div>'
+      +'<div class="bk-sub">'+b[3]+'</div>'
+      +'<div class="bk-dots">'+[1,2,3,4,5].map(function(n){
+        return '<button type="button" id="bk-'+k+'-'+n+'" class="'+(n===3?'on':'')+'" onclick="avTocar(\''+k+'\','+n+')">'+n+'</button>';
+      }).join('')+'</div>'
+      +'<div class="bk-esc"><span>prioridade</span><span>forte</span></div>'
+      +'<button type="button" class="bk-det" onclick="avDetalhar(\''+k+'\')" id="bk-det-btn-'+k+'">Detalhar '+b[2].toLowerCase()+' ▸</button>'
+      +'<div class="bk-det-body" id="bk-det-'+k+'">'
+      +(BUCKET_CRITS[k]||[]).map(function(name){
+        const id='av_'+name.replace(/[^a-z]/gi,'_').toLowerCase();
+        return '<div class="slider-row"><div class="slider-label"><span class="slider-name">'+name+'</span><span class="slider-val" id="v_'+id+'">3</span></div>'
+          +'<input class="slider" type="range" id="'+id+'" min="1" max="5" step="1" value="3" oninput="this.dataset.touched=1;document.getElementById(\'v_'+id+'\').textContent=this.value">'
+          +'</div>';
+      }).join('')
+      +'</div></div>';
   });
   html+='<button class="btn btn-primary" onclick="gerarAvaliacao()">Concluir avaliação e gerar treino →</button>';
   html+='<div id="aval-result"></div>';
   area.innerHTML=html;
   montarJornadaTreinador();
+}
+function avTocar(k,n){
+  avNivel1[k]=n;
+  for(let i=1;i<=5;i++){
+    const el=document.getElementById('bk-'+k+'-'+i);
+    if(el) el.className=(i===n?('on'+(n<=2?' fraco':'')):'');
+  }
+}
+function avDetalhar(k){
+  const body=document.getElementById('bk-det-'+k);
+  const btn=document.getElementById('bk-det-btn-'+k);
+  if(!body) return;
+  const on=body.classList.toggle('on');
+  if(btn) btn.textContent=btn.textContent.replace(on?'▸':'▾', on?'▾':'▸');
 }
 
 /* ════════ MAPA VIVO DA JORNADA (por atleta, via digest já existente) ════════ */
@@ -693,34 +744,36 @@ async function montarJornadaTreinador(){
 }
 
 function recolherScores(){
+  // nível 1 sempre (5 notas deliberadas, uma por bucket); nível 2 só o que o
+  // treinador tocou de propósito — o Dev Score faz a média do que existir,
+  // por isso só entram notas com intenção, não defaults
   const scores={};
-  Object.values(CRITERIOS).flat().forEach(name=>{
-    const id='av_'+name.replace(/[^a-z]/gi,'_').toLowerCase();
-    const el=document.getElementById(id);
-    scores[name]=el?parseInt(el.value):3;
+  BUCKETS.forEach(function(b){ scores[BUCKET_LBL[b[0]]]=avNivel1[b[0]]||3; });
+  Object.keys(CRIT_DEB).forEach(function(name){
+    const el=document.getElementById('av_'+name.replace(/[^a-z]/gi,'_').toLowerCase());
+    if(el&&el.dataset.touched) scores[name]=parseInt(el.value);
   });
   return scores;
 }
 
 function detectarDebilidades(scores){
   const debs=new Set();
+  BUCKETS.forEach(function(b){ if((avNivel1[b[0]]||3)<=2) debs.add(b[0]); });
+  // um detalhe fraco acende o bucket mesmo que a nota geral dele seja ≥3
   Object.entries(scores).forEach(([crit,val])=>{ if(val<=2 && CRIT_DEB[crit]) debs.add(CRIT_DEB[crit]); });
   if(debs.size===0){
-    // pega no critério mais fraco
-    let minV=99,minC='';
-    Object.entries(scores).forEach(([c,v])=>{if(v<minV){minV=v;minC=c;}});
-    if(minC&&CRIT_DEB[minC])debs.add(CRIT_DEB[minC]); else debs.add('tecnica');
+    // ninguém ≤2: pega no bucket mais fraco
+    let minV=99,minK='tecnica';
+    BUCKETS.forEach(function(b){ const v=avNivel1[b[0]]||3; if(v<minV){minV=v;minK=b[0];} });
+    debs.add(minK);
   }
   return Array.from(debs);
 }
 
 function mediasPorCat(scores){
-  const m={};let geral=0,n=0;
-  Object.entries(CRITERIOS).forEach(([cat,items])=>{
-    let t=0;items.forEach(name=>t+=scores[name]||3);
-    m[cat]=Math.round((t/items.length)*10)/10;geral+=m[cat];n++;
-  });
-  m.geral=Math.round((geral/n)*10)/10;
+  const m={};let geral=0;
+  BUCKETS.forEach(function(b){ m[b[0]]=avNivel1[b[0]]||3; geral+=m[b[0]]; });
+  m.geral=Math.round((geral/BUCKETS.length)*10)/10;
   return m;
 }
 
