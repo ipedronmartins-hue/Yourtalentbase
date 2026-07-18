@@ -55,11 +55,11 @@
   .top button:hover{color:var(--text);border-color:#2C342C}
 
   .eyebrow{font-family:'Barlow Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.2em;font-size:12px;color:var(--muted)}
-  .shead{font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;letter-spacing:.06em;font-size:15px;color:var(--text);margin:26px 2px 11px;display:flex;align-items:center;gap:9px}
+  .shead{font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;letter-spacing:.06em;font-size:16px;color:var(--text);margin:34px 2px 12px;display:flex;align-items:center;gap:9px}
   .shead::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent)}
 
   /* ── cartão identidade + curva ── */
-  .pcard{background:linear-gradient(180deg,var(--bg2),#0C110C);border:1px solid var(--border);border-radius:18px;padding:16px;margin-top:16px;overflow:hidden}
+  .pcard{background:linear-gradient(180deg,var(--bg2),#0C110C);border:1px solid var(--border);border-radius:18px;padding:18px;margin-top:16px;overflow:hidden}
   .head{display:flex;align-items:center;gap:13px}
   .photo{width:62px;height:62px;border-radius:14px;flex:0 0 auto;background:
       radial-gradient(circle at 50% 35%, #28332A 0%, #131A14 70%);
@@ -105,7 +105,7 @@
   .legend .dot{width:8px;height:8px;border-radius:50%}
 
   /* ── DNA ── */
-  .panel{background:linear-gradient(180deg,var(--bg2),#0C110C);border:1px solid var(--border);border-radius:16px;padding:16px}
+  .panel{background:linear-gradient(180deg,var(--bg2),#0C110C);border:1px solid var(--border);border-radius:16px;padding:18px}
   .panel .hd{display:flex;align-items:center;justify-content:space-between;gap:10px}
   .panel .hd h3{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:17px;text-transform:uppercase;letter-spacing:.02em}
   .badge{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--gold);border:1px solid #D4AF3744;border-radius:20px;padding:3px 9px;white-space:nowrap}
@@ -465,7 +465,7 @@
   // ===== TREINO DA FAMÍLIA (dentro do passaporte, só no modo família) =====
   function treinoCSS(){
     if(document.getElementById('tr-css')) return;
-    var css='.tr-sec{margin:0 0 18px}'
+    var css='.tr-sec{margin:0 0 22px}'
      +'.tr-head{margin-bottom:12px}'
      +'.tr-t{font-family:\'Barlow Condensed\',sans-serif;font-weight:900;font-size:24px;color:var(--text);line-height:1}'
      +'.tr-s{font-size:14px;color:var(--slate);margin-top:5px;line-height:1.45}'
@@ -855,7 +855,7 @@
 
   function famCSS(){
     if(document.getElementById('fam-css')) return;
-    var css='.fam-sec{margin:0 0 18px}'
+    var css='.fam-sec{margin:0 0 22px}'
      +'#pp-jornada{margin-top:14px}'
      +'.fam-group{margin-top:44px}'
      +'.fam-group:first-child{margin-top:0}'
