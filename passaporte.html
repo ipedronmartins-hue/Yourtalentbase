@@ -446,8 +446,12 @@
       marcos:(r.marcos||[]).map(function(m){return ['◆',m.titulo||'',relTime(m.em)];}),
       carreira:(r.carreira||[]).map(function(c){
         var tit=(c.titulos&&c.titulos.length)?('🏆 '+c.titulos.join(' · ')):(c.classificacao||'');
+        var st=[];
+        if(c.golos!=null)st.push(c.golos+' golo'+(c.golos===1?'':'s'));
+        if(c.jogos!=null)st.push(c.jogos+' jogo'+(c.jogos===1?'':'s'));
+        if(c.assist!=null)st.push(c.assist+' assist.');
         var linha2=[c.clube,c.escalao,c.divisao].filter(Boolean).join(' · ');
-        return [c.epoca||'', linha2, tit];
+        return [c.epoca||'', linha2, [tit,st.join(' · ')].filter(Boolean).join(' · ')];
       }),
       timeline:(r.timeline||[]).map(function(e){
         var tp = e.categoria==='marco'?'mar':(e.origem==='declarado'?'dec':'obs');
@@ -993,7 +997,9 @@
      +'<div class="fam-row"><input class="fam-input" id="ep-ref" type="text" placeholder="Época (ex: 2025/26)" style="flex:1"><input class="fam-input" id="ep-div" type="text" placeholder="Divisão / nível" style="flex:2"></div>'
      +'<div class="fam-row"><input class="fam-input" id="ep-golos" type="number" inputmode="numeric" placeholder="Golos" style="flex:1"><input class="fam-input" id="ep-jogos" type="number" inputmode="numeric" placeholder="Jogos" style="flex:1"><input class="fam-input" id="ep-assist" type="number" inputmode="numeric" placeholder="Assist." style="flex:1"></div>'
      +'<div class="fam-row"><input class="fam-input" id="ep-goleq" type="number" inputmode="numeric" placeholder="Golos da equipa" style="flex:1"><input class="fam-input" id="ep-class" type="text" placeholder="Classificação (ex: 3º de 12)" style="flex:2"></div>'
-     +'<button class="fam-btn" onclick="window.__epocaGravar()">Guardar estatísticas →</button></div>'
+     +'<button class="fam-btn" onclick="window.__epocaGravar()">Guardar estatísticas →</button>'
+     +'<button class="fam-btn" style="background:var(--bg3);color:var(--text);border:1px solid var(--border2)" onclick="window.__epocaFechar()">Fechar a época →</button>'
+     +'<div class="sub" style="margin:8px 0 0;font-size:12px">A época desportiva fecha a 30 de junho. Ao fechares, estes números ficam guardados no percurso dele — só leitura — e o cartão fica limpo para a época nova.</div></div>'
      +'<div class="shead">O percurso dele</div><div class="panel" id="carreira-card">'
      +'<div class="sub" style="margin-bottom:10px">Época a época: clube, escalão e conquistas. É isto que os clubes e scouts veem como carreira — quem sabe a história és tu.</div>'
      +'<div id="car-lista" style="margin-bottom:10px"></div>'
@@ -1028,9 +1034,14 @@
       if(!l.length){ el.innerHTML='<div style="font-size:13px;color:var(--muted)">Ainda sem épocas registadas.</div>'; return; }
       el.innerHTML=l.map(function(c){
         var tit=(c.titulos&&c.titulos.length)?(' · <span style="color:var(--gold)">🏆 '+esc(c.titulos.join(' · '))+'</span>'):(c.classificacao?(' · '+esc(c.classificacao)):'');
+        var st=[];
+        if(c.golos!=null)st.push(c.golos+' golo'+(c.golos===1?'':'s'));
+        if(c.jogos!=null)st.push(c.jogos+' jogo'+(c.jogos===1?'':'s'));
+        if(c.assist!=null)st.push(c.assist+' assist.');
+        var stTxt=st.length?('<span style="display:block;font-size:12px;color:var(--muted);margin-top:1px">'+esc(st.join(' · '))+'</span>'):'';
         return '<div style="display:flex;gap:10px;align-items:baseline;padding:7px 0;border-bottom:1px solid var(--border);font-size:13.5px">'
           +'<b class="num" style="font-family:\'Barlow Condensed\',sans-serif;min-width:44px">'+esc(c.epoca)+'</b>'
-          +'<span style="flex:1;color:var(--slate)">'+esc([c.clube,c.escalao,c.divisao].filter(Boolean).join(' · '))+tit+'</span></div>';
+          +'<span style="flex:1;color:var(--slate)">'+esc([c.clube,c.escalao,c.divisao].filter(Boolean).join(' · '))+tit+stTxt+'</span></div>';
       }).join('');
     }).catch(function(){});
   }
@@ -1092,6 +1103,27 @@
       if(!d||!d.ok){ toast('⚠ Não gravado ('+((d&&d.motivo)||'erro')+')'); return; }
       toast('Estatísticas guardadas ✓ — fica no percurso dele');
     }).catch(function(){ b.disabled=false; b.textContent='Guardar estatísticas →'; toast('⚠ Sem ligação'); });
+  };
+  window.__epocaFechar=function(){
+    var ref=(document.getElementById('ep-ref').value||'').trim()||'atual';
+    if(!confirm('Fechar a época '+ref+'? Os números ficam guardados no percurso dele (só leitura) e o cartão fica pronto para a época nova.')) return;
+    var btns=document.getElementById('epoca-card').querySelectorAll('.fam-btn');
+    var b=btns[btns.length-1];
+    b.disabled=true; b.textContent='A fechar…';
+    supa.rpc('ytb_epoca_fechar',{p_atleta:window.__famAtleta}).then(function(res){
+      var d=res&&res.data; b.disabled=false; b.textContent='Fechar a época →';
+      if(!d||!d.ok){
+        var motivos={sem_epoca:'preenche a época (ex: 2025/26) e guarda primeiro',
+                     sem_estatisticas:'ainda não há números guardados para arquivar',
+                     perfil_incompleto:'preenche clube e escalão no perfil primeiro',
+                     nao_autorizado:'sem autorização'};
+        toast('⚠ '+(motivos[(d&&d.motivo)]||'Não foi possível fechar')); return;
+      }
+      ['ep-div','ep-golos','ep-jogos','ep-assist','ep-goleq','ep-class'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+      var er=document.getElementById('ep-ref'); if(er) er.value=d.proxima||'';
+      toast('Época '+d.epoca+' fechada ✓ — ficou no percurso');
+      carregarCarreiraLista();
+    }).catch(function(){ b.disabled=false; b.textContent='Fechar a época →'; toast('⚠ Sem ligação'); });
   };
 
   function carregarFamiliaExtras(atletaId){
