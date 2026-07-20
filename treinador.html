@@ -559,7 +559,8 @@ function prescreverTreino(r) {
     'Velocidade': [
       {n:'Sprints 10m',d:'Arranques curtos explosivos. 8 sprints × 2 séries, 30s pausa',m:'Tempo médio',t:'Físico'},
       {n:'Sprints 20m',d:'Aceleração + manutenção. 6 sprints × 2 séries',m:'Tempo médio',t:'Físico'},
-      {n:'Sprint Reactivo',d:'Sprint após sinal visual/sonoro. 10 reps',m:'Tempo de reacção',t:'Físico'}
+      {n:'Sprint Reactivo',d:'Sprint após sinal visual/sonoro. 10 reps',m:'Tempo de reacção',t:'Físico'},
+      {n:'Sprints Repetidos com Bola',d:'6 sprints de 15m em condução, 20s pausa. Simula a intensidade real de jogo, não só velocidade isolada',m:'Queda de tempo entre sprints',t:'Físico'}
     ],
     'Resistência': [
       {n:'Sprints Repetidos',d:'5 sprints de 30m com 30s pausa. 3 séries',m:'Queda de tempo',t:'Físico'},
@@ -575,7 +576,8 @@ function prescreverTreino(r) {
     'Agilidade': [
       {n:'Escada de Agilidade',d:'Padrões variados na escada. 5 min',m:'Velocidade + erros',t:'Físico'},
       {n:'Mudanças de Direcção',d:'Sprint + corte 90°. 10 reps cada lado',m:'Tempo',t:'Físico'},
-      {n:'T-Drill',d:'Sprint em T com cortes laterais. 6 reps',m:'Tempo',t:'Físico'}
+      {n:'T-Drill',d:'Sprint em T com cortes laterais. 6 reps',m:'Tempo',t:'Físico'},
+      {n:'Duelo 1v1 Explosivo',d:'Arranque simultâneo de 2 jogadores para a bola a 10m. 8 duelos, recuperação completa',m:'Duelos ganhos em 8',t:'Físico'}
     ],
     'Leitura de jogo': [
       {n:'Receber Entre Linhas',d:'Recebe e roda rápido lendo a pressão. 10 reps × 3',m:'Execuções limpas',t:'Decisão'},
@@ -638,9 +640,22 @@ function prescreverTreino(r) {
   });
 
   const blocosPresentes = new Set(cardsGerados.map(c => c.t));
-  if (!blocosPresentes.has('Físico')) {
-    cardsGerados.push({n:'Core + Velocidade',d:'Prancha 60s + 6 sprints 10m. Base física para todos',m:'Tempo + Velocidade',t:'Físico'});
-    cardsGerados.push({n:'Saltos Explosivos',d:'Saltos verticais 3×8 reps',m:'Altura',t:'Físico'});
+  // Físico é sempre prioritário — nunca um preenchimento condicional.
+  // Intensidade e explosividade são normalmente o primeiro filtro visual
+  // de um scout, antes de qualquer avaliação técnica; Sub-12/13 já jogam
+  // futebol a sério. Garante sempre pelo menos 3 exercícios físicos,
+  // variados por sessão (não sempre os mesmos 2).
+  const FISICO_BASE = [].concat(MAPA['Velocidade'], MAPA['Resistência'], MAPA['Força'], MAPA['Agilidade']);
+  const fisicosJa = cardsGerados.filter(c => c.t === 'Físico');
+  if (fisicosJa.length < 3) {
+    const faltam = 3 - fisicosJa.length;
+    const jaNomes = new Set(fisicosJa.map(c => c.n));
+    const candidatos = FISICO_BASE.filter(c => !jaNomes.has(c.n));
+    for (let i = candidatos.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [candidatos[i], candidatos[j]] = [candidatos[j], candidatos[i]];
+    }
+    candidatos.slice(0, faltam).forEach(c => cardsGerados.push({...c, fraqueza: null}));
   }
   if (!blocosPresentes.has('Decisão') && !blocosPresentes.has('Mental')) {
     cardsGerados.push({n:'Decisão 2 Toques',d:'Recebe, decide, passa em 2 toques. Base mental para todos',m:'Execuções correctas',t:'Decisão'});
@@ -674,7 +689,7 @@ function prescreverTreino(r) {
   let html = '<div class="treino-intro">' +
     '<div style="font-size:11px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:6px">📅 Plano 30 dias · 3 sessões/semana</div>' +
     `<div style="font-size:12px;color:var(--slate);line-height:1.55;margin-bottom:8px">${fraquezasUsadas.length ? 'Foco: <strong style="color:#fff">'+fraquezasUsadas.slice(0,3).join(', ')+'</strong>.' : 'Plano de manutenção.'} Resultados em 4-6 semanas com consistência.</div>` +
-    '<div style="font-size:10px;color:var(--muted);line-height:1.5">⏱ Sessão tipo: 5min aquecimento · 15min técnica · 10min físico · 10min decisão · 5min cooldown</div>' +
+    '<div style="font-size:10px;color:var(--muted);line-height:1.5">⏱ Sessão tipo: 5min aquecimento · 15min técnica · 15min físico/intensidade · 10min decisão · 5min cooldown</div>' +
     '</div>';
 
   let counter = 0;
