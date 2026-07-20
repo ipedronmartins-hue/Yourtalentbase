@@ -450,6 +450,7 @@
         if(c.golos!=null)st.push(c.golos+' golo'+(c.golos===1?'':'s'));
         if(c.jogos!=null)st.push(c.jogos+' jogo'+(c.jogos===1?'':'s'));
         if(c.assist!=null)st.push(c.assist+' assist.');
+        if(c.minutos!=null)st.push(c.minutos+"'");
         var linha2=[c.clube,c.escalao,c.divisao].filter(Boolean).join(' · ');
         return [c.epoca||'', linha2, [tit,st.join(' · ')].filter(Boolean).join(' · ')];
       }),
@@ -995,7 +996,7 @@
      +'<div class="shead">Estatísticas da época</div><div class="panel" id="epoca-card">'
      +'<div class="sub" style="margin-bottom:10px">Golos, jogos e assistências desta época — o orgulho fica registado no percurso dele.</div>'
      +'<div class="fam-row"><input class="fam-input" id="ep-ref" type="text" placeholder="Época (ex: 2025/26)" style="flex:1"><input class="fam-input" id="ep-div" type="text" placeholder="Divisão / nível" style="flex:2"></div>'
-     +'<div class="fam-row"><input class="fam-input" id="ep-golos" type="number" inputmode="numeric" placeholder="Golos" style="flex:1"><input class="fam-input" id="ep-jogos" type="number" inputmode="numeric" placeholder="Jogos" style="flex:1"><input class="fam-input" id="ep-assist" type="number" inputmode="numeric" placeholder="Assist." style="flex:1"></div>'
+     +'<div class="fam-row"><input class="fam-input" id="ep-golos" type="number" inputmode="numeric" placeholder="Golos" style="flex:1"><input class="fam-input" id="ep-jogos" type="number" inputmode="numeric" placeholder="Jogos" style="flex:1"><input class="fam-input" id="ep-assist" type="number" inputmode="numeric" placeholder="Assist." style="flex:1"><input class="fam-input" id="ep-minutos" type="number" inputmode="numeric" placeholder="Minutos" style="flex:1"></div>'
      +'<div class="fam-row"><input class="fam-input" id="ep-goleq" type="number" inputmode="numeric" placeholder="Golos da equipa" style="flex:1"><input class="fam-input" id="ep-class" type="text" placeholder="Classificação (ex: 3º de 12)" style="flex:2"></div>'
      +'<button class="fam-btn" onclick="window.__epocaGravar()">Guardar estatísticas →</button>'
      +'<button class="fam-btn" style="background:var(--bg3);color:var(--text);border:1px solid var(--border2)" onclick="window.__epocaFechar()">Fechar a época →</button>'
@@ -1006,6 +1007,7 @@
      +'<div class="fam-row"><input class="fam-input" id="car-epoca" type="text" placeholder="Época (ex: 24/25)" style="flex:1"><input class="fam-input" id="car-clube" type="text" placeholder="Clube" style="flex:2"></div>'
      +'<div class="fam-row"><input class="fam-input" id="car-escalao" type="text" placeholder="Escalão (ex: Sub-10)" style="flex:1"><input class="fam-input" id="car-divisao" type="text" placeholder="Divisão (opcional)" style="flex:2"></div>'
      +'<div class="fam-row"><input class="fam-input" id="car-class" type="text" placeholder="Classificação (ex: 4º lugar)" style="flex:1"><input class="fam-input" id="car-titulo" type="text" placeholder="Título? (ex: Campeão Divisão Elite)" style="flex:2"></div>'
+     +'<div class="fam-row"><input class="fam-input" id="car-golos" type="number" inputmode="numeric" placeholder="Golos" style="flex:1"><input class="fam-input" id="car-jogos" type="number" inputmode="numeric" placeholder="Jogos" style="flex:1"><input class="fam-input" id="car-assist" type="number" inputmode="numeric" placeholder="Assist." style="flex:1"><input class="fam-input" id="car-minutos" type="number" inputmode="numeric" placeholder="Minutos" style="flex:1"></div>'
      +'<button class="fam-btn" onclick="window.__carreiraGravar()">Guardar época →</button>'
      +'<div class="sub" style="margin:8px 0 0;font-size:12px">Para corrigir uma época, volta a guardá-la com os dados certos — substitui a antiga. Títulos novos ficam como marcos no passaporte.</div></div>'
      +'<div class="shead">Diário de treinos</div><div class="panel" id="diario-card">'
@@ -1047,18 +1049,20 @@
   }
   window.__carreiraGravar=function(){
     function s(id){ var v=(document.getElementById(id).value||'').trim(); return v===''?null:v; }
+    function n(id){ var v=parseInt(document.getElementById(id).value,10); return isNaN(v)?null:v; }
     var b=document.getElementById('carreira-card').querySelector('.fam-btn');
     b.disabled=true; b.textContent='A guardar…';
     supa.rpc('ytb_carreira_registar',{
       p_atleta:window.__famAtleta, p_epoca:s('car-epoca'), p_clube:s('car-clube'), p_escalao:s('car-escalao'),
-      p_divisao:s('car-divisao'), p_classificacao:s('car-class'), p_titulo:s('car-titulo')
+      p_divisao:s('car-divisao'), p_classificacao:s('car-class'), p_titulo:s('car-titulo'),
+      p_golos:n('car-golos'), p_jogos:n('car-jogos'), p_assistencias:n('car-assist'), p_minutos:n('car-minutos')
     }).then(function(res){
       var d=res&&res.data; b.disabled=false; b.textContent='Guardar época →';
       if(!d||!d.ok){
-        var motivos={epoca_invalida:'época no formato 24/25', clube_escalao_obrigatorios:'clube e escalão são obrigatórios'};
+        var motivos={epoca_invalida:'época no formato 24/25', clube_escalao_obrigatorios:'clube e escalão são obrigatórios', minutos_invalidos:'minutos inválidos'};
         toast('⚠ '+(motivos[(d&&d.motivo)]||'Não gravado')); return;
       }
-      ['car-epoca','car-clube','car-escalao','car-divisao','car-class','car-titulo'].forEach(function(id){ document.getElementById(id).value=''; });
+      ['car-epoca','car-clube','car-escalao','car-divisao','car-class','car-titulo','car-golos','car-jogos','car-assist','car-minutos'].forEach(function(id){ document.getElementById(id).value=''; });
       toast('Época guardada ✓ — já está no passaporte');
       carregarCarreiraLista();
     }).catch(function(){ b.disabled=false; b.textContent='Guardar época →'; toast('⚠ Sem ligação'); });
@@ -1072,7 +1076,7 @@
       set('pf-pos',p.posicao_principal); set('pf-pe',p.pe_dominante); set('pf-zz',p.zerozero_url); set('pf-jp',p.joga_plus_url);
       set('pf-eenome',p.encarregado_nome); set('pf-eetel',p.encarregado_telefone);
       set('ep-ref',p.epoca_ref); set('ep-div',p.divisao); set('ep-golos',p.golos_epoca); set('ep-jogos',p.jogos_epoca);
-      set('ep-assist',p.assist_epoca); set('ep-goleq',p.golos_equipa_epoca); set('ep-class',p.classificacao_equipa);
+      set('ep-assist',p.assist_epoca); set('ep-minutos',p.minutos_epoca); set('ep-goleq',p.golos_equipa_epoca); set('ep-class',p.classificacao_equipa);
     }).catch(function(){});
   }
   window.__perfilGravar=function(){
@@ -1097,7 +1101,7 @@
     supa.rpc('ytb_familia_epoca_registar',{
       p_atleta:window.__famAtleta, p_epoca_ref:s('ep-ref'), p_divisao:s('ep-div'),
       p_golos_epoca:n('ep-golos'), p_jogos_epoca:n('ep-jogos'), p_assist_epoca:n('ep-assist'),
-      p_golos_equipa_epoca:n('ep-goleq'), p_classificacao_equipa:s('ep-class')
+      p_minutos_epoca:n('ep-minutos'), p_golos_equipa_epoca:n('ep-goleq'), p_classificacao_equipa:s('ep-class')
     }).then(function(res){
       var d=res&&res.data; b.disabled=false; b.textContent='Guardar estatísticas →';
       if(!d||!d.ok){ toast('⚠ Não gravado ('+((d&&d.motivo)||'erro')+')'); return; }
@@ -1119,7 +1123,7 @@
                      nao_autorizado:'sem autorização'};
         toast('⚠ '+(motivos[(d&&d.motivo)]||'Não foi possível fechar')); return;
       }
-      ['ep-div','ep-golos','ep-jogos','ep-assist','ep-goleq','ep-class'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+      ['ep-div','ep-golos','ep-jogos','ep-assist','ep-minutos','ep-goleq','ep-class'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
       var er=document.getElementById('ep-ref'); if(er) er.value=d.proxima||'';
       toast('Época '+d.epoca+' fechada ✓ — ficou no percurso');
       carregarCarreiraLista();

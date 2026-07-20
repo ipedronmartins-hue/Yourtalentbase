@@ -105,6 +105,7 @@ tr:last-child td{border-bottom:none}
 .pill-arquivado{background:rgba(160,160,160,.15);color:#aaa;border:1px solid #444}
 .pill-oculto{background:rgba(167,139,250,.1);color:var(--purple);border:1px solid rgba(167,139,250,.3)}
 .pill-admin{background:rgba(212,175,55,.15);color:var(--gold);border:1px solid var(--gold-border)}
+.pill-suspenso{background:rgba(255,80,80,.15);color:#ff5050;border:1px solid rgba(255,80,80,.35)}
 
 /* RATING */
 .r-rating-mini{display:inline-block;font-family:'Barlow Condensed';font-weight:900;font-size:13px;padding:2px 7px;letter-spacing:-.3px;min-width:30px;text-align:center}
@@ -240,7 +241,7 @@ tr:last-child td{border-bottom:none}
       <input class="search" id="s-atletas" type="search" placeholder="Procurar nome, clube, email...">
       <select class="f-select" id="f-estado">
         <option value="all">Todos estados</option>
-        <option value="pendente">A aguardar pagamento</option><option>aprovado</option><option>rejeitado</option><option>arquivado</option>
+        <option value="pendente">A aguardar pagamento</option><option>aprovado</option><option value="suspenso">Suspenso — sem acesso</option><option>rejeitado</option><option>arquivado</option>
       </select>
       <select class="f-select" id="f-fonte">
         <option value="all">Todas fontes</option>
@@ -560,6 +561,7 @@ verificarAdmin().then(ok => {
   if(ok && typeof load === 'function'){ load(); }
 });
 
+const MESTRE_EMAILS = ['ipedronmartins@gmail.com','yourtalentbase@gmail.com']; // mesma lista de MESTRE (login) e CONTAS_PROTEGIDAS (contas)
 let allAtletas = [], allPendentes = [], allPedidos = [], allClubes = [], allTreinadores = [], allRelatorios = [], allAtletasTreinador = [];
 let currentAtleta = null;
 let currentPedido = null;
@@ -706,23 +708,39 @@ async function load(){
 }
 
 // ════════════════ POR TREINADOR (pastas) ════════════════
+// Nota (fix 2026-07): as pastas eram geradas a partir de perfis com papel='treinador',
+// o que deixava invisíveis os atletas inseridos por uma conta admin (fonte_email não
+// aparecia em nenhuma pasta). Agora a pasta nasce dos atletas em si — uma por cada
+// fonte_email realmente presente — e o nome/email vem do perfil correspondente, seja
+// qual for o papel dele (admin, treinador, scout...).
 function renderPorTreinador(){
   const grid = document.getElementById('grid-portreinador');
   if(!grid) return;
-  const treinadores = allTreinadores.filter(t => t.papel === 'treinador' && t.estado === 'aprovado');
-  if(!treinadores.length){
-    grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="empty-icon">📁</div>Ainda sem treinadores aprovados.</div>';
+  const porEmail = {};
+  allAtletasTreinador.forEach(a => {
+    const email = (a.fonte_email || '').toLowerCase();
+    if(!email) return;
+    (porEmail[email] = porEmail[email] || []).push(a);
+  });
+  const emails = Object.keys(porEmail);
+  if(!emails.length){
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="empty-icon">📁</div>Ainda sem atletas inscritos por treinador.</div>';
     return;
   }
-  grid.innerHTML = treinadores.map(t => {
-    const n = allAtletasTreinador.filter(a => (a.fonte_email||'').toLowerCase() === (t.email||'').toLowerCase()).length;
-    return `<button onclick="abrirAtletasDoTreinador('${escapeHtml(t.email||'')}')" style="text-align:left;cursor:pointer;background:var(--bg2,#12160f);border:1px solid var(--border2,#2a2f28);border-radius:11px;padding:14px;color:inherit;font-family:inherit">
-      <div style="font-size:22px;margin-bottom:6px">📁</div>
-      <div style="font-weight:800;font-size:14px">${escapeHtml(t.nome||t.email||'—')}</div>
-      <div style="font-size:11px;color:var(--muted,#7a7a7a);margin-top:3px">${escapeHtml(t.email||'')}</div>
-      <div style="font-size:12px;margin-top:8px;color:var(--gold,#D4AF37);font-weight:700">${n} ${n===1?'atleta':'atletas'} →</div>
-    </button>`;
-  }).join('');
+  const cartoes = emails.map(email => {
+    const atletas = porEmail[email];
+    const perfil = allTreinadores.find(t => (t.email||'').toLowerCase() === email);
+    const ehAdminConta = MESTRE_EMAILS.includes(email) || (perfil && perfil.papel === 'admin');
+    const nome = (perfil && perfil.nome) || atletas[0].fonte_nome || email;
+    return { email, nome, n: atletas.length, ehAdminConta };
+  }).sort((x, y) => (y.ehAdminConta - x.ehAdminConta) || x.nome.localeCompare(y.nome));
+
+  grid.innerHTML = cartoes.map(c => `<button onclick="abrirAtletasDoTreinador('${escapeHtml(c.email)}')" style="text-align:left;cursor:pointer;background:var(--bg2,#12160f);border:1px solid ${c.ehAdminConta ? 'var(--gold-border,#D4AF37)' : 'var(--border2,#2a2f28)'};border-radius:11px;padding:14px;color:inherit;font-family:inherit">
+      <div style="font-size:22px;margin-bottom:6px">${c.ehAdminConta ? '⭐' : '📁'}</div>
+      <div style="font-weight:800;font-size:14px">${escapeHtml(c.nome)}${c.ehAdminConta ? ' <span style="font-size:10px;color:var(--gold,#D4AF37);font-weight:800">· TU (ADMIN)</span>' : ''}</div>
+      <div style="font-size:11px;color:var(--muted,#7a7a7a);margin-top:3px">${escapeHtml(c.email)}</div>
+      <div style="font-size:12px;margin-top:8px;color:var(--gold,#D4AF37);font-weight:700">${c.n} ${c.n===1?'atleta':'atletas'} →</div>
+    </button>`).join('');
 }
 function abrirAtletasDoTreinador(email){
   showZona('pessoas');
@@ -772,7 +790,7 @@ function renderAtletas(){
       <td>${escapeHtml(a.clube_actual)}<div class="td-mute">${escapeHtml(a.associacao || '')}</div></td>
       <td><span class="pill pill-admin">${a.fonte}</span><div class="td-mute">${escapeHtml((a.fonte_nome || '').slice(0,20))}</div></td>
       <td><span class="r-rating-mini ${ratingClass(a.rating_geral)}">${a.rating_geral || '—'}</span></td>
-      <td><span class="pill pill-${a.estado}">${a.estado === 'pendente' ? 'A aguardar pagamento' : a.estado}</span></td>
+      <td><span class="pill pill-${a.estado}">${a.estado === 'pendente' ? 'A aguardar pagamento' : (a.estado === 'suspenso' ? 'Suspenso — sem acesso' : a.estado)}</span></td>
       <td>
         ${a.oculto_pelo_responsavel ? '<span class="pill pill-oculto">oculto</span>' : ''}
         ${a.visivel_publico ? '<span style="color:var(--green);font-size:14px" title="Público">●</span>' : '<span style="color:var(--muted);font-size:14px" title="Não público">○</span>'}
@@ -781,6 +799,9 @@ function renderAtletas(){
       <td style="white-space:nowrap">
         <button class="action-btn" onclick="window.open('passaporte.html?admin=${a.id}','_blank')" title="Ver passaporte">👁</button>
         <button class="action-btn" onclick="editarAtleta('${a.id}')">✏️</button>
+        ${a.estado === 'suspenso'
+          ? `<button class="action-btn" style="border-color:rgba(0,212,106,.4);color:var(--green)" onclick="suspenderAtleta('${a.id}', false)" title="Reativar acesso">▶️</button>`
+          : `<button class="action-btn" style="border-color:rgba(255,80,80,.4);color:#ff5050" onclick="suspenderAtleta('${a.id}', true)" title="Suspender acesso (pagamento em falta)">⏸</button>`}
         <button class="action-btn danger" onclick="apagarAtleta('${a.id}')">🗑</button>
       </td>
     </tr>
@@ -1263,6 +1284,29 @@ async function apagarAtleta(id){
     toast('Atleta apagado', 'green');
     load();
   } catch(e){ toast('Erro: ' + (e && e.message || ''), 'error'); }
+}
+
+async function suspenderAtleta(id, suspender){
+  const alvo = allAtletas.find(x => x.id === id);
+  const nome = alvo ? alvo.nome : 'este atleta';
+  if(suspender){
+    const motivo = prompt(`Suspender o acesso de "${nome}" (ex: pagamento em falta).\n\nOs dados ficam guardados, a família só deixa de conseguir entrar no passaporte. É reversível.\n\nMotivo (opcional):`, 'Pagamento em falta');
+    if(motivo === null) return; // cancelou
+    try {
+      const { data, error } = await supa.rpc('ytb_admin_atleta_estado', { p_id:id, p_acao:'suspender', p_motivo: motivo || 'Pagamento em falta' });
+      if(error || (data && data.ok === false)){ toast('Erro: ' + (error ? error.message : data.motivo), 'error'); return; }
+      toast('Acesso suspenso', 'green');
+      load();
+    } catch(e){ toast('Erro: ' + (e && e.message || ''), 'error'); }
+  } else {
+    if(!confirm(`Reativar o acesso de "${nome}"?`)) return;
+    try {
+      const { data, error } = await supa.rpc('ytb_admin_atleta_estado', { p_id:id, p_acao:'reativar' });
+      if(error || (data && data.ok === false)){ toast('Erro: ' + (error ? error.message : data.motivo), 'error'); return; }
+      toast('Acesso reativado', 'green');
+      load();
+    } catch(e){ toast('Erro: ' + (e && e.message || ''), 'error'); }
+  }
 }
 
 async function marcarWhatsAppPendente(id, enviado){
