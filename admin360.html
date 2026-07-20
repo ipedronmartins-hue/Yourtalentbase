@@ -105,7 +105,7 @@ tr:last-child td{border-bottom:none}
 .pill-arquivado{background:rgba(160,160,160,.15);color:#aaa;border:1px solid #444}
 .pill-oculto{background:rgba(167,139,250,.1);color:var(--purple);border:1px solid rgba(167,139,250,.3)}
 .pill-admin{background:rgba(212,175,55,.15);color:var(--gold);border:1px solid var(--gold-border)}
-.pill-suspenso{background:rgba(255,80,80,.15);color:#ff5050;border:1px solid rgba(255,80,80,.35)}
+.pill-suspenso{background:rgba(255,74,74,.15);color:var(--red);border:1px solid rgba(255,74,74,.3)}
 
 /* RATING */
 .r-rating-mini{display:inline-block;font-family:'Barlow Condensed';font-weight:900;font-size:13px;padding:2px 7px;letter-spacing:-.3px;min-width:30px;text-align:center}
@@ -121,6 +121,10 @@ tr:last-child td{border-bottom:none}
 .action-btn.success:hover{border-color:var(--green);color:var(--green)}
 .action-btn.whatsapp{border-color:rgba(0,212,106,.3);color:var(--green)}
 .action-btn.whatsapp:hover{background:rgba(0,212,106,.1)}
+.action-btn.reativar{border-color:rgba(0,212,106,.3);color:var(--green)}
+.action-btn.reativar:hover{background:rgba(0,212,106,.1)}
+.action-btn.suspender{border-color:rgba(255,74,74,.3);color:var(--red)}
+.action-btn.suspender:hover{background:rgba(255,74,74,.1)}
 
 /* EMPTY */
 .empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:12px}
@@ -735,10 +739,10 @@ function renderPorTreinador(){
     return { email, nome, n: atletas.length, ehAdminConta };
   }).sort((x, y) => (y.ehAdminConta - x.ehAdminConta) || x.nome.localeCompare(y.nome));
 
-  grid.innerHTML = cartoes.map(c => `<button onclick="abrirAtletasDoTreinador('${escapeHtml(c.email)}')" style="text-align:left;cursor:pointer;background:var(--bg2,#12160f);border:1px solid ${c.ehAdminConta ? 'var(--gold-border,#D4AF37)' : 'var(--border2,#2a2f28)'};border-radius:11px;padding:14px;color:inherit;font-family:inherit">
+  grid.innerHTML = cartoes.map(c => `<button onclick="abrirAtletasDoTreinador('${escapeHtml(c.email)}')" style="text-align:left;cursor:pointer;background:var(--bg2,#0F1410);border:1px solid ${c.ehAdminConta ? 'var(--gold-border,rgba(212,175,55,.32))' : 'var(--border2,#2A322B)'};border-radius:10px;padding:14px;color:inherit;font-family:inherit">
       <div style="font-size:22px;margin-bottom:6px">${c.ehAdminConta ? '⭐' : '📁'}</div>
       <div style="font-weight:800;font-size:14px">${escapeHtml(c.nome)}${c.ehAdminConta ? ' <span style="font-size:10px;color:var(--gold,#D4AF37);font-weight:800">· TU (ADMIN)</span>' : ''}</div>
-      <div style="font-size:11px;color:var(--muted,#7a7a7a);margin-top:3px">${escapeHtml(c.email)}</div>
+      <div style="font-size:11px;color:var(--muted,#6B756C);margin-top:3px">${escapeHtml(c.email)}</div>
       <div style="font-size:12px;margin-top:8px;color:var(--gold,#D4AF37);font-weight:700">${c.n} ${c.n===1?'atleta':'atletas'} →</div>
     </button>`).join('');
 }
@@ -800,8 +804,8 @@ function renderAtletas(){
         <button class="action-btn" onclick="window.open('passaporte.html?admin=${a.id}','_blank')" title="Ver passaporte">👁</button>
         <button class="action-btn" onclick="editarAtleta('${a.id}')">✏️</button>
         ${a.estado === 'suspenso'
-          ? `<button class="action-btn" style="border-color:rgba(0,212,106,.4);color:var(--green)" onclick="suspenderAtleta('${a.id}', false)" title="Reativar acesso">▶️</button>`
-          : `<button class="action-btn" style="border-color:rgba(255,80,80,.4);color:#ff5050" onclick="suspenderAtleta('${a.id}', true)" title="Suspender acesso (pagamento em falta)">⏸</button>`}
+          ? `<button class="action-btn reativar" onclick="suspenderAtleta('${a.id}', false)" title="Reativar acesso">▶️</button>`
+          : `<button class="action-btn suspender" onclick="suspenderAtleta('${a.id}', true)" title="Suspender acesso (pagamento em falta)">⏸</button>`}
         <button class="action-btn danger" onclick="apagarAtleta('${a.id}')">🗑</button>
       </td>
     </tr>
