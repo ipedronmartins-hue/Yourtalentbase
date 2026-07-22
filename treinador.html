@@ -518,7 +518,9 @@ function mostrarResultado(r) {
     </div>`;
 }
 
-function prescreverTreino(r) {
+function prescreverTreino(r, foco) {
+  foco = foco || 'auto';
+  window.__ultimaAvaliacaoPrescricao = r; // para regenerar quando o treinador troca o foco
   // ═══════════════════════════════════════════════════════
   // BIBLIOTECA · 20 critérios × 3-4 exercícios cada
   // ═══════════════════════════════════════════════════════
@@ -640,21 +642,38 @@ function prescreverTreino(r) {
   });
 
   const blocosPresentes = new Set(cardsGerados.map(c => c.t));
+  const FISICO_BASE = [].concat(MAPA['Velocidade'], MAPA['Resistência'], MAPA['Força'], MAPA['Agilidade']);
+  const DOMINIOS = {
+    fisico:  { tipos:['Físico'], rotulo:'Físico / intensidade' },
+    tecnica: { tipos:['Técnica','Passe','Condução','Finalização'], rotulo:'Técnica individual' },
+    tatico:  { tipos:['Decisão','Mental'], rotulo:'Tático / decisão' }
+  };
+  function baralhar(arr){ for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
+
+  if (foco !== 'auto' && DOMINIOS[foco]) {
+    // O treinador escolheu — manda ele. A prioridade física automática existe para
+    // corrigir a preguiça do algoritmo, não para se sobrepor ao profissional que
+    // sabe o que o clube já trabalhou esta semana ou se há jogo amanhã.
+    const tipos = DOMINIOS[foco].tipos;
+    const doFoco = cardsGerados.filter(c => tipos.includes(c.t));
+    const foraDoFoco = cardsGerados.filter(c => !tipos.includes(c.t)).slice(0, 2); // mantém até 2 fraquezas de fora, o resto sai
+    const nomes = new Set(doFoco.map(c => c.n));
+    const TODOS = Object.keys(MAPA).reduce((a,k) => a.concat(MAPA[k]), []);
+    const pool = baralhar(TODOS.filter(c => tipos.includes(c.t) && !nomes.has(c.n)));
+    while (doFoco.length < 5 && pool.length) doFoco.push({...pool.pop(), fraqueza:null});
+    cardsGerados.length = 0;
+    cardsGerados.push.apply(cardsGerados, doFoco.concat(foraDoFoco));
+  } else {
   // Físico é sempre prioritário — nunca um preenchimento condicional.
   // Intensidade e explosividade são normalmente o primeiro filtro visual
   // de um scout, antes de qualquer avaliação técnica; Sub-12/13 já jogam
   // futebol a sério. Garante sempre pelo menos 3 exercícios físicos,
   // variados por sessão (não sempre os mesmos 2).
-  const FISICO_BASE = [].concat(MAPA['Velocidade'], MAPA['Resistência'], MAPA['Força'], MAPA['Agilidade']);
   const fisicosJa = cardsGerados.filter(c => c.t === 'Físico');
   if (fisicosJa.length < 3) {
     const faltam = 3 - fisicosJa.length;
     const jaNomes = new Set(fisicosJa.map(c => c.n));
-    const candidatos = FISICO_BASE.filter(c => !jaNomes.has(c.n));
-    for (let i = candidatos.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [candidatos[i], candidatos[j]] = [candidatos[j], candidatos[i]];
-    }
+    const candidatos = baralhar(FISICO_BASE.filter(c => !jaNomes.has(c.n)));
     candidatos.slice(0, faltam).forEach(c => cardsGerados.push({...c, fraqueza: null}));
   }
   if (!blocosPresentes.has('Decisão') && !blocosPresentes.has('Mental')) {
@@ -662,6 +681,7 @@ function prescreverTreino(r) {
   }
   if (!blocosPresentes.has('Técnica') && !blocosPresentes.has('Passe')) {
     cardsGerados.push({n:'Domínio + Passe',d:'Recepção orientada + passe à parede. Manutenção técnica',m:'Qualidade',t:'Técnica'});
+  }
   }
 
   const grupos = {};
@@ -689,7 +709,19 @@ function prescreverTreino(r) {
   let html = '<div class="treino-intro">' +
     '<div style="font-size:11px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:6px">📅 Plano 30 dias · 3 sessões/semana</div>' +
     `<div style="font-size:12px;color:var(--slate);line-height:1.55;margin-bottom:8px">${fraquezasUsadas.length ? 'Foco: <strong style="color:#fff">'+fraquezasUsadas.slice(0,3).join(', ')+'</strong>.' : 'Plano de manutenção.'} Resultados em 4-6 semanas com consistência.</div>` +
-    '<div style="font-size:10px;color:var(--muted);line-height:1.5">⏱ Sessão tipo: 5min aquecimento · 15min técnica · 15min físico/intensidade · 10min decisão · 5min cooldown</div>' +
+    '<div style="font-size:10px;font-weight:800;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:5px">Dirigir o plano</div>' +
+    '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">' +
+      [['auto','Automático'],['fisico','Físico'],['tecnica','Técnica individual'],['tatico','Tático / decisão']].map(function(x){
+        var ativo = (foco === x[0]);
+        return '<button onclick="prescreverTreino(window.__ultimaAvaliacaoPrescricao,\''+x[0]+'\')" style="font-family:inherit;font-size:11px;font-weight:800;letter-spacing:.5px;padding:6px 12px;cursor:pointer;text-transform:uppercase;'+
+          (ativo ? 'background:var(--text);color:var(--bg);border:1px solid var(--text)'
+                 : 'background:transparent;color:var(--slate);border:1px solid var(--border2)') +
+          '">'+x[1]+'</button>';
+      }).join('') +
+    '</div>' +
+    (foco === 'auto'
+      ? '<div style="font-size:10px;color:var(--muted);line-height:1.5">⏱ Sessão tipo: 5min aquecimento · 15min técnica · 15min físico/intensidade · 10min decisão · 5min cooldown</div>'
+      : '<div style="font-size:10px;color:var(--muted);line-height:1.5">⏱ Plano dirigido pelo treinador: maioria em <strong style="color:var(--text)">'+DOMINIOS[foco].rotulo+'</strong>, com manutenção das fraquezas avaliadas.</div>') +
     '</div>';
 
   let counter = 0;
