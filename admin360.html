@@ -739,11 +739,11 @@ function renderPorTreinador(){
     return { email, nome, n: atletas.length, ehAdminConta };
   }).sort((x, y) => (y.ehAdminConta - x.ehAdminConta) || x.nome.localeCompare(y.nome));
 
-  grid.innerHTML = cartoes.map(c => `<button onclick="abrirAtletasDoTreinador('${escapeHtml(c.email)}')" style="text-align:left;cursor:pointer;background:var(--bg2,var(--bg2));border:1px solid ${c.ehAdminConta ? 'var(--gold-border,rgba(212,175,55,.32))' : 'var(--border2,var(--border2))'};border-radius:10px;padding:14px;color:inherit;font-family:inherit">
-      <div style="font-size:22px;margin-bottom:6px">${c.ehAdminConta ? '⭐' : '📁'}</div>
-      <div style="font-weight:800;font-size:14px">${escapeHtml(c.nome)}${c.ehAdminConta ? ' <span style="font-size:10px;color:var(--gold,var(--gold));font-weight:800">· TU (ADMIN)</span>' : ''}</div>
-      <div style="font-size:11px;color:var(--muted,var(--muted));margin-top:3px">${escapeHtml(c.email)}</div>
-      <div style="font-size:12px;margin-top:8px;color:var(--gold,var(--gold));font-weight:700">${c.n} ${c.n===1?'atleta':'atletas'} →</div>
+  grid.innerHTML = cartoes.map(c => `<button onclick="abrirAtletasDoTreinador('${escapeHtml(c.email)}')" style="text-align:left;cursor:pointer;background:var(--bg2,#0F1410);border:1px solid ${c.ehAdminConta ? 'var(--blue,#5AA9E6)' : 'var(--border2,#2A322B)'};border-radius:10px;padding:14px;color:inherit;font-family:inherit">
+      <div style="font-size:22px;margin-bottom:6px">📁</div>
+      <div style="font-weight:800;font-size:14px">${escapeHtml(c.nome)}${c.ehAdminConta ? ' <span style="font-size:10px;color:var(--blue,#5AA9E6);font-weight:800">· TU (ADMIN)</span>' : ''}</div>
+      <div style="font-size:11px;color:var(--muted,#6B756C);margin-top:3px">${escapeHtml(c.email)}</div>
+      <div style="font-size:12px;margin-top:8px;color:var(--gold,#D4AF37);font-weight:700">${c.n} ${c.n===1?'atleta':'atletas'} →</div>
     </button>`).join('');
 }
 function abrirAtletasDoTreinador(email){
