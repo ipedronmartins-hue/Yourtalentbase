@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Relatório de Progresso · YourTalentBase</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/assets/js/ytb-config.js"></script>
+<style>
+/* ═══ Documento print-first: A4 branco. O dourado só aparece nos MARCOS (reserva constitucional). ═══ */
+:root{--gold:#B8912A;--ink:#14181A;--ink2:#3C4448;--mut:#707B7E;--line:#DDE2E3;--bg:#F4F5F4;--ok:#1E7D4E}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--ink);font-size:13px;line-height:1.55}
+.folha{max-width:760px;margin:24px auto;background:#fff;padding:44px 48px;box-shadow:0 2px 16px rgba(0,0,0,.08)}
+h1,h2,.marca{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.5px}
+.cabeca{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid var(--ink);padding-bottom:14px;margin-bottom:22px}
+.marca{font-size:20px;font-weight:800}
+.marca small{display:block;font-size:10px;font-weight:600;color:var(--mut);letter-spacing:1.5px;margin-top:2px}
+.mes-tag{text-align:right;font-size:11px;color:var(--mut)}
+.mes-tag b{display:block;font-family:'Barlow Condensed',sans-serif;font-size:17px;color:var(--ink);letter-spacing:.5px}
+h1{font-size:27px;font-weight:800;line-height:1.1}
+.sub{color:var(--ink2);font-size:12px;margin-top:4px;margin-bottom:22px}
+h2{font-size:13px;font-weight:800;letter-spacing:1.5px;color:var(--ink2);border-bottom:1px solid var(--line);padding-bottom:5px;margin:24px 0 12px}
+.grelha{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.kpi{border:1px solid var(--line);padding:10px 12px}
+.kpi b{display:block;font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:800}
+.kpi span{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px}
+.aval{border:1px solid var(--line);border-left:3px solid var(--ink);padding:11px 14px;margin-bottom:9px}
+.aval .quem{font-size:11px;color:var(--mut);margin-bottom:6px}
+.aval .dims{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;margin-bottom:5px}
+.aval .dims b{font-weight:700}
+.aval .obs{font-size:12px;color:var(--ink2);font-style:italic}
+.marco{display:flex;gap:9px;align-items:baseline;padding:5px 0;border-bottom:1px dotted var(--line);font-size:12.5px}
+.marco:last-child{border-bottom:none}
+.marco .d{color:var(--gold);font-weight:800;font-family:'Barlow Condensed',sans-serif;min-width:52px;font-size:12px}
+.marco .o{font-size:10px;color:var(--mut);margin-left:auto;white-space:nowrap}
+.nota-metodo{font-size:10.5px;color:var(--mut);margin-top:7px;line-height:1.5}
+.vazio{color:var(--mut);font-size:12px;font-style:italic;padding:6px 0}
+.rodape{margin-top:28px;border-top:2px solid var(--ink);padding-top:12px;display:flex;justify-content:space-between;align-items:flex-end;gap:16px}
+.prova{font-size:10.5px;color:var(--ink2);line-height:1.6}
+.prova b{font-weight:800}
+.powered{font-size:10px;color:var(--mut);text-align:right;line-height:1.5}
+.powered b{font-family:'Barlow Condensed',sans-serif;font-size:12px;color:var(--ink);letter-spacing:1px}
+.barra-acao{max-width:760px;margin:0 auto 8px;display:flex;justify-content:flex-end;gap:8px;padding:12px 0 0}
+.btn{font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:700;padding:9px 18px;border:1px solid var(--ink);background:var(--ink);color:#fff;cursor:pointer}
+.btn.ghost{background:#fff;color:var(--ink)}
+#estado-carga{max-width:760px;margin:40px auto;text-align:center;color:var(--mut)}
+@media print{
+  body{background:#fff}
+  .folha{box-shadow:none;margin:0;max-width:none;padding:10mm 12mm}
+  .barra-acao{display:none!important}
+  @page{size:A4;margin:8mm}
+}
+@media(max-width:640px){.folha{padding:24px 18px;margin:8px}.grelha{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+
+<div id="estado-carga">A preparar o relatório…</div>
+
+<div class="barra-acao" id="acoes" style="display:none">
+  <button class="btn ghost" onclick="history.back()">← Voltar</button>
+  <button class="btn" onclick="window.print()">Imprimir / Guardar PDF</button>
+</div>
+
+<div class="folha" id="folha" style="display:none">
+  <div class="cabeca">
+    <div class="marca" id="marca-org">YourTalentBase<small>PASSAPORTE DO ATLETA</small></div>
+    <div class="mes-tag">Relatório de Progresso<b id="mes-nome">—</b></div>
+  </div>
+
+  <h1 id="a-nome">—</h1>
+  <div class="sub" id="a-sub">—</div>
+
+  <h2>O que fez este mês</h2>
+  <div class="grelha">
+    <div class="kpi"><b id="k-exec">0</b><span>Treinos feitos</span></div>
+    <div class="kpi"><b id="k-presc">0</b><span>Do plano do treinador</span></div>
+    <div class="kpi"><b id="k-sem">0</b><span>Semanas ativas</span></div>
+    <div class="kpi"><b id="k-plan">0</b><span>Prescritos no mês</span></div>
+  </div>
+  <div class="nota-metodo">Atividade registada pela família na plataforma — mostra o compromisso do atleta entre treinos.</div>
+
+  <h2>O que o treinador viu</h2>
+  <div id="bloco-aval"></div>
+
+  <h2>O que mudou</h2>
+  <div id="bloco-bio" class="grelha" style="grid-template-columns:repeat(3,1fr)"></div>
+
+  <h2>Marcos do mês</h2>
+  <div id="bloco-marcos"></div>
+
+  <div class="rodape">
+    <div class="prova" id="prova">—</div>
+    <div class="powered"><b>YOURTALENTBASE</b>O registo pertence ao atleta<br>e acompanha-o onde for.</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var CFG=window.YTB_CONFIG||{};
+  var URL_=CFG.SUPABASE_URL||'', KEY=CFG.SUPABASE_KEY||'';
+  var USING_SB=!!(URL_&&KEY&&window.supabase);
+  var q=new URLSearchParams(location.search);
+  var atleta=q.get('atleta')||q.get('admin');
+  // sessão: família vive em 'ytb-familia-auth'; admin em 'ytb-auth' (mesma convenção do passaporte.html)
+  var _sk = q.get('admin') ? 'ytb-auth' : 'ytb-familia-auth';
+  var supa=USING_SB?window.supabase.createClient(URL_,KEY,{auth:{persistSession:true,autoRefreshToken:true,storageKey:_sk}}):null;
+
+  var MESES=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  var hoje=new Date();
+  var ano=parseInt(q.get('ano'),10)||hoje.getFullYear();
+  var mes=parseInt(q.get('mes'),10)||(hoje.getMonth()+1);
+
+  function esc(s){var d=document.createElement('div');d.textContent=s==null?'':String(s);return d.innerHTML;}
+  function falha(msg){document.getElementById('estado-carga').textContent=msg;}
+
+  if(!supa){ falha('Plataforma indisponível. Tenta novamente mais tarde.'); return; }
+  if(!atleta){ falha('Relatório sem atleta indicado. Abre-o a partir do passaporte.'); return; }
+
+  supa.rpc('ytb_relatorio_mensal',{p_atleta:atleta,p_ano:ano,p_mes:mes}).then(function(res){
+    var d=res&&res.data;
+    if(!d||d.ok===false){ falha('Sem acesso a este relatório. Confirma que tens sessão iniciada.'); return; }
+    render(d);
+  }).catch(function(){ falha('Sem ligação. Tenta novamente.'); });
+
+  function render(d){
+    document.getElementById('estado-carga').style.display='none';
+    document.getElementById('acoes').style.display='flex';
+    document.getElementById('folha').style.display='block';
+
+    var idn=d.identidade||{};
+    document.getElementById('mes-nome').textContent=(MESES[(d.periodo.mes-1)]||'')+' '+d.periodo.ano;
+    document.getElementById('a-nome').textContent=idn.nome||'—';
+    document.getElementById('a-sub').textContent=[idn.escalao,idn.posicao,idn.clube,idn.epoca_ref?('época '+idn.epoca_ref):null].filter(Boolean).join(' · ');
+    // marca da academia/clube no cabeçalho (white-label leve; a YTB fica no rodapé)
+    if(idn.clube){ document.getElementById('marca-org').innerHTML=esc(idn.clube)+'<small>RELATÓRIO DE PROGRESSO</small>'; }
+
+    var at=d.atividade||{};
+    document.getElementById('k-exec').textContent=at.execucoes||0;
+    document.getElementById('k-presc').textContent=at.das_quais_prescritas||0;
+    document.getElementById('k-sem').textContent=at.semanas_ativas||0;
+    document.getElementById('k-plan').textContent=at.prescritos_no_mes||0;
+
+    var bl=document.getElementById('bloco-aval');
+    var avs=d.avaliacoes||[];
+    if(!avs.length){
+      bl.innerHTML='<div class="vazio">Sem avaliações de treinador registadas neste mês.</div>';
+    } else {
+      bl.innerHTML=avs.map(function(a){
+        var dims=[['Impacto',a.impacto],['Compromisso',a.compromisso],['Treinabilidade',a.treinabilidade],['Competitividade',a.competitividade]]
+          .filter(function(x){return x[1];})
+          .map(function(x){return x[0]+': <b>'+esc(x[1])+'</b>';}).join(' · ');
+        return '<div class="aval">'
+          +'<div class="quem">'+esc(a.em||'')+(a.por?(' · avaliado por '+esc(a.por)):'')+(a.contexto?(' · '+esc(a.contexto)):'')+'</div>'
+          +(dims?('<div class="dims">'+dims+'</div>'):'')
+          +(a.observacao?('<div class="obs">“'+esc(a.observacao)+'”</div>'):'')
+          +'</div>';
+      }).join('');
+    }
+
+    var bio=d.biometria||{}, ba=bio.atual, bp=bio.anterior, bioEl=document.getElementById('bloco-bio');
+    if(!ba){ bioEl.innerHTML='<div class="vazio" style="grid-column:1/-1">Sem medições registadas.</div>'; }
+    else {
+      function delta(n,o,un){ if(o==null||n==null||n===o) return ''; var v=(n-o); return ' <span style="color:var(--ok);font-size:12px;font-weight:700">'+(v>0?'+':'')+(Math.round(v*10)/10)+un+'</span>'; }
+      bioEl.innerHTML=
+        '<div class="kpi"><b>'+esc(ba.altura_cm)+' cm'+(bp?delta(ba.altura_cm,bp.altura_cm,'cm'):'')+'</b><span>Altura</span></div>'
+       +'<div class="kpi"><b>'+esc(ba.peso_kg)+' kg'+(bp?delta(ba.peso_kg,bp.peso_kg,'kg'):'')+'</b><span>Peso</span></div>'
+       +'<div class="kpi"><b>'+esc(ba.em||'')+'</b><span>Última medição</span></div>';
+    }
+
+    var mk=document.getElementById('bloco-marcos'), marcos=d.marcos||[];
+    if(!marcos.length){ mk.innerHTML='<div class="vazio">Sem marcos novos este mês.</div>'; }
+    else {
+      mk.innerHTML=marcos.map(function(m){
+        var dt=(m.em||'').slice(8,10)+'/'+(m.em||'').slice(5,7);
+        var origem=m.origem==='observado'?'observado':(m.origem==='sistema'?'sistema':'declarado pela família');
+        return '<div class="marco"><span class="d">'+esc(dt)+'</span><span>'+esc(m.titulo)+'</span><span class="o">'+esc(origem)+'</span></div>';
+      }).join('');
+    }
+
+    var pv=d.proveniencia||{};
+    document.getElementById('prova').innerHTML=
+      'Este relatório foi gerado do registo do atleta: <b>'+(pv.eventos_no_mes||0)+' factos este mês</b>, '
+      +'<b>'+(pv.eventos_total||0)+' desde '+esc(pv.primeiro_registo||'—')+'</b>'
+      +(pv.observadores_distintos?(', com <b>'+pv.observadores_distintos+' observador'+(pv.observadores_distintos===1?'':'es')+'</b> distintos'):'')
+      +'. Cada facto tem data e fonte — nada é escrito para trás.';
+
+    document.title='Relatório '+(idn.nome||'')+' · '+(MESES[(d.periodo.mes-1)]||'')+' '+d.periodo.ano;
+  }
+})();
+</script>
+</body>
+</html>
