@@ -1,0 +1,12 @@
+-- 048: FECHO DA FUGA RGPD sinalizada ha semanas — maturacao (dado de categoria
+-- especial de menor) era servida por _ytb_passaporte_json a TODOS os rostos
+-- (clube, scout, treinador incluidos). A partir daqui, so encarregado e admin
+-- a recebem (parametro v_incluir_sensiveis, default false; apenas
+-- ytb_passaporte_email e ytb_passaporte_admin passam true). O uso interno
+-- (teto de intensidade na prescricao) continua server-side, sem exposicao.
+-- Assinatura mudou, logo DROP + CREATE (OR REPLACE criaria sobrecarga paralela
+-- e os callers de 1 argumento continuariam a resolver para a versao antiga).
+-- Testes de isolamento correram em transacao antes de aplicar:
+--   familia_ve=true, via_limitada_nao_ve=true.
+-- Definicao completa aplicada em producao nesta data; ver historico do Supabase
+-- (list_migrations: 048_maturacao_so_familia_admin) para o corpo integral.

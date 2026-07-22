@@ -67,4 +67,11 @@ Construir o registo longitudinal, verificado e multi-observador do desenvolvimen
 
 **Protocolo de validação constitucional:** antes de qualquer funcionalidade nova — (1) verificar contra "O que nunca fazemos"; (2) verificar a Regra de Ouro (há círculos abertos?); (3) verificar a fase (pertence ao mandato atual?); (4) em conflito: parar, explicar, propor alternativa. Só depois, código.
 
+
+## EMENDAS
+
+**Emenda I — Princípio do Núcleo Imutável** *(22 jul 2026 · ratificada pelo fundador · motivo: definição da arquitetura de metodologias por academia, após conselho adversarial a três — fundador, Claude, ChatGPT)*
+O vocabulário nuclear do passaporte — competências, eventos, escalas e o seu significado — é único, universal e semanticamente imutável. Entidades (academias, clubes) podem construir camadas de interpretação sobre ele: agrupar, ponderar, priorizar, ocultar e renomear *para exibição própria* — nunca redefinir o significado, nem criar competências fora do núcleo. Todo o dado escreve sempre na língua do núcleo. É esta separação que garante que o Princípio nº1 (o registo pertence à criança e viaja com ela) sobrevive à personalização por entidade.
+Regra operacional associada, válida para qualquer piloto: zero alterações estruturais de produto durante a preparação e execução; correções de segurança, privacidade e conformidade entram imediatamente — segurança de menores não é backlog, é pré-condição de existência.
+
 *Emendas a esta Constituição exigem decisão explícita do fundador, registada neste ficheiro com data e motivo.*
