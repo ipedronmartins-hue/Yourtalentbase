@@ -696,10 +696,32 @@ function renderAvaliar(){
       }).join('')
       +'</div></div>';
   });
+  html+='<div style="font-size:9px;font-weight:800;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin:14px 0 6px">Dirigir o plano gerado</div>';
+  html+='<div id="av-foco-chips" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">'+avFocoChipsHTML()+'</div>';
   html+='<button class="btn btn-primary" onclick="gerarAvaliacao()">Concluir avaliação e gerar treino →</button>';
   html+='<div id="aval-result"></div>';
   area.innerHTML=html;
   montarJornadaTreinador();
+}
+/* Foco do plano escolhido pelo treinador: 'auto' segue as debilidades avaliadas;
+   um foco explícito faz a maioria dos exercícios vir desse domínio (a escolha do
+   profissional manda sobre o automatismo). Escolhe-se ANTES de concluir, porque
+   concluir grava o plano e envia o convite à família. */
+let avFoco='auto';
+const AV_FOCOS=[['auto','Automático'],['fisico','Físico'],['tecnica','Técnica individual'],['tatico','Tático / decisão']];
+function avFocoChipsHTML(){
+  return AV_FOCOS.map(function(x){
+    var on=(avFoco===x[0]);
+    return '<button type="button" onclick="avFocoSet(\''+x[0]+'\')" style="font-family:inherit;font-size:11px;font-weight:800;letter-spacing:.5px;padding:6px 12px;cursor:pointer;text-transform:uppercase;border-radius:8px;'+
+      (on?'background:var(--text);color:var(--bg);border:1px solid var(--text)'
+         :'background:transparent;color:var(--slate);border:1px solid var(--border2)')+
+      '">'+x[1]+'</button>';
+  }).join('');
+}
+function avFocoSet(f){
+  avFoco=f;
+  const el=document.getElementById('av-foco-chips');
+  if(el) el.innerHTML=avFocoChipsHTML();
 }
 function avTocar(k,n){
   avNivel1[k]=n;
@@ -807,6 +829,7 @@ async function gerarAvaliacao(){
     '<div class="score-big">'+medias.geral.toFixed(1)+'</div><div style="text-align:center;font-size:10px;color:var(--slate);margin-top:4px">/ 5</div>'+
     '<div style="font-size:9px;font-weight:800;letter-spacing:2px;color:var(--red);text-transform:uppercase;margin:16px 0 8px">Debilidades detetadas</div>'+
     debs.map(d=>'<div class="deb-item">⚠️ '+(debLabels[d]||d)+'</div>').join('')+
+    (avFoco!=='auto'?'<div style="font-size:11px;color:var(--slate);margin-top:10px;line-height:1.5">🎯 Plano dirigido por ti: maioria em <strong style="color:var(--text)">'+((AV_FOCOS.find(x=>x[0]===avFoco)||[])[1]||avFoco)+'</strong>, com as debilidades avaliadas em manutenção.</div>':'')+
     (gravado?'':'<div style="background:rgba(255,80,80,.08);border:1px solid rgba(255,80,80,.35);border-radius:9px;padding:10px 12px;margin-top:11px;font-size:11px;line-height:1.5"><strong style="color:var(--red)">⚠ Não ficou gravado</strong> · '+esc(motivoFalha)+'. O plano abaixo é local — volta a concluir a avaliação com sessão ativa.</div>')+
     (linkEstado==='enviado'?'<div style="background:rgba(80,200,120,.08);border:1px solid rgba(80,200,120,.35);border-radius:9px;padding:10px 12px;margin-top:11px;font-size:11px;line-height:1.5"><strong style="color:var(--green)">📧 Convite enviado à família</strong> · '+esc(atletaSel.encarregado_email)+' recebe um link mágico e entra direto neste plano.</div>':'')+
     (linkEstado==='falhou'?'<div style="background:rgba(255,165,0,.08);border:1px solid rgba(255,165,0,.3);border-radius:9px;padding:10px 12px;margin-top:11px;font-size:11px;line-height:1.5"><strong style="color:var(--orange)">⚠ O plano ficou gravado, mas o email à família falhou.</strong> Reenvia com o botão ✉️ na lista de atletas.</div>':'')+
@@ -838,11 +861,20 @@ function gerarPlano(debs, idadeAtleta){
     const intAlvo = Math.min(1 + ci, tetoIdade);
     const sessoes=[];
     for(let s=0;s<2;s++){
-      // pool: exercícios das debilidades que a idade permite
+      // pool: com foco explícito do treinador, a maioria vem do domínio escolhido
+      // (barreira de idade sempre aplicada); sem foco, segue as debilidades.
       let pool=[];
+      if(avFoco && avFoco!=='auto'){
+        const cats = avFoco==='tatico' ? ['tatica','decisao'] : [avFoco];
+        cats.forEach(c=>(EXERCICIOS[c]||[]).forEach(e=>{ if(seguro(e)) pool.push(e); }));
+        // mantém a debilidade avaliada mais relevante fora do foco (minoria, não some do radar)
+        debs.filter(d=>!cats.includes(d)).slice(0,1).forEach(d=>{ (EXERCICIOS[d]||[]).forEach(e=>{ if(seguro(e)) pool.push(e); }); });
+        if(!pool.length){ debs.forEach(d=>{ (EXERCICIOS[d]||[]).forEach(e=>{ if(seguro(e)) pool.push(e); }); }); }
+      } else {
       debs.forEach(d=>{ (EXERCICIOS[d]||[]).forEach(e=>{ if(seguro(e)) pool.push(e); }); });
       // completa sempre com base segura de técnica + físico (garante variedade e volume)
       ['tecnica','fisico'].forEach(c=>EXERCICIOS[c].forEach(e=>{ if(seguro(e)) pool.push(e); }));
+      }
       // preferir exercícios até à intensidade-alvo do ciclo (progressão); se poucos, alarga
       let pref=pool.filter(e=>(e.intensidade||1)<=intAlvo);
       const base=(pref.length>=3?pref:pool);
