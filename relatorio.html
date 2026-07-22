@@ -124,6 +124,7 @@ h2{font-size:13px;font-weight:800;letter-spacing:1.5px;color:var(--ink2);border-
   supa.rpc('ytb_relatorio_mensal',{p_atleta:atleta,p_ano:ano,p_mes:mes}).then(function(res){
     var d=res&&res.data;
     if(!d||d.ok===false){ falha('Sem acesso a este relatório. Confirma que tens sessão iniciada.'); return; }
+    try{ supa.rpc('ytb_registar_acesso',{p_atleta:atleta,p_rosto:'relatorio'}).then(function(){}).catch(function(){}); }catch(e){}
     render(d);
   }).catch(function(){ falha('Sem ligação. Tenta novamente.'); });
 

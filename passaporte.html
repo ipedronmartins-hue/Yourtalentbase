@@ -1135,6 +1135,8 @@
 
   function carregarFamiliaExtras(atletaId){
     window.__famAtleta=atletaId;
+    // telemetria do piloto: regista que a família abriu o passaporte (fire-and-forget)
+    try{ supa.rpc('ytb_registar_acesso',{p_atleta:atletaId,p_rosto:'familia'}).then(function(){}).catch(function(){}); }catch(e){}
     famCSS();
     var app=document.getElementById('app'); if(!app) return;
     // grupos por género de função, inseridos em ordem inversa (cada insertBefore

@@ -1,0 +1,9 @@
+-- 049: Painel de Saude do Piloto + telemetria minima de acesso (ytb_acessos).
+-- Nao e um dashboard de metricas: responde a "a YTB esta a criar habito ou a morrer?"
+-- via os 4 circulos da Regra de Ouro por atleta/semana (treinador alimentou /
+-- familia respondeu / atleta participou / sistema devolveu valor) + alertas.
+-- ytb_registar_acesso so grava sessoes com acesso legitimo ao atleta (RLS-gated
+-- via _ytb_e_encarregado/ytb_is_admin); tabela com RLS deny-by-default, escrita
+-- apenas por RPC. ytb_painel_piloto: admin-only.
+-- Corpo integral aplicado em producao nesta data (ver historico Supabase:
+-- 049_painel_saude_piloto); testado em transacao com dados reais antes de aplicar.
