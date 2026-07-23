@@ -872,6 +872,12 @@
      +'#pp-jornada{margin-top:14px}'
      +'.fam-group{margin-top:44px}'
      +'.fam-group:first-child{margin-top:0}'
+     +'.fam-nav{position:sticky;top:0;z-index:60;display:flex;gap:8px;overflow-x:auto;padding:12px 2px 10px;margin:0 0 8px;background:var(--bg);-webkit-overflow-scrolling:touch;scrollbar-width:none}'
+     +'.fam-nav::-webkit-scrollbar{display:none}'
+     +'.fam-nav button{flex:0 0 auto;font-family:inherit;font-size:12px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;padding:10px 16px;border-radius:999px;border:1px solid var(--border2,#2A322B);background:transparent;color:var(--slate);cursor:pointer;transition:.15s}'
+     +'.fam-nav button.on{background:var(--text);color:var(--bg);border-color:var(--text)}'
+     +'body.fam-por-seccoes .fam-group{display:none}'
+     +'body.fam-por-seccoes .fam-group.fg-on{display:block;margin-top:0}'
      +'.fam-group-head{margin:0 2px 16px}'
      +'.fam-group-head .eyebrow{display:block;margin-bottom:4px}'
      +'.fam-group-head h2{font-family:\'Barlow Condensed\',sans-serif;font-weight:900;font-size:22px;letter-spacing:-.2px;color:var(--text)}'
@@ -1165,6 +1171,8 @@
     montarJornadaPP();
     carregarOQM(atletaId);
     renderFamTools();
+    // navegação por secções: agora e depois (grupos como Privacidade nascem async)
+    famNav(); setTimeout(famNav,700); setTimeout(famNav,2200);
     // trocar de atleta (irmãos ligados ao mesmo email)
     supa.rpc('ytb_meus_atletas',{}).then(function(res){
       var lista=(res&&res.data)||[];
@@ -1176,6 +1184,29 @@
   }
   window.__famExtras=carregarFamiliaExtras;
   window.__famJornada=montarJornadaPP;
+
+  // ── Navegação por secções (padrão CoachBase: chips deslizáveis, uma secção de cada vez) ──
+  var __famSecAtiva=null;
+  function famNav(){
+    var app=document.getElementById('app'); if(!app) return;
+    var grupos=Array.prototype.slice.call(app.querySelectorAll('.fam-group'));
+    if(grupos.length<2) return; // com pouca coisa, o scroll normal chega
+    var nav=document.getElementById('fam-nav');
+    if(!nav){ nav=document.createElement('nav'); nav.id='fam-nav'; nav.className='fam-nav'; app.insertBefore(nav, app.firstChild); }
+    if(!__famSecAtiva || !document.getElementById(__famSecAtiva)) __famSecAtiva=grupos[0].id;
+    nav.innerHTML=grupos.map(function(g){
+      var lbl=(g.querySelector('.eyebrow')||{}).textContent||g.id;
+      return '<button type="button" class="'+(g.id===__famSecAtiva?'on':'')+'" onclick="__famSecMostrar(\''+g.id+'\')">'+esc(lbl)+'</button>';
+    }).join('');
+    document.body.classList.add('fam-por-seccoes');
+    grupos.forEach(function(g){ g.classList.toggle('fg-on', g.id===__famSecAtiva); });
+  }
+  window.__famSecMostrar=function(id){
+    __famSecAtiva=id;
+    famNav();
+    try{ window.scrollTo({top:0,behavior:'smooth'}); }catch(e){ window.scrollTo(0,0); }
+  };
+  window.__famNav=famNav;
 
   function adminBanner(nome){
     var b=document.createElement('div');
@@ -1258,6 +1289,7 @@
           grupo=document.createElement('section'); grupo.id='grupo-privacidade'; grupo.className='fam-group';
           grupo.innerHTML='<div class="fam-group-head"><span class="eyebrow">Privacidade</span><h2>O que é visível</h2></div>';
           app.appendChild(grupo);
+          if(window.__famNav) window.__famNav();
         }
         grupo.appendChild(d);
       } else { document.body.appendChild(d); }
