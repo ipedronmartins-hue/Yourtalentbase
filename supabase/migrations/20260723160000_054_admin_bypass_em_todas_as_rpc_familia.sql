@@ -1,0 +1,11 @@
+-- 054: 6 RPCs de familia nao tinham o bypass "OR ytb_is_admin()" que quase
+-- todas as outras ja tinham (ytb_passaporte_email, ytb_carreira_registar,
+-- ytb_epoca_fechar, ytb_familia_perfil_atual). Pergunta do fundador ("nao
+-- devia ter acesso a todos os atletas no meu familia?") apanhou o buraco:
+-- ytb_meus_atletas so filtrava por encarregado_email, sem bypass -- e mesmo
+-- vendo, nao conseguia editar (perfil/epoca/biometria/privacidade tambem
+-- sem bypass). Corrigido nas 6: ytb_meus_atletas,
+-- ytb_familia_perfil_atualizar, ytb_familia_epoca_registar,
+-- ytb_biometria_registar, ytb_consentir_ambito.
+-- Corpo integral no historico Supabase (054_admin_bypass_em_todas_as_rpc_familia).
+-- Confirmado em producao apos aplicar: admin ve 7/7 atletas (antes via 2/7).
