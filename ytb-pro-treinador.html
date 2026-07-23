@@ -663,7 +663,7 @@ async function submeterInscricao(){
   const nasc=new Date(nascStr+'T00:00:00');
   const ano=nasc.getFullYear(), mes=nasc.getMonth()+1, dia=nasc.getDate();
   if(!/zerozero\.pt\/\S/i.test(zz)){err.style.display='block';err.textContent='Página ZeroZero obrigatória (verificação de identidade)';return;}
-  if(!emailEnc||emailEnc.indexOf('@')<1){err.style.display='block';err.textContent='Email do encarregado obrigatório';return;}
+  if(!emailEnc || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailEnc)){err.style.display='block';err.textContent='Email do encarregado inválido — confirma que está completo (ex: nome@gmail.com)';return;}
   err.style.display='none';
   const btn=document.getElementById('insc-btn');btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;
   if(!USING_SB){showToast('Demo: inscrição não gravada');fecharInscricao();btn.innerHTML='Inscrever →';btn.disabled=false;return;}

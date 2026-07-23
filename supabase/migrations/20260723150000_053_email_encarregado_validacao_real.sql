@@ -1,0 +1,6 @@
+-- 053: ytb_treinador_inscrever validava email so com "contem um @" — deixava
+-- passar "nunoteles@" e "nuno@gmial" (sem TLD). Regex real: texto@dominio.tld.
+-- Motivado por caso real do piloto (Nuno Teles inscreveu atleta com email
+-- invalido, admin teve de apagar manualmente). Corpo integral no historico
+-- Supabase (053_email_encarregado_validacao_real). Testado: bloqueia
+-- 'nunoteles@' e 'nuno@gmial', aceita 'pai@gmail.com'.
