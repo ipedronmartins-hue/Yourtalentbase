@@ -715,6 +715,9 @@ function renderAvaliar(){
       }).join('')
       +'</div></div>';
   });
+  html+='<div style="font-size:9px;font-weight:800;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin:14px 0 6px">Período</div>';
+  html+='<div id="av-periodo-chips" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px">'+avPeriodoChipsHTML()+'</div>';
+  html+='<div style="font-size:10px;color:var(--muted);line-height:1.5;margin-bottom:12px">Época: missão caseira curta (3 exercícios, ~12min). Pré-época: sessão a sério (5-6 exercícios, sem corte de tempo) — para quem já treina como um Sub-17.</div>';
   html+='<div style="font-size:9px;font-weight:800;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin:14px 0 6px">Dirigir o plano gerado</div>';
   html+='<div id="av-foco-chips" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">'+avFocoChipsHTML()+'</div>';
   html+='<button class="btn btn-primary" onclick="gerarAvaliacao()">Concluir avaliação e gerar treino →</button>';
@@ -831,6 +834,25 @@ FORMATO DA RESPOSTA:
     if(out) out.textContent='⚠ Não foi possível gerar: '+((e&&e.message)||'erro');
   }
   if(btn){ btn.disabled=false; btn.textContent='🧠 Gerar avaliação contextual (IA)'; }
+}
+/* Período do treino: 'epoca' (missão caseira curta, ~12min, o formato de sempre)
+   vs 'pre-epoca' (sessão mais longa e densa — pedido real do Mister Nuno para um
+   Sub-17 em pré-época: 5-6 exercícios em vez de 3, sem cortar aos 12min). */
+let avPeriodo='epoca';
+const AV_PERIODOS=[['epoca','Época'],['pre-epoca','Pré-época']];
+function avPeriodoChipsHTML(){
+  return AV_PERIODOS.map(function(x){
+    var on=(avPeriodo===x[0]);
+    return '<button type="button" onclick="avPeriodoSet(\''+x[0]+'\')" style="font-family:inherit;font-size:12px;font-weight:800;letter-spacing:.5px;padding:14px 10px;cursor:pointer;text-transform:uppercase;border-radius:10px;width:100%;text-align:center;line-height:1.2;'+
+      (on?'background:var(--text);color:var(--bg);border:1px solid var(--text)'
+         :'background:transparent;color:var(--slate);border:1px solid var(--border2)')+
+      '">'+x[1]+'</button>';
+  }).join('');
+}
+function avPeriodoSet(p){
+  avPeriodo=p;
+  const el=document.getElementById('av-periodo-chips');
+  if(el) el.innerHTML=avPeriodoChipsHTML();
 }
 /* Foco do plano escolhido pelo treinador: 'auto' segue as debilidades avaliadas;
    um foco explícito faz a maioria dos exercícios vir desse domínio (a escolha do
@@ -959,6 +981,7 @@ async function gerarAvaliacao(){
     '<div style="font-size:9px;font-weight:800;letter-spacing:2px;color:var(--red);text-transform:uppercase;margin:16px 0 8px">Debilidades detetadas</div>'+
     debs.map(d=>'<div class="deb-item">⚠️ '+(debLabels[d]||d)+'</div>').join('')+
     (avFoco!=='auto'?'<div style="font-size:11px;color:var(--slate);margin-top:10px;line-height:1.5">🎯 Plano dirigido por ti: maioria em <strong style="color:var(--text)">'+((AV_FOCOS.find(x=>x[0]===avFoco)||[])[1]||avFoco)+'</strong>, com as debilidades avaliadas em manutenção.</div>':'')+
+    (avPeriodo==='pre-epoca'?'<div style="font-size:11px;color:var(--slate);margin-top:6px;line-height:1.5">🏋️ Pré-época: sessões mais densas, 5-6 exercícios cada, sem corte de tempo.</div>':'')+
     (gravado?'':'<div style="background:rgba(255,80,80,.08);border:1px solid rgba(255,80,80,.35);border-radius:9px;padding:10px 12px;margin-top:11px;font-size:11px;line-height:1.5"><strong style="color:var(--red)">⚠ Não ficou gravado</strong> · '+esc(motivoFalha)+'. O plano abaixo é local — volta a concluir a avaliação com sessão ativa.</div>')+
     (linkEstado==='enviado'?'<div style="background:rgba(80,200,120,.08);border:1px solid rgba(80,200,120,.35);border-radius:9px;padding:10px 12px;margin-top:11px;font-size:11px;line-height:1.5"><strong style="color:var(--green)">📧 Convite enviado à família</strong> · '+esc(atletaSel.encarregado_email)+' recebe um link mágico e entra direto neste plano.</div>':'')+
     (linkEstado==='falhou'?'<div style="background:rgba(255,165,0,.08);border:1px solid rgba(255,165,0,.3);border-radius:9px;padding:10px 12px;margin-top:11px;font-size:11px;line-height:1.5"><strong style="color:var(--orange)">⚠ O plano ficou gravado, mas o email à família falhou.</strong> Reenvia com o botão ✉️ na lista de atletas.</div>':'')+
@@ -1007,14 +1030,17 @@ function gerarPlano(debs, idadeAtleta){
       // preferir exercícios até à intensidade-alvo do ciclo (progressão); se poucos, alarga
       let pref=pool.filter(e=>(e.intensidade||1)<=intAlvo);
       const base=(pref.length>=3?pref:pool);
+      const ehPreEpoca = (avPeriodo==='pre-epoca');
+      const alvoExerc = ehPreEpoca ? 6 : 3;
+      const tetoMinutos = ehPreEpoca ? 999 : 12; // pré-época: sessão de treino a sério, sem corte por tempo
       const sessao=[];const usados=new Set();let g=0;
-      while(sessao.length<3 && base.length && g<200){
+      while(sessao.length<alvoExerc && base.length && g<200){
         g++;
-        const ex=base[(s*3+sessao.length+ci*2+g-1)%base.length];
+        const ex=base[(s*alvoExerc+sessao.length+ci*2+g-1)%base.length];
         if(!usados.has(ex.id)){ sessao.push(ex); usados.add(ex.id); }
         if(usados.size>=base.length) break;
-        // missão curta: para com 2 exercícios se já leva >= 12 min
-        if(sessao.length>=2 && sessao.reduce((a,e)=>a+(e.tempo||0),0)>=12) break;
+        // missão curta (só em época): para com 2 exercícios se já leva >= 12 min
+        if(!ehPreEpoca && sessao.length>=2 && sessao.reduce((a,e)=>a+(e.tempo||0),0)>=tetoMinutos) break;
       }
       sessoes.push(sessao);
     }
@@ -1045,14 +1071,22 @@ function semanaParaHTML(sem, wi, comExport){
 }
 function renderTreino(){
   const c=document.getElementById('treino-area');
-  if(!avalSel||!avalSel.plano){
-    c.innerHTML='<div class="empty-state"><div class="empty-emoji">⚽</div>Faz uma avaliação primeiro para gerar o treino.</div>';
+  if(!atletaSel){
+    c.innerHTML='<div class="empty-state"><div class="empty-emoji">⚽</div>Seleciona um atleta primeiro.</div>';
     return;
   }
-  var idadePlano=idadeDoAtleta(atletaSel);
-  let html='<div class="dash-card"><div class="dash-card-eyebrow">Plano para '+esc(avalSel.nome)+' · 4 semanas</div>'+
-    '<div style="font-size:12px;color:var(--slate);line-height:1.5">Treino caseiro focado nas debilidades, <strong>adaptado à idade</strong>'+(idadePlano?(' ('+idadePlano+' anos)'):'')+' — a intensidade sobe ao longo das semanas e os exercícios de impacto só entram na idade certa. Cada sessão ~20-25 min.</div></div>';
-  avalSel.plano.forEach((sem,wi)=>{ html+=semanaParaHTML(sem,wi,true); });
+  let html='';
+  if(avalSel && avalSel.plano){
+    var idadePlano=idadeDoAtleta(atletaSel);
+    html+='<div class="dash-card"><div class="dash-card-eyebrow">Plano para '+esc(avalSel.nome)+' · 4 semanas</div>'+
+      '<div style="font-size:12px;color:var(--slate);line-height:1.5">Treino caseiro focado nas debilidades, <strong>adaptado à idade</strong>'+(idadePlano?(' ('+idadePlano+' anos)'):'')+' — a intensidade sobe ao longo das semanas e os exercícios de impacto só entram na idade certa. Cada sessão ~20-25 min.</div></div>';
+    avalSel.plano.forEach((sem,wi)=>{ html+=semanaParaHTML(sem,wi,true); });
+  } else {
+    html+='<div class="dash-card"><div class="dash-card-eyebrow">Plano de '+esc(atletaSel.primeiro_nome||atletaSel.nome)+'</div>'+
+      '<div style="font-size:12px;color:var(--slate);line-height:1.5">Ainda não avaliaste nesta sessão — mas o histórico de prescrições anteriores está todo aqui em baixo, guardado desde a primeira avaliação.</div></div>';
+  }
+  // histórico: sempre visível, independente de teres acabado de avaliar agora — já vive
+  // gravado na base de dados (ytb_treinador_avaliar grava em treinador_treinos com data).
   html+='<div class="dash-card" id="hist-treinos"><div class="dash-card-eyebrow">📜 Histórico de treinos prescritos</div><div style="font-size:11px;color:var(--slate)">A carregar…</div></div>';
   c.innerHTML=html;
   if(window.YTBExAnim)YTBExAnim.mountAll(c); // bonequinhos a demonstrar cada exercício
@@ -1066,7 +1100,10 @@ async function carregarHistoricoTreinos(){
     const{data,error}=await supa.rpc('ytb_treinador_treinos_historico',{p_atleta:atletaSel.id});
     if(error)throw error;
     const lista=data||[];
-    if(!lista.length){ box.innerHTML='<div class="dash-card-eyebrow">📜 Histórico de treinos prescritos</div><div style="font-size:11px;color:var(--slate)">Ainda só há este plano — sem prescrições anteriores.</div>'; return; }
+    if(!lista.length){
+      var msgVazio = (avalSel&&avalSel.plano) ? 'Ainda só há este plano — sem prescrições anteriores.' : 'Ainda não há nenhum treino prescrito para este atleta.';
+      box.innerHTML='<div class="dash-card-eyebrow">📜 Histórico de treinos prescritos</div><div style="font-size:11px;color:var(--slate)">'+msgVazio+'</div>'; return;
+    }
     let h='<div class="dash-card-eyebrow">📜 Histórico de treinos prescritos <span style="color:var(--slate);font-weight:400">('+lista.length+')</span></div>';
     lista.forEach((t,i)=>{
       const dt=new Date(t.criado_em).toLocaleDateString('pt-PT',{day:'2-digit',month:'short',year:'numeric'});
