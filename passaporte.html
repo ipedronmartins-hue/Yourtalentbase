@@ -877,7 +877,7 @@
      +'.fam-pivo-head::-webkit-scrollbar{display:none}'
      +'.fam-pivo-head button{flex:0 0 auto;font-family:\'Barlow Condensed\',sans-serif;font-weight:900;font-size:30px;line-height:1;letter-spacing:-.3px;color:var(--muted);background:none;border:none;padding:0;cursor:pointer;white-space:nowrap;transition:color .18s}'
      +'.fam-pivo-head button.on{color:var(--text)}'
-     +'#fam-pivot{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;align-items:flex-start}'
+     +'#fam-pivot{display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;align-items:flex-start}'
      +'#fam-pivot::-webkit-scrollbar{display:none}'
      +'body.fam-pivo .fam-group{flex:0 0 100%;min-width:100%;scroll-snap-align:start;scroll-snap-stop:always;margin-top:0;padding:2px 2px 24px}'
      +'body.fam-pivo .fam-group-head{display:none}' /* o título vive no pivot, como no WP8 */
@@ -1189,6 +1189,13 @@
   window.__famJornada=montarJornadaPP;
 
   // ── Pivot estilo Windows Phone 8: deslizar lateralmente entre secções ──
+  var __famPivoIdx=0;
+  function famPivoAltura(){
+    var piv=document.getElementById('fam-pivot'); if(!piv) return;
+    var grupos=piv.querySelectorAll('.fam-group');
+    var g=grupos[__famPivoIdx];
+    if(g) piv.style.height=g.offsetHeight+'px'; // só a secção ativa define a altura da página
+  }
   function famNav(){
     var app=document.getElementById('app'); if(!app) return;
     var head=document.getElementById('fam-pivo-head');
@@ -1198,6 +1205,9 @@
       piv=document.createElement('div'); piv.id='fam-pivot';
       app.insertBefore(piv, app.firstChild);
       app.insertBefore(head, piv);
+      // colar por BAIXO do header sticky do site, não por cima dele
+      var topo=document.querySelector('.top');
+      if(topo) head.style.top=topo.offsetHeight+'px';
       // dica de deslize (uma vez por sessão)
       try{
         if(!sessionStorage.getItem('ytb-pivo-dica-fam')){
@@ -1219,13 +1229,18 @@
           famPivoMarca(Math.round(piv.scrollLeft/w));
         },80);
       }, {passive:true});
+      // conteúdo que cresce async (listas, cartas) → altura acompanha
+      if(window.ResizeObserver && !piv.__ro){
+        piv.__ro=new ResizeObserver(function(){ famPivoAltura(); });
+      }
     }
     // adotar qualquer .fam-group que ainda viva fora do pivot (ex.: Privacidade, criada async)
     Array.prototype.slice.call(app.querySelectorAll('.fam-group')).forEach(function(g){
       if(g.parentNode!==piv) piv.appendChild(g);
+      if(piv.__ro && !g.__roOn){ piv.__ro.observe(g); g.__roOn=true; }
     });
     var grupos=Array.prototype.slice.call(piv.querySelectorAll('.fam-group'));
-    if(grupos.length<2){ document.body.classList.remove('fam-pivo'); return; }
+    if(grupos.length<2){ document.body.classList.remove('fam-pivo'); piv.style.height=''; return; }
     document.body.classList.add('fam-pivo');
     head.innerHTML=grupos.map(function(g,i){
       var lbl=((g.querySelector('.fam-group-head h2')||{}).textContent)||((g.querySelector('.eyebrow')||{}).textContent)||g.id;
@@ -1234,10 +1249,12 @@
     famPivoMarca(Math.round((piv.scrollLeft||0)/(piv.clientWidth||1)));
   }
   function famPivoMarca(i){
+    __famPivoIdx=Math.max(0,i||0);
     var head=document.getElementById('fam-pivo-head'); if(!head) return;
     var btns=head.querySelectorAll('button');
-    btns.forEach(function(b,k){ b.classList.toggle('on', k===i); });
-    var on=btns[i]; if(on && on.scrollIntoView) try{ on.scrollIntoView({inline:'start',block:'nearest',behavior:'smooth'}); }catch(e){}
+    btns.forEach(function(b,k){ b.classList.toggle('on', k===__famPivoIdx); });
+    var on=btns[__famPivoIdx]; if(on && on.scrollIntoView) try{ on.scrollIntoView({inline:'start',block:'nearest',behavior:'smooth'}); }catch(e){}
+    famPivoAltura();
   }
   window.__famPivoIr=function(i){
     var piv=document.getElementById('fam-pivot'); if(!piv) return;
