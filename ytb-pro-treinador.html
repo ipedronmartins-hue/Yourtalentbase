@@ -457,7 +457,7 @@ function mostrarMain(){
 }
 
 function pintarGlowRetorno(){
-  const t=document.querySelector('.tab[onclick*="retorno"]');
+  const t=document.querySelector('.ytb-pivo-head button[data-i="2"]')||document.querySelector('.tab[onclick*="retorno"]');
   if(!t||!digestCache)return;
   const temNovidades=digestCache.some(d=>(d.execucoes_desde_plano||0)>0&&d.ultima_atividade&&(Date.now()-new Date(d.ultima_atividade).getTime())<7*86400000);
   t.classList.toggle('vivo-glow',temNovidades);
@@ -467,9 +467,11 @@ var TAB_KEYS=['atletas','avaliar','retorno','treino','comissoes'];
 var TAB_ROTULOS=['atletas','avaliar','retorno','objetivo','comissões'];
 var tabIdx=0;
 function setTab(name){
+  var idxAnt=tabIdx;
   tabIdx=Math.max(0, TAB_KEYS.indexOf(name));
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-  var painel=document.getElementById('tab-'+name); if(painel) painel.classList.add('active');
+  var painel=document.getElementById('tab-'+name);
+  if(painel){ painel.classList.add('active'); if(window.YTBPivot&&tabIdx!==idxAnt) YTBPivot.anima(painel, tabIdx>idxAnt?1:-1); }
   // cabeça pivot (WP8): títulos grandes, o ativo aceso, o seguinte espreita
   if(window.YTBPivot){
     var h=document.querySelector('.tabs');
@@ -483,6 +485,7 @@ function setTab(name){
   if(name==='retorno')renderRetorno();
   if(name==='treino')renderTreino();
   if(name==='comissoes')carregarComissoes();
+  if(typeof pintarGlowRetorno==='function'){ try{ pintarGlowRetorno(); }catch(e){} }
   try{ window.scrollTo({top:0,behavior:'smooth'}); }catch(e){}
 }
 // deslize lateral entre secções (ignora tabelas/chips com scroll próprio)
@@ -640,13 +643,7 @@ function selecionarAtleta(id){
   showToast('Atleta selecionado: '+(atletaSel?esc(atletaSel.primeiro_nome||atletaSel.nome):''));
   setTabProgram('avaliar');
 }
-function setTabProgram(name){
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-  document.querySelector('.tab[onclick*="'+name+'"]').classList.add('active');
-  document.getElementById('tab-'+name).classList.add('active');
-  if(name==='avaliar')renderAvaliar();
-}
+function setTabProgram(name){ setTab(name); }
 
 /* INSCRIÇÃO */
 function abrirInscricao(){document.getElementById('inscModal').classList.add('show');}
@@ -783,7 +780,7 @@ async function montarJornadaTreinador(){
   etapas[3].dica=exec?((d.execucoes_desde_plano)+' treinos da família desde o último plano'):'A família ainda não treinou este plano';
   etapas[4].dica=retorno?'Há feedback no tab Retorno':'Feedback e confiança chegam quando a família treinar';
   etapas[5].dica=precisaReav?('Já passaram '+d.dias_desde_avaliacao+' dias — reavalia'):'Reavaliar a cada ~45 dias';
-  etapas[4].click=()=>{const t=document.querySelector('.tab[onclick*="retorno"]');if(t)t.click();};
+  etapas[4].click=()=>{ setTab('retorno'); };
   YTBVivo.jornada(mount,etapas,{aria:'Jornada de '+(atletaSel.primeiro_nome||atletaSel.nome)});
 }
 

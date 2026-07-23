@@ -1198,6 +1198,18 @@
       piv=document.createElement('div'); piv.id='fam-pivot';
       app.insertBefore(piv, app.firstChild);
       app.insertBefore(head, piv);
+      // dica de deslize (uma vez por sessão)
+      try{
+        if(!sessionStorage.getItem('ytb-pivo-dica-fam')){
+          var dica=document.createElement('div');
+          dica.style.cssText='font-size:11px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase;padding:2px 2px 8px;pointer-events:none';
+          dica.textContent='↔ desliza para os lados para mudar de secção';
+          app.insertBefore(dica, piv);
+          setTimeout(function(){ dica.style.transition='opacity .6s'; dica.style.opacity='0';
+            setTimeout(function(){ if(dica.parentNode) dica.parentNode.removeChild(dica); },700); }, 4000);
+          sessionStorage.setItem('ytb-pivo-dica-fam','1');
+        }
+      }catch(e){}
       // sincronizar o título com o deslize (índice pelo scroll nativo)
       var tm=null;
       piv.addEventListener('scroll', function(){

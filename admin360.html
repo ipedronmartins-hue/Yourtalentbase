@@ -714,8 +714,11 @@ function showZona(zona, ev){
     if(!btn){ btn = Array.from(document.querySelectorAll('.tab')).find(t => (t.getAttribute('onclick')||'').includes("'"+zona+"'")); }
     if(btn) btn.classList.add('active');
   }
+  var ksAnim=['decidir','pessoas','piloto','negocio'];
+  var dirAnim=(typeof __zonaAnterior!=='undefined' && ksAnim.indexOf(zona)<ksAnim.indexOf(__zonaAnterior))?-1:1;
+  window.__zonaAnterior=zona;
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  ids.forEach(id => { const s = document.getElementById('section-'+id); if(s){ garantirTitulo(s, id); s.classList.add('active'); } });
+  ids.forEach(id => { const s = document.getElementById('section-'+id); if(s){ garantirTitulo(s, id); s.classList.add('active'); if(window.YTBPivot) YTBPivot.anima(s, dirAnim); } });
   try{ window.scrollTo({top:0,behavior:'smooth'}); }catch(e){}
 }
 if(window.YTBPivot){
