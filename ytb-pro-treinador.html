@@ -15,6 +15,7 @@
 <link rel="stylesheet" href="/assets/css/ytb-vivo.css">
 <script src="/assets/js/ytb-vivo.js"></script>
 <script src="/assets/js/ytb-config.js"></script>
+<script src="/assets/js/ytb-pivot.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/assets/js/vendor/qrcode.min.js"></script>
 <script src="/assets/js/vendor/html2pdf.bundle.min.js"></script>
@@ -462,15 +463,36 @@ function pintarGlowRetorno(){
   t.classList.toggle('vivo-glow',temNovidades);
 }
 
+var TAB_KEYS=['atletas','avaliar','retorno','treino','comissoes'];
+var TAB_ROTULOS=['atletas','avaliar','retorno','objetivo','comissões'];
+var tabIdx=0;
 function setTab(name){
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  tabIdx=Math.max(0, TAB_KEYS.indexOf(name));
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-  event.target.classList.add('active');
-  document.getElementById('tab-'+name).classList.add('active');
+  var painel=document.getElementById('tab-'+name); if(painel) painel.classList.add('active');
+  // cabeça pivot (WP8): títulos grandes, o ativo aceso, o seguinte espreita
+  if(window.YTBPivot){
+    var h=document.querySelector('.tabs');
+    if(h) YTBPivot.titulos(h, TAB_KEYS.map(function(k,i){ return {rotulo:TAB_ROTULOS[i], ir:function(){ setTab(k); }}; }), tabIdx);
+  } else {
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    var btn=Array.from(document.querySelectorAll('.tab')).find(t=>(t.getAttribute('onclick')||'').includes("'"+name+"'"));
+    if(btn) btn.classList.add('active');
+  }
   if(name==='avaliar')renderAvaliar();
   if(name==='retorno')renderRetorno();
   if(name==='treino')renderTreino();
   if(name==='comissoes')carregarComissoes();
+  try{ window.scrollTo({top:0,behavior:'smooth'}); }catch(e){}
+}
+// deslize lateral entre secções (ignora tabelas/chips com scroll próprio)
+if(window.YTBPivot){
+  YTBPivot.deslize(document.body, function(d){
+    var i=Math.min(TAB_KEYS.length-1, Math.max(0, tabIdx+d));
+    if(i!==tabIdx) setTab(TAB_KEYS[i]);
+  });
+  document.addEventListener('DOMContentLoaded', function(){ setTab('atletas'); });
+  if(document.readyState!=='loading') setTab('atletas');
 }
 
 /* ════════ RETORNO (digest do treinador) ════════ */

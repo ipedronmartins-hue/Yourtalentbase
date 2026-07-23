@@ -872,12 +872,15 @@
      +'#pp-jornada{margin-top:14px}'
      +'.fam-group{margin-top:44px}'
      +'.fam-group:first-child{margin-top:0}'
-     +'.fam-nav{position:sticky;top:0;z-index:60;display:flex;gap:8px;overflow-x:auto;padding:12px 2px 10px;margin:0 0 8px;background:var(--bg);-webkit-overflow-scrolling:touch;scrollbar-width:none}'
-     +'.fam-nav::-webkit-scrollbar{display:none}'
-     +'.fam-nav button{flex:0 0 auto;font-family:inherit;font-size:12px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;padding:10px 16px;border-radius:999px;border:1px solid var(--border2,#2A322B);background:transparent;color:var(--slate);cursor:pointer;transition:.15s}'
-     +'.fam-nav button.on{background:var(--text);color:var(--bg);border-color:var(--text)}'
-     +'body.fam-por-seccoes .fam-group{display:none}'
-     +'body.fam-por-seccoes .fam-group.fg-on{display:block;margin-top:0}'
+     /* ── Pivot estilo Windows Phone 8: títulos grandes, o seguinte espreita; conteúdo desliza ao dedo ── */
+     +'.fam-pivo-head{display:flex;gap:24px;overflow-x:auto;position:sticky;top:0;z-index:60;background:var(--bg);padding:14px 2px 10px;scrollbar-width:none;-webkit-overflow-scrolling:touch}'
+     +'.fam-pivo-head::-webkit-scrollbar{display:none}'
+     +'.fam-pivo-head button{flex:0 0 auto;font-family:\'Barlow Condensed\',sans-serif;font-weight:900;font-size:30px;line-height:1;letter-spacing:-.3px;color:var(--muted);background:none;border:none;padding:0;cursor:pointer;white-space:nowrap;transition:color .18s}'
+     +'.fam-pivo-head button.on{color:var(--text)}'
+     +'#fam-pivot{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;align-items:flex-start}'
+     +'#fam-pivot::-webkit-scrollbar{display:none}'
+     +'body.fam-pivo .fam-group{flex:0 0 100%;min-width:100%;scroll-snap-align:start;scroll-snap-stop:always;margin-top:0;padding:2px 2px 24px}'
+     +'body.fam-pivo .fam-group-head{display:none}' /* o título vive no pivot, como no WP8 */
      +'.fam-group-head{margin:0 2px 16px}'
      +'.fam-group-head .eyebrow{display:block;margin-bottom:4px}'
      +'.fam-group-head h2{font-family:\'Barlow Condensed\',sans-serif;font-weight:900;font-size:22px;letter-spacing:-.2px;color:var(--text)}'
@@ -1185,26 +1188,50 @@
   window.__famExtras=carregarFamiliaExtras;
   window.__famJornada=montarJornadaPP;
 
-  // ── Navegação por secções (padrão CoachBase: chips deslizáveis, uma secção de cada vez) ──
-  var __famSecAtiva=null;
+  // ── Pivot estilo Windows Phone 8: deslizar lateralmente entre secções ──
   function famNav(){
     var app=document.getElementById('app'); if(!app) return;
-    var grupos=Array.prototype.slice.call(app.querySelectorAll('.fam-group'));
-    if(grupos.length<2) return; // com pouca coisa, o scroll normal chega
-    var nav=document.getElementById('fam-nav');
-    if(!nav){ nav=document.createElement('nav'); nav.id='fam-nav'; nav.className='fam-nav'; app.insertBefore(nav, app.firstChild); }
-    if(!__famSecAtiva || !document.getElementById(__famSecAtiva)) __famSecAtiva=grupos[0].id;
-    nav.innerHTML=grupos.map(function(g){
-      var lbl=(g.querySelector('.eyebrow')||{}).textContent||g.id;
-      return '<button type="button" class="'+(g.id===__famSecAtiva?'on':'')+'" onclick="__famSecMostrar(\''+g.id+'\')">'+esc(lbl)+'</button>';
+    var head=document.getElementById('fam-pivo-head');
+    var piv=document.getElementById('fam-pivot');
+    if(!piv){
+      head=document.createElement('nav'); head.id='fam-pivo-head'; head.className='fam-pivo-head';
+      piv=document.createElement('div'); piv.id='fam-pivot';
+      app.insertBefore(piv, app.firstChild);
+      app.insertBefore(head, piv);
+      // sincronizar o título com o deslize (índice pelo scroll nativo)
+      var tm=null;
+      piv.addEventListener('scroll', function(){
+        if(tm) return;
+        tm=setTimeout(function(){ tm=null;
+          var w=piv.clientWidth||1;
+          famPivoMarca(Math.round(piv.scrollLeft/w));
+        },80);
+      }, {passive:true});
+    }
+    // adotar qualquer .fam-group que ainda viva fora do pivot (ex.: Privacidade, criada async)
+    Array.prototype.slice.call(app.querySelectorAll('.fam-group')).forEach(function(g){
+      if(g.parentNode!==piv) piv.appendChild(g);
+    });
+    var grupos=Array.prototype.slice.call(piv.querySelectorAll('.fam-group'));
+    if(grupos.length<2){ document.body.classList.remove('fam-pivo'); return; }
+    document.body.classList.add('fam-pivo');
+    head.innerHTML=grupos.map(function(g,i){
+      var lbl=((g.querySelector('.fam-group-head h2')||{}).textContent)||((g.querySelector('.eyebrow')||{}).textContent)||g.id;
+      return '<button type="button" data-i="'+i+'" onclick="__famPivoIr('+i+')">'+esc(lbl.toLowerCase())+'</button>';
     }).join('');
-    document.body.classList.add('fam-por-seccoes');
-    grupos.forEach(function(g){ g.classList.toggle('fg-on', g.id===__famSecAtiva); });
+    famPivoMarca(Math.round((piv.scrollLeft||0)/(piv.clientWidth||1)));
   }
-  window.__famSecMostrar=function(id){
-    __famSecAtiva=id;
-    famNav();
-    try{ window.scrollTo({top:0,behavior:'smooth'}); }catch(e){ window.scrollTo(0,0); }
+  function famPivoMarca(i){
+    var head=document.getElementById('fam-pivo-head'); if(!head) return;
+    var btns=head.querySelectorAll('button');
+    btns.forEach(function(b,k){ b.classList.toggle('on', k===i); });
+    var on=btns[i]; if(on && on.scrollIntoView) try{ on.scrollIntoView({inline:'start',block:'nearest',behavior:'smooth'}); }catch(e){}
+  }
+  window.__famPivoIr=function(i){
+    var piv=document.getElementById('fam-pivot'); if(!piv) return;
+    try{ piv.scrollTo({left:i*piv.clientWidth,behavior:'smooth'}); }catch(e){ piv.scrollLeft=i*piv.clientWidth; }
+    famPivoMarca(i);
+    try{ window.scrollTo({top:0,behavior:'smooth'}); }catch(e){}
   };
   window.__famNav=famNav;
 
