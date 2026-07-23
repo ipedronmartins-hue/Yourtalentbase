@@ -171,7 +171,7 @@
   .foot{text-align:center;font-size:11.5px;color:var(--muted);margin-top:18px;letter-spacing:.04em}
   .demo-tag{display:inline-block;color:var(--gold);font-weight:700}
 
-  .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--bg4);border:1px solid var(--border);color:var(--text);padding:12px 18px;border-radius:10px;font-size:14px;opacity:0;transition:.25s;z-index:50;pointer-events:none}
+  .toast{position:fixed;left:50%;top:64px;transform:translateX(-50%) translateY(-16px);background:var(--bg4);border:1px solid var(--gold-border,rgba(212,175,55,.32));color:var(--text);padding:12px 18px;border-radius:10px;font-size:14px;font-weight:600;opacity:0;transition:.25s;z-index:200;pointer-events:none;box-shadow:0 6px 24px rgba(0,0,0,.45);max-width:calc(100vw - 32px);text-align:center}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 
@@ -295,6 +295,9 @@
   }
 
   function devScoreHTML(ds){
+    if(ds.estado==='em_pausa'){
+      return '<div class="panel"><div style="font-size:13px;font-weight:800;margin-bottom:6px">🏖️ Época em pausa</div><div class="sub" style="margin:0">Estamos em férias — o score não desce enquanto não há treinos. Quando a época recomeçar, o relógio volta a contar. As missões e o Elite Coach continuam disponíveis, e só podem somar.</div></div>';
+    }
     if(ds.estado!=='ok'){
       return '<div class="panel"><div class="sub" style="margin:0">O score está a construir-se — cumpre as missões da semana e regista os jogos. Precisa de pelo menos 2 avaliações do treinador em dias diferentes ou 4 semanas de atividade.</div></div>';
     }
@@ -311,6 +314,7 @@
         '<div><div class="num" style="font-family:\'Barlow Condensed\',sans-serif;font-weight:900;font-size:54px;line-height:.9;color:var(--up)">'+ds.score+'</div>'+
         '<div style="font-size:10.5px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-top:5px">de 100</div></div>'+
         (tend[0]?'<div style="font-size:14px;font-weight:700;color:'+tend[1]+';padding-bottom:14px">'+tend[0]+'</div>':'')+
+        (ds.em_pausa?'<div style="font-size:11px;font-weight:700;color:var(--slate);padding-bottom:14px">🏖️ férias — o relógio está parado, o score não desce</div>':'')+
       '</div>'+
       '<div class="barx" style="margin-top:12px"><i style="width:'+Math.max(0,Math.min(100,ds.score))+'%;background:var(--up)"></i></div>'+
       '<div class="sub" style="margin:10px 0 0">Mede o teu desenvolvimento — não o teu talento. Compara-te só contigo próprio'+(desde?(', desde '+esc(desde)):'')+'. Sobe com missões cumpridas, consistência e a avaliação do treinador.</div>'+
@@ -396,7 +400,11 @@
     if(window.YTBVivo)YTBVivo.revelar(); // timeline viva: rows revelam ao entrar no ecrã
   }
 
-  function toast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},1900);}
+  function toast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t.__tm);t.__tm=setTimeout(function(){t.classList.remove('show');},2600);}
+  // feedback no próprio botão: o olho está no botão, não no topo do ecrã
+  function btnOK(b,txt){ if(!b) return; var t0=b.textContent,bg=b.style.background,cl=b.style.color,bd=b.style.border;
+    b.textContent=txt||'✓ Guardado'; b.style.background='rgba(0,212,106,.15)'; b.style.color='var(--green,#00D46A)'; b.style.border='1px solid rgba(0,212,106,.4)';
+    setTimeout(function(){ b.textContent=t0; b.style.background=bg; b.style.color=cl; b.style.border=bd; },1800); }
   function share(){
     var d=window.__d; var txt=(d?d.identidade.nome:'')+' — passaporte digital · YourTalentBase';
     var url=location.href;
@@ -965,7 +973,7 @@
       var d=res&&res.data;
       if(!d||!d.ok){ toast('⚠ Não gravado ('+((d&&d.motivo)||'erro')+')'); return; }
       ['bio-alt','bio-pes','bio-pe'].forEach(function(id){ document.getElementById(id).value=''; });
-      toast('Medição guardada ✓'); carregarBioHist();
+      btnOK(document.getElementById('bio-btn'),'✓ Medição guardada'); toast('Medição guardada ✓ — já entrou no passaporte'); carregarBioHist();
     }).catch(function(){ toast('⚠ Sem ligação'); });
   };
   window.__paisGravar=function(){
@@ -975,7 +983,7 @@
     supa.rpc('ytb_biometria_pais_registar',{p_atleta:window.__famAtleta,p_altura_pai:pai,p_altura_mae:mae}).then(function(res){
       var d=res&&res.data;
       if(!d||!d.ok){ toast('⚠ Não gravado ('+((d&&d.motivo)||'erro')+')'); return; }
-      toast('Guardado ✓ — a estimativa atualiza no passaporte');
+      btnOK(document.getElementById('pais-btn'),'✓ Alturas guardadas'); toast('Guardado ✓ — a estimativa atualiza no passaporte');
     }).catch(function(){ toast('⚠ Sem ligação'); });
   };
 
@@ -1022,11 +1030,11 @@
      +'<div class="shead">Crescimento</div><div class="panel" id="bio-card">'
      +'<div class="sub" style="margin-bottom:10px">Altura, peso e pé — uma medição de vez em quando desenha a trajetória de crescimento. Nunca visível ao público.</div>'
      +'<div class="fam-row"><input class="fam-input" id="bio-alt" type="number" inputmode="decimal" placeholder="Altura (cm)" style="flex:1"><input class="fam-input" id="bio-pes" type="number" inputmode="decimal" placeholder="Peso (kg)" style="flex:1"><input class="fam-input" id="bio-pe" type="number" inputmode="decimal" placeholder="Pé (EU)" style="flex:1"></div>'
-     +'<button class="fam-btn" onclick="window.__bioGravar()">Guardar medição →</button>'
+     +'<button class="fam-btn" id="bio-btn" onclick="window.__bioGravar()">Guardar medição →</button>'
      +'<div id="bio-hist" style="margin-top:10px"></div>'
      +'<div class="sub" style="margin:14px 0 8px;padding-top:12px;border-top:1px solid var(--border)">Altura dos pais — para estimar a altura adulta prevista. Basta uma vez.</div>'
      +'<div class="fam-row"><input class="fam-input" id="bio-pai" type="number" inputmode="decimal" placeholder="Altura do pai (cm)" style="flex:1"><input class="fam-input" id="bio-mae" type="number" inputmode="decimal" placeholder="Altura da mãe (cm)" style="flex:1"></div>'
-     +'<button class="fam-btn" onclick="window.__paisGravar()">Guardar altura dos pais →</button></div>';
+     +'<button class="fam-btn" id="pais-btn" onclick="window.__paisGravar()">Guardar altura dos pais →</button></div>';
     carregarBioHist();
     carregarPerfilForm();
     carregarCarreiraLista();
@@ -1066,7 +1074,7 @@
         toast('⚠ '+(motivos[(d&&d.motivo)]||'Não gravado')); return;
       }
       ['car-epoca','car-clube','car-escalao','car-divisao','car-class','car-titulo','car-golos','car-jogos','car-assist','car-minutos'].forEach(function(id){ document.getElementById(id).value=''; });
-      toast('Época guardada ✓ — já está no passaporte');
+      btnOK(b,'✓ Época guardada'); toast('Época guardada ✓ — já está no passaporte');
       carregarCarreiraLista();
     }).catch(function(){ b.disabled=false; b.textContent='Guardar época →'; toast('⚠ Sem ligação'); });
   };
@@ -1093,7 +1101,7 @@
     }).then(function(res){
       var d=res&&res.data; b.disabled=false; b.textContent='Guardar perfil →';
       if(!d||!d.ok){ toast('⚠ Não gravado ('+((d&&d.motivo)||'erro')+')'); return; }
-      toast('Perfil guardado ✓');
+      btnOK(b,'✓ Perfil guardado'); toast('Perfil guardado ✓');
     }).catch(function(){ b.disabled=false; b.textContent='Guardar perfil →'; toast('⚠ Sem ligação'); });
   };
   window.__epocaGravar=function(){
@@ -1108,7 +1116,7 @@
     }).then(function(res){
       var d=res&&res.data; b.disabled=false; b.textContent='Guardar estatísticas →';
       if(!d||!d.ok){ toast('⚠ Não gravado ('+((d&&d.motivo)||'erro')+')'); return; }
-      toast('Estatísticas guardadas ✓ — fica no percurso dele');
+      btnOK(b,'✓ Guardadas'); toast('Estatísticas guardadas ✓ — ficam no percurso dele');
     }).catch(function(){ b.disabled=false; b.textContent='Guardar estatísticas →'; toast('⚠ Sem ligação'); });
   };
   window.__epocaFechar=function(){
@@ -1128,7 +1136,7 @@
       }
       ['ep-div','ep-golos','ep-jogos','ep-assist','ep-minutos','ep-goleq','ep-class'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
       var er=document.getElementById('ep-ref'); if(er) er.value=d.proxima||'';
-      toast('Época '+d.epoca+' fechada ✓ — ficou no percurso');
+      btnOK(b,'✓ Época fechada'); toast('Época '+d.epoca+' fechada ✓ — ficou no percurso dele');
       carregarCarreiraLista();
     }).catch(function(){ b.disabled=false; b.textContent='Fechar a época →'; toast('⚠ Sem ligação'); });
   };
