@@ -1,0 +1,7 @@
+-- 051: familia ganha identidade (nome/nascimento/sexo); treinador ganha a
+-- Avaliacao YTB (rating/badge/excelencias + IA contextual), restrito aos SEUS
+-- atletas (fonte_email). Estado/visibilidade/notas_admin ficam so no admin.
+-- Corpo integral aplicado em producao nesta data (ver historico Supabase:
+-- 051_familia_identidade_e_treinador_classificacao_ytb). Testado em transacao
+-- nos dois sentidos antes de aplicar: familia consegue corrigir identidade;
+-- treinador bloqueado ao tentar classificar atleta que nao e dele.

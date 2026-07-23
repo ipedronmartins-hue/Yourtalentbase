@@ -574,7 +574,7 @@ async function carregarAtletas(){
   }
   lista.innerHTML='<div class="empty-state"><span class="spinner"></span></div>';
   try{
-    const{data}=await supa.from('atletas_360').select('id,nome,primeiro_nome,ano_nascimento,clube_actual,escalao,fonte_email,encarregado_email').eq('fonte_email',treinadorEmail).order('nome');
+    const{data}=await supa.from('atletas_360').select('id,nome,primeiro_nome,ano_nascimento,clube_actual,escalao,fonte_email,encarregado_email,rating_geral,badge_estado,area_excelencia_1,area_excelencia_2,area_excelencia_3,posicao_principal,associacao,divisao,epoca_ref,golos_epoca,jogos_epoca,assist_epoca,golos_equipa_epoca,classificacao_equipa').eq('fonte_email',treinadorEmail).order('nome');
     meusAtletas=data||[];
     renderAtletas();
     preSelecionarDoHash();
@@ -719,8 +719,118 @@ function renderAvaliar(){
   html+='<div id="av-foco-chips" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">'+avFocoChipsHTML()+'</div>';
   html+='<button class="btn btn-primary" onclick="gerarAvaliacao()">Concluir avaliação e gerar treino →</button>';
   html+='<div id="aval-result"></div>';
+  html+=avYtbHTML(atletaSel);
   area.innerHTML=html;
   montarJornadaTreinador();
+  avYtbPreencher();
+}
+/* ── Classificação YTB (rating/badge/excelências + avaliação contextual IA) ──
+   Secção opcional, colapsada por omissão: não é o gesto de 30s por atleta,
+   é ajuste ocasional. Fica restrita aos teus atletas (fonte_email) no RPC. */
+const AV_YTB_RATINGS=['','A+','A','B+','B','C+','C','D'];
+const AV_YTB_BADGES=[['', '— sem estatuto —'],['observado','👀 Observado'],['em-crescimento','📈 Em Crescimento'],['hidden-gem','💎 Hidden Gem'],['destaque','★ YTB Acompanhado']];
+const AV_YTB_AREAS=[['','—'],['tecnico','Técnico'],['tactico','Tático'],['fisico','Físico'],['mental','Mental']];
+function avYtbHTML(a){
+  const opt=(v,label)=>'<option value="'+v+'">'+label+'</option>';
+  return '<details style="margin-top:18px;border-top:1px solid var(--border2,#2A322B);padding-top:10px">'
+    +'<summary style="cursor:pointer;font-size:11px;font-weight:800;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase">⭐ Classificação YTB (opcional)</summary>'
+    +'<div style="margin-top:12px;display:grid;gap:10px">'
+    +'<div><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px">Rating geral</label><select class="edit-select" id="ytb-rating" style="width:100%">'+AV_YTB_RATINGS.map(r=>opt(r, r||'—')).join('')+'</select></div>'
+    +'<div><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px">Estatuto</label><select class="edit-select" id="ytb-badge" style="width:100%">'+AV_YTB_BADGES.map(b=>opt(b[0],b[1])).join('')+'</select></div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">'
+      +['ytb-ex1','ytb-ex2','ytb-ex3'].map((id,i)=>'<div><label style="font-size:10px;color:var(--muted);display:block;margin-bottom:3px">Excelência '+(i+1)+'</label><select class="edit-select" id="'+id+'" style="width:100%">'+AV_YTB_AREAS.map(x=>opt(x[0],x[1])).join('')+'</select></div>').join('')
+    +'</div>'
+    +'<button type="button" class="action-btn" onclick="avYtbGravar()">Guardar classificação</button>'
+    +'<button type="button" class="action-btn" id="btn-ia-ctx" onclick="avYtbGerarIA()">🧠 Gerar avaliação contextual (IA)</button>'
+    +'<div id="ytb-ia-out" style="font-size:12.5px;color:var(--slate);line-height:1.5"></div>'
+    +'</div></details>';
+}
+function avYtbPreencher(){
+  if(!atletaSel) return;
+  const set=(id,v)=>{ const el=document.getElementById(id); if(el) el.value=v||''; };
+  set('ytb-rating', atletaSel.rating_geral);
+  set('ytb-badge', atletaSel.badge_estado);
+  set('ytb-ex1', atletaSel.area_excelencia_1);
+  set('ytb-ex2', atletaSel.area_excelencia_2);
+  set('ytb-ex3', atletaSel.area_excelencia_3);
+}
+async function avYtbGravar(){
+  if(!atletaSel) return;
+  const g=id=>{ const el=document.getElementById(id); return el?(el.value||null):null; };
+  const btn=event&&event.currentTarget;
+  if(btn){ btn.disabled=true; btn.textContent='A guardar…'; }
+  try{
+    const {data,error}=await supa.rpc('ytb_treinador_atleta_classificar',{
+      p_atleta:atletaSel.id, p_rating_geral:g('ytb-rating'), p_badge_estado:g('ytb-badge'),
+      p_area_excelencia_1:g('ytb-ex1'), p_area_excelencia_2:g('ytb-ex2'), p_area_excelencia_3:g('ytb-ex3')
+    });
+    if(error||!data||!data.ok){ showToast('Não foi possível guardar: '+((data&&data.motivo)||(error&&error.message)||'erro')); return; }
+    showToast('Classificação YTB guardada ✓');
+    carregarAtletas();
+  }catch(e){ showToast('Sem ligação'); }
+  finally{ if(btn){ btn.disabled=false; btn.textContent='Guardar classificação'; } }
+}
+async function avYtbGerarIA(){
+  if(!atletaSel) return;
+  const a=atletaSel;
+  const btn=document.getElementById('btn-ia-ctx');
+  if(btn){ btn.disabled=true; btn.textContent='A gerar...'; }
+  const out=document.getElementById('ytb-ia-out');
+  try{
+    const idade=a.ano_nascimento?(new Date().getFullYear()-a.ano_nascimento):null;
+    const ctx={ posicao:a.posicao_principal||null, escalao:a.escalao||null, idade, clube:a.clube_actual||null,
+      associacao:a.associacao||null, divisao:a.divisao||null, epoca:a.epoca_ref||null,
+      golos:(a.golos_epoca??null), jogos:(a.jogos_epoca??null), assist:(a.assist_epoca??null),
+      golos_equipa:(a.golos_equipa_epoca??null), classificacao:a.classificacao_equipa||null };
+    let calc=[];
+    if(ctx.golos!=null && ctx.jogos){ calc.push('rácio golos/jogo: '+(ctx.golos/ctx.jogos).toFixed(2)); }
+    if(ctx.golos!=null && ctx.golos_equipa){ calc.push('peso nos golos da equipa: '+Math.round(ctx.golos/ctx.golos_equipa*100)+'%'); }
+    const linhas=[];
+    linhas.push('Posição: '+(ctx.posicao||'n/d')+' · Escalão: '+(ctx.escalao||'n/d')+(ctx.idade?(' · '+ctx.idade+' anos'):''));
+    linhas.push('Clube: '+(ctx.clube||'n/d')+' · Associação: '+(ctx.associacao||'n/d'));
+    linhas.push('Divisão/nível: '+(ctx.divisao||'NÃO INFORMADO'));
+    linhas.push('Época: '+(ctx.epoca||'n/d'));
+    linhas.push('Golos do atleta: '+(ctx.golos!=null?ctx.golos:'NÃO INFORMADO')+' · Jogos: '+(ctx.jogos!=null?ctx.jogos:'NÃO INFORMADO')+' · Assist: '+(ctx.assist!=null?ctx.assist:'n/d'));
+    linhas.push('Golos da equipa (total): '+(ctx.golos_equipa!=null?ctx.golos_equipa:'NÃO INFORMADO'));
+    linhas.push('Classificação da equipa: '+(ctx.classificacao||'NÃO INFORMADO'));
+    if(calc.length) linhas.push('Rácios já calculados (factuais): '+calc.join(' · '));
+
+    const prompt=`És o motor de avaliação contextual da YourTalentBase (futebol jovem, Portugal). A tua função é interpretar o desempenho de um jovem atleta TENDO EM CONTA O CONTEXTO onde joga — porque os números nus enganam: 30 golos numa equipa que marca 250 não valem o mesmo que 30 numa equipa que marca 60; a 1ª divisão não é a 2ª.
+
+DADOS DO ATLETA (sem nome):
+${linhas.join('\n')}
+
+REGRAS ABSOLUTAS DE HONESTIDADE:
+- Usa APENAS os dados fornecidos. NUNCA inventes números que não estão acima.
+- Onde diz "NÃO INFORMADO", NÃO inventes — ou omites, ou dizes explicitamente que falta esse dado para uma leitura completa.
+- Se tens os golos do atleta mas NÃO os da equipa, fala do rácio golos/jogo (que sabes), mas NÃO afirmes o peso na equipa (que não sabes).
+- Distingue sempre o que é FACTO (os números) do que é LEITURA (a tua interpretação).
+
+COMO CONTEXTUALIZAR:
+- Pondera o nível competitivo (divisão) e a posição na tabela da equipa.
+- Um avançado numa equipa fraca que marca muito carrega a equipa; numa equipa forte, partilha o mérito.
+- Sê conservador e profissional. Sem hype. Linguagem de scout sério, não de marketing.
+
+FORMATO DA RESPOSTA:
+- Texto corrido, PT-PT, 3ª pessoa, SEM nome do atleta.
+- 80 a 120 palavras.
+- Começa pela leitura contextual mais relevante. Termina com o que falta saber para uma avaliação mais completa (se aplicável).
+- Devolve APENAS o texto da análise. Sem JSON, sem markdown, sem aspas, sem preâmbulo.`;
+
+    const r=await fetch('/api/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt,max_tokens:600})});
+    if(!r.ok) throw new Error('API '+r.status);
+    const j=await r.json();
+    let txt=''; (j.content||[]).forEach(c=>{ if(c.type==='text') txt+=c.text; });
+    txt=(txt||'').trim();
+    if(txt.length<40) throw new Error('IA devolveu texto vazio ou curto demais');
+
+    const {error:insErr}=await supa.rpc('ytb_admin_aval_contextual',{ p_atleta:a.id, p_texto:txt, p_snapshot:ctx });
+    if(insErr) throw insErr;
+    if(out) out.textContent='✓ Gravada no histórico: “'+txt+'”';
+  }catch(e){
+    if(out) out.textContent='⚠ Não foi possível gerar: '+((e&&e.message)||'erro');
+  }
+  if(btn){ btn.disabled=false; btn.textContent='🧠 Gerar avaliação contextual (IA)'; }
 }
 /* Foco do plano escolhido pelo treinador: 'auto' segue as debilidades avaliadas;
    um foco explícito faz a maioria dos exercícios vir desse domínio (a escolha do

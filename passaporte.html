@@ -1001,8 +1001,12 @@
     var box=document.getElementById('fam-tools'); if(!box) return;
     box.innerHTML='<div class="shead">O meu perfil</div><div class="panel" id="perfil-card">'
      +'<div class="sub" style="margin-bottom:10px">Clube, escalão e contacto — quem sabe isto primeiro és tu. <span style="color:var(--obs)">Fica marcado como declarado pela família</span>, nunca como avaliação.</div>'
+     +'<div class="fam-row"><input class="fam-input" id="pf-nome" type="text" placeholder="Nome completo" style="flex:2"><input class="fam-input" id="pf-ultnome" type="text" placeholder="Último apelido (opcional)" style="flex:1"></div>'
+     +'<div class="fam-row"><input class="fam-input" id="pf-ano" type="number" inputmode="numeric" placeholder="Ano nasc. (ex: 2013)" style="flex:1"><input class="fam-input" id="pf-mes" type="number" inputmode="numeric" min="1" max="12" placeholder="Mês" style="flex:1"><input class="fam-input" id="pf-dia" type="number" inputmode="numeric" min="1" max="31" placeholder="Dia" style="flex:1">'
+     +'<select class="fam-input" id="pf-sexo" style="flex:1"><option value="">Sexo</option><option value="M">Masculino</option><option value="F">Feminino</option></select></div>'
+     +'<div class="sub" style="margin:2px 0 10px;font-size:11px">A data de nascimento define o escalão e a leitura de maturação — corrige aqui se estiver errada.</div>'
      +'<div class="fam-row"><input class="fam-input" id="pf-clube" type="text" placeholder="Clube atual" style="flex:2"><input class="fam-input" id="pf-escalao" type="text" placeholder="Escalão (ex: Sub-12)" style="flex:1"></div>'
-     +'<div class="fam-row"><input class="fam-input" id="pf-assoc" type="text" placeholder="Associação (ex: AF Porto)"></div>'
+     +'<div class="fam-row"><input class="fam-input" id="pf-equipa" type="text" placeholder="Equipa (ex: Sub-12 A)" style="flex:1"><input class="fam-input" id="pf-assoc" type="text" placeholder="Associação (ex: AF Porto)" style="flex:1"></div>'
      +'<div class="fam-row"><select class="fam-input" id="pf-pos" style="flex:2">'+POSICOES_FAM.map(function(p){return '<option value="'+p[0]+'">'+p[1]+'</option>';}).join('')+'</select>'
      +'<select class="fam-input" id="pf-pe" style="flex:1"><option value="">Pé</option><option value="D">Direito</option><option value="E">Esquerdo</option><option value="A">Ambidestro</option></select></div>'
      +'<div class="fam-row"><input class="fam-input" id="pf-zz" type="url" placeholder="URL ZeroZero (opcional)"></div>'
@@ -1092,7 +1096,8 @@
     supa.rpc('ytb_familia_perfil_atual',{p_atleta:window.__famAtleta}).then(function(res){
       var p=res&&res.data; if(!p) return;
       var set=function(id,v){ var el=document.getElementById(id); if(el&&v!=null) el.value=v; };
-      set('pf-clube',p.clube_actual); set('pf-escalao',p.escalao); set('pf-assoc',p.associacao);
+      set('pf-nome',p.nome); set('pf-ultnome',p.ultimo_nome); set('pf-ano',p.ano_nascimento); set('pf-mes',p.mes_nascimento); set('pf-dia',p.dia_nascimento); set('pf-sexo',p.sexo);
+      set('pf-clube',p.clube_actual); set('pf-equipa',p.equipa); set('pf-escalao',p.escalao); set('pf-assoc',p.associacao);
       set('pf-pos',p.posicao_principal); set('pf-pe',p.pe_dominante); set('pf-zz',p.zerozero_url); set('pf-jp',p.joga_plus_url);
       set('pf-eenome',p.encarregado_nome); set('pf-eetel',p.encarregado_telefone);
       set('ep-ref',p.epoca_ref); set('ep-div',p.divisao); set('ep-golos',p.golos_epoca); set('ep-jogos',p.jogos_epoca);
@@ -1101,15 +1106,21 @@
   }
   window.__perfilGravar=function(){
     function s(id){ var v=(document.getElementById(id).value||'').trim(); return v===''?null:v; }
+    function n(id){ var v=parseInt(document.getElementById(id).value,10); return isNaN(v)?null:v; }
     var b=document.getElementById('perfil-card').querySelector('.fam-btn');
     b.disabled=true; b.textContent='A guardar…';
     supa.rpc('ytb_familia_perfil_atualizar',{
-      p_atleta:window.__famAtleta, p_clube_actual:s('pf-clube'), p_equipa:null, p_escalao:s('pf-escalao'),
+      p_atleta:window.__famAtleta, p_clube_actual:s('pf-clube'), p_equipa:s('pf-equipa'), p_escalao:s('pf-escalao'),
       p_associacao:s('pf-assoc'), p_posicao_principal:s('pf-pos'), p_pe_dominante:s('pf-pe'),
-      p_zerozero_url:s('pf-zz'), p_joga_plus_url:s('pf-jp'), p_encarregado_nome:s('pf-eenome'), p_encarregado_telefone:s('pf-eetel')
+      p_zerozero_url:s('pf-zz'), p_joga_plus_url:s('pf-jp'), p_encarregado_nome:s('pf-eenome'), p_encarregado_telefone:s('pf-eetel'),
+      p_nome:s('pf-nome'), p_ultimo_nome:s('pf-ultnome'), p_ano_nascimento:n('pf-ano'), p_mes_nascimento:n('pf-mes'), p_dia_nascimento:n('pf-dia'), p_sexo:s('pf-sexo')
     }).then(function(res){
       var d=res&&res.data; b.disabled=false; b.textContent='Guardar perfil →';
-      if(!d||!d.ok){ toast('⚠ Não gravado ('+((d&&d.motivo)||'erro')+')'); return; }
+      if(!d||!d.ok){
+        var motivos={posicao_invalida:'posição inválida', sexo_invalido:'sexo inválido',
+          ano_nascimento_invalido:'ano de nascimento fora do intervalo esperado', mes_invalido:'mês inválido (1-12)', dia_invalido:'dia inválido (1-31)'};
+        toast('⚠ '+(motivos[(d&&d.motivo)]||'Não gravado')); return;
+      }
       btnOK(b,'✓ Perfil guardado'); toast('Perfil guardado ✓');
     }).catch(function(){ b.disabled=false; b.textContent='Guardar perfil →'; toast('⚠ Sem ligação'); });
   };

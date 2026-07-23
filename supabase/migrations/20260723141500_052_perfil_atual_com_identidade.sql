@@ -1,0 +1,3 @@
+-- 052: ytb_familia_perfil_atual passa a devolver nome/ultimo_nome/nascimento/
+-- sexo/equipa (pre-preenchimento do novo formulario de identidade da familia).
+-- Corpo integral no historico Supabase (052_perfil_atual_com_identidade).
