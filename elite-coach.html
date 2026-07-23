@@ -377,6 +377,19 @@ function drawPitchInto(groupId) {
 // ═══════════════════════════════════════════════════════
 function lerp(a, b, t) { return a + (b - a) * t; }
 
+function setIndica(txt){
+  const el=document.getElementById('cenIndica'); if(!el) return;
+  if(txt!==undefined) el.textContent=txt;
+  // pousar por baixo do pill do título do cenário visível (altura varia com 1-2 linhas)
+  let melhor=null;
+  document.querySelectorAll('.scen-overlay-top').forEach(o=>{
+    const r=o.getBoundingClientRect();
+    if(r.height>0 && (melhor===null || r.bottom>melhor)) melhor=r.bottom;
+  });
+  if(melhor!==null) el.style.top=(melhor+8)+'px';
+}
+window.addEventListener('resize', ()=>setIndica(), {passive:true});
+
 function getInterpolatedFrame(frames, time, indicaCallback) {
   let f1 = frames[0], f2 = frames[0];
   for (let i = 0; i < frames.length - 1; i++) {
@@ -545,7 +558,7 @@ function abrirCenario(idx) {
   document.getElementById('cenActive').classList.add('active');
   document.getElementById('cenNumLabel').textContent = `Cenário ${String(idx+1).padStart(2,'0')}`;
   document.getElementById('cenTitulo').textContent = activeCenario.titulo;
-  document.getElementById('cenIndica').textContent = activeCenario.frames[0].indica || 'Pronto.';
+  setIndica(activeCenario.frames[0].indica || 'Pronto.');
   drawPitchInto('cenGPitch');
   renderFrameInto('cenGPlayers','cenGBall', activeCenario.frames[0]);
   document.getElementById('cenBottomInit').style.display = 'flex';
@@ -572,7 +585,7 @@ function reproduzirCen() {
     if (!cenAnimating) return;
     const elapsed = now - cenAnimStart;
     const f = getInterpolatedFrame(activeCenario.frames, elapsed, txt => {
-      document.getElementById('cenIndica').textContent = txt;
+      setIndica(txt);
     });
     renderFrameInto('cenGPlayers','cenGBall', f);
     if (elapsed < activeCenario.duracao) {
@@ -628,7 +641,7 @@ function resetarCen() {
   document.getElementById('cenBottomInit').style.display = 'flex';
   if (activeCenario) {
     renderFrameInto('cenGPlayers','cenGBall', activeCenario.frames[0]);
-    document.getElementById('cenIndica').textContent = activeCenario.frames[0].indica || 'Pronto.';
+    setIndica(activeCenario.frames[0].indica || 'Pronto.');
     setTimeout(reproduzirCen, 400);
   }
 }
