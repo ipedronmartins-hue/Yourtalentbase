@@ -839,6 +839,11 @@
         T.feitas.push({semana:w+1,sessao:s+1}); ov.remove();
         var ss=document.getElementById('tr-ss-'+w+'-'+s);
         if(ss){ ss.classList.add('done'); var st=ss.querySelector('.tr-ss-st'); if(st) st.textContent='✓ feita'; var act=ss.querySelector('.tr-act'); if(act) act.outerHTML='<div class="tr-donemsg">Boa! Esta sessão já está registada no teu passaporte.</div>'; }
+        // retorno imediato: o esforço tem de se ver (Regra de Ouro — quem alimenta recebe)
+        var streak = d.streak||0, marco = d.marco||null;
+        if(marco){ toast('🔥 '+marco+' dias seguidos! Novo marco no passaporte'); }
+        else if(streak>1){ toast('✓ Sessão registada · '+streak+' dias seguidos 🔥'); }
+        else { toast('✓ Sessão registada no passaporte'); }
       }).catch(function(){ btn.disabled=false; btn.textContent='Enviar e marcar feito'; alert('Sem ligação.'); });
     };
   };
