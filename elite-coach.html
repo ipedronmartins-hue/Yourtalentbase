@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Elite Coach · YTB</title>
 <meta name="theme-color" content="#080C08">
+<meta name="referrer" content="same-origin">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -468,8 +469,13 @@ let ecAtleta = null;
   try {
     const p = new URLSearchParams(location.search);
     if(p.get('atleta')){
-      ecAtleta = { id: p.get('atleta'), debs: (p.get('debs')||'').split(',').filter(Boolean), nome: p.get('nome')||'' };
+      ecAtleta = { id: p.get('atleta'), debs: (p.get('debs')||'').split(',').filter(Boolean) };
       localStorage.setItem('ec-atleta', JSON.stringify(ecAtleta));
+      // tira id/debs do endereço visível e do historico do browser assim que
+      // ja estao guardados — nao e uma chave de acesso, mas nao ha razao
+      // para um UUID e a area de debilidade de um menor ficarem expostos
+      // num link partilhavel ou no historico do dispositivo.
+      history.replaceState(null, '', location.pathname + (p.get('c') ? '?c='+encodeURIComponent(p.get('c')) : ''));
     } else {
       ecAtleta = JSON.parse(localStorage.getItem('ec-atleta')||'null');
     }
@@ -528,7 +534,7 @@ function renderCenarios() {
   const ordenados = CENARIOS.map((c, i) => ({ c: c, i: i, rec: recSet.has(i) })).sort((a, b) => (b.rec?1:0) - (a.rec?1:0));
   grid.innerHTML = ordenados.map(({c, i, rec}) => `
     <button class="cen-card" style="border-left-color:${c.cor}${rec ? ';box-shadow:0 0 0 1px #D4AF37 inset' : ''}" onclick="abrirCenario(${i})">
-      ${rec ? '<div style="font-size:9px;font-weight:800;letter-spacing:1px;color:#D4AF37;text-transform:uppercase;margin-bottom:4px">⭐ Recomendado' + (ecAtleta && ecAtleta.nome ? ' para ' + ecAtleta.nome : '') + '</div>' : ''}
+      ${rec ? '<div style="font-size:9px;font-weight:800;letter-spacing:1px;color:#D4AF37;text-transform:uppercase;margin-bottom:4px">⭐ Recomendado</div>' : ''}
       <div class="cen-icon" style="background:${c.cor}22;border-color:${c.cor}55">${c.icon}</div>
       <div class="cen-info">
         <div class="cen-num">Cenário ${String(i+1).padStart(2,'0')}</div>
@@ -755,11 +761,6 @@ document.getElementById('nameInput').addEventListener('keydown', e => {
 });
 
 // Init flow
-// Atleta que chega por Missão de Decisão (link do passaporte traz ?nome=):
-// não faz sentido travá-lo com "Como te chamamos?" — o nome já vem no link.
-if (!getMisterName() && ecAtleta && ecAtleta.nome) {
-  localStorage.setItem('ytb-mister-name', ecAtleta.nome);
-}
 const savedName = getMisterName();
 if (!savedName) {
   // 1ª vez: mostrar setup
