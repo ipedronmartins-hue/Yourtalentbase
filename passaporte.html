@@ -501,9 +501,11 @@
     // plano e calendário de jogos em paralelo — o check-in cego só aparece
     // quando NÃO há jogo agendado por responder (o calendário tem prioridade)
     Promise.all([
-      Promise.resolve(supa.rpc('ytb_plano_atual',{p_atleta:atletaId})).catch(function(){return null;}),
-      Promise.resolve(supa.rpc('ytb_jogos_lista',{p_atleta:atletaId})).catch(function(){return null;})
+      Promise.resolve(supa.rpc('ytb_plano_atual',{p_atleta:atletaId})).catch(function(e){ console.warn('ytb_plano_atual falhou', e); return null; }),
+      Promise.resolve(supa.rpc('ytb_jogos_lista',{p_atleta:atletaId})).catch(function(e){ console.warn('ytb_jogos_lista falhou', e); return null; })
     ]).then(function(rs){
+      if(rs[0]&&rs[0].error) console.warn('ytb_plano_atual: sessão pode ter expirado', rs[0].error);
+      if(rs[1]&&rs[1].error) console.warn('ytb_jogos_lista: sessão pode ter expirado', rs[1].error);
       var d=rs[0]&&rs[0].data, jg=rs[1]&&rs[1].data;
       window.__jogos={atleta:atletaId, por_responder:(jg&&jg.por_responder)||[], proximos:(jg&&jg.proximos)||[], ultimos:(jg&&jg.ultimos)||[]};
       if(d && d.tem){
@@ -601,7 +603,7 @@
       // Zero carga física — serve os dias em que o corpo já treinou no clube.
       if(obj && window.YTBObjetivos){
         var cIdx=YTBObjetivos.missaoDecisaoDaSemana(obj.bucket, wi);
-        var link='elite-coach.html?atleta='+encodeURIComponent(T.atleta)+'&debs='+encodeURIComponent(obj.bucket)+'&nome='+encodeURIComponent(nome)+'&c='+(cIdx+1);
+        var link='elite-coach.html?atleta='+encodeURIComponent(T.atleta)+'&debs='+encodeURIComponent(obj.bucket)+'&c='+(cIdx+1);
         html+='<a href="'+link+'" style="display:flex;align-items:center;gap:11px;background:rgba(155,109,255,.06);border:1px solid rgba(155,109,255,.3);border-radius:11px;padding:13px 14px;margin-top:9px;text-decoration:none;color:var(--text)">'
           +'<span style="font-size:22px">🧠</span>'
           +'<span style="flex:1"><span style="display:block;font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:15px">Missão de Decisão · cenário de jogo</span>'
@@ -634,6 +636,7 @@
     var btn=document.getElementById('ck-send'); if(btn){btn.disabled=true;btn.textContent='A enviar…';}
     var nota=(document.getElementById('ck-nota')||{}).value||'';
     supa.rpc('ytb_jogo_checkin',{p_atleta:window.__treino.atleta,p_dificuldade:n,p_nota:nota.trim()||null}).then(function(res){
+      if(res&&res.error){ if(btn){btn.disabled=false;btn.textContent='Enviar ao treinador';} toast('Sessão expirada — entra de novo'); return; }
       var d=res&&res.data;
       if(!d||!d.ok){ if(btn){btn.disabled=false;btn.textContent='Enviar ao treinador';} toast('Não foi possível enviar'); return; }
       var card=document.getElementById('ck-jogo');
@@ -742,6 +745,7 @@
     var minutos=minRaw===''||minRaw==null?null:(parseInt(minRaw)||0);
     var nota=((document.getElementById('jg-nota-'+id)||{}).value||'').trim()||null;
     supa.rpc('ytb_jogo_responder',{p_jogo:id,p_como_correu:vals.como,p_golos:golos,p_assistencias:assist,p_minutos:minutos,p_dificuldade:vals.dif||null,p_nota:nota}).then(function(res){
+      if(res&&res.error){ if(btn){btn.disabled=false;btn.textContent='Registar jogo';} toast('Sessão expirada — entra de novo'); return; }
       var d=res&&res.data;
       if(!d||!d.ok){ if(btn){btn.disabled=false;btn.textContent='Registar jogo';} toast('Não foi possível registar ('+((d&&d.motivo)||'erro')+')'); return; }
       var card=document.getElementById('jg-'+id);
@@ -756,6 +760,7 @@
     var adv=((document.getElementById('jg-novo-adv')||{}).value||'').trim()||null;
     var iso=new Date(data+'T'+hora).toISOString();
     supa.rpc('ytb_jogo_agendar',{p_atleta:window.__jogos.atleta,p_data:iso,p_adversario:adv}).then(function(res){
+      if(res&&res.error){ toast('Sessão expirada — entra de novo'); return; }
       var d=res&&res.data;
       if(!d||!d.ok){ toast('Não foi possível marcar ('+((d&&d.motivo)||'erro')+')'); return; }
       toast('Jogo marcado');
@@ -767,6 +772,7 @@
   };
   window.__jgApagar=function(id){
     supa.rpc('ytb_jogo_apagar',{p_jogo:id}).then(function(res){
+      if(res&&res.error){ toast('Sessão expirada — entra de novo'); return; }
       var d=res&&res.data;
       if(!d||!d.ok){ toast('Não foi possível desmarcar'); return; }
       window.__jogos.proximos=window.__jogos.proximos.filter(function(j){return j.id!==id;});
@@ -1030,7 +1036,10 @@
   function carregarCarreiraLista(){
     var el=document.getElementById('car-lista'); if(!el) return;
     supa.rpc('ytb_carreira_lista',{p_atleta:window.__famAtleta}).then(function(res){
-      var l=(res&&res.data)||[];
+      if(res&&res.error){ el.innerHTML='<div style="font-size:13px;color:var(--red)">Sessão expirada — entra de novo para ver a carreira.</div>'; return; }
+      var l=res&&res.data;
+      if(l===null){ el.innerHTML='<div style="font-size:13px;color:var(--red)">Sem acesso a este atleta.</div>'; return; }
+      l=l||[];
       if(!l.length){ el.innerHTML='<div style="font-size:13px;color:var(--muted)">Ainda sem épocas registadas.</div>'; return; }
       el.innerHTML=l.map(function(c){
         var tit=(c.titulos&&c.titulos.length)?(' · <span style="color:var(--gold)">🏆 '+esc(c.titulos.join(' · '))+'</span>'):(c.classificacao?(' · '+esc(c.classificacao)):'');
@@ -1043,7 +1052,7 @@
           +'<b class="num" style="font-family:\'Barlow Condensed\',sans-serif;min-width:44px">'+esc(c.epoca)+'</b>'
           +'<span style="flex:1;color:var(--slate)">'+esc([c.clube,c.escalao,c.divisao].filter(Boolean).join(' · '))+tit+stTxt+'</span></div>';
       }).join('');
-    }).catch(function(){});
+    }).catch(function(){ el.innerHTML='<div style="font-size:13px;color:var(--red)">Sem ligação — tenta de novo.</div>'; });
   }
   window.__carreiraGravar=function(){
     function s(id){ var v=(document.getElementById(id).value||'').trim(); return v===''?null:v; }
@@ -1066,6 +1075,7 @@
 
   function carregarPerfilForm(){
     supa.rpc('ytb_familia_perfil_atual',{p_atleta:window.__famAtleta}).then(function(res){
+      if(res&&res.error){ console.warn('ytb_familia_perfil_atual falhou', res.error); toast('Sessão expirada — entra de novo para editar o perfil'); return; }
       var p=res&&res.data; if(!p) return;
       var set=function(id,v){ var el=document.getElementById(id); if(el&&v!=null) el.value=v; };
       set('pf-clube',p.clube_actual); set('pf-escalao',p.escalao); set('pf-assoc',p.associacao);
@@ -1073,7 +1083,7 @@
       set('pf-eenome',p.encarregado_nome); set('pf-eetel',p.encarregado_telefone);
       set('ep-ref',p.epoca_ref); set('ep-div',p.divisao); set('ep-golos',p.golos_epoca); set('ep-jogos',p.jogos_epoca);
       set('ep-assist',p.assist_epoca); set('ep-goleq',p.golos_equipa_epoca); set('ep-class',p.classificacao_equipa);
-    }).catch(function(){});
+    }).catch(function(e){ console.warn('ytb_familia_perfil_atual: sem ligação', e); });
   }
   window.__perfilGravar=function(){
     function s(id){ var v=(document.getElementById(id).value||'').trim(); return v===''?null:v; }
@@ -1084,7 +1094,9 @@
       p_associacao:s('pf-assoc'), p_posicao_principal:s('pf-pos'), p_pe_dominante:s('pf-pe'),
       p_zerozero_url:s('pf-zz'), p_joga_plus_url:s('pf-jp'), p_encarregado_nome:s('pf-eenome'), p_encarregado_telefone:s('pf-eetel')
     }).then(function(res){
-      var d=res&&res.data; b.disabled=false; b.textContent='Guardar perfil →';
+      b.disabled=false; b.textContent='Guardar perfil →';
+      if(res&&res.error){ toast('⚠ Sessão expirada — entra de novo'); return; }
+      var d=res&&res.data;
       if(!d||!d.ok){ toast('⚠ Não gravado ('+((d&&d.motivo)||'erro')+')'); return; }
       toast('Perfil guardado ✓');
     }).catch(function(){ b.disabled=false; b.textContent='Guardar perfil →'; toast('⚠ Sem ligação'); });
@@ -1099,7 +1111,9 @@
       p_golos_epoca:n('ep-golos'), p_jogos_epoca:n('ep-jogos'), p_assist_epoca:n('ep-assist'),
       p_golos_equipa_epoca:n('ep-goleq'), p_classificacao_equipa:s('ep-class')
     }).then(function(res){
-      var d=res&&res.data; b.disabled=false; b.textContent='Guardar estatísticas →';
+      b.disabled=false; b.textContent='Guardar estatísticas →';
+      if(res&&res.error){ toast('⚠ Sessão expirada — entra de novo'); return; }
+      var d=res&&res.data;
       if(!d||!d.ok){ toast('⚠ Não gravado ('+((d&&d.motivo)||'erro')+')'); return; }
       toast('Estatísticas guardadas ✓ — fica no percurso dele');
     }).catch(function(){ b.disabled=false; b.textContent='Guardar estatísticas →'; toast('⚠ Sem ligação'); });
@@ -1111,7 +1125,9 @@
     var b=btns[btns.length-1];
     b.disabled=true; b.textContent='A fechar…';
     supa.rpc('ytb_epoca_fechar',{p_atleta:window.__famAtleta}).then(function(res){
-      var d=res&&res.data; b.disabled=false; b.textContent='Fechar a época →';
+      b.disabled=false; b.textContent='Fechar a época →';
+      if(res&&res.error){ toast('⚠ Sessão expirada — entra de novo'); return; }
+      var d=res&&res.data;
       if(!d||!d.ok){
         var motivos={sem_epoca:'preenche a época (ex: 2025/26) e guarda primeiro',
                      sem_estatisticas:'ainda não há números guardados para arquivar',

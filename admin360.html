@@ -1824,7 +1824,8 @@ async function registarCobranca(){
   if(!treinador){ toast('Indica o email do treinador.', 'error'); return; }
   if(!valor || valor <= 0){ toast('Indica o valor recebido.', 'error'); return; }
   try{
-    const { data } = await supa.rpc('ytb_admin_registar_cobranca', { p_tipo: tipo, p_atleta_nome: atleta, p_treinador_email: treinador, p_valor_pago: valor });
+    const { data, error } = await supa.rpc('ytb_admin_registar_cobranca', { p_tipo: tipo, p_atleta_nome: atleta, p_treinador_email: treinador, p_valor_pago: valor });
+    if(error){ toast('Sessão de admin expirada — entra de novo.', 'error'); return; }
     if(!data || !data.ok){ toast('Não foi possível registar: ' + (data && data.motivo || 'erro'), 'error'); return; }
     document.getElementById('cob-atleta').value = '';
     document.getElementById('cob-treinador').value = '';
@@ -1835,7 +1836,8 @@ async function registarCobranca(){
 }
 async function marcarComissaoPaga(id, alvo){
   try{
-    const { data } = await supa.rpc('ytb_admin_marcar_pago', { p_id: id, p_alvo: alvo });
+    const { data, error } = await supa.rpc('ytb_admin_marcar_pago', { p_id: id, p_alvo: alvo });
+    if(error){ toast('Sessão de admin expirada — entra de novo.', 'error'); return; }
     if(!data || !data.ok){ toast('Não foi possível marcar como pago.', 'error'); return; }
     carregarComissoes();
   }catch(e){ toast('Erro: ' + (e.message||e), 'error'); }
@@ -1883,10 +1885,11 @@ async function ativarNotificacoesPush(){
       });
     }
     const json = sub.toJSON();
-    const { data } = await supa.rpc('ytb_push_subscrever', {
+    const { data, error } = await supa.rpc('ytb_push_subscrever', {
       p_endpoint: json.endpoint, p_p256dh: json.keys.p256dh, p_auth: json.keys.auth
     });
-    if(data && data.ok){ toast('Notificações ativas neste dispositivo.'); }
+    if(error){ toast('Sessão de admin expirada — entra de novo.', 'error'); }
+    else if(data && data.ok){ toast('Notificações ativas neste dispositivo.'); }
     else { toast('Não foi possível gravar a subscrição.', 'error'); }
   }catch(e){
     toast('Erro a ativar notificações: ' + (e.message||e), 'error');
