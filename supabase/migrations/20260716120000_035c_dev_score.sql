@@ -40,8 +40,8 @@
 --     (valores ≤5 vinham do feedback 1-5, os restantes do registar 0-100;
 --     a média cega das duas escalas estava corrompida desde a 013).
 --
--- Validado em dry-run (2026-07-16) com os atletas reais: Vasco (2 dias de
--- avaliação + atividade) recebe score; Tomás CM/Nuno (1 dia de avaliação,
+-- Validado em dry-run (2026-07-16) com atletas reais: um deles (2 dias de
+-- avaliação + atividade) recebe score; outros dois (1 dia de avaliação,
 -- 1 semana ativa) ficam 'a_construir'; scores discriminam entre atletas.
 -- ============================================================================
 

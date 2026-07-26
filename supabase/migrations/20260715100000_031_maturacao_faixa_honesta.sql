@@ -2,12 +2,13 @@
 -- MIGRAÇÃO 031 · MATURAÇÃO: FAIXA HONESTA EM VEZ DE PONTO ÚNICO
 --
 -- BUG (reportado pelo fundador: "a altura estimada dos atletas está demasiado
--- conservadora, espreita o Nuno Teles"): _ytb_maturacao (migração 024) usa o
+-- conservadora, espreita atletas que cresceram acima da média dos pais"):
+-- _ytb_maturacao (migração 024) usa o
 -- método clássico da altura-alvo dos pais (Tanner: (pai+mãe±13)/2) — fórmula
 -- correta e é a que a literatura usa, mas é SÓ uma média populacional a partir
 -- dos pais; ignora a trajetória de crescimento do próprio atleta. Isso o torna
 -- estruturalmente conservador para quem cresce acima da média dos pais.
--- Prova concreta: Nuno Teles (altura_pai=170, altura_mae=165, ambos reais) dá
+-- Prova concreta: um atleta real (altura_pai=170, altura_mae=165, ambos reais) dá
 -- prevista=(170+165+13)/2=174cm — mas a altura atual dele já é 186cm. O ecrã
 -- mostrava "Está a ~107% da altura adulta prevista", o que não faz sentido
 -- nenhum e é exatamente o que pareceu "errado" ao fundador.
@@ -25,7 +26,7 @@
 -- 'estado' ('a_crescer' | 'na_faixa' | 'acima_da_faixa') para quem quiser a
 -- leitura correta.
 --
--- Validado em dry-run (2026-07-15) com o Nuno Teles real: prevista=174,
+-- Validado em dry-run (2026-07-15) com um atleta real: prevista=174,
 -- faixa=165–183, atual=186 → estado='acima_da_faixa' (em vez do nonsense de
 -- 107%). Testado também com um atleta jovem normal (atual < min) →
 -- 'a_crescer', e um dentro da faixa → 'na_faixa'.

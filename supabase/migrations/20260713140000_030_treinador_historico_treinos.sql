@@ -4,7 +4,7 @@
 -- guardados também, resumidos mas guardados". Investigação antes de mexer:
 -- o plano JÁ fica gravado desde sempre (ytb_treinador_avaliar insere em
 -- treinador_treinos.plano a cada avaliação — confirmado com dados reais em
--- produção, ex.: Nuno Teles e Vasco Coutinho Martins já têm várias
+-- produção, ex.: dois atletas reais já têm várias
 -- prescrições guardadas). O problema não é a gravação, é que NÃO EXISTE
 -- NENHUMA LEITURA no frontend — o treinador nunca vê o que já prescreveu
 -- antes, cada avaliação parece isolada. Esta migração só acrescenta leitura.
