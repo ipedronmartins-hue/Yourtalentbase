@@ -15,6 +15,7 @@
 <link rel="stylesheet" href="/assets/css/ytb-vivo.css">
 <script src="/assets/js/ytb-vivo.js"></script>
 <script src="/assets/js/ytb-config.js"></script>
+<script src="/assets/js/ytb-pivot.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/assets/js/vendor/qrcode.min.js"></script>
 <script src="/assets/js/vendor/html2pdf.bundle.min.js"></script>
@@ -456,21 +457,45 @@ function mostrarMain(){
 }
 
 function pintarGlowRetorno(){
-  const t=document.querySelector('.tab[onclick*="retorno"]');
+  const t=document.querySelector('.ytb-pivo-head button[data-i="2"]')||document.querySelector('.tab[onclick*="retorno"]');
   if(!t||!digestCache)return;
   const temNovidades=digestCache.some(d=>(d.execucoes_desde_plano||0)>0&&d.ultima_atividade&&(Date.now()-new Date(d.ultima_atividade).getTime())<7*86400000);
   t.classList.toggle('vivo-glow',temNovidades);
 }
 
+var TAB_KEYS=['atletas','avaliar','retorno','treino','comissoes'];
+var TAB_ROTULOS=['atletas','avaliar','retorno','objetivo','comissões'];
+var tabIdx=0;
 function setTab(name){
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  var idxAnt=tabIdx;
+  tabIdx=Math.max(0, TAB_KEYS.indexOf(name));
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-  event.target.classList.add('active');
-  document.getElementById('tab-'+name).classList.add('active');
+  var painel=document.getElementById('tab-'+name);
+  if(painel){ painel.classList.add('active'); if(window.YTBPivot&&tabIdx!==idxAnt) YTBPivot.anima(painel, tabIdx>idxAnt?1:-1); }
+  // cabeça pivot (WP8): títulos grandes, o ativo aceso, o seguinte espreita
+  if(window.YTBPivot){
+    var h=document.querySelector('.tabs');
+    if(h) YTBPivot.titulos(h, TAB_KEYS.map(function(k,i){ return {rotulo:TAB_ROTULOS[i], ir:function(){ setTab(k); }}; }), tabIdx);
+  } else {
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    var btn=Array.from(document.querySelectorAll('.tab')).find(t=>(t.getAttribute('onclick')||'').includes("'"+name+"'"));
+    if(btn) btn.classList.add('active');
+  }
   if(name==='avaliar')renderAvaliar();
   if(name==='retorno')renderRetorno();
   if(name==='treino')renderTreino();
   if(name==='comissoes')carregarComissoes();
+  if(typeof pintarGlowRetorno==='function'){ try{ pintarGlowRetorno(); }catch(e){} }
+  try{ window.scrollTo({top:0,behavior:'smooth'}); }catch(e){}
+}
+// deslize lateral entre secções (ignora tabelas/chips com scroll próprio)
+if(window.YTBPivot){
+  YTBPivot.deslize(document.body, function(d){
+    var i=Math.min(TAB_KEYS.length-1, Math.max(0, tabIdx+d));
+    if(i!==tabIdx) setTab(TAB_KEYS[i]);
+  });
+  document.addEventListener('DOMContentLoaded', function(){ setTab('atletas'); });
+  if(document.readyState!=='loading') setTab('atletas');
 }
 
 /* ════════ RETORNO (digest do treinador) ════════ */
@@ -549,7 +574,7 @@ async function carregarAtletas(){
   }
   lista.innerHTML='<div class="empty-state"><span class="spinner"></span></div>';
   try{
-    const{data}=await supa.from('atletas_360').select('id,nome,primeiro_nome,ano_nascimento,clube_actual,escalao,fonte_email,encarregado_email').eq('fonte_email',treinadorEmail).order('nome');
+    const{data}=await supa.from('atletas_360').select('id,nome,primeiro_nome,ano_nascimento,clube_actual,escalao,fonte_email,encarregado_email,rating_geral,badge_estado,area_excelencia_1,area_excelencia_2,area_excelencia_3,posicao_principal,associacao,divisao,epoca_ref,golos_epoca,jogos_epoca,assist_epoca,golos_equipa_epoca,classificacao_equipa').eq('fonte_email',treinadorEmail).order('nome');
     meusAtletas=data||[];
     renderAtletas();
     preSelecionarDoHash();
@@ -618,13 +643,7 @@ function selecionarAtleta(id){
   showToast('Atleta selecionado: '+(atletaSel?esc(atletaSel.primeiro_nome||atletaSel.nome):''));
   setTabProgram('avaliar');
 }
-function setTabProgram(name){
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-  document.querySelector('.tab[onclick*="'+name+'"]').classList.add('active');
-  document.getElementById('tab-'+name).classList.add('active');
-  if(name==='avaliar')renderAvaliar();
-}
+function setTabProgram(name){ setTab(name); }
 
 /* INSCRIÇÃO */
 function abrirInscricao(){document.getElementById('inscModal').classList.add('show');}
@@ -644,7 +663,7 @@ async function submeterInscricao(){
   const nasc=new Date(nascStr+'T00:00:00');
   const ano=nasc.getFullYear(), mes=nasc.getMonth()+1, dia=nasc.getDate();
   if(!/zerozero\.pt\/\S/i.test(zz)){err.style.display='block';err.textContent='Página ZeroZero obrigatória (verificação de identidade)';return;}
-  if(!emailEnc||emailEnc.indexOf('@')<1){err.style.display='block';err.textContent='Email do encarregado obrigatório';return;}
+  if(!emailEnc || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailEnc)){err.style.display='block';err.textContent='Email do encarregado inválido — confirma que está completo (ex: nome@gmail.com)';return;}
   err.style.display='none';
   const btn=document.getElementById('insc-btn');btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;
   if(!USING_SB){showToast('Demo: inscrição não gravada');fecharInscricao();btn.innerHTML='Inscrever →';btn.disabled=false;return;}
@@ -696,10 +715,167 @@ function renderAvaliar(){
       }).join('')
       +'</div></div>';
   });
+  html+='<div style="font-size:9px;font-weight:800;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin:14px 0 6px">Período</div>';
+  html+='<div id="av-periodo-chips" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px">'+avPeriodoChipsHTML()+'</div>';
+  html+='<div style="font-size:10px;color:var(--muted);line-height:1.5;margin-bottom:12px">A barreira de idade e o teto de intensidade continuam sempre ativos nos dois — o período muda volume, nunca segurança.</div>';
+  html+='<div style="font-size:9px;font-weight:800;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin:14px 0 6px">Dirigir o plano gerado</div>';
+  html+='<div id="av-foco-chips" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">'+avFocoChipsHTML()+'</div>';
   html+='<button class="btn btn-primary" onclick="gerarAvaliacao()">Concluir avaliação e gerar treino →</button>';
   html+='<div id="aval-result"></div>';
+  html+=avYtbHTML(atletaSel);
   area.innerHTML=html;
   montarJornadaTreinador();
+  avYtbPreencher();
+}
+/* ── Classificação YTB (rating/badge/excelências + avaliação contextual IA) ──
+   Secção opcional, colapsada por omissão: não é o gesto de 30s por atleta,
+   é ajuste ocasional. Fica restrita aos teus atletas (fonte_email) no RPC. */
+const AV_YTB_RATINGS=['','A+','A','B+','B','C+','C','D'];
+const AV_YTB_BADGES=[['', '— sem estatuto —'],['observado','👀 Observado'],['em-crescimento','📈 Em Crescimento'],['hidden-gem','💎 Hidden Gem'],['destaque','★ YTB Acompanhado']];
+const AV_YTB_AREAS=[['','—'],['tecnico','Técnico'],['tactico','Tático'],['fisico','Físico'],['mental','Mental']];
+function avYtbHTML(a){
+  const opt=(v,label)=>'<option value="'+v+'">'+label+'</option>';
+  return '<details style="margin-top:18px;border-top:1px solid var(--border2,#2A322B);padding-top:10px">'
+    +'<summary style="cursor:pointer;font-size:11px;font-weight:800;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase">⭐ Classificação YTB (opcional)</summary>'
+    +'<div style="margin-top:12px;display:grid;gap:10px">'
+    +'<div><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px">Rating geral</label><select class="edit-select" id="ytb-rating" style="width:100%">'+AV_YTB_RATINGS.map(r=>opt(r, r||'—')).join('')+'</select></div>'
+    +'<div><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px">Estatuto</label><select class="edit-select" id="ytb-badge" style="width:100%">'+AV_YTB_BADGES.map(b=>opt(b[0],b[1])).join('')+'</select></div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">'
+      +['ytb-ex1','ytb-ex2','ytb-ex3'].map((id,i)=>'<div><label style="font-size:10px;color:var(--muted);display:block;margin-bottom:3px">Excelência '+(i+1)+'</label><select class="edit-select" id="'+id+'" style="width:100%">'+AV_YTB_AREAS.map(x=>opt(x[0],x[1])).join('')+'</select></div>').join('')
+    +'</div>'
+    +'<button type="button" class="action-btn" onclick="avYtbGravar()">Guardar classificação</button>'
+    +'<button type="button" class="action-btn" id="btn-ia-ctx" onclick="avYtbGerarIA()">🧠 Gerar avaliação contextual (IA)</button>'
+    +'<div id="ytb-ia-out" style="font-size:12.5px;color:var(--slate);line-height:1.5"></div>'
+    +'</div></details>';
+}
+function avYtbPreencher(){
+  if(!atletaSel) return;
+  const set=(id,v)=>{ const el=document.getElementById(id); if(el) el.value=v||''; };
+  set('ytb-rating', atletaSel.rating_geral);
+  set('ytb-badge', atletaSel.badge_estado);
+  set('ytb-ex1', atletaSel.area_excelencia_1);
+  set('ytb-ex2', atletaSel.area_excelencia_2);
+  set('ytb-ex3', atletaSel.area_excelencia_3);
+}
+async function avYtbGravar(){
+  if(!atletaSel) return;
+  const g=id=>{ const el=document.getElementById(id); return el?(el.value||null):null; };
+  const btn=event&&event.currentTarget;
+  if(btn){ btn.disabled=true; btn.textContent='A guardar…'; }
+  try{
+    const {data,error}=await supa.rpc('ytb_treinador_atleta_classificar',{
+      p_atleta:atletaSel.id, p_rating_geral:g('ytb-rating'), p_badge_estado:g('ytb-badge'),
+      p_area_excelencia_1:g('ytb-ex1'), p_area_excelencia_2:g('ytb-ex2'), p_area_excelencia_3:g('ytb-ex3')
+    });
+    if(error||!data||!data.ok){ showToast('Não foi possível guardar: '+((data&&data.motivo)||(error&&error.message)||'erro')); return; }
+    showToast('Classificação YTB guardada ✓');
+    carregarAtletas();
+  }catch(e){ showToast('Sem ligação'); }
+  finally{ if(btn){ btn.disabled=false; btn.textContent='Guardar classificação'; } }
+}
+async function avYtbGerarIA(){
+  if(!atletaSel) return;
+  const a=atletaSel;
+  const btn=document.getElementById('btn-ia-ctx');
+  if(btn){ btn.disabled=true; btn.textContent='A gerar...'; }
+  const out=document.getElementById('ytb-ia-out');
+  try{
+    const idade=a.ano_nascimento?(new Date().getFullYear()-a.ano_nascimento):null;
+    const ctx={ posicao:a.posicao_principal||null, escalao:a.escalao||null, idade, clube:a.clube_actual||null,
+      associacao:a.associacao||null, divisao:a.divisao||null, epoca:a.epoca_ref||null,
+      golos:(a.golos_epoca??null), jogos:(a.jogos_epoca??null), assist:(a.assist_epoca??null),
+      golos_equipa:(a.golos_equipa_epoca??null), classificacao:a.classificacao_equipa||null };
+    let calc=[];
+    if(ctx.golos!=null && ctx.jogos){ calc.push('rácio golos/jogo: '+(ctx.golos/ctx.jogos).toFixed(2)); }
+    if(ctx.golos!=null && ctx.golos_equipa){ calc.push('peso nos golos da equipa: '+Math.round(ctx.golos/ctx.golos_equipa*100)+'%'); }
+    const linhas=[];
+    linhas.push('Posição: '+(ctx.posicao||'n/d')+' · Escalão: '+(ctx.escalao||'n/d')+(ctx.idade?(' · '+ctx.idade+' anos'):''));
+    linhas.push('Clube: '+(ctx.clube||'n/d')+' · Associação: '+(ctx.associacao||'n/d'));
+    linhas.push('Divisão/nível: '+(ctx.divisao||'NÃO INFORMADO'));
+    linhas.push('Época: '+(ctx.epoca||'n/d'));
+    linhas.push('Golos do atleta: '+(ctx.golos!=null?ctx.golos:'NÃO INFORMADO')+' · Jogos: '+(ctx.jogos!=null?ctx.jogos:'NÃO INFORMADO')+' · Assist: '+(ctx.assist!=null?ctx.assist:'n/d'));
+    linhas.push('Golos da equipa (total): '+(ctx.golos_equipa!=null?ctx.golos_equipa:'NÃO INFORMADO'));
+    linhas.push('Classificação da equipa: '+(ctx.classificacao||'NÃO INFORMADO'));
+    if(calc.length) linhas.push('Rácios já calculados (factuais): '+calc.join(' · '));
+
+    const prompt=`És o motor de avaliação contextual da YourTalentBase (futebol jovem, Portugal). A tua função é interpretar o desempenho de um jovem atleta TENDO EM CONTA O CONTEXTO onde joga — porque os números nus enganam: 30 golos numa equipa que marca 250 não valem o mesmo que 30 numa equipa que marca 60; a 1ª divisão não é a 2ª.
+
+DADOS DO ATLETA (sem nome):
+${linhas.join('\n')}
+
+REGRAS ABSOLUTAS DE HONESTIDADE:
+- Usa APENAS os dados fornecidos. NUNCA inventes números que não estão acima.
+- Onde diz "NÃO INFORMADO", NÃO inventes — ou omites, ou dizes explicitamente que falta esse dado para uma leitura completa.
+- Se tens os golos do atleta mas NÃO os da equipa, fala do rácio golos/jogo (que sabes), mas NÃO afirmes o peso na equipa (que não sabes).
+- Distingue sempre o que é FACTO (os números) do que é LEITURA (a tua interpretação).
+
+COMO CONTEXTUALIZAR:
+- Pondera o nível competitivo (divisão) e a posição na tabela da equipa.
+- Um avançado numa equipa fraca que marca muito carrega a equipa; numa equipa forte, partilha o mérito.
+- Sê conservador e profissional. Sem hype. Linguagem de scout sério, não de marketing.
+
+FORMATO DA RESPOSTA:
+- Texto corrido, PT-PT, 3ª pessoa, SEM nome do atleta.
+- 80 a 120 palavras.
+- Começa pela leitura contextual mais relevante. Termina com o que falta saber para uma avaliação mais completa (se aplicável).
+- Devolve APENAS o texto da análise. Sem JSON, sem markdown, sem aspas, sem preâmbulo.`;
+
+    const r=await fetch('/api/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt,max_tokens:600})});
+    if(!r.ok) throw new Error('API '+r.status);
+    const j=await r.json();
+    let txt=''; (j.content||[]).forEach(c=>{ if(c.type==='text') txt+=c.text; });
+    txt=(txt||'').trim();
+    if(txt.length<40) throw new Error('IA devolveu texto vazio ou curto demais');
+
+    const {error:insErr}=await supa.rpc('ytb_admin_aval_contextual',{ p_atleta:a.id, p_texto:txt, p_snapshot:ctx });
+    if(insErr) throw insErr;
+    if(out) out.textContent='✓ Gravada no histórico: “'+txt+'”';
+  }catch(e){
+    if(out) out.textContent='⚠ Não foi possível gerar: '+((e&&e.message)||'erro');
+  }
+  if(btn){ btn.disabled=false; btn.textContent='🧠 Gerar avaliação contextual (IA)'; }
+}
+/* Período do treino: 'epoca' (missão caseira curta, ~12min, o formato de sempre)
+   vs 'pre-epoca' (sessão mais longa e densa — pedido real do Mister Nuno para um
+   Sub-17 em pré-época: 5-6 exercícios em vez de 3, sem cortar aos 12min). */
+let avPeriodo='epoca';
+const AV_PERIODOS=[['epoca','Época'],['pre-epoca','Pré-época']];
+function avPeriodoChipsHTML(){
+  const desc={epoca:'3 exercícios · ~12min','pre-epoca':'5-6 exercícios · sem corte'};
+  return AV_PERIODOS.map(function(x){
+    var on=(avPeriodo===x[0]);
+    return '<button type="button" onclick="avPeriodoSet(\''+x[0]+'\')" style="font-family:inherit;cursor:pointer;text-align:center;border-radius:10px;width:100%;padding:12px 8px 10px;line-height:1.25;'+
+      (on?'background:var(--text);color:var(--bg);border:1px solid var(--text)'
+         :'background:transparent;color:var(--slate);border:1px solid var(--border2)')+
+      '"><div style="font-size:12px;font-weight:800;letter-spacing:.5px;text-transform:uppercase">'+x[1]+'</div>'
+      +'<div style="font-size:10px;font-weight:600;margin-top:3px;opacity:.75">'+(desc[x[0]]||'')+'</div>'
+      +'</button>';
+  }).join('');
+}
+function avPeriodoSet(p){
+  avPeriodo=p;
+  const el=document.getElementById('av-periodo-chips');
+  if(el) el.innerHTML=avPeriodoChipsHTML();
+}
+/* Foco do plano escolhido pelo treinador: 'auto' segue as debilidades avaliadas;
+   um foco explícito faz a maioria dos exercícios vir desse domínio (a escolha do
+   profissional manda sobre o automatismo). Escolhe-se ANTES de concluir, porque
+   concluir grava o plano e envia o convite à família. */
+let avFoco='auto';
+const AV_FOCOS=[['auto','Automático'],['fisico','Físico'],['tecnica','Técnica individual'],['tatico','Tático / decisão']];
+function avFocoChipsHTML(){
+  return AV_FOCOS.map(function(x){
+    var on=(avFoco===x[0]);
+    return '<button type="button" onclick="avFocoSet(\''+x[0]+'\')" style="font-family:inherit;font-size:12px;font-weight:800;letter-spacing:.5px;padding:14px 10px;cursor:pointer;text-transform:uppercase;border-radius:10px;width:100%;text-align:center;line-height:1.2;'+
+      (on?'background:var(--text);color:var(--bg);border:1px solid var(--text)'
+         :'background:transparent;color:var(--slate);border:1px solid var(--border2)')+
+      '">'+x[1]+'</button>';
+  }).join('');
+}
+function avFocoSet(f){
+  avFoco=f;
+  const el=document.getElementById('av-foco-chips');
+  if(el) el.innerHTML=avFocoChipsHTML();
 }
 function avTocar(k,n){
   avNivel1[k]=n;
@@ -739,7 +915,7 @@ async function montarJornadaTreinador(){
   etapas[3].dica=exec?((d.execucoes_desde_plano)+' treinos da família desde o último plano'):'A família ainda não treinou este plano';
   etapas[4].dica=retorno?'Há feedback no tab Retorno':'Feedback e confiança chegam quando a família treinar';
   etapas[5].dica=precisaReav?('Já passaram '+d.dias_desde_avaliacao+' dias — reavalia'):'Reavaliar a cada ~45 dias';
-  etapas[4].click=()=>{const t=document.querySelector('.tab[onclick*="retorno"]');if(t)t.click();};
+  etapas[4].click=()=>{ setTab('retorno'); };
   YTBVivo.jornada(mount,etapas,{aria:'Jornada de '+(atletaSel.primeiro_nome||atletaSel.nome)});
 }
 
@@ -807,6 +983,8 @@ async function gerarAvaliacao(){
     '<div class="score-big">'+medias.geral.toFixed(1)+'</div><div style="text-align:center;font-size:10px;color:var(--slate);margin-top:4px">/ 5</div>'+
     '<div style="font-size:9px;font-weight:800;letter-spacing:2px;color:var(--red);text-transform:uppercase;margin:16px 0 8px">Debilidades detetadas</div>'+
     debs.map(d=>'<div class="deb-item">⚠️ '+(debLabels[d]||d)+'</div>').join('')+
+    (avFoco!=='auto'?'<div style="font-size:11px;color:var(--slate);margin-top:10px;line-height:1.5">🎯 Plano dirigido por ti: maioria em <strong style="color:var(--text)">'+((AV_FOCOS.find(x=>x[0]===avFoco)||[])[1]||avFoco)+'</strong>, com as debilidades avaliadas em manutenção.</div>':'')+
+    (avPeriodo==='pre-epoca'?'<div style="font-size:11px;color:var(--slate);margin-top:6px;line-height:1.5">🏋️ Pré-época: sessões mais densas, 5-6 exercícios cada, sem corte de tempo.</div>':'')+
     (gravado?'':'<div style="background:rgba(255,80,80,.08);border:1px solid rgba(255,80,80,.35);border-radius:9px;padding:10px 12px;margin-top:11px;font-size:11px;line-height:1.5"><strong style="color:var(--red)">⚠ Não ficou gravado</strong> · '+esc(motivoFalha)+'. O plano abaixo é local — volta a concluir a avaliação com sessão ativa.</div>')+
     (linkEstado==='enviado'?'<div style="background:rgba(80,200,120,.08);border:1px solid rgba(80,200,120,.35);border-radius:9px;padding:10px 12px;margin-top:11px;font-size:11px;line-height:1.5"><strong style="color:var(--green)">📧 Convite enviado à família</strong> · '+esc(atletaSel.encarregado_email)+' recebe um link mágico e entra direto neste plano.</div>':'')+
     (linkEstado==='falhou'?'<div style="background:rgba(255,165,0,.08);border:1px solid rgba(255,165,0,.3);border-radius:9px;padding:10px 12px;margin-top:11px;font-size:11px;line-height:1.5"><strong style="color:var(--orange)">⚠ O plano ficou gravado, mas o email à família falhou.</strong> Reenvia com o botão ✉️ na lista de atletas.</div>':'')+
@@ -838,22 +1016,34 @@ function gerarPlano(debs, idadeAtleta){
     const intAlvo = Math.min(1 + ci, tetoIdade);
     const sessoes=[];
     for(let s=0;s<2;s++){
-      // pool: exercícios das debilidades que a idade permite
+      // pool: com foco explícito do treinador, a maioria vem do domínio escolhido
+      // (barreira de idade sempre aplicada); sem foco, segue as debilidades.
       let pool=[];
+      if(avFoco && avFoco!=='auto'){
+        const cats = avFoco==='tatico' ? ['tatica','decisao'] : [avFoco];
+        cats.forEach(c=>(EXERCICIOS[c]||[]).forEach(e=>{ if(seguro(e)) pool.push(e); }));
+        // mantém a debilidade avaliada mais relevante fora do foco (minoria, não some do radar)
+        debs.filter(d=>!cats.includes(d)).slice(0,1).forEach(d=>{ (EXERCICIOS[d]||[]).forEach(e=>{ if(seguro(e)) pool.push(e); }); });
+        if(!pool.length){ debs.forEach(d=>{ (EXERCICIOS[d]||[]).forEach(e=>{ if(seguro(e)) pool.push(e); }); }); }
+      } else {
       debs.forEach(d=>{ (EXERCICIOS[d]||[]).forEach(e=>{ if(seguro(e)) pool.push(e); }); });
       // completa sempre com base segura de técnica + físico (garante variedade e volume)
       ['tecnica','fisico'].forEach(c=>EXERCICIOS[c].forEach(e=>{ if(seguro(e)) pool.push(e); }));
+      }
       // preferir exercícios até à intensidade-alvo do ciclo (progressão); se poucos, alarga
       let pref=pool.filter(e=>(e.intensidade||1)<=intAlvo);
       const base=(pref.length>=3?pref:pool);
+      const ehPreEpoca = (avPeriodo==='pre-epoca');
+      const alvoExerc = ehPreEpoca ? 6 : 3;
+      const tetoMinutos = ehPreEpoca ? 999 : 12; // pré-época: sessão de treino a sério, sem corte por tempo
       const sessao=[];const usados=new Set();let g=0;
-      while(sessao.length<3 && base.length && g<200){
+      while(sessao.length<alvoExerc && base.length && g<200){
         g++;
-        const ex=base[(s*3+sessao.length+ci*2+g-1)%base.length];
+        const ex=base[(s*alvoExerc+sessao.length+ci*2+g-1)%base.length];
         if(!usados.has(ex.id)){ sessao.push(ex); usados.add(ex.id); }
         if(usados.size>=base.length) break;
-        // missão curta: para com 2 exercícios se já leva >= 12 min
-        if(sessao.length>=2 && sessao.reduce((a,e)=>a+(e.tempo||0),0)>=12) break;
+        // missão curta (só em época): para com 2 exercícios se já leva >= 12 min
+        if(!ehPreEpoca && sessao.length>=2 && sessao.reduce((a,e)=>a+(e.tempo||0),0)>=tetoMinutos) break;
       }
       sessoes.push(sessao);
     }
@@ -884,14 +1074,22 @@ function semanaParaHTML(sem, wi, comExport){
 }
 function renderTreino(){
   const c=document.getElementById('treino-area');
-  if(!avalSel||!avalSel.plano){
-    c.innerHTML='<div class="empty-state"><div class="empty-emoji">⚽</div>Faz uma avaliação primeiro para gerar o treino.</div>';
+  if(!atletaSel){
+    c.innerHTML='<div class="empty-state"><div class="empty-emoji">⚽</div>Seleciona um atleta primeiro.</div>';
     return;
   }
-  var idadePlano=idadeDoAtleta(atletaSel);
-  let html='<div class="dash-card"><div class="dash-card-eyebrow">Plano para '+esc(avalSel.nome)+' · 4 semanas</div>'+
-    '<div style="font-size:12px;color:var(--slate);line-height:1.5">Treino caseiro focado nas debilidades, <strong>adaptado à idade</strong>'+(idadePlano?(' ('+idadePlano+' anos)'):'')+' — a intensidade sobe ao longo das semanas e os exercícios de impacto só entram na idade certa. Cada sessão ~20-25 min.</div></div>';
-  avalSel.plano.forEach((sem,wi)=>{ html+=semanaParaHTML(sem,wi,true); });
+  let html='';
+  if(avalSel && avalSel.plano){
+    var idadePlano=idadeDoAtleta(atletaSel);
+    html+='<div class="dash-card"><div class="dash-card-eyebrow">Plano para '+esc(avalSel.nome)+' · 4 semanas</div>'+
+      '<div style="font-size:12px;color:var(--slate);line-height:1.5">Treino caseiro focado nas debilidades, <strong>adaptado à idade</strong>'+(idadePlano?(' ('+idadePlano+' anos)'):'')+' — a intensidade sobe ao longo das semanas e os exercícios de impacto só entram na idade certa. Cada sessão ~20-25 min.</div></div>';
+    avalSel.plano.forEach((sem,wi)=>{ html+=semanaParaHTML(sem,wi,true); });
+  } else {
+    html+='<div class="dash-card"><div class="dash-card-eyebrow">Plano de '+esc(atletaSel.primeiro_nome||atletaSel.nome)+'</div>'+
+      '<div style="font-size:12px;color:var(--slate);line-height:1.5">Ainda não avaliaste nesta sessão — mas o histórico de prescrições anteriores está todo aqui em baixo, guardado desde a primeira avaliação.</div></div>';
+  }
+  // histórico: sempre visível, independente de teres acabado de avaliar agora — já vive
+  // gravado na base de dados (ytb_treinador_avaliar grava em treinador_treinos com data).
   html+='<div class="dash-card" id="hist-treinos"><div class="dash-card-eyebrow">📜 Histórico de treinos prescritos</div><div style="font-size:11px;color:var(--slate)">A carregar…</div></div>';
   c.innerHTML=html;
   if(window.YTBExAnim)YTBExAnim.mountAll(c); // bonequinhos a demonstrar cada exercício
@@ -905,7 +1103,10 @@ async function carregarHistoricoTreinos(){
     const{data,error}=await supa.rpc('ytb_treinador_treinos_historico',{p_atleta:atletaSel.id});
     if(error)throw error;
     const lista=data||[];
-    if(!lista.length){ box.innerHTML='<div class="dash-card-eyebrow">📜 Histórico de treinos prescritos</div><div style="font-size:11px;color:var(--slate)">Ainda só há este plano — sem prescrições anteriores.</div>'; return; }
+    if(!lista.length){
+      var msgVazio = (avalSel&&avalSel.plano) ? 'Ainda só há este plano — sem prescrições anteriores.' : 'Ainda não há nenhum treino prescrito para este atleta.';
+      box.innerHTML='<div class="dash-card-eyebrow">📜 Histórico de treinos prescritos</div><div style="font-size:11px;color:var(--slate)">'+msgVazio+'</div>'; return;
+    }
     let h='<div class="dash-card-eyebrow">📜 Histórico de treinos prescritos <span style="color:var(--slate);font-weight:400">('+lista.length+')</span></div>';
     lista.forEach((t,i)=>{
       const dt=new Date(t.criado_em).toLocaleDateString('pt-PT',{day:'2-digit',month:'short',year:'numeric'});

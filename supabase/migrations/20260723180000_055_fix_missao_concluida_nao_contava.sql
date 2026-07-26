@@ -1,0 +1,16 @@
+-- 055: BUG CRITICO — missao do plano concluida nao contava para nada.
+-- Duas vias de registo: ytb_treino_registar (completa, escrevia atividade='plano'
+-- e chamava o streak) e ytb_treino_feedback (incompleta). O frontend chamava SO a
+-- incompleta; a completa era codigo morto. Resultado em producao:
+--   1) _ytb_dev_score conta adesao com "atividade='plano'" -> nenhuma missao
+--      concluida contava para os 40% de adesao do Development Score.
+--   2) o streak so avancava com 'treino livre' -> quem cumpria o plano do
+--      treinador nao ganhava streak nem marcos; quem registava treino livre, sim.
+-- Regra de Ouro partida no sitio exato. No piloto GFA as familias iam cumprir e
+-- nao ver retorno, e o Painel de Saude ia ler isso como falta de adesao.
+-- Correcao: ytb_treino_feedback escreve atividade='plano' e tempo_fonte='familia',
+-- chama _ytb_streak_marco, devolve streak/marco ao frontend (que passa a celebrar).
+-- Acrescentado o bypass de admin que faltava (coerente com a 054).
+-- Backfill do unico registo com prescrito_id e atividade a null.
+-- Corpo integral no historico Supabase (055_fix_missao_concluida_nao_contava).
+-- Bug fix durante preparacao de piloto, ao abrigo da excecao acordada.

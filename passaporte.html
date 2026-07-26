@@ -171,7 +171,7 @@
   .foot{text-align:center;font-size:11.5px;color:var(--muted);margin-top:18px;letter-spacing:.04em}
   .demo-tag{display:inline-block;color:var(--gold);font-weight:700}
 
-  .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--bg4);border:1px solid var(--border);color:var(--text);padding:12px 18px;border-radius:10px;font-size:14px;opacity:0;transition:.25s;z-index:50;pointer-events:none}
+  .toast{position:fixed;left:50%;top:64px;transform:translateX(-50%) translateY(-16px);background:var(--bg4);border:1px solid var(--gold-border,rgba(212,175,55,.32));color:var(--text);padding:12px 18px;border-radius:10px;font-size:14px;font-weight:600;opacity:0;transition:.25s;z-index:200;pointer-events:none;box-shadow:0 6px 24px rgba(0,0,0,.45);max-width:calc(100vw - 32px);text-align:center}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 
@@ -295,6 +295,9 @@
   }
 
   function devScoreHTML(ds){
+    if(ds.estado==='em_pausa'){
+      return '<div class="panel"><div style="font-size:13px;font-weight:800;margin-bottom:6px">🏖️ Época em pausa</div><div class="sub" style="margin:0">Estamos em férias — o score não desce enquanto não há treinos. Quando a época recomeçar, o relógio volta a contar. As missões e o Elite Coach continuam disponíveis, e só podem somar.</div></div>';
+    }
     if(ds.estado!=='ok'){
       return '<div class="panel"><div class="sub" style="margin:0">O score está a construir-se — cumpre as missões da semana e regista os jogos. Precisa de pelo menos 2 avaliações do treinador em dias diferentes ou 4 semanas de atividade.</div></div>';
     }
@@ -311,6 +314,7 @@
         '<div><div class="num" style="font-family:\'Barlow Condensed\',sans-serif;font-weight:900;font-size:54px;line-height:.9;color:var(--up)">'+ds.score+'</div>'+
         '<div style="font-size:10.5px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-top:5px">de 100</div></div>'+
         (tend[0]?'<div style="font-size:14px;font-weight:700;color:'+tend[1]+';padding-bottom:14px">'+tend[0]+'</div>':'')+
+        (ds.em_pausa?'<div style="font-size:11px;font-weight:700;color:var(--slate);padding-bottom:14px">🏖️ férias — o relógio está parado, o score não desce</div>':'')+
       '</div>'+
       '<div class="barx" style="margin-top:12px"><i style="width:'+Math.max(0,Math.min(100,ds.score))+'%;background:var(--up)"></i></div>'+
       '<div class="sub" style="margin:10px 0 0">Mede o teu desenvolvimento — não o teu talento. Compara-te só contigo próprio'+(desde?(', desde '+esc(desde)):'')+'. Sobe com missões cumpridas, consistência e a avaliação do treinador.</div>'+
@@ -396,7 +400,11 @@
     if(window.YTBVivo)YTBVivo.revelar(); // timeline viva: rows revelam ao entrar no ecrã
   }
 
-  function toast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},1900);}
+  function toast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t.__tm);t.__tm=setTimeout(function(){t.classList.remove('show');},2600);}
+  // feedback no próprio botão: o olho está no botão, não no topo do ecrã
+  function btnOK(b,txt){ if(!b) return; var t0=b.textContent,bg=b.style.background,cl=b.style.color,bd=b.style.border;
+    b.textContent=txt||'✓ Guardado'; b.style.background='rgba(0,212,106,.15)'; b.style.color='var(--green,#00D46A)'; b.style.border='1px solid rgba(0,212,106,.4)';
+    setTimeout(function(){ b.textContent=t0; b.style.background=bg; b.style.color=cl; b.style.border=bd; },1800); }
   function share(){
     var d=window.__d; var txt=(d?d.identidade.nome:'')+' — passaporte digital · YourTalentBase';
     var url=location.href;
@@ -450,6 +458,7 @@
         if(c.golos!=null)st.push(c.golos+' golo'+(c.golos===1?'':'s'));
         if(c.jogos!=null)st.push(c.jogos+' jogo'+(c.jogos===1?'':'s'));
         if(c.assist!=null)st.push(c.assist+' assist.');
+        if(c.minutos!=null)st.push(c.minutos+"'");
         var linha2=[c.clube,c.escalao,c.divisao].filter(Boolean).join(' · ');
         return [c.epoca||'', linha2, [tit,st.join(' · ')].filter(Boolean).join(' · ')];
       }),
@@ -836,6 +845,11 @@
         T.feitas.push({semana:w+1,sessao:s+1}); ov.remove();
         var ss=document.getElementById('tr-ss-'+w+'-'+s);
         if(ss){ ss.classList.add('done'); var st=ss.querySelector('.tr-ss-st'); if(st) st.textContent='✓ feita'; var act=ss.querySelector('.tr-act'); if(act) act.outerHTML='<div class="tr-donemsg">Boa! Esta sessão já está registada no teu passaporte.</div>'; }
+        // retorno imediato: o esforço tem de se ver (Regra de Ouro — quem alimenta recebe)
+        var streak = d.streak||0, marco = d.marco||null;
+        if(marco){ toast('🔥 '+marco+' dias seguidos! Novo marco no passaporte'); }
+        else if(streak>1){ toast('✓ Sessão registada · '+streak+' dias seguidos 🔥'); }
+        else { toast('✓ Sessão registada no passaporte'); }
       }).catch(function(){ btn.disabled=false; btn.textContent='Enviar e marcar feito'; alert('Sem ligação.'); });
     };
   };
@@ -869,6 +883,15 @@
      +'#pp-jornada{margin-top:14px}'
      +'.fam-group{margin-top:44px}'
      +'.fam-group:first-child{margin-top:0}'
+     /* ── Pivot estilo Windows Phone 8: títulos grandes, o seguinte espreita; conteúdo desliza ao dedo ── */
+     +'.fam-pivo-head{display:flex;gap:24px;overflow-x:auto;position:sticky;top:0;z-index:60;background:var(--bg);padding:14px 2px 10px;scrollbar-width:none;-webkit-overflow-scrolling:touch}'
+     +'.fam-pivo-head::-webkit-scrollbar{display:none}'
+     +'.fam-pivo-head button{flex:0 0 auto;font-family:\'Barlow Condensed\',sans-serif;font-weight:900;font-size:30px;line-height:1;letter-spacing:-.3px;color:var(--muted);background:none;border:none;padding:0;cursor:pointer;white-space:nowrap;transition:color .18s}'
+     +'.fam-pivo-head button.on{color:var(--text)}'
+     +'#fam-pivot{display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;align-items:flex-start}'
+     +'#fam-pivot::-webkit-scrollbar{display:none}'
+     +'body.fam-pivo .fam-group{flex:0 0 100%;min-width:100%;scroll-snap-align:start;scroll-snap-stop:always;margin-top:0;padding:2px 2px 24px}'
+     +'body.fam-pivo .fam-group-head{display:none}' /* o título vive no pivot, como no WP8 */
      +'.fam-group-head{margin:0 2px 16px}'
      +'.fam-group-head .eyebrow{display:block;margin-bottom:4px}'
      +'.fam-group-head h2{font-family:\'Barlow Condensed\',sans-serif;font-weight:900;font-size:22px;letter-spacing:-.2px;color:var(--text)}'
@@ -970,7 +993,7 @@
       var d=res&&res.data;
       if(!d||!d.ok){ toast('⚠ Não gravado ('+((d&&d.motivo)||'erro')+')'); return; }
       ['bio-alt','bio-pes','bio-pe'].forEach(function(id){ document.getElementById(id).value=''; });
-      toast('Medição guardada ✓'); carregarBioHist();
+      btnOK(document.getElementById('bio-btn'),'✓ Medição guardada'); toast('Medição guardada ✓ — já entrou no passaporte'); carregarBioHist();
     }).catch(function(){ toast('⚠ Sem ligação'); });
   };
   window.__paisGravar=function(){
@@ -980,7 +1003,7 @@
     supa.rpc('ytb_biometria_pais_registar',{p_atleta:window.__famAtleta,p_altura_pai:pai,p_altura_mae:mae}).then(function(res){
       var d=res&&res.data;
       if(!d||!d.ok){ toast('⚠ Não gravado ('+((d&&d.motivo)||'erro')+')'); return; }
-      toast('Guardado ✓ — a estimativa atualiza no passaporte');
+      btnOK(document.getElementById('pais-btn'),'✓ Alturas guardadas'); toast('Guardado ✓ — a estimativa atualiza no passaporte');
     }).catch(function(){ toast('⚠ Sem ligação'); });
   };
 
@@ -989,8 +1012,12 @@
     var box=document.getElementById('fam-tools'); if(!box) return;
     box.innerHTML='<div class="shead">O meu perfil</div><div class="panel" id="perfil-card">'
      +'<div class="sub" style="margin-bottom:10px">Clube, escalão e contacto — quem sabe isto primeiro és tu. <span style="color:var(--obs)">Fica marcado como declarado pela família</span>, nunca como avaliação.</div>'
+     +'<div class="fam-row"><input class="fam-input" id="pf-nome" type="text" placeholder="Nome completo" style="flex:2"><input class="fam-input" id="pf-ultnome" type="text" placeholder="Último apelido (opcional)" style="flex:1"></div>'
+     +'<div class="fam-row"><input class="fam-input" id="pf-ano" type="number" inputmode="numeric" placeholder="Ano nasc. (ex: 2013)" style="flex:1"><input class="fam-input" id="pf-mes" type="number" inputmode="numeric" min="1" max="12" placeholder="Mês" style="flex:1"><input class="fam-input" id="pf-dia" type="number" inputmode="numeric" min="1" max="31" placeholder="Dia" style="flex:1">'
+     +'<select class="fam-input" id="pf-sexo" style="flex:1"><option value="">Sexo</option><option value="M">Masculino</option><option value="F">Feminino</option></select></div>'
+     +'<div class="sub" style="margin:2px 0 10px;font-size:11px">A data de nascimento define o escalão e a leitura de maturação — corrige aqui se estiver errada.</div>'
      +'<div class="fam-row"><input class="fam-input" id="pf-clube" type="text" placeholder="Clube atual" style="flex:2"><input class="fam-input" id="pf-escalao" type="text" placeholder="Escalão (ex: Sub-12)" style="flex:1"></div>'
-     +'<div class="fam-row"><input class="fam-input" id="pf-assoc" type="text" placeholder="Associação (ex: AF Porto)"></div>'
+     +'<div class="fam-row"><input class="fam-input" id="pf-equipa" type="text" placeholder="Equipa (ex: Sub-12 A)" style="flex:1"><input class="fam-input" id="pf-assoc" type="text" placeholder="Associação (ex: AF Porto)" style="flex:1"></div>'
      +'<div class="fam-row"><select class="fam-input" id="pf-pos" style="flex:2">'+POSICOES_FAM.map(function(p){return '<option value="'+p[0]+'">'+p[1]+'</option>';}).join('')+'</select>'
      +'<select class="fam-input" id="pf-pe" style="flex:1"><option value="">Pé</option><option value="D">Direito</option><option value="E">Esquerdo</option><option value="A">Ambidestro</option></select></div>'
      +'<div class="fam-row"><input class="fam-input" id="pf-zz" type="url" placeholder="URL ZeroZero (opcional)"></div>'
@@ -998,10 +1025,13 @@
      +'<div class="sub" style="margin:12px 0 8px;padding-top:10px;border-top:1px solid var(--border)">Contacto do encarregado de educação — para receberes o passaporte e os planos.</div>'
      +'<div class="fam-row"><input class="fam-input" id="pf-eenome" type="text" placeholder="O teu nome" style="flex:1"><input class="fam-input" id="pf-eetel" type="tel" placeholder="WhatsApp" style="flex:1"></div>'
      +'<button class="fam-btn" onclick="window.__perfilGravar()">Guardar perfil →</button></div>'
+     +'<div class="shead">Relatório do mês</div><div class="panel">'
+     +'<div class="sub" style="margin-bottom:10px">O mês dele numa folha: o que fez, o que o treinador viu, o que mudou. Para guardar em PDF ou mostrar a quem quiseres.</div>'
+     +'<button class="fam-btn" onclick="window.open(\'relatorio.html?atleta=\'+encodeURIComponent(window.__famAtleta),\'_blank\')">Abrir relatório deste mês →</button></div>'
      +'<div class="shead">Estatísticas da época</div><div class="panel" id="epoca-card">'
      +'<div class="sub" style="margin-bottom:10px">Golos, jogos e assistências desta época — o orgulho fica registado no percurso dele.</div>'
      +'<div class="fam-row"><input class="fam-input" id="ep-ref" type="text" placeholder="Época (ex: 2025/26)" style="flex:1"><input class="fam-input" id="ep-div" type="text" placeholder="Divisão / nível" style="flex:2"></div>'
-     +'<div class="fam-row"><input class="fam-input" id="ep-golos" type="number" inputmode="numeric" placeholder="Golos" style="flex:1"><input class="fam-input" id="ep-jogos" type="number" inputmode="numeric" placeholder="Jogos" style="flex:1"><input class="fam-input" id="ep-assist" type="number" inputmode="numeric" placeholder="Assist." style="flex:1"></div>'
+     +'<div class="fam-row"><input class="fam-input" id="ep-golos" type="number" inputmode="numeric" placeholder="Golos" style="flex:1"><input class="fam-input" id="ep-jogos" type="number" inputmode="numeric" placeholder="Jogos" style="flex:1"><input class="fam-input" id="ep-assist" type="number" inputmode="numeric" placeholder="Assist." style="flex:1"><input class="fam-input" id="ep-minutos" type="number" inputmode="numeric" placeholder="Minutos" style="flex:1"></div>'
      +'<div class="fam-row"><input class="fam-input" id="ep-goleq" type="number" inputmode="numeric" placeholder="Golos da equipa" style="flex:1"><input class="fam-input" id="ep-class" type="text" placeholder="Classificação (ex: 3º de 12)" style="flex:2"></div>'
      +'<button class="fam-btn" onclick="window.__epocaGravar()">Guardar estatísticas →</button>'
      +'<button class="fam-btn" style="background:var(--bg3);color:var(--text);border:1px solid var(--border2)" onclick="window.__epocaFechar()">Fechar a época →</button>'
@@ -1012,6 +1042,7 @@
      +'<div class="fam-row"><input class="fam-input" id="car-epoca" type="text" placeholder="Época (ex: 24/25)" style="flex:1"><input class="fam-input" id="car-clube" type="text" placeholder="Clube" style="flex:2"></div>'
      +'<div class="fam-row"><input class="fam-input" id="car-escalao" type="text" placeholder="Escalão (ex: Sub-10)" style="flex:1"><input class="fam-input" id="car-divisao" type="text" placeholder="Divisão (opcional)" style="flex:2"></div>'
      +'<div class="fam-row"><input class="fam-input" id="car-class" type="text" placeholder="Classificação (ex: 4º lugar)" style="flex:1"><input class="fam-input" id="car-titulo" type="text" placeholder="Título? (ex: Campeão Divisão Elite)" style="flex:2"></div>'
+     +'<div class="fam-row"><input class="fam-input" id="car-golos" type="number" inputmode="numeric" placeholder="Golos" style="flex:1"><input class="fam-input" id="car-jogos" type="number" inputmode="numeric" placeholder="Jogos" style="flex:1"><input class="fam-input" id="car-assist" type="number" inputmode="numeric" placeholder="Assist." style="flex:1"><input class="fam-input" id="car-minutos" type="number" inputmode="numeric" placeholder="Minutos" style="flex:1"></div>'
      +'<button class="fam-btn" onclick="window.__carreiraGravar()">Guardar época →</button>'
      +'<div class="sub" style="margin:8px 0 0;font-size:12px">Para corrigir uma época, volta a guardá-la com os dados certos — substitui a antiga. Títulos novos ficam como marcos no passaporte.</div></div>'
      +'<div class="shead">Diário de treinos</div><div class="panel" id="diario-card">'
@@ -1023,11 +1054,11 @@
      +'<div class="shead">Crescimento</div><div class="panel" id="bio-card">'
      +'<div class="sub" style="margin-bottom:10px">Altura, peso e pé — uma medição de vez em quando desenha a trajetória de crescimento. Nunca visível ao público.</div>'
      +'<div class="fam-row"><input class="fam-input" id="bio-alt" type="number" inputmode="decimal" placeholder="Altura (cm)" style="flex:1"><input class="fam-input" id="bio-pes" type="number" inputmode="decimal" placeholder="Peso (kg)" style="flex:1"><input class="fam-input" id="bio-pe" type="number" inputmode="decimal" placeholder="Pé (EU)" style="flex:1"></div>'
-     +'<button class="fam-btn" onclick="window.__bioGravar()">Guardar medição →</button>'
+     +'<button class="fam-btn" id="bio-btn" onclick="window.__bioGravar()">Guardar medição →</button>'
      +'<div id="bio-hist" style="margin-top:10px"></div>'
      +'<div class="sub" style="margin:14px 0 8px;padding-top:12px;border-top:1px solid var(--border)">Altura dos pais — para estimar a altura adulta prevista. Basta uma vez.</div>'
      +'<div class="fam-row"><input class="fam-input" id="bio-pai" type="number" inputmode="decimal" placeholder="Altura do pai (cm)" style="flex:1"><input class="fam-input" id="bio-mae" type="number" inputmode="decimal" placeholder="Altura da mãe (cm)" style="flex:1"></div>'
-     +'<button class="fam-btn" onclick="window.__paisGravar()">Guardar altura dos pais →</button></div>';
+     +'<button class="fam-btn" id="pais-btn" onclick="window.__paisGravar()">Guardar altura dos pais →</button></div>';
     carregarBioHist();
     carregarPerfilForm();
     carregarCarreiraLista();
@@ -1056,19 +1087,21 @@
   }
   window.__carreiraGravar=function(){
     function s(id){ var v=(document.getElementById(id).value||'').trim(); return v===''?null:v; }
+    function n(id){ var v=parseInt(document.getElementById(id).value,10); return isNaN(v)?null:v; }
     var b=document.getElementById('carreira-card').querySelector('.fam-btn');
     b.disabled=true; b.textContent='A guardar…';
     supa.rpc('ytb_carreira_registar',{
       p_atleta:window.__famAtleta, p_epoca:s('car-epoca'), p_clube:s('car-clube'), p_escalao:s('car-escalao'),
-      p_divisao:s('car-divisao'), p_classificacao:s('car-class'), p_titulo:s('car-titulo')
+      p_divisao:s('car-divisao'), p_classificacao:s('car-class'), p_titulo:s('car-titulo'),
+      p_golos:n('car-golos'), p_jogos:n('car-jogos'), p_assistencias:n('car-assist'), p_minutos:n('car-minutos')
     }).then(function(res){
       var d=res&&res.data; b.disabled=false; b.textContent='Guardar época →';
       if(!d||!d.ok){
-        var motivos={epoca_invalida:'época no formato 24/25', clube_escalao_obrigatorios:'clube e escalão são obrigatórios'};
+        var motivos={epoca_invalida:'época no formato 24/25', clube_escalao_obrigatorios:'clube e escalão são obrigatórios', minutos_invalidos:'minutos inválidos'};
         toast('⚠ '+(motivos[(d&&d.motivo)]||'Não gravado')); return;
       }
-      ['car-epoca','car-clube','car-escalao','car-divisao','car-class','car-titulo'].forEach(function(id){ document.getElementById(id).value=''; });
-      toast('Época guardada ✓ — já está no passaporte');
+      ['car-epoca','car-clube','car-escalao','car-divisao','car-class','car-titulo','car-golos','car-jogos','car-assist','car-minutos'].forEach(function(id){ document.getElementById(id).value=''; });
+      btnOK(b,'✓ Época guardada'); toast('Época guardada ✓ — já está no passaporte');
       carregarCarreiraLista();
     }).catch(function(){ b.disabled=false; b.textContent='Guardar época →'; toast('⚠ Sem ligação'); });
   };
@@ -1078,27 +1111,34 @@
       if(res&&res.error){ console.warn('ytb_familia_perfil_atual falhou', res.error); toast('Sessão expirada — entra de novo para editar o perfil'); return; }
       var p=res&&res.data; if(!p) return;
       var set=function(id,v){ var el=document.getElementById(id); if(el&&v!=null) el.value=v; };
-      set('pf-clube',p.clube_actual); set('pf-escalao',p.escalao); set('pf-assoc',p.associacao);
+      set('pf-nome',p.nome); set('pf-ultnome',p.ultimo_nome); set('pf-ano',p.ano_nascimento); set('pf-mes',p.mes_nascimento); set('pf-dia',p.dia_nascimento); set('pf-sexo',p.sexo);
+      set('pf-clube',p.clube_actual); set('pf-equipa',p.equipa); set('pf-escalao',p.escalao); set('pf-assoc',p.associacao);
       set('pf-pos',p.posicao_principal); set('pf-pe',p.pe_dominante); set('pf-zz',p.zerozero_url); set('pf-jp',p.joga_plus_url);
       set('pf-eenome',p.encarregado_nome); set('pf-eetel',p.encarregado_telefone);
       set('ep-ref',p.epoca_ref); set('ep-div',p.divisao); set('ep-golos',p.golos_epoca); set('ep-jogos',p.jogos_epoca);
-      set('ep-assist',p.assist_epoca); set('ep-goleq',p.golos_equipa_epoca); set('ep-class',p.classificacao_equipa);
+      set('ep-assist',p.assist_epoca); set('ep-minutos',p.minutos_epoca); set('ep-goleq',p.golos_equipa_epoca); set('ep-class',p.classificacao_equipa);
     }).catch(function(e){ console.warn('ytb_familia_perfil_atual: sem ligação', e); });
   }
   window.__perfilGravar=function(){
     function s(id){ var v=(document.getElementById(id).value||'').trim(); return v===''?null:v; }
+    function n(id){ var v=parseInt(document.getElementById(id).value,10); return isNaN(v)?null:v; }
     var b=document.getElementById('perfil-card').querySelector('.fam-btn');
     b.disabled=true; b.textContent='A guardar…';
     supa.rpc('ytb_familia_perfil_atualizar',{
-      p_atleta:window.__famAtleta, p_clube_actual:s('pf-clube'), p_equipa:null, p_escalao:s('pf-escalao'),
+      p_atleta:window.__famAtleta, p_clube_actual:s('pf-clube'), p_equipa:s('pf-equipa'), p_escalao:s('pf-escalao'),
       p_associacao:s('pf-assoc'), p_posicao_principal:s('pf-pos'), p_pe_dominante:s('pf-pe'),
-      p_zerozero_url:s('pf-zz'), p_joga_plus_url:s('pf-jp'), p_encarregado_nome:s('pf-eenome'), p_encarregado_telefone:s('pf-eetel')
+      p_zerozero_url:s('pf-zz'), p_joga_plus_url:s('pf-jp'), p_encarregado_nome:s('pf-eenome'), p_encarregado_telefone:s('pf-eetel'),
+      p_nome:s('pf-nome'), p_ultimo_nome:s('pf-ultnome'), p_ano_nascimento:n('pf-ano'), p_mes_nascimento:n('pf-mes'), p_dia_nascimento:n('pf-dia'), p_sexo:s('pf-sexo')
     }).then(function(res){
       b.disabled=false; b.textContent='Guardar perfil →';
       if(res&&res.error){ toast('⚠ Sessão expirada — entra de novo'); return; }
       var d=res&&res.data;
-      if(!d||!d.ok){ toast('⚠ Não gravado ('+((d&&d.motivo)||'erro')+')'); return; }
-      toast('Perfil guardado ✓');
+      if(!d||!d.ok){
+        var motivos={posicao_invalida:'posição inválida', sexo_invalido:'sexo inválido',
+          ano_nascimento_invalido:'ano de nascimento fora do intervalo esperado', mes_invalido:'mês inválido (1-12)', dia_invalido:'dia inválido (1-31)'};
+        toast('⚠ '+(motivos[(d&&d.motivo)]||'Não gravado')); return;
+      }
+      btnOK(b,'✓ Perfil guardado'); toast('Perfil guardado ✓');
     }).catch(function(){ b.disabled=false; b.textContent='Guardar perfil →'; toast('⚠ Sem ligação'); });
   };
   window.__epocaGravar=function(){
@@ -1109,13 +1149,13 @@
     supa.rpc('ytb_familia_epoca_registar',{
       p_atleta:window.__famAtleta, p_epoca_ref:s('ep-ref'), p_divisao:s('ep-div'),
       p_golos_epoca:n('ep-golos'), p_jogos_epoca:n('ep-jogos'), p_assist_epoca:n('ep-assist'),
-      p_golos_equipa_epoca:n('ep-goleq'), p_classificacao_equipa:s('ep-class')
+      p_minutos_epoca:n('ep-minutos'), p_golos_equipa_epoca:n('ep-goleq'), p_classificacao_equipa:s('ep-class')
     }).then(function(res){
       b.disabled=false; b.textContent='Guardar estatísticas →';
       if(res&&res.error){ toast('⚠ Sessão expirada — entra de novo'); return; }
       var d=res&&res.data;
       if(!d||!d.ok){ toast('⚠ Não gravado ('+((d&&d.motivo)||'erro')+')'); return; }
-      toast('Estatísticas guardadas ✓ — fica no percurso dele');
+      btnOK(b,'✓ Guardadas'); toast('Estatísticas guardadas ✓ — ficam no percurso dele');
     }).catch(function(){ b.disabled=false; b.textContent='Guardar estatísticas →'; toast('⚠ Sem ligação'); });
   };
   window.__epocaFechar=function(){
@@ -1135,15 +1175,17 @@
                      nao_autorizado:'sem autorização'};
         toast('⚠ '+(motivos[(d&&d.motivo)]||'Não foi possível fechar')); return;
       }
-      ['ep-div','ep-golos','ep-jogos','ep-assist','ep-goleq','ep-class'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+      ['ep-div','ep-golos','ep-jogos','ep-assist','ep-minutos','ep-goleq','ep-class'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
       var er=document.getElementById('ep-ref'); if(er) er.value=d.proxima||'';
-      toast('Época '+d.epoca+' fechada ✓ — ficou no percurso');
+      btnOK(b,'✓ Época fechada'); toast('Época '+d.epoca+' fechada ✓ — ficou no percurso dele');
       carregarCarreiraLista();
     }).catch(function(){ b.disabled=false; b.textContent='Fechar a época →'; toast('⚠ Sem ligação'); });
   };
 
   function carregarFamiliaExtras(atletaId){
     window.__famAtleta=atletaId;
+    // telemetria do piloto: regista que a família abriu o passaporte (fire-and-forget)
+    try{ supa.rpc('ytb_registar_acesso',{p_atleta:atletaId,p_rosto:'familia'}).then(function(){}).catch(function(){}); }catch(e){}
     famCSS();
     var app=document.getElementById('app'); if(!app) return;
     // grupos por género de função, inseridos em ordem inversa (cada insertBefore
@@ -1164,6 +1206,8 @@
     montarJornadaPP();
     carregarOQM(atletaId);
     renderFamTools();
+    // navegação por secções: agora e depois (grupos como Privacidade nascem async)
+    famNav(); setTimeout(famNav,700); setTimeout(famNav,2200);
     // trocar de atleta (irmãos ligados ao mesmo email)
     supa.rpc('ytb_meus_atletas',{}).then(function(res){
       var lista=(res&&res.data)||[];
@@ -1175,6 +1219,82 @@
   }
   window.__famExtras=carregarFamiliaExtras;
   window.__famJornada=montarJornadaPP;
+
+  // ── Pivot estilo Windows Phone 8: deslizar lateralmente entre secções ──
+  var __famPivoIdx=0;
+  function famPivoAltura(){
+    var piv=document.getElementById('fam-pivot'); if(!piv) return;
+    var grupos=piv.querySelectorAll('.fam-group');
+    var g=grupos[__famPivoIdx];
+    if(g) piv.style.height=g.offsetHeight+'px'; // só a secção ativa define a altura da página
+  }
+  function famNav(){
+    var app=document.getElementById('app'); if(!app) return;
+    var head=document.getElementById('fam-pivo-head');
+    var piv=document.getElementById('fam-pivot');
+    if(!piv){
+      head=document.createElement('nav'); head.id='fam-pivo-head'; head.className='fam-pivo-head';
+      piv=document.createElement('div'); piv.id='fam-pivot';
+      app.insertBefore(piv, app.firstChild);
+      app.insertBefore(head, piv);
+      // colar por BAIXO do header sticky do site, não por cima dele
+      var topo=document.querySelector('.top');
+      if(topo) head.style.top=topo.offsetHeight+'px';
+      // dica de deslize (uma vez por sessão)
+      try{
+        if(!sessionStorage.getItem('ytb-pivo-dica-fam')){
+          var dica=document.createElement('div');
+          dica.style.cssText='font-size:11px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase;padding:2px 2px 8px;pointer-events:none';
+          dica.textContent='↔ desliza para os lados para mudar de secção';
+          app.insertBefore(dica, piv);
+          setTimeout(function(){ dica.style.transition='opacity .6s'; dica.style.opacity='0';
+            setTimeout(function(){ if(dica.parentNode) dica.parentNode.removeChild(dica); },700); }, 4000);
+          sessionStorage.setItem('ytb-pivo-dica-fam','1');
+        }
+      }catch(e){}
+      // sincronizar o título com o deslize (índice pelo scroll nativo)
+      var tm=null;
+      piv.addEventListener('scroll', function(){
+        if(tm) return;
+        tm=setTimeout(function(){ tm=null;
+          var w=piv.clientWidth||1;
+          famPivoMarca(Math.round(piv.scrollLeft/w));
+        },80);
+      }, {passive:true});
+      // conteúdo que cresce async (listas, cartas) → altura acompanha
+      if(window.ResizeObserver && !piv.__ro){
+        piv.__ro=new ResizeObserver(function(){ famPivoAltura(); });
+      }
+    }
+    // adotar qualquer .fam-group que ainda viva fora do pivot (ex.: Privacidade, criada async)
+    Array.prototype.slice.call(app.querySelectorAll('.fam-group')).forEach(function(g){
+      if(g.parentNode!==piv) piv.appendChild(g);
+      if(piv.__ro && !g.__roOn){ piv.__ro.observe(g); g.__roOn=true; }
+    });
+    var grupos=Array.prototype.slice.call(piv.querySelectorAll('.fam-group'));
+    if(grupos.length<2){ document.body.classList.remove('fam-pivo'); piv.style.height=''; return; }
+    document.body.classList.add('fam-pivo');
+    head.innerHTML=grupos.map(function(g,i){
+      var lbl=((g.querySelector('.fam-group-head h2')||{}).textContent)||((g.querySelector('.eyebrow')||{}).textContent)||g.id;
+      return '<button type="button" data-i="'+i+'" onclick="__famPivoIr('+i+')">'+esc(lbl.toLowerCase())+'</button>';
+    }).join('');
+    famPivoMarca(Math.round((piv.scrollLeft||0)/(piv.clientWidth||1)));
+  }
+  function famPivoMarca(i){
+    __famPivoIdx=Math.max(0,i||0);
+    var head=document.getElementById('fam-pivo-head'); if(!head) return;
+    var btns=head.querySelectorAll('button');
+    btns.forEach(function(b,k){ b.classList.toggle('on', k===__famPivoIdx); });
+    var on=btns[__famPivoIdx]; if(on && on.scrollIntoView) try{ on.scrollIntoView({inline:'start',block:'nearest',behavior:'smooth'}); }catch(e){}
+    famPivoAltura();
+  }
+  window.__famPivoIr=function(i){
+    var piv=document.getElementById('fam-pivot'); if(!piv) return;
+    try{ piv.scrollTo({left:i*piv.clientWidth,behavior:'smooth'}); }catch(e){ piv.scrollLeft=i*piv.clientWidth; }
+    famPivoMarca(i);
+    try{ window.scrollTo({top:0,behavior:'smooth'}); }catch(e){}
+  };
+  window.__famNav=famNav;
 
   function adminBanner(nome){
     var b=document.createElement('div');
@@ -1257,6 +1377,7 @@
           grupo=document.createElement('section'); grupo.id='grupo-privacidade'; grupo.className='fam-group';
           grupo.innerHTML='<div class="fam-group-head"><span class="eyebrow">Privacidade</span><h2>O que é visível</h2></div>';
           app.appendChild(grupo);
+          if(window.__famNav) window.__famNav();
         }
         grupo.appendChild(d);
       } else { document.body.appendChild(d); }

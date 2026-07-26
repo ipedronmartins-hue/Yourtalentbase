@@ -1,0 +1,7 @@
+-- 050: pausas oficiais de epoca (ferias) param o relogio do Development Score.
+-- Atletas inseridos antes de 3/ago estavam de ferias e o score caia sem culpa:
+-- adesao (40) e consistencia (25) contavam semanas de ferias como faltadas.
+-- Semanas que tocam uma pausa saem do denominador; componente sem semanas uteis
+-- nao conta de todo (nem peso). Cognitivo em pausa so conta se somar. Estado novo
+-- 'em_pausa'. Pausa semeada: 2026-06-15 a 2026-08-02. Gestao: RPC admin
+-- ytb_pausa_definir. Corpo integral no historico Supabase (050_pausas_epoca_dev_score_justo).

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Console · Scouting 360 YTB</title>
 <meta name="robots" content="noindex,nofollow">
-<meta name="theme-color" content="#080C08">
+<meta name="theme-color" content="var(--bg)">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -14,6 +14,7 @@
 <link rel="apple-touch-icon" href="/icons/admin-192.svg">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,700;0,800;0,900;1,900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/assets/js/ytb-pivot.js"></script>
 <!-- Design system único: fonte dos tokens aprovados (ver ytb.css) -->
 <link rel="stylesheet" href="ytb.css">
 <style>
@@ -24,7 +25,7 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-hei
 /* NAV */
 .nav{position:sticky;top:0;z-index:50;background:rgba(8,12,8,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;max-width:1400px;margin:0 auto}
 .nav-l{display:flex;align-items:center;gap:12px}
-.admin-tag{font-size:9px;font-weight:800;letter-spacing:2px;color:var(--red);text-transform:uppercase;padding:3px 8px;border:1px solid rgba(255,74,74,.3);background:rgba(255,74,74,.06)}
+.admin-tag{font-size:9px;font-weight:800;letter-spacing:2px;color:var(--red);text-transform:uppercase;padding:3px 8px;border:1px solid rgba(255,80,80,.3);background:rgba(255,80,80,.06)}
 .nav-out{font-size:10px;color:var(--muted);cursor:pointer;text-decoration:none;padding:5px 10px;border:1px solid var(--border)}
 .nav-out:hover{border-color:var(--gold-border);color:#fff}
 
@@ -99,12 +100,13 @@ tr:last-child td{border-bottom:none}
 
 /* PILLS */
 .pill{display:inline-block;font-size:9px;font-weight:800;letter-spacing:1px;padding:2px 7px;text-transform:uppercase}
-.pill-pendente{background:rgba(255,165,0,.15);color:var(--orange);border:1px solid rgba(255,165,0,.3)}
+.pill-pendente{background:rgba(224,164,88,.15);color:var(--orange);border:1px solid rgba(224,164,88,.3)}
 .pill-aprovado{background:rgba(0,212,106,.15);color:var(--green);border:1px solid rgba(0,212,106,.3)}
-.pill-rejeitado{background:rgba(255,74,74,.15);color:var(--red);border:1px solid rgba(255,74,74,.3)}
+.pill-rejeitado{background:rgba(255,80,80,.15);color:var(--red);border:1px solid rgba(255,80,80,.3)}
 .pill-arquivado{background:rgba(160,160,160,.15);color:#aaa;border:1px solid #444}
 .pill-oculto{background:rgba(167,139,250,.1);color:var(--purple);border:1px solid rgba(167,139,250,.3)}
 .pill-admin{background:rgba(212,175,55,.15);color:var(--gold);border:1px solid var(--gold-border)}
+.pill-suspenso{background:rgba(255,80,80,.15);color:var(--red);border:1px solid rgba(255,80,80,.3)}
 
 /* RATING */
 .r-rating-mini{display:inline-block;font-family:'Barlow Condensed';font-weight:900;font-size:13px;padding:2px 7px;letter-spacing:-.3px;min-width:30px;text-align:center}
@@ -120,6 +122,10 @@ tr:last-child td{border-bottom:none}
 .action-btn.success:hover{border-color:var(--green);color:var(--green)}
 .action-btn.whatsapp{border-color:rgba(0,212,106,.3);color:var(--green)}
 .action-btn.whatsapp:hover{background:rgba(0,212,106,.1)}
+.action-btn.reativar{border-color:rgba(0,212,106,.3);color:var(--green)}
+.action-btn.reativar:hover{background:rgba(0,212,106,.1)}
+.action-btn.suspender{border-color:rgba(255,80,80,.3);color:var(--red)}
+.action-btn.suspender:hover{background:rgba(255,80,80,.1)}
 
 /* EMPTY */
 .empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:12px}
@@ -180,14 +186,14 @@ tr:last-child td{border-bottom:none}
   </div>
   <a class="nav-out" onclick="logout()">Sair</a>
 </nav>
-<div style="display:flex;gap:8px;flex-wrap:wrap;padding:10px 18px;background:#0d100d;border-bottom:1px solid #1F2520;font-size:12px">
-  <span style="color:#7a7a7a;align-self:center">Entrar como →</span>
-  <a href="ytb-pro-treinador.html" style="color:#D4AF37;text-decoration:none;border:1px solid #2a2f28;border-radius:7px;padding:5px 11px">🎓 Pro Treinador</a>
-  <a href="coachbase.html" style="color:#D4AF37;text-decoration:none;border:1px solid #2a2f28;border-radius:7px;padding:5px 11px">⚡ CoachBase</a>
-  <a href="acesso.html" style="color:#D4AF37;text-decoration:none;border:1px solid #2a2f28;border-radius:7px;padding:5px 11px">👨‍👧 Pro Família</a>
-  <a href="scouts.html" style="color:#D4AF37;text-decoration:none;border:1px solid #2a2f28;border-radius:7px;padding:5px 11px">📋 Área Scout</a>
-  <a href="scouting360.html" style="color:#D4AF37;text-decoration:none;border:1px solid #2a2f28;border-radius:7px;padding:5px 11px">🔎 Dashboard B2B</a>
-  <a href="elite-coach.html" style="color:#D4AF37;text-decoration:none;border:1px solid #2a2f28;border-radius:7px;padding:5px 11px">🧠 Elite Coach</a>
+<div style="display:flex;gap:8px;flex-wrap:wrap;padding:10px 18px;background:var(--bg);border-bottom:1px solid var(--border);font-size:12px">
+  <span style="color:var(--muted);align-self:center">Entrar como →</span>
+  <a href="ytb-pro-treinador.html" style="color:var(--gold);text-decoration:none;border:1px solid var(--border2);border-radius:7px;padding:5px 11px">🎓 Pro Treinador</a>
+  <a href="coachbase.html" style="color:var(--gold);text-decoration:none;border:1px solid var(--border2);border-radius:7px;padding:5px 11px">⚡ CoachBase</a>
+  <a href="acesso.html" style="color:var(--gold);text-decoration:none;border:1px solid var(--border2);border-radius:7px;padding:5px 11px">👨‍👧 Pro Família</a>
+  <a href="scouts.html" style="color:var(--gold);text-decoration:none;border:1px solid var(--border2);border-radius:7px;padding:5px 11px">📋 Área Scout</a>
+  <a href="scouting360.html" style="color:var(--gold);text-decoration:none;border:1px solid var(--border2);border-radius:7px;padding:5px 11px">🔎 Dashboard B2B</a>
+  <a href="elite-coach.html" style="color:var(--gold);text-decoration:none;border:1px solid var(--border2);border-radius:7px;padding:5px 11px">🧠 Elite Coach</a>
 </div>
 
 <div class="container">
@@ -224,6 +230,7 @@ tr:last-child td{border-bottom:none}
   <div class="tabs">
     <button class="tab active" onclick="showZona('decidir',event)">🔔 Decidir <span class="badge badge-red" id="zona-bg-decidir">0</span></button>
     <button class="tab" onclick="showZona('pessoas',event)">👥 Pessoas</button>
+    <button class="tab" onclick="showZona('piloto',event)">🩺 Piloto</button>
     <button class="tab" onclick="showZona('negocio',event)">💼 Negócio</button>
   </div>
   <!-- contadores por secção mantidos (ocultos) para compatibilidade com load() -->
@@ -240,7 +247,7 @@ tr:last-child td{border-bottom:none}
       <input class="search" id="s-atletas" type="search" placeholder="Procurar nome, clube, email...">
       <select class="f-select" id="f-estado">
         <option value="all">Todos estados</option>
-        <option value="pendente">A aguardar pagamento</option><option>aprovado</option><option>rejeitado</option><option>arquivado</option>
+        <option value="pendente">A aguardar pagamento</option><option>aprovado</option><option value="suspenso">Suspenso — sem acesso</option><option>rejeitado</option><option>arquivado</option>
       </select>
       <select class="f-select" id="f-fonte">
         <option value="all">Todas fontes</option>
@@ -276,22 +283,22 @@ tr:last-child td{border-bottom:none}
   <!-- PENDENTES -->
   <div class="section" id="section-comissoes">
     <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px">
-      <div style="flex:1;min-width:160px;background:#161B16;border:1px solid #2a2f28;border-radius:10px;padding:14px">
-        <div style="font-size:11px;color:#8A958A;text-transform:uppercase;letter-spacing:1px">A pagar aos treinadores</div>
-        <div id="com-total-pend" style="font-size:28px;font-weight:800;color:#E8A33D;margin-top:4px">—</div>
+      <div style="flex:1;min-width:160px;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:14px">
+        <div style="font-size:11px;color:var(--slate);text-transform:uppercase;letter-spacing:1px">A pagar aos treinadores</div>
+        <div id="com-total-pend" style="font-size:28px;font-weight:800;color:var(--orange);margin-top:4px">—</div>
       </div>
-      <div style="flex:1;min-width:160px;background:#161B16;border:1px solid #2a2f28;border-radius:10px;padding:14px">
-        <div style="font-size:11px;color:#8A958A;text-transform:uppercase;letter-spacing:1px">Já pago (treinador)</div>
-        <div id="com-total-pago" style="font-size:28px;font-weight:800;color:#27AE60;margin-top:4px">—</div>
+      <div style="flex:1;min-width:160px;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:14px">
+        <div style="font-size:11px;color:var(--slate);text-transform:uppercase;letter-spacing:1px">Já pago (treinador)</div>
+        <div id="com-total-pago" style="font-size:28px;font-weight:800;color:var(--green);margin-top:4px">—</div>
       </div>
-      <div style="flex:1;min-width:160px;background:#161B16;border:1px solid #2a2f28;border-radius:10px;padding:14px">
-        <div style="font-size:11px;color:#8A958A;text-transform:uppercase;letter-spacing:1px">A pagar às academias</div>
-        <div id="com-total-academia-pend" style="font-size:28px;font-weight:800;color:#4A9FE8;margin-top:4px">—</div>
+      <div style="flex:1;min-width:160px;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:14px">
+        <div style="font-size:11px;color:var(--slate);text-transform:uppercase;letter-spacing:1px">A pagar às academias</div>
+        <div id="com-total-academia-pend" style="font-size:28px;font-weight:800;color:var(--blue);margin-top:4px">—</div>
       </div>
     </div>
 
-    <div style="background:#161B16;border:1px solid #2a2f28;border-radius:10px;padding:14px;margin-bottom:14px">
-      <div style="font-size:11px;color:#8A958A;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Registar cobrança recebida</div>
+    <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:14px;margin-bottom:14px">
+      <div style="font-size:11px;color:var(--slate);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Registar cobrança recebida</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <select class="f-select" id="cob-tipo" style="min-width:170px">
           <option value="avaliacao">Avaliação (39,90€ · 19,90€ treinador)</option>
@@ -305,7 +312,7 @@ tr:last-child td{border-bottom:none}
         <input class="search" id="cob-valor" type="number" step="0.01" placeholder="Valor total recebido (€)" style="min-width:160px">
         <button class="action-btn success" onclick="registarCobranca()">+ Registar</button>
       </div>
-      <div style="font-size:11px;color:#8A958A;margin-top:8px">A repartição (treinador/academia/YTB) é calculada automaticamente pelo tipo — nunca à mão.</div>
+      <div style="font-size:11px;color:var(--slate);margin-top:8px">A repartição (treinador/academia/YTB) é calculada automaticamente pelo tipo — nunca à mão.</div>
     </div>
 
     <div class="table-wrap">
@@ -409,6 +416,15 @@ tr:last-child td{border-bottom:none}
   </div>
 
   <!-- CLUBES SUBSCRITORES -->
+  <div class="section" id="section-piloto">
+    <div style="font-size:11px;color:var(--muted);margin-bottom:12px">Não é um dashboard: é o estado de saúde. Responde a uma pergunta — <strong style="color:var(--text)">a YTB está a criar hábito ou a morrer?</strong> Semana atual (2ª feira → agora).</div>
+    <div id="piloto-alertas"></div>
+    <div id="piloto-circulos" style="margin:14px 0"></div>
+    <div id="piloto-blocos" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px"></div>
+    <div id="piloto-semcontacto" style="margin-top:14px"></div>
+    <div style="font-size:10px;color:var(--muted);margin-top:14px;line-height:1.5">A métrica de dependência ("se desligassem, quem telefonava primeiro?") não se mede aqui — mede-se ao teu telefone. Regista quem liga.</div>
+  </div>
+
   <div class="section" id="section-clubes">
     <div style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
       <input class="search" id="s-clubes" type="search" placeholder="Procurar clube..." style="flex:1;min-width:200px;max-width:400px">
@@ -482,7 +498,7 @@ tr:last-child td{border-bottom:none}
         </select>
       </div>
       <div class="edit-field full"><label class="edit-label">URL do logo (marca própria, opcional)</label><input class="edit-input" id="c_logo" type="url" placeholder="https://..."></div>
-      <div class="edit-field"><label class="edit-label">Cor principal (opcional)</label><input class="edit-input" id="c_cor" type="text" placeholder="#D4AF37"></div>
+      <div class="edit-field"><label class="edit-label">Cor principal (opcional)</label><input class="edit-input" id="c_cor" type="text" placeholder="var(--gold)"></div>
       <div class="edit-field full"><label class="edit-label">Notas admin</label><textarea class="edit-textarea" id="c_notas"></textarea></div>
     </div>
     <div class="modal-btns">
@@ -560,6 +576,7 @@ verificarAdmin().then(ok => {
   if(ok && typeof load === 'function'){ load(); }
 });
 
+const MESTRE_EMAILS = ['ipedronmartins@gmail.com','yourtalentbase@gmail.com']; // mesma lista de MESTRE (login) e CONTAS_PROTEGIDAS (contas)
 let allAtletas = [], allPendentes = [], allPedidos = [], allClubes = [], allTreinadores = [], allRelatorios = [], allAtletasTreinador = [];
 let currentAtleta = null;
 let currentPedido = null;
@@ -577,28 +594,30 @@ function renderFilaDecisoes(pendentes, pedidos, registos){
   if(bd){ const tot = (pendentes||0)+(pedidos||0)+(registos||0); bd.textContent = tot; bd.style.display = tot>0 ? '' : 'none'; }
   if(!el) return;
   const itens = [];
-  if(pendentes > 0) itens.push({n:pendentes, txt:pendentes===1?'atleta por aprovar':'atletas por aprovar', tab:'pendentes', cor:'#FFA500'});
-  if(registos > 0)  itens.push({n:registos, txt:registos===1?'registo de treinador':'registos de treinador', tab:'treinadores', cor:'#FFA500'});
-  if(pedidos > 0)   itens.push({n:pedidos, txt:pedidos===1?'pedido de contacto':'pedidos de contacto', tab:'pedidos', cor:'#4A9FE8'});
+  if(pendentes > 0) itens.push({n:pendentes, txt:pendentes===1?'atleta por aprovar':'atletas por aprovar', tab:'pendentes', cor:'var(--orange)'});
+  if(registos > 0)  itens.push({n:registos, txt:registos===1?'registo de treinador':'registos de treinador', tab:'treinadores', cor:'var(--orange)'});
+  if(pedidos > 0)   itens.push({n:pedidos, txt:pedidos===1?'pedido de contacto':'pedidos de contacto', tab:'pedidos', cor:'var(--blue)'});
   if(!itens.length){
     el.innerHTML = '<div style="background:rgba(0,212,106,.06);border:1px solid rgba(0,212,106,.25);border-radius:10px;padding:11px 14px;font-size:13px;color:#9fe0bb">✓ Nada à espera de decisão. Tudo tratado.</div>';
     return;
   }
-  el.innerHTML = '<div style="background:#12160f;border:1px solid #2a2f28;border-radius:10px;padding:12px 14px">'
-    + '<div style="font-size:10px;font-weight:800;letter-spacing:1.5px;color:#7a7a7a;text-transform:uppercase;margin-bottom:9px">A precisar de ti agora</div>'
+  el.innerHTML = '<div style="background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:12px 14px">'
+    + '<div style="font-size:10px;font-weight:800;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:9px">A precisar de ti agora</div>'
     + '<div style="display:flex;gap:8px;flex-wrap:wrap">'
-    + itens.map(i => '<button class="action-btn" style="border-color:'+i.cor+'66;color:#ECEFEA;font-size:13px;padding:8px 13px" onclick="showTab(\''+i.tab+'\')"><span style="color:'+i.cor+';font-weight:800">'+i.n+'</span> '+i.txt+' →</button>').join('')
+    + itens.map(i => '<button class="action-btn" style="border-color:'+i.cor+'66;color:var(--text);font-size:13px;padding:8px 13px" onclick="showTab(\''+i.tab+'\')"><span style="color:'+i.cor+';font-weight:800">'+i.n+'</span> '+i.txt+' →</button>').join('')
     + '</div></div>';
 }
 
 // 3 zonas agrupam as 9 secções (que se mantêm intactas). Decidir primeiro.
+let __zonaAtiva = 'decidir';
 const ZONAS = {
   decidir: ['pendentes','pedidos','treinadores'],
   pessoas: ['portreinador','atletas','contas'],
+  piloto: ['piloto'],
   negocio: ['clubes','atletastreinador','relatorios','comissoes']
 };
 const SEC_TITULO = {
-  atletas:'📋 Atletas', pendentes:'⏳ Atletas por aprovar', pedidos:'📞 Pedidos de contacto',
+  piloto:'🩺 Saúde do Piloto', atletas:'📋 Atletas', pendentes:'⏳ Atletas por aprovar', pedidos:'📞 Pedidos de contacto',
   treinadores:'🎓 Registos de treinador', relatorios:'📄 Relatórios',
   atletastreinador:'⚽ Atletas de treinador · pagamentos', clubes:'🏢 Clubes',
   contas:'👤 Contas', comissoes:'💶 Comissões', portreinador:'📁 Atletas por treinador'
@@ -610,17 +629,104 @@ function garantirTitulo(sec, id){
   h.textContent = SEC_TITULO[id] || id;
   sec.insertBefore(h, sec.firstChild);
 }
+
+// ═══════ PAINEL DE SAÚDE DO PILOTO ═══════
+async function carregarPainelPiloto(){
+  const alv = document.getElementById('piloto-alertas');
+  if(alv) alv.innerHTML = '<div style="color:var(--muted);font-size:12px">A medir…</div>';
+  let d = null;
+  try { const r = await supa.rpc('ytb_painel_piloto'); d = r && r.data; } catch(e){}
+  if(!d || d.ok === false){ if(alv) alv.innerHTML = '<div style="color:var(--red);font-size:12px">Sem acesso ao painel.</div>'; return; }
+
+  // alertas primeiro — o painel existe para gritar, não para decorar
+  const alertas = d.alertas || [];
+  document.getElementById('piloto-alertas').innerHTML = alertas.length
+    ? alertas.map(a => '<div style="padding:9px 12px;margin-bottom:6px;font-size:12px;font-weight:700;border:1px solid '+(a.nivel==='vermelho'?'rgba(255,80,80,.4)':'rgba(224,164,88,.4)')+';color:'+(a.nivel==='vermelho'?'var(--red)':'var(--orange)')+'">'+(a.nivel==='vermelho'?'🚨 ':'⚠️ ')+escapeHtml(a.msg)+'</div>').join('')
+    : '<div style="padding:9px 12px;font-size:12px;font-weight:700;border:1px solid rgba(0,212,106,.35);color:var(--green)">✅ Sem alertas ativos</div>';
+
+  // círculos fechados — o indicador único
+  const c = d.circulos || {completos:0,total:0,detalhe:[]};
+  const pct = c.total ? Math.round(100*c.completos/c.total) : 0;
+  document.getElementById('piloto-circulos').innerHTML =
+    '<div style="border:1px solid var(--border2);padding:16px">'+
+    '<div style="font-size:10px;font-weight:800;letter-spacing:2px;color:var(--muted);text-transform:uppercase">Círculos fechados esta semana</div>'+
+    '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:42px;font-weight:800;line-height:1.1;color:'+(pct>=70?'var(--green)':(pct>=30?'var(--orange)':'var(--red)'))+'">'+c.completos+' / '+c.total+'</div>'+
+    '<div style="font-size:11px;color:var(--slate);margin-bottom:10px">treinador alimentou → família respondeu → atleta participou → sistema devolveu</div>'+
+    '<div style="display:flex;flex-wrap:wrap;gap:5px">'+
+      (c.detalhe||[]).map(a => '<span title="T:'+(a.t?'✓':'✗')+' F:'+(a.f?'✓':'✗')+' A:'+(a.a?'✓':'✗')+' S:'+(a.s?'✓':'✗')+'" style="font-size:10px;font-weight:700;padding:4px 8px;border:1px solid '+(a.completo?'rgba(0,212,106,.4)':'var(--border2)')+';color:'+(a.completo?'var(--green)':'var(--muted)')+'">'+(a.completo?'●':'○')+' '+escapeHtml(a.nome.split(' ')[0])+' <span style="letter-spacing:1px">'+(a.t?'T':'·')+(a.f?'F':'·')+(a.a?'A':'·')+(a.s?'S':'·')+'</span></span>').join('')+
+    '</div></div>';
+
+  // 4 blocos de recorrência
+  function bloco(titulo, linhas){
+    return '<div style="border:1px solid var(--border2);padding:12px 14px">'+
+      '<div style="font-size:10px;font-weight:800;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:8px">'+titulo+'</div>'+
+      linhas.map(l => '<div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0"><span style="color:var(--slate)">'+l[0]+'</span><strong style="color:'+(l[2]||'var(--text)')+'">'+l[1]+'</strong></div>').join('')+'</div>';
+  }
+  const t=d.treinador||{}, f=d.familia||{}, a=d.atleta||{}, ac=d.academia||{};
+  const nunca = v => (v===-1||v===null||v===undefined) ? 'nunca' : v;
+  document.getElementById('piloto-blocos').innerHTML =
+    bloco('🔄 O treinador voltou?', [
+      ['Avaliações hoje', t.avaliacoes_hoje||0],
+      ['Dias desde a última avaliação', nunca(t.dias_desde_ultima_avaliacao), (t.dias_desde_ultima_avaliacao===-1||t.dias_desde_ultima_avaliacao>3)?'var(--red)':'var(--green)'],
+      ['% atletas avaliados esta semana', (t.pct_atletas_avaliados_semana||0)+'%'],
+      ['Treinadores ativos (7 dias)', t.treinadores_ativos_7d||0]
+    ]) +
+    bloco('👨‍👩‍👦 A família voltou?', [
+      ['Famílias que abriram o passaporte', f.familias_abriram_semana||0],
+      ['Dias desde o último acesso', nunca(f.dias_desde_ultimo_acesso)],
+      ['Missões cumpridas esta semana', f.missoes_cumpridas_semana||0],
+      ['Relatórios mensais vistos', f.relatorios_vistos_semana||0]
+    ]) +
+    bloco('⚽ O atleta voltou?', [
+      ['Missões do plano concluídas', a.missoes_concluidas_semana||0],
+      ['Treinos livres', a.missoes_livres_semana||0],
+      ['Cenários Elite Coach', a.elite_coach_semana||0],
+      ['Atletas com atividade', a.atletas_com_atividade_semana||0]
+    ]) +
+    bloco('🏟️ A academia voltou?', [
+      ['Atletas ativos', ac.atletas_ativos||0],
+      ['Dias consecutivos com atividade', ac.dias_consecutivos_com_atividade||0],
+      ['Sem contacto há 14+ dias', (ac.sem_contacto_14d||[]).length, (ac.sem_contacto_14d||[]).length?'var(--red)':'var(--green)']
+    ]);
+
+  // lista nominal dos sem-contacto (o alerta com nomes, para agir)
+  const sc = ac.sem_contacto_14d||[];
+  document.getElementById('piloto-semcontacto').innerHTML = sc.length
+    ? '<div style="font-size:10px;font-weight:800;letter-spacing:1.5px;color:var(--red);text-transform:uppercase;margin-bottom:6px">Sem qualquer contacto</div>'+
+      sc.map(x => '<div style="font-size:12px;padding:4px 0;border-bottom:1px dotted var(--border2)"><span style="color:var(--text)">'+escapeHtml(x.nome)+'</span> <span style="color:var(--muted)">· '+(x.dias===null?'nunca teve atividade':('há '+x.dias+' dias'))+'</span></div>').join('')
+    : '';
+}
+
 function showZona(zona, ev){
   const ids = ZONAS[zona]; if(!ids) return;
   if(ids.includes('contas')) carregarContas();
   if(ids.includes('comissoes')) carregarComissoes();
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  let btn = ev && ev.currentTarget;
-  if(!btn){ btn = Array.from(document.querySelectorAll('.tab')).find(t => (t.getAttribute('onclick')||'').includes("'"+zona+"'")); }
-  if(btn) btn.classList.add('active');
+  if(ids.includes('piloto')) carregarPainelPiloto();
+  __zonaAtiva = zona;
+  if(window.YTBPivot){
+    var ZP_KEYS=['decidir','pessoas','piloto','negocio'];
+    var ZP_ROT=['decidir <span class="badge badge-red" id="zona-bg-decidir">'+((document.getElementById('zona-bg-decidir')||{}).textContent||'0')+'</span>','pessoas','piloto','negócio'];
+    var h=document.querySelector('.tabs');
+    if(h) YTBPivot.titulos(h, ZP_KEYS.map(function(k,i){ return {rotulo:ZP_ROT[i], ir:function(){ showZona(k); }}; }), Math.max(0,ZP_KEYS.indexOf(zona)));
+  } else {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    let btn = ev && ev.currentTarget;
+    if(!btn){ btn = Array.from(document.querySelectorAll('.tab')).find(t => (t.getAttribute('onclick')||'').includes("'"+zona+"'")); }
+    if(btn) btn.classList.add('active');
+  }
+  var ksAnim=['decidir','pessoas','piloto','negocio'];
+  var dirAnim=(typeof __zonaAnterior!=='undefined' && ksAnim.indexOf(zona)<ksAnim.indexOf(__zonaAnterior))?-1:1;
+  window.__zonaAnterior=zona;
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  ids.forEach(id => { const s = document.getElementById('section-'+id); if(s){ garantirTitulo(s, id); s.classList.add('active'); } });
+  ids.forEach(id => { const s = document.getElementById('section-'+id); if(s){ garantirTitulo(s, id); s.classList.add('active'); if(window.YTBPivot) YTBPivot.anima(s, dirAnim); } });
   try{ window.scrollTo({top:0,behavior:'smooth'}); }catch(e){}
+}
+if(window.YTBPivot){
+  YTBPivot.deslize(document.body, function(d){
+    var ks=['decidir','pessoas','piloto','negocio'];
+    var i=Math.min(ks.length-1, Math.max(0, ks.indexOf(__zonaAtiva)+d));
+    if(ks[i]!==__zonaAtiva) showZona(ks[i]);
+  });
 }
 // compatibilidade: chamadas antigas showTab('pendentes') abrem a zona certa e
 // fazem scroll até à secção (usado pela fila de decisões e pelos KPIs clicáveis).
@@ -706,23 +812,39 @@ async function load(){
 }
 
 // ════════════════ POR TREINADOR (pastas) ════════════════
+// Nota (fix 2026-07): as pastas eram geradas a partir de perfis com papel='treinador',
+// o que deixava invisíveis os atletas inseridos por uma conta admin (fonte_email não
+// aparecia em nenhuma pasta). Agora a pasta nasce dos atletas em si — uma por cada
+// fonte_email realmente presente — e o nome/email vem do perfil correspondente, seja
+// qual for o papel dele (admin, treinador, scout...).
 function renderPorTreinador(){
   const grid = document.getElementById('grid-portreinador');
   if(!grid) return;
-  const treinadores = allTreinadores.filter(t => t.papel === 'treinador' && t.estado === 'aprovado');
-  if(!treinadores.length){
-    grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="empty-icon">📁</div>Ainda sem treinadores aprovados.</div>';
+  const porEmail = {};
+  allAtletasTreinador.forEach(a => {
+    const email = (a.fonte_email || '').toLowerCase();
+    if(!email) return;
+    (porEmail[email] = porEmail[email] || []).push(a);
+  });
+  const emails = Object.keys(porEmail);
+  if(!emails.length){
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="empty-icon">📁</div>Ainda sem atletas inscritos por treinador.</div>';
     return;
   }
-  grid.innerHTML = treinadores.map(t => {
-    const n = allAtletasTreinador.filter(a => (a.fonte_email||'').toLowerCase() === (t.email||'').toLowerCase()).length;
-    return `<button onclick="abrirAtletasDoTreinador('${escapeHtml(t.email||'')}')" style="text-align:left;cursor:pointer;background:var(--bg2,#12160f);border:1px solid var(--border2,#2a2f28);border-radius:11px;padding:14px;color:inherit;font-family:inherit">
+  const cartoes = emails.map(email => {
+    const atletas = porEmail[email];
+    const perfil = allTreinadores.find(t => (t.email||'').toLowerCase() === email);
+    const ehAdminConta = MESTRE_EMAILS.includes(email) || (perfil && perfil.papel === 'admin');
+    const nome = (perfil && perfil.nome) || atletas[0].fonte_nome || email;
+    return { email, nome, n: atletas.length, ehAdminConta };
+  }).sort((x, y) => (y.ehAdminConta - x.ehAdminConta) || x.nome.localeCompare(y.nome));
+
+  grid.innerHTML = cartoes.map(c => `<button onclick="abrirAtletasDoTreinador('${escapeHtml(c.email)}')" style="text-align:left;cursor:pointer;background:var(--bg2,#0F1410);border:1px solid ${c.ehAdminConta ? 'var(--blue,#5AA9E6)' : 'var(--border2,#2A322B)'};border-radius:10px;padding:14px;color:inherit;font-family:inherit">
       <div style="font-size:22px;margin-bottom:6px">📁</div>
-      <div style="font-weight:800;font-size:14px">${escapeHtml(t.nome||t.email||'—')}</div>
-      <div style="font-size:11px;color:var(--muted,#7a7a7a);margin-top:3px">${escapeHtml(t.email||'')}</div>
-      <div style="font-size:12px;margin-top:8px;color:var(--gold,#D4AF37);font-weight:700">${n} ${n===1?'atleta':'atletas'} →</div>
-    </button>`;
-  }).join('');
+      <div style="font-weight:800;font-size:14px">${escapeHtml(c.nome)}${c.ehAdminConta ? ' <span style="font-size:10px;color:var(--blue,#5AA9E6);font-weight:800">· TU (ADMIN)</span>' : ''}</div>
+      <div style="font-size:11px;color:var(--muted,#6B756C);margin-top:3px">${escapeHtml(c.email)}</div>
+      <div style="font-size:12px;margin-top:8px;color:var(--gold,#D4AF37);font-weight:700">${c.n} ${c.n===1?'atleta':'atletas'} →</div>
+    </button>`).join('');
 }
 function abrirAtletasDoTreinador(email){
   showZona('pessoas');
@@ -772,7 +894,7 @@ function renderAtletas(){
       <td>${escapeHtml(a.clube_actual)}<div class="td-mute">${escapeHtml(a.associacao || '')}</div></td>
       <td><span class="pill pill-admin">${a.fonte}</span><div class="td-mute">${escapeHtml((a.fonte_nome || '').slice(0,20))}</div></td>
       <td><span class="r-rating-mini ${ratingClass(a.rating_geral)}">${a.rating_geral || '—'}</span></td>
-      <td><span class="pill pill-${a.estado}">${a.estado === 'pendente' ? 'A aguardar pagamento' : a.estado}</span></td>
+      <td><span class="pill pill-${a.estado}">${a.estado === 'pendente' ? 'A aguardar pagamento' : (a.estado === 'suspenso' ? 'Suspenso — sem acesso' : a.estado)}</span></td>
       <td>
         ${a.oculto_pelo_responsavel ? '<span class="pill pill-oculto">oculto</span>' : ''}
         ${a.visivel_publico ? '<span style="color:var(--green);font-size:14px" title="Público">●</span>' : '<span style="color:var(--muted);font-size:14px" title="Não público">○</span>'}
@@ -781,6 +903,9 @@ function renderAtletas(){
       <td style="white-space:nowrap">
         <button class="action-btn" onclick="window.open('passaporte.html?admin=${a.id}','_blank')" title="Ver passaporte">👁</button>
         <button class="action-btn" onclick="editarAtleta('${a.id}')">✏️</button>
+        ${a.estado === 'suspenso'
+          ? `<button class="action-btn reativar" onclick="suspenderAtleta('${a.id}', false)" title="Reativar acesso">▶️</button>`
+          : `<button class="action-btn suspender" onclick="suspenderAtleta('${a.id}', true)" title="Suspender acesso (pagamento em falta)">⏸</button>`}
         <button class="action-btn danger" onclick="apagarAtleta('${a.id}')">🗑</button>
       </td>
     </tr>
@@ -1265,6 +1390,29 @@ async function apagarAtleta(id){
   } catch(e){ toast('Erro: ' + (e && e.message || ''), 'error'); }
 }
 
+async function suspenderAtleta(id, suspender){
+  const alvo = allAtletas.find(x => x.id === id);
+  const nome = alvo ? alvo.nome : 'este atleta';
+  if(suspender){
+    const motivo = prompt(`Suspender o acesso de "${nome}" (ex: pagamento em falta).\n\nOs dados ficam guardados, a família só deixa de conseguir entrar no passaporte. É reversível.\n\nMotivo (opcional):`, 'Pagamento em falta');
+    if(motivo === null) return; // cancelou
+    try {
+      const { data, error } = await supa.rpc('ytb_admin_atleta_estado', { p_id:id, p_acao:'suspender', p_motivo: motivo || 'Pagamento em falta' });
+      if(error || (data && data.ok === false)){ toast('Erro: ' + (error ? error.message : data.motivo), 'error'); return; }
+      toast('Acesso suspenso', 'green');
+      load();
+    } catch(e){ toast('Erro: ' + (e && e.message || ''), 'error'); }
+  } else {
+    if(!confirm(`Reativar o acesso de "${nome}"?`)) return;
+    try {
+      const { data, error } = await supa.rpc('ytb_admin_atleta_estado', { p_id:id, p_acao:'reativar' });
+      if(error || (data && data.ok === false)){ toast('Erro: ' + (error ? error.message : data.motivo), 'error'); return; }
+      toast('Acesso reativado', 'green');
+      load();
+    } catch(e){ toast('Erro: ' + (e && e.message || ''), 'error'); }
+  }
+}
+
 async function marcarWhatsAppPendente(id, enviado){
   await supa.rpc('ytb_admin_whatsapp', { p_id:id, p_enviado:enviado });
   toast('Estado atualizado', 'green');
@@ -1341,7 +1489,7 @@ function editarAtleta(id){
     </div>
 
     <div class="edit-section">
-      <div class="edit-sec-title">📊 Contexto competitivo <span style="font-weight:400;font-size:11px;color:#8a958a">(alimenta a avaliação contextual · tudo opcional)</span></div>
+      <div class="edit-sec-title">📊 Contexto competitivo <span style="font-weight:400;font-size:11px;color:var(--slate)">(alimenta a avaliação contextual · tudo opcional)</span></div>
       <div class="edit-grid">
         <div class="edit-field"><label class="edit-label">Época ref.</label><input class="edit-input" id="e_epoca" placeholder="2025/26" value="${escapeHtml(a.epoca_ref || '')}"></div>
         <div class="edit-field full"><label class="edit-label">Divisão / nível</label><input class="edit-input" id="e_div" placeholder="ex: 1ª Div. Distrital AF Porto" value="${escapeHtml(a.divisao || '')}"></div>
@@ -1358,26 +1506,26 @@ function editarAtleta(id){
       <div class="edit-grid">
         <div class="edit-field"><label class="edit-label">Nome EE</label><input class="edit-input" id="e_eenome" value="${escapeHtml(a.encarregado_nome || '')}"></div>
         <div class="edit-field"><label class="edit-label">WhatsApp EE</label><input class="edit-input" id="e_eetel" value="${escapeHtml(a.encarregado_telefone || '')}"></div>
-        <div class="edit-field full"><label class="edit-label">Email EE <span style="font-weight:400;color:#8a958a">(liga o atleta à família — envia o passaporte e o plano por magic link)</span></label><input class="edit-input" id="e_eeemail" type="email" value="${escapeHtml(a.encarregado_email || '')}"></div>
+        <div class="edit-field full"><label class="edit-label">Email EE <span style="font-weight:400;color:var(--slate)">(liga o atleta à família — envia o passaporte e o plano por magic link)</span></label><input class="edit-input" id="e_eeemail" type="email" value="${escapeHtml(a.encarregado_email || '')}"></div>
       </div>
     </div>
 
     <div class="edit-section">
-      <div class="edit-sec-title">📏 Biometria <span style="font-weight:400;font-size:11px;color:#8a958a">(série temporal — cada registo fica no histórico do atleta)</span></div>
+      <div class="edit-sec-title">📏 Biometria <span style="font-weight:400;font-size:11px;color:var(--slate)">(série temporal — cada registo fica no histórico do atleta)</span></div>
       <div class="edit-grid">
         <div class="edit-field"><label class="edit-label">Altura (cm)</label><input class="edit-input" id="e_bio_alt" type="number" step="0.1" min="80" max="220" placeholder="ex: 152"></div>
         <div class="edit-field"><label class="edit-label">Peso (kg)</label><input class="edit-input" id="e_bio_pes" type="number" step="0.1" min="15" max="120" placeholder="ex: 44.5"></div>
         <div class="edit-field"><label class="edit-label">Pé (tam. EU)</label><input class="edit-input" id="e_bio_pe" type="number" step="0.5" min="20" max="50" placeholder="ex: 37"></div>
         <div class="edit-field"><label class="edit-label">Data da medição</label><input class="edit-input" id="e_bio_data" type="date" value="${new Date().toISOString().slice(0,10)}"></div>
         <div class="edit-field full"><button type="button" class="action-btn" onclick="registarBiometriaAdmin('${a.id}')">📏 Registar medição</button></div>
-        <div class="edit-field full" id="e_bio_hist"><div style="font-size:12px;color:#8a958a">A carregar histórico…</div></div>
+        <div class="edit-field full" id="e_bio_hist"><div style="font-size:12px;color:var(--slate)">A carregar histórico…</div></div>
       </div>
-      <div class="edit-sec-title" style="margin-top:14px">🧬 Maturação <span style="font-weight:400;font-size:11px;color:#8a958a">(altura adulta prevista pela altura dos pais — estimativa, não diagnóstico)</span></div>
+      <div class="edit-sec-title" style="margin-top:14px">🧬 Maturação <span style="font-weight:400;font-size:11px;color:var(--slate)">(altura adulta prevista pela altura dos pais — estimativa, não diagnóstico)</span></div>
       <div class="edit-grid">
         <div class="edit-field"><label class="edit-label">Altura do pai (cm)</label><input class="edit-input" id="e_alt_pai" type="number" step="0.5" min="120" max="230" value="${a.altura_pai != null ? a.altura_pai : ''}" placeholder="ex: 178"></div>
         <div class="edit-field"><label class="edit-label">Altura da mãe (cm)</label><input class="edit-input" id="e_alt_mae" type="number" step="0.5" min="120" max="230" value="${a.altura_mae != null ? a.altura_mae : ''}" placeholder="ex: 165"></div>
         <div class="edit-field full"><button type="button" class="action-btn" onclick="registarPaisAdmin('${a.id}')">🧬 Guardar altura dos pais</button></div>
-        <div class="edit-field full" id="e_matura"><div style="font-size:12px;color:#8a958a">A calcular maturação…</div></div>
+        <div class="edit-field full" id="e_matura"><div style="font-size:12px;color:var(--slate)">A calcular maturação…</div></div>
       </div>
     </div>
 
@@ -1406,17 +1554,17 @@ function editarAtleta(id){
 
 const FALTA_LBL_ADMIN = { sexo:'sexo do atleta', altura_pai:'altura do pai', altura_mae:'altura da mãe', altura_atual:'uma medição de altura' };
 function renderMaturacao(m){
-  if(!m) return '<div style="font-size:12px;color:#8a958a">Sem dados para estimar.</div>';
-  const linha = (l,v) => '<div style="display:flex;justify-content:space-between;font-size:12px;color:#c5cdc5;padding:3px 0"><span style="color:#8a958a">'+l+'</span><span>'+(v!=null&&v!==''?escapeHtml(String(v)):'—')+'</span></div>';
-  let h = '<div style="border:1px solid #1c241c;border-radius:8px;padding:10px">';
+  if(!m) return '<div style="font-size:12px;color:var(--slate)">Sem dados para estimar.</div>';
+  const linha = (l,v) => '<div style="display:flex;justify-content:space-between;font-size:12px;color:#c5cdc5;padding:3px 0"><span style="color:var(--slate)">'+l+'</span><span>'+(v!=null&&v!==''?escapeHtml(String(v)):'—')+'</span></div>';
+  let h = '<div style="border:1px solid var(--bg4);border-radius:8px;padding:10px">';
   h += linha('Altura atual', m.altura_atual!=null?(m.altura_atual+' cm'):null);
   h += linha('Altura adulta prevista', m.altura_prevista!=null?(m.altura_prevista+' cm'):null);
   h += linha('% já atingida', m.pct_atingida!=null?(m.pct_atingida+'%'):null);
   h += linha('Crescimento', m.velocidade_cm_ano!=null?(m.velocidade_cm_ano+' cm/ano'):null);
   if(m.em_falta && m.em_falta.length){
-    h += '<div style="font-size:11px;color:#d9a441;margin-top:6px">Falta: '+escapeHtml(m.em_falta.map(k=>FALTA_LBL_ADMIN[k]||k).join(', '))+'.</div>';
+    h += '<div style="font-size:11px;color:var(--orange);margin-top:6px">Falta: '+escapeHtml(m.em_falta.map(k=>FALTA_LBL_ADMIN[k]||k).join(', '))+'.</div>';
   }
-  h += '<div style="font-size:10px;color:#6b756c;margin-top:6px">'+escapeHtml(m.metodo||'Estimativa')+'.</div>';
+  h += '<div style="font-size:10px;color:var(--muted);margin-top:6px">'+escapeHtml(m.metodo||'Estimativa')+'.</div>';
   h += '</div>';
   return h;
 }
@@ -1425,7 +1573,7 @@ async function carregarMaturacaoAdmin(atletaId){
   if(!el) return;
   try {
     const { data, error } = await supa.rpc('ytb_passaporte_admin', { p_atleta: atletaId });
-    if(error || !data){ el.innerHTML = '<div style="font-size:12px;color:#8a958a">Não foi possível calcular.</div>'; return; }
+    if(error || !data){ el.innerHTML = '<div style="font-size:12px;color:var(--slate)">Não foi possível calcular.</div>'; return; }
     el.innerHTML = renderMaturacao(data.maturacao);
   } catch(e){ el.innerHTML = ''; }
 }
@@ -1444,13 +1592,13 @@ async function registarPaisAdmin(atletaId){
 }
 
 function renderBioHistList(rows){
-  if(!rows || !rows.length) return '<div style="font-size:12px;color:#8a958a">Sem medições registadas.</div>';
+  if(!rows || !rows.length) return '<div style="font-size:12px;color:var(--slate)">Sem medições registadas.</div>';
   return '<div style="display:flex;flex-direction:column;gap:6px">' + rows.map(r => {
     const partes = [];
     if(r.altura_cm != null) partes.push(r.altura_cm + ' cm');
     if(r.peso_kg != null) partes.push(r.peso_kg + ' kg');
     if(r.pe_eu != null) partes.push('pé ' + r.pe_eu);
-    return '<div style="font-size:12px;color:#c5cdc5;display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid #1c241c;padding:4px 0"><span>' + fmtDate(r.medido_em) + ' · ' + escapeHtml(r.fonte || '') + '</span><span>' + (partes.join(' · ') || '—') + '</span></div>';
+    return '<div style="font-size:12px;color:#c5cdc5;display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid var(--bg4);padding:4px 0"><span>' + fmtDate(r.medido_em) + ' · ' + escapeHtml(r.fonte || '') + '</span><span>' + (partes.join(' · ') || '—') + '</span></div>';
   }).join('') + '</div>';
 }
 
@@ -1459,7 +1607,7 @@ async function carregarBiometriaAdmin(atletaId){
   if(!el) return;
   try {
     const { data, error } = await supa.from('atleta_biometria').select('*').eq('atleta_id', atletaId).order('medido_em', { ascending:false }).limit(10);
-    if(error){ el.innerHTML = '<div style="font-size:12px;color:#8a958a">Não foi possível carregar o histórico.</div>'; return; }
+    if(error){ el.innerHTML = '<div style="font-size:12px;color:var(--slate)">Não foi possível carregar o histórico.</div>'; return; }
     el.innerHTML = renderBioHistList(data);
   } catch(e){ el.innerHTML = ''; }
 }
@@ -1570,7 +1718,7 @@ async function saveClube(){
   const plano = get('c_plano');
   const valor = ({'clube-pro':49,'clube-pro-plus':119,'enterprise':299})[plano];
   const cor = get('c_cor');
-  if(cor && !/^#[0-9A-Fa-f]{6}$/.test(cor)){ toast('A cor tem de ser um código hex, ex.: #D4AF37', 'error'); return; }
+  if(cor && !/^#[0-9A-Fa-f]{6}$/.test(cor)){ toast('A cor tem de ser um código hex, ex.: var(--gold)', 'error'); return; }
 
   try {
     // o acesso real (login + papel) dá-se à parte: a pessoa entra em clube.html com
@@ -1693,15 +1841,15 @@ FORMATO DA RESPOSTA:
 // ═══ Gestão de Contas (bloquear / reativar) ═══
 const CONTAS_PROTEGIDAS = ['ipedronmartins@gmail.com','yourtalentbase@gmail.com'];
 const PAPEL_INFO = {
-  admin:    { emoji:'⚙️',  label:'Admin',    cor:'#D4AF37' },
-  treinador:{ emoji:'🎓',  label:'Treinador',cor:'#4A9FE8' },
-  scout:    { emoji:'🔍',  label:'Scout',    cor:'#A78BFA' },
-  familia:  { emoji:'👨‍👩‍👦', label:'Família',  cor:'#00D46A' },
-  clube:    { emoji:'🏟️',  label:'Clube',    cor:'#D4AF37' }
+  admin:    { emoji:'⚙️',  label:'Admin',    cor:'var(--gold)' },
+  treinador:{ emoji:'🎓',  label:'Treinador',cor:'var(--blue)' },
+  scout:    { emoji:'🔍',  label:'Scout',    cor:'var(--purple)' },
+  familia:  { emoji:'👨‍👩‍👦', label:'Família',  cor:'var(--green)' },
+  clube:    { emoji:'🏟️',  label:'Clube',    cor:'var(--gold)' }
 };
 function papelPill(papel){
   const i = PAPEL_INFO[papel];
-  if(!i) return '<span style="display:inline-block;font-size:10px;font-weight:700;color:#8a958a;border:1px dashed #3a3f38;border-radius:100px;padding:3px 9px">— sem papel</span>';
+  if(!i) return '<span style="display:inline-block;font-size:10px;font-weight:700;color:var(--slate);border:1px dashed #3a3f38;border-radius:100px;padding:3px 9px">— sem papel</span>';
   return '<span style="display:inline-block;font-size:11px;font-weight:800;color:'+i.cor+';background:'+i.cor+'1a;border:1px solid '+i.cor+'55;border-radius:100px;padding:3px 10px;white-space:nowrap">'+i.emoji+' '+i.label+'</span>';
 }
 // email encurtado: 2 primeiros caracteres + domínio (o completo fica no title/hover)
@@ -1719,23 +1867,23 @@ async function carregarContas(){
     // ordenar por papel agrupa os iguais (família, treinador, scout…) — mais fácil de scanear
     const { data: contas, error } = await supa.from('perfis').select('*').order('papel').order('nome');
     if(error) throw error;
-    if(!contas || !contas.length){ tb.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#7a7a7a;padding:20px">Sem contas registadas.</td></tr>'; return; }
+    if(!contas || !contas.length){ tb.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:20px">Sem contas registadas.</td></tr>'; return; }
     tb.innerHTML = contas.map(c => {
       const protegida = CONTAS_PROTEGIDAS.includes((c.email||'').toLowerCase());
-      const cor = c.estado === 'aprovado' ? '#00D46A' : (c.estado === 'bloqueado' ? '#ff5050' : '#FFA500');
+      const cor = c.estado === 'aprovado' ? 'var(--green)' : (c.estado === 'bloqueado' ? 'var(--red)' : 'var(--orange)');
       let acao = '';
-      if(protegida){ acao = '<span style="font-size:10px;color:#7a7a7a">🔒 protegida</span>'; }
-      else if(c.estado === 'eliminado'){ acao = '<span style="font-size:10px;color:#7a7a7a">🗑️ eliminada</span>'; }
+      if(protegida){ acao = '<span style="font-size:10px;color:var(--muted)">🔒 protegida</span>'; }
+      else if(c.estado === 'eliminado'){ acao = '<span style="font-size:10px;color:var(--muted)">🗑️ eliminada</span>'; }
       else {
-        if(c.estado === 'aprovado'){ acao = `<button class="action-btn" style="border-color:rgba(255,80,80,.4);color:#ff5050" onclick="mudarEstadoConta('${c.email}','bloqueado')">🚫 Bloquear</button>`; }
+        if(c.estado === 'aprovado'){ acao = `<button class="action-btn" style="border-color:rgba(255,80,80,.4);color:var(--red)" onclick="mudarEstadoConta('${c.email}','bloqueado')">🚫 Bloquear</button>`; }
         else { acao = `<button class="action-btn" onclick="mudarEstadoConta('${c.email}','aprovado')">✓ ${c.estado === 'bloqueado' ? 'Reativar' : 'Aprovar'}</button>`; }
-        acao += ` <button class="action-btn" style="border-color:rgba(255,80,80,.5);color:#ff5050;margin-left:4px" onclick="eliminarConta('${c.email}')">🗑️ Eliminar</button>`;
+        acao += ` <button class="action-btn" style="border-color:rgba(255,80,80,.5);color:var(--red);margin-left:4px" onclick="eliminarConta('${c.email}')">🗑️ Eliminar</button>`;
       }
       // papel: crachá claro sempre; contas editáveis (não-mestre, não-admin) ganham
       // um selo "▾ mudar" que abre o seletor de papel.
       let papelCel = papelPill(c.papel);
       if(!(protegida || c.papel === 'admin')){
-        papelCel += ` <select onchange="mudarPapelConta('${c.email}', this.value)" title="Mudar papel" style="background:#171D18;border:1px solid #2A322B;border-radius:7px;color:#8a958a;font-size:10px;padding:3px 5px;cursor:pointer;margin-left:6px">
+        papelCel += ` <select onchange="mudarPapelConta('${c.email}', this.value)" title="Mudar papel" style="background:var(--bg3);border:1px solid var(--border2);border-radius:7px;color:var(--slate);font-size:10px;padding:3px 5px;cursor:pointer;margin-left:6px">
           <option value="" disabled selected>▾ mudar</option>
           <option value="treinador">🎓 Treinador</option>
           <option value="scout">🔍 Scout</option>
@@ -1750,7 +1898,7 @@ async function carregarContas(){
         <td>${acao}</td>
       </tr>`;
     }).join('');
-  } catch(e){ tb.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#ff5050;padding:20px">Erro a carregar contas: ' + escapeHtml(e.message || '') + '</td></tr>'; }
+  } catch(e){ tb.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--red);padding:20px">Erro a carregar contas: ' + escapeHtml(e.message || '') + '</td></tr>'; }
 }
 async function mudarPapelConta(email, novoPapel){
   if(!novoPapel) return;
@@ -1786,7 +1934,7 @@ async function carregarComissoes(){
   try {
     const { data: coms, error } = await supa.from('comissoes').select('*').order('pago_ao_treinador').order('criado_em', { ascending: false });
     if(error) throw error;
-    if(!coms || !coms.length){ tb.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#7a7a7a;padding:20px">Ainda não há cobranças registadas.</td></tr>'; document.getElementById('com-total-pend').textContent='0,00€'; document.getElementById('com-total-pago').textContent='0,00€'; document.getElementById('com-total-academia-pend').textContent='0,00€'; return; }
+    if(!coms || !coms.length){ tb.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:20px">Ainda não há cobranças registadas.</td></tr>'; document.getElementById('com-total-pend').textContent='0,00€'; document.getElementById('com-total-pago').textContent='0,00€'; document.getElementById('com-total-academia-pend').textContent='0,00€'; return; }
     let pend=0, pago=0, academiaPend=0;
     coms.forEach(c => {
       const v=Number(c.comissao||0); if(c.pago_ao_treinador) pago+=v; else pend+=v;
@@ -1798,23 +1946,23 @@ async function carregarComissoes(){
     const eur = n => Number(n||0).toFixed(2).replace('.',',')+'€';
     tb.innerHTML = coms.map(c => {
       const acaoTrein = Number(c.comissao||0) <= 0 ? '—' : (c.pago_ao_treinador
-        ? '<span style="color:#27AE60;font-size:11px">✓ pago</span>'
+        ? '<span style="color:var(--green);font-size:11px">✓ pago</span>'
         : `<button class="action-btn" style="font-size:11px;padding:5px 9px" onclick="marcarComissaoPaga('${c.id}','treinador')">Marcar pago</button>`);
       const acaoAcademia = Number(c.valor_academia||0) <= 0 ? '—' : (c.pago_academia
-        ? '<span style="color:#27AE60;font-size:11px">✓ pago</span>'
+        ? '<span style="color:var(--green);font-size:11px">✓ pago</span>'
         : `<button class="action-btn" style="font-size:11px;padding:5px 9px" onclick="marcarComissaoPaga('${c.id}','academia')">Marcar pago</button>`);
       return `<tr>
         <td style="font-size:11px">${escapeHtml(c.treinador_email||'—')}</td>
         <td>${escapeHtml(c.atleta_nome||'—')}</td>
         <td><span style="font-size:11px;text-transform:uppercase">${escapeHtml(c.tipo||'—')}</span></td>
         <td style="font-size:11px">${eur(c.valor_pago)}</td>
-        <td style="font-weight:700;color:#D4AF37">${eur(c.comissao)} ${acaoTrein}</td>
-        <td style="font-weight:700;color:#4A9FE8">${eur(c.valor_academia)} ${acaoAcademia}</td>
+        <td style="font-weight:700;color:var(--gold)">${eur(c.comissao)} ${acaoTrein}</td>
+        <td style="font-weight:700;color:var(--blue)">${eur(c.valor_academia)} ${acaoAcademia}</td>
         <td style="font-size:11px">${escapeHtml(c.mes||'—')}</td>
-        <td style="font-size:10px;color:#7a7a7a">${c.criado_em ? new Date(c.criado_em).toLocaleDateString('pt-PT') : '—'}</td>
+        <td style="font-size:10px;color:var(--muted)">${c.criado_em ? new Date(c.criado_em).toLocaleDateString('pt-PT') : '—'}</td>
       </tr>`;
     }).join('');
-  } catch(e){ tb.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#ff5050;padding:20px">Erro: ' + escapeHtml(e.message||'') + '</td></tr>'; }
+  } catch(e){ tb.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--red);padding:20px">Erro: ' + escapeHtml(e.message||'') + '</td></tr>'; }
 }
 async function registarCobranca(){
   const tipo = document.getElementById('cob-tipo').value;
