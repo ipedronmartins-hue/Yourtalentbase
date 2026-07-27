@@ -37,6 +37,17 @@
   --fd:'Barlow Condensed', system-ui, sans-serif;
   --fb:'Plus Jakarta Sans', system-ui, sans-serif;
 
+  /* — escala de tamanhos (6 degraus — desenhada contra a distribuição real do
+     site: ~40 valores diferentes em uso, a maioria deriva involuntária de
+     meio-pixel. Poucos tamanhos, título bem maior que o resto — princípio
+     WP8. Título/sub em --fd (Barlow Condensed), o resto normalmente em --fb. — */
+  --fs-hero:40px;     /* número de destaque — KPI grande, placar */
+  --fs-titulo:26px;   /* título de página/secção — sempre garrafal */
+  --fs-sub:18px;      /* subtítulo, título de cartão */
+  --fs-corpo:14px;    /* texto corrido, o tamanho por omissão */
+  --fs-legenda:12px;  /* legenda, meta-informação, rótulo */
+  --fs-micro:10px;    /* o mais pequeno — badge, carimbo de tempo */
+
   /* — forma / ritmo — */
   --r:14px;  --r-sm:9px;  --r-lg:20px;
   --maxw:980px;

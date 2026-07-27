@@ -25,81 +25,81 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-hei
 /* NAV */
 .nav{position:sticky;top:0;z-index:50;background:rgba(8,12,8,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;max-width:1400px;margin:0 auto}
 .nav-l{display:flex;align-items:center;gap:12px}
-.admin-tag{font-size:9px;font-weight:800;letter-spacing:2px;color:var(--red);text-transform:uppercase;padding:3px 8px;border:1px solid rgba(255,80,80,.3);background:rgba(255,80,80,.06)}
-.nav-out{font-size:10px;color:var(--muted);cursor:pointer;text-decoration:none;padding:5px 10px;border:1px solid var(--border)}
+.admin-tag{font-size:var(--fs-micro);font-weight:800;letter-spacing:2px;color:var(--red);text-transform:uppercase;padding:3px 8px;border:1px solid rgba(255,80,80,.3);background:rgba(255,80,80,.06)}
+.nav-out{font-size:var(--fs-micro);color:var(--muted);cursor:pointer;text-decoration:none;padding:5px 10px;border:1px solid var(--border)}
 .nav-out:hover{border-color:var(--gold-border);color:#fff}
 
 .container{max-width:1400px;margin:0 auto;padding:18px}
 
 /* HEAD */
 .head{margin-bottom:16px}
-.eyebrow{font-size:9px;font-weight:800;letter-spacing:3px;color:var(--red);text-transform:uppercase;margin-bottom:4px}
-.h1{font-family:'Barlow Condensed';font-weight:900;font-size:28px;line-height:1;letter-spacing:-.5px}
+.eyebrow{font-size:var(--fs-micro);font-weight:800;letter-spacing:3px;color:var(--red);text-transform:uppercase;margin-bottom:4px}
+.h1{font-family:'Barlow Condensed';font-weight:900;font-size:var(--fs-titulo);line-height:1;letter-spacing:-.5px}
 .h1 em{color:var(--gold);font-style:italic}
 
 /* TABS */
 .tabs{display:flex;gap:4px;margin-bottom:14px;border-bottom:1px solid var(--border);overflow-x:auto;padding-bottom:0}
-.tab{padding:11px 16px;background:transparent;border:none;color:#aaa;font-family:'Barlow Condensed';font-weight:900;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:all .15s}
+.tab{padding:11px 16px;background:transparent;border:none;color:#aaa;font-family:'Barlow Condensed';font-weight:900;font-size:var(--fs-legenda);letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:all .15s}
 .tab:hover{color:#fff}
 .tab.active{color:var(--gold);border-bottom-color:var(--gold)}
-.tab .badge{background:var(--gold);color:#000;font-size:9px;padding:1px 5px;margin-left:4px;border-radius:8px}
+.tab .badge{background:var(--gold);color:#000;font-size:var(--fs-micro);padding:1px 5px;margin-left:4px;border-radius:8px}
 .tab .badge-red{background:var(--red);color:#fff}
 
 /* SECTIONS — vivem dentro de um painel de zona (scroll real); todas visíveis
    dentro da própria zona, uma zona de cada vez visível no ecrã via scroll-snap. */
 .section + .section{margin-top:22px}
 .zona-pivo-painel{padding:2px 2px 24px}
-.zona-sec-titulo{font-family:'Barlow Condensed';font-weight:900;font-size:15px;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin:0 0 10px;padding-bottom:7px;border-bottom:1px solid var(--border)}
+.zona-sec-titulo{font-family:'Barlow Condensed';font-weight:900;font-size:var(--fs-sub);letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin:0 0 10px;padding-bottom:7px;border-bottom:1px solid var(--border)}
 
 /* KPIs */
 .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px}
 @media (max-width:520px){.kpi-row{grid-template-columns:1fr 1fr}}
 .kpi{background:var(--bg2);border:1px solid var(--border);padding:12px;border-left:3px solid var(--gold)}
-.kpi-n{font-family:'Barlow Condensed';font-weight:900;font-size:24px;color:#fff;line-height:1}
-.kpi-l{font-size:8px;font-weight:800;letter-spacing:1.5px;color:var(--gold);text-transform:uppercase;margin-top:3px}
+.kpi-n{font-family:'Barlow Condensed';font-weight:900;font-size:var(--fs-titulo);color:#fff;line-height:1}
+.kpi-l{font-size:var(--fs-micro);font-weight:800;letter-spacing:1.5px;color:var(--gold);text-transform:uppercase;margin-top:3px}
 .fin-panel{background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--green);padding:14px;margin-bottom:18px}
 .fin-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-.fin-title{font-family:'Barlow Condensed';font-weight:900;font-size:16px;color:#fff}
+.fin-title{font-family:'Barlow Condensed';font-weight:900;font-size:var(--fs-sub);color:#fff}
 .fin-title span{color:var(--green)}
-.fin-select{background:var(--bg3);border:1px solid var(--border);color:#fff;font-size:12px;padding:4px 8px;border-radius:6px;font-family:inherit}
-.fin-total{font-family:'Barlow Condensed';font-weight:900;font-size:34px;color:var(--green);line-height:1;margin-bottom:12px}
+.fin-select{background:var(--bg3);border:1px solid var(--border);color:#fff;font-size:var(--fs-legenda);padding:4px 8px;border-radius:6px;font-family:inherit}
+.fin-total{font-family:'Barlow Condensed';font-weight:900;font-size:var(--fs-hero);color:var(--green);line-height:1;margin-bottom:12px}
 .fin-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 @media(min-width:520px){.fin-grid{grid-template-columns:repeat(3,1fr)}}
 .fin-card{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 10px}
-.fin-card-n{font-family:'Barlow Condensed';font-weight:900;font-size:18px;color:#fff}
-.fin-card-l{font-size:9px;font-weight:700;letter-spacing:.5px;color:var(--slate);text-transform:uppercase;margin-top:2px}
-.fin-card-c{font-size:10px;color:var(--muted);margin-top:1px}
+.fin-card-n{font-family:'Barlow Condensed';font-weight:900;font-size:var(--fs-sub);color:#fff}
+.fin-card-l{font-size:var(--fs-micro);font-weight:700;letter-spacing:.5px;color:var(--slate);text-transform:uppercase;margin-top:2px}
+.fin-card-c{font-size:var(--fs-micro);color:var(--muted);margin-top:1px}
 
 /* TOOLBAR */
 .toolbar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
-.search{flex:1;min-width:200px;background:var(--bg2);border:1px solid var(--border);padding:9px 12px;color:#fff;font-size:13px;font-family:inherit;outline:none}
+.search{flex:1;min-width:200px;background:var(--bg2);border:1px solid var(--border);padding:9px 12px;color:#fff;font-size:var(--fs-corpo);font-family:inherit;outline:none}
 .search:focus{border-color:var(--gold)}
-.f-select{background:var(--bg2);border:1px solid var(--border);color:#fff;padding:8px 24px 8px 10px;font-size:11px;font-weight:700;font-family:inherit;outline:none;appearance:none;cursor:pointer;background-image:url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23D4AF37'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");background-repeat:no-repeat;background-position:right 6px center;background-size:14px}
+.f-select{background:var(--bg2);border:1px solid var(--border);color:#fff;padding:8px 24px 8px 10px;font-size:var(--fs-legenda);font-weight:700;font-family:inherit;outline:none;appearance:none;cursor:pointer;background-image:url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23D4AF37'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");background-repeat:no-repeat;background-position:right 6px center;background-size:14px}
 
 /* TABLE */
 .table-wrap{background:var(--bg2);border:1px solid var(--border);overflow-x:auto;margin-bottom:18px}
-table{width:100%;border-collapse:collapse;font-size:12px;min-width:700px}
+table{width:100%;border-collapse:collapse;font-size:var(--fs-legenda);min-width:700px}
 /* telemóvel: tabelas cabem sem scroll horizontal (uso a uma mão no iPhone).
    Na tabela de atletas escondem-se as colunas menos essenciais — Posição(2),
    Fonte(4), Rating(5) e Vis(7) — ficando Atleta · Clube · Estado · Ações. */
 @media (max-width:640px){
-  table{min-width:0;font-size:11.5px}
+  table{min-width:0;font-size:var(--fs-legenda)}
   th,td{padding:8px 8px}
   #section-atletas thead th:nth-child(2),#section-atletas tbody td:nth-child(2),
   #section-atletas thead th:nth-child(4),#section-atletas tbody td:nth-child(4),
   #section-atletas thead th:nth-child(5),#section-atletas tbody td:nth-child(5),
   #section-atletas thead th:nth-child(7),#section-atletas tbody td:nth-child(7){display:none}
 }
-th{padding:10px 12px;text-align:left;background:var(--bg3);color:var(--gold);font-weight:800;letter-spacing:1px;text-transform:uppercase;font-size:10px;border-bottom:1px solid var(--border);white-space:nowrap}
+th{padding:10px 12px;text-align:left;background:var(--bg3);color:var(--gold);font-weight:800;letter-spacing:1px;text-transform:uppercase;font-size:var(--fs-micro);border-bottom:1px solid var(--border);white-space:nowrap}
 td{padding:10px 12px;border-bottom:1px solid var(--border);color:#ddd;vertical-align:middle}
 tr:hover td{background:rgba(212,175,55,.04)}
 tr:last-child td{border-bottom:none}
 .td-name{color:#fff;font-weight:700}
 .td-name strong{color:var(--gold)}
-.td-mute{color:var(--muted);font-size:11px}
+.td-mute{color:var(--muted);font-size:var(--fs-legenda)}
 
 /* PILLS */
-.pill{display:inline-block;font-size:9px;font-weight:800;letter-spacing:1px;padding:2px 7px;text-transform:uppercase}
+.pill{display:inline-block;font-size:var(--fs-micro);font-weight:800;letter-spacing:1px;padding:2px 7px;text-transform:uppercase}
 .pill-pendente{background:rgba(224,164,88,.15);color:var(--orange);border:1px solid rgba(224,164,88,.3)}
 .pill-aprovado{background:rgba(0,212,106,.15);color:var(--green);border:1px solid rgba(0,212,106,.3)}
 .pill-rejeitado{background:rgba(255,80,80,.15);color:var(--red);border:1px solid rgba(255,80,80,.3)}
@@ -109,14 +109,14 @@ tr:last-child td{border-bottom:none}
 .pill-suspenso{background:rgba(255,80,80,.15);color:var(--red);border:1px solid rgba(255,80,80,.3)}
 
 /* RATING */
-.r-rating-mini{display:inline-block;font-family:'Barlow Condensed';font-weight:900;font-size:13px;padding:2px 7px;letter-spacing:-.3px;min-width:30px;text-align:center}
+.r-rating-mini{display:inline-block;font-family:'Barlow Condensed';font-weight:900;font-size:var(--fs-legenda);padding:2px 7px;letter-spacing:-.3px;min-width:30px;text-align:center}
 .rating-A,.rating-Ap{background:#FFD700;color:#000}
 .rating-B,.rating-Bp{background:#C0C0C0;color:#000}
 .rating-C,.rating-Cp{background:#CD7F32;color:#fff}
 .rating-D{background:var(--bg3);color:var(--muted);border:1px dashed var(--border)}
 
 /* ACTIONS */
-.action-btn{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.5px;padding:5px 9px;background:var(--bg);border:1px solid var(--border);color:#fff;cursor:pointer;font-family:inherit;text-decoration:none;margin-right:3px;text-transform:uppercase}
+.action-btn{display:inline-block;font-size:var(--fs-micro);font-weight:800;letter-spacing:.5px;padding:5px 9px;background:var(--bg);border:1px solid var(--border);color:#fff;cursor:pointer;font-family:inherit;text-decoration:none;margin-right:3px;text-transform:uppercase}
 .action-btn:hover{border-color:var(--gold);color:var(--gold)}
 .action-btn.danger:hover{border-color:var(--red);color:var(--red)}
 .action-btn.success:hover{border-color:var(--green);color:var(--green)}
@@ -128,8 +128,8 @@ tr:last-child td{border-bottom:none}
 .action-btn.suspender:hover{background:rgba(255,80,80,.1)}
 
 /* EMPTY */
-.empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:12px}
-.empty-icon{font-size:36px;margin-bottom:10px;opacity:.4}
+.empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:var(--fs-legenda)}
+.empty-icon{font-size:var(--fs-hero);margin-bottom:10px;opacity:.4}
 .loading{text-align:center;padding:40px;color:var(--muted)}
 .spinner{display:inline-block;width:28px;height:28px;border:2px solid rgba(212,175,55,.15);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -139,12 +139,12 @@ tr:last-child td{border-bottom:none}
 .modal-overlay.show{display:flex}
 .modal{background:var(--bg);border:2px solid var(--gold);max-width:640px;width:100%;padding:24px;margin:auto;animation:popIn .25s cubic-bezier(.16,1,.3,1) both}
 @keyframes popIn{from{transform:scale(.95);opacity:0}to{transform:scale(1);opacity:1}}
-.modal-title{font-family:'Barlow Condensed';font-weight:900;font-size:22px;color:var(--gold);margin-bottom:6px;letter-spacing:-.3px}
-.modal-sub{font-size:12px;color:var(--slate);margin-bottom:16px;line-height:1.5}
-.modal-textarea{width:100%;background:var(--bg2);border:1px solid var(--border);color:#fff;padding:12px;font-size:12px;font-family:'Courier New',monospace;outline:none;line-height:1.5;min-height:200px;resize:vertical}
+.modal-title{font-family:'Barlow Condensed';font-weight:900;font-size:var(--fs-titulo);color:var(--gold);margin-bottom:6px;letter-spacing:-.3px}
+.modal-sub{font-size:var(--fs-legenda);color:var(--slate);margin-bottom:16px;line-height:1.5}
+.modal-textarea{width:100%;background:var(--bg2);border:1px solid var(--border);color:#fff;padding:12px;font-size:var(--fs-legenda);font-family:'Courier New',monospace;outline:none;line-height:1.5;min-height:200px;resize:vertical}
 .modal-textarea:focus{border-color:var(--gold)}
 .modal-btns{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
-.modal-btn{flex:1;min-width:120px;padding:11px;border:none;font-family:'Barlow Condensed';font-weight:900;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;text-decoration:none;text-align:center;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.modal-btn{flex:1;min-width:120px;padding:11px;border:none;font-family:'Barlow Condensed';font-weight:900;font-size:var(--fs-legenda);letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;text-decoration:none;text-align:center;display:inline-flex;align-items:center;justify-content:center;gap:6px}
 .modal-btn-primary{background:var(--green);color:#000}
 .modal-btn-primary:hover{background:#1ae876}
 .modal-btn-secondary{background:transparent;color:#fff;border:1px solid var(--gold-border)}
@@ -153,17 +153,17 @@ tr:last-child td{border-bottom:none}
 /* EDIT FORM */
 .edit-form{display:flex;flex-direction:column;gap:10px;max-height:70vh;overflow-y:auto;padding-right:6px}
 .edit-section{padding:10px;background:var(--bg2);border:1px solid var(--border)}
-.edit-sec-title{font-size:9px;font-weight:800;letter-spacing:1.5px;color:var(--gold);text-transform:uppercase;margin-bottom:8px}
+.edit-sec-title{font-size:var(--fs-micro);font-weight:800;letter-spacing:1.5px;color:var(--gold);text-transform:uppercase;margin-bottom:8px}
 .edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 @media (max-width:520px){.edit-grid{grid-template-columns:1fr}}
 .edit-field{display:flex;flex-direction:column}
 .edit-field.full{grid-column:1/-1}
-.edit-label{font-size:8px;font-weight:700;letter-spacing:1px;color:var(--slate);text-transform:uppercase;margin-bottom:3px}
-.edit-input,.edit-select,.edit-textarea{background:var(--bg);border:1px solid var(--border);color:#fff;padding:8px 10px;font-size:12px;font-family:inherit;outline:none}
+.edit-label{font-size:var(--fs-micro);font-weight:700;letter-spacing:1px;color:var(--slate);text-transform:uppercase;margin-bottom:3px}
+.edit-input,.edit-select,.edit-textarea{background:var(--bg);border:1px solid var(--border);color:#fff;padding:8px 10px;font-size:var(--fs-legenda);font-family:inherit;outline:none}
 .edit-input:focus,.edit-select:focus,.edit-textarea:focus{border-color:var(--gold)}
 .edit-textarea{min-height:60px;resize:vertical;line-height:1.5}
 
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--gold);color:#000;padding:12px 20px;font-weight:800;font-size:12px;letter-spacing:1px;text-transform:uppercase;font-family:'Barlow Condensed';z-index:200;opacity:0;pointer-events:none;transition:all .3s;max-width:90vw;text-align:center}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--gold);color:#000;padding:12px 20px;font-weight:800;font-size:var(--fs-legenda);letter-spacing:1px;text-transform:uppercase;font-family:'Barlow Condensed';z-index:200;opacity:0;pointer-events:none;transition:all .3s;max-width:90vw;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
 .toast.error{background:var(--red);color:#fff}
 .toast.green{background:var(--green);color:#000}
@@ -186,7 +186,7 @@ tr:last-child td{border-bottom:none}
   </div>
   <a class="nav-out" onclick="logout()">Sair</a>
 </nav>
-<div style="display:flex;gap:8px;flex-wrap:wrap;padding:10px 18px;background:var(--bg);border-bottom:1px solid var(--border);font-size:12px">
+<div style="display:flex;gap:8px;flex-wrap:wrap;padding:10px 18px;background:var(--bg);border-bottom:1px solid var(--border);font-size:var(--fs-legenda)">
   <span style="color:var(--muted);align-self:center">Entrar como →</span>
   <a href="ytb-pro-treinador.html" style="color:var(--gold);text-decoration:none;border:1px solid var(--border2);border-radius:7px;padding:5px 11px">🎓 Pro Treinador</a>
   <a href="coachbase.html" style="color:var(--gold);text-decoration:none;border:1px solid var(--border2);border-radius:7px;padding:5px 11px">⚡ CoachBase</a>
@@ -202,8 +202,8 @@ tr:last-child td{border-bottom:none}
     <div class="eyebrow">Console Administração</div>
     <h1 class="h1">Gestão <em>Scouting 360</em></h1>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
-      <button class="action-btn success" onclick="creditarScout()" style="padding:8px 14px;font-size:11px">+ Créditos Scout (39,90€ = 3 PDF)</button>
-      <button class="action-btn" id="btn-push" onclick="ativarNotificacoesPush()" style="padding:8px 14px;font-size:11px">🔔 Ativar notificações</button>
+      <button class="action-btn success" onclick="creditarScout()" style="padding:8px 14px;font-size:var(--fs-legenda)">+ Créditos Scout (39,90€ = 3 PDF)</button>
+      <button class="action-btn" id="btn-push" onclick="ativarNotificacoesPush()" style="padding:8px 14px;font-size:var(--fs-legenda)">🔔 Ativar notificações</button>
     </div>
   </div>
 
@@ -284,21 +284,21 @@ tr:last-child td{border-bottom:none}
   <div class="section" id="section-comissoes">
     <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px">
       <div style="flex:1;min-width:160px;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:14px">
-        <div style="font-size:11px;color:var(--slate);text-transform:uppercase;letter-spacing:1px">A pagar aos treinadores</div>
-        <div id="com-total-pend" style="font-size:28px;font-weight:800;color:var(--orange);margin-top:4px">—</div>
+        <div style="font-size:var(--fs-legenda);color:var(--slate);text-transform:uppercase;letter-spacing:1px">A pagar aos treinadores</div>
+        <div id="com-total-pend" style="font-size:var(--fs-titulo);font-weight:800;color:var(--orange);margin-top:4px">—</div>
       </div>
       <div style="flex:1;min-width:160px;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:14px">
-        <div style="font-size:11px;color:var(--slate);text-transform:uppercase;letter-spacing:1px">Já pago (treinador)</div>
-        <div id="com-total-pago" style="font-size:28px;font-weight:800;color:var(--green);margin-top:4px">—</div>
+        <div style="font-size:var(--fs-legenda);color:var(--slate);text-transform:uppercase;letter-spacing:1px">Já pago (treinador)</div>
+        <div id="com-total-pago" style="font-size:var(--fs-titulo);font-weight:800;color:var(--green);margin-top:4px">—</div>
       </div>
       <div style="flex:1;min-width:160px;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:14px">
-        <div style="font-size:11px;color:var(--slate);text-transform:uppercase;letter-spacing:1px">A pagar às academias</div>
-        <div id="com-total-academia-pend" style="font-size:28px;font-weight:800;color:var(--blue);margin-top:4px">—</div>
+        <div style="font-size:var(--fs-legenda);color:var(--slate);text-transform:uppercase;letter-spacing:1px">A pagar às academias</div>
+        <div id="com-total-academia-pend" style="font-size:var(--fs-titulo);font-weight:800;color:var(--blue);margin-top:4px">—</div>
       </div>
     </div>
 
     <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:14px;margin-bottom:14px">
-      <div style="font-size:11px;color:var(--slate);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Registar cobrança recebida</div>
+      <div style="font-size:var(--fs-legenda);color:var(--slate);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Registar cobrança recebida</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <select class="f-select" id="cob-tipo" style="min-width:170px">
           <option value="avaliacao">Avaliação (39,90€ · 19,90€ treinador)</option>
@@ -312,7 +312,7 @@ tr:last-child td{border-bottom:none}
         <input class="search" id="cob-valor" type="number" step="0.01" placeholder="Valor total recebido (€)" style="min-width:160px">
         <button class="action-btn success" onclick="registarCobranca()">+ Registar</button>
       </div>
-      <div style="font-size:11px;color:var(--slate);margin-top:8px">A repartição (treinador/academia/YTB) é calculada automaticamente pelo tipo — nunca à mão.</div>
+      <div style="font-size:var(--fs-legenda);color:var(--slate);margin-top:8px">A repartição (treinador/academia/YTB) é calculada automaticamente pelo tipo — nunca à mão.</div>
     </div>
 
     <div class="table-wrap">
@@ -417,18 +417,18 @@ tr:last-child td{border-bottom:none}
 
   <!-- CLUBES SUBSCRITORES -->
   <div class="section" id="section-piloto">
-    <div style="font-size:11px;color:var(--muted);margin-bottom:12px">Não é um dashboard: é o estado de saúde. Responde a uma pergunta — <strong style="color:var(--text)">a YTB está a criar hábito ou a morrer?</strong> Semana atual (2ª feira → agora).</div>
+    <div style="font-size:var(--fs-legenda);color:var(--muted);margin-bottom:12px">Não é um dashboard: é o estado de saúde. Responde a uma pergunta — <strong style="color:var(--text)">a YTB está a criar hábito ou a morrer?</strong> Semana atual (2ª feira → agora).</div>
     <div id="piloto-alertas"></div>
     <div id="piloto-circulos" style="margin:14px 0"></div>
     <div id="piloto-blocos" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px"></div>
     <div id="piloto-semcontacto" style="margin-top:14px"></div>
-    <div style="font-size:10px;color:var(--muted);margin-top:14px;line-height:1.5">A métrica de dependência ("se desligassem, quem telefonava primeiro?") não se mede aqui — mede-se ao teu telefone. Regista quem liga.</div>
+    <div style="font-size:var(--fs-micro);color:var(--muted);margin-top:14px;line-height:1.5">A métrica de dependência ("se desligassem, quem telefonava primeiro?") não se mede aqui — mede-se ao teu telefone. Regista quem liga.</div>
   </div>
 
   <div class="section" id="section-clubes">
     <div style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
       <input class="search" id="s-clubes" type="search" placeholder="Procurar clube..." style="flex:1;min-width:200px;max-width:400px">
-      <button class="action-btn success" onclick="abrirNovoClube()" style="padding:9px 14px;font-size:11px">+ Novo Clube</button>
+      <button class="action-btn success" onclick="abrirNovoClube()" style="padding:9px 14px;font-size:var(--fs-legenda)">+ Novo Clube</button>
     </div>
     <div class="table-wrap">
       <table>
@@ -460,7 +460,7 @@ tr:last-child td{border-bottom:none}
       <button class="modal-btn modal-btn-secondary" onclick="copyWA()">📋 Copiar texto</button>
       <a class="modal-btn modal-btn-primary" id="wa-link" target="_blank">📱 Abrir WhatsApp</a>
     </div>
-    <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:10px;color:var(--muted);text-align:center">
+    <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:var(--fs-micro);color:var(--muted);text-align:center">
       Depois de enviar, clica <strong style="color:var(--gold)">"Marcar enviado"</strong> na tabela
     </div>
   </div>
@@ -598,13 +598,13 @@ function renderFilaDecisoes(pendentes, pedidos, registos){
   if(registos > 0)  itens.push({n:registos, txt:registos===1?'registo de treinador':'registos de treinador', tab:'treinadores', cor:'var(--orange)'});
   if(pedidos > 0)   itens.push({n:pedidos, txt:pedidos===1?'pedido de contacto':'pedidos de contacto', tab:'pedidos', cor:'var(--blue)'});
   if(!itens.length){
-    el.innerHTML = '<div style="background:rgba(0,212,106,.06);border:1px solid rgba(0,212,106,.25);border-radius:10px;padding:11px 14px;font-size:13px;color:#9fe0bb">✓ Nada à espera de decisão. Tudo tratado.</div>';
+    el.innerHTML = '<div style="background:rgba(0,212,106,.06);border:1px solid rgba(0,212,106,.25);border-radius:10px;padding:11px 14px;font-size:var(--fs-corpo);color:#9fe0bb">✓ Nada à espera de decisão. Tudo tratado.</div>';
     return;
   }
   el.innerHTML = '<div style="background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:12px 14px">'
-    + '<div style="font-size:10px;font-weight:800;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:9px">A precisar de ti agora</div>'
+    + '<div style="font-size:var(--fs-micro);font-weight:800;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:9px">A precisar de ti agora</div>'
     + '<div style="display:flex;gap:8px;flex-wrap:wrap">'
-    + itens.map(i => '<button class="action-btn" style="border-color:'+i.cor+'66;color:var(--text);font-size:13px;padding:8px 13px" onclick="showTab(\''+i.tab+'\')"><span style="color:'+i.cor+';font-weight:800">'+i.n+'</span> '+i.txt+' →</button>').join('')
+    + itens.map(i => '<button class="action-btn" style="border-color:'+i.cor+'66;color:var(--text);font-size:var(--fs-corpo);padding:8px 13px" onclick="showTab(\''+i.tab+'\')"><span style="color:'+i.cor+';font-weight:800">'+i.n+'</span> '+i.txt+' →</button>').join('')
     + '</div></div>';
 }
 
@@ -633,34 +633,34 @@ function garantirTitulo(sec, id){
 // ═══════ PAINEL DE SAÚDE DO PILOTO ═══════
 async function carregarPainelPiloto(){
   const alv = document.getElementById('piloto-alertas');
-  if(alv) alv.innerHTML = '<div style="color:var(--muted);font-size:12px">A medir…</div>';
+  if(alv) alv.innerHTML = '<div style="color:var(--muted);font-size:var(--fs-legenda)">A medir…</div>';
   let d = null;
   try { const r = await supa.rpc('ytb_painel_piloto'); d = r && r.data; } catch(e){}
-  if(!d || d.ok === false){ if(alv) alv.innerHTML = '<div style="color:var(--red);font-size:12px">Sem acesso ao painel.</div>'; return; }
+  if(!d || d.ok === false){ if(alv) alv.innerHTML = '<div style="color:var(--red);font-size:var(--fs-legenda)">Sem acesso ao painel.</div>'; return; }
 
   // alertas primeiro — o painel existe para gritar, não para decorar
   const alertas = d.alertas || [];
   document.getElementById('piloto-alertas').innerHTML = alertas.length
-    ? alertas.map(a => '<div style="padding:9px 12px;margin-bottom:6px;font-size:12px;font-weight:700;border:1px solid '+(a.nivel==='vermelho'?'rgba(255,80,80,.4)':'rgba(224,164,88,.4)')+';color:'+(a.nivel==='vermelho'?'var(--red)':'var(--orange)')+'">'+(a.nivel==='vermelho'?'🚨 ':'⚠️ ')+escapeHtml(a.msg)+'</div>').join('')
-    : '<div style="padding:9px 12px;font-size:12px;font-weight:700;border:1px solid rgba(0,212,106,.35);color:var(--green)">✅ Sem alertas ativos</div>';
+    ? alertas.map(a => '<div style="padding:9px 12px;margin-bottom:6px;font-size:var(--fs-legenda);font-weight:700;border:1px solid '+(a.nivel==='vermelho'?'rgba(255,80,80,.4)':'rgba(224,164,88,.4)')+';color:'+(a.nivel==='vermelho'?'var(--red)':'var(--orange)')+'">'+(a.nivel==='vermelho'?'🚨 ':'⚠️ ')+escapeHtml(a.msg)+'</div>').join('')
+    : '<div style="padding:9px 12px;font-size:var(--fs-legenda);font-weight:700;border:1px solid rgba(0,212,106,.35);color:var(--green)">✅ Sem alertas ativos</div>';
 
   // círculos fechados — o indicador único
   const c = d.circulos || {completos:0,total:0,detalhe:[]};
   const pct = c.total ? Math.round(100*c.completos/c.total) : 0;
   document.getElementById('piloto-circulos').innerHTML =
     '<div style="border:1px solid var(--border2);padding:16px">'+
-    '<div style="font-size:10px;font-weight:800;letter-spacing:2px;color:var(--muted);text-transform:uppercase">Círculos fechados esta semana</div>'+
-    '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:42px;font-weight:800;line-height:1.1;color:'+(pct>=70?'var(--green)':(pct>=30?'var(--orange)':'var(--red)'))+'">'+c.completos+' / '+c.total+'</div>'+
-    '<div style="font-size:11px;color:var(--slate);margin-bottom:10px">treinador alimentou → família respondeu → atleta participou → sistema devolveu</div>'+
+    '<div style="font-size:var(--fs-micro);font-weight:800;letter-spacing:2px;color:var(--muted);text-transform:uppercase">Círculos fechados esta semana</div>'+
+    '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:var(--fs-hero);font-weight:800;line-height:1.1;color:'+(pct>=70?'var(--green)':(pct>=30?'var(--orange)':'var(--red)'))+'">'+c.completos+' / '+c.total+'</div>'+
+    '<div style="font-size:var(--fs-legenda);color:var(--slate);margin-bottom:10px">treinador alimentou → família respondeu → atleta participou → sistema devolveu</div>'+
     '<div style="display:flex;flex-wrap:wrap;gap:5px">'+
-      (c.detalhe||[]).map(a => '<span title="T:'+(a.t?'✓':'✗')+' F:'+(a.f?'✓':'✗')+' A:'+(a.a?'✓':'✗')+' S:'+(a.s?'✓':'✗')+'" style="font-size:10px;font-weight:700;padding:4px 8px;border:1px solid '+(a.completo?'rgba(0,212,106,.4)':'var(--border2)')+';color:'+(a.completo?'var(--green)':'var(--muted)')+'">'+(a.completo?'●':'○')+' '+escapeHtml(a.nome.split(' ')[0])+' <span style="letter-spacing:1px">'+(a.t?'T':'·')+(a.f?'F':'·')+(a.a?'A':'·')+(a.s?'S':'·')+'</span></span>').join('')+
+      (c.detalhe||[]).map(a => '<span title="T:'+(a.t?'✓':'✗')+' F:'+(a.f?'✓':'✗')+' A:'+(a.a?'✓':'✗')+' S:'+(a.s?'✓':'✗')+'" style="font-size:var(--fs-micro);font-weight:700;padding:4px 8px;border:1px solid '+(a.completo?'rgba(0,212,106,.4)':'var(--border2)')+';color:'+(a.completo?'var(--green)':'var(--muted)')+'">'+(a.completo?'●':'○')+' '+escapeHtml(a.nome.split(' ')[0])+' <span style="letter-spacing:1px">'+(a.t?'T':'·')+(a.f?'F':'·')+(a.a?'A':'·')+(a.s?'S':'·')+'</span></span>').join('')+
     '</div></div>';
 
   // 4 blocos de recorrência
   function bloco(titulo, linhas){
     return '<div style="border:1px solid var(--border2);padding:12px 14px">'+
-      '<div style="font-size:10px;font-weight:800;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:8px">'+titulo+'</div>'+
-      linhas.map(l => '<div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0"><span style="color:var(--slate)">'+l[0]+'</span><strong style="color:'+(l[2]||'var(--text)')+'">'+l[1]+'</strong></div>').join('')+'</div>';
+      '<div style="font-size:var(--fs-micro);font-weight:800;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:8px">'+titulo+'</div>'+
+      linhas.map(l => '<div style="display:flex;justify-content:space-between;font-size:var(--fs-legenda);padding:3px 0"><span style="color:var(--slate)">'+l[0]+'</span><strong style="color:'+(l[2]||'var(--text)')+'">'+l[1]+'</strong></div>').join('')+'</div>';
   }
   const t=d.treinador||{}, f=d.familia||{}, a=d.atleta||{}, ac=d.academia||{};
   const nunca = v => (v===-1||v===null||v===undefined) ? 'nunca' : v;
@@ -692,8 +692,8 @@ async function carregarPainelPiloto(){
   // lista nominal dos sem-contacto (o alerta com nomes, para agir)
   const sc = ac.sem_contacto_14d||[];
   document.getElementById('piloto-semcontacto').innerHTML = sc.length
-    ? '<div style="font-size:10px;font-weight:800;letter-spacing:1.5px;color:var(--red);text-transform:uppercase;margin-bottom:6px">Sem qualquer contacto</div>'+
-      sc.map(x => '<div style="font-size:12px;padding:4px 0;border-bottom:1px dotted var(--border2)"><span style="color:var(--text)">'+escapeHtml(x.nome)+'</span> <span style="color:var(--muted)">· '+(x.dias===null?'nunca teve atividade':('há '+x.dias+' dias'))+'</span></div>').join('')
+    ? '<div style="font-size:var(--fs-micro);font-weight:800;letter-spacing:1.5px;color:var(--red);text-transform:uppercase;margin-bottom:6px">Sem qualquer contacto</div>'+
+      sc.map(x => '<div style="font-size:var(--fs-legenda);padding:4px 0;border-bottom:1px dotted var(--border2)"><span style="color:var(--text)">'+escapeHtml(x.nome)+'</span> <span style="color:var(--muted)">· '+(x.dias===null?'nunca teve atividade':('há '+x.dias+' dias'))+'</span></div>').join('')
     : '';
 }
 
@@ -849,10 +849,10 @@ function renderPorTreinador(){
   }).sort((x, y) => (y.ehAdminConta - x.ehAdminConta) || x.nome.localeCompare(y.nome));
 
   grid.innerHTML = cartoes.map(c => `<button onclick="abrirAtletasDoTreinador('${escapeHtml(c.email)}')" style="text-align:left;cursor:pointer;background:var(--bg2,#0F1410);border:1px solid ${c.ehAdminConta ? 'var(--blue,#5AA9E6)' : 'var(--border2,#2A322B)'};border-radius:10px;padding:14px;color:inherit;font-family:inherit">
-      <div style="font-size:22px;margin-bottom:6px">📁</div>
-      <div style="font-weight:800;font-size:14px">${escapeHtml(c.nome)}${c.ehAdminConta ? ' <span style="font-size:10px;color:var(--blue,#5AA9E6);font-weight:800">· TU (ADMIN)</span>' : ''}</div>
-      <div style="font-size:11px;color:var(--muted,#6B756C);margin-top:3px">${escapeHtml(c.email)}</div>
-      <div style="font-size:12px;margin-top:8px;color:var(--gold,#D4AF37);font-weight:700">${c.n} ${c.n===1?'atleta':'atletas'} →</div>
+      <div style="font-size:var(--fs-sub);margin-bottom:6px">📁</div>
+      <div style="font-weight:800;font-size:var(--fs-corpo)">${escapeHtml(c.nome)}${c.ehAdminConta ? ' <span style="font-size:var(--fs-micro);color:var(--blue,#5AA9E6);font-weight:800">· TU (ADMIN)</span>' : ''}</div>
+      <div style="font-size:var(--fs-legenda);color:var(--muted,#6B756C);margin-top:3px">${escapeHtml(c.email)}</div>
+      <div style="font-size:var(--fs-legenda);margin-top:8px;color:var(--gold,#D4AF37);font-weight:700">${c.n} ${c.n===1?'atleta':'atletas'} →</div>
     </button>`).join('');
 }
 function abrirAtletasDoTreinador(email){
@@ -906,8 +906,8 @@ function renderAtletas(){
       <td><span class="pill pill-${a.estado}">${a.estado === 'pendente' ? 'A aguardar pagamento' : (a.estado === 'suspenso' ? 'Suspenso — sem acesso' : a.estado)}</span></td>
       <td>
         ${a.oculto_pelo_responsavel ? '<span class="pill pill-oculto">oculto</span>' : ''}
-        ${a.visivel_publico ? '<span style="color:var(--green);font-size:14px" title="Público">●</span>' : '<span style="color:var(--muted);font-size:14px" title="Não público">○</span>'}
-        ${a.visivel_b2b ? '<span style="color:var(--gold);font-size:14px;margin-left:2px" title="B2B">●</span>' : '<span style="color:var(--muted);font-size:14px;margin-left:2px" title="Não B2B">○</span>'}
+        ${a.visivel_publico ? '<span style="color:var(--green);font-size:var(--fs-corpo)" title="Público">●</span>' : '<span style="color:var(--muted);font-size:var(--fs-corpo)" title="Não público">○</span>'}
+        ${a.visivel_b2b ? '<span style="color:var(--gold);font-size:var(--fs-corpo);margin-left:2px" title="B2B">●</span>' : '<span style="color:var(--muted);font-size:var(--fs-corpo);margin-left:2px" title="Não B2B">○</span>'}
       </td>
       <td style="white-space:nowrap">
         <button class="action-btn" onclick="window.open('passaporte.html?admin=${a.id}','_blank')" title="Ver passaporte">👁</button>
@@ -1498,7 +1498,7 @@ function editarAtleta(id){
     </div>
 
     <div class="edit-section">
-      <div class="edit-sec-title">📊 Contexto competitivo <span style="font-weight:400;font-size:11px;color:var(--slate)">(alimenta a avaliação contextual · tudo opcional)</span></div>
+      <div class="edit-sec-title">📊 Contexto competitivo <span style="font-weight:400;font-size:var(--fs-legenda);color:var(--slate)">(alimenta a avaliação contextual · tudo opcional)</span></div>
       <div class="edit-grid">
         <div class="edit-field"><label class="edit-label">Época ref.</label><input class="edit-input" id="e_epoca" placeholder="2025/26" value="${escapeHtml(a.epoca_ref || '')}"></div>
         <div class="edit-field full"><label class="edit-label">Divisão / nível</label><input class="edit-input" id="e_div" placeholder="ex: 1ª Div. Distrital AF Porto" value="${escapeHtml(a.divisao || '')}"></div>
@@ -1520,21 +1520,21 @@ function editarAtleta(id){
     </div>
 
     <div class="edit-section">
-      <div class="edit-sec-title">📏 Biometria <span style="font-weight:400;font-size:11px;color:var(--slate)">(série temporal — cada registo fica no histórico do atleta)</span></div>
+      <div class="edit-sec-title">📏 Biometria <span style="font-weight:400;font-size:var(--fs-legenda);color:var(--slate)">(série temporal — cada registo fica no histórico do atleta)</span></div>
       <div class="edit-grid">
         <div class="edit-field"><label class="edit-label">Altura (cm)</label><input class="edit-input" id="e_bio_alt" type="number" step="0.1" min="80" max="220" placeholder="ex: 152"></div>
         <div class="edit-field"><label class="edit-label">Peso (kg)</label><input class="edit-input" id="e_bio_pes" type="number" step="0.1" min="15" max="120" placeholder="ex: 44.5"></div>
         <div class="edit-field"><label class="edit-label">Pé (tam. EU)</label><input class="edit-input" id="e_bio_pe" type="number" step="0.5" min="20" max="50" placeholder="ex: 37"></div>
         <div class="edit-field"><label class="edit-label">Data da medição</label><input class="edit-input" id="e_bio_data" type="date" value="${new Date().toISOString().slice(0,10)}"></div>
         <div class="edit-field full"><button type="button" class="action-btn" onclick="registarBiometriaAdmin('${a.id}')">📏 Registar medição</button></div>
-        <div class="edit-field full" id="e_bio_hist"><div style="font-size:12px;color:var(--slate)">A carregar histórico…</div></div>
+        <div class="edit-field full" id="e_bio_hist"><div style="font-size:var(--fs-legenda);color:var(--slate)">A carregar histórico…</div></div>
       </div>
-      <div class="edit-sec-title" style="margin-top:14px">🧬 Maturação <span style="font-weight:400;font-size:11px;color:var(--slate)">(altura adulta prevista pela altura dos pais — estimativa, não diagnóstico)</span></div>
+      <div class="edit-sec-title" style="margin-top:14px">🧬 Maturação <span style="font-weight:400;font-size:var(--fs-legenda);color:var(--slate)">(altura adulta prevista pela altura dos pais — estimativa, não diagnóstico)</span></div>
       <div class="edit-grid">
         <div class="edit-field"><label class="edit-label">Altura do pai (cm)</label><input class="edit-input" id="e_alt_pai" type="number" step="0.5" min="120" max="230" value="${a.altura_pai != null ? a.altura_pai : ''}" placeholder="ex: 178"></div>
         <div class="edit-field"><label class="edit-label">Altura da mãe (cm)</label><input class="edit-input" id="e_alt_mae" type="number" step="0.5" min="120" max="230" value="${a.altura_mae != null ? a.altura_mae : ''}" placeholder="ex: 165"></div>
         <div class="edit-field full"><button type="button" class="action-btn" onclick="registarPaisAdmin('${a.id}')">🧬 Guardar altura dos pais</button></div>
-        <div class="edit-field full" id="e_matura"><div style="font-size:12px;color:var(--slate)">A calcular maturação…</div></div>
+        <div class="edit-field full" id="e_matura"><div style="font-size:var(--fs-legenda);color:var(--slate)">A calcular maturação…</div></div>
       </div>
     </div>
 
@@ -1563,17 +1563,17 @@ function editarAtleta(id){
 
 const FALTA_LBL_ADMIN = { sexo:'sexo do atleta', altura_pai:'altura do pai', altura_mae:'altura da mãe', altura_atual:'uma medição de altura' };
 function renderMaturacao(m){
-  if(!m) return '<div style="font-size:12px;color:var(--slate)">Sem dados para estimar.</div>';
-  const linha = (l,v) => '<div style="display:flex;justify-content:space-between;font-size:12px;color:#c5cdc5;padding:3px 0"><span style="color:var(--slate)">'+l+'</span><span>'+(v!=null&&v!==''?escapeHtml(String(v)):'—')+'</span></div>';
+  if(!m) return '<div style="font-size:var(--fs-legenda);color:var(--slate)">Sem dados para estimar.</div>';
+  const linha = (l,v) => '<div style="display:flex;justify-content:space-between;font-size:var(--fs-legenda);color:#c5cdc5;padding:3px 0"><span style="color:var(--slate)">'+l+'</span><span>'+(v!=null&&v!==''?escapeHtml(String(v)):'—')+'</span></div>';
   let h = '<div style="border:1px solid var(--bg4);border-radius:8px;padding:10px">';
   h += linha('Altura atual', m.altura_atual!=null?(m.altura_atual+' cm'):null);
   h += linha('Altura adulta prevista', m.altura_prevista!=null?(m.altura_prevista+' cm'):null);
   h += linha('% já atingida', m.pct_atingida!=null?(m.pct_atingida+'%'):null);
   h += linha('Crescimento', m.velocidade_cm_ano!=null?(m.velocidade_cm_ano+' cm/ano'):null);
   if(m.em_falta && m.em_falta.length){
-    h += '<div style="font-size:11px;color:var(--orange);margin-top:6px">Falta: '+escapeHtml(m.em_falta.map(k=>FALTA_LBL_ADMIN[k]||k).join(', '))+'.</div>';
+    h += '<div style="font-size:var(--fs-legenda);color:var(--orange);margin-top:6px">Falta: '+escapeHtml(m.em_falta.map(k=>FALTA_LBL_ADMIN[k]||k).join(', '))+'.</div>';
   }
-  h += '<div style="font-size:10px;color:var(--muted);margin-top:6px">'+escapeHtml(m.metodo||'Estimativa')+'.</div>';
+  h += '<div style="font-size:var(--fs-micro);color:var(--muted);margin-top:6px">'+escapeHtml(m.metodo||'Estimativa')+'.</div>';
   h += '</div>';
   return h;
 }
@@ -1582,7 +1582,7 @@ async function carregarMaturacaoAdmin(atletaId){
   if(!el) return;
   try {
     const { data, error } = await supa.rpc('ytb_passaporte_admin', { p_atleta: atletaId });
-    if(error || !data){ el.innerHTML = '<div style="font-size:12px;color:var(--slate)">Não foi possível calcular.</div>'; return; }
+    if(error || !data){ el.innerHTML = '<div style="font-size:var(--fs-legenda);color:var(--slate)">Não foi possível calcular.</div>'; return; }
     el.innerHTML = renderMaturacao(data.maturacao);
   } catch(e){ el.innerHTML = ''; }
 }
@@ -1601,13 +1601,13 @@ async function registarPaisAdmin(atletaId){
 }
 
 function renderBioHistList(rows){
-  if(!rows || !rows.length) return '<div style="font-size:12px;color:var(--slate)">Sem medições registadas.</div>';
+  if(!rows || !rows.length) return '<div style="font-size:var(--fs-legenda);color:var(--slate)">Sem medições registadas.</div>';
   return '<div style="display:flex;flex-direction:column;gap:6px">' + rows.map(r => {
     const partes = [];
     if(r.altura_cm != null) partes.push(r.altura_cm + ' cm');
     if(r.peso_kg != null) partes.push(r.peso_kg + ' kg');
     if(r.pe_eu != null) partes.push('pé ' + r.pe_eu);
-    return '<div style="font-size:12px;color:#c5cdc5;display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid var(--bg4);padding:4px 0"><span>' + fmtDate(r.medido_em) + ' · ' + escapeHtml(r.fonte || '') + '</span><span>' + (partes.join(' · ') || '—') + '</span></div>';
+    return '<div style="font-size:var(--fs-legenda);color:#c5cdc5;display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid var(--bg4);padding:4px 0"><span>' + fmtDate(r.medido_em) + ' · ' + escapeHtml(r.fonte || '') + '</span><span>' + (partes.join(' · ') || '—') + '</span></div>';
   }).join('') + '</div>';
 }
 
@@ -1616,7 +1616,7 @@ async function carregarBiometriaAdmin(atletaId){
   if(!el) return;
   try {
     const { data, error } = await supa.from('atleta_biometria').select('*').eq('atleta_id', atletaId).order('medido_em', { ascending:false }).limit(10);
-    if(error){ el.innerHTML = '<div style="font-size:12px;color:var(--slate)">Não foi possível carregar o histórico.</div>'; return; }
+    if(error){ el.innerHTML = '<div style="font-size:var(--fs-legenda);color:var(--slate)">Não foi possível carregar o histórico.</div>'; return; }
     el.innerHTML = renderBioHistList(data);
   } catch(e){ el.innerHTML = ''; }
 }
@@ -1858,8 +1858,8 @@ const PAPEL_INFO = {
 };
 function papelPill(papel){
   const i = PAPEL_INFO[papel];
-  if(!i) return '<span style="display:inline-block;font-size:10px;font-weight:700;color:var(--slate);border:1px dashed #3a3f38;border-radius:100px;padding:3px 9px">— sem papel</span>';
-  return '<span style="display:inline-block;font-size:11px;font-weight:800;color:'+i.cor+';background:'+i.cor+'1a;border:1px solid '+i.cor+'55;border-radius:100px;padding:3px 10px;white-space:nowrap">'+i.emoji+' '+i.label+'</span>';
+  if(!i) return '<span style="display:inline-block;font-size:var(--fs-micro);font-weight:700;color:var(--slate);border:1px dashed #3a3f38;border-radius:100px;padding:3px 9px">— sem papel</span>';
+  return '<span style="display:inline-block;font-size:var(--fs-legenda);font-weight:800;color:'+i.cor+';background:'+i.cor+'1a;border:1px solid '+i.cor+'55;border-radius:100px;padding:3px 10px;white-space:nowrap">'+i.emoji+' '+i.label+'</span>';
 }
 // email encurtado: 2 primeiros caracteres + domínio (o completo fica no title/hover)
 function mascararEmail(email){
@@ -1881,8 +1881,8 @@ async function carregarContas(){
       const protegida = CONTAS_PROTEGIDAS.includes((c.email||'').toLowerCase());
       const cor = c.estado === 'aprovado' ? 'var(--green)' : (c.estado === 'bloqueado' ? 'var(--red)' : 'var(--orange)');
       let acao = '';
-      if(protegida){ acao = '<span style="font-size:10px;color:var(--muted)">🔒 protegida</span>'; }
-      else if(c.estado === 'eliminado'){ acao = '<span style="font-size:10px;color:var(--muted)">🗑️ eliminada</span>'; }
+      if(protegida){ acao = '<span style="font-size:var(--fs-micro);color:var(--muted)">🔒 protegida</span>'; }
+      else if(c.estado === 'eliminado'){ acao = '<span style="font-size:var(--fs-micro);color:var(--muted)">🗑️ eliminada</span>'; }
       else {
         if(c.estado === 'aprovado'){ acao = `<button class="action-btn" style="border-color:rgba(255,80,80,.4);color:var(--red)" onclick="mudarEstadoConta('${c.email}','bloqueado')">🚫 Bloquear</button>`; }
         else { acao = `<button class="action-btn" onclick="mudarEstadoConta('${c.email}','aprovado')">✓ ${c.estado === 'bloqueado' ? 'Reativar' : 'Aprovar'}</button>`; }
@@ -1892,7 +1892,7 @@ async function carregarContas(){
       // um selo "▾ mudar" que abre o seletor de papel.
       let papelCel = papelPill(c.papel);
       if(!(protegida || c.papel === 'admin')){
-        papelCel += ` <select onchange="mudarPapelConta('${c.email}', this.value)" title="Mudar papel" style="background:var(--bg3);border:1px solid var(--border2);border-radius:7px;color:var(--slate);font-size:10px;padding:3px 5px;cursor:pointer;margin-left:6px">
+        papelCel += ` <select onchange="mudarPapelConta('${c.email}', this.value)" title="Mudar papel" style="background:var(--bg3);border:1px solid var(--border2);border-radius:7px;color:var(--slate);font-size:var(--fs-micro);padding:3px 5px;cursor:pointer;margin-left:6px">
           <option value="" disabled selected>▾ mudar</option>
           <option value="treinador">🎓 Treinador</option>
           <option value="scout">🔍 Scout</option>
@@ -1901,9 +1901,9 @@ async function carregarContas(){
         </select>`;
       }
       return `<tr>
-        <td class="td-name"><strong>${escapeHtml(c.nome || '—')}</strong><div class="td-mute" style="font-size:11px">${mascararEmail(c.email)}</div></td>
+        <td class="td-name"><strong>${escapeHtml(c.nome || '—')}</strong><div class="td-mute" style="font-size:var(--fs-legenda)">${mascararEmail(c.email)}</div></td>
         <td>${papelCel}</td>
-        <td><span style="color:${cor};font-weight:700;font-size:11px;text-transform:uppercase">${escapeHtml(c.estado || '—')}</span></td>
+        <td><span style="color:${cor};font-weight:700;font-size:var(--fs-legenda);text-transform:uppercase">${escapeHtml(c.estado || '—')}</span></td>
         <td>${acao}</td>
       </tr>`;
     }).join('');
@@ -1955,20 +1955,20 @@ async function carregarComissoes(){
     const eur = n => Number(n||0).toFixed(2).replace('.',',')+'€';
     tb.innerHTML = coms.map(c => {
       const acaoTrein = Number(c.comissao||0) <= 0 ? '—' : (c.pago_ao_treinador
-        ? '<span style="color:var(--green);font-size:11px">✓ pago</span>'
-        : `<button class="action-btn" style="font-size:11px;padding:5px 9px" onclick="marcarComissaoPaga('${c.id}','treinador')">Marcar pago</button>`);
+        ? '<span style="color:var(--green);font-size:var(--fs-legenda)">✓ pago</span>'
+        : `<button class="action-btn" style="font-size:var(--fs-legenda);padding:5px 9px" onclick="marcarComissaoPaga('${c.id}','treinador')">Marcar pago</button>`);
       const acaoAcademia = Number(c.valor_academia||0) <= 0 ? '—' : (c.pago_academia
-        ? '<span style="color:var(--green);font-size:11px">✓ pago</span>'
-        : `<button class="action-btn" style="font-size:11px;padding:5px 9px" onclick="marcarComissaoPaga('${c.id}','academia')">Marcar pago</button>`);
+        ? '<span style="color:var(--green);font-size:var(--fs-legenda)">✓ pago</span>'
+        : `<button class="action-btn" style="font-size:var(--fs-legenda);padding:5px 9px" onclick="marcarComissaoPaga('${c.id}','academia')">Marcar pago</button>`);
       return `<tr>
-        <td style="font-size:11px">${escapeHtml(c.treinador_email||'—')}</td>
+        <td style="font-size:var(--fs-legenda)">${escapeHtml(c.treinador_email||'—')}</td>
         <td>${escapeHtml(c.atleta_nome||'—')}</td>
-        <td><span style="font-size:11px;text-transform:uppercase">${escapeHtml(c.tipo||'—')}</span></td>
-        <td style="font-size:11px">${eur(c.valor_pago)}</td>
+        <td><span style="font-size:var(--fs-legenda);text-transform:uppercase">${escapeHtml(c.tipo||'—')}</span></td>
+        <td style="font-size:var(--fs-legenda)">${eur(c.valor_pago)}</td>
         <td style="font-weight:700;color:var(--gold)">${eur(c.comissao)} ${acaoTrein}</td>
         <td style="font-weight:700;color:var(--blue)">${eur(c.valor_academia)} ${acaoAcademia}</td>
-        <td style="font-size:11px">${escapeHtml(c.mes||'—')}</td>
-        <td style="font-size:10px;color:var(--muted)">${c.criado_em ? new Date(c.criado_em).toLocaleDateString('pt-PT') : '—'}</td>
+        <td style="font-size:var(--fs-legenda)">${escapeHtml(c.mes||'—')}</td>
+        <td style="font-size:var(--fs-micro);color:var(--muted)">${c.criado_em ? new Date(c.criado_em).toLocaleDateString('pt-PT') : '—'}</td>
       </tr>`;
     }).join('');
   } catch(e){ tb.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--red);padding:20px">Erro: ' + escapeHtml(e.message||'') + '</td></tr>'; }

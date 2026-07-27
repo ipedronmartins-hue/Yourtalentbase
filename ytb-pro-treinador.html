@@ -28,91 +28,91 @@ html,body{background:var(--bg);color:var(--white);font-family:'Plus Jakarta Sans
 body{padding-bottom:40px}
 .spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.2);border-top-color:var(--gold);border-radius:50%;animation:sp .7s linear infinite;vertical-align:middle}
 @keyframes sp{to{transform:rotate(360deg)}}
-.btn{width:100%;padding:13px;border:none;border-radius:10px;font-family:'Barlow Condensed';font-weight:900;font-size:15px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:opacity .15s}
+.btn{width:100%;padding:13px;border:none;border-radius:10px;font-family:'Barlow Condensed';font-weight:900;font-size:var(--fs-sub);letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:opacity .15s}
 .btn:disabled{opacity:.5}
 .btn-primary{background:var(--gold);color:#000}
 .btn-secondary{background:var(--bg3);color:#fff;border:1px solid var(--border)}
-.btn-small{font-size:12px;padding:9px 14px;width:auto}
+.btn-small{font-size:var(--fs-legenda);padding:9px 14px;width:auto}
 /* LOGIN */
 .login-wrap{max-width:400px;margin:0 auto;padding:50px 22px}
-.login-title{font-family:'Barlow Condensed';font-weight:900;font-size:30px;text-align:center;line-height:1;margin-bottom:6px}.login-title span{color:var(--gold)}
-.login-sub{font-size:13px;color:var(--slate);text-align:center;margin-bottom:24px;line-height:1.5}
+.login-title{font-family:'Barlow Condensed';font-weight:900;font-size:var(--fs-titulo);text-align:center;line-height:1;margin-bottom:6px}.login-title span{color:var(--gold)}
+.login-sub{font-size:var(--fs-corpo);color:var(--slate);text-align:center;margin-bottom:24px;line-height:1.5}
 .login-box{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:22px}
 .field{margin-bottom:14px}
-.label{display:block;font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--slate);margin-bottom:6px}
-.input{width:100%;background:var(--bg3);border:1px solid var(--border);color:#fff;padding:12px;border-radius:9px;font-family:inherit;font-size:15px;outline:none}
+.label{display:block;font-size:var(--fs-micro);font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--slate);margin-bottom:6px}
+.input{width:100%;background:var(--bg3);border:1px solid var(--border);color:#fff;padding:12px;border-radius:9px;font-family:inherit;font-size:var(--fs-corpo);outline:none}
 .input:focus{border-color:var(--gold)}
-.err{display:none;color:var(--red);font-size:12px;margin-bottom:10px;text-align:center}
-.info-box{background:var(--gold-soft);border:1px solid var(--gold-border);border-radius:9px;padding:11px 13px;font-size:11px;color:var(--slate);line-height:1.5;margin-bottom:16px}
-.estado-pend{text-align:center;padding:20px 0}.estado-pend .big{font-size:42px;margin-bottom:12px}.estado-pend .t{font-family:'Barlow Condensed';font-weight:900;font-size:20px;margin-bottom:6px}.estado-pend .s{font-size:13px;color:var(--slate);line-height:1.6}
-.contact-link{text-align:center;font-size:12px;color:var(--muted);margin-top:16px}.contact-link a{color:var(--gold);text-decoration:none}
+.err{display:none;color:var(--red);font-size:var(--fs-legenda);margin-bottom:10px;text-align:center}
+.info-box{background:var(--gold-soft);border:1px solid var(--gold-border);border-radius:9px;padding:11px 13px;font-size:var(--fs-legenda);color:var(--slate);line-height:1.5;margin-bottom:16px}
+.estado-pend{text-align:center;padding:20px 0}.estado-pend .big{font-size:var(--fs-hero);margin-bottom:12px}.estado-pend .t{font-family:'Barlow Condensed';font-weight:900;font-size:var(--fs-sub);margin-bottom:6px}.estado-pend .s{font-size:var(--fs-corpo);color:var(--slate);line-height:1.6}
+.contact-link{text-align:center;font-size:var(--fs-legenda);color:var(--muted);margin-top:16px}.contact-link a{color:var(--gold);text-decoration:none}
 /* MAIN */
 #main-view{display:none;max-width:600px;margin:0 auto;padding:0 16px}
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--border);margin-bottom:16px}
 .topbar-l{display:flex;align-items:center;gap:11px}
-.topbar-home{font-size:19px;text-decoration:none;color:var(--gold);flex:none;line-height:1}
-.topbar-name{font-size:14px;font-weight:700}.topbar-name .role{font-size:10px;color:var(--gold);font-weight:800;letter-spacing:1px;text-transform:uppercase}
-.topbar-out{background:none;border:1px solid var(--border);color:var(--slate);font-size:11px;padding:6px 12px;border-radius:7px;cursor:pointer}
+.topbar-home{font-size:var(--fs-sub);text-decoration:none;color:var(--gold);flex:none;line-height:1}
+.topbar-name{font-size:var(--fs-corpo);font-weight:700}.topbar-name .role{font-size:var(--fs-micro);color:var(--gold);font-weight:800;letter-spacing:1px;text-transform:uppercase}
+.topbar-out{background:none;border:1px solid var(--border);color:var(--slate);font-size:var(--fs-legenda);padding:6px 12px;border-radius:7px;cursor:pointer}
 .topbar-r{display:flex;align-items:center;gap:10px}
 .app-switch{display:flex;align-items:center;gap:6px;background:var(--gold-soft);border:1px solid var(--gold-border);color:var(--gold);
-  font-size:12px;font-weight:800;padding:8px 14px;border-radius:999px;text-decoration:none;white-space:nowrap}
+  font-size:var(--fs-legenda);font-weight:800;padding:8px 14px;border-radius:999px;text-decoration:none;white-space:nowrap}
 .app-switch:hover{background:var(--gold);color:#0A0D0A}
 .tabs{display:flex;gap:4px;margin-bottom:18px;overflow-x:auto}
-.tab{flex:1;min-width:fit-content;background:var(--bg2);border:1px solid var(--border);color:var(--slate);padding:10px 8px;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
+.tab{flex:1;min-width:fit-content;background:var(--bg2);border:1px solid var(--border);color:var(--slate);padding:10px 8px;border-radius:9px;font-size:var(--fs-legenda);font-weight:700;cursor:pointer;white-space:nowrap}
 .tab.active{border-color:var(--gold);color:var(--gold);background:var(--gold-soft)}
-.section-title{font-family:'Barlow Condensed';font-weight:900;font-size:22px;margin-bottom:4px}.section-title span{color:var(--gold)}
-.section-sub{font-size:12px;color:var(--slate);margin-bottom:16px;line-height:1.5}
+.section-title{font-family:'Barlow Condensed';font-weight:900;font-size:var(--fs-titulo);margin-bottom:4px}.section-title span{color:var(--gold)}
+.section-sub{font-size:var(--fs-legenda);color:var(--slate);margin-bottom:16px;line-height:1.5}
 .kpis{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:18px}
 .kpi{background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--gold);padding:12px;border-radius:8px}
-.kpi-n{font-family:'Barlow Condensed';font-weight:900;font-size:26px;line-height:1}
-.kpi-l{font-size:8px;font-weight:800;letter-spacing:1px;color:var(--slate);text-transform:uppercase;margin-top:3px}
+.kpi-n{font-family:'Barlow Condensed';font-weight:900;font-size:var(--fs-titulo);line-height:1}
+.kpi-l{font-size:var(--fs-micro);font-weight:800;letter-spacing:1px;color:var(--slate);text-transform:uppercase;margin-top:3px}
 .atleta-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:13px 15px;margin-bottom:8px;cursor:pointer;display:flex;align-items:center;justify-content:space-between}
 .atleta-card:active{border-color:var(--gold-border)}
 .atleta-card.sel{border-color:var(--gold);background:var(--gold-soft)}
-.atleta-nome{font-size:14px;font-weight:700}.atleta-meta{font-size:11px;color:var(--slate);margin-top:2px}
-.atleta-arrow{color:var(--gold);font-size:18px}
-.empty-state{text-align:center;color:var(--muted);padding:30px 16px;font-size:13px;line-height:1.6}.empty-emoji{font-size:38px;margin-bottom:10px}
+.atleta-nome{font-size:var(--fs-corpo);font-weight:700}.atleta-meta{font-size:var(--fs-legenda);color:var(--slate);margin-top:2px}
+.atleta-arrow{color:var(--gold);font-size:var(--fs-sub)}
+.empty-state{text-align:center;color:var(--muted);padding:30px 16px;font-size:var(--fs-corpo);line-height:1.6}.empty-emoji{font-size:var(--fs-hero);margin-bottom:10px}
 .crit-cat{margin-bottom:18px}
-.crit-cat-h{display:flex;align-items:center;gap:7px;font-family:'Barlow Condensed';font-weight:800;font-size:16px;margin-bottom:10px}
+.crit-cat-h{display:flex;align-items:center;gap:7px;font-family:'Barlow Condensed';font-weight:800;font-size:var(--fs-sub);margin-bottom:10px}
 .slider-row{margin-bottom:13px}
-.slider-label{display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px}.slider-name{color:#fff}.slider-val{color:var(--gold);font-weight:800}
+.slider-label{display:flex;justify-content:space-between;font-size:var(--fs-legenda);margin-bottom:5px}.slider-name{color:#fff}.slider-val{color:var(--gold);font-weight:800}
 .slider{width:100%;height:5px;-webkit-appearance:none;background:var(--border);border-radius:100px;outline:none}
 .slider::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;background:var(--gold);border-radius:50%;cursor:pointer}
 .slider::-moz-range-thumb{width:18px;height:18px;background:var(--gold);border-radius:50%;cursor:pointer;border:none}
 /* avaliação nível 1 — um toque por bucket */
 .bk-row{background:var(--bg2);border:1px solid var(--border);border-radius:13px;padding:14px 15px;margin-bottom:9px}
 .bk-head{display:flex;align-items:baseline;gap:8px;margin-bottom:3px}
-.bk-nome{font-family:'Barlow Condensed';font-weight:900;font-size:18px}
-.bk-sub{font-size:11.5px;color:var(--slate);margin-bottom:10px}
+.bk-nome{font-family:'Barlow Condensed';font-weight:900;font-size:var(--fs-sub)}
+.bk-sub{font-size:var(--fs-legenda);color:var(--slate);margin-bottom:10px}
 .bk-dots{display:flex;gap:7px}
-.bk-dots button{flex:1;min-height:44px;background:var(--bg3);border:1px solid var(--border);color:var(--slate);border-radius:9px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;transition:.12s}
+.bk-dots button{flex:1;min-height:44px;background:var(--bg3);border:1px solid var(--border);color:var(--slate);border-radius:9px;font-family:inherit;font-size:var(--fs-sub);font-weight:700;cursor:pointer;transition:.12s}
 .bk-dots button.on{background:var(--gold-soft,rgba(212,175,55,.12));border-color:var(--gold);color:var(--gold)}
 .bk-dots button.on.fraco{background:rgba(255,80,80,.1);border-color:var(--red);color:var(--red)}
-.bk-esc{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:5px}
-.bk-det{background:none;border:none;color:var(--slate);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;padding:8px 0 0;display:block}
+.bk-esc{display:flex;justify-content:space-between;font-size:var(--fs-micro);color:var(--muted);margin-top:5px}
+.bk-det{background:none;border:none;color:var(--slate);font-size:var(--fs-legenda);font-weight:700;cursor:pointer;font-family:inherit;padding:8px 0 0;display:block}
 .bk-det:hover{color:var(--text)}
 .bk-det-body{display:none;margin-top:10px;border-top:1px solid var(--border);padding-top:10px}
 .bk-det-body.on{display:block}
-.deb-item{background:rgba(255,80,80,.08);border:1px solid rgba(255,80,80,.2);border-radius:8px;padding:9px 12px;font-size:12px;margin-bottom:6px}
+.deb-item{background:rgba(255,80,80,.08);border:1px solid rgba(255,80,80,.2);border-radius:8px;padding:9px 12px;font-size:var(--fs-legenda);margin-bottom:6px}
 .result-card{background:var(--bg2);border:1px solid var(--gold-border);border-radius:12px;padding:18px;margin-top:16px}
-.score-big{font-family:'Barlow Condensed';font-weight:900;font-size:54px;text-align:center;color:var(--gold);line-height:1}
+.score-big{font-family:'Barlow Condensed';font-weight:900;font-size:var(--fs-hero);text-align:center;color:var(--gold);line-height:1}
 .dash-card{background:var(--bg2);border:1px solid var(--border);border-radius:11px;padding:14px;margin-bottom:10px}
-.dash-card-eyebrow{font-size:9px;font-weight:800;letter-spacing:1.5px;color:var(--gold);text-transform:uppercase;margin-bottom:6px}
+.dash-card-eyebrow{font-size:var(--fs-micro);font-weight:800;letter-spacing:1.5px;color:var(--gold);text-transform:uppercase;margin-bottom:6px}
 .ex-card{background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:12px;margin-bottom:8px}
-.ex-card-name{font-size:13px;font-weight:700;margin-bottom:4px}
-.ex-card-obj{font-size:11px;color:var(--gold);margin-bottom:4px}
-.ex-card-desc{font-size:12px;color:var(--slate);line-height:1.5}
-.ex-card-meta{font-size:10px;color:var(--muted);margin-top:6px}
+.ex-card-name{font-size:var(--fs-corpo);font-weight:700;margin-bottom:4px}
+.ex-card-obj{font-size:var(--fs-legenda);color:var(--gold);margin-bottom:4px}
+.ex-card-desc{font-size:var(--fs-legenda);color:var(--slate);line-height:1.5}
+.ex-card-meta{font-size:var(--fs-micro);color:var(--muted);margin-top:6px}
 .com-row{display:flex;justify-content:space-between;align-items:center;background:var(--bg2);border:1px solid var(--border);border-radius:9px;padding:12px 14px;margin-bottom:7px}
-.com-info{font-size:12px}.com-atleta{font-weight:700;color:#fff}.com-tipo{font-size:10px;color:var(--slate);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
-.com-val{font-family:'Barlow Condensed';font-weight:900;font-size:17px;color:var(--green)}
+.com-info{font-size:var(--fs-legenda)}.com-atleta{font-weight:700;color:#fff}.com-tipo{font-size:var(--fs-micro);color:var(--slate);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.com-val{font-family:'Barlow Condensed';font-weight:900;font-size:var(--fs-sub);color:var(--green)}
 .com-val.pend{color:var(--orange)}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.8);display:none;align-items:flex-end;justify-content:center;z-index:100}
 .modal.show{display:flex}
 .modal-box{background:var(--bg2);border:1px solid var(--border);border-radius:16px 16px 0 0;padding:22px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto}
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--gold);color:#000;padding:12px 20px;border-radius:100px;font-weight:700;font-size:13px;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--gold);color:#000;padding:12px 20px;border-radius:100px;font-weight:700;font-size:var(--fs-corpo);z-index:200;opacity:0;transition:opacity .3s;pointer-events:none}
 .toast.show{opacity:1}
-.demo-flag{display:none;background:var(--gold-soft);border:1px solid var(--gold-border);color:var(--gold);font-size:11px;font-weight:700;padding:8px;border-radius:7px;text-align:center;margin-bottom:14px}
+.demo-flag{display:none;background:var(--gold-soft);border:1px solid var(--gold-border);color:var(--gold);font-size:var(--fs-legenda);font-weight:700;padding:8px;border-radius:7px;text-align:center;margin-bottom:14px}
 
 @media print{
   :root{--bg:#fff;--bg2:#fff;--bg3:#f4f4f4;--border:#ccc;--white:#111;--slate:#333;--muted:#555}
@@ -248,7 +248,7 @@ body{padding-bottom:40px}
         <option value="3-4-3"><option value="3-5-2"><option value="4-1-4-1"><option value="5-3-2">
       </datalist>
     </div>
-    <div class="field"><label class="label">Página ZeroZero do atleta</label><input class="input" id="insc-zz" type="url" placeholder="https://www.zerozero.pt/jogador/..."><div style="font-size:10px;color:var(--slate);margin-top:4px">Obrigatório — é a verificação de identidade do registo.</div></div>
+    <div class="field"><label class="label">Página ZeroZero do atleta</label><input class="input" id="insc-zz" type="url" placeholder="https://www.zerozero.pt/jogador/..."><div style="font-size:var(--fs-micro);color:var(--slate);margin-top:4px">Obrigatório — é a verificação de identidade do registo.</div></div>
     <div class="field"><label class="label">Email do encarregado</label><input class="input" id="insc-email" type="email" placeholder="pai@email.com"></div>
     <div class="err" id="insc-err"></div>
     <button class="btn btn-primary" id="insc-btn" onclick="submeterInscricao()">Inscrever →</button>
@@ -544,16 +544,16 @@ async function renderRetorno(){
       +'<div class="dash-card-header"><div class="dash-card-eyebrow">'+esc(d.nome||'Atleta')+(d.escalao?' · '+esc(d.escalao):'')
       +(ds?' · <span style="color:var(--gold)">Score '+ds.score+(ds.tendencia==='subiu'?' ↗':ds.tendencia==='desceu'?' ↘':'')+'</span>':'')+'</div>'
       +(ult?'<div class="dash-card-action">último treino: '+ult+'</div>':'')+'</div>'
-      +(pri.acao?'<div style="font-size:11px;color:var(--gold);margin:2px 0 4px">→ o sistema recomenda: <b>'+esc(pri.acao)+'</b></div>':'')
-      +'<a href="passaporte.html?treinador='+encodeURIComponent(d.atleta_id)+'" style="font-size:11px;color:var(--slate);text-decoration:none;border:1px solid var(--border);border-radius:7px;padding:4px 9px;display:inline-block;margin:2px 0 4px">📔 Passaporte →</a>'
+      +(pri.acao?'<div style="font-size:var(--fs-legenda);color:var(--gold);margin:2px 0 4px">→ o sistema recomenda: <b>'+esc(pri.acao)+'</b></div>':'')
+      +'<a href="passaporte.html?treinador='+encodeURIComponent(d.atleta_id)+'" style="font-size:var(--fs-legenda);color:var(--slate);text-decoration:none;border:1px solid var(--border);border-radius:7px;padding:4px 9px;display:inline-block;margin:2px 0 4px">📔 Passaporte →</a>'
       +'<div style="display:flex;gap:14px;margin:8px 0 4px;flex-wrap:wrap">'
-      +'<div><div style="font-family:\'Barlow Condensed\';font-weight:900;font-size:26px;color:var(--gold);line-height:1">'+(d.execucoes_desde_plano||0)+'</div><div style="font-size:9px;letter-spacing:1px;color:var(--slate);text-transform:uppercase">treinos desde o plano</div></div>'
-      +'<div><div style="font-family:\'Barlow Condensed\';font-weight:900;font-size:26px;color:var(--blue);line-height:1">'+(d.execucoes_total||0)+'</div><div style="font-size:9px;letter-spacing:1px;color:var(--slate);text-transform:uppercase">treinos no total</div></div>'
-      +(conf!=null?'<div><div style="font-family:\'Barlow Condensed\';font-weight:900;font-size:26px;color:'+(conf>=80?'var(--green)':conf>=60?'var(--gold)':'var(--orange)')+';line-height:1">'+conf+'%</div><div style="font-size:9px;letter-spacing:1px;color:var(--slate);text-transform:uppercase">confiança dos dados</div></div>':'')
+      +'<div><div style="font-family:\'Barlow Condensed\';font-weight:900;font-size:var(--fs-titulo);color:var(--gold);line-height:1">'+(d.execucoes_desde_plano||0)+'</div><div style="font-size:var(--fs-micro);letter-spacing:1px;color:var(--slate);text-transform:uppercase">treinos desde o plano</div></div>'
+      +'<div><div style="font-family:\'Barlow Condensed\';font-weight:900;font-size:var(--fs-titulo);color:var(--blue);line-height:1">'+(d.execucoes_total||0)+'</div><div style="font-size:var(--fs-micro);letter-spacing:1px;color:var(--slate);text-transform:uppercase">treinos no total</div></div>'
+      +(conf!=null?'<div><div style="font-family:\'Barlow Condensed\';font-weight:900;font-size:var(--fs-titulo);color:'+(conf>=80?'var(--green)':conf>=60?'var(--gold)':'var(--orange)')+';line-height:1">'+conf+'%</div><div style="font-size:var(--fs-micro);letter-spacing:1px;color:var(--slate);text-transform:uppercase">confiança dos dados</div></div>':'')
       +'</div>'
-      +(d.ultimo_feedback?'<div style="font-size:11.5px;color:#ddd;background:rgba(255,255,255,.04);border-radius:8px;padding:8px 10px;margin-top:6px">💬 «'+esc(d.ultimo_feedback)+'»</div>':'')
-      +(precisaAval?'<div style="font-size:11px;color:var(--orange);margin-top:8px">📋 '+(diasAval==null?'Ainda sem avaliação tua':'Última avaliação há '+diasAval+' dias')+' — considera reavaliar.</div>':'')
-      +(!d.execucoes_desde_plano&&d.plano_prescrito_em?'<div style="font-size:11px;color:var(--slate);margin-top:6px">😴 O plano ainda não teve treinos — a família pode precisar de um empurrão.</div>':'')
+      +(d.ultimo_feedback?'<div style="font-size:var(--fs-legenda);color:#ddd;background:rgba(255,255,255,.04);border-radius:8px;padding:8px 10px;margin-top:6px">💬 «'+esc(d.ultimo_feedback)+'»</div>':'')
+      +(precisaAval?'<div style="font-size:var(--fs-legenda);color:var(--orange);margin-top:8px">📋 '+(diasAval==null?'Ainda sem avaliação tua':'Última avaliação há '+diasAval+' dias')+' — considera reavaliar.</div>':'')
+      +(!d.execucoes_desde_plano&&d.plano_prescrito_em?'<div style="font-size:var(--fs-legenda);color:var(--slate);margin-top:6px">😴 O plano ainda não teve treinos — a família pode precisar de um empurrão.</div>':'')
       +'</div>';
   });
   area.innerHTML=html;
@@ -609,7 +609,7 @@ function renderAtletas(){
       '<div><div class="atleta-nome">'+esc(a.primeiro_nome||a.nome)+'</div>'+
       '<div class="atleta-meta">'+(id?('Sub-'+id+' · '):'')+esc(a.clube_actual||'')+'</div></div>'+
       '<div style="display:flex;align-items:center;gap:10px">'+
-      (a.encarregado_email?'<button title="Enviar link de acesso à família" style="background:none;border:1px solid var(--border);border-radius:8px;padding:6px 9px;font-size:13px;cursor:pointer" onclick="reenviarLink(\''+a.id+'\',event)">✉️</button>':'')+
+      (a.encarregado_email?'<button title="Enviar link de acesso à família" style="background:none;border:1px solid var(--border);border-radius:8px;padding:6px 9px;font-size:var(--fs-corpo);cursor:pointer" onclick="reenviarLink(\''+a.id+'\',event)">✉️</button>':'')+
       '<div class="atleta-arrow">›</div></div></div>';
   }).join('');
 }
@@ -716,10 +716,10 @@ function renderAvaliar(){
       }).join('')
       +'</div></div>';
   });
-  html+='<div style="font-size:9px;font-weight:800;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin:14px 0 6px">Período</div>';
+  html+='<div style="font-size:var(--fs-micro);font-weight:800;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin:14px 0 6px">Período</div>';
   html+='<div id="av-periodo-chips" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px">'+avPeriodoChipsHTML()+'</div>';
-  html+='<div style="font-size:10px;color:var(--muted);line-height:1.5;margin-bottom:12px">A barreira de idade e o teto de intensidade continuam sempre ativos nos dois — o período muda volume, nunca segurança.</div>';
-  html+='<div style="font-size:9px;font-weight:800;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin:14px 0 6px">Dirigir o plano gerado</div>';
+  html+='<div style="font-size:var(--fs-micro);color:var(--muted);line-height:1.5;margin-bottom:12px">A barreira de idade e o teto de intensidade continuam sempre ativos nos dois — o período muda volume, nunca segurança.</div>';
+  html+='<div style="font-size:var(--fs-micro);font-weight:800;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin:14px 0 6px">Dirigir o plano gerado</div>';
   html+='<div id="av-foco-chips" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">'+avFocoChipsHTML()+'</div>';
   html+='<button class="btn btn-primary" onclick="gerarAvaliacao()">Concluir avaliação e gerar treino →</button>';
   html+='<div id="aval-result"></div>';
@@ -737,16 +737,16 @@ const AV_YTB_AREAS=[['','—'],['tecnico','Técnico'],['tactico','Tático'],['fi
 function avYtbHTML(a){
   const opt=(v,label)=>'<option value="'+v+'">'+label+'</option>';
   return '<details style="margin-top:18px;border-top:1px solid var(--border2,#2A322B);padding-top:10px">'
-    +'<summary style="cursor:pointer;font-size:11px;font-weight:800;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase">⭐ Classificação YTB (opcional)</summary>'
+    +'<summary style="cursor:pointer;font-size:var(--fs-legenda);font-weight:800;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase">⭐ Classificação YTB (opcional)</summary>'
     +'<div style="margin-top:12px;display:grid;gap:10px">'
-    +'<div><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px">Rating geral</label><select class="edit-select" id="ytb-rating" style="width:100%">'+AV_YTB_RATINGS.map(r=>opt(r, r||'—')).join('')+'</select></div>'
-    +'<div><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px">Estatuto</label><select class="edit-select" id="ytb-badge" style="width:100%">'+AV_YTB_BADGES.map(b=>opt(b[0],b[1])).join('')+'</select></div>'
+    +'<div><label style="font-size:var(--fs-legenda);color:var(--muted);display:block;margin-bottom:4px">Rating geral</label><select class="edit-select" id="ytb-rating" style="width:100%">'+AV_YTB_RATINGS.map(r=>opt(r, r||'—')).join('')+'</select></div>'
+    +'<div><label style="font-size:var(--fs-legenda);color:var(--muted);display:block;margin-bottom:4px">Estatuto</label><select class="edit-select" id="ytb-badge" style="width:100%">'+AV_YTB_BADGES.map(b=>opt(b[0],b[1])).join('')+'</select></div>'
     +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">'
-      +['ytb-ex1','ytb-ex2','ytb-ex3'].map((id,i)=>'<div><label style="font-size:10px;color:var(--muted);display:block;margin-bottom:3px">Excelência '+(i+1)+'</label><select class="edit-select" id="'+id+'" style="width:100%">'+AV_YTB_AREAS.map(x=>opt(x[0],x[1])).join('')+'</select></div>').join('')
+      +['ytb-ex1','ytb-ex2','ytb-ex3'].map((id,i)=>'<div><label style="font-size:var(--fs-micro);color:var(--muted);display:block;margin-bottom:3px">Excelência '+(i+1)+'</label><select class="edit-select" id="'+id+'" style="width:100%">'+AV_YTB_AREAS.map(x=>opt(x[0],x[1])).join('')+'</select></div>').join('')
     +'</div>'
     +'<button type="button" class="action-btn" onclick="avYtbGravar()">Guardar classificação</button>'
     +'<button type="button" class="action-btn" id="btn-ia-ctx" onclick="avYtbGerarIA()">🧠 Gerar avaliação contextual (IA)</button>'
-    +'<div id="ytb-ia-out" style="font-size:12.5px;color:var(--slate);line-height:1.5"></div>'
+    +'<div id="ytb-ia-out" style="font-size:var(--fs-legenda);color:var(--slate);line-height:1.5"></div>'
     +'</div></details>';
 }
 function avYtbPreencher(){
@@ -848,8 +848,8 @@ function avPeriodoChipsHTML(){
     return '<button type="button" onclick="avPeriodoSet(\''+x[0]+'\')" style="font-family:inherit;cursor:pointer;text-align:center;border-radius:10px;width:100%;padding:12px 8px 10px;line-height:1.25;'+
       (on?'background:var(--text);color:var(--bg);border:1px solid var(--text)'
          :'background:transparent;color:var(--slate);border:1px solid var(--border2)')+
-      '"><div style="font-size:12px;font-weight:800;letter-spacing:.5px;text-transform:uppercase">'+x[1]+'</div>'
-      +'<div style="font-size:10px;font-weight:600;margin-top:3px;opacity:.75">'+(desc[x[0]]||'')+'</div>'
+      '"><div style="font-size:var(--fs-legenda);font-weight:800;letter-spacing:.5px;text-transform:uppercase">'+x[1]+'</div>'
+      +'<div style="font-size:var(--fs-micro);font-weight:600;margin-top:3px;opacity:.75">'+(desc[x[0]]||'')+'</div>'
       +'</button>';
   }).join('');
 }
@@ -867,7 +867,7 @@ const AV_FOCOS=[['auto','Automático'],['fisico','Físico'],['tecnica','Técnica
 function avFocoChipsHTML(){
   return AV_FOCOS.map(function(x){
     var on=(avFoco===x[0]);
-    return '<button type="button" onclick="avFocoSet(\''+x[0]+'\')" style="font-family:inherit;font-size:12px;font-weight:800;letter-spacing:.5px;padding:14px 10px;cursor:pointer;text-transform:uppercase;border-radius:10px;width:100%;text-align:center;line-height:1.2;'+
+    return '<button type="button" onclick="avFocoSet(\''+x[0]+'\')" style="font-family:inherit;font-size:var(--fs-legenda);font-weight:800;letter-spacing:.5px;padding:14px 10px;cursor:pointer;text-transform:uppercase;border-radius:10px;width:100%;text-align:center;line-height:1.2;'+
       (on?'background:var(--text);color:var(--bg);border:1px solid var(--text)'
          :'background:transparent;color:var(--slate);border:1px solid var(--border2)')+
       '">'+x[1]+'</button>';
@@ -980,16 +980,16 @@ async function gerarAvaliacao(){
   }
   const debLabels={tecnica:'Técnica individual',fisico:'Físico',decisao:'Tomada de decisão',tatica:'Tática / posicionamento',mental:'Mental / atitude'};
   document.getElementById('aval-result').innerHTML=
-    '<div class="result-card"><div style="text-align:center;font-size:9px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:5px">Média geral</div>'+
-    '<div class="score-big">'+medias.geral.toFixed(1)+'</div><div style="text-align:center;font-size:10px;color:var(--slate);margin-top:4px">/ 5</div>'+
-    '<div style="font-size:9px;font-weight:800;letter-spacing:2px;color:var(--red);text-transform:uppercase;margin:16px 0 8px">Debilidades detetadas</div>'+
+    '<div class="result-card"><div style="text-align:center;font-size:var(--fs-micro);font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:5px">Média geral</div>'+
+    '<div class="score-big">'+medias.geral.toFixed(1)+'</div><div style="text-align:center;font-size:var(--fs-micro);color:var(--slate);margin-top:4px">/ 5</div>'+
+    '<div style="font-size:var(--fs-micro);font-weight:800;letter-spacing:2px;color:var(--red);text-transform:uppercase;margin:16px 0 8px">Debilidades detetadas</div>'+
     debs.map(d=>'<div class="deb-item">⚠️ '+(debLabels[d]||d)+'</div>').join('')+
-    (avFoco!=='auto'?'<div style="font-size:11px;color:var(--slate);margin-top:10px;line-height:1.5">🎯 Plano dirigido por ti: maioria em <strong style="color:var(--text)">'+((AV_FOCOS.find(x=>x[0]===avFoco)||[])[1]||avFoco)+'</strong>, com as debilidades avaliadas em manutenção.</div>':'')+
-    (avPeriodo==='pre-epoca'?'<div style="font-size:11px;color:var(--slate);margin-top:6px;line-height:1.5">🏋️ Pré-época: sessões mais densas, 5-6 exercícios cada, sem corte de tempo.</div>':'')+
-    (gravado?'':'<div style="background:rgba(255,80,80,.08);border:1px solid rgba(255,80,80,.35);border-radius:9px;padding:10px 12px;margin-top:11px;font-size:11px;line-height:1.5"><strong style="color:var(--red)">⚠ Não ficou gravado</strong> · '+esc(motivoFalha)+'. O plano abaixo é local — volta a concluir a avaliação com sessão ativa.</div>')+
-    (linkEstado==='enviado'?'<div style="background:rgba(80,200,120,.08);border:1px solid rgba(80,200,120,.35);border-radius:9px;padding:10px 12px;margin-top:11px;font-size:11px;line-height:1.5"><strong style="color:var(--green)">📧 Convite enviado à família</strong> · '+esc(atletaSel.encarregado_email)+' recebe um link mágico e entra direto neste plano.</div>':'')+
-    (linkEstado==='falhou'?'<div style="background:rgba(255,165,0,.08);border:1px solid rgba(255,165,0,.3);border-radius:9px;padding:10px 12px;margin-top:11px;font-size:11px;line-height:1.5"><strong style="color:var(--orange)">⚠ O plano ficou gravado, mas o email à família falhou.</strong> Reenvia com o botão ✉️ na lista de atletas.</div>':'')+
-    (linkEstado==='sem_email'?'<div style="background:rgba(255,165,0,.08);border:1px solid rgba(255,165,0,.3);border-radius:9px;padding:10px 12px;margin-top:11px;font-size:11px;line-height:1.5"><strong style="color:var(--orange)">Este atleta não tem email do encarregado.</strong> Sem email, a família não recebe o plano.</div>':'')+
+    (avFoco!=='auto'?'<div style="font-size:var(--fs-legenda);color:var(--slate);margin-top:10px;line-height:1.5">🎯 Plano dirigido por ti: maioria em <strong style="color:var(--text)">'+((AV_FOCOS.find(x=>x[0]===avFoco)||[])[1]||avFoco)+'</strong>, com as debilidades avaliadas em manutenção.</div>':'')+
+    (avPeriodo==='pre-epoca'?'<div style="font-size:var(--fs-legenda);color:var(--slate);margin-top:6px;line-height:1.5">🏋️ Pré-época: sessões mais densas, 5-6 exercícios cada, sem corte de tempo.</div>':'')+
+    (gravado?'':'<div style="background:rgba(255,80,80,.08);border:1px solid rgba(255,80,80,.35);border-radius:9px;padding:10px 12px;margin-top:11px;font-size:var(--fs-legenda);line-height:1.5"><strong style="color:var(--red)">⚠ Não ficou gravado</strong> · '+esc(motivoFalha)+'. O plano abaixo é local — volta a concluir a avaliação com sessão ativa.</div>')+
+    (linkEstado==='enviado'?'<div style="background:rgba(80,200,120,.08);border:1px solid rgba(80,200,120,.35);border-radius:9px;padding:10px 12px;margin-top:11px;font-size:var(--fs-legenda);line-height:1.5"><strong style="color:var(--green)">📧 Convite enviado à família</strong> · '+esc(atletaSel.encarregado_email)+' recebe um link mágico e entra direto neste plano.</div>':'')+
+    (linkEstado==='falhou'?'<div style="background:rgba(255,165,0,.08);border:1px solid rgba(255,165,0,.3);border-radius:9px;padding:10px 12px;margin-top:11px;font-size:var(--fs-legenda);line-height:1.5"><strong style="color:var(--orange)">⚠ O plano ficou gravado, mas o email à família falhou.</strong> Reenvia com o botão ✉️ na lista de atletas.</div>':'')+
+    (linkEstado==='sem_email'?'<div style="background:rgba(255,165,0,.08);border:1px solid rgba(255,165,0,.3);border-radius:9px;padding:10px 12px;margin-top:11px;font-size:var(--fs-legenda);line-height:1.5"><strong style="color:var(--orange)">Este atleta não tem email do encarregado.</strong> Sem email, a família não recebe o plano.</div>':'')+
     '<button class="btn btn-primary" style="margin-top:14px" onclick="setTabProgram(\'treino\')">Ver objetivo e missões →</button></div>';
   showToast(gravado?(linkEstado==='enviado'?'Avaliação guardada ✓ Link enviado à família 📧':'Avaliação guardada ✓ Treino gerado'):'⚠ Avaliação NÃO gravada',gravado?2600:3500);
   if(gravado&&window.YTBVivo){
@@ -1077,10 +1077,10 @@ function gerarPlano(debs, idadeAtleta){
 
 function semanaParaHTML(sem, wi, comExport){
   let html='<div class="dash-card"><div class="dash-card-eyebrow">Semana '+(wi+1)+' · '+sem.ciclo.emoji+' '+sem.ciclo.nome+'</div>'+
-    '<div style="font-size:11px;color:var(--slate);margin-bottom:10px">'+sem.ciclo.desc+'</div>';
+    '<div style="font-size:var(--fs-legenda);color:var(--slate);margin-bottom:10px">'+sem.ciclo.desc+'</div>';
   sem.sessoes.forEach((sess,si)=>{
     const total=sess.reduce((s,e)=>s+e.tempo,0);
-    html+='<div style="font-size:11px;font-weight:800;color:var(--gold);margin:8px 0 6px">Missão Técnica '+(si+1)+' · '+total+' min</div>';
+    html+='<div style="font-size:var(--fs-legenda);font-weight:800;color:var(--gold);margin:8px 0 6px">Missão Técnica '+(si+1)+' · '+total+' min</div>';
     sess.forEach((ex,ei)=>{
       var intLbl=ex.intensidade>=3?'intensa':(ex.intensidade===2?'média':'leve');
       html+='<div class="ex-card">'+
@@ -1105,15 +1105,15 @@ function renderTreino(){
   if(avalSel && avalSel.plano){
     var idadePlano=idadeDoAtleta(atletaSel);
     html+='<div class="dash-card"><div class="dash-card-eyebrow">Plano para '+esc(avalSel.nome)+' · 4 semanas</div>'+
-      '<div style="font-size:12px;color:var(--slate);line-height:1.5">Treino caseiro focado nas debilidades, <strong>adaptado à idade</strong>'+(idadePlano?(' ('+idadePlano+' anos)'):'')+' — a intensidade sobe ao longo das semanas e os exercícios de impacto só entram na idade certa. Cada sessão ~20-25 min.</div></div>';
+      '<div style="font-size:var(--fs-legenda);color:var(--slate);line-height:1.5">Treino caseiro focado nas debilidades, <strong>adaptado à idade</strong>'+(idadePlano?(' ('+idadePlano+' anos)'):'')+' — a intensidade sobe ao longo das semanas e os exercícios de impacto só entram na idade certa. Cada sessão ~20-25 min.</div></div>';
     avalSel.plano.forEach((sem,wi)=>{ html+=semanaParaHTML(sem,wi,true); });
   } else {
     html+='<div class="dash-card"><div class="dash-card-eyebrow">Plano de '+esc(atletaSel.primeiro_nome||atletaSel.nome)+'</div>'+
-      '<div style="font-size:12px;color:var(--slate);line-height:1.5">Ainda não avaliaste nesta sessão — mas o histórico de prescrições anteriores está todo aqui em baixo, guardado desde a primeira avaliação.</div></div>';
+      '<div style="font-size:var(--fs-legenda);color:var(--slate);line-height:1.5">Ainda não avaliaste nesta sessão — mas o histórico de prescrições anteriores está todo aqui em baixo, guardado desde a primeira avaliação.</div></div>';
   }
   // histórico: sempre visível, independente de teres acabado de avaliar agora — já vive
   // gravado na base de dados (ytb_treinador_avaliar grava em treinador_treinos com data).
-  html+='<div class="dash-card" id="hist-treinos"><div class="dash-card-eyebrow">📜 Histórico de treinos prescritos</div><div style="font-size:11px;color:var(--slate)">A carregar…</div></div>';
+  html+='<div class="dash-card" id="hist-treinos"><div class="dash-card-eyebrow">📜 Histórico de treinos prescritos</div><div style="font-size:var(--fs-legenda);color:var(--slate)">A carregar…</div></div>';
   c.innerHTML=html;
   if(window.YTBExAnim)YTBExAnim.mountAll(c); // bonequinhos a demonstrar cada exercício
   carregarHistoricoTreinos();
@@ -1128,7 +1128,7 @@ async function carregarHistoricoTreinos(){
     const lista=data||[];
     if(!lista.length){
       var msgVazio = (avalSel&&avalSel.plano) ? 'Ainda só há este plano — sem prescrições anteriores.' : 'Ainda não há nenhum treino prescrito para este atleta.';
-      box.innerHTML='<div class="dash-card-eyebrow">📜 Histórico de treinos prescritos</div><div style="font-size:11px;color:var(--slate)">'+msgVazio+'</div>'; return;
+      box.innerHTML='<div class="dash-card-eyebrow">📜 Histórico de treinos prescritos</div><div style="font-size:var(--fs-legenda);color:var(--slate)">'+msgVazio+'</div>'; return;
     }
     let h='<div class="dash-card-eyebrow">📜 Histórico de treinos prescritos <span style="color:var(--slate);font-weight:400">('+lista.length+')</span></div>';
     lista.forEach((t,i)=>{
@@ -1136,27 +1136,27 @@ async function carregarHistoricoTreinos(){
       const debs=(t.debilidades||[]).map(d=>debLbl[d]||d).join(', ')||'—';
       const ciclos=(t.ciclos||[]).filter(Boolean).join(' → ')||'—';
       h+='<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">'
-        +'<div style="min-width:0"><div style="font-size:12.5px;font-weight:700">'+esc(dt)+(t.nota!=null?(' · nota '+t.nota):'')+'</div>'
-        +'<div style="font-size:11px;color:var(--slate);margin-top:2px">'+esc(t.n_semanas)+' semanas · '+esc(debs)+'</div>'
-        +'<div style="font-size:10.5px;color:var(--muted);margin-top:1px">'+esc(ciclos)+'</div></div>'
-        +'<button class="btn btn-secondary" style="flex:none;padding:7px 12px;font-size:11px" onclick="verTreinoHistorico(\''+t.id+'\','+i+')">Ver plano</button></div>'
+        +'<div style="min-width:0"><div style="font-size:var(--fs-legenda);font-weight:700">'+esc(dt)+(t.nota!=null?(' · nota '+t.nota):'')+'</div>'
+        +'<div style="font-size:var(--fs-legenda);color:var(--slate);margin-top:2px">'+esc(t.n_semanas)+' semanas · '+esc(debs)+'</div>'
+        +'<div style="font-size:var(--fs-micro);color:var(--muted);margin-top:1px">'+esc(ciclos)+'</div></div>'
+        +'<button class="btn btn-secondary" style="flex:none;padding:7px 12px;font-size:var(--fs-legenda)" onclick="verTreinoHistorico(\''+t.id+'\','+i+')">Ver plano</button></div>'
         +'<div id="hist-detalhe-'+i+'" style="display:none;margin:8px 0 4px"></div>';
     });
     box.innerHTML=h;
-  }catch(e){ box.innerHTML='<div class="dash-card-eyebrow">📜 Histórico de treinos prescritos</div><div style="font-size:11px;color:var(--red)">⚠ Não foi possível carregar</div>'; }
+  }catch(e){ box.innerHTML='<div class="dash-card-eyebrow">📜 Histórico de treinos prescritos</div><div style="font-size:var(--fs-legenda);color:var(--red)">⚠ Não foi possível carregar</div>'; }
 }
 async function verTreinoHistorico(id, i){
   const alvo=document.getElementById('hist-detalhe-'+i);
   if(!alvo)return;
   if(alvo.style.display==='block'){ alvo.style.display='none'; return; }
-  alvo.style.display='block'; alvo.innerHTML='<div style="font-size:11px;color:var(--slate)">A carregar plano…</div>';
+  alvo.style.display='block'; alvo.innerHTML='<div style="font-size:var(--fs-legenda);color:var(--slate)">A carregar plano…</div>';
   try{
     const{data,error}=await supa.rpc('ytb_treinador_treino_ver',{p_treino_id:id});
-    if(error||!data||!data.ok){ alvo.innerHTML='<div style="font-size:11px;color:var(--red)">⚠ Não disponível</div>'; return; }
+    if(error||!data||!data.ok){ alvo.innerHTML='<div style="font-size:var(--fs-legenda);color:var(--red)">⚠ Não disponível</div>'; return; }
     let h=''; (data.plano||[]).forEach((sem,wi)=>{ h+=semanaParaHTML(sem,wi,false); });
     alvo.innerHTML=h;
     if(window.YTBExAnim)YTBExAnim.mountAll(alvo);
-  }catch(e){ alvo.innerHTML='<div style="font-size:11px;color:var(--red)">⚠ Sem ligação</div>'; }
+  }catch(e){ alvo.innerHTML='<div style="font-size:var(--fs-legenda);color:var(--red)">⚠ Sem ligação</div>'; }
 }
 
 async function exportarPlanoPDFTreinador(wi){

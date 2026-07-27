@@ -44,18 +44,18 @@
   .top .wrap{display:flex;align-items:center;gap:10px;height:54px}
   .mono{
     font-family:'Barlow Condensed',sans-serif;font-weight:900;letter-spacing:.06em;
-    font-size:18px;color:var(--gold); text-decoration:none;
+    font-size:var(--fs-sub);color:var(--gold); text-decoration:none;
   }
-  .top .who{flex:1;font-size:13px;color:var(--slate);font-weight:600;letter-spacing:.04em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .top .who{flex:1;font-size:var(--fs-corpo);color:var(--slate);font-weight:600;letter-spacing:.04em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .top button{
     background:transparent;border:1px solid var(--border);color:var(--slate);
-    border-radius:9px;padding:8px 12px;font-family:inherit;font-size:13px;font-weight:600;
+    border-radius:9px;padding:8px 12px;font-family:inherit;font-size:var(--fs-corpo);font-weight:600;
     cursor:pointer;transition:.15s;
   }
   .top button:hover{color:var(--text);border-color:#2C342C}
 
-  .eyebrow{font-family:'Barlow Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.2em;font-size:12px;color:var(--muted)}
-  .shead{font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;letter-spacing:.06em;font-size:16px;color:var(--text);margin:34px 2px 12px;display:flex;align-items:center;gap:9px}
+  .eyebrow{font-family:'Barlow Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.2em;font-size:var(--fs-legenda);color:var(--muted)}
+  .shead{font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;letter-spacing:.06em;font-size:var(--fs-sub);color:var(--text);margin:34px 2px 12px;display:flex;align-items:center;gap:9px}
   .shead::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent)}
 
   /* ── cartão identidade + curva ── */
@@ -67,111 +67,111 @@
   .photo::after{content:"";position:absolute;left:50%;bottom:-8px;transform:translateX(-50%);width:38px;height:38px;border-radius:50% 50% 45% 45%;background:#3A463C}
   .photo .pp{position:absolute;inset:0;background-size:cover;background-position:center;border-radius:14px}
   .idblock{flex:1;min-width:0}
-  .idblock .name{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:25px;line-height:1;letter-spacing:.01em}
-  .idblock .meta{font-size:13.5px;color:var(--slate);margin-top:4px}
-  .idblock .meta .pos{display:inline-block;background:var(--bg4);border:1px solid var(--border);color:var(--text);font-weight:700;font-size:12px;border-radius:6px;padding:2px 8px;margin-right:7px}
+  .idblock .name{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:var(--fs-titulo);line-height:1;letter-spacing:.01em}
+  .idblock .meta{font-size:var(--fs-corpo);color:var(--slate);margin-top:4px}
+  .idblock .meta .pos{display:inline-block;background:var(--bg4);border:1px solid var(--border);color:var(--text);font-weight:700;font-size:var(--fs-legenda);border-radius:6px;padding:2px 8px;margin-right:7px}
   /* selo — assinatura, ouro */
   .selo{flex:0 0 auto;text-align:center;color:var(--gold);border:1.4px dashed #D4AF3766;border-radius:12px;padding:7px 9px;transform:rotate(2deg)}
-  .selo .v{display:block;font-size:16px;line-height:1}
-  .selo .src{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-top:2px;color:#D4AF37CC}
+  .selo .v{display:block;font-size:var(--fs-sub);line-height:1}
+  .selo .src{font-size:var(--fs-micro);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-top:2px;color:#D4AF37CC}
 
   .curvebox{position:relative;margin-top:16px;border-top:1px solid var(--border);padding-top:14px}
   .curvebox .cap{position:absolute;top:18px;left:2px;z-index:2}
-  .curvebox .cap .big{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:32px;line-height:.9;color:var(--up)}
-  .curvebox .cap .lbl{font-size:11.5px;text-transform:uppercase;letter-spacing:.13em;color:var(--muted);margin-top:3px}
+  .curvebox .cap .big{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:var(--fs-titulo);line-height:.9;color:var(--up)}
+  .curvebox .cap .lbl{font-size:var(--fs-legenda);text-transform:uppercase;letter-spacing:.13em;color:var(--muted);margin-top:3px}
   svg.curve{display:block;width:100%;height:150px}
 
   /* ── contexto competitivo ── */
   .ctx{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-top:14px}
   .ctx>div{background:var(--bg2);padding:11px 6px;text-align:center}
-  .ctx .v{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:16px;color:var(--text)}
-  .ctx .l{font-size:9.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-top:3px;line-height:1.3}
+  .ctx .v{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:var(--fs-sub);color:var(--text)}
+  .ctx .l{font-size:var(--fs-micro);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-top:3px;line-height:1.3}
 
   /* ── 4 indicadores primários ── */
   .prim{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
   .tile{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px 8px;text-align:center}
-  .tile .l{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:7px;line-height:1.3;min-height:23px;display:flex;align-items:center;justify-content:center}
-  .tile .v{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:27px;line-height:1}
-  .tile .v small{font-size:14px;font-weight:700}
+  .tile .l{font-size:var(--fs-legenda);text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:7px;line-height:1.3;min-height:23px;display:flex;align-items:center;justify-content:center}
+  .tile .v{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:var(--fs-titulo);line-height:1}
+  .tile .v small{font-size:var(--fs-corpo);font-weight:700}
   .v.obs{color:var(--obs)} .v.dec{color:var(--dec)} .v.up{color:var(--up)}
 
   /* densidade + legenda */
   .dens{display:flex;flex-wrap:wrap;align-items:center;gap:7px 14px;margin-top:12px;padding:11px 13px;background:var(--bg2);border:1px solid var(--border);border-radius:12px}
-  .dens .lab{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700;width:100%}
-  .dens i{font-style:normal;font-size:13px;color:var(--slate)}
-  .dens i b{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:17px;color:var(--text);margin-right:5px}
+  .dens .lab{font-size:var(--fs-legenda);text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700;width:100%}
+  .dens i{font-style:normal;font-size:var(--fs-corpo);color:var(--slate)}
+  .dens i b{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:var(--fs-sub);color:var(--text);margin-right:5px}
   .legend{display:flex;flex-wrap:wrap;gap:8px 16px;margin:11px 2px 0}
-  .legend i{font-style:normal;display:flex;align-items:center;gap:6px;font-size:12px;color:var(--slate)}
+  .legend i{font-style:normal;display:flex;align-items:center;gap:6px;font-size:var(--fs-legenda);color:var(--slate)}
   .legend .dot{width:8px;height:8px;border-radius:50%}
 
   /* ── DNA ── */
   .panel{background:linear-gradient(180deg,var(--bg2),#0C110C);border:1px solid var(--border);border-radius:16px;padding:18px}
   .panel .hd{display:flex;align-items:center;justify-content:space-between;gap:10px}
-  .panel .hd h3{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:17px;text-transform:uppercase;letter-spacing:.02em}
-  .badge{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--gold);border:1px solid #D4AF3744;border-radius:20px;padding:3px 9px;white-space:nowrap}
-  .panel .sub{font-size:13.5px;color:var(--muted);margin-top:5px;line-height:1.5}
+  .panel .hd h3{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:var(--fs-sub);text-transform:uppercase;letter-spacing:.02em}
+  .badge{font-size:var(--fs-legenda);font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--gold);border:1px solid #D4AF3744;border-radius:20px;padding:3px 9px;white-space:nowrap}
+  .panel .sub{font-size:var(--fs-corpo);color:var(--muted);margin-top:5px;line-height:1.5}
   .dna-grid{margin-top:14px;display:flex;flex-direction:column;gap:11px}
-  .trait .tl{display:flex;justify-content:space-between;align-items:baseline;font-size:14px;margin-bottom:5px}
+  .trait .tl{display:flex;justify-content:space-between;align-items:baseline;font-size:var(--fs-corpo);margin-bottom:5px}
   .trait .tl span{color:var(--slate)}
-  .trait .tl b{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:16px}
+  .trait .tl b{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:var(--fs-sub)}
   .trait .tl b.obs{color:var(--obs)} .trait .tl b.dec{color:var(--dec)}
   .barx{height:5px;background:var(--bg4);border-radius:3px;overflow:hidden}
   .barx i{display:block;height:100%;border-radius:3px}
   .panel .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border)}
-  .panel .stats .v{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:20px}
-  .panel .stats .l{font-size:12px;color:var(--muted);margin-top:2px}
+  .panel .stats .v{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:var(--fs-sub)}
+  .panel .stats .l{font-size:var(--fs-legenda);color:var(--muted);margin-top:2px}
 
   /* atividade */
   .act{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
   .act .cell{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px 6px;text-align:center}
-  .act .cell .v{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:23px}
-  .act .cell .l{font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-top:4px;line-height:1.3}
+  .act .cell .v{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:var(--fs-titulo)}
+  .act .cell .l{font-size:var(--fs-micro);text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-top:4px;line-height:1.3}
 
   /* marcos — ouro, orgulho */
   .marcos{display:flex;flex-direction:column;gap:8px}
   .marco{display:flex;align-items:center;gap:12px;background:linear-gradient(90deg,#16130A 0%,var(--bg2) 60%);border:1px solid #2A2414;border-radius:13px;padding:13px 14px}
-  .marco .ic{color:var(--gold);font-size:15px;flex:0 0 auto}
-  .marco .tt{flex:1;font-size:14.5px;font-weight:600;color:var(--text)}
-  .marco .wn{font-size:12px;color:var(--muted);white-space:nowrap}
+  .marco .ic{color:var(--gold);font-size:var(--fs-sub);flex:0 0 auto}
+  .marco .tt{flex:1;font-size:var(--fs-corpo);font-weight:600;color:var(--text)}
+  .marco .wn{font-size:var(--fs-legenda);color:var(--muted);white-space:nowrap}
 
   /* carreira */
   .car{display:flex;flex-direction:column}
   .car .item{display:flex;gap:14px;padding:11px 0;border-bottom:1px solid var(--border)}
   .car .item:last-child{border-bottom:0}
-  .car .yr{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:19px;color:var(--slate);width:48px;flex:0 0 auto}
-  .car .cl{font-size:14.5px;font-weight:600}
-  .car .cl small{display:block;color:var(--muted);font-weight:400;font-size:12.5px;margin-top:2px}
+  .car .yr{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:var(--fs-sub);color:var(--slate);width:48px;flex:0 0 auto}
+  .car .cl{font-size:var(--fs-corpo);font-weight:600}
+  .car .cl small{display:block;color:var(--muted);font-weight:400;font-size:var(--fs-legenda);margin-top:2px}
 
   /* morfologia (privado) */
   .morfo{border:1px dashed #2C342C;background:#0C110C}
-  .morfo .lock{font-size:12px;color:var(--gold);letter-spacing:.02em}
+  .morfo .lock{font-size:var(--fs-legenda);color:var(--gold);letter-spacing:.02em}
   .morfo .fields{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
   .morfo .f{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 6px;text-align:center}
-  .morfo .f .l{font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
-  .morfo .f .v{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:18px;color:#3A463C;margin-top:3px}
-  .morfo .derived{font-size:12.5px;color:var(--muted);margin-top:12px;line-height:1.55}
+  .morfo .f .l{font-size:var(--fs-micro);text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+  .morfo .f .v{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:var(--fs-sub);color:#3A463C;margin-top:3px}
+  .morfo .derived{font-size:var(--fs-legenda);color:var(--muted);margin-top:12px;line-height:1.55}
 
   /* timeline */
   .tl-list{display:flex;flex-direction:column}
   .tl-row{display:flex;align-items:flex-start;gap:11px;padding:13px 0;border-bottom:1px solid var(--border)}
   .tl-row:last-child{border-bottom:0}
-  .tl-row .mk{font-size:14px;line-height:1.4;flex:0 0 auto;width:14px;text-align:center}
+  .tl-row .mk{font-size:var(--fs-corpo);line-height:1.4;flex:0 0 auto;width:14px;text-align:center}
   .tl-row .ev{flex:1;min-width:0}
-  .tl-row .ev .t{font-size:14.5px;font-weight:600;line-height:1.4}
-  .tl-row .ev .s{font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.4}
-  .tl-row .pill{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;border-radius:5px;padding:3px 7px;white-space:nowrap;align-self:center}
+  .tl-row .ev .t{font-size:var(--fs-corpo);font-weight:600;line-height:1.4}
+  .tl-row .ev .s{font-size:var(--fs-legenda);color:var(--muted);margin-top:3px;line-height:1.4}
+  .tl-row .pill{font-size:var(--fs-micro);font-weight:700;text-transform:uppercase;letter-spacing:.04em;border-radius:5px;padding:3px 7px;white-space:nowrap;align-self:center}
   .pill.obs{background:#3FA76E22;color:var(--obs-bar);border:1px solid #3FA76E33}
   .pill.dec{background:#46514733;color:var(--dec);border:1px solid #46514744}
   .pill.mar{background:#D4AF3722;color:var(--gold);border:1px solid #D4AF3744}
-  .tl-row .when{font-size:11.5px;color:var(--muted);white-space:nowrap;align-self:center}
+  .tl-row .when{font-size:var(--fs-legenda);color:var(--muted);white-space:nowrap;align-self:center}
   .up{color:var(--up)} .down{color:var(--down)}
 
-  .share{width:100%;margin-top:22px;border:none;border-radius:13px;cursor:pointer;padding:15px;background:var(--text);color:#0A0D0A;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:16px;text-transform:uppercase;letter-spacing:.07em;transition:.15s}
+  .share{width:100%;margin-top:22px;border:none;border-radius:13px;cursor:pointer;padding:15px;background:var(--text);color:#0A0D0A;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:var(--fs-sub);text-transform:uppercase;letter-spacing:.07em;transition:.15s}
   .share:hover{filter:brightness(1.06)} .share:active{transform:scale(.99)}
-  .foot{text-align:center;font-size:11.5px;color:var(--muted);margin-top:18px;letter-spacing:.04em}
+  .foot{text-align:center;font-size:var(--fs-legenda);color:var(--muted);margin-top:18px;letter-spacing:.04em}
   .demo-tag{display:inline-block;color:var(--gold);font-weight:700}
 
-  .toast{position:fixed;left:50%;top:64px;transform:translateX(-50%) translateY(-16px);background:var(--bg4);border:1px solid var(--gold-border,rgba(212,175,55,.32));color:var(--text);padding:12px 18px;border-radius:10px;font-size:14px;font-weight:600;opacity:0;transition:.25s;z-index:200;pointer-events:none;box-shadow:0 6px 24px rgba(0,0,0,.45);max-width:calc(100vw - 32px);text-align:center}
+  .toast{position:fixed;left:50%;top:64px;transform:translateX(-50%) translateY(-16px);background:var(--bg4);border:1px solid var(--gold-border,rgba(212,175,55,.32));color:var(--text);padding:12px 18px;border-radius:10px;font-size:var(--fs-corpo);font-weight:600;opacity:0;transition:.25s;z-index:200;pointer-events:none;box-shadow:0 6px 24px rgba(0,0,0,.45);max-width:calc(100vw - 32px);text-align:center}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 
@@ -278,12 +278,12 @@
       '</div>';
     var barra='';
     if(m.estado==='acima_da_faixa'){
-      barra='<div style="font-size:13px;color:var(--slate);margin-top:12px;line-height:1.45">Já cresceu além da faixa provável a partir da altura dos pais — não é um erro, acontece. A partir daqui, o histórico de medições conta mais do que esta estimativa de partida.</div>';
+      barra='<div style="font-size:var(--fs-corpo);color:var(--slate);margin-top:12px;line-height:1.45">Já cresceu além da faixa provável a partir da altura dos pais — não é um erro, acontece. A partir daqui, o histórico de medições conta mais do que esta estimativa de partida.</div>';
     } else if(m.pct_atingida!=null){
       var p=Math.max(0,Math.min(100,m.pct_atingida));
       var extra=(m.faltam_cm!=null&&m.faltam_cm>0)?(' · faltam ~'+m.faltam_cm+' cm até ao topo da faixa.'):'.';
       barra='<div class="barx" style="margin-top:12px"><i style="width:'+p+'%;background:var(--obs-bar)"></i></div>'+
-        '<div style="font-size:13px;color:var(--slate);margin-top:6px;line-height:1.45">'+(m.estado==='na_faixa'?'Já está dentro da faixa provável':('Está a ~'+m.pct_atingida+'% do centro da faixa provável'))+extra+'</div>';
+        '<div style="font-size:var(--fs-corpo);color:var(--slate);margin-top:6px;line-height:1.45">'+(m.estado==='na_faixa'?'Já está dentro da faixa provável':('Está a ~'+m.pct_atingida+'% do centro da faixa provável'))+extra+'</div>';
     }
     var aviso='';
     if(m.em_falta&&m.em_falta.length){
@@ -296,7 +296,7 @@
 
   function devScoreHTML(ds){
     if(ds.estado==='em_pausa'){
-      return '<div class="panel"><div style="font-size:13px;font-weight:800;margin-bottom:6px">🏖️ Época em pausa</div><div class="sub" style="margin:0">Estamos em férias — o score não desce enquanto não há treinos. Quando a época recomeçar, o relógio volta a contar. As missões e o Elite Coach continuam disponíveis, e só podem somar.</div></div>';
+      return '<div class="panel"><div style="font-size:var(--fs-corpo);font-weight:800;margin-bottom:6px">🏖️ Época em pausa</div><div class="sub" style="margin:0">Estamos em férias — o score não desce enquanto não há treinos. Quando a época recomeçar, o relógio volta a contar. As missões e o Elite Coach continuam disponíveis, e só podem somar.</div></div>';
     }
     if(ds.estado!=='ok'){
       return '<div class="panel"><div class="sub" style="margin:0">O score está a construir-se — cumpre as missões da semana e regista os jogos. Precisa de pelo menos 2 avaliações do treinador em dias diferentes ou 4 semanas de atividade.</div></div>';
@@ -311,10 +311,10 @@
     var desde=ds.desde?new Date(ds.desde).toLocaleDateString('pt-PT',{day:'numeric',month:'short'}):'';
     return '<div class="panel">'+
       '<div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap">'+
-        '<div><div class="num" style="font-family:\'Barlow Condensed\',sans-serif;font-weight:900;font-size:54px;line-height:.9;color:var(--up)">'+ds.score+'</div>'+
-        '<div style="font-size:10.5px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-top:5px">de 100</div></div>'+
-        (tend[0]?'<div style="font-size:14px;font-weight:700;color:'+tend[1]+';padding-bottom:14px">'+tend[0]+'</div>':'')+
-        (ds.em_pausa?'<div style="font-size:11px;font-weight:700;color:var(--slate);padding-bottom:14px">🏖️ férias — o relógio está parado, o score não desce</div>':'')+
+        '<div><div class="num" style="font-family:\'Barlow Condensed\',sans-serif;font-weight:900;font-size:var(--fs-hero);line-height:.9;color:var(--up)">'+ds.score+'</div>'+
+        '<div style="font-size:var(--fs-micro);text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-top:5px">de 100</div></div>'+
+        (tend[0]?'<div style="font-size:var(--fs-corpo);font-weight:700;color:'+tend[1]+';padding-bottom:14px">'+tend[0]+'</div>':'')+
+        (ds.em_pausa?'<div style="font-size:var(--fs-legenda);font-weight:700;color:var(--slate);padding-bottom:14px">🏖️ férias — o relógio está parado, o score não desce</div>':'')+
       '</div>'+
       '<div class="barx" style="margin-top:12px"><i style="width:'+Math.max(0,Math.min(100,ds.score))+'%;background:var(--up)"></i></div>'+
       '<div class="sub" style="margin:10px 0 0">Mede o teu desenvolvimento — não o teu talento. Compara-te só contigo próprio'+(desde?(', desde '+esc(desde)):'')+'. Sobe com missões cumpridas, consistência e a avaliação do treinador.</div>'+
@@ -364,9 +364,9 @@
       '<div class="hd"><h3>Tomada de decisão</h3><span class="badge">Elite Coach</span></div>'+
       '<div class="sub">A evoluir ao longo do tempo. Mede a decisão — não o golo.</div>'+
       '<div style="display:flex;flex-wrap:wrap;gap:14px 24px;align-items:flex-end;margin-top:12px">'+
-        '<div style="flex:0 0 auto"><div class="num" style="font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:30px;line-height:1;color:var(--obs)">'+cg.acerto+'<small style="font-size:15px">%</small></div><div style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-top:4px">acerto global</div></div>'+
-        '<div style="flex:0 0 auto"><div class="num" style="font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:30px;line-height:1">'+cg.total+'</div><div style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-top:4px">decisões</div></div>'+
-        (cgT>0?'<div style="flex:0 0 auto;margin-left:auto;color:var(--up);font-size:13px;font-weight:600;white-space:nowrap">↗ +'+cgT+' nos últimos meses</div>':'')+
+        '<div style="flex:0 0 auto"><div class="num" style="font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:var(--fs-titulo);line-height:1;color:var(--obs)">'+cg.acerto+'<small style="font-size:var(--fs-sub)">%</small></div><div style="font-size:var(--fs-legenda);text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-top:4px">acerto global</div></div>'+
+        '<div style="flex:0 0 auto"><div class="num" style="font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:var(--fs-titulo);line-height:1">'+cg.total+'</div><div style="font-size:var(--fs-legenda);text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-top:4px">decisões</div></div>'+
+        (cgT>0?'<div style="flex:0 0 auto;margin-left:auto;color:var(--up);font-size:var(--fs-corpo);font-weight:600;white-space:nowrap">↗ +'+cgT+' nos últimos meses</div>':'')+
       '</div>'+
       '<div class="dna-grid" style="margin-top:16px">'+cg.tipos.map(function(t){return '<div class="trait"><div class="tl"><span>'+esc(t[0])+'</span><b class="obs num">'+t[1]+'%</b></div><div class="barx"><i style="width:'+t[1]+'%;background:var(--obs-bar)"></i></div></div>';}).join('')+'</div>'+
       '</div>'; }
@@ -480,27 +480,27 @@
     if(document.getElementById('tr-css')) return;
     var css='.tr-sec{margin:0 0 22px}'
      +'.tr-head{margin-bottom:12px}'
-     +'.tr-t{font-family:\'Barlow Condensed\',sans-serif;font-weight:900;font-size:24px;color:var(--text);line-height:1}'
-     +'.tr-s{font-size:14px;color:var(--slate);margin-top:5px;line-height:1.45}'
+     +'.tr-t{font-family:\'Barlow Condensed\',sans-serif;font-weight:900;font-size:var(--fs-titulo);color:var(--text);line-height:1}'
+     +'.tr-s{font-size:var(--fs-corpo);color:var(--slate);margin-top:5px;line-height:1.45}'
      +'.tr-wk{border:1px solid var(--border);border-radius:13px;margin-bottom:9px;overflow:hidden;background:var(--bg2)}'
-     +'.tr-wk-h{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;background:none;border:none;color:var(--text);font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:15px;padding:14px 15px;cursor:pointer;text-align:left}'
-     +'.tr-chev{color:var(--slate);font-size:13px;flex:none}'
+     +'.tr-wk-h{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;background:none;border:none;color:var(--text);font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:var(--fs-sub);padding:14px 15px;cursor:pointer;text-align:left}'
+     +'.tr-chev{color:var(--slate);font-size:var(--fs-corpo);flex:none}'
      +'.tr-wk-b{padding:0 11px 11px}'
      +'.tr-ss{border:1px solid var(--border);border-radius:11px;margin-top:8px;overflow:hidden;background:var(--bg3)}'
      +'.tr-ss.done{opacity:.72}'
      +'.tr-ss-h{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;background:none;border:none;color:var(--text);font-family:inherit;padding:12px 13px;cursor:pointer;text-align:left}'
-     +'.tr-ss-nm{font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:15px}'
-     +'.tr-ss-st{font-size:13px;color:var(--up);font-weight:700;flex:none}'
+     +'.tr-ss-nm{font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:var(--fs-sub)}'
+     +'.tr-ss-st{font-size:var(--fs-corpo);color:var(--up);font-weight:700;flex:none}'
      +'.tr-ss-b{padding:0 12px 12px}'
      +'.tr-ex{background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:12px 13px;margin-top:8px}'
-     +'.tr-ex-nm{font-weight:700;font-size:15px;color:var(--text)}'
-     +'.tr-ex-o{font-size:13px;color:var(--up);margin-top:4px}'
-     +'.tr-ex-d{font-size:14px;color:var(--slate);margin-top:4px;line-height:1.5}'
-     +'.tr-ex-m{font-size:12.5px;color:var(--muted);margin-top:6px}'
+     +'.tr-ex-nm{font-weight:700;font-size:var(--fs-sub);color:var(--text)}'
+     +'.tr-ex-o{font-size:var(--fs-corpo);color:var(--up);margin-top:4px}'
+     +'.tr-ex-d{font-size:var(--fs-corpo);color:var(--slate);margin-top:4px;line-height:1.5}'
+     +'.tr-ex-m{font-size:var(--fs-legenda);color:var(--muted);margin-top:6px}'
      +'.tr-act{display:flex;gap:8px;margin-top:11px;flex-wrap:wrap}'
-     +'.tr-go{flex:1;min-width:140px;background:var(--bg4);border:1px solid var(--border2);color:var(--text);border-radius:10px;padding:12px;font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:14px;cursor:pointer}'
-     +'.tr-done{flex:1;min-width:120px;background:var(--text);border:none;color:#0A0D0A;border-radius:10px;padding:12px;font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:14px;text-transform:uppercase;letter-spacing:.04em;cursor:pointer}'
-     +'.tr-donemsg{font-size:13.5px;color:var(--up);margin-top:10px;padding:10px 12px;background:rgba(0,212,106,.08);border:1px solid rgba(0,212,106,.2);border-radius:9px;line-height:1.45}';
+     +'.tr-go{flex:1;min-width:140px;background:var(--bg4);border:1px solid var(--border2);color:var(--text);border-radius:10px;padding:12px;font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:var(--fs-corpo);cursor:pointer}'
+     +'.tr-done{flex:1;min-width:120px;background:var(--text);border:none;color:#0A0D0A;border-radius:10px;padding:12px;font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:var(--fs-corpo);text-transform:uppercase;letter-spacing:.04em;cursor:pointer}'
+     +'.tr-donemsg{font-size:var(--fs-corpo);color:var(--up);margin-top:10px;padding:10px 12px;background:rgba(0,212,106,.08);border:1px solid rgba(0,212,106,.2);border-radius:9px;line-height:1.45}';
     var st=document.createElement('style'); st.id='tr-css'; st.textContent=css; document.head.appendChild(st);
   }
   function isFeita(w,s){ return ((window.__treino&&window.__treino.feitas)||[]).some(function(f){return f.semana===w+1 && f.sessao===s+1;}); }
@@ -529,15 +529,15 @@
   };
   function espacoSeletorHTML(){
     var at=espacoAtual();
-    return '<div style="margin:14px 0 4px"><div style="font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:7px">Onde vais treinar hoje</div>'
+    return '<div style="margin:14px 0 4px"><div style="font-size:var(--fs-micro);font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:7px">Onde vais treinar hoje</div>'
       +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px">'
       + ESPACOS.map(function(e){
           var on=(e[0]===at);
           return '<button type="button" onclick="window.__espacoMudar('+e[0]+')" style="font-family:inherit;cursor:pointer;text-align:center;border-radius:10px;padding:10px 6px;line-height:1.25;'
             +(on?'background:var(--text);color:var(--bg);border:1px solid var(--text)':'background:transparent;color:var(--slate);border:1px solid var(--border)')+'">'
-            +'<div style="font-size:16px">'+e[1]+'</div>'
-            +'<div style="font-size:11px;font-weight:800;margin-top:2px">'+e[2]+'</div>'
-            +'<div style="font-size:9px;font-weight:600;opacity:.75;margin-top:1px">'+e[3]+'</div></button>';
+            +'<div style="font-size:var(--fs-sub)">'+e[1]+'</div>'
+            +'<div style="font-size:var(--fs-legenda);font-weight:800;margin-top:2px">'+e[2]+'</div>'
+            +'<div style="font-size:var(--fs-micro);font-weight:600;opacity:.75;margin-top:1px">'+e[3]+'</div></button>';
         }).join('')
       +'</div></div>';
   }
@@ -581,21 +581,21 @@
 
     var html='<div class="tr-head">';
     if(obj){
-      html+='<div style="font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:6px">🎯 O objetivo '+(nome?('do '+esc(nome)):'desta fase')+'</div>'
+      html+='<div style="font-size:var(--fs-legenda);font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:6px">🎯 O objetivo '+(nome?('do '+esc(nome)):'desta fase')+'</div>'
         +'<div class="tr-t">'+obj.objetivo.icon+' '+esc(obj.objetivo.titulo)+'</div>'
         +'<div class="tr-s">'+esc(obj.objetivo.sub)
         +(T.treinadorNome?(' Definido a partir da avaliação de <strong style="color:var(--text)">'+esc(T.treinadorNome)+'</strong>.'):'')+'</div>';
       if(obj.secundarios.length){
-        html+='<div style="font-size:12.5px;color:var(--muted);margin-top:6px">A seguir: '+obj.secundarios.map(function(s){return esc(s.objetivo.titulo);}).join(' · ')+'</div>';
+        html+='<div style="font-size:var(--fs-legenda);color:var(--muted);margin-top:6px">A seguir: '+obj.secundarios.map(function(s){return esc(s.objetivo.titulo);}).join(' · ')+'</div>';
       }
     } else {
       html+='<div class="tr-t">O teu Objetivo</div><div class="tr-s">Missões curtas para os dias sem treino do clube.'
         +(T.treinadorNome?(' De <strong style="color:var(--text)">'+esc(T.treinadorNome)+'</strong>.'):'')+'</div>';
     }
     html+='<div class="barx" style="margin-top:12px"><i style="width:'+pct+'%;background:var(--up)"></i></div>'
-      +'<div style="font-size:13px;color:var(--slate);margin-top:6px">'+feitasN+' de '+totSess+' missões técnicas cumpridas · '+pct+'%</div>'
+      +'<div style="font-size:var(--fs-corpo);color:var(--slate);margin-top:6px">'+feitasN+' de '+totSess+' missões técnicas cumpridas · '+pct+'%</div>'
       + espacoSeletorHTML()
-      +'<button id="btn-plano-pdf" onclick="window.__trPDF()" style="margin-top:12px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:10px;padding:11px 16px;font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:14px;cursor:pointer">⬇ Exportar em PDF</button></div>';
+      +'<button id="btn-plano-pdf" onclick="window.__trPDF()" style="margin-top:12px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:10px;padding:11px 16px;font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:var(--fs-corpo);cursor:pointer">⬇ Exportar em PDF</button></div>';
 
     // check-in pós-jogo cego: 1 pergunta ligada ao objetivo; esconde 4 dias após
     // responder E cede a vez quando há jogo do calendário por responder (035d)
@@ -608,14 +608,14 @@
     if(mostraCheckin && obj){
       html+='<div class="tr-wk" id="ck-jogo" style="border-color:var(--gold-border)">'
         +'<div style="padding:15px 16px">'
-        +'<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:900;font-size:19px;margin-bottom:3px">⚽ Houve jogo?</div>'
-        +'<div style="font-size:13.5px;color:var(--slate);line-height:1.5;margin-bottom:12px">No último jogo, sentiste dificuldade em <strong style="color:var(--text)">'+esc(obj.objetivo.verbo)+'</strong>?</div>'
+        +'<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:900;font-size:var(--fs-sub);margin-bottom:3px">⚽ Houve jogo?</div>'
+        +'<div style="font-size:var(--fs-corpo);color:var(--slate);line-height:1.5;margin-bottom:12px">No último jogo, sentiste dificuldade em <strong style="color:var(--text)">'+esc(obj.objetivo.verbo)+'</strong>?</div>'
         +'<div id="ck-dots" style="display:flex;gap:7px;margin-bottom:4px">'
-        +[1,2,3,4,5].map(function(n){return '<button onclick="window.__ckSel('+n+')" id="ck-d-'+n+'" style="flex:1;min-height:44px;background:var(--bg);border:1px solid var(--border);color:var(--slate);border-radius:9px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer">'+n+'</button>';}).join('')
+        +[1,2,3,4,5].map(function(n){return '<button onclick="window.__ckSel('+n+')" id="ck-d-'+n+'" style="flex:1;min-height:44px;background:var(--bg);border:1px solid var(--border);color:var(--slate);border-radius:9px;font-family:inherit;font-size:var(--fs-sub);font-weight:700;cursor:pointer">'+n+'</button>';}).join('')
         +'</div>'
-        +'<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:10px"><span>nada</span><span>muita dificuldade</span></div>'
-        +'<input id="ck-nota" type="text" maxlength="200" placeholder="Queres contar mais? (opcional)" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:12px 13px;font-family:inherit;font-size:16px;outline:none">'
-        +'<button id="ck-send" onclick="window.__ckEnviar()" style="width:100%;margin-top:10px;background:var(--text);border:none;color:#0A0D0A;border-radius:10px;padding:13px;font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:15px;text-transform:uppercase;letter-spacing:.05em;cursor:pointer">Enviar ao treinador</button>'
+        +'<div style="display:flex;justify-content:space-between;font-size:var(--fs-legenda);color:var(--muted);margin-bottom:10px"><span>nada</span><span>muita dificuldade</span></div>'
+        +'<input id="ck-nota" type="text" maxlength="200" placeholder="Queres contar mais? (opcional)" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:12px 13px;font-family:inherit;font-size:var(--fs-sub);outline:none">'
+        +'<button id="ck-send" onclick="window.__ckEnviar()" style="width:100%;margin-top:10px;background:var(--text);border:none;color:#0A0D0A;border-radius:10px;padding:13px;font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:var(--fs-sub);text-transform:uppercase;letter-spacing:.05em;cursor:pointer">Enviar ao treinador</button>'
         +'</div></div>';
     }
 
@@ -635,7 +635,7 @@
           var ex=window.__exParaEspaco(exRaw);
           html+='<div class="tr-ex">'
             +'<div data-exanim data-exid="'+esc(ex.id||'')+'" data-exnome="'+esc(ex.nome||'')+'"></div>'
-            +'<div class="tr-ex-nm">'+(ei+1)+'. '+esc(ex.nome||'')+(ex.__adaptado?' <span style="font-size:10px;color:var(--gold);font-weight:700">· adaptado</span>':'')+'</div>'
+            +'<div class="tr-ex-nm">'+(ei+1)+'. '+esc(ex.nome||'')+(ex.__adaptado?' <span style="font-size:var(--fs-micro);color:var(--gold);font-weight:700">· adaptado</span>':'')+'</div>'
             +(ex.obj?'<div class="tr-ex-o">🎯 '+esc(ex.obj)+'</div>':'')
             +(ex.desc?'<div class="tr-ex-d">'+esc(ex.desc)+'</div>':'')
             +'<div class="tr-ex-m">⏱ '+(ex.tempo||0)+' min</div></div>';
@@ -654,10 +654,10 @@
         var cIdx=YTBObjetivos.missaoDecisaoDaSemana(obj.bucket, wi);
         var link='elite-coach.html?atleta='+encodeURIComponent(T.atleta)+'&debs='+encodeURIComponent(obj.bucket)+'&c='+(cIdx+1);
         html+='<a href="'+link+'" style="display:flex;align-items:center;gap:11px;background:rgba(155,109,255,.06);border:1px solid rgba(155,109,255,.3);border-radius:11px;padding:13px 14px;margin-top:9px;text-decoration:none;color:var(--text)">'
-          +'<span style="font-size:22px">🧠</span>'
-          +'<span style="flex:1"><span style="display:block;font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:15px">Missão de Decisão · cenário de jogo</span>'
-          +'<span style="display:block;font-size:12px;color:var(--slate);margin-top:2px">≈5 min no telemóvel · vês o lance, decides, percebes porquê</span></span>'
-          +'<span style="color:var(--slate);font-size:16px">▶</span></a>';
+          +'<span style="font-size:var(--fs-titulo)">🧠</span>'
+          +'<span style="flex:1"><span style="display:block;font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:var(--fs-sub)">Missão de Decisão · cenário de jogo</span>'
+          +'<span style="display:block;font-size:var(--fs-legenda);color:var(--slate);margin-top:2px">≈5 min no telemóvel · vês o lance, decides, percebes porquê</span></span>'
+          +'<span style="color:var(--slate);font-size:var(--fs-sub)">▶</span></a>';
       }
       html+='</div></div>';
     });
@@ -690,7 +690,7 @@
       var d=res&&res.data;
       if(!d||!d.ok){ if(btn){btn.disabled=false;btn.textContent='Enviar ao treinador';} toast('Não foi possível enviar'); return; }
       var card=document.getElementById('ck-jogo');
-      if(card) card.innerHTML='<div style="padding:15px 16px"><div style="font-size:14px;color:var(--up);line-height:1.5">✓ Enviado. O treinador vê isto no retorno da semana — obrigado pela honestidade.</div></div>';
+      if(card) card.innerHTML='<div style="padding:15px 16px"><div style="font-size:var(--fs-corpo);color:var(--up);line-height:1.5">✓ Enviado. O treinador vê isto no retorno da semana — obrigado pela honestidade.</div></div>';
       window.__treino.ultimoCheckinJogo=new Date().toISOString();
     }).catch(function(){ if(btn){btn.disabled=false;btn.textContent='Enviar ao treinador';} toast('Sem ligação'); });
   };
@@ -713,57 +713,57 @@
     //    golos, assistências, minutos (e a dificuldade no objetivo, se houver)
     J.por_responder.forEach(function(j){
       html+='<div class="tr-wk" id="jg-'+j.id+'" style="border-color:var(--gold-border)"><div style="padding:15px 16px">'
-        +'<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:900;font-size:19px;margin-bottom:2px">⚽ Como correu o jogo'+(j.adversario?(' vs '+esc(j.adversario)):'')+'?</div>'
-        +'<div style="font-size:12px;color:var(--muted);margin-bottom:12px">'+fmtJogoData(j.data_jogo)+'</div>'
+        +'<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:900;font-size:var(--fs-sub);margin-bottom:2px">⚽ Como correu o jogo'+(j.adversario?(' vs '+esc(j.adversario)):'')+'?</div>'
+        +'<div style="font-size:var(--fs-legenda);color:var(--muted);margin-bottom:12px">'+fmtJogoData(j.data_jogo)+'</div>'
         +'<div style="display:flex;gap:7px;margin-bottom:12px" id="jg-como-'+j.id+'">'
-        +['😖','😕','🙂','😄','🔥'].map(function(f,i){return '<button onclick="window.__jgComo(\''+j.id+'\','+(i+1)+')" data-v="'+(i+1)+'" style="flex:1;min-height:46px;background:var(--bg);border:1px solid var(--border);border-radius:9px;font-size:22px;cursor:pointer;filter:grayscale(1);opacity:.55">'+f+'</button>';}).join('')
+        +['😖','😕','🙂','😄','🔥'].map(function(f,i){return '<button onclick="window.__jgComo(\''+j.id+'\','+(i+1)+')" data-v="'+(i+1)+'" style="flex:1;min-height:46px;background:var(--bg);border:1px solid var(--border);border-radius:9px;font-size:var(--fs-titulo);cursor:pointer;filter:grayscale(1);opacity:.55">'+f+'</button>';}).join('')
         +'</div>'
         +'<div style="display:flex;gap:8px;margin-bottom:10px">'
-        +'<label style="flex:1;font-size:11px;color:var(--slate)">⚽ Golos<input id="jg-golos-'+j.id+'" type="number" min="0" max="20" value="0" style="width:100%;margin-top:3px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:9px;padding:10px;font-family:inherit;font-size:16px;outline:none"></label>'
-        +'<label style="flex:1;font-size:11px;color:var(--slate)">🅰 Assist.<input id="jg-assist-'+j.id+'" type="number" min="0" max="20" value="0" style="width:100%;margin-top:3px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:9px;padding:10px;font-family:inherit;font-size:16px;outline:none"></label>'
-        +'<label style="flex:1;font-size:11px;color:var(--slate)">⏱ Minutos<input id="jg-min-'+j.id+'" type="number" min="0" max="120" placeholder="—" style="width:100%;margin-top:3px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:9px;padding:10px;font-family:inherit;font-size:16px;outline:none"></label>'
+        +'<label style="flex:1;font-size:var(--fs-legenda);color:var(--slate)">⚽ Golos<input id="jg-golos-'+j.id+'" type="number" min="0" max="20" value="0" style="width:100%;margin-top:3px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:9px;padding:10px;font-family:inherit;font-size:var(--fs-sub);outline:none"></label>'
+        +'<label style="flex:1;font-size:var(--fs-legenda);color:var(--slate)">🅰 Assist.<input id="jg-assist-'+j.id+'" type="number" min="0" max="20" value="0" style="width:100%;margin-top:3px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:9px;padding:10px;font-family:inherit;font-size:var(--fs-sub);outline:none"></label>'
+        +'<label style="flex:1;font-size:var(--fs-legenda);color:var(--slate)">⏱ Minutos<input id="jg-min-'+j.id+'" type="number" min="0" max="120" placeholder="—" style="width:100%;margin-top:3px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:9px;padding:10px;font-family:inherit;font-size:var(--fs-sub);outline:none"></label>'
         +'</div>';
       if(obj){
-        html+='<div style="font-size:12.5px;color:var(--slate);margin-bottom:6px">E sentiste dificuldade em <strong style="color:var(--text)">'+esc(obj.objetivo.verbo)+'</strong>? <span style="color:var(--muted)">(opcional)</span></div>'
+        html+='<div style="font-size:var(--fs-legenda);color:var(--slate);margin-bottom:6px">E sentiste dificuldade em <strong style="color:var(--text)">'+esc(obj.objetivo.verbo)+'</strong>? <span style="color:var(--muted)">(opcional)</span></div>'
           +'<div style="display:flex;gap:7px;margin-bottom:10px" id="jg-dif-'+j.id+'">'
-          +[1,2,3,4,5].map(function(n){return '<button onclick="window.__jgDif(\''+j.id+'\','+n+')" data-v="'+n+'" style="flex:1;min-height:40px;background:var(--bg);border:1px solid var(--border);color:var(--slate);border-radius:9px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer">'+n+'</button>';}).join('')
+          +[1,2,3,4,5].map(function(n){return '<button onclick="window.__jgDif(\''+j.id+'\','+n+')" data-v="'+n+'" style="flex:1;min-height:40px;background:var(--bg);border:1px solid var(--border);color:var(--slate);border-radius:9px;font-family:inherit;font-size:var(--fs-corpo);font-weight:700;cursor:pointer">'+n+'</button>';}).join('')
           +'</div>';
       }
-      html+='<input id="jg-nota-'+j.id+'" type="text" maxlength="200" placeholder="Um momento do jogo que queiras guardar? (opcional)" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:12px 13px;font-family:inherit;font-size:16px;outline:none">'
-        +'<button id="jg-send-'+j.id+'" onclick="window.__jgEnviar(\''+j.id+'\')" style="width:100%;margin-top:10px;background:var(--text);border:none;color:#0A0D0A;border-radius:10px;padding:13px;font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:15px;text-transform:uppercase;letter-spacing:.05em;cursor:pointer">Registar jogo</button>'
+      html+='<input id="jg-nota-'+j.id+'" type="text" maxlength="200" placeholder="Um momento do jogo que queiras guardar? (opcional)" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:12px 13px;font-family:inherit;font-size:var(--fs-sub);outline:none">'
+        +'<button id="jg-send-'+j.id+'" onclick="window.__jgEnviar(\''+j.id+'\')" style="width:100%;margin-top:10px;background:var(--text);border:none;color:#0A0D0A;border-radius:10px;padding:13px;font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:var(--fs-sub);text-transform:uppercase;letter-spacing:.05em;cursor:pointer">Registar jogo</button>'
         +'</div></div>';
     });
 
     // 2. próximos jogos + marcar novo
     html+='<div class="tr-wk"><div style="padding:15px 16px">'
-      +'<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:900;font-size:19px;margin-bottom:10px">🗓 Jogos</div>';
+      +'<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:900;font-size:var(--fs-sub);margin-bottom:10px">🗓 Jogos</div>';
     if(J.proximos.length){
       J.proximos.forEach(function(j){
-        html+='<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);font-size:13.5px">'
+        html+='<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);font-size:var(--fs-corpo)">'
           +'<span style="color:var(--gold)">📅</span><span style="flex:1">'+fmtJogoData(j.data_jogo)+(j.adversario?(' · vs <strong>'+esc(j.adversario)+'</strong>'):'')+'</span>'
-          +'<button onclick="window.__jgApagar(\''+j.id+'\')" title="Desmarcar" style="background:none;border:none;color:var(--muted);font-size:15px;cursor:pointer;padding:6px">✕</button></div>';
+          +'<button onclick="window.__jgApagar(\''+j.id+'\')" title="Desmarcar" style="background:none;border:none;color:var(--muted);font-size:var(--fs-sub);cursor:pointer;padding:6px">✕</button></div>';
       });
     } else if(!J.por_responder.length){
-      html+='<div style="font-size:13px;color:var(--slate);margin-bottom:4px">Marca aqui os próximos jogos — depois do apito, a app pergunta como correu e o passaporte regista tudo.</div>';
+      html+='<div style="font-size:var(--fs-corpo);color:var(--slate);margin-bottom:4px">Marca aqui os próximos jogos — depois do apito, a app pergunta como correu e o passaporte regista tudo.</div>';
     }
     if(J.ultimos.length){
-      html+='<div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin:12px 0 4px">Últimos jogos</div>';
+      html+='<div style="font-size:var(--fs-legenda);letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin:12px 0 4px">Últimos jogos</div>';
       J.ultimos.forEach(function(j){
         var r=j.resultado||{};
         var partes=[];
         if(r.golos) partes.push('⚽ '+r.golos);
         if(r.assistencias) partes.push('🅰 '+r.assistencias);
         if(r.minutos!=null) partes.push('⏱ '+r.minutos+"'");
-        html+='<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);font-size:12.5px;color:var(--slate)">'
+        html+='<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);font-size:var(--fs-legenda);color:var(--slate)">'
           +'<span style="flex:1">'+fmtJogoData(j.data_jogo)+(j.adversario?(' · vs '+esc(j.adversario)):'')+'</span>'
           +'<span>'+(partes.join(' · ')||'✓')+'</span></div>';
       });
     }
     html+='<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">'
-      +'<input id="jg-nova-data" type="date" style="flex:1;min-width:120px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:9px;padding:10px;font-family:inherit;font-size:15px;outline:none">'
-      +'<input id="jg-nova-hora" type="time" value="10:00" style="width:92px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:9px;padding:10px;font-family:inherit;font-size:15px;outline:none">'
-      +'<input id="jg-novo-adv" type="text" maxlength="60" placeholder="Adversário (opcional)" style="flex:2;min-width:140px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:9px;padding:10px 12px;font-family:inherit;font-size:16px;outline:none">'
-      +'<button onclick="window.__jgAgendar()" style="background:var(--bg4);border:1px solid var(--border2);color:var(--text);border-radius:9px;padding:10px 16px;font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:14px;cursor:pointer">+ Marcar jogo</button>'
+      +'<input id="jg-nova-data" type="date" style="flex:1;min-width:120px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:9px;padding:10px;font-family:inherit;font-size:var(--fs-sub);outline:none">'
+      +'<input id="jg-nova-hora" type="time" value="10:00" style="width:92px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:9px;padding:10px;font-family:inherit;font-size:var(--fs-sub);outline:none">'
+      +'<input id="jg-novo-adv" type="text" maxlength="60" placeholder="Adversário (opcional)" style="flex:2;min-width:140px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:9px;padding:10px 12px;font-family:inherit;font-size:var(--fs-sub);outline:none">'
+      +'<button onclick="window.__jgAgendar()" style="background:var(--bg4);border:1px solid var(--border2);color:var(--text);border-radius:9px;padding:10px 16px;font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:var(--fs-corpo);cursor:pointer">+ Marcar jogo</button>'
       +'</div>'
       +'</div></div>';
 
@@ -799,7 +799,7 @@
       var d=res&&res.data;
       if(!d||!d.ok){ if(btn){btn.disabled=false;btn.textContent='Registar jogo';} toast('Não foi possível registar ('+((d&&d.motivo)||'erro')+')'); return; }
       var card=document.getElementById('jg-'+id);
-      if(card) card.innerHTML='<div style="padding:15px 16px"><div style="font-size:14px;color:var(--up);line-height:1.5">✓ Jogo registado no passaporte'+(golos?(' — '+golos+' golo'+(golos===1?'':'s')+'!'):'')+' As estatísticas da época já contam com ele.</div></div>';
+      if(card) card.innerHTML='<div style="padding:15px 16px"><div style="font-size:var(--fs-corpo);color:var(--up);line-height:1.5">✓ Jogo registado no passaporte'+(golos?(' — '+golos+' golo'+(golos===1?'':'s')+'!'):'')+' As estatísticas da época já contam com ele.</div></div>';
       window.__jogos.por_responder=window.__jogos.por_responder.filter(function(j){return j.id!==id;});
     }).catch(function(){ if(btn){btn.disabled=false;btn.textContent='Registar jogo';} toast('Sem ligação'); });
   };
@@ -837,16 +837,16 @@
     var i=0, resta=0, timer=null, pausa=false;
     var ov=document.createElement('div'); ov.id='tr-cr';
     ov.style.cssText='position:fixed;inset:0;background:rgba(5,7,5,.97);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center';
-    ov.innerHTML='<div id="cr-p" style="font-size:13px;color:#999;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px"></div>'
+    ov.innerHTML='<div id="cr-p" style="font-size:var(--fs-corpo);color:#999;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px"></div>'
       +'<div id="cr-anim" style="width:220px;max-width:64vw;margin-bottom:10px"></div>'
-      +'<div id="cr-n" style="font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:30px;color:#ECEFEA;margin-bottom:6px"></div>'
-      +'<div id="cr-o" style="font-size:15px;color:#00D46A;margin-bottom:10px"></div>'
-      +'<div id="cr-d" style="font-size:14.5px;color:#bbb;max-width:340px;line-height:1.55;margin-bottom:26px"></div>'
+      +'<div id="cr-n" style="font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:var(--fs-titulo);color:#ECEFEA;margin-bottom:6px"></div>'
+      +'<div id="cr-o" style="font-size:var(--fs-sub);color:#00D46A;margin-bottom:10px"></div>'
+      +'<div id="cr-d" style="font-size:var(--fs-corpo);color:#bbb;max-width:340px;line-height:1.55;margin-bottom:26px"></div>'
       +'<div id="cr-t" style="font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:84px;color:#00D46A;line-height:1;margin-bottom:30px">00:00</div>'
       +'<div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">'
-      +'<button id="cr-pause" style="background:transparent;border:1px solid #555;color:#ECEFEA;border-radius:10px;padding:12px 22px;font-size:14px;font-weight:800;font-family:inherit">⏸ Pausa</button>'
-      +'<button id="cr-next" style="background:#ECEFEA;border:none;color:#000;border-radius:10px;padding:12px 22px;font-size:14px;font-weight:800;font-family:inherit">Próximo →</button>'
-      +'<button id="cr-x" style="background:transparent;border:1px solid #803;color:#f88;border-radius:10px;padding:12px 22px;font-size:14px;font-weight:800;font-family:inherit">✕ Sair</button></div>';
+      +'<button id="cr-pause" style="background:transparent;border:1px solid #555;color:#ECEFEA;border-radius:10px;padding:12px 22px;font-size:var(--fs-corpo);font-weight:800;font-family:inherit">⏸ Pausa</button>'
+      +'<button id="cr-next" style="background:#ECEFEA;border:none;color:#000;border-radius:10px;padding:12px 22px;font-size:var(--fs-corpo);font-weight:800;font-family:inherit">Próximo →</button>'
+      +'<button id="cr-x" style="background:transparent;border:1px solid #803;color:#f88;border-radius:10px;padding:12px 22px;font-size:var(--fs-corpo);font-weight:800;font-family:inherit">✕ Sair</button></div>';
     document.body.appendChild(ov);
     function tick(){ var m=Math.max(0,Math.floor(resta/60)),sec=Math.max(0,resta%60); document.getElementById('cr-t').textContent=String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0'); }
     function carrega(){ var ex=window.__exParaEspaco(lista[i]); if(!ex){ fim(); return; } document.getElementById('cr-p').textContent='Exercício '+(i+1)+' de '+lista.length; if(window.YTBExAnim){ var ca=document.getElementById('cr-anim'); if(ca){ YTBExAnim.mount(ca, ex); ca.classList.add('on'); } } document.getElementById('cr-n').textContent=ex.nome||''; document.getElementById('cr-o').textContent=ex.obj?('🎯 '+ex.obj):''; document.getElementById('cr-d').textContent=ex.desc||''; resta=(ex.tempo||1)*60; tick(); clearInterval(timer); timer=setInterval(function(){ if(!pausa){ resta--; tick(); if(resta<=0) prox(); } },1000); }
@@ -862,17 +862,17 @@
     var ov=document.createElement('div'); ov.id='tr-fb';
     ov.style.cssText='position:fixed;inset:0;background:rgba(5,7,5,.9);z-index:9999;display:flex;align-items:center;justify-content:center;padding:22px';
     ov.innerHTML='<div style="max-width:380px;width:100%;background:#0F1410;border:1px solid #2A322B;border-radius:16px;padding:22px">'
-      +'<div style="font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:22px;color:#ECEFEA;margin-bottom:4px">Como correu?</div>'
-      +'<div style="font-size:14px;color:#9AA39A;margin-bottom:16px;line-height:1.45">Sê sincero — ajuda o treinador a ajustar o teu treino.</div>'
+      +'<div style="font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:var(--fs-titulo);color:#ECEFEA;margin-bottom:4px">Como correu?</div>'
+      +'<div style="font-size:var(--fs-corpo);color:#9AA39A;margin-bottom:16px;line-height:1.45">Sê sincero — ajuda o treinador a ajustar o teu treino.</div>'
       +'<div id="fb-dots" style="display:flex;gap:8px;justify-content:center;margin-bottom:16px"></div>'
-      +'<textarea id="fb-txt" placeholder="O que custou? O que correu bem? (opcional)" style="width:100%;min-height:74px;background:#080C08;border:1px solid #2A322B;border-radius:10px;color:#ECEFEA;font-family:inherit;font-size:16px;padding:12px;resize:vertical"></textarea>'
-      +'<button id="fb-send" style="width:100%;margin-top:14px;background:#ECEFEA;color:#0A0D0A;border:none;border-radius:11px;padding:14px;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:16px;text-transform:uppercase;letter-spacing:.06em;cursor:pointer">Enviar e marcar feito</button>'
-      +'<button id="fb-x" style="width:100%;margin-top:8px;background:none;border:none;color:#9AA39A;font-size:13px;cursor:pointer">Agora não</button></div>';
+      +'<textarea id="fb-txt" placeholder="O que custou? O que correu bem? (opcional)" style="width:100%;min-height:74px;background:#080C08;border:1px solid #2A322B;border-radius:10px;color:#ECEFEA;font-family:inherit;font-size:var(--fs-sub);padding:12px;resize:vertical"></textarea>'
+      +'<button id="fb-send" style="width:100%;margin-top:14px;background:#ECEFEA;color:#0A0D0A;border:none;border-radius:11px;padding:14px;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:var(--fs-sub);text-transform:uppercase;letter-spacing:.06em;cursor:pointer">Enviar e marcar feito</button>'
+      +'<button id="fb-x" style="width:100%;margin-top:8px;background:none;border:none;color:#9AA39A;font-size:var(--fs-corpo);cursor:pointer">Agora não</button></div>';
     document.body.appendChild(ov);
     var dots=ov.querySelector('#fb-dots'); var faces=['😣','😕','🙂','😀','🔥'];
     faces.forEach(function(f,idx){
       var b=document.createElement('button');
-      b.textContent=f; b.style.cssText='font-size:26px;background:none;border:none;cursor:pointer;filter:grayscale(1);opacity:.5;transition:.12s';
+      b.textContent=f; b.style.cssText='font-size:var(--fs-titulo);background:none;border:none;cursor:pointer;filter:grayscale(1);opacity:.5;transition:.12s';
       b.onclick=function(){ sel=idx+1; Array.prototype.forEach.call(dots.children,function(c,ci){ c.style.filter=ci<=idx?'none':'grayscale(1)'; c.style.opacity=ci<=idx?'1':'.5'; }); };
       dots.appendChild(b);
     });
@@ -927,7 +927,7 @@
      /* ── Pivot estilo Windows Phone 8: títulos grandes, o seguinte espreita; conteúdo desliza ao dedo ── */
      +'.fam-pivo-head{display:flex;gap:24px;overflow-x:auto;position:sticky;top:0;z-index:60;background:var(--bg);padding:14px 2px 10px;scrollbar-width:none;-webkit-overflow-scrolling:touch}'
      +'.fam-pivo-head::-webkit-scrollbar{display:none}'
-     +'.fam-pivo-head button{flex:0 0 auto;font-family:\'Barlow Condensed\',sans-serif;font-weight:900;font-size:30px;line-height:1;letter-spacing:-.3px;color:var(--muted);background:none;border:none;padding:0;cursor:pointer;white-space:nowrap;transition:color .18s}'
+     +'.fam-pivo-head button{flex:0 0 auto;font-family:\'Barlow Condensed\',sans-serif;font-weight:900;font-size:var(--fs-titulo);line-height:1;letter-spacing:-.3px;color:var(--muted);background:none;border:none;padding:0;cursor:pointer;white-space:nowrap;transition:color .18s}'
      +'.fam-pivo-head button.on{color:var(--text)}'
      +'#fam-pivot{display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;align-items:flex-start}'
      +'#fam-pivot::-webkit-scrollbar{display:none}'
@@ -935,14 +935,14 @@
      +'body.fam-pivo .fam-group-head{display:none}' /* o título vive no pivot, como no WP8 */
      +'.fam-group-head{margin:0 2px 16px}'
      +'.fam-group-head .eyebrow{display:block;margin-bottom:4px}'
-     +'.fam-group-head h2{font-family:\'Barlow Condensed\',sans-serif;font-weight:900;font-size:22px;letter-spacing:-.2px;color:var(--text)}'
-     +'.fam-chip{background:var(--bg3);border:1px solid var(--border);color:var(--slate);border-radius:100px;padding:9px 14px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;transition:.14s}'
+     +'.fam-group-head h2{font-family:\'Barlow Condensed\',sans-serif;font-weight:900;font-size:var(--fs-titulo);letter-spacing:-.2px;color:var(--text)}'
+     +'.fam-chip{background:var(--bg3);border:1px solid var(--border);color:var(--slate);border-radius:100px;padding:9px 14px;font-size:var(--fs-corpo);font-weight:700;cursor:pointer;font-family:inherit;transition:.14s}'
      +'.fam-chip.on{border-color:var(--gold);color:var(--gold)}'
      // 16px é o mínimo — abaixo disso o Safari em iOS faz zoom automático da
      // página ao focar o campo, o que faz o ecrã "saltar" a cada toque.
-     +'.fam-input{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:12px 13px;font-family:inherit;font-size:16px;outline:none}'
+     +'.fam-input{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:12px 13px;font-family:inherit;font-size:var(--fs-sub);outline:none}'
      +'.fam-input:focus{border-color:var(--gold)}'
-     +'.fam-btn{width:100%;margin-top:10px;background:var(--text);border:none;color:#0A0D0A;border-radius:10px;padding:13px;font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:15px;text-transform:uppercase;letter-spacing:.05em;cursor:pointer}'
+     +'.fam-btn{width:100%;margin-top:10px;background:var(--text);border:none;color:#0A0D0A;border-radius:10px;padding:13px;font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:var(--fs-sub);text-transform:uppercase;letter-spacing:.05em;cursor:pointer}'
      +'.fam-row{display:flex;gap:7px;margin-bottom:9px;flex-wrap:wrap}.fam-row .fam-chip{flex:1;min-width:70px;text-align:center}';
     var st=document.createElement('style'); st.id='fam-css'; st.textContent=css; document.head.appendChild(st);
   }
@@ -981,13 +981,13 @@
         nov.slice(0,5).forEach(function(n){
           var dt=n.em?new Date(n.em).toLocaleDateString('pt-PT',{day:'2-digit',month:'short'}):'';
           var dourado=/plano|marco|sequência/i.test(n.msg||'');
-          h+='<div class="vivo-reveal" style="display:flex;justify-content:space-between;gap:8px;padding:9px 0;border-bottom:1px solid var(--border);font-size:14px;line-height:1.4"><div style="color:'+(dourado?'var(--gold)':'var(--text)')+'">'+esc(n.msg||'')+'</div><div style="color:var(--muted);font-size:11.5px;white-space:nowrap">'+dt+'</div></div>';
+          h+='<div class="vivo-reveal" style="display:flex;justify-content:space-between;gap:8px;padding:9px 0;border-bottom:1px solid var(--border);font-size:var(--fs-corpo);line-height:1.4"><div style="color:'+(dourado?'var(--gold)':'var(--text)')+'">'+esc(n.msg||'')+'</div><div style="color:var(--muted);font-size:var(--fs-legenda);white-space:nowrap">'+dt+'</div></div>';
         });
-        h+='<button class="fam-btn" style="width:auto;padding:10px 17px;font-size:13.5px" onclick="window.__oqmVisto()">Entendido ✓</button>';
+        h+='<button class="fam-btn" style="width:auto;padding:10px 17px;font-size:var(--fs-corpo)" onclick="window.__oqmVisto()">Entendido ✓</button>';
       }
       if(pen.length){
         h+='<div class="eyebrow" style="margin-top:12px">📌 Para fazer</div>';
-        pen.forEach(function(p){ h+='<div style="padding:7px 0;font-size:14px;color:var(--slate);border-bottom:1px solid var(--border);line-height:1.4">'+esc(p.msg||'')+'</div>'; });
+        pen.forEach(function(p){ h+='<div style="padding:7px 0;font-size:var(--fs-corpo);color:var(--slate);border-bottom:1px solid var(--border);line-height:1.4">'+esc(p.msg||'')+'</div>'; });
       }
       h+='</div>';
       box.innerHTML=h;
@@ -1022,7 +1022,7 @@
       el.innerHTML=h.slice(-5).reverse().map(function(r){
         var partes=[]; if(r.altura_cm!=null)partes.push(r.altura_cm+' cm'); if(r.peso_kg!=null)partes.push(r.peso_kg+' kg'); if(r.pe_eu!=null)partes.push('pé '+r.pe_eu);
         var dt=r.medido_em?new Date(r.medido_em).toLocaleDateString('pt-PT'):'';
-        return '<div style="display:flex;justify-content:space-between;font-size:13.5px;color:var(--slate);padding:6px 0;border-bottom:1px solid var(--border)"><span>'+dt+'</span><span>'+(partes.join(' · ')||'—')+'</span></div>';
+        return '<div style="display:flex;justify-content:space-between;font-size:var(--fs-corpo);color:var(--slate);padding:6px 0;border-bottom:1px solid var(--border)"><span>'+dt+'</span><span>'+(partes.join(' · ')||'—')+'</span></div>';
       }).join('');
     }).catch(function(){});
   }
@@ -1070,7 +1070,7 @@
      +'<div class="fam-row"><input class="fam-input" id="pf-nome" type="text" placeholder="Nome completo" style="flex:2"><input class="fam-input" id="pf-ultnome" type="text" placeholder="Último apelido (opcional)" style="flex:1"></div>'
      +'<div class="fam-row"><input class="fam-input" id="pf-ano" type="number" inputmode="numeric" placeholder="Ano nasc. (ex: 2013)" style="flex:1"><input class="fam-input" id="pf-mes" type="number" inputmode="numeric" min="1" max="12" placeholder="Mês" style="flex:1"><input class="fam-input" id="pf-dia" type="number" inputmode="numeric" min="1" max="31" placeholder="Dia" style="flex:1">'
      +'<select class="fam-input" id="pf-sexo" style="flex:1"><option value="">Sexo</option><option value="M">Masculino</option><option value="F">Feminino</option></select></div>'
-     +'<div class="sub" style="margin:2px 0 10px;font-size:11px">A data de nascimento define o escalão e a leitura de maturação — corrige aqui se estiver errada.</div>'
+     +'<div class="sub" style="margin:2px 0 10px;font-size:var(--fs-legenda)">A data de nascimento define o escalão e a leitura de maturação — corrige aqui se estiver errada.</div>'
      +'<div class="fam-row"><input class="fam-input" id="pf-clube" type="text" placeholder="Clube atual" style="flex:2"><input class="fam-input" id="pf-escalao" type="text" placeholder="Escalão (ex: Sub-12)" style="flex:1"></div>'
      +'<div class="fam-row"><input class="fam-input" id="pf-equipa" type="text" placeholder="Equipa (ex: Sub-12 A)" style="flex:1"><input class="fam-input" id="pf-assoc" type="text" placeholder="Associação (ex: AF Porto)" style="flex:1"></div>'
      +'<div class="fam-row"><select class="fam-input" id="pf-pos" style="flex:2">'+POSICOES_FAM.map(function(p){return '<option value="'+p[0]+'">'+p[1]+'</option>';}).join('')+'</select>'
@@ -1090,7 +1090,7 @@
      +'<div class="fam-row"><input class="fam-input" id="ep-goleq" type="number" inputmode="numeric" placeholder="Golos da equipa" style="flex:1"><input class="fam-input" id="ep-class" type="text" placeholder="Classificação (ex: 3º de 12)" style="flex:2"></div>'
      +'<button class="fam-btn" onclick="window.__epocaGravar()">Guardar estatísticas →</button>'
      +'<button class="fam-btn" style="background:var(--bg3);color:var(--text);border:1px solid var(--border2)" onclick="window.__epocaFechar()">Fechar a época →</button>'
-     +'<div class="sub" style="margin:8px 0 0;font-size:12px">A época desportiva fecha a 30 de junho. Ao fechares, estes números ficam guardados no percurso dele — só leitura — e o cartão fica limpo para a época nova.</div></div>'
+     +'<div class="sub" style="margin:8px 0 0;font-size:var(--fs-legenda)">A época desportiva fecha a 30 de junho. Ao fechares, estes números ficam guardados no percurso dele — só leitura — e o cartão fica limpo para a época nova.</div></div>'
      +'<div class="shead">O percurso dele</div><div class="panel" id="carreira-card">'
      +'<div class="sub" style="margin-bottom:10px">Época a época: clube, escalão e conquistas. É isto que os clubes e scouts veem como carreira — quem sabe a história és tu.</div>'
      +'<div id="car-lista" style="margin-bottom:10px"></div>'
@@ -1099,7 +1099,7 @@
      +'<div class="fam-row"><input class="fam-input" id="car-class" type="text" placeholder="Classificação (ex: 4º lugar)" style="flex:1"><input class="fam-input" id="car-titulo" type="text" placeholder="Título? (ex: Campeão Divisão Elite)" style="flex:2"></div>'
      +'<div class="fam-row"><input class="fam-input" id="car-golos" type="number" inputmode="numeric" placeholder="Golos" style="flex:1"><input class="fam-input" id="car-jogos" type="number" inputmode="numeric" placeholder="Jogos" style="flex:1"><input class="fam-input" id="car-assist" type="number" inputmode="numeric" placeholder="Assist." style="flex:1"><input class="fam-input" id="car-minutos" type="number" inputmode="numeric" placeholder="Minutos" style="flex:1"></div>'
      +'<button class="fam-btn" onclick="window.__carreiraGravar()">Guardar época →</button>'
-     +'<div class="sub" style="margin:8px 0 0;font-size:12px">Para corrigir uma época, volta a guardá-la com os dados certos — substitui a antiga. Títulos novos ficam como marcos no passaporte.</div></div>'
+     +'<div class="sub" style="margin:8px 0 0;font-size:var(--fs-legenda)">Para corrigir uma época, volta a guardá-la com os dados certos — substitui a antiga. Títulos novos ficam como marcos no passaporte.</div></div>'
      +'<div class="shead">Crescimento</div><div class="panel" id="bio-card">'
      +'<div class="sub" style="margin-bottom:10px">Altura, peso e pé — uma medição de vez em quando desenha a trajetória de crescimento. Nunca visível ao público.</div>'
      +'<div class="fam-row"><input class="fam-input" id="bio-alt" type="number" inputmode="decimal" placeholder="Altura (cm)" style="flex:1"><input class="fam-input" id="bio-pes" type="number" inputmode="decimal" placeholder="Peso (kg)" style="flex:1"><input class="fam-input" id="bio-pe" type="number" inputmode="decimal" placeholder="Pé (EU)" style="flex:1"></div>'
@@ -1116,23 +1116,23 @@
   function carregarCarreiraLista(){
     var el=document.getElementById('car-lista'); if(!el) return;
     supa.rpc('ytb_carreira_lista',{p_atleta:window.__famAtleta}).then(function(res){
-      if(res&&res.error){ el.innerHTML='<div style="font-size:13px;color:var(--red)">Sessão expirada — entra de novo para ver a carreira.</div>'; return; }
+      if(res&&res.error){ el.innerHTML='<div style="font-size:var(--fs-corpo);color:var(--red)">Sessão expirada — entra de novo para ver a carreira.</div>'; return; }
       var l=res&&res.data;
-      if(l===null){ el.innerHTML='<div style="font-size:13px;color:var(--red)">Sem acesso a este atleta.</div>'; return; }
+      if(l===null){ el.innerHTML='<div style="font-size:var(--fs-corpo);color:var(--red)">Sem acesso a este atleta.</div>'; return; }
       l=l||[];
-      if(!l.length){ el.innerHTML='<div style="font-size:13px;color:var(--muted)">Ainda sem épocas registadas.</div>'; return; }
+      if(!l.length){ el.innerHTML='<div style="font-size:var(--fs-corpo);color:var(--muted)">Ainda sem épocas registadas.</div>'; return; }
       el.innerHTML=l.map(function(c){
         var tit=(c.titulos&&c.titulos.length)?(' · <span style="color:var(--gold)">🏆 '+esc(c.titulos.join(' · '))+'</span>'):(c.classificacao?(' · '+esc(c.classificacao)):'');
         var st=[];
         if(c.golos!=null)st.push(c.golos+' golo'+(c.golos===1?'':'s'));
         if(c.jogos!=null)st.push(c.jogos+' jogo'+(c.jogos===1?'':'s'));
         if(c.assist!=null)st.push(c.assist+' assist.');
-        var stTxt=st.length?('<span style="display:block;font-size:12px;color:var(--muted);margin-top:1px">'+esc(st.join(' · '))+'</span>'):'';
-        return '<div style="display:flex;gap:10px;align-items:baseline;padding:7px 0;border-bottom:1px solid var(--border);font-size:13.5px">'
+        var stTxt=st.length?('<span style="display:block;font-size:var(--fs-legenda);color:var(--muted);margin-top:1px">'+esc(st.join(' · '))+'</span>'):'';
+        return '<div style="display:flex;gap:10px;align-items:baseline;padding:7px 0;border-bottom:1px solid var(--border);font-size:var(--fs-corpo)">'
           +'<b class="num" style="font-family:\'Barlow Condensed\',sans-serif;min-width:44px">'+esc(c.epoca)+'</b>'
           +'<span style="flex:1;color:var(--slate)">'+esc([c.clube,c.escalao,c.divisao].filter(Boolean).join(' · '))+tit+stTxt+'</span></div>';
       }).join('');
-    }).catch(function(){ el.innerHTML='<div style="font-size:13px;color:var(--red)">Sem ligação — tenta de novo.</div>'; });
+    }).catch(function(){ el.innerHTML='<div style="font-size:var(--fs-corpo);color:var(--red)">Sem ligação — tenta de novo.</div>'; });
   }
   window.__carreiraGravar=function(){
     function s(id){ var v=(document.getElementById(id).value||'').trim(); return v===''?null:v; }
@@ -1294,7 +1294,7 @@
       try{
         if(!sessionStorage.getItem('ytb-pivo-dica-fam')){
           var dica=document.createElement('div');
-          dica.style.cssText='font-size:11px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase;padding:2px 2px 8px;pointer-events:none';
+          dica.style.cssText='font-size:var(--fs-legenda);font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase;padding:2px 2px 8px;pointer-events:none';
           dica.textContent='↔ desliza para os lados para mudar de secção';
           app.insertBefore(dica, piv);
           setTimeout(function(){ dica.style.transition='opacity .6s'; dica.style.opacity='0';
@@ -1348,25 +1348,25 @@
 
   function adminBanner(nome){
     var b=document.createElement('div');
-    b.style.cssText='position:sticky;top:0;z-index:99;background:#1A241A;border-bottom:1px solid #2A322B;color:#D4AF37;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:14px;letter-spacing:.4px;text-align:center;padding:10px 14px';
+    b.style.cssText='position:sticky;top:0;z-index:99;background:#1A241A;border-bottom:1px solid #2A322B;color:#D4AF37;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:var(--fs-corpo);letter-spacing:.4px;text-align:center;padding:10px 14px';
     b.innerHTML='👁 MODO ADMIN · passaporte de '+esc(nome||'atleta')+' · vista de leitura';
     document.body.insertBefore(b, document.body.firstChild);
   }
   function treinadorBanner(nome){
     var b=document.createElement('div');
-    b.style.cssText='position:sticky;top:0;z-index:99;background:#1A241A;border-bottom:1px solid #2A322B;color:#D4AF37;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:14px;letter-spacing:.4px;text-align:center;padding:10px 14px';
+    b.style.cssText='position:sticky;top:0;z-index:99;background:#1A241A;border-bottom:1px solid #2A322B;color:#D4AF37;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:var(--fs-corpo);letter-spacing:.4px;text-align:center;padding:10px 14px';
     b.innerHTML='⚽ MODO TREINADOR · passaporte de '+esc(nome||'atleta')+' · vista de leitura';
     document.body.insertBefore(b, document.body.firstChild);
   }
   function demoBanner(){
     var b=document.createElement('div');
-    b.style.cssText='position:sticky;top:0;z-index:99;background:#241A1A;border-bottom:1px solid #3A2B2B;color:#E8A33D;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:14px;letter-spacing:.4px;text-align:center;padding:10px 14px';
+    b.style.cssText='position:sticky;top:0;z-index:99;background:#241A1A;border-bottom:1px solid #3A2B2B;color:#E8A33D;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:var(--fs-corpo);letter-spacing:.4px;text-align:center;padding:10px 14px';
     b.textContent='⚠ DEMONSTRAÇÃO · dados de exemplo, nenhum atleta real';
     document.body.insertBefore(b, document.body.firstChild);
   }
   function scoutBanner(nome, atletaId){
     var b=document.createElement('div');
-    b.style.cssText='position:sticky;top:0;z-index:99;background:#1A241A;border-bottom:1px solid #2A322B;color:#D4AF37;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:14px;letter-spacing:.4px;text-align:center;padding:10px 14px;display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap';
+    b.style.cssText='position:sticky;top:0;z-index:99;background:#1A241A;border-bottom:1px solid #2A322B;color:#D4AF37;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:var(--fs-corpo);letter-spacing:.4px;text-align:center;padding:10px 14px;display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap';
     b.innerHTML='<span>🔍 MODO SCOUT · atleta criado por ti · '+esc(nome||'atleta')+'</span>'
       +'<a href="scouts.html?atleta='+encodeURIComponent(atletaId)+'" style="background:#D4AF37;color:#0A0D0A;border-radius:8px;padding:6px 14px;text-decoration:none;font-weight:800;letter-spacing:.3px">📝 Novo Scout Report</a>';
     document.body.insertBefore(b, document.body.firstChild);
@@ -1374,7 +1374,7 @@
   function clubeBanner(nome){
     var b=document.createElement('div');
     b.id='clube-banner';
-    b.style.cssText='position:sticky;top:0;z-index:99;background:#1A241A;border-bottom:1px solid #2A322B;color:#D4AF37;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:14px;letter-spacing:.4px;text-align:center;padding:10px 14px;display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap';
+    b.style.cssText='position:sticky;top:0;z-index:99;background:#1A241A;border-bottom:1px solid #2A322B;color:#D4AF37;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:var(--fs-corpo);letter-spacing:.4px;text-align:center;padding:10px 14px;display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap';
     b.innerHTML='<img id="clube-banner-logo" style="display:none;width:22px;height:22px;border-radius:5px;object-fit:cover" alt="">'
       +'<span>🏟️ MODO CLUBE · atleta da tua organização · '+esc(nome||'atleta')+'</span>'
       +'<a id="clube-banner-link" href="clube.html" style="background:#D4AF37;color:#0A0D0A;border-radius:8px;padding:6px 14px;text-decoration:none;font-weight:800;letter-spacing:.3px">← Os meus atletas</a>';
@@ -1396,7 +1396,7 @@
     }).catch(function(){});
   }
   function adminErro(msg){
-    document.body.innerHTML='<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px;text-align:center;font-family:Plus Jakarta Sans,sans-serif;color:#ECEFEA;background:#080C08"><div><div style="font-size:42px;margin-bottom:14px">🔒</div><div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:23px;margin-bottom:8px">Sem acesso</div><div style="color:#9AA39A;font-size:14px;max-width:30em;margin:0 auto">'+esc(msg)+'</div></div></div>';
+    document.body.innerHTML='<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px;text-align:center;font-family:Plus Jakarta Sans,sans-serif;color:#ECEFEA;background:#080C08"><div><div style="font-size:var(--fs-hero);margin-bottom:14px">🔒</div><div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:var(--fs-titulo);margin-bottom:8px">Sem acesso</div><div style="color:#9AA39A;font-size:var(--fs-corpo);max-width:30em;margin:0 auto">'+esc(msg)+'</div></div></div>';
   }
   // ── PRIVACIDADE (modo família): âmbitos de consentimento + revogação real ──
   function carregarPrivacidade(atletaId){
@@ -1409,16 +1409,16 @@
                ['foto','Fotografia','Autorizas o uso da foto no passaporte.'],
                ['video','Vídeo','Autorizas vídeos associados ao passaporte.']];
       var h='<section id="sec-priv" style="margin:26px auto 0;max-width:860px;padding:0 18px 40px">'
-        +'<h2 style="font-family:\'Barlow Condensed\',sans-serif;font-weight:900;font-size:19px;letter-spacing:.3px;margin:0 0 4px;color:#ECEFEA">Privacidade</h2>'
-        +'<div style="font-size:13.5px;color:#9AA39A;margin-bottom:10px;line-height:1.5">Controlas o que é visível. As mudanças são imediatas e ficam registadas no percurso.</div>';
+        +'<h2 style="font-family:\'Barlow Condensed\',sans-serif;font-weight:900;font-size:var(--fs-sub);letter-spacing:.3px;margin:0 0 4px;color:#ECEFEA">Privacidade</h2>'
+        +'<div style="font-size:var(--fs-corpo);color:#9AA39A;margin-bottom:10px;line-height:1.5">Controlas o que é visível. As mudanças são imediatas e ficam registadas no percurso.</div>';
       amb.forEach(function(a){
         var on=!!c[a[0]];
         h+='<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid #1F2520">'
-          +'<div><div style="font-size:14.5px;font-weight:600;color:#ECEFEA">'+a[1]+'</div><div style="font-size:12.5px;color:#9AA39A;margin-top:2px;line-height:1.4">'+a[2]+'</div></div>'
-          +'<button data-amb="'+a[0]+'" data-on="'+(on?'1':'0')+'" class="priv-tgl" style="min-width:78px;padding:8px 11px;border-radius:100px;border:1px solid '+(on?'rgba(0,212,106,.5)':'#2A322B')+';background:'+(on?'rgba(0,212,106,.12)':'#0F1410')+';color:'+(on?'#00D46A':'#9AA39A')+';font-weight:700;font-size:13px;cursor:pointer">'+(on?'Ligado':'Desligado')+'</button></div>';
+          +'<div><div style="font-size:var(--fs-corpo);font-weight:600;color:#ECEFEA">'+a[1]+'</div><div style="font-size:var(--fs-legenda);color:#9AA39A;margin-top:2px;line-height:1.4">'+a[2]+'</div></div>'
+          +'<button data-amb="'+a[0]+'" data-on="'+(on?'1':'0')+'" class="priv-tgl" style="min-width:78px;padding:8px 11px;border-radius:100px;border:1px solid '+(on?'rgba(0,212,106,.5)':'#2A322B')+';background:'+(on?'rgba(0,212,106,.12)':'#0F1410')+';color:'+(on?'#00D46A':'#9AA39A')+';font-weight:700;font-size:var(--fs-corpo);cursor:pointer">'+(on?'Ligado':'Desligado')+'</button></div>';
       });
-      h+='<button id="priv-revogar" style="margin-top:14px;width:100%;padding:12px;border-radius:10px;border:1px solid rgba(255,80,80,.35);background:rgba(255,80,80,.07);color:#ff8080;font-weight:700;font-size:14px;cursor:pointer">Revogar todas as autorizações</button>'
-        +'<div style="font-size:12px;color:#6B756C;margin-top:8px;line-height:1.5">Revogar retira o atleta de toda a visibilidade de imediato. Para apagamento definitivo dos dados, fala connosco pelo WhatsApp.</div></section>';
+      h+='<button id="priv-revogar" style="margin-top:14px;width:100%;padding:12px;border-radius:10px;border:1px solid rgba(255,80,80,.35);background:rgba(255,80,80,.07);color:#ff8080;font-weight:700;font-size:var(--fs-corpo);cursor:pointer">Revogar todas as autorizações</button>'
+        +'<div style="font-size:var(--fs-legenda);color:#6B756C;margin-top:8px;line-height:1.5">Revogar retira o atleta de toda a visibilidade de imediato. Para apagamento definitivo dos dados, fala connosco pelo WhatsApp.</div></section>';
       var d=document.createElement('div'); d.innerHTML=h;
       var app=document.getElementById('app');
       if(app){
