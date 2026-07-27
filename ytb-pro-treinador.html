@@ -60,7 +60,6 @@ body{padding-bottom:40px}
 .tabs{display:flex;gap:4px;margin-bottom:18px;overflow-x:auto}
 .tab{flex:1;min-width:fit-content;background:var(--bg2);border:1px solid var(--border);color:var(--slate);padding:10px 8px;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
 .tab.active{border-color:var(--gold);color:var(--gold);background:var(--gold-soft)}
-.tab-panel{display:none}.tab-panel.active{display:block}
 .section-title{font-family:'Barlow Condensed';font-weight:900;font-size:22px;margin-bottom:4px}.section-title span{color:var(--gold)}
 .section-sub{font-size:12px;color:var(--slate);margin-bottom:16px;line-height:1.5}
 .kpis{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:18px}
@@ -168,6 +167,7 @@ body{padding-bottom:40px}
     <button class="tab" onclick="setTab('comissoes')">💰 Comissões</button>
   </div>
 
+  <div id="tp-pivot">
   <!-- ATLETAS -->
   <div class="tab-panel active" id="tab-atletas">
     <div class="kpis">
@@ -207,6 +207,7 @@ body{padding-bottom:40px}
     <div class="section-title">As minhas <span>comissões</span></div>
     <div class="section-sub">Recebes 19,90€ por cada atleta que paga a entrada, e 4,90€/mês por cada mensalidade. Conta quando o Admin confirma o pagamento.</div>
     <div id="comissoes-area"></div>
+  </div>
   </div>
 </div>
 
@@ -470,21 +471,10 @@ function pintarGlowRetorno(){
 var TAB_KEYS=['atletas','avaliar','retorno','treino','comissoes'];
 var TAB_ROTULOS=['atletas','avaliar','retorno','objetivo','comissões'];
 var tabIdx=0;
-function setTab(name){
-  var idxAnt=tabIdx;
-  tabIdx=Math.max(0, TAB_KEYS.indexOf(name));
-  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-  var painel=document.getElementById('tab-'+name);
-  if(painel){ painel.classList.add('active'); if(window.YTBPivot&&tabIdx!==idxAnt) YTBPivot.anima(painel, tabIdx>idxAnt?1:-1); }
-  // cabeça pivot (WP8): títulos grandes, o ativo aceso, o seguinte espreita
-  if(window.YTBPivot){
-    var h=document.querySelector('.tabs');
-    if(h) YTBPivot.titulos(h, TAB_KEYS.map(function(k,i){ return {rotulo:TAB_ROTULOS[i], ir:function(){ setTab(k); }}; }), tabIdx);
-  } else {
-    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-    var btn=Array.from(document.querySelectorAll('.tab')).find(t=>(t.getAttribute('onclick')||'').includes("'"+name+"'"));
-    if(btn) btn.classList.add('active');
-  }
+var tpPivot=null; // {ir,atual} de YTBPivot.montar, depois de iniciado
+function aplicarTab(idx){
+  tabIdx=idx;
+  var name=TAB_KEYS[idx];
   if(name==='avaliar')renderAvaliar();
   if(name==='retorno')renderRetorno();
   if(name==='treino')renderTreino();
@@ -492,14 +482,21 @@ function setTab(name){
   if(typeof pintarGlowRetorno==='function'){ try{ pintarGlowRetorno(); }catch(e){} }
   try{ window.scrollTo({top:0,behavior:'smooth'}); }catch(e){}
 }
-// deslize lateral entre secções (ignora tabelas/chips com scroll próprio)
+function setTab(name){
+  var idx=Math.max(0, TAB_KEYS.indexOf(name));
+  if(tpPivot) tpPivot.ir(idx); else aplicarTab(idx);
+}
+// scroll real estilo WP8 entre as 5 secções (deslize a sério, sem gesto simulado)
 if(window.YTBPivot){
-  YTBPivot.deslize(document.body, function(d){
-    var i=Math.min(TAB_KEYS.length-1, Math.max(0, tabIdx+d));
-    if(i!==tabIdx) setTab(TAB_KEYS[i]);
-  });
-  document.addEventListener('DOMContentLoaded', function(){ setTab('atletas'); });
-  if(document.readyState!=='loading') setTab('atletas');
+  document.addEventListener('DOMContentLoaded', iniciarPivotTreinador);
+  if(document.readyState!=='loading') iniciarPivotTreinador();
+}
+function iniciarPivotTreinador(){
+  var cont=document.getElementById('tp-pivot'), head=document.querySelector('.tabs');
+  if(!cont||!head||tpPivot) return;
+  var paineis=TAB_KEYS.map(function(k,i){ return {rotulo:TAB_ROTULOS[i], el:document.getElementById('tab-'+k)}; });
+  tpPivot=YTBPivot.montar(cont, head, paineis, 0, aplicarTab);
+  aplicarTab(0);
 }
 
 /* ════════ RETORNO (digest do treinador) ════════ */

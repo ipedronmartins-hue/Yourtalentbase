@@ -45,10 +45,10 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-hei
 .tab .badge{background:var(--gold);color:#000;font-size:9px;padding:1px 5px;margin-left:4px;border-radius:8px}
 .tab .badge-red{background:var(--red);color:#fff}
 
-/* SECTIONS */
-.section{display:none}
-.section.active{display:block}
-.section.active + .section.active{margin-top:22px}
+/* SECTIONS — vivem dentro de um painel de zona (scroll real); todas visíveis
+   dentro da própria zona, uma zona de cada vez visível no ecrã via scroll-snap. */
+.section + .section{margin-top:22px}
+.zona-pivo-painel{padding:2px 2px 24px}
 .zona-sec-titulo{font-family:'Barlow Condensed';font-weight:900;font-size:15px;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin:0 0 10px;padding-bottom:7px;border-bottom:1px solid var(--border)}
 
 /* KPIs */
@@ -697,37 +697,43 @@ async function carregarPainelPiloto(){
     : '';
 }
 
-function showZona(zona, ev){
-  const ids = ZONAS[zona]; if(!ids) return;
+var ZP_KEYS=['decidir','pessoas','piloto','negocio'];
+var admPivot=null; // {ir,atual} de YTBPivot.montar, depois de iniciado
+function aplicarZona(idx){
+  var zona=ZP_KEYS[idx];
+  __zonaAtiva=zona;
+  var ids=ZONAS[zona]||[];
   if(ids.includes('contas')) carregarContas();
   if(ids.includes('comissoes')) carregarComissoes();
   if(ids.includes('piloto')) carregarPainelPiloto();
-  __zonaAtiva = zona;
-  if(window.YTBPivot){
-    var ZP_KEYS=['decidir','pessoas','piloto','negocio'];
-    var ZP_ROT=['decidir <span class="badge badge-red" id="zona-bg-decidir">'+((document.getElementById('zona-bg-decidir')||{}).textContent||'0')+'</span>','pessoas','piloto','negócio'];
-    var h=document.querySelector('.tabs');
-    if(h) YTBPivot.titulos(h, ZP_KEYS.map(function(k,i){ return {rotulo:ZP_ROT[i], ir:function(){ showZona(k); }}; }), Math.max(0,ZP_KEYS.indexOf(zona)));
-  } else {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    let btn = ev && ev.currentTarget;
-    if(!btn){ btn = Array.from(document.querySelectorAll('.tab')).find(t => (t.getAttribute('onclick')||'').includes("'"+zona+"'")); }
-    if(btn) btn.classList.add('active');
-  }
-  var ksAnim=['decidir','pessoas','piloto','negocio'];
-  var dirAnim=(typeof __zonaAnterior!=='undefined' && ksAnim.indexOf(zona)<ksAnim.indexOf(__zonaAnterior))?-1:1;
-  window.__zonaAnterior=zona;
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  ids.forEach(id => { const s = document.getElementById('section-'+id); if(s){ garantirTitulo(s, id); s.classList.add('active'); if(window.YTBPivot) YTBPivot.anima(s, dirAnim); } });
   try{ window.scrollTo({top:0,behavior:'smooth'}); }catch(e){}
 }
-if(window.YTBPivot){
-  YTBPivot.deslize(document.body, function(d){
-    var ks=['decidir','pessoas','piloto','negocio'];
-    var i=Math.min(ks.length-1, Math.max(0, ks.indexOf(__zonaAtiva)+d));
-    if(ks[i]!==__zonaAtiva) showZona(ks[i]);
-  });
+function showZona(zona){
+  var idx=Math.max(0, ZP_KEYS.indexOf(zona));
+  if(admPivot) admPivot.ir(idx); else aplicarZona(idx);
 }
+// agrupa as secções por zona num contentor com scroll real (uma zona = um painel horizontal;
+// dentro da zona, as secções ficam empilhadas na vertical, como sempre estiveram)
+function iniciarPivotAdmin(){
+  if(!window.YTBPivot || admPivot) return;
+  var head=document.querySelector('.tabs'); if(!head) return;
+  var cont=document.getElementById('adm-pivot');
+  if(!cont){ cont=document.createElement('div'); cont.id='adm-pivot'; head.parentNode.insertBefore(cont, head.nextSibling); }
+  var ZP_ROT=['decidir','pessoas','piloto','negócio'];
+  var paineis=ZP_KEYS.map(function(zona,i){
+    var wrap=document.createElement('div'); wrap.className='zona-pivo-painel'; wrap.id='zona-painel-'+zona;
+    (ZONAS[zona]||[]).forEach(function(id){
+      var s=document.getElementById('section-'+id);
+      if(s){ garantirTitulo(s, id); wrap.appendChild(s); }
+    });
+    cont.appendChild(wrap);
+    var rot=ZP_ROT[i]+(zona==='decidir'?' <span class="badge badge-red" id="zona-bg-decidir">'+((document.getElementById('zona-bg-decidir')||{}).textContent||'0')+'</span>':'');
+    return {rotulo:rot, el:wrap};
+  });
+  admPivot=YTBPivot.montar(cont, head, paineis, Math.max(0,ZP_KEYS.indexOf(__zonaAtiva||'decidir')), aplicarZona);
+}
+document.addEventListener('DOMContentLoaded', iniciarPivotAdmin);
+if(document.readyState!=='loading') iniciarPivotAdmin();
 // compatibilidade: chamadas antigas showTab('pendentes') abrem a zona certa e
 // fazem scroll até à secção (usado pela fila de decisões e pelos KPIs clicáveis).
 function showTab(tab, ev){
@@ -794,7 +800,10 @@ async function load(){
     if(elTrein) elTrein.textContent = treinPend;
 
     renderFilaDecisoes(allPendentes.length, pedAbertos, treinPend);
-    if(!document.querySelector('.section.active')) showZona('decidir');
+    // o titulo "decidir" no pivot so se gera uma vez (iniciarPivotAdmin); o badge
+    // atualiza-se aqui diretamente, sem reconstruir o titulo nem mudar de zona.
+    var bDec=document.getElementById('zona-bg-decidir');
+    if(bDec) bDec.textContent = String(allPendentes.length + pedAbertos + treinPend);
     renderAtletas();
     renderPendentes();
     renderPedidos();
