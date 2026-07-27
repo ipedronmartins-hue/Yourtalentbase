@@ -306,70 +306,70 @@ Object.entries(CRIT_DEB).forEach(([crit,b])=>{ (BUCKET_CRITS[b]=BUCKET_CRITS[b]|
 //  equip      — equipamento necessário (para a família saber o que precisa).
 const EXERCICIOS={
   tecnica:[
-    {id:'te1',nome:'Pé fraco · passe à parede',obj:'30 toques limpos',desc:'A 3m de uma parede, passa só com o pé não-dominante e recebe. Espaço de corredor chega.',tempo:8,idadeMin:6,intensidade:1,equip:'bola + parede'},
-    {id:'te2',nome:'Toques alternados (juggling)',obj:'50 sem cair',desc:'Toques direito/esquerdo sem deixar cair. Começa a apanhar à mão a cada 2 toques.',tempo:6,idadeMin:5,intensidade:1,equip:'bola'},
-    {id:'te3',nome:'Domínio orientado curto',obj:'15 limpos',desc:'Lança contra a parede, recebe e orienta para o lado com o primeiro toque. Sem chutar forte.',tempo:7,idadeMin:8,intensidade:1,equip:'bola + parede'},
-    {id:'te4',nome:'Condução entre cones',obj:'10 idas e voltas',desc:'4 garrafas a 1m. Conduz a bola em ziguezague, toques curtos, cabeça levantada.',tempo:8,idadeMin:7,intensidade:2,equip:'bola + 4 cones'},
-    {id:'te5',nome:'Rolinhos com a sola',obj:'3×20',desc:'Rola a bola para a frente e para trás com a sola, alternando os pés. Controlo fino.',tempo:5,idadeMin:5,intensidade:1,equip:'bola'},
-    {id:'te6',nome:'Fintas no lugar (tesoura)',obj:'3×10 por pé',desc:'Passa o pé por cima da bola (tesoura) e sai para o lado contrário. Sem correr, só o gesto.',tempo:7,idadeMin:8,intensidade:2,equip:'bola'},
-    {id:'te7',nome:'Passe de precisão ao alvo',obj:'20 acertos',desc:'Marca um alvo na parede (fita). Acerta com passe raso, alternando os pés.',tempo:8,idadeMin:8,intensidade:1,equip:'bola + parede + fita'},
-    {id:'te8',nome:'Receção de bola alta',obj:'15 controlos',desc:'Lança a bola ao ar e amortece com o peito/coxa/pé, deixando-a morrer perto. Controlo de trajetória.',tempo:8,idadeMin:9,intensidade:2,equip:'bola'},
-    {id:'te9',nome:'Condução com mudança de ritmo',obj:'6×20m',desc:'Conduz lento e, ao sinal, acelera 3 toques rápidos e volta a controlar. Bola sempre perto.',tempo:9,idadeMin:10,intensidade:2,equip:'bola + espaço 20m'},
-    {id:'te10',nome:'Remate colocado (baixo)',obj:'20 remates',desc:'A 8-10m, remate raso e colocado a um alvo. Técnica, não potência. Alterna os pés.',tempo:10,idadeMin:10,intensidade:2,equip:'bola + baliza/alvo'},
-    {id:'te11',nome:'Primeiro toque em movimento',obj:'4×2 min',desc:'Recebe da parede em corrida leve e orienta para conduzir. Liga receção e condução.',tempo:9,idadeMin:11,intensidade:2,equip:'bola + parede'},
-    {id:'te12',nome:'Cabeceamento de segurança',obj:'3×8',desc:'Auto-lançamento suave e cabeceia com a testa para baixo. Volume muito baixo (a cabeça é sensível em formação).',tempo:6,idadeMin:12,intensidade:2,equip:'bola macia'}
+    {id:'te1',nome:'Pé fraco · passe à parede',obj:'30 toques limpos',desc:'A 3m de uma parede, passa só com o pé não-dominante e recebe. Espaço de corredor chega.',tempo:8,idadeMin:6,intensidade:1,equip:'bola + parede',espaco:1},
+    {id:'te2',nome:'Toques alternados (juggling)',obj:'50 sem cair',desc:'Toques direito/esquerdo sem deixar cair. Começa a apanhar à mão a cada 2 toques.',tempo:6,idadeMin:5,intensidade:1,equip:'bola',espaco:1},
+    {id:'te3',nome:'Domínio orientado curto',obj:'15 limpos',desc:'Lança contra a parede, recebe e orienta para o lado com o primeiro toque. Sem chutar forte.',tempo:7,idadeMin:8,intensidade:1,equip:'bola + parede',espaco:1},
+    {id:'te4',nome:'Condução entre cones',obj:'10 idas e voltas',desc:'4 garrafas a 1m. Conduz a bola em ziguezague, toques curtos, cabeça levantada.',tempo:8,idadeMin:7,intensidade:2,equip:'bola + 4 cones',espaco:2},
+    {id:'te5',nome:'Rolinhos com a sola',obj:'3×20',desc:'Rola a bola para a frente e para trás com a sola, alternando os pés. Controlo fino.',tempo:5,idadeMin:5,intensidade:1,equip:'bola',espaco:1},
+    {id:'te6',nome:'Fintas no lugar (tesoura)',obj:'3×10 por pé',desc:'Passa o pé por cima da bola (tesoura) e sai para o lado contrário. Sem correr, só o gesto.',tempo:7,idadeMin:8,intensidade:2,equip:'bola',espaco:1},
+    {id:'te7',nome:'Passe de precisão ao alvo',obj:'20 acertos',desc:'Marca um alvo na parede (fita). Acerta com passe raso, alternando os pés.',tempo:8,idadeMin:8,intensidade:1,equip:'bola + parede + fita',espaco:1},
+    {id:'te8',nome:'Receção de bola alta',obj:'15 controlos',desc:'Lança a bola ao ar e amortece com o peito/coxa/pé, deixando-a morrer perto. Controlo de trajetória.',tempo:8,idadeMin:9,intensidade:2,equip:'bola',espaco:2},
+    {id:'te9',nome:'Condução com mudança de ritmo',obj:'6×20m',desc:'Conduz lento e, ao sinal, acelera 3 toques rápidos e volta a controlar. Bola sempre perto.',tempo:9,idadeMin:10,intensidade:2,equip:'bola + espaço 20m',espaco:2},
+    {id:'te10',nome:'Remate colocado (baixo)',obj:'20 remates',desc:'A 8-10m, remate raso e colocado a um alvo. Técnica, não potência. Alterna os pés.',tempo:10,idadeMin:10,intensidade:2,equip:'bola + baliza/alvo',espaco:3},
+    {id:'te11',nome:'Primeiro toque em movimento',obj:'4×2 min',desc:'Recebe da parede em corrida leve e orienta para conduzir. Liga receção e condução.',tempo:9,idadeMin:11,intensidade:2,equip:'bola + parede',espaco:1},
+    {id:'te12',nome:'Cabeceamento de segurança',obj:'3×8',desc:'Auto-lançamento suave e cabeceia com a testa para baixo. Volume muito baixo (a cabeça é sensível em formação).',tempo:6,idadeMin:12,intensidade:2,equip:'bola macia',espaco:1}
   ],
   fisico:[
     // — mobilidade / alongamentos (seguros para todas as idades; aquecimento e recuperação) —
-    {id:'fi1',nome:'Mobilidade dinâmica de aquecimento',obj:'6 min',desc:'Rotações de anca, balanços de perna, tornozelos, ombros. Prepara o corpo antes de tudo.',tempo:6,idadeMin:5,intensidade:1,equip:'nenhum'},
-    {id:'fi2',nome:'Alongamento de recuperação',obj:'8 min',desc:'Isquiotibiais, quadricípite, gémeos, anca — 30s cada, sem molas. No fim da sessão.',tempo:8,idadeMin:6,intensidade:1,equip:'tapete'},
-    {id:'fi3',nome:'Mobilidade de tornozelo e anca',obj:'3×10',desc:'Agachamento profundo assistido + círculos de tornozelo. Amplitude para conduzir e rematar.',tempo:6,idadeMin:8,intensidade:1,equip:'nenhum'},
+    {id:'fi1',nome:'Mobilidade dinâmica de aquecimento',obj:'6 min',desc:'Rotações de anca, balanços de perna, tornozelos, ombros. Prepara o corpo antes de tudo.',tempo:6,idadeMin:5,intensidade:1,equip:'nenhum',espaco:1},
+    {id:'fi2',nome:'Alongamento de recuperação',obj:'8 min',desc:'Isquiotibiais, quadricípite, gémeos, anca — 30s cada, sem molas. No fim da sessão.',tempo:8,idadeMin:6,intensidade:1,equip:'tapete',espaco:1},
+    {id:'fi3',nome:'Mobilidade de tornozelo e anca',obj:'3×10',desc:'Agachamento profundo assistido + círculos de tornozelo. Amplitude para conduzir e rematar.',tempo:6,idadeMin:8,intensidade:1,equip:'nenhum',espaco:1},
     // — coordenação / core (base, baixo impacto) —
-    {id:'fi4',nome:'Skipping no lugar',obj:'4×30s',desc:'Joelhos à cintura, no mesmo sítio, contacto leve no solo. Coordenação e cadência.',tempo:6,idadeMin:8,intensidade:2,equip:'nenhum'},
-    {id:'fi5',nome:'Prancha',obj:'3×30s',desc:'Core estável, corpo em linha, sem descair a anca. No tapete.',tempo:5,idadeMin:9,intensidade:2,equip:'tapete'},
-    {id:'fi6',nome:'Prancha lateral',obj:'3×20s por lado',desc:'Apoio no antebraço e no pé, anca no ar. Estabilidade lateral do tronco.',tempo:5,idadeMin:10,intensidade:2,equip:'tapete'},
-    {id:'fi7',nome:'Ponte de glúteos',obj:'3×15',desc:'De costas, sobe a anca apertando o rabo. Força posterior sem carga na coluna.',tempo:5,idadeMin:9,intensidade:1,equip:'tapete'},
-    {id:'fi8',nome:'Escada de coordenação (linha)',obj:'5×15m',desc:'Passos rápidos sobre uma linha/escada desenhada: dentro-dentro-fora. Pés rápidos.',tempo:7,idadeMin:9,intensidade:2,equip:'fita/giz'},
+    {id:'fi4',nome:'Skipping no lugar',obj:'4×30s',desc:'Joelhos à cintura, no mesmo sítio, contacto leve no solo. Coordenação e cadência.',tempo:6,idadeMin:8,intensidade:2,equip:'nenhum',espaco:1},
+    {id:'fi5',nome:'Prancha',obj:'3×30s',desc:'Core estável, corpo em linha, sem descair a anca. No tapete.',tempo:5,idadeMin:9,intensidade:2,equip:'tapete',espaco:1},
+    {id:'fi6',nome:'Prancha lateral',obj:'3×20s por lado',desc:'Apoio no antebraço e no pé, anca no ar. Estabilidade lateral do tronco.',tempo:5,idadeMin:10,intensidade:2,equip:'tapete',espaco:1},
+    {id:'fi7',nome:'Ponte de glúteos',obj:'3×15',desc:'De costas, sobe a anca apertando o rabo. Força posterior sem carga na coluna.',tempo:5,idadeMin:9,intensidade:1,equip:'tapete',espaco:1},
+    {id:'fi8',nome:'Escada de coordenação (linha)',obj:'5×15m',desc:'Passos rápidos sobre uma linha/escada desenhada: dentro-dentro-fora. Pés rápidos.',tempo:7,idadeMin:9,intensidade:2,equip:'fita/giz',espaco:1},
     // — força com peso corporal (moderada) —
-    {id:'fi9',nome:'Agachamentos',obj:'3×15',desc:'Costas direitas, desce devagar até coxa paralela, sobe controlado. Só peso do corpo.',tempo:6,idadeMin:10,intensidade:2,equip:'nenhum'},
-    {id:'fi10',nome:'Afundos (lunges)',obj:'3×10 por perna',desc:'Passo à frente, joelho de trás quase ao chão, sobe. Força unilateral e equilíbrio.',tempo:7,idadeMin:11,intensidade:2,equip:'nenhum'},
-    {id:'fi11',nome:'Flexões (adaptadas)',obj:'3×máx',desc:'Flexões de braços; apoiar os joelhos se necessário. Empurrar controlado.',tempo:6,idadeMin:11,intensidade:2,equip:'tapete'},
-    {id:'fi12',nome:'Elevação de gémeos',obj:'3×20',desc:'Em pé, sobe nas pontas dos pés e desce devagar. Tornozelo forte para acelerar e saltar.',tempo:5,idadeMin:10,intensidade:2,equip:'nenhum'},
-    {id:'fi13',nome:'Agachamento com salto suave',obj:'4×10',desc:'Agacha e sobe com pequeno salto, aterrando com joelhos macios. Introdução leve à explosão.',tempo:6,idadeMin:12,intensidade:2,equip:'nenhum'},
+    {id:'fi9',nome:'Agachamentos',obj:'3×15',desc:'Costas direitas, desce devagar até coxa paralela, sobe controlado. Só peso do corpo.',tempo:6,idadeMin:10,intensidade:2,equip:'nenhum',espaco:1},
+    {id:'fi10',nome:'Afundos (lunges)',obj:'3×10 por perna',desc:'Passo à frente, joelho de trás quase ao chão, sobe. Força unilateral e equilíbrio.',tempo:7,idadeMin:11,intensidade:2,equip:'nenhum',espaco:1},
+    {id:'fi11',nome:'Flexões (adaptadas)',obj:'3×máx',desc:'Flexões de braços; apoiar os joelhos se necessário. Empurrar controlado.',tempo:6,idadeMin:11,intensidade:2,equip:'tapete',espaco:1},
+    {id:'fi12',nome:'Elevação de gémeos',obj:'3×20',desc:'Em pé, sobe nas pontas dos pés e desce devagar. Tornozelo forte para acelerar e saltar.',tempo:5,idadeMin:10,intensidade:2,equip:'nenhum',espaco:1},
+    {id:'fi13',nome:'Agachamento com salto suave',obj:'4×10',desc:'Agacha e sobe com pequeno salto, aterrando com joelhos macios. Introdução leve à explosão.',tempo:6,idadeMin:12,intensidade:2,equip:'nenhum',espaco:1},
     // — resistência aeróbica —
-    {id:'fi14',nome:'Corrida contínua leve',obj:'12-15 min',desc:'Ritmo confortável em que consegue falar. Base aeróbica, sem picos.',tempo:14,idadeMin:9,intensidade:2,equip:'espaço/rua'},
-    {id:'fi15',nome:'Corrida com bola em ritmo',obj:'6×1 min',desc:'Conduz a bola a trote constante 1 min, 30s a andar. Junta técnica e fôlego.',tempo:10,idadeMin:10,intensidade:2,equip:'bola + espaço'},
-    {id:'fi16',nome:'Circuito contínuo (base)',obj:'3 voltas',desc:'Skipping 30s → agachamentos 10 → prancha 20s → trote 1 min, sem parar. Resistência geral.',tempo:12,idadeMin:11,intensidade:2,equip:'nenhum'},
+    {id:'fi14',nome:'Corrida contínua leve',obj:'12-15 min',desc:'Ritmo confortável em que consegue falar. Base aeróbica, sem picos.',tempo:14,idadeMin:9,intensidade:2,equip:'espaço/rua',espaco:2},
+    {id:'fi15',nome:'Corrida com bola em ritmo',obj:'6×1 min',desc:'Conduz a bola a trote constante 1 min, 30s a andar. Junta técnica e fôlego.',tempo:10,idadeMin:10,intensidade:2,equip:'bola + espaço',espaco:2},
+    {id:'fi16',nome:'Circuito contínuo (base)',obj:'3 voltas',desc:'Skipping 30s → agachamentos 10 → prancha 20s → trote 1 min, sem parar. Resistência geral.',tempo:12,idadeMin:11,intensidade:2,equip:'nenhum',espaco:1},
     // — alta intensidade (só a partir de 13; NUNCA para os mais novos) —
-    {id:'fi17',nome:'Saltos laterais explosivos',obj:'4×20',desc:'Salta de lado sobre uma linha, rápido e reativo, aterragem macia. Pliometria ligeira.',tempo:6,idadeMin:13,intensidade:3,equip:'nenhum'},
-    {id:'fi18',nome:'Tabata (cardio HIIT)',obj:'8×20s/10s',desc:'20s no máximo (polichinelos/skipping alto/burpees) + 10s descanso, 8 rondas. Muito exigente.',tempo:8,idadeMin:13,intensidade:3,equip:'nenhum'},
-    {id:'fi19',nome:'Acelerações em rampa',obj:'6×20m',desc:'Sprints curtos a subir uma rampa/ladeira suave, caminhar a descer a recuperar. Potência e mecânica.',tempo:12,idadeMin:13,intensidade:3,equip:'rampa/ladeira'},
-    {id:'fi20',nome:'Sprints com mudança de direção',obj:'8×15m',desc:'Sprint, trava, muda 90° e volta a acelerar. Agilidade a alta velocidade.',tempo:10,idadeMin:13,intensidade:3,equip:'2 cones + espaço'},
-    {id:'fi21',nome:'Pliometria: saltos ao caixote',obj:'4×8',desc:'Salto a dois pés para um caixote baixo (20-30cm), desce a andar. Aterragem controlada.',tempo:8,idadeMin:14,intensidade:3,equip:'caixote/degrau firme'},
-    {id:'fi22',nome:'Circuito de força sénior',obj:'4 rondas',desc:'Agachamento com salto 12 → flexões 12 → afundos com salto 10 → prancha 45s. Volume e intensidade altos.',tempo:16,idadeMin:16,intensidade:3,equip:'tapete'},
-    {id:'fi23',nome:'Sprints de resistência (repetidos)',obj:'10×40m',desc:'40m a ~90%, 40m a andar. Capacidade de repetir esforços — muito exigente, só corpos maduros.',tempo:14,idadeMin:16,intensidade:3,equip:'espaço 40m'}
+    {id:'fi17',nome:'Saltos laterais explosivos',obj:'4×20',desc:'Salta de lado sobre uma linha, rápido e reativo, aterragem macia. Pliometria ligeira.',tempo:6,idadeMin:13,intensidade:3,equip:'nenhum',espaco:1},
+    {id:'fi18',nome:'Tabata (cardio HIIT)',obj:'8×20s/10s',desc:'20s no máximo (polichinelos/skipping alto/burpees) + 10s descanso, 8 rondas. Muito exigente.',tempo:8,idadeMin:13,intensidade:3,equip:'nenhum',espaco:1},
+    {id:'fi19',nome:'Acelerações em rampa',obj:'6×20m',desc:'Sprints curtos a subir uma rampa/ladeira suave, caminhar a descer a recuperar. Potência e mecânica.',tempo:12,idadeMin:13,intensidade:3,equip:'rampa/ladeira',espaco:2},
+    {id:'fi20',nome:'Sprints com mudança de direção',obj:'8×15m',desc:'Sprint, trava, muda 90° e volta a acelerar. Agilidade a alta velocidade.',tempo:10,idadeMin:13,intensidade:3,equip:'2 cones + espaço',espaco:2},
+    {id:'fi21',nome:'Pliometria: saltos ao caixote',obj:'4×8',desc:'Salto a dois pés para um caixote baixo (20-30cm), desce a andar. Aterragem controlada.',tempo:8,idadeMin:14,intensidade:3,equip:'caixote/degrau firme',espaco:1},
+    {id:'fi22',nome:'Circuito de força sénior',obj:'4 rondas',desc:'Agachamento com salto 12 → flexões 12 → afundos com salto 10 → prancha 45s. Volume e intensidade altos.',tempo:16,idadeMin:16,intensidade:3,equip:'tapete',espaco:1},
+    {id:'fi23',nome:'Sprints de resistência (repetidos)',obj:'10×40m',desc:'40m a ~90%, 40m a andar. Capacidade de repetir esforços — muito exigente, só corpos maduros.',tempo:14,idadeMin:16,intensidade:3,equip:'espaço 40m',espaco:2}
   ],
   decisao:[
-    {id:'de1',nome:'Cores ao sinal',obj:'3 séries',desc:'Alguém diz uma cor; tocas nesse objeto com a sola na bola. Decisão rápida sob estímulo.',tempo:7,idadeMin:5,intensidade:1,equip:'bola + objetos coloridos'},
-    {id:'de2',nome:'Espelho com bola',obj:'5 min',desc:'Imita os movimentos de quem está à tua frente, bola nos pés. Reação e leitura.',tempo:6,idadeMin:8,intensidade:2,equip:'bola'},
-    {id:'de3',nome:'Números ao sinal',obj:'3×2 min',desc:'Cada cone tem um número; ao ouvir o número, conduz a bola até esse cone. Processar + executar.',tempo:8,idadeMin:9,intensidade:2,equip:'bola + cones numerados'},
-    {id:'de4',nome:'Passe à cor certa',obj:'20 decisões',desc:'Dois alvos de cores; quem ajuda grita a cor no momento do passe. Decidir tarde, executar bem.',tempo:8,idadeMin:10,intensidade:2,equip:'bola + 2 alvos'},
-    {id:'de5',nome:'1v1 ao sinal',obj:'8 duelos',desc:'Parte ao sinal para um 1v1 curto com um familiar como obstáculo passivo. Escolher o lado livre.',tempo:9,idadeMin:11,intensidade:2,equip:'bola + espaço'},
-    {id:'de6',nome:'Scan: olhar antes de receber',obj:'4×2 min',desc:'Antes de cada receção da parede, olha por cima do ombro e diz um objeto que viu. Cria o hábito de ver.',tempo:8,idadeMin:11,intensidade:2,equip:'bola + parede'}
+    {id:'de1',nome:'Cores ao sinal',obj:'3 séries',desc:'Alguém diz uma cor; tocas nesse objeto com a sola na bola. Decisão rápida sob estímulo.',tempo:7,idadeMin:5,intensidade:1,equip:'bola + objetos coloridos',espaco:1},
+    {id:'de2',nome:'Espelho com bola',obj:'5 min',desc:'Imita os movimentos de quem está à tua frente, bola nos pés. Reação e leitura.',tempo:6,idadeMin:8,intensidade:2,equip:'bola',espaco:1},
+    {id:'de3',nome:'Números ao sinal',obj:'3×2 min',desc:'Cada cone tem um número; ao ouvir o número, conduz a bola até esse cone. Processar + executar.',tempo:8,idadeMin:9,intensidade:2,equip:'bola + cones numerados',espaco:2},
+    {id:'de4',nome:'Passe à cor certa',obj:'20 decisões',desc:'Dois alvos de cores; quem ajuda grita a cor no momento do passe. Decidir tarde, executar bem.',tempo:8,idadeMin:10,intensidade:2,equip:'bola + 2 alvos',espaco:1},
+    {id:'de5',nome:'1v1 ao sinal',obj:'8 duelos',desc:'Parte ao sinal para um 1v1 curto com um familiar como obstáculo passivo. Escolher o lado livre.',tempo:9,idadeMin:11,intensidade:2,equip:'bola + espaço',espaco:2},
+    {id:'de6',nome:'Scan: olhar antes de receber',obj:'4×2 min',desc:'Antes de cada receção da parede, olha por cima do ombro e diz um objeto que viu. Cria o hábito de ver.',tempo:8,idadeMin:11,intensidade:2,equip:'bola + parede',espaco:1}
   ],
   tatica:[
-    {id:'ta1',nome:'Vídeo + 3 perguntas',obj:'1 clip',desc:'Vê 5 min de um jogo. Responde a "porquê este passe?", "para onde ias?", "e o adversário?".',tempo:10,idadeMin:8,intensidade:1,equip:'ecrã'},
-    {id:'ta2',nome:'Sombra posicional',obj:'5 min',desc:'Sem bola, ocupa a posição certa conforme uma bola imaginária que alguém aponta. Posicionamento.',tempo:6,idadeMin:9,intensidade:1,equip:'nenhum'},
-    {id:'ta3',nome:'Mapa da posição',obj:'desenhar',desc:'Desenha o campo e marca onde deve estar na tua posição em 3 situações (ataque/defesa/transição).',tempo:8,idadeMin:10,intensidade:1,equip:'papel'},
-    {id:'ta4',nome:'Apoio e ângulo',obj:'4×2 min',desc:'Com um familiar com bola, desloca-te sempre para criar linha de passe (ângulo aberto). Oferecer-se.',tempo:9,idadeMin:11,intensidade:2,equip:'bola'},
-    {id:'ta5',nome:'Basculação (defesa)',obj:'5 min',desc:'Desloca-te lado a lado conforme a bola imaginária, mantendo distância e orientação. Trabalho defensivo.',tempo:7,idadeMin:12,intensidade:2,equip:'nenhum'}
+    {id:'ta1',nome:'Vídeo + 3 perguntas',obj:'1 clip',desc:'Vê 5 min de um jogo. Responde a "porquê este passe?", "para onde ias?", "e o adversário?".',tempo:10,idadeMin:8,intensidade:1,equip:'ecrã',espaco:1},
+    {id:'ta2',nome:'Sombra posicional',obj:'5 min',desc:'Sem bola, ocupa a posição certa conforme uma bola imaginária que alguém aponta. Posicionamento.',tempo:6,idadeMin:9,intensidade:1,equip:'nenhum',espaco:1},
+    {id:'ta3',nome:'Mapa da posição',obj:'desenhar',desc:'Desenha o campo e marca onde deve estar na tua posição em 3 situações (ataque/defesa/transição).',tempo:8,idadeMin:10,intensidade:1,equip:'papel',espaco:1},
+    {id:'ta4',nome:'Apoio e ângulo',obj:'4×2 min',desc:'Com um familiar com bola, desloca-te sempre para criar linha de passe (ângulo aberto). Oferecer-se.',tempo:9,idadeMin:11,intensidade:2,equip:'bola',espaco:1},
+    {id:'ta5',nome:'Basculação (defesa)',obj:'5 min',desc:'Desloca-te lado a lado conforme a bola imaginária, mantendo distância e orientação. Trabalho defensivo.',tempo:7,idadeMin:12,intensidade:2,equip:'nenhum',espaco:1}
   ],
   mental:[
-    {id:'me1',nome:'Diário de 1 objetivo',obj:'escrever',desc:'Antes do treino escreve 1 objetivo simples. No fim avalia se cumpriu. Foco e compromisso.',tempo:4,idadeMin:6,intensidade:1,equip:'papel'},
-    {id:'me2',nome:'Repetir após erro',obj:'10 reps',desc:'Faz um gesto técnico; se falhar, repete calmo, sem frustração. Resiliência.',tempo:7,idadeMin:6,intensidade:1,equip:'bola'},
-    {id:'me3',nome:'Respiração antes de rematar',obj:'10 remates',desc:'Uma respiração lenta antes de cada remate ao alvo. Controlo do impulso, rotina pré-ação.',tempo:6,idadeMin:9,intensidade:1,equip:'bola + alvo'},
-    {id:'me4',nome:'3 coisas boas',obj:'escrever',desc:'Depois do treino, escreve 3 coisas que correram bem. Constrói confiança realista.',tempo:4,idadeMin:9,intensidade:1,equip:'papel'},
-    {id:'me5',nome:'Foco 5-4-3-2-1',obj:'2 min',desc:'Antes de treinar, nomeia 5 coisas que vês, 4 que ouves, etc. Traz a cabeça para o presente.',tempo:3,idadeMin:11,intensidade:1,equip:'nenhum'}
+    {id:'me1',nome:'Diário de 1 objetivo',obj:'escrever',desc:'Antes do treino escreve 1 objetivo simples. No fim avalia se cumpriu. Foco e compromisso.',tempo:4,idadeMin:6,intensidade:1,equip:'papel',espaco:1},
+    {id:'me2',nome:'Repetir após erro',obj:'10 reps',desc:'Faz um gesto técnico; se falhar, repete calmo, sem frustração. Resiliência.',tempo:7,idadeMin:6,intensidade:1,equip:'bola',espaco:1},
+    {id:'me3',nome:'Respiração antes de rematar',obj:'10 remates',desc:'Uma respiração lenta antes de cada remate ao alvo. Controlo do impulso, rotina pré-ação.',tempo:6,idadeMin:9,intensidade:1,equip:'bola + alvo',espaco:1},
+    {id:'me4',nome:'3 coisas boas',obj:'escrever',desc:'Depois do treino, escreve 3 coisas que correram bem. Constrói confiança realista.',tempo:4,idadeMin:9,intensidade:1,equip:'papel',espaco:1},
+    {id:'me5',nome:'Foco 5-4-3-2-1',obj:'2 min',desc:'Antes de treinar, nomeia 5 coisas que vês, 4 que ouves, etc. Traz a cabeça para o presente.',tempo:3,idadeMin:11,intensidade:1,equip:'nenhum',espaco:1}
   ]
 };
 const CICLOS=[
@@ -1045,7 +1045,20 @@ function gerarPlano(debs, idadeAtleta){
         // missão curta (só em época): para com 2 exercícios se já leva >= 12 min
         if(!ehPreEpoca && sessao.length>=2 && sessao.reduce((a,e)=>a+(e.tempo||0),0)>=tetoMinutos) break;
       }
-      sessoes.push(sessao);
+      // Alternativas por espaço: o miúdo pode estar em casa, à chuva, sem campo.
+      // Guardamos aqui (e não no cliente da família) porque as barreiras de idade e
+      // o teto de intensidade já foram aplicados a este pool — a alternativa nasce
+      // tão segura quanto o exercício principal.
+      const comAlt = sessao.map(ex=>{
+        const nivel = ex.espaco||1;
+        if(nivel<=1) return ex;
+        const mesmaCat = c => base.filter(a=>(a.espaco||1)<=c && a.id!==ex.id && !usados.has(a.id));
+        const o = Object.assign({}, ex);
+        const a1 = mesmaCat(1)[0]; if(a1) o.alt1 = a1;
+        if(nivel>2){ const a2 = mesmaCat(2)[0]; if(a2) o.alt2 = a2; }
+        return o;
+      });
+      sessoes.push(comAlt);
     }
     plano.push({ciclo:ciclo,sessoes:sessoes});
   });

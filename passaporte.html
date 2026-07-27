@@ -504,6 +504,43 @@
     var st=document.createElement('style'); st.id='tr-css'; st.textContent=css; document.head.appendChild(st);
   }
   function isFeita(w,s){ return ((window.__treino&&window.__treino.feitas)||[]).some(function(f){return f.semana===w+1 && f.sessao===s+1;}); }
+
+  /* ── Onde vais treinar hoje ──
+     A realidade do miúdo muda todos os dias: chove, não há campo, só há um corredor.
+     O plano NÃO muda — mesmas semanas, mesmas sessões, mesmo denominador de adesão.
+     O que muda é qual variante de cada exercício se mostra. As alternativas foram
+     geradas na prescrição, já filtradas pela idade e pelo teto de intensidade. */
+  var ESPACOS=[[1,'🏠','Em casa','sem espaço · corredor, parede'],
+               [2,'🌳','No exterior','com espaço · jardim, rua, parque'],
+               [3,'🥅','No campo','balizas e espaço completo']];
+  function espacoAtual(){ try{ return parseInt(localStorage.getItem('ytb-espaco'),10)||3; }catch(e){ return 3; } }
+  window.__exParaEspaco=function(ex){
+    if(!ex) return ex;
+    var n=espacoAtual(), need=ex.espaco||1;
+    if(need<=n) return ex;
+    var alt=(n<=1?ex.alt1:(ex.alt2||ex.alt1));
+    if(!alt) return ex;                       // sem alternativa: mostra o original, honesto
+    var o=Object.assign({},alt); o.__adaptado=true; return o;
+  };
+  window.__espacoMudar=function(n){
+    try{ localStorage.setItem('ytb-espaco',String(n)); }catch(e){}
+    if(window.__treinoRender) window.__treinoRender();
+    toast('Treino adaptado a: '+(ESPACOS.filter(function(e){return e[0]===n;})[0]||[])[2]);
+  };
+  function espacoSeletorHTML(){
+    var at=espacoAtual();
+    return '<div style="margin:14px 0 4px"><div style="font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:7px">Onde vais treinar hoje</div>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px">'
+      + ESPACOS.map(function(e){
+          var on=(e[0]===at);
+          return '<button type="button" onclick="window.__espacoMudar('+e[0]+')" style="font-family:inherit;cursor:pointer;text-align:center;border-radius:10px;padding:10px 6px;line-height:1.25;'
+            +(on?'background:var(--text);color:var(--bg);border:1px solid var(--text)':'background:transparent;color:var(--slate);border:1px solid var(--border)')+'">'
+            +'<div style="font-size:16px">'+e[1]+'</div>'
+            +'<div style="font-size:11px;font-weight:800;margin-top:2px">'+e[2]+'</div>'
+            +'<div style="font-size:9px;font-weight:600;opacity:.75;margin-top:1px">'+e[3]+'</div></button>';
+        }).join('')
+      +'</div></div>';
+  }
   function carregarTreino(atletaId){
     if(!USING_SB || !atletaId) return;
     treinoCSS();
@@ -533,6 +570,7 @@
   function renderTreino(){
     var T=window.__treino, plano=T.plano||[];
     if(!plano.length) return;
+    window.__treinoRender=renderTreino;
     var obj=window.YTBObjetivos?YTBObjetivos.objetivoDoPlano(T.debilidades):null;
     var nome=primeiroNome();
 
@@ -556,6 +594,7 @@
     }
     html+='<div class="barx" style="margin-top:12px"><i style="width:'+pct+'%;background:var(--up)"></i></div>'
       +'<div style="font-size:13px;color:var(--slate);margin-top:6px">'+feitasN+' de '+totSess+' missões técnicas cumpridas · '+pct+'%</div>'
+      + espacoSeletorHTML()
       +'<button id="btn-plano-pdf" onclick="window.__trPDF()" style="margin-top:12px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:10px;padding:11px 16px;font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:14px;cursor:pointer">⬇ Exportar em PDF</button></div>';
 
     // check-in pós-jogo cego: 1 pergunta ligada ao objetivo; esconde 4 dias após
@@ -592,10 +631,11 @@
         html+='<div class="tr-ss'+(feita?' done':'')+'" id="tr-ss-'+wi+'-'+si+'">';
         html+='<button class="tr-ss-h" onclick="window.__trToggleSs('+wi+','+si+')"><span class="tr-ss-nm">⚡ Missão Técnica'+(nSess>1?(' '+(si+1)):'')+' · '+min+' min</span><span class="tr-ss-st">'+(feita?'✓ cumprida':'▸')+'</span></button>';
         html+='<div class="tr-ss-b" id="tr-ssb-'+wi+'-'+si+'" style="display:none">';
-        sess.forEach(function(ex,ei){
+        sess.forEach(function(exRaw,ei){
+          var ex=window.__exParaEspaco(exRaw);
           html+='<div class="tr-ex">'
             +'<div data-exanim data-exid="'+esc(ex.id||'')+'" data-exnome="'+esc(ex.nome||'')+'"></div>'
-            +'<div class="tr-ex-nm">'+(ei+1)+'. '+esc(ex.nome||'')+'</div>'
+            +'<div class="tr-ex-nm">'+(ei+1)+'. '+esc(ex.nome||'')+(ex.__adaptado?' <span style="font-size:10px;color:var(--gold);font-weight:700">· adaptado</span>':'')+'</div>'
             +(ex.obj?'<div class="tr-ex-o">🎯 '+esc(ex.obj)+'</div>':'')
             +(ex.desc?'<div class="tr-ex-d">'+esc(ex.desc)+'</div>':'')
             +'<div class="tr-ex-m">⏱ '+(ex.tempo||0)+' min</div></div>';
@@ -808,7 +848,7 @@
       +'<button id="cr-x" style="background:transparent;border:1px solid #803;color:#f88;border-radius:10px;padding:12px 22px;font-size:14px;font-weight:800;font-family:inherit">✕ Sair</button></div>';
     document.body.appendChild(ov);
     function tick(){ var m=Math.max(0,Math.floor(resta/60)),sec=Math.max(0,resta%60); document.getElementById('cr-t').textContent=String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0'); }
-    function carrega(){ var ex=lista[i]; if(!ex){ fim(); return; } document.getElementById('cr-p').textContent='Exercício '+(i+1)+' de '+lista.length; if(window.YTBExAnim){ var ca=document.getElementById('cr-anim'); if(ca){ YTBExAnim.mount(ca, ex); ca.classList.add('on'); } } document.getElementById('cr-n').textContent=ex.nome||''; document.getElementById('cr-o').textContent=ex.obj?('🎯 '+ex.obj):''; document.getElementById('cr-d').textContent=ex.desc||''; resta=(ex.tempo||1)*60; tick(); clearInterval(timer); timer=setInterval(function(){ if(!pausa){ resta--; tick(); if(resta<=0) prox(); } },1000); }
+    function carrega(){ var ex=window.__exParaEspaco(lista[i]); if(!ex){ fim(); return; } document.getElementById('cr-p').textContent='Exercício '+(i+1)+' de '+lista.length; if(window.YTBExAnim){ var ca=document.getElementById('cr-anim'); if(ca){ YTBExAnim.mount(ca, ex); ca.classList.add('on'); } } document.getElementById('cr-n').textContent=ex.nome||''; document.getElementById('cr-o').textContent=ex.obj?('🎯 '+ex.obj):''; document.getElementById('cr-d').textContent=ex.desc||''; resta=(ex.tempo||1)*60; tick(); clearInterval(timer); timer=setInterval(function(){ if(!pausa){ resta--; tick(); if(resta<=0) prox(); } },1000); }
     function prox(){ i++; if(i>=lista.length) fim(); else carrega(); }
     function fim(){ clearInterval(timer); ov.remove(); window.__trFeedback(w,s); }
     document.getElementById('cr-pause').onclick=function(){ pausa=!pausa; this.textContent=pausa?'▶ Retomar':'⏸ Pausa'; };
