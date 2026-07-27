@@ -372,6 +372,10 @@ const EXERCICIOS={
     {id:'me5',nome:'Foco 5-4-3-2-1',obj:'2 min',desc:'Antes de treinar, nomeia 5 coisas que vês, 4 que ouves, etc. Traz a cabeça para o presente.',tempo:3,idadeMin:11,intensidade:1,equip:'nenhum',espaco:1}
   ]
 };
+// mapa id→categoria, para a alternativa de espaço nunca trocar o tipo de estímulo
+// (ex.: um exercício de físico não pode virar um de técnica só por caber em casa).
+const CAT_DE_EXERCICIO={};
+Object.entries(EXERCICIOS).forEach(([cat,lista])=>lista.forEach(e=>{ CAT_DE_EXERCICIO[e.id]=cat; }));
 const CICLOS=[
   {nome:'Fundação',emoji:'🔧',desc:'Técnica base e hábito'},
   {nome:'Construção',emoji:'🏗️',desc:'Intensidade e decisão'},
@@ -1048,14 +1052,23 @@ function gerarPlano(debs, idadeAtleta){
       // Alternativas por espaço: o miúdo pode estar em casa, à chuva, sem campo.
       // Guardamos aqui (e não no cliente da família) porque as barreiras de idade e
       // o teto de intensidade já foram aplicados a este pool — a alternativa nasce
-      // tão segura quanto o exercício principal.
+      // tão segura quanto o exercício principal. A troca fica dentro da MESMA
+      // categoria (físico→físico, técnica→técnica) — sem isto, "base" mistura
+      // categorias (a sessão sem foco leva sempre técnica+físico juntos) e a
+      // "alternativa" podia trocar um exercício de físico por um de técnica só
+      // por caber no espaço, mudando o que a sessão treina, não só onde treina.
+      // Entre candidatos válidos, prefere-se a intensidade mais parecida à
+      // do exercício original.
       const comAlt = sessao.map(ex=>{
         const nivel = ex.espaco||1;
         if(nivel<=1) return ex;
-        const mesmaCat = c => base.filter(a=>(a.espaco||1)<=c && a.id!==ex.id && !usados.has(a.id));
+        const catEx = CAT_DE_EXERCICIO[ex.id];
+        const candidatos = c => base
+          .filter(a=>(a.espaco||1)<=c && a.id!==ex.id && !usados.has(a.id) && CAT_DE_EXERCICIO[a.id]===catEx)
+          .sort((a,b)=>Math.abs((a.intensidade||1)-(ex.intensidade||1))-Math.abs((b.intensidade||1)-(ex.intensidade||1)));
         const o = Object.assign({}, ex);
-        const a1 = mesmaCat(1)[0]; if(a1) o.alt1 = a1;
-        if(nivel>2){ const a2 = mesmaCat(2)[0]; if(a2) o.alt2 = a2; }
+        const a1 = candidatos(1)[0]; if(a1) o.alt1 = a1;
+        if(nivel>2){ const a2 = candidatos(2)[0]; if(a2) o.alt2 = a2; }
         return o;
       });
       sessoes.push(comAlt);
