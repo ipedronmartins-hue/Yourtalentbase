@@ -1048,6 +1048,20 @@
   };
 
   var POSICOES_FAM=[['','—'],['GR','Guarda-Redes'],['DC','Defesa Central'],['LD','Lateral Direito'],['LE','Lateral Esquerdo'],['MD','Médio Defensivo'],['MC','Médio Centro'],['MO','Médio Ofensivo'],['ED','Extremo Direito'],['EE','Extremo Esquerdo'],['PL','Ponta de Lança'],['AV','Avançado']];
+  /* Diário de treinos — vive na aba "O que fazer agora", não na de dados.
+     Razão: alimenta o streak. Um miúdo que chega do treino do clube regista no
+     momento; se estiver enterrado numa aba de manutenção, não regista, e a
+     sequência quebra — precisamente o retorno que a Regra de Ouro exige. */
+  function renderDiario(){
+    var box=document.getElementById('fam-diario'); if(!box) return;
+    box.innerHTML='<div class="shead">Diário de treinos</div><div class="panel" id="diario-card">'
+     +'<div class="sub" style="margin-bottom:10px">Treinaste hoje fora do plano? Jogo, treino do clube ou por tua conta — tudo conta para a sequência e fica no percurso.</div>'
+     +'<div class="fam-row" id="di-tipos">'+[['livre','⚽ Livre'],['jogo','🏟️ Jogo'],['clube','🏃 Clube']].map(function(o){return '<button class="fam-chip'+(o[0]==='livre'?' on':'')+'" data-tipo="'+o[0]+'" onclick="window.__diTipo(this)">'+o[1]+'</button>';}).join('')+'</div>'
+     +'<div class="fam-row" id="di-mins">'+[30,45,60,90].map(function(m){return '<button class="fam-chip'+(m===60?' on':'')+'" data-min="'+m+'" onclick="window.__diMin(this)">'+m+'&#39;</button>';}).join('')+'</div>'
+     +'<input class="fam-input" id="di-nota" type="text" placeholder="Nota (opcional): onde, com quem, como correu">'
+     +'<button class="fam-btn" onclick="window.__diGravar()">Registar no diário →</button></div>';
+  }
+
   function renderFamTools(){
     var box=document.getElementById('fam-tools'); if(!box) return;
     box.innerHTML='<div class="shead">O meu perfil</div><div class="panel" id="perfil-card">'
@@ -1085,12 +1099,6 @@
      +'<div class="fam-row"><input class="fam-input" id="car-golos" type="number" inputmode="numeric" placeholder="Golos" style="flex:1"><input class="fam-input" id="car-jogos" type="number" inputmode="numeric" placeholder="Jogos" style="flex:1"><input class="fam-input" id="car-assist" type="number" inputmode="numeric" placeholder="Assist." style="flex:1"><input class="fam-input" id="car-minutos" type="number" inputmode="numeric" placeholder="Minutos" style="flex:1"></div>'
      +'<button class="fam-btn" onclick="window.__carreiraGravar()">Guardar época →</button>'
      +'<div class="sub" style="margin:8px 0 0;font-size:12px">Para corrigir uma época, volta a guardá-la com os dados certos — substitui a antiga. Títulos novos ficam como marcos no passaporte.</div></div>'
-     +'<div class="shead">Diário de treinos</div><div class="panel" id="diario-card">'
-     +'<div class="sub" style="margin-bottom:10px">Treinou fora do plano? Jogo, clube ou treino livre — tudo conta para a sequência e fica no percurso.</div>'
-     +'<div class="fam-row" id="di-tipos">'+[['livre','⚽ Livre'],['jogo','🏟️ Jogo'],['clube','🏃 Clube']].map(function(o){return '<button class="fam-chip'+(o[0]==='livre'?' on':'')+'" data-tipo="'+o[0]+'" onclick="window.__diTipo(this)">'+o[1]+'</button>';}).join('')+'</div>'
-     +'<div class="fam-row" id="di-mins">'+[30,45,60,90].map(function(m){return '<button class="fam-chip'+(m===60?' on':'')+'" data-min="'+m+'" onclick="window.__diMin(this)">'+m+'&#39;</button>';}).join('')+'</div>'
-     +'<input class="fam-input" id="di-nota" type="text" placeholder="Nota (opcional): onde, com quem, como correu">'
-     +'<button class="fam-btn" onclick="window.__diGravar()">Registar no diário →</button></div>'
      +'<div class="shead">Crescimento</div><div class="panel" id="bio-card">'
      +'<div class="sub" style="margin-bottom:10px">Altura, peso e pé — uma medição de vez em quando desenha a trajetória de crescimento. Nunca visível ao público.</div>'
      +'<div class="fam-row"><input class="fam-input" id="bio-alt" type="number" inputmode="decimal" placeholder="Altura (cm)" style="flex:1"><input class="fam-input" id="bio-pes" type="number" inputmode="decimal" placeholder="Peso (kg)" style="flex:1"><input class="fam-input" id="bio-pe" type="number" inputmode="decimal" placeholder="Pé (EU)" style="flex:1"></div>'
@@ -1232,7 +1240,7 @@
     // empurra para a frente) — ordem final no ecrã: esta semana → atualizar dados → passaporte
     [
       {id:'grupo-dados', eyebrow:'Atualizar dados', titulo:'A tua contribuição', filhos:['fam-tools']},
-      {id:'grupo-semana', eyebrow:'Esta semana', titulo:'O que fazer agora', filhos:['pp-jornada','fam-oqm']}
+      {id:'grupo-semana', eyebrow:'Esta semana', titulo:'O que fazer agora', filhos:['pp-jornada','fam-oqm','fam-diario']}
     ].forEach(function(g){
       if(document.getElementById(g.id)) return;
       var sec=document.createElement('section'); sec.id=g.id; sec.className='fam-group';
@@ -1245,6 +1253,7 @@
     });
     montarJornadaPP();
     carregarOQM(atletaId);
+    renderDiario();
     renderFamTools();
     // navegação por secções: agora e depois (grupos como Privacidade nascem async)
     famNav(); setTimeout(famNav,700); setTimeout(famNav,2200);
