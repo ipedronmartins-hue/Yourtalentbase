@@ -661,6 +661,7 @@
       }
       html+='</div></div>';
     });
+    var velha=document.getElementById('tr-sec'); if(velha) velha.remove(); // re-render (ex.: mudar "onde vais treinar") substitui, nunca duplica
     var sec=document.createElement('section'); sec.className='tr-sec'; sec.id='tr-sec'; sec.innerHTML=html;
     if(window.YTBExAnim)YTBExAnim.mountAll(sec); // bonequinhos a demonstrar cada exercício
     // vive dentro do grupo "Esta semana", depois de jornada + o que mudou
