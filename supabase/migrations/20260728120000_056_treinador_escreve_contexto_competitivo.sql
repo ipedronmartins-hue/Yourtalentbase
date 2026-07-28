@@ -1,0 +1,7 @@
+-- 056: treinador passa a escrever o contexto competitivo dos SEUS atletas
+-- (epoca, divisao, golos, jogos, assistencias, golos da equipa, classificacao).
+-- Sem isto o botao de avaliacao contextual por IA, dado ao treinador na 051,
+-- existia mas nunca tinha dados: esses campos so eram preenchiveis pela familia
+-- (que ainda nao entrou quando o treinador inscreve) ou pelo admin.
+-- Restricao de propriedade (fonte_email) mantida e testada nos dois sentidos:
+-- escreve no proprio, bloqueado no alheio. Corpo integral no historico Supabase.
