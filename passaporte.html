@@ -294,6 +294,25 @@
     return '<div class="panel morfo">'+lock+fields+barra+aviso+metodo+'</div>';
   }
 
+  /* Leitura de contexto por IA — interpretação, não observação.
+     Vai sempre acompanhada de quando, por quem e com que dados foi feita:
+     uma síntese sem rasto até aos factos é opinião disfarçada de facto. */
+  function contextoIAHTML(c){
+    var base=c.base||{}, quais=[];
+    if(base.divisao) quais.push('divisão: '+base.divisao);
+    if(base.golos!=null) quais.push(base.golos+' golos');
+    if(base.jogos!=null) quais.push(base.jogos+' jogos');
+    if(base.golos_equipa!=null) quais.push(base.golos_equipa+' golos da equipa');
+    if(base.classificacao) quais.push(base.classificacao);
+    var dt=(c.em||'').slice(0,10);
+    return '<div class="panel">'
+      +'<div style="font-size:14.5px;color:var(--text);line-height:1.6">'+esc(c.texto)+'</div>'
+      +'<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border);font-size:11px;color:var(--muted);line-height:1.5">'
+      +'Leitura gerada por IA em '+esc(dt)+(c.por?(' · pedida por '+esc(String(c.por).split('@')[0])):'')+'.<br>'
+      +'É interpretação dos números, não uma observação de quem o viu jogar.'
+      +(quais.length?('<br>Baseada em: '+esc(quais.join(' · '))):'<br>Sem contexto competitivo preenchido — por isso diz o que diz.')
+      +'</div></div>';
+  }
   function devScoreHTML(ds){
     if(ds.estado==='em_pausa'){
       return '<div class="panel"><div style="font-size:var(--fs-corpo);font-weight:800;margin-bottom:6px">🏖️ Época em pausa</div><div class="sub" style="margin:0">Estamos em férias — o score não desce enquanto não há treinos. Quando a época recomeçar, o relógio volta a contar. As missões e o Elite Coach continuam disponíveis, e só podem somar.</div></div>';
@@ -373,6 +392,7 @@
     // Development Score — mede desenvolvimento, nunca talento; só contra o
     // próprio histórico (sem comparações entre atletas, por desenho)
     if(d.devScore){ html+='<div class="shead">Development Score</div>'+devScoreHTML(d.devScore); }
+    if(d.contextoIA && d.contextoIA.texto){ html+='<div class="shead">Leitura de contexto</div>'+contextoIAHTML(d.contextoIA); }
     // marcos
     html+='<div class="shead">Marcos da Carreira</div><div class="marcos">'+d.marcos.map(function(m){return '<div class="marco"><span class="ic">'+m[0]+'</span><span class="tt">'+esc(m[1])+'</span><span class="wn">'+esc(m[2])+'</span></div>';}).join('')+'</div>';
     // carreira (registada pela família, época a época — nunca inventada)
@@ -450,6 +470,7 @@
       atividade:[[String(nz(at.prescritos)),'Prescritos'],[String(nz(at.concluidos)),'Concluídos'],[String(nz(at.semanas_ativas)),'Semanas ativas'],[nz(ind.horas_treino_extra)+'h','Horas']],
       cognitivo: temCog?{acerto:Math.round(nz(cg.acerto_pct)), total:nz(cg.total), tipos:(cg.por_tipo||[]).map(function(t){return [cap(t.cenario),Math.round(nz(t.acerto_pct))];}), serie:(cg.serie||[]).map(function(p){return Math.round(nz(p.v));})}:null,
       maturacao:r.maturacao||null,
+      contextoIA:r.contexto_ia||null,
       devScore:r.dev_score||null,
       marcos:(r.marcos||[]).map(function(m){return ['◆',m.titulo||'',relTime(m.em)];}),
       carreira:(r.carreira||[]).map(function(c){
