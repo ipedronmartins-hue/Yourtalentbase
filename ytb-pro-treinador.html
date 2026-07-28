@@ -532,15 +532,31 @@ async function renderRetorno(){
     return {p,acao};
   };
   digest.sort((a,b)=>prioridadeDe(b).p-prioridadeDe(a).p);
-  let html='';
-  digest.forEach(d=>{
+  // O Retorno e uma fila de prioridade de TODOS os atletas — e esse e o valor dele.
+  // Mas se vieste com um atleta selecionado, a selecao nao pode desaparecer em
+  // silencio: esse fica em primeiro, marcado, e os restantes por baixo.
+  const selId = atletaSel && atletaSel.id;
+  if(selId && digest.some(d=>d.atleta_id===selId)){
+    digest = digest.filter(d=>d.atleta_id===selId).concat(digest.filter(d=>d.atleta_id!==selId));
+  }
+  let html='', jaSeparou=false;
+  digest.forEach((d,idx)=>{
+    if(selId && idx===1 && digest[0].atleta_id===selId && !jaSeparou){
+      jaSeparou=true;
+      html+='<div style="display:flex;align-items:center;gap:10px;margin:22px 0 12px">'
+        +'<div style="height:1px;background:var(--border2);flex:1"></div>'
+        +'<span style="font-size:var(--fs-micro);font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)">Os outros atletas</span>'
+        +'<div style="height:1px;background:var(--border2);flex:1"></div></div>';
+    }
     const ult=d.ultima_atividade?new Date(d.ultima_atividade).toLocaleDateString('pt-PT',{day:'2-digit',month:'short'}):null;
     const diasAval=d.dias_desde_avaliacao;
     const precisaAval=diasAval==null||diasAval>45;
     const conf=d.confianca_media;
     const pri=prioridadeDe(d);
     const ds=(d.dev_score&&d.dev_score.estado==='ok')?d.dev_score:null;
-    html+='<div class="dash-card">'
+    const ehSel = selId && d.atleta_id===selId;
+    html+='<div class="dash-card"'+(ehSel?' style="border-color:var(--gold)"':'')+'>'
+      +(ehSel?'<div style="font-size:var(--fs-micro);font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:6px">Atleta selecionado</div>':'')
       +'<div class="dash-card-header"><div class="dash-card-eyebrow">'+esc(d.nome||'Atleta')+(d.escalao?' · '+esc(d.escalao):'')
       +(ds?' · <span style="color:var(--gold)">Score '+ds.score+(ds.tendencia==='subiu'?' ↗':ds.tendencia==='desceu'?' ↘':'')+'</span>':'')+'</div>'
       +(ult?'<div class="dash-card-action">último treino: '+ult+'</div>':'')+'</div>'
