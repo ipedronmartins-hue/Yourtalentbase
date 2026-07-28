@@ -1001,15 +1001,28 @@
     }).catch(function(){ toast('Não foi possível marcar'); });
   };
 
-  var diSel={tipo:'livre',min:60};
-  window.__diTipo=function(b){ diSel.tipo=b.getAttribute('data-tipo'); document.querySelectorAll('#di-tipos .fam-chip').forEach(function(c){c.classList.toggle('on',c===b);}); };
+  var DI_CATS=[['tecnica','⚽ Técnica'],['fisico','⚡ Físico'],['decisao','🧠 Decisão'],['tatica','🧭 Tática'],['mental','🔥 Mental']]; // mesmo vocabulário de ytb-objetivos.js
+  var diSel={tipo:'livre',min:60,cat:null};
+  window.__diTipo=function(b){
+    diSel.tipo=b.getAttribute('data-tipo');
+    document.querySelectorAll('#di-tipos .fam-chip').forEach(function(c){c.classList.toggle('on',c===b);});
+    var mostrar=(diSel.tipo==='livre')?'flex':'none', mostrarLbl=(diSel.tipo==='livre')?'block':'none';
+    var catRow=document.getElementById('di-cats'); if(catRow) catRow.style.display=mostrar;
+    var catLbl=document.getElementById('di-cats-lbl'); if(catLbl) catLbl.style.display=mostrarLbl;
+  };
   window.__diMin=function(b){ diSel.min=parseInt(b.getAttribute('data-min')); document.querySelectorAll('#di-mins .fam-chip').forEach(function(c){c.classList.toggle('on',c===b);}); };
+  window.__diCat=function(b){
+    var chave=b.getAttribute('data-cat');
+    diSel.cat=(diSel.cat===chave)?null:chave; // tocar outra vez desmarca — não força resposta
+    document.querySelectorAll('#di-cats .fam-chip').forEach(function(c){c.classList.toggle('on',c.getAttribute('data-cat')===diSel.cat);});
+  };
   window.__diGravar=function(){
     var nota=(document.getElementById('di-nota').value||'').trim();
-    supa.rpc('ytb_diario_registar',{p_atleta:window.__famAtleta,p_atividade:diSel.tipo,p_minutos:diSel.min,p_nota:nota||null}).then(function(res){
+    supa.rpc('ytb_diario_registar',{p_atleta:window.__famAtleta,p_atividade:diSel.tipo,p_minutos:diSel.min,p_nota:nota||null,p_categoria:diSel.tipo==='livre'?diSel.cat:null}).then(function(res){
       var d=res&&res.data;
       if(!d||!d.ok){ toast('⚠ Não gravado ('+((d&&d.motivo)||'erro')+')'); return; }
       document.getElementById('di-nota').value='';
+      diSel.cat=null; document.querySelectorAll('#di-cats .fam-chip').forEach(function(c){c.classList.remove('on');});
       if(d.marco&&window.YTBVivo){ YTBVivo.marco(document.getElementById('diario-card')); toast('🏆 Marco: '+d.marco+' dias seguidos!'); }
       else toast('Diário registado ✓'+(d.streak?(' · sequência: '+d.streak+' dia'+(d.streak>1?'s':'')):''));
     }).catch(function(){ toast('⚠ Sem ligação'); });
@@ -1058,6 +1071,8 @@
     box.innerHTML='<div class="shead">Diário de treinos</div><div class="panel" id="diario-card">'
      +'<div class="sub" style="margin-bottom:10px">Treinaste hoje fora do plano? Jogo, treino do clube ou por tua conta — tudo conta para a sequência e fica no percurso.</div>'
      +'<div class="fam-row" id="di-tipos">'+[['livre','⚽ Livre'],['jogo','🏟️ Jogo'],['clube','🏃 Clube']].map(function(o){return '<button class="fam-chip'+(o[0]==='livre'?' on':'')+'" data-tipo="'+o[0]+'" onclick="window.__diTipo(this)">'+o[1]+'</button>';}).join('')+'</div>'
+     +'<div class="sub" id="di-cats-lbl" style="margin:2px 0 6px;font-size:var(--fs-legenda)">O que treinaste? (opcional)</div>'
+     +'<div class="fam-row" id="di-cats">'+DI_CATS.map(function(o){return '<button class="fam-chip" data-cat="'+o[0]+'" onclick="window.__diCat(this)">'+o[1]+'</button>';}).join('')+'</div>'
      +'<div class="fam-row" id="di-mins">'+[30,45,60,90].map(function(m){return '<button class="fam-chip'+(m===60?' on':'')+'" data-min="'+m+'" onclick="window.__diMin(this)">'+m+'&#39;</button>';}).join('')+'</div>'
      +'<input class="fam-input" id="di-nota" type="text" placeholder="Nota (opcional): onde, com quem, como correu">'
      +'<button class="fam-btn" onclick="window.__diGravar()">Registar no diário →</button></div>';
