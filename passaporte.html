@@ -1423,13 +1423,18 @@
       var app=document.getElementById('app');
       if(app){
         var grupo=document.getElementById('grupo-privacidade');
-        if(!grupo){
+        var novoGrupo=!grupo;
+        if(novoGrupo){
           grupo=document.createElement('section'); grupo.id='grupo-privacidade'; grupo.className='fam-group';
           grupo.innerHTML='<div class="fam-group-head"><span class="eyebrow">Privacidade</span><h2>O que é visível</h2></div>';
           app.appendChild(grupo);
-          if(window.__famNav) window.__famNav();
         }
+        // conteúdo real primeiro, __famNav() (mede a altura do painel ativo) só depois —
+        // ao contrário, o pivot adota o grupo quase vazio (só o cabeçalho) e mede a
+        // altura errada; a secção seguinte fica a espreitar por baixo até o
+        // ResizeObserver corrigir, o que no telemóvel dava para ver.
         grupo.appendChild(d);
+        if(novoGrupo && window.__famNav) window.__famNav();
       } else { document.body.appendChild(d); }
       d.querySelectorAll('.priv-tgl').forEach(function(b){
         b.addEventListener('click',function(){
