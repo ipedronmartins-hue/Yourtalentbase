@@ -92,6 +92,75 @@ body{max-width:900px;margin:0 auto;padding-bottom:70px}
 .pr-jogadas .jg{background:var(--bg3);border:1px solid var(--border);border-radius:999px;padding:10px 14px;font-size:13px;color:#fff;cursor:pointer;display:flex;gap:8px;align-items:center}
 .pr-jogadas .jg b{color:var(--gold)}
 .pr-jogadas .jg .x{color:var(--red);font-weight:900;padding:0 2px}
+
+/* ── prancheta em ecrã inteiro ──
+   Base em CSS (position:fixed), não na Fullscreen API: o iPhone não permite
+   fullscreen em elementos arbitrários, e no balneário o telemóvel é o que há.
+   Quando a API existe (Android, iPad, desktop) pede-se também, para esconder
+   a barra do browser — mas o modo funciona na mesma sem ela. */
+body.pr-cheio{overflow:hidden}
+body.pr-cheio #pr-palco{
+  position:fixed; inset:0; z-index:300; background:#080C08;
+  display:flex; flex-direction:column; padding:0; margin:0; border:none; border-radius:0;
+}
+body.pr-cheio #pr-palco .h,
+body.pr-cheio #pr-palco .s,
+body.pr-cheio #pr-palco #pr-fmt,
+body.pr-cheio #pr-palco #pr-tatica-wrap,
+body.pr-cheio #pr-abrir{display:none}
+
+/* o campo ocupa tudo o que sobra; o wrapper e o palco da rotacao */
+body.pr-cheio #pr-campo-wrap{
+  order:1; flex:1; min-height:0; position:relative; overflow:hidden;
+  display:flex; align-items:center; justify-content:center;
+}
+body.pr-cheio #prancheta-svg{
+  max-width:none; width:100%; height:100%; border-radius:0; margin:0;
+}
+/* deitado: o campo roda para ficar ao comprido. O arrasto acompanha sozinho —
+   coords() usa getScreenCTM(), cuja matriz ja inclui esta transformacao. */
+body.pr-cheio.pr-deitado #prancheta-svg{
+  position:absolute; top:50%; left:50%;
+  transform:translate(-50%,-50%) rotate(90deg); transform-origin:center;
+  width:auto; height:auto;  /* medidas postas pelo JS: dependem do espaco real */
+}
+/* UMA linha de controlos por baixo. O resto vive atras do "mais". */
+body.pr-cheio .pr-tools{
+  order:2; margin:0; padding:7px 10px calc(7px + env(safe-area-inset-bottom));
+  background:rgba(11,18,12,.96); backdrop-filter:blur(8px);
+  border-top:1px solid var(--border); justify-content:center; gap:7px;
+  flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none;
+}
+body.pr-cheio .pr-tools::-webkit-scrollbar{display:none}
+body.pr-cheio .pr-tools .tl{flex:0 0 auto;min-width:58px;min-height:48px}
+body.pr-cheio .pr-acao,
+body.pr-cheio .pr-frames,
+body.pr-cheio .pr-jogadas{
+  order:3; margin:0; padding:0 10px calc(8px + env(safe-area-inset-bottom));
+  background:rgba(11,18,12,.96); gap:6px; justify-content:center; display:none;
+}
+body.pr-cheio.pr-mais .pr-acao,
+body.pr-cheio.pr-mais .pr-frames,
+body.pr-cheio.pr-mais .pr-jogadas{display:flex;flex-wrap:wrap}
+body.pr-cheio .pr-acao button{min-height:40px;font-size:12px;min-width:0;flex:0 1 auto;padding:0 12px}
+#pr-mais{
+  display:none; flex:0 0 auto; min-width:52px; min-height:48px; border-radius:11px;
+  border:1px solid var(--border); background:var(--bg3); color:var(--slate);
+  font-family:inherit; font-weight:800; font-size:12px; cursor:pointer;
+}
+body.pr-cheio #pr-mais{display:block}
+body.pr-cheio.pr-mais #pr-mais{border-color:var(--gold);color:var(--gold)}
+#pr-sair{
+  display:none; position:fixed; top:calc(10px + env(safe-area-inset-top)); right:10px; z-index:310;
+  min-height:44px; padding:0 16px; border-radius:999px; border:1px solid var(--gold);
+  background:rgba(11,18,12,.92); color:var(--gold); font-family:inherit; font-weight:800; font-size:13px; cursor:pointer;
+}
+body.pr-cheio #pr-sair{display:block}
+/* deitado num telemovel as ferramentas encolhem, para o campo respirar */
+@media (orientation:landscape) and (max-height:560px){
+  body.pr-cheio .pr-tools .tl,body.pr-cheio #pr-mais{min-height:40px;min-width:50px;font-size:11px;padding:4px 8px}
+  body.pr-cheio .pr-tools .tl .ic{font-size:15px}
+}
 /* ── balneário ── */
 .bal-post{background:var(--bg2);border:1px solid var(--border);border-radius:13px;padding:14px 15px;margin-bottom:10px}
 .bal-post .bp-meta{font-size:11px;color:var(--muted);margin-bottom:4px}
@@ -174,9 +243,10 @@ body{max-width:900px;margin:0 auto;padding-bottom:70px}
 
   <!-- PRANCHETA -->
   <div class="sec on" id="sec-prancheta">
-    <div class="card">
+    <div class="card" id="pr-palco">
       <div class="h">Prancheta <span style="color:var(--gold)">tática</span></div>
       <div class="s">Arrasta jogadores, desenha passes e desmarcações, guarda momentos e reproduz a jogada animada. Feita para o tablet no balneário.</div>
+      <button type="button" id="pr-abrir" onclick="PR.cheio(true)" style="min-height:48px;width:100%;border-radius:10px;border:1px solid var(--gold);background:var(--gold-soft);color:var(--gold);font-family:inherit;font-weight:800;font-size:14px;cursor:pointer;margin-bottom:10px">⛶ Ecrã inteiro — mostrar aos jogadores</button>
       <div class="chips" id="pr-fmt"></div>
       <div id="pr-tatica-wrap" hidden>
         <div class="chips" id="pr-tatica" style="margin-bottom:8px"></div>
@@ -187,8 +257,10 @@ body{max-width:900px;margin:0 auto;padding-bottom:70px}
         <button class="tl" data-m="corrida"><span class="ic">🏃</span>Corrida</button>
         <button class="tl" data-m="desenho"><span class="ic">✏️</span>Livre</button>
         <button class="tl" data-m="apagar"><span class="ic">🧽</span>Apagar</button>
+        <button type="button" id="pr-mais" onclick="PR.mais()">⋯<br>mais</button>
       </div>
-      <svg id="prancheta-svg" viewBox="0 0 340 520" xmlns="http://www.w3.org/2000/svg"></svg>
+      <div id="pr-campo-wrap"><svg id="prancheta-svg" viewBox="0 0 340 520" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"></svg></div>
+      <button type="button" id="pr-sair" onclick="PR.cheio(false)">✕ Sair</button>
       <div class="pr-acao">
         <button onclick="PR.addEquipaB()">＋ Equipa B</button>
         <button onclick="PR.addBola()">⚽ Bola</button>
@@ -1001,8 +1073,61 @@ var PR=(function(){
   }
   function apagarJogada(i){var lista=jogadas();lista.splice(i,1);localStorage.setItem(LS,JSON.stringify(lista));pintarJogadas();}
 
+  /* Ecrã inteiro. Base em CSS porque o iPhone não deixa pedir fullscreen a um
+     elemento qualquer — e é o telemóvel que vai estar no balneário. Quando a API
+     existe, pede-se também, só para arrumar a barra do browser; se falhar, o modo
+     imersivo funciona na mesma. Mantém o ecrã aceso enquanto durar, se der. */
+  var wakeLock=null;
+
+  /* Deitado, o campo roda 90 graus para ficar ao comprido — um campo vertical
+     encaixado num ecra largo fica minusculo (as barras pretas dos dois lados).
+     A rotacao e CSS, e o arrasto acompanha sem uma linha de matematica: coords()
+     usa getScreenCTM(), cuja matriz ja inclui a transformacao do elemento.
+     As medidas tem de vir do JS porque um elemento rodado mantem a caixa de
+     layout original — o CSS sozinho nao sabe trocar largura por altura. */
+  function medirCampo(){
+    var s=document.getElementById('prancheta-svg');
+    var w=document.getElementById('pr-campo-wrap');
+    if(!s||!w) return;
+    var deitado=document.body.classList.contains('pr-cheio') && w.clientWidth > w.clientHeight;
+    document.body.classList.toggle('pr-deitado', deitado);
+    if(!deitado){ s.style.width=''; s.style.height=''; return; }
+    // depois de rodar: largura visivel = altura CSS, altura visivel = largura CSS
+    var esc=Math.min(w.clientHeight/340, w.clientWidth/520);
+    s.style.width =(340*esc)+'px';
+    s.style.height=(520*esc)+'px';
+  }
+  addEventListener('resize',medirCampo,{passive:true});
+  addEventListener('orientationchange',function(){ setTimeout(medirCampo,180); },{passive:true});
+
+  function mais(){ document.body.classList.toggle('pr-mais'); setTimeout(medirCampo,0); }
+
+  async function cheio(ligar){
+    document.body.classList.toggle('pr-cheio', !!ligar);
+    if(!ligar) document.body.classList.remove('pr-mais','pr-deitado');
+    var palco=document.getElementById('pr-palco');
+    if(ligar){
+      if(palco && palco.requestFullscreen){ try{ await palco.requestFullscreen({navigationUI:'hide'}); }catch(e){} }
+      try{ if(navigator.wakeLock) wakeLock=await navigator.wakeLock.request('screen'); }catch(e){}
+      try{ if(screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); }catch(e){}
+    } else {
+      if(document.fullscreenElement && document.exitFullscreen){ try{ await document.exitFullscreen(); }catch(e){} }
+      if(wakeLock){ try{ wakeLock.release(); }catch(e){} wakeLock=null; }
+    }
+    render();
+    setTimeout(medirCampo,60);   // depois do layout assentar
+    setTimeout(medirCampo,320);  // e depois da animacao de fullscreen, se houver
+  }
+  // sair pelo botão do sistema ou pelo Esc deixa o CSS coerente
+  document.addEventListener('fullscreenchange',function(){
+    if(!document.fullscreenElement && document.body.classList.contains('pr-cheio')) cheio(false);
+  });
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape' && document.body.classList.contains('pr-cheio')) cheio(false);
+  });
+
   function init(){formar();ligar();render();pintarJogadas();}
-  return {init:init,render:render,reformatar:reformatar,addEquipaB:addEquipaB,addBola:addBola,addCone:addCone,
+  return {init:init,render:render,reformatar:reformatar,addEquipaB:addEquipaB,addBola:addBola,addCone:addCone,cheio:cheio,mais:mais,
     undo:undo,limpar:limpar,guardarMomento:guardarMomento,irFrame:irFrame,reproduzir:reproduzir,
     exportarPNG:exportarPNG,guardarJogada:guardarJogada,abrirJogada:abrirJogada,apagarJogada:apagarJogada,_estado:E};
 })();

@@ -137,29 +137,30 @@ tr:last-child td{border-bottom:none}
 /* MODAL */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(6px);z-index:100;display:none;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto}
 .modal-overlay.show{display:flex}
-.modal{background:var(--bg);border:2px solid var(--gold);max-width:640px;width:100%;padding:24px;margin:auto;animation:popIn .25s cubic-bezier(.16,1,.3,1) both}
+.modal{background:var(--bg);border:1px solid var(--border2);border-radius:14px;max-width:640px;width:100%;padding:24px;margin:auto;animation:popIn .25s cubic-bezier(.16,1,.3,1) both;box-shadow:0 24px 60px rgba(0,0,0,.55)}
 @keyframes popIn{from{transform:scale(.95);opacity:0}to{transform:scale(1);opacity:1}}
-.modal-title{font-family:'Barlow Condensed';font-weight:900;font-size:var(--fs-titulo);color:var(--gold);margin-bottom:6px;letter-spacing:-.3px}
+.modal-title{font-family:'Barlow Condensed';font-weight:900;font-size:var(--fs-titulo);color:var(--text);margin-bottom:6px;letter-spacing:-.3px}
 .modal-sub{font-size:var(--fs-legenda);color:var(--slate);margin-bottom:16px;line-height:1.5}
-.modal-textarea{width:100%;background:var(--bg2);border:1px solid var(--border);color:#fff;padding:12px;font-size:var(--fs-legenda);font-family:'Courier New',monospace;outline:none;line-height:1.5;min-height:200px;resize:vertical}
+.modal-textarea{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:12px;font-size:var(--fs-legenda);font-family:'Courier New',monospace;outline:none;line-height:1.5;min-height:200px;resize:vertical}
 .modal-textarea:focus{border-color:var(--gold)}
 .modal-btns{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
-.modal-btn{flex:1;min-width:120px;padding:11px;border:none;font-family:'Barlow Condensed';font-weight:900;font-size:var(--fs-legenda);letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;text-decoration:none;text-align:center;display:inline-flex;align-items:center;justify-content:center;gap:6px}
-.modal-btn-primary{background:var(--green);color:#000}
-.modal-btn-primary:hover{background:#1ae876}
+.modal-btn{flex:1;min-width:120px;padding:11px;border:none;border-radius:10px;font-family:'Barlow Condensed';font-weight:900;font-size:var(--fs-legenda);letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;text-decoration:none;text-align:center;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.modal-btn-primary{background:var(--gold);color:var(--bg)}
+.modal-btn-primary:hover{filter:brightness(1.08)}
 .modal-btn-secondary{background:transparent;color:#fff;border:1px solid var(--gold-border)}
 .modal-btn-secondary:hover{background:var(--gold-soft)}
 
 /* EDIT FORM */
-.edit-form{display:flex;flex-direction:column;gap:10px;max-height:70vh;overflow-y:auto;padding-right:6px}
-.edit-section{padding:10px;background:var(--bg2);border:1px solid var(--border)}
-.edit-sec-title{font-size:var(--fs-micro);font-weight:800;letter-spacing:1.5px;color:var(--gold);text-transform:uppercase;margin-bottom:8px}
+.edit-form{display:flex;flex-direction:column;gap:12px;max-height:70vh;overflow-y:auto;padding-right:6px}
+.edit-section{padding:14px;background:var(--bg2);border:1px solid var(--border);border-radius:11px}
+.edit-sec-title{font-size:var(--fs-micro);font-weight:800;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:10px}
+.edit-sec-title span{text-transform:none;letter-spacing:normal;display:block;margin-top:4px;line-height:1.45}
 .edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 @media (max-width:520px){.edit-grid{grid-template-columns:1fr}}
 .edit-field{display:flex;flex-direction:column}
 .edit-field.full{grid-column:1/-1}
 .edit-label{font-size:var(--fs-micro);font-weight:700;letter-spacing:1px;color:var(--slate);text-transform:uppercase;margin-bottom:3px}
-.edit-input,.edit-select,.edit-textarea{background:var(--bg);border:1px solid var(--border);color:#fff;padding:8px 10px;font-size:var(--fs-legenda);font-family:inherit;outline:none}
+.edit-input,.edit-select,.edit-textarea{background:var(--bg);border:1px solid var(--border);border-radius:9px;color:var(--text);padding:10px 12px;font-size:var(--fs-legenda);font-family:inherit;outline:none}
 .edit-input:focus,.edit-select:focus,.edit-textarea:focus{border-color:var(--gold)}
 .edit-textarea{min-height:60px;resize:vertical;line-height:1.5}
 

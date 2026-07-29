@@ -532,15 +532,31 @@ async function renderRetorno(){
     return {p,acao};
   };
   digest.sort((a,b)=>prioridadeDe(b).p-prioridadeDe(a).p);
-  let html='';
-  digest.forEach(d=>{
+  // O Retorno e uma fila de prioridade de TODOS os atletas — e esse e o valor dele.
+  // Mas se vieste com um atleta selecionado, a selecao nao pode desaparecer em
+  // silencio: esse fica em primeiro, marcado, e os restantes por baixo.
+  const selId = atletaSel && atletaSel.id;
+  if(selId && digest.some(d=>d.atleta_id===selId)){
+    digest = digest.filter(d=>d.atleta_id===selId).concat(digest.filter(d=>d.atleta_id!==selId));
+  }
+  let html='', jaSeparou=false;
+  digest.forEach((d,idx)=>{
+    if(selId && idx===1 && digest[0].atleta_id===selId && !jaSeparou){
+      jaSeparou=true;
+      html+='<div style="display:flex;align-items:center;gap:10px;margin:22px 0 12px">'
+        +'<div style="height:1px;background:var(--border2);flex:1"></div>'
+        +'<span style="font-size:var(--fs-micro);font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)">Os outros atletas</span>'
+        +'<div style="height:1px;background:var(--border2);flex:1"></div></div>';
+    }
     const ult=d.ultima_atividade?new Date(d.ultima_atividade).toLocaleDateString('pt-PT',{day:'2-digit',month:'short'}):null;
     const diasAval=d.dias_desde_avaliacao;
     const precisaAval=diasAval==null||diasAval>45;
     const conf=d.confianca_media;
     const pri=prioridadeDe(d);
     const ds=(d.dev_score&&d.dev_score.estado==='ok')?d.dev_score:null;
-    html+='<div class="dash-card">'
+    const ehSel = selId && d.atleta_id===selId;
+    html+='<div class="dash-card"'+(ehSel?' style="border-color:var(--gold)"':'')+'>'
+      +(ehSel?'<div style="font-size:var(--fs-micro);font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:6px">Atleta selecionado</div>':'')
       +'<div class="dash-card-header"><div class="dash-card-eyebrow">'+esc(d.nome||'Atleta')+(d.escalao?' · '+esc(d.escalao):'')
       +(ds?' · <span style="color:var(--gold)">Score '+ds.score+(ds.tendencia==='subiu'?' ↗':ds.tendencia==='desceu'?' ↘':'')+'</span>':'')+'</div>'
       +(ult?'<div class="dash-card-action">último treino: '+ult+'</div>':'')+'</div>'
@@ -735,19 +751,33 @@ const AV_YTB_RATINGS=['','A+','A','B+','B','C+','C','D'];
 const AV_YTB_BADGES=[['', '— sem estatuto —'],['observado','👀 Observado'],['em-crescimento','📈 Em Crescimento'],['hidden-gem','💎 Hidden Gem'],['destaque','★ YTB Acompanhado']];
 const AV_YTB_AREAS=[['','—'],['tecnico','Técnico'],['tactico','Tático'],['fisico','Físico'],['mental','Mental']];
 function avYtbHTML(a){
-  const opt=(v,label)=>'<option value="'+v+'">'+label+'</option>';
-  return '<details style="margin-top:18px;border-top:1px solid var(--border2,#2A322B);padding-top:10px">'
-    +'<summary style="cursor:pointer;font-size:var(--fs-legenda);font-weight:800;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase">⭐ Classificação YTB (opcional)</summary>'
-    +'<div style="margin-top:12px;display:grid;gap:10px">'
-    +'<div><label style="font-size:var(--fs-legenda);color:var(--muted);display:block;margin-bottom:4px">Rating geral</label><select class="edit-select" id="ytb-rating" style="width:100%">'+AV_YTB_RATINGS.map(r=>opt(r, r||'—')).join('')+'</select></div>'
-    +'<div><label style="font-size:var(--fs-legenda);color:var(--muted);display:block;margin-bottom:4px">Estatuto</label><select class="edit-select" id="ytb-badge" style="width:100%">'+AV_YTB_BADGES.map(b=>opt(b[0],b[1])).join('')+'</select></div>'
+  const opt=(v,label,sel)=>'<option value="'+v+'"'+(String(sel==null?'':sel)===String(v)?' selected':'')+'>'+label+'</option>';
+  const val=k=>esc((a&&a[k]!=null&&a[k]!=='')?String(a[k]):'');
+  return '<details style="margin-top:18px;border-top:1px solid var(--border2,#2A322B);padding-top:12px">'
+    +'<summary style="cursor:pointer;font-size:var(--fs-legenda);font-weight:800;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase">\u2b50 Classifica\u00e7\u00e3o YTB e contexto (opcional)</summary>'
+    +'<div style="font-size:var(--fs-legenda);color:var(--slate);line-height:1.55;margin:12px 0 14px">'
+      +'O contexto competitivo \u00e9 o que faz a avalia\u00e7\u00e3o por IA valer alguma coisa \u2014 sem divis\u00e3o e sem os n\u00fameros da equipa, ela s\u00f3 pode dizer que lhe faltam dados.</div>'
+    +'<div class="field"><label class="label">\u00c9poca</label><input class="input" id="ytb-epoca" type="text" placeholder="ex: 2026/27" value="'+val('epoca_ref')+'"></div>'
+    +'<div class="field"><label class="label">Divis\u00e3o / n\u00edvel</label><input class="input" id="ytb-div" type="text" placeholder="ex: Sub-13 1\u00aa divis\u00e3o distrital" value="'+val('divisao')+'"></div>'
     +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">'
-      +['ytb-ex1','ytb-ex2','ytb-ex3'].map((id,i)=>'<div><label style="font-size:var(--fs-micro);color:var(--muted);display:block;margin-bottom:3px">Excelência '+(i+1)+'</label><select class="edit-select" id="'+id+'" style="width:100%">'+AV_YTB_AREAS.map(x=>opt(x[0],x[1])).join('')+'</select></div>').join('')
+      +'<div class="field"><label class="label">Golos</label><input class="input" id="ytb-gol" type="number" inputmode="numeric" value="'+val('golos_epoca')+'"></div>'
+      +'<div class="field"><label class="label">Jogos</label><input class="input" id="ytb-jog" type="number" inputmode="numeric" value="'+val('jogos_epoca')+'"></div>'
+      +'<div class="field"><label class="label">Assist.</label><input class="input" id="ytb-ass" type="number" inputmode="numeric" value="'+val('assist_epoca')+'"></div>'
     +'</div>'
-    +'<button type="button" class="action-btn" onclick="avYtbGravar()">Guardar classificação</button>'
-    +'<button type="button" class="action-btn" id="btn-ia-ctx" onclick="avYtbGerarIA()">🧠 Gerar avaliação contextual (IA)</button>'
-    +'<div id="ytb-ia-out" style="font-size:var(--fs-legenda);color:var(--slate);line-height:1.5"></div>'
-    +'</div></details>';
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'
+      +'<div class="field"><label class="label">Golos da equipa</label><input class="input" id="ytb-goleq" type="number" inputmode="numeric" placeholder="total" value="'+val('golos_equipa_epoca')+'"></div>'
+      +'<div class="field"><label class="label">Classifica\u00e7\u00e3o</label><input class="input" id="ytb-class" type="text" placeholder="ex: 3\u00ba de 12" value="'+val('classificacao_equipa')+'"></div>'
+    +'</div>'
+    +'<div class="field"><label class="label">Rating geral</label><select class="input" id="ytb-rating">'+AV_YTB_RATINGS.map(r=>opt(r,r||'\u2014',a&&a.rating_geral)).join('')+'</select></div>'
+    +'<div class="field"><label class="label">Estatuto</label><select class="input" id="ytb-badge">'+AV_YTB_BADGES.map(b=>opt(b[0],b[1],a&&a.badge_estado)).join('')+'</select></div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">'
+      +[['ytb-ex1','area_excelencia_1'],['ytb-ex2','area_excelencia_2'],['ytb-ex3','area_excelencia_3']].map((x,i)=>
+        '<div class="field"><label class="label">Excel\u00eancia '+(i+1)+'</label><select class="input" id="'+x[0]+'">'+AV_YTB_AREAS.map(y=>opt(y[0],y[1],a&&a[x[1]])).join('')+'</select></div>').join('')
+    +'</div>'
+    +'<button type="button" class="btn btn-secondary" style="width:100%;margin-bottom:8px" onclick="avYtbGravar()">Guardar classifica\u00e7\u00e3o e contexto</button>'
+    +'<button type="button" class="btn btn-secondary" style="width:100%" id="btn-ia-ctx" onclick="avYtbGerarIA()">\ud83e\udde0 Gerar avalia\u00e7\u00e3o contextual (IA)</button>'
+    +'<div id="ytb-ia-out" style="font-size:var(--fs-legenda);color:var(--slate);line-height:1.55;margin-top:10px"></div>'
+    +'</details>';
 }
 function avYtbPreencher(){
   if(!atletaSel) return;
@@ -764,15 +794,29 @@ async function avYtbGravar(){
   const btn=event&&event.currentTarget;
   if(btn){ btn.disabled=true; btn.textContent='A guardar…'; }
   try{
+    const n=id=>{ const el=document.getElementById(id); const v=el?parseInt(el.value,10):NaN; return isNaN(v)?null:v; };
     const {data,error}=await supa.rpc('ytb_treinador_atleta_classificar',{
       p_atleta:atletaSel.id, p_rating_geral:g('ytb-rating'), p_badge_estado:g('ytb-badge'),
-      p_area_excelencia_1:g('ytb-ex1'), p_area_excelencia_2:g('ytb-ex2'), p_area_excelencia_3:g('ytb-ex3')
+      p_area_excelencia_1:g('ytb-ex1'), p_area_excelencia_2:g('ytb-ex2'), p_area_excelencia_3:g('ytb-ex3'),
+      p_epoca_ref:g('ytb-epoca'), p_divisao:g('ytb-div'),
+      p_golos_epoca:n('ytb-gol'), p_jogos_epoca:n('ytb-jog'), p_assist_epoca:n('ytb-ass'),
+      p_golos_equipa_epoca:n('ytb-goleq'), p_classificacao_equipa:g('ytb-class')
     });
     if(error||!data||!data.ok){ showToast('Não foi possível guardar: '+((data&&data.motivo)||(error&&error.message)||'erro')); return; }
-    showToast('Classificação YTB guardada ✓');
+    // atualizar o objeto em memória: a IA lê de atletaSel, e carregarAtletas()
+    // substitui o array sem mexer nesta referência — sem isto, a avaliação
+    // contextual continuava a ler os valores anteriores.
+    Object.assign(atletaSel,{
+      rating_geral:g('ytb-rating'), badge_estado:g('ytb-badge'),
+      area_excelencia_1:g('ytb-ex1'), area_excelencia_2:g('ytb-ex2'), area_excelencia_3:g('ytb-ex3'),
+      epoca_ref:g('ytb-epoca'), divisao:g('ytb-div'),
+      golos_epoca:n('ytb-gol'), jogos_epoca:n('ytb-jog'), assist_epoca:n('ytb-ass'),
+      golos_equipa_epoca:n('ytb-goleq'), classificacao_equipa:g('ytb-class')
+    });
+    showToast('Classificação e contexto guardados ✓');
     carregarAtletas();
   }catch(e){ showToast('Sem ligação'); }
-  finally{ if(btn){ btn.disabled=false; btn.textContent='Guardar classificação'; } }
+  finally{ if(btn){ btn.disabled=false; btn.textContent='Guardar classificação e contexto'; } }
 }
 async function avYtbGerarIA(){
   if(!atletaSel) return;

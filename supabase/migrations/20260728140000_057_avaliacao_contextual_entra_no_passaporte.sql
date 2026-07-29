@@ -1,0 +1,11 @@
+-- 057: a avaliacao contextual por IA era escrita e nunca lida.
+-- _ytb_passaporte_json nao referia avaliacoes_contextuais (invisivel a todos,
+-- incluindo a quem a gerou; 5 ja produzidas em producao, cada uma com custo de
+-- IA), e ytb_admin_aval_contextual nao emitia evento (viola a regra 1 da
+-- Constituicao). Correcao: emite evento; o passaporte devolve a leitura mais
+-- recente com data, autor e o snapshot que a produziu; parametro novo
+-- v_incluir_interpretacao (separado de v_incluir_sensiveis — RGPD e juizo
+-- interpretativo sao coisas diferentes): familia, admin e treinador-dono
+-- recebem, scout e clube nao. DROP antes do CREATE porque acrescentar
+-- parametro cria sobrecarga e tornaria ambiguas as chamadas de 1 argumento.
+-- Corpo integral no historico Supabase.

@@ -294,6 +294,25 @@
     return '<div class="panel morfo">'+lock+fields+barra+aviso+metodo+'</div>';
   }
 
+  /* Leitura de contexto por IA — interpretação, não observação.
+     Vai sempre acompanhada de quando, por quem e com que dados foi feita:
+     uma síntese sem rasto até aos factos é opinião disfarçada de facto. */
+  function contextoIAHTML(c){
+    var base=c.base||{}, quais=[];
+    if(base.divisao) quais.push('divisão: '+base.divisao);
+    if(base.golos!=null) quais.push(base.golos+' golos');
+    if(base.jogos!=null) quais.push(base.jogos+' jogos');
+    if(base.golos_equipa!=null) quais.push(base.golos_equipa+' golos da equipa');
+    if(base.classificacao) quais.push(base.classificacao);
+    var dt=(c.em||'').slice(0,10);
+    return '<div class="panel">'
+      +'<div style="font-size:14.5px;color:var(--text);line-height:1.6">'+esc(c.texto)+'</div>'
+      +'<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border);font-size:11px;color:var(--muted);line-height:1.5">'
+      +'Leitura gerada por IA em '+esc(dt)+(c.por?(' · pedida por '+esc(String(c.por).split('@')[0])):'')+'.<br>'
+      +'É interpretação dos números, não uma observação de quem o viu jogar.'
+      +(quais.length?('<br>Baseada em: '+esc(quais.join(' · '))):'<br>Sem contexto competitivo preenchido — por isso diz o que diz.')
+      +'</div></div>';
+  }
   function devScoreHTML(ds){
     if(ds.estado==='em_pausa'){
       return '<div class="panel"><div style="font-size:var(--fs-corpo);font-weight:800;margin-bottom:6px">🏖️ Época em pausa</div><div class="sub" style="margin:0">Estamos em férias — o score não desce enquanto não há treinos. Quando a época recomeçar, o relógio volta a contar. As missões e o Elite Coach continuam disponíveis, e só podem somar.</div></div>';
@@ -326,7 +345,7 @@
 
   function render(d){
     var id=d.identidade, ind=d.indicadores;
-    var html='<section id="grupo-passaporte" class="fam-group"><div class="fam-group-head"><span class="eyebrow">O Passaporte</span><h2>O percurso dele</h2></div>';
+    var html='<section id="grupo-passaporte" class="fam-group"><div class="fam-group-head"><span class="eyebrow">O Passaporte</span><h2>O percurso dele</h2><p class="fam-lede">Tudo o que já ficou registado: quem o observou, como evoluiu, que épocas já fez. Isto não se apaga e vai com ele para onde for.</p></div>';
     // identidade + curva
     html+='<div class="pcard"><div class="head">'+
       '<div class="photo">'+(id.foto?'<div class="pp" style="background-image:url('+esc(id.foto)+')"></div>':'')+'</div>'+
@@ -373,6 +392,7 @@
     // Development Score — mede desenvolvimento, nunca talento; só contra o
     // próprio histórico (sem comparações entre atletas, por desenho)
     if(d.devScore){ html+='<div class="shead">Development Score</div>'+devScoreHTML(d.devScore); }
+    if(d.contextoIA && d.contextoIA.texto){ html+='<div class="shead">Leitura de contexto</div>'+contextoIAHTML(d.contextoIA); }
     // marcos
     html+='<div class="shead">Marcos da Carreira</div><div class="marcos">'+d.marcos.map(function(m){return '<div class="marco"><span class="ic">'+m[0]+'</span><span class="tt">'+esc(m[1])+'</span><span class="wn">'+esc(m[2])+'</span></div>';}).join('')+'</div>';
     // carreira (registada pela família, época a época — nunca inventada)
@@ -450,6 +470,7 @@
       atividade:[[String(nz(at.prescritos)),'Prescritos'],[String(nz(at.concluidos)),'Concluídos'],[String(nz(at.semanas_ativas)),'Semanas ativas'],[nz(ind.horas_treino_extra)+'h','Horas']],
       cognitivo: temCog?{acerto:Math.round(nz(cg.acerto_pct)), total:nz(cg.total), tipos:(cg.por_tipo||[]).map(function(t){return [cap(t.cenario),Math.round(nz(t.acerto_pct))];}), serie:(cg.serie||[]).map(function(p){return Math.round(nz(p.v));})}:null,
       maturacao:r.maturacao||null,
+      contextoIA:r.contexto_ia||null,
       devScore:r.dev_score||null,
       marcos:(r.marcos||[]).map(function(m){return ['◆',m.titulo||'',relTime(m.em)];}),
       carreira:(r.carreira||[]).map(function(c){
@@ -932,7 +953,12 @@
      +'#fam-pivot{display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;align-items:flex-start}'
      +'#fam-pivot::-webkit-scrollbar{display:none}'
      +'body.fam-pivo .fam-group{flex:0 0 100%;min-width:100%;scroll-snap-align:start;scroll-snap-stop:always;margin-top:0;padding:2px 2px 24px}'
-     +'body.fam-pivo .fam-group-head{display:none}' /* o título vive no pivot, como no WP8 */
+     +'body.fam-pivo .fam-group-head h2{display:none}' /* o título grande vive no pivot; a frase fica */
+     +'body.fam-pivo .fam-group-head{margin:0 2px 18px;padding-bottom:14px;border-bottom:1px solid var(--border)}'
+     +'body.fam-pivo .fam-group-head .eyebrow{display:none}'
+     +'.fam-lede{font-size:14px;color:var(--slate);line-height:1.5;margin:0}'
+     /* sub-títulos colam ao topo: dentro de uma secção longa, sabes sempre onde estás */
+     +'body.fam-pivo .shead{position:sticky;z-index:40;background:var(--bg);padding:9px 2px;margin:26px 0 10px;border-bottom:1px solid var(--border)}'
      +'.fam-group-head{margin:0 2px 16px}'
      +'.fam-group-head .eyebrow{display:block;margin-bottom:4px}'
      +'.fam-group-head h2{font-family:\'Barlow Condensed\',sans-serif;font-weight:900;font-size:var(--fs-titulo);letter-spacing:-.2px;color:var(--text)}'
@@ -1255,12 +1281,17 @@
     // grupos por género de função, inseridos em ordem inversa (cada insertBefore
     // empurra para a frente) — ordem final no ecrã: esta semana → atualizar dados → passaporte
     [
-      {id:'grupo-dados', eyebrow:'Atualizar dados', titulo:'A tua contribuição', filhos:['fam-tools']},
-      {id:'grupo-semana', eyebrow:'Esta semana', titulo:'O que fazer agora', filhos:['pp-jornada','fam-oqm','fam-diario']}
+      {id:'grupo-dados', eyebrow:'Atualizar dados', titulo:'A tua contribuição',
+       lede:'O que só tu sabes: como correu a época, quanto ele cresceu, o que treinou fora do plano. Fica marcado como declarado pela família — nunca como avaliação.',
+       filhos:['fam-tools']},
+      {id:'grupo-semana', eyebrow:'Esta semana', titulo:'O que fazer agora',
+       lede:'As missões que o treinador prescreveu e os jogos por responder. É por aqui que se começa.',
+       filhos:['pp-jornada','fam-oqm','fam-diario']}
     ].forEach(function(g){
       if(document.getElementById(g.id)) return;
       var sec=document.createElement('section'); sec.id=g.id; sec.className='fam-group';
-      sec.innerHTML='<div class="fam-group-head"><span class="eyebrow">'+esc(g.eyebrow)+'</span><h2>'+esc(g.titulo)+'</h2></div>';
+      sec.innerHTML='<div class="fam-group-head"><span class="eyebrow">'+esc(g.eyebrow)+'</span><h2>'+esc(g.titulo)+'</h2>'
+        +(g.lede?'<p class="fam-lede">'+esc(g.lede)+'</p>':'')+'</div>';
       g.filhos.forEach(function(fid){
         var el=document.createElement('section'); el.id=fid; el.className='fam-sec';
         sec.appendChild(el);
@@ -1305,6 +1336,14 @@
       // colar por BAIXO do header sticky do site, não por cima dele
       var topo=document.querySelector('.top');
       if(topo) head.style.top=topo.offsetHeight+'px';
+      // e os sub-títulos colam por baixo dos dois (header + barra do pivot)
+      function ajustarSheads(){
+        var alt=(topo?topo.offsetHeight:0)+(head?head.offsetHeight:0);
+        document.querySelectorAll('.shead').forEach(function(sh){ sh.style.top=alt+'px'; });
+      }
+      setTimeout(ajustarSheads,60); setTimeout(ajustarSheads,900);
+      window.__famSheads=ajustarSheads;
+      addEventListener('resize',ajustarSheads,{passive:true});
       // dica de deslize (uma vez por sessão)
       try{
         if(!sessionStorage.getItem('ytb-pivo-dica-fam')){
@@ -1344,6 +1383,7 @@
       return '<button type="button" data-i="'+i+'" onclick="__famPivoIr('+i+')">'+esc(lbl.toLowerCase())+'</button>';
     }).join('');
     famPivoMarca(Math.round((piv.scrollLeft||0)/(piv.clientWidth||1)));
+    if(window.__famSheads) window.__famSheads();   // blocos novos também colam
   }
   function famPivoMarca(i){
     __famPivoIdx=Math.max(0,i||0);
@@ -1441,7 +1481,7 @@
         var novoGrupo=!grupo;
         if(novoGrupo){
           grupo=document.createElement('section'); grupo.id='grupo-privacidade'; grupo.className='fam-group';
-          grupo.innerHTML='<div class="fam-group-head"><span class="eyebrow">Privacidade</span><h2>O que é visível</h2></div>';
+          grupo.innerHTML='<div class="fam-group-head"><span class="eyebrow">Privacidade</span><h2>O que é visível</h2><p class="fam-lede">Decides tu o que sai daqui e para quem. Podes mudar de ideias a qualquer momento — e as medições de crescimento nunca são visíveis a ninguém de fora.</p></div>';
           app.appendChild(grupo);
         }
         // conteúdo real primeiro, __famNav() (mede a altura do painel ativo) só depois —
