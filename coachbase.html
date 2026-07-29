@@ -92,6 +92,51 @@ body{max-width:900px;margin:0 auto;padding-bottom:70px}
 .pr-jogadas .jg{background:var(--bg3);border:1px solid var(--border);border-radius:999px;padding:10px 14px;font-size:13px;color:#fff;cursor:pointer;display:flex;gap:8px;align-items:center}
 .pr-jogadas .jg b{color:var(--gold)}
 .pr-jogadas .jg .x{color:var(--red);font-weight:900;padding:0 2px}
+
+/* ── prancheta em ecrã inteiro ──
+   Base em CSS (position:fixed), não na Fullscreen API: o iPhone não permite
+   fullscreen em elementos arbitrários, e no balneário o telemóvel é o que há.
+   Quando a API existe (Android, iPad, desktop) pede-se também, para esconder
+   a barra do browser — mas o modo funciona na mesma sem ela. */
+body.pr-cheio{overflow:hidden}
+body.pr-cheio #pr-palco{
+  position:fixed; inset:0; z-index:300; background:#080C08;
+  display:flex; flex-direction:column; padding:0; margin:0; border:none; border-radius:0;
+}
+body.pr-cheio #pr-palco .h,
+body.pr-cheio #pr-palco .s,
+body.pr-cheio #pr-palco #pr-fmt,
+body.pr-cheio #pr-palco #pr-tatica-wrap{display:none}
+body.pr-cheio #prancheta-svg{
+  flex:1; max-width:none; width:100%; height:auto; min-height:0;
+  border-radius:0; margin:0;
+}
+body.pr-cheio .pr-tools{
+  order:2; margin:0; padding:8px 10px calc(8px + env(safe-area-inset-bottom));
+  background:rgba(11,18,12,.94); backdrop-filter:blur(8px);
+  border-top:1px solid var(--border); justify-content:center; gap:8px;
+}
+body.pr-cheio .pr-acao{
+  order:3; margin:0; padding:0 10px calc(10px + env(safe-area-inset-bottom));
+  background:rgba(11,18,12,.94); gap:6px; justify-content:center;
+}
+body.pr-cheio .pr-acao button{min-height:42px;font-size:12px;min-width:0;flex:0 1 auto;padding:0 12px}
+body.pr-cheio .pr-frames, body.pr-cheio .pr-jogadas{
+  order:4; margin:0; padding:0 10px calc(10px + env(safe-area-inset-bottom));
+  background:rgba(11,18,12,.94); justify-content:center;
+}
+#pr-sair{
+  display:none; position:fixed; top:calc(10px + env(safe-area-inset-top)); right:10px; z-index:310;
+  min-height:44px; padding:0 16px; border-radius:999px; border:1px solid var(--gold);
+  background:rgba(11,18,12,.92); color:var(--gold); font-family:inherit; font-weight:800; font-size:13px; cursor:pointer;
+}
+body.pr-cheio #pr-sair{display:block}
+/* deitado num telemóvel, as barras encolhem para o campo respirar */
+@media (orientation:landscape) and (max-height:520px){
+  body.pr-cheio .pr-tools .tl{min-height:42px;min-width:52px;font-size:11px;padding:4px 8px}
+  body.pr-cheio .pr-tools .tl .ic{font-size:15px}
+  body.pr-cheio .pr-acao,body.pr-cheio .pr-frames,body.pr-cheio .pr-jogadas{display:none}
+}
 /* ── balneário ── */
 .bal-post{background:var(--bg2);border:1px solid var(--border);border-radius:13px;padding:14px 15px;margin-bottom:10px}
 .bal-post .bp-meta{font-size:11px;color:var(--muted);margin-bottom:4px}
@@ -174,9 +219,10 @@ body{max-width:900px;margin:0 auto;padding-bottom:70px}
 
   <!-- PRANCHETA -->
   <div class="sec on" id="sec-prancheta">
-    <div class="card">
+    <div class="card" id="pr-palco">
       <div class="h">Prancheta <span style="color:var(--gold)">tática</span></div>
       <div class="s">Arrasta jogadores, desenha passes e desmarcações, guarda momentos e reproduz a jogada animada. Feita para o tablet no balneário.</div>
+      <button type="button" onclick="PR.cheio(true)" style="min-height:48px;width:100%;border-radius:10px;border:1px solid var(--gold);background:var(--gold-soft);color:var(--gold);font-family:inherit;font-weight:800;font-size:14px;cursor:pointer;margin-bottom:10px">⛶ Ecrã inteiro — mostrar aos jogadores</button>
       <div class="chips" id="pr-fmt"></div>
       <div id="pr-tatica-wrap" hidden>
         <div class="chips" id="pr-tatica" style="margin-bottom:8px"></div>
@@ -188,7 +234,8 @@ body{max-width:900px;margin:0 auto;padding-bottom:70px}
         <button class="tl" data-m="desenho"><span class="ic">✏️</span>Livre</button>
         <button class="tl" data-m="apagar"><span class="ic">🧽</span>Apagar</button>
       </div>
-      <svg id="prancheta-svg" viewBox="0 0 340 520" xmlns="http://www.w3.org/2000/svg"></svg>
+      <svg id="prancheta-svg" viewBox="0 0 340 520" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"></svg>
+      <button type="button" id="pr-sair" onclick="PR.cheio(false)">✕ Sair</button>
       <div class="pr-acao">
         <button onclick="PR.addEquipaB()">＋ Equipa B</button>
         <button onclick="PR.addBola()">⚽ Bola</button>
@@ -1001,8 +1048,34 @@ var PR=(function(){
   }
   function apagarJogada(i){var lista=jogadas();lista.splice(i,1);localStorage.setItem(LS,JSON.stringify(lista));pintarJogadas();}
 
+  /* Ecrã inteiro. Base em CSS porque o iPhone não deixa pedir fullscreen a um
+     elemento qualquer — e é o telemóvel que vai estar no balneário. Quando a API
+     existe, pede-se também, só para arrumar a barra do browser; se falhar, o modo
+     imersivo funciona na mesma. Mantém o ecrã aceso enquanto durar, se der. */
+  var wakeLock=null;
+  async function cheio(ligar){
+    document.body.classList.toggle('pr-cheio', !!ligar);
+    var palco=document.getElementById('pr-palco');
+    if(ligar){
+      if(palco && palco.requestFullscreen){ try{ await palco.requestFullscreen({navigationUI:'hide'}); }catch(e){} }
+      try{ if(navigator.wakeLock) wakeLock=await navigator.wakeLock.request('screen'); }catch(e){}
+      try{ if(screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); }catch(e){}
+    } else {
+      if(document.fullscreenElement && document.exitFullscreen){ try{ await document.exitFullscreen(); }catch(e){} }
+      if(wakeLock){ try{ wakeLock.release(); }catch(e){} wakeLock=null; }
+    }
+    render();
+  }
+  // sair pelo botão do sistema ou pelo Esc deixa o CSS coerente
+  document.addEventListener('fullscreenchange',function(){
+    if(!document.fullscreenElement && document.body.classList.contains('pr-cheio')) cheio(false);
+  });
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape' && document.body.classList.contains('pr-cheio')) cheio(false);
+  });
+
   function init(){formar();ligar();render();pintarJogadas();}
-  return {init:init,render:render,reformatar:reformatar,addEquipaB:addEquipaB,addBola:addBola,addCone:addCone,
+  return {init:init,render:render,reformatar:reformatar,addEquipaB:addEquipaB,addBola:addBola,addCone:addCone,cheio:cheio,
     undo:undo,limpar:limpar,guardarMomento:guardarMomento,irFrame:irFrame,reproduzir:reproduzir,
     exportarPNG:exportarPNG,guardarJogada:guardarJogada,abrirJogada:abrirJogada,apagarJogada:apagarJogada,_estado:E};
 })();
