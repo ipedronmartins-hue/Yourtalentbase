@@ -1,5 +1,5 @@
 -- ============================================================================
--- 057 · diário: que tipo de treino livre foi, não só "livre"
+-- 058 · diário: que tipo de treino livre foi, não só "livre"
 -- ----------------------------------------------------------------------------
 -- Pedido do fundador: "livre" no diário não diz nada sobre o que o atleta fez
 -- de facto — 60 minutos podem ser bola contra a parede ou corrida. Acrescenta
