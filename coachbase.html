@@ -15,6 +15,7 @@
 <link rel="stylesheet" href="/assets/css/ytb-vivo.css">
 <script src="/assets/js/ytb-vivo.js"></script>
 <script src="/assets/js/ytb-config.js"></script>
+<script src="/assets/js/ytb-pivot.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="stylesheet" href="ytb-tokens.css">
 <style>
@@ -42,7 +43,6 @@ body{max-width:900px;margin:0 auto;padding-bottom:70px}
 .tabs{display:flex;gap:6px;margin:14px 0;overflow-x:auto;padding-bottom:2px}
 .tab{flex:1;min-width:120px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px 10px;color:var(--slate);font-family:'Barlow Condensed';font-weight:900;font-size:15px;letter-spacing:.5px;cursor:pointer;text-align:center}
 .tab.on{border-color:var(--gold);color:var(--gold);background:var(--gold-soft)}
-.sec{display:none}.sec.on{display:block}
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px}
 .h{font-family:'Barlow Condensed';font-weight:900;font-size:22px;margin-bottom:4px}
 .s{font-size:12px;color:var(--slate);margin-bottom:12px}
@@ -101,7 +101,7 @@ body{max-width:900px;margin:0 auto;padding-bottom:70px}
 body.pr-cheio{overflow:hidden}
 body.pr-cheio #pr-palco{
   position:fixed; inset:0; z-index:300; background:#080C08;
-  display:flex; flex-direction:column; padding:0; margin:0; border:none; border-radius:0;
+  display:flex; flex-direction:row; padding:0; margin:0; border:none; border-radius:0;
 }
 body.pr-cheio #pr-palco .h,
 body.pr-cheio #pr-palco .s,
@@ -111,7 +111,7 @@ body.pr-cheio #pr-abrir{display:none}
 
 /* o campo ocupa tudo o que sobra; o wrapper e o palco da rotacao */
 body.pr-cheio #pr-campo-wrap{
-  order:1; flex:1; min-height:0; position:relative; overflow:hidden;
+  order:3; flex:1; min-height:0; position:relative; overflow:hidden;
   display:flex; align-items:center; justify-content:center;
 }
 body.pr-cheio #prancheta-svg{
@@ -124,27 +124,33 @@ body.pr-cheio.pr-deitado #prancheta-svg{
   transform:translate(-50%,-50%) rotate(90deg); transform-origin:center;
   width:auto; height:auto;  /* medidas postas pelo JS: dependem do espaco real */
 }
-/* UMA linha de controlos por baixo. O resto vive atras do "mais". */
+/* Dock vertical à esquerda, estilo Ubuntu — ferramentas principais sempre à vista,
+   o resto atrás do "mais" numa segunda coluna que desliza ao lado. */
 body.pr-cheio .pr-tools{
-  order:2; margin:0; padding:7px 10px calc(7px + env(safe-area-inset-bottom));
+  order:1; flex-direction:column; flex-wrap:nowrap; margin:0;
+  width:72px; height:100%; flex:0 0 auto;
+  padding:calc(10px + env(safe-area-inset-top)) 8px calc(10px + env(safe-area-inset-bottom));
   background:rgba(11,18,12,.96); backdrop-filter:blur(8px);
-  border-top:1px solid var(--border); justify-content:center; gap:7px;
-  flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none;
+  border-right:1px solid var(--border); justify-content:flex-start; gap:8px;
+  overflow-y:auto; scrollbar-width:none;
 }
 body.pr-cheio .pr-tools::-webkit-scrollbar{display:none}
-body.pr-cheio .pr-tools .tl{flex:0 0 auto;min-width:58px;min-height:48px}
+body.pr-cheio .pr-tools .tl{flex:0 0 auto;width:100%;min-width:0;min-height:56px}
+#pr-extra{display:none}
+body.pr-cheio #pr-extra{
+  order:2; flex:0 0 auto; width:172px; height:100%;
+  padding:calc(10px + env(safe-area-inset-top)) 10px calc(10px + env(safe-area-inset-bottom));
+  background:rgba(11,18,12,.96); border-right:1px solid var(--border);
+  flex-direction:column; gap:10px; overflow-y:auto; scrollbar-width:none;
+}
+body.pr-cheio #pr-extra::-webkit-scrollbar{display:none}
+body.pr-cheio.pr-mais #pr-extra{display:flex}
 body.pr-cheio .pr-acao,
 body.pr-cheio .pr-frames,
-body.pr-cheio .pr-jogadas{
-  order:3; margin:0; padding:0 10px calc(8px + env(safe-area-inset-bottom));
-  background:rgba(11,18,12,.96); gap:6px; justify-content:center; display:none;
-}
-body.pr-cheio.pr-mais .pr-acao,
-body.pr-cheio.pr-mais .pr-frames,
-body.pr-cheio.pr-mais .pr-jogadas{display:flex;flex-wrap:wrap}
-body.pr-cheio .pr-acao button{min-height:40px;font-size:12px;min-width:0;flex:0 1 auto;padding:0 12px}
+body.pr-cheio .pr-jogadas{flex-direction:column;gap:6px;margin:0}
+body.pr-cheio .pr-acao button{min-height:40px;font-size:12px;width:100%;padding:0 10px}
 #pr-mais{
-  display:none; flex:0 0 auto; min-width:52px; min-height:48px; border-radius:11px;
+  display:none; flex:0 0 auto; width:100%; min-width:52px; min-height:48px; border-radius:11px;
   border:1px solid var(--border); background:var(--bg3); color:var(--slate);
   font-family:inherit; font-weight:800; font-size:12px; cursor:pointer;
 }
@@ -261,24 +267,26 @@ body.pr-cheio #pr-sair{display:block}
       </div>
       <div id="pr-campo-wrap"><svg id="prancheta-svg" viewBox="0 0 340 520" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"></svg></div>
       <button type="button" id="pr-sair" onclick="PR.cheio(false)">✕ Sair</button>
-      <div class="pr-acao">
-        <button onclick="PR.addEquipaB()">＋ Equipa B</button>
-        <button onclick="PR.addBola()">⚽ Bola</button>
-        <button onclick="PR.addCone()">🔺 Cone</button>
-        <button onclick="PR.undo()">↩ Desfazer</button>
-        <button onclick="PR.limpar()">🗑 Limpar</button>
+      <div id="pr-extra">
+        <div class="pr-acao">
+          <button onclick="PR.addEquipaB()">＋ Equipa B</button>
+          <button onclick="PR.addBola()">⚽ Bola</button>
+          <button onclick="PR.addCone()">🔺 Cone</button>
+          <button onclick="PR.undo()">↩ Desfazer</button>
+          <button onclick="PR.limpar()">🗑 Limpar</button>
+        </div>
+        <div class="pr-frames">
+          <span style="font-size:11px;color:var(--slate);font-weight:700;letter-spacing:1px;text-transform:uppercase">Jogada:</span>
+          <span id="pr-frames-lista"></span>
+          <button class="fr" style="width:auto;padding:0 12px;font-size:13px" onclick="PR.guardarMomento()">＋ momento</button>
+          <button class="fr" style="width:auto;padding:0 12px;font-size:13px;border-color:var(--gold);color:var(--gold)" onclick="PR.reproduzir()">▶ reproduzir</button>
+        </div>
+        <div class="pr-acao">
+          <button class="dourado" onclick="PR.exportarPNG()">📸 Exportar imagem</button>
+          <button onclick="PR.guardarJogada()">💾 Guardar jogada</button>
+        </div>
+        <div class="pr-jogadas" id="pr-jogadas"></div>
       </div>
-      <div class="pr-frames">
-        <span style="font-size:11px;color:var(--slate);font-weight:700;letter-spacing:1px;text-transform:uppercase">Jogada:</span>
-        <span id="pr-frames-lista"></span>
-        <button class="fr" style="width:auto;padding:0 12px;font-size:13px" onclick="PR.guardarMomento()">＋ momento</button>
-        <button class="fr" style="width:auto;padding:0 12px;font-size:13px;border-color:var(--gold);color:var(--gold)" onclick="PR.reproduzir()">▶ reproduzir</button>
-      </div>
-      <div class="pr-acao">
-        <button class="dourado" onclick="PR.exportarPNG()">📸 Exportar imagem</button>
-        <button onclick="PR.guardarJogada()">💾 Guardar jogada</button>
-      </div>
-      <div class="pr-jogadas" id="pr-jogadas"></div>
     </div>
   </div>
 
@@ -367,6 +375,10 @@ body.pr-cheio #pr-sair{display:block}
       <div id="pos-desc" style="font-size:12px;color:var(--slate);text-align:center;min-height:32px;padding:6px 4px"></div>
       <label class="label">Plantel (ordenado por presenças nos últimos 30 dias)</label>
       <div id="cv-lista"><div class="s">A carregar…</div></div>
+      <div style="display:flex;gap:6px;margin-top:8px">
+        <input class="input" id="cv-avulso-nome" type="text" maxlength="60" placeholder="Jogador que ainda não está na YTB — só o nome" style="flex:1">
+        <button type="button" class="btn btn-sec" style="width:auto;padding:0 16px" onclick="adicionarAvulso()">+ Adicionar</button>
+      </div>
       <label class="label" style="margin-top:10px">Estratégia para o banco</label>
       <textarea class="input" id="cv-banco" rows="3" placeholder="Quem entra, quando, e para quê…"></textarea>
       <button class="btn btn-sec" onclick="sugerirBanco()" style="margin-top:8px">💡 Sugerir estratégia (IA)</button>
@@ -388,7 +400,30 @@ var CFG=window.YTB_CONFIG||{}, USING_SB=!!(CFG.SUPABASE_URL&&CFG.SUPABASE_KEY&&w
 var supa=USING_SB?window.supabase.createClient(CFG.SUPABASE_URL,CFG.SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:'ytb-auth',flowType:'pkce'}}):null;
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 var toastT=null;function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(function(){t.classList.remove('show');},2800);}
-function tab(t){document.querySelectorAll('.tab').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-t')===t);});document.querySelectorAll('.sec').forEach(function(s){s.classList.remove('on');});document.getElementById('sec-'+t).classList.add('on');if(t==='pres')carregarPlantel();if(t==='conv')carregarConv();if(t==='balneario')BAL.carregar();if(t==='adv')ADV.init();}
+var CB_KEYS=['prancheta','sessao','micro','pres','adv','conv','balneario'];
+var CB_ROT=['prancheta','sessão','microciclo','presenças','adversário','convocatória','balneário'];
+var cbPivot=null; // {ir,atual} de YTBPivot.montar, depois de iniciado
+function aplicarTabCB(idx){
+  var t=CB_KEYS[idx];
+  if(t==='pres')carregarPlantel();
+  if(t==='conv')carregarConv();
+  if(t==='balneario')BAL.carregar();
+  if(t==='adv')ADV.init();
+}
+function tab(t){
+  var idx=Math.max(0, CB_KEYS.indexOf(t));
+  if(cbPivot) cbPivot.ir(idx); else aplicarTabCB(idx);
+}
+function iniciarPivotCoachbase(){
+  if(!window.YTBPivot || cbPivot) return;
+  var head=document.querySelector('.tabs'); if(!head) return;
+  var cont=document.getElementById('cb-pivot');
+  if(!cont){ cont=document.createElement('div'); cont.id='cb-pivot'; head.parentNode.insertBefore(cont, head.nextSibling); }
+  var paineis=CB_KEYS.map(function(k,i){ return {rotulo:CB_ROT[i], el:document.getElementById('sec-'+k)}; });
+  cbPivot=YTBPivot.montar(cont, head, paineis, 0, aplicarTabCB);
+}
+document.addEventListener('DOMContentLoaded', iniciarPivotCoachbase);
+if(document.readyState!=='loading') iniciarPivotCoachbase();
 
 /* ── seletores ── */
 var SEL={escalao:'Sub-11',formato:'fut7',n:12,dur:75,material:['bolas','coletes','cones'],foco:'posse',tatica:'4-4-2'};
@@ -800,7 +835,15 @@ var POSICOES={
   fut9:[[1,'GR',150,390,'Guarda-redes'],[2,'LD',70,320,'Lateral direito: sobe e fecha'],[3,'DC',150,330,'Central: manda na linha'],[4,'LE',230,320,'Lateral esquerdo'],[5,'MDC',150,265,'Médio defensivo: equilíbrio'],[6,'MC',90,205,'Médio: ligação'],[8,'MC',210,205,'Médio: chegada à área'],[7,'EX',70,120,'Extremo: profundidade'],[9,'PL',180,100,'Ponta de lança: referência']],
   fut11:[[1,'GR',150,395,'Guarda-redes: jogo aéreo e com os pés'],[2,'LD',60,330,'Lateral direito: corredor todo'],[3,'DC',115,345,'Central direito: duelos e saída'],[4,'DC',185,345,'Central esquerdo: antecipação'],[5,'LE',240,330,'Lateral esquerdo'],[6,'MDC',150,280,'Médio defensivo: escudo e 1ª fase'],[8,'MC',95,220,'Médio centro: box-to-box'],[10,'MO',185,215,'Médio ofensivo: última linha de passe'],[7,'ED',55,140,'Extremo direito: 1x1 e cruzamento'],[11,'EE',245,140,'Extremo esquerdo: dentro para rematar'],[9,'PL',150,95,'Ponta de lança: finalizador']]
 };
-var conv={},posSel=null,cvStats=[];
+var conv={},posSel=null,cvStats=[],cvAvulsos=[]; // avulso: jogador so por nome, sem atleta_id (fora da YTB) — id sintetico 'av0','av1'...
+function adicionarAvulso(){
+  var el=document.getElementById('cv-avulso-nome');
+  var nome=(el.value||'').trim();
+  if(!nome){toast('Escreve o nome do jogador');return;}
+  cvAvulsos.push({atleta_id:'av'+cvAvulsos.length+'-'+Date.now(),nome:nome,avulso:true});
+  el.value='';
+  pintarCvLista();
+}
 function desenharCampo(){
   var svg=document.getElementById('campo');
   var pos=POSICOES[SEL.formato]||POSICOES.fut7;
@@ -836,16 +879,18 @@ function carregarConv(){
 }
 function pintarCvLista(){
   var box=document.getElementById('cv-lista');
-  if(!cvStats.length){box.innerHTML='<div class="s">Sem plantel ainda.</div>';return;}
+  var todos=cvStats.concat(cvAvulsos);
+  if(!todos.length){box.innerHTML='<div class="s">Sem plantel ainda.</div>';return;}
   var usados={};Object.keys(conv).forEach(function(k){usados[conv[k].atleta_id]=parseInt(k);});
-  box.innerHTML=cvStats.map(function(a){
+  box.innerHTML=todos.map(function(a){
     var num=usados[a.atleta_id];
-    return '<div class="linha" style="cursor:pointer" data-a="'+a.atleta_id+'"><div><div class="nm">'+(num?('<span style="color:var(--gold)">#'+num+'</span> '):'')+esc(a.nome)+'</div>'
-      +'<div class="mt">'+esc(a.posicao||'')+' · '+(a.presencas_30d||0)+' presenças/30d'+(a.faltas_30d?(' · '+a.faltas_30d+' faltas'):'')+'</div></div>'
+    var avulsoTag=a.avulso?' <span style="font-size:10px;color:var(--slate);font-weight:700;text-transform:uppercase">· avulso</span>':'';
+    return '<div class="linha" style="cursor:pointer" data-a="'+a.atleta_id+'"><div><div class="nm">'+(num?('<span style="color:var(--gold)">#'+num+'</span> '):'')+esc(a.nome)+avulsoTag+'</div>'
+      +'<div class="mt">'+(a.avulso?'Sem conta na YTB — não fica no percurso dele':(esc(a.posicao||'')+' · '+(a.presencas_30d||0)+' presenças/30d'+(a.faltas_30d?(' · '+a.faltas_30d+' faltas'):'')))+'</div></div>'
       +'<div style="font-size:12px;color:'+(num?'var(--gold)':'var(--muted)')+'">'+(num?'titular':'banco')+'</div></div>';
   }).join('');
   box.querySelectorAll('.linha').forEach(function(l){l.addEventListener('click',function(){
-    var id=l.getAttribute('data-a'),a=cvStats.find(function(x){return x.atleta_id===id;});
+    var id=l.getAttribute('data-a'),a=todos.find(function(x){return x.atleta_id===id;});
     if(posSel==null){toast('Toca primeiro numa posição no campo');return;}
     Object.keys(conv).forEach(function(k){if(conv[k].atleta_id===id)delete conv[k];});
     conv[posSel]={atleta_id:id,nome:a.nome};posSel=null;
@@ -860,9 +905,13 @@ function sugerirBanco(){
   chamarIA(p,400).then(function(t){ta.value=t;}).catch(function(){ta.value='';toast('IA indisponível — escreve tu a estratégia');});
 }
 function guardarConv(){
-  var lista=Object.keys(conv).map(function(k){return {atleta_id:conv[k].atleta_id,numero:parseInt(k),papel:'titular'};});
-  var titularesIds=lista.map(function(x){return x.atleta_id;});
-  cvStats.forEach(function(a){if(titularesIds.indexOf(a.atleta_id)<0)lista.push({atleta_id:a.atleta_id,numero:null,papel:'suplente'});});
+  // ids sinteticos 'avN-...' sao so para seguir seleção no ecrã — no jsonb gravado
+  // viram atleta_id:null (RPC ja salta a emissão de evento do livro-razão quando
+  // atleta_id é nulo, sem rejeitar o pedido); o nome fica, é a única identidade que têm.
+  function idReal(id){ return /^av\d+-/.test(id) ? null : id; }
+  var lista=Object.keys(conv).map(function(k){return {atleta_id:idReal(conv[k].atleta_id),nome:conv[k].nome,numero:parseInt(k),papel:'titular'};});
+  var titularesIds=lista.map(function(x){return x.atleta_id;}).filter(function(x){return x!=null;});
+  cvStats.forEach(function(a){if(titularesIds.indexOf(a.atleta_id)<0)lista.push({atleta_id:a.atleta_id,nome:a.nome,numero:null,papel:'suplente'});});
   if(!lista.length){toast('Sem plantel');return;}
   var b=document.getElementById('btn-conv');b.disabled=true;b.innerHTML='<span class="spinner"></span> A guardar…';
   supa.rpc('ytb_coach_convocatoria_criar',{p_data:document.getElementById('cv-data').value||null,p_adversario:document.getElementById('cv-adv').value||null,p_formato:SEL.formato,p_lista:lista,p_banco:document.getElementById('cv-banco').value||null})
