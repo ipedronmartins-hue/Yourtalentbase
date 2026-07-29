@@ -1,0 +1,15 @@
+-- 060: FIX CRITICO — gerar avaliacao contextual falhava SEMPRE desde a 057.
+-- A 057 concluiu (errado) que a tabela nao emitia evento, sem verificar se
+-- havia trigger. Havia: ytb_ev_avaliacoes_contextuais (ytb_emitir_evento),
+-- ja insere em atleta_eventos em todo INSERT, com ON CONFLICT DO NOTHING.
+-- A 057 acrescentou um SEGUNDO insert com o MESMO ref_tabela/ref_id mas SEM
+-- essa protecao -> viola atleta_eventos_ref_uk -> toda a funcao faz rollback,
+-- incluindo o insert em avaliacoes_contextuais que tinha acabado de suceder.
+-- Confirmado: 100% das tentativas falhavam desde ontem a noite. Apanhado
+-- pelo fundador a testar com atleta real, erro postgres cru visivel no ecra.
+-- Correcao: remove o insert duplicado; o trigger generico ja fazia o
+-- trabalho certo. Auditoria feita a todas as funcoes desta sessao que
+-- escrevem em atleta_eventos com ref_tabela/ref_id explicito — as restantes
+-- (_ytb_streak_marco, ytb_consentir_ambito) usam namespace proprio ou null,
+-- nao colidem. So esta tinha o padrao errado.
+-- Corpo integral no historico Supabase (060_fix_aval_contextual_duplo_insert_evento).
