@@ -297,6 +297,45 @@
   /* Leitura de contexto por IA — interpretação, não observação.
      Vai sempre acompanhada de quando, por quem e com que dados foi feita:
      uma síntese sem rasto até aos factos é opinião disfarçada de facto. */
+  /* Radar das 5 áreas que o treinador avalia — a mesma forma de um cartão de
+     jogo, com o conteúdo trocado: sem rating geral, sem badge de crescimento,
+     sem número em cada eixo. Só a forma (onde está mais forte agora) e uma
+     seta de tendência por área. Nunca visível a scout/clube — mesmo portão
+     que já protege a leitura de contexto e a maturação. */
+  function radarAreasHTML(p){
+    var areas=p.areas||[]; if(!areas.length) return '';
+    var cx=160, cy=132, maxR=92, n=areas.length;
+    var pontos=areas.map(function(a,i){
+      var ang=-Math.PI/2 + i*2*Math.PI/n;
+      var r=maxR*Math.max(0.14,(a.v||0)/5);
+      return [cx+r*Math.cos(ang), cy+r*Math.sin(ang)];
+    });
+    var poly=pontos.map(function(pt){return pt[0].toFixed(1)+','+pt[1].toFixed(1);}).join(' ');
+    var grid=[0.33,0.66,1].map(function(frac){
+      var gp=areas.map(function(a,i){ var ang=-Math.PI/2+i*2*Math.PI/n; return (cx+maxR*frac*Math.cos(ang)).toFixed(1)+','+(cy+maxR*frac*Math.sin(ang)).toFixed(1); }).join(' ');
+      return '<polygon points="'+gp+'" fill="none" stroke="var(--border)" stroke-width="1" opacity="'+(frac===1?0.5:0.25)+'"/>';
+    }).join('');
+    var eixos=areas.map(function(a,i){
+      var ang=-Math.PI/2+i*2*Math.PI/n;
+      return '<line x1="'+cx+'" y1="'+cy+'" x2="'+(cx+maxR*Math.cos(ang)).toFixed(1)+'" y2="'+(cy+maxR*Math.sin(ang)).toFixed(1)+'" stroke="var(--border)" stroke-width="1" opacity=".35"/>';
+    }).join('');
+    var TSETA={subir:['↗','var(--up)'],estavel:['→','var(--slate)'],descer:['↘','var(--orange, #E8A33D)']};
+    var labels=areas.map(function(a,i){
+      var ang=-Math.PI/2+i*2*Math.PI/n, lr=maxR+26;
+      var lx=cx+lr*Math.cos(ang), ly=cy+lr*Math.sin(ang);
+      var seta=a.t?TSETA[a.t]:['·','var(--dim, var(--slate))'];
+      return '<text x="'+lx.toFixed(1)+'" y="'+ly.toFixed(1)+'" text-anchor="middle" dominant-baseline="middle" font-family="Plus Jakarta Sans" font-size="11" font-weight="700" fill="var(--slate)">'+esc(a.l)+'</text>'
+        +'<text x="'+lx.toFixed(1)+'" y="'+(ly+13).toFixed(1)+'" text-anchor="middle" dominant-baseline="middle" font-family="Plus Jakarta Sans" font-size="12" font-weight="800" fill="'+seta[1]+'">'+seta[0]+'</text>';
+    }).join('');
+    var em=(p.em||'').slice(0,10);
+    return '<div class="panel" style="text-align:center">'
+      +'<svg viewBox="0 0 320 264" style="width:100%;max-width:320px;margin:4px auto 0;display:block">'
+      +grid+eixos+'<polygon points="'+poly+'" fill="var(--gold)" fill-opacity=".18" stroke="var(--gold)" stroke-width="2"/>'
+      +pontos.map(function(pt){return '<circle cx="'+pt[0].toFixed(1)+'" cy="'+pt[1].toFixed(1)+'" r="3.5" fill="var(--gold)"/>';}).join('')
+      +labels+'</svg>'
+      +'<div style="font-size:11px;color:var(--muted);margin-top:10px;line-height:1.5">Forma da última avaliação do treinador ('+esc(em)+'). A seta compara com a anterior — não é uma nota, é para onde está a ir.</div>'
+      +'</div>';
+  }
   function contextoIAHTML(c){
     var base=c.base||{}, quais=[];
     if(base.divisao) quais.push('divisão: '+base.divisao);
@@ -392,6 +431,7 @@
     // Development Score — mede desenvolvimento, nunca talento; só contra o
     // próprio histórico (sem comparações entre atletas, por desenho)
     if(d.devScore){ html+='<div class="shead">Development Score</div>'+devScoreHTML(d.devScore); }
+    if(d.perfilAreas && d.perfilAreas.areas){ html+='<div class="shead">Onde ele está a trabalhar agora</div>'+radarAreasHTML(d.perfilAreas); }
     if(d.contextoIA && d.contextoIA.texto){ html+='<div class="shead">Leitura de contexto</div>'+contextoIAHTML(d.contextoIA); }
     // marcos
     html+='<div class="shead">Marcos da Carreira</div><div class="marcos">'+d.marcos.map(function(m){return '<div class="marco"><span class="ic">'+m[0]+'</span><span class="tt">'+esc(m[1])+'</span><span class="wn">'+esc(m[2])+'</span></div>';}).join('')+'</div>';
@@ -471,6 +511,7 @@
       cognitivo: temCog?{acerto:Math.round(nz(cg.acerto_pct)), total:nz(cg.total), tipos:(cg.por_tipo||[]).map(function(t){return [cap(t.cenario),Math.round(nz(t.acerto_pct))];}), serie:(cg.serie||[]).map(function(p){return Math.round(nz(p.v));})}:null,
       maturacao:r.maturacao||null,
       contextoIA:r.contexto_ia||null,
+      perfilAreas:r.perfil_areas||null,
       devScore:r.dev_score||null,
       marcos:(r.marcos||[]).map(function(m){return ['◆',m.titulo||'',relTime(m.em)];}),
       carreira:(r.carreira||[]).map(function(c){
