@@ -1429,7 +1429,8 @@ var ADV=(function(){
         +(fraco?('Ponto fraco do adversário: '+fraco+'.\n'):'')
         +(jogador?('Jogador mais perigoso: '+jogador+'.\n'):'')
         +(bp?'São fortes em bolas paradas — atenção redobrada aí.\n':'')
-        +'Responde em PT-PT, direto, sem markdown, em exatamente 4 parágrafos curtos com estes títulos em maiúsculas no início de cada um: "TÁTICA:" (mantemos a nossa ou ajustamos? sê específico), "MATCHUPS:" (que confrontos individuais/zonais explorar ou proteger), "INSTRUÇÕES:" (2-3 instruções concretas para dar aos jogadores), "TREINO MD-1:" (o que priorizar na última sessão antes do jogo — liga a áreas como movimentação, linha defensiva ou bolas paradas).';
+        +'ATENÇÃO AOS LADOS: as duas equipas jogam viradas uma para a outra, por isso os lados espelham-se. Um extremo ou lateral ESQUERDO do adversário ataca o NOSSO lado DIREITO, e um jogador DIREITO do adversário ataca o nosso lado ESQUERDO — nunca o mesmo lado. Sempre que mencionares proteger ou reforçar um lado, usa a perspetiva da NOSSA equipa e confirma mentalmente o espelhamento antes de escrever.\n'
+        +'Responde em PT-PT, direto, sem markdown, em exatamente 4 parágrafos curtos com estes títulos em maiúsculas no início de cada um: "TÁTICA:" (mantemos a nossa ou ajustamos? sê específico), "MATCHUPS:" (que confrontos individuais/zonais explorar ou proteger — nomeia sempre o lado pela NOSSA perspetiva), "INSTRUÇÕES:" (2-3 instruções concretas para dar aos jogadores), "TREINO MD-1:" (o que priorizar na última sessão antes do jogo — liga a áreas como movimentação, linha defensiva ou bolas paradas).';
       return chamarIA(p,700);
     }).then(function(t){
       document.getElementById('adv-out').innerHTML='<div class="card"><div class="h">Sugestão <span style="color:var(--gold)">tática</span></div><div style="font-size:13.5px;color:var(--white);line-height:1.7;white-space:pre-wrap">'+esc(t)+'</div></div>';
