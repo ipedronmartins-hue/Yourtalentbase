@@ -251,7 +251,7 @@ body.pr-cheio #pr-sair{display:block}
   <div class="sec on" id="sec-prancheta">
     <div class="card" id="pr-palco">
       <div class="h">Prancheta <span style="color:var(--gold)">tática</span></div>
-      <div class="s">Arrasta jogadores, desenha passes e desmarcações, guarda momentos e reproduz a jogada animada. Feita para o tablet no balneário.</div>
+      <div class="s">Desenha passes e corridas — a bola e os jogadores seguem as setas sozinhos ao reproduzir. "+ momento" só é preciso se quiseres controlar várias fases à mão.</div>
       <button type="button" id="pr-abrir" onclick="PR.cheio(true)" style="min-height:48px;width:100%;border-radius:10px;border:1px solid var(--gold);background:var(--gold-soft);color:var(--gold);font-family:inherit;font-weight:800;font-size:14px;cursor:pointer;margin-bottom:10px">⛶ Ecrã inteiro — mostrar aos jogadores</button>
       <div class="chips" id="pr-fmt"></div>
       <div id="pr-tatica-wrap" hidden>
@@ -1073,9 +1073,77 @@ var PR=(function(){
     E.tokens=f.tokens;E.setas=f.setas;E.tracos=f.tracos;E.frameAtual=i;
     render();
   }
+  /* Reprodução automática — segue as setas desenhadas, sem exigir "momentos".
+     Corrida: liga cada seta ao jogador mais próximo do seu início (raio 40px,
+     generoso o suficiente para o dedo que começou a desenhar em cima do token
+     mas sem raio 14) e anima-o até à ponta. Passe: encadeia as setas a partir
+     de onde a bola está agora (a ponta de uma liga ao início da seguinte),
+     e a bola percorre essa cadeia em sequência, não em paralelo — é assim que
+     um passe se lê. Corridas e passe acontecem ao mesmo tempo, como no campo. */
+  function reproduzirAuto(){
+    var corridas=E.setas.filter(function(s){return s.tipo==='corrida';});
+    var passes=E.setas.filter(function(s){return s.tipo==='passe';});
+    if(!corridas.length && !passes.length){ toast('Desenha uma seta de passe ou de corrida — ou guarda 2 momentos'); return; }
+    aReproduzir=true; var DUR=1400;
+
+    var jogadores=E.tokens.filter(function(t){return t.tipo!=='bola'&&t.tipo!=='cone';});
+    var moves=corridas.map(function(s){
+      var melhor=null;
+      jogadores.forEach(function(t){
+        var d=Math.hypot(t.x-s.x1,t.y-s.y1);
+        if(d<40 && (!melhor||d<melhor.d)) melhor={id:t.id,d:d};
+      });
+      return melhor?{id:melhor.id,from:{x:0,y:0},to:{x:s.x2,y:s.y2}}:null;
+    }).filter(Boolean);
+    // "from" fixa-se no arranque do tick, com a posição real nesse instante —
+    // se o jogador já tiver sido movido à mão entretanto, a animação parte daí.
+
+    var bola=E.tokens.find(function(t){return t.tipo==='bola';});
+    // A bola é normalmente colocada no DESTINO do passe (é para ali que vai),
+    // não na posição de partida — por isso a cadeia não começa "de onde a
+    // bola está agora". Começa na raiz: a seta cujo início não é o fim de
+    // nenhuma outra. Se houver mais que uma sequência solta, usa-se a maior.
+    var cadeia=[];
+    if(bola && passes.length){
+      var usada=new Array(passes.length).fill(false);
+      var raizes=passes.map(function(s,i){
+        var ehDestino=passes.some(function(o,j){ return j!==i && Math.hypot(o.x2-s.x1,o.y2-s.y1)<40; });
+        return ehDestino?-1:i;
+      }).filter(function(i){return i>=0;});
+      raizes.forEach(function(r0){
+        var atual={x:passes[r0].x1,y:passes[r0].y1}, seq=[], livres=passes.map(function(_,i){return i;}).filter(function(i){return !usada[i];});
+        while(true){
+          var idx=-1,melhorD=40;
+          livres.forEach(function(i){ var d=Math.hypot(passes[i].x1-atual.x,passes[i].y1-atual.y); if(d<melhorD){melhorD=d;idx=i;} });
+          if(idx===-1) break;
+          seq.push(passes[idx]); atual={x:passes[idx].x2,y:passes[idx].y2};
+          livres=livres.filter(function(i){return i!==idx;});
+        }
+        if(seq.length>cadeia.length) cadeia=seq;
+      });
+    }
+
+    moves.forEach(function(m){ var t=E.tokens.find(function(x){return x.id===m.id;}); if(t) m.from={x:t.x,y:t.y}; });
+    var t0=performance.now();
+    function tick(now){
+      var k=Math.min(1,(now-t0)/DUR); var ease=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
+      moves.forEach(function(m){
+        var t=E.tokens.find(function(x){return x.id===m.id;});
+        if(t){ t.x=m.from.x+(m.to.x-m.from.x)*ease; t.y=m.from.y+(m.to.y-m.from.y)*ease; }
+      });
+      if(bola && cadeia.length){
+        var pos=ease*cadeia.length, seg=Math.min(cadeia.length-1,Math.floor(pos)), segK=pos-seg, s=cadeia[seg];
+        bola.x=s.x1+(s.x2-s.x1)*segK; bola.y=s.y1+(s.y2-s.y1)*segK;
+      }
+      render();
+      if(k<1) requestAnimationFrame(tick); else aReproduzir=false;
+    }
+    requestAnimationFrame(tick);
+  }
+
   function reproduzir(){
-    if(E.frames.length<2){toast('Guarda pelo menos 2 momentos para animar');return;}
-    aReproduzir=true;var i=0,DUR=850;
+    if(E.frames.length>=2){
+    var i=0,DUR=850;
     function passo(){
       var A=E.frames[i],B=E.frames[i+1],t0=performance.now();
       E.setas=B.setas;E.tracos=B.tracos;
@@ -1092,6 +1160,9 @@ var PR=(function(){
       requestAnimationFrame(tick);
     }
     passo();
+    } else {
+      reproduzirAuto();
+    }
   }
 
   function undo(){var u=undoStack.pop();if(!u){toast('Nada a desfazer');return;}var f=JSON.parse(u);E.tokens=f.tokens;E.setas=f.setas;E.tracos=f.tracos;render();}
