@@ -224,6 +224,7 @@ body.pr-cheio #pr-sair{display:block}
     <button class="tab" data-t="pres" onclick="tab('pres')">✅ Presenças</button>
     <button class="tab" data-t="adv" onclick="tab('adv')">🎯 Adversário</button>
     <button class="tab" data-t="conv" onclick="tab('conv')">📣 Convocatória</button>
+    <button class="tab" data-t="minutos" onclick="tab('minutos')">⏱ Minutos</button>
     <button class="tab" data-t="balneario" onclick="tab('balneario')">🗣 Balneário</button>
   </div>
 
@@ -386,8 +387,23 @@ body.pr-cheio #pr-sair{display:block}
         <div><label class="label">Data do jogo</label><input class="input" id="cv-data" type="date"></div>
         <div><label class="label">Adversário</label><input class="input" id="cv-adv" type="text" placeholder="Nome do adversário"></div>
       </div>
+      <div class="grid2" style="margin-top:10px">
+        <div><label class="label">Jornada</label><input class="input" id="cv-jornada" type="text" placeholder="ex: Jornada 5"></div>
+        <div><label class="label">Tipo de jogo</label>
+          <select class="input" id="cv-tipo"><option value="oficial">Oficial</option><option value="treino">Jogo de treino</option></select>
+        </div>
+      </div>
       <button class="btn" id="btn-conv" onclick="guardarConv()" style="margin-top:12px">Guardar convocatória →</button>
       <div class="err" id="cverr"></div>
+    </div>
+  </div>
+
+  <!-- MINUTOS -->
+  <div class="sec" id="sec-minutos">
+    <div class="card">
+      <div class="h">Minutos <span style="color:var(--gold)">e rotação</span></div>
+      <div class="s">Quem a família ainda não respondeu, quem foi convocado e não jogou, quantos minutos cada um leva. Vem das convocatórias que crias aqui — a família só confirma o que aconteceu.</div>
+      <div id="min-lista"><div class="s">A carregar…</div></div>
     </div>
   </div>
 </div>
@@ -400,8 +416,8 @@ var CFG=window.YTB_CONFIG||{}, USING_SB=!!(CFG.SUPABASE_URL&&CFG.SUPABASE_KEY&&w
 var supa=USING_SB?window.supabase.createClient(CFG.SUPABASE_URL,CFG.SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:'ytb-auth',flowType:'pkce'}}):null;
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 var toastT=null;function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(function(){t.classList.remove('show');},2800);}
-var CB_KEYS=['prancheta','sessao','micro','pres','adv','conv','balneario'];
-var CB_ROT=['prancheta','sessão','microciclo','presenças','adversário','convocatória','balneário'];
+var CB_KEYS=['prancheta','sessao','micro','pres','adv','conv','minutos','balneario'];
+var CB_ROT=['prancheta','sessão','microciclo','presenças','adversário','convocatória','minutos','balneário'];
 var cbPivot=null; // {ir,atual} de YTBPivot.montar, depois de iniciado
 function aplicarTabCB(idx){
   var t=CB_KEYS[idx];
@@ -409,6 +425,25 @@ function aplicarTabCB(idx){
   if(t==='conv')carregarConv();
   if(t==='balneario')BAL.carregar();
   if(t==='adv')ADV.init();
+  if(t==='minutos')carregarMinutos();
+}
+function carregarMinutos(){
+  var box=document.getElementById('min-lista');
+  supa.rpc('ytb_coach_minutos_resumo').then(function(r){
+    var lista=r.data||[];
+    if(!lista.length){ box.innerHTML='<div class="s">Ainda sem convocatórias com atletas — cria uma na aba Convocatória.</div>'; return; }
+    box.innerHTML=lista.map(function(a){
+      var alerta = a.por_responder>0 ? '<span style="color:var(--gold);font-size:11px;font-weight:700">⏳ '+a.por_responder+' por responder</span>'
+        : (a.jogos_sem_jogar>0 && a.jogos_sem_jogar>=a.jogos_com_minutos ? '<span style="color:#E8A33D;font-size:11px;font-weight:700">⚠ mais jogos sem jogar que com minutos</span>' : '');
+      var media = a.jogos_com_minutos ? Math.round(a.minutos_totais/a.jogos_com_minutos) : 0;
+      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">'
+        +'<div><div style="font-weight:700">'+esc(a.nome)+'</div>'
+        +'<div style="font-size:11.5px;color:var(--slate)">'+a.convocatorias+' convocatórias · '+a.jogos_com_minutos+' jogos · '+a.jogos_sem_jogar+' sem jogar'+(alerta?' · '+alerta:'')+'</div></div>'
+        +'<div style="text-align:right"><div style="font-family:\'Barlow Condensed\';font-weight:800;font-size:20px;color:var(--gold)">'+a.minutos_totais+'\'</div>'
+        +'<div style="font-size:10px;color:var(--slate)">'+(media?media+'\' média':'—')+'</div></div>'
+        +'</div>';
+    }).join('');
+  }).catch(function(){ box.innerHTML='<div class="err" style="display:block">Não foi possível carregar.</div>'; });
 }
 function tab(t){
   var idx=Math.max(0, CB_KEYS.indexOf(t));
@@ -928,7 +963,7 @@ function guardarConv(){
   });
   if(!lista.length){toast('Toca nos atletas a convocar — ninguém entra por defeito');return;}
   var b=document.getElementById('btn-conv');b.disabled=true;b.innerHTML='<span class="spinner"></span> A guardar…';
-  supa.rpc('ytb_coach_convocatoria_criar',{p_data:document.getElementById('cv-data').value||null,p_adversario:document.getElementById('cv-adv').value||null,p_formato:SEL.formato,p_lista:lista,p_banco:document.getElementById('cv-banco').value||null})
+  supa.rpc('ytb_coach_convocatoria_criar',{p_data:document.getElementById('cv-data').value||null,p_adversario:document.getElementById('cv-adv').value||null,p_formato:SEL.formato,p_lista:lista,p_banco:document.getElementById('cv-banco').value||null,p_jornada:document.getElementById('cv-jornada').value||null,p_tipo:document.getElementById('cv-tipo').value||'oficial'})
     .then(function(r){var d=r.data;if(r.error||!d||!d.ok)throw new Error((d&&d.motivo)||'erro');toast('✓ Convocatória guardada — "Convocado" no passaporte de cada um');})
     .catch(function(e){toast('⚠ '+e.message);})
     .then(function(){b.disabled=false;b.textContent='Guardar convocatória →';});

@@ -774,13 +774,18 @@
     // 1. jogos por responder — a pergunta que o fundador pediu: como correu,
     //    golos, assistências, minutos (e a dificuldade no objetivo, se houver)
     J.por_responder.forEach(function(j){
+      var contexto=[j.jornada,j.tipo==='treino'?'Jogo de treino':(j.tipo?'Oficial':null)].filter(Boolean).join(' · ');
       html+='<div class="tr-wk" id="jg-'+j.id+'" style="border-color:var(--gold-border)"><div style="padding:15px 16px">'
         +'<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:900;font-size:var(--fs-sub);margin-bottom:2px">⚽ Como correu o jogo'+(j.adversario?(' vs '+esc(j.adversario)):'')+'?</div>'
-        +'<div style="font-size:var(--fs-legenda);color:var(--muted);margin-bottom:12px">'+fmtJogoData(j.data_jogo)+'</div>'
+        +'<div style="font-size:var(--fs-legenda);color:var(--muted);margin-bottom:12px">'+fmtJogoData(j.data_jogo)+(contexto?(' · '+esc(contexto)):'')+'</div>'
+        +'<div style="font-size:var(--fs-legenda);color:var(--slate);margin-bottom:6px">Jogou?</div>'
+        +'<div style="display:flex;gap:7px;margin-bottom:14px" id="jg-estado-'+j.id+'">'
+        +[['titular','Titular'],['suplente','Suplente'],['nao_jogou','Não jogou']].map(function(e){return '<button onclick="window.__jgEstado(\''+j.id+'\',\''+e[0]+'\')" data-v="'+e[0]+'" style="flex:1;min-height:42px;background:var(--bg);border:1px solid var(--border);color:var(--slate);border-radius:9px;font-family:inherit;font-size:var(--fs-legenda);font-weight:700;cursor:pointer">'+e[1]+'</button>';}).join('')
+        +'</div>'
         +'<div style="display:flex;gap:7px;margin-bottom:12px" id="jg-como-'+j.id+'">'
         +['😖','😕','🙂','😄','🔥'].map(function(f,i){return '<button onclick="window.__jgComo(\''+j.id+'\','+(i+1)+')" data-v="'+(i+1)+'" style="flex:1;min-height:46px;background:var(--bg);border:1px solid var(--border);border-radius:9px;font-size:var(--fs-titulo);cursor:pointer;filter:grayscale(1);opacity:.55">'+f+'</button>';}).join('')
         +'</div>'
-        +'<div style="display:flex;gap:8px;margin-bottom:10px">'
+        +'<div id="jg-desemp-'+j.id+'" style="display:flex;gap:8px;margin-bottom:10px">'
         +'<label style="flex:1;font-size:var(--fs-legenda);color:var(--slate)">⚽ Golos<input id="jg-golos-'+j.id+'" type="number" min="0" max="20" value="0" style="width:100%;margin-top:3px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:9px;padding:10px;font-family:inherit;font-size:var(--fs-sub);outline:none"></label>'
         +'<label style="flex:1;font-size:var(--fs-legenda);color:var(--slate)">🅰 Assist.<input id="jg-assist-'+j.id+'" type="number" min="0" max="20" value="0" style="width:100%;margin-top:3px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:9px;padding:10px;font-family:inherit;font-size:var(--fs-sub);outline:none"></label>'
         +'<label style="flex:1;font-size:var(--fs-legenda);color:var(--slate)">⏱ Minutos<input id="jg-min-'+j.id+'" type="number" min="0" max="120" placeholder="—" style="width:100%;margin-top:3px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:9px;padding:10px;font-family:inherit;font-size:var(--fs-sub);outline:none"></label>'
@@ -837,6 +842,17 @@
     else grupo.appendChild(sec);
   }
   window.__jgVals={};
+  window.__jgEstado=function(id,estado){
+    (window.__jgVals[id]=window.__jgVals[id]||{}).estado=estado;
+    var row=document.getElementById('jg-estado-'+id); if(row) Array.prototype.forEach.call(row.children,function(b){
+      var on=b.getAttribute('data-v')===estado;
+      b.style.background=on?'var(--gold-soft)':'var(--bg)'; b.style.borderColor=on?'var(--gold)':'var(--border)'; b.style.color=on?'var(--gold)':'var(--slate)';
+    });
+    // não jogou: golos/assistências/minutos não fazem sentido — escondidos, não só desativados,
+    // para não sobrar um "0" ambíguo entre "não fez" e "não se aplica"
+    var desemp=document.getElementById('jg-desemp-'+id);
+    if(desemp) desemp.style.display = estado==='nao_jogou' ? 'none' : 'flex';
+  };
   window.__jgComo=function(id,n){
     (window.__jgVals[id]=window.__jgVals[id]||{}).como=n;
     var row=document.getElementById('jg-como-'+id); if(!row) return;
@@ -849,6 +865,7 @@
   };
   window.__jgEnviar=function(id){
     var vals=window.__jgVals[id]||{};
+    if(!vals.estado){ toast('Diz primeiro se jogou (titular, suplente, ou não jogou)'); return; }
     if(!vals.como){ toast('Diz primeiro como correu (carrega numa carinha)'); return; }
     var btn=document.getElementById('jg-send-'+id); if(btn){btn.disabled=true;btn.textContent='A registar…';}
     var golos=parseInt((document.getElementById('jg-golos-'+id)||{}).value)||0;
@@ -856,12 +873,15 @@
     var minRaw=(document.getElementById('jg-min-'+id)||{}).value;
     var minutos=minRaw===''||minRaw==null?null:(parseInt(minRaw)||0);
     var nota=((document.getElementById('jg-nota-'+id)||{}).value||'').trim()||null;
-    supa.rpc('ytb_jogo_responder',{p_jogo:id,p_como_correu:vals.como,p_golos:golos,p_assistencias:assist,p_minutos:minutos,p_dificuldade:vals.dif||null,p_nota:nota}).then(function(res){
+    supa.rpc('ytb_jogo_responder',{p_jogo:id,p_como_correu:vals.como,p_golos:golos,p_assistencias:assist,p_minutos:minutos,p_dificuldade:vals.dif||null,p_nota:nota,p_estado:vals.estado}).then(function(res){
       if(res&&res.error){ if(btn){btn.disabled=false;btn.textContent='Registar jogo';} toast('Sessão expirada — entra de novo'); return; }
       var d=res&&res.data;
       if(!d||!d.ok){ if(btn){btn.disabled=false;btn.textContent='Registar jogo';} toast('Não foi possível registar ('+((d&&d.motivo)||'erro')+')'); return; }
       var card=document.getElementById('jg-'+id);
-      if(card) card.innerHTML='<div style="padding:15px 16px"><div style="font-size:var(--fs-corpo);color:var(--up);line-height:1.5">✓ Jogo registado no passaporte'+(golos?(' — '+golos+' golo'+(golos===1?'':'s')+'!'):'')+' As estatísticas da época já contam com ele.</div></div>';
+      var msgFinal = vals.estado==='nao_jogou'
+        ? '✓ Registado — ficou convocado mas não entrou. Fica no passaporte, sem contar para as estatísticas da época.'
+        : '✓ Jogo registado no passaporte'+(golos?(' — '+golos+' golo'+(golos===1?'':'s')+'!'):'')+' As estatísticas da época já contam com ele.';
+      if(card) card.innerHTML='<div style="padding:15px 16px"><div style="font-size:var(--fs-corpo);color:var(--up);line-height:1.5">'+msgFinal+'</div></div>';
       window.__jogos.por_responder=window.__jogos.por_responder.filter(function(j){return j.id!==id;});
     }).catch(function(){ if(btn){btn.disabled=false;btn.textContent='Registar jogo';} toast('Sem ligação'); });
   };

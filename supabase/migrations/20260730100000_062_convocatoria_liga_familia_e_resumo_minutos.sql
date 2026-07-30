@@ -1,0 +1,27 @@
+-- 062: liga a convocatoria do treinador ao jogo que a familia responde, e da
+-- ao treinador um resumo de rotacao/minutos. Pedido do fundador (feedback GFA):
+-- jornada/adversario/oficial-ou-treino na convocatoria; dados por jogo (minutos,
+-- golos, assistencias, estado) a cargo da familia, nao do treinador.
+--
+-- Ate agora existiam DUAS fontes de "ha um jogo", desligadas: a convocatoria
+-- do treinador (coach_convocatorias) e o agendamento manual da familia
+-- (atleta_jogos via ytb_jogo_agendar) — sem ligacao nenhuma.
+--
+-- Schema: coach_convocatorias ganha jornada/tipo (oficial|treino). atleta_jogos
+-- ganha convocatoria_id, jornada, tipo, papel (titular|suplente, herdado).
+-- ytb_coach_convocatoria_criar cria automaticamente o jogo "por responder" da
+-- familia para cada convocado — deixa de ser preciso agendar a mao.
+-- ytb_jogo_responder ganha p_estado (titular|suplente|nao_jogou); so conta
+-- como jogo jogado (jogos_epoca/golos_epoca/assist_epoca) se realmente jogou —
+-- um suplente que nao entrou nao infla estatisticas de epoca, mas aparece nas
+-- estatisticas de rotacao do treinador.
+-- ytb_coach_minutos_resumo (nova): por atleta do plantel — convocatorias,
+-- jogos com minutos, jogos sem jogar, por responder, minutos totais.
+--
+-- Frontend: CoachBase ganha campos jornada/tipo no formulario de convocatoria
+-- e uma aba "Minutos" com o resumo. Passaporte ganha o seletor titular/
+-- suplente/nao-jogou no formulario da familia, que esconde golos/assist/
+-- minutos quando nao jogou (em vez de deixar um "0" ambiguo).
+--
+-- Validado com dry-run nos dois caminhos antes de aplicar. Corpo integral no
+-- historico Supabase (062_convocatoria_liga_familia_e_resumo_minutos).
