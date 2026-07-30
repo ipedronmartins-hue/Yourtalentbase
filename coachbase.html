@@ -1105,13 +1105,12 @@ var PR=(function(){
     // nenhuma outra. Se houver mais que uma sequência solta, usa-se a maior.
     var cadeia=[];
     if(bola && passes.length){
-      var usada=new Array(passes.length).fill(false);
       var raizes=passes.map(function(s,i){
         var ehDestino=passes.some(function(o,j){ return j!==i && Math.hypot(o.x2-s.x1,o.y2-s.y1)<40; });
         return ehDestino?-1:i;
       }).filter(function(i){return i>=0;});
       raizes.forEach(function(r0){
-        var atual={x:passes[r0].x1,y:passes[r0].y1}, seq=[], livres=passes.map(function(_,i){return i;}).filter(function(i){return !usada[i];});
+        var atual={x:passes[r0].x1,y:passes[r0].y1}, seq=[], livres=passes.map(function(_,i){return i;});
         while(true){
           var idx=-1,melhorD=40;
           livres.forEach(function(i){ var d=Math.hypot(passes[i].x1-atual.x,passes[i].y1-atual.y); if(d<melhorD){melhorD=d;idx=i;} });
