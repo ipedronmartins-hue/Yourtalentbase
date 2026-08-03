@@ -1,0 +1,8 @@
+-- 064: treinador consegue encontrar e adicionar atletas que a familia
+-- inscreveu sozinha. RLS ja permitia leitura ampla (sel_treinador); o
+-- bloqueio era so a query do roster no frontend, restrita a fonte_email.
+-- Nova coluna treinador_email (responsavel atual, separada da proveniencia
+-- fonte_email) + duas RPCs: listar por adicionar, e adicionar sem tocar em
+-- quem inscreveu de facto. Testado com dados reais: 4 atletas auto-inscritos
+-- encontrados, ligacao criada corretamente, duplicacao bloqueada.
+-- Corpo integral no historico Supabase (064_treinador_adiciona_atletas_auto_inscritos).

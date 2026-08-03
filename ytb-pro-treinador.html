@@ -176,8 +176,9 @@ body{padding-bottom:40px}
       <div class="kpi" style="border-left-color:var(--blue)"><div class="kpi-n" id="k-avaliados">0</div><div class="kpi-l">Avaliados</div></div>
     </div>
     <div class="section-title">Os meus <span>atletas</span></div>
-    <div class="section-sub">Os atletas que inscreveste. Toca num para avaliar ou ver o treino.</div>
+    <div class="section-sub">Os que inscreveste e os que já adicionaste ao teu plantel. Toca num para avaliar ou ver o treino.</div>
     <button class="btn btn-primary" style="margin-bottom:14px" onclick="abrirInscricao()">+ Inscrever atleta</button>
+    <div id="por-adicionar"></div>
     <div id="lista-atletas"></div>
   </div>
 
@@ -591,13 +592,43 @@ async function carregarAtletas(){
   }
   lista.innerHTML='<div class="empty-state"><span class="spinner"></span></div>';
   try{
-    const{data}=await supa.from('atletas_360').select('id,nome,primeiro_nome,ano_nascimento,clube_actual,escalao,fonte_email,encarregado_email,rating_geral,badge_estado,area_excelencia_1,area_excelencia_2,area_excelencia_3,posicao_principal,associacao,divisao,epoca_ref,golos_epoca,jogos_epoca,assist_epoca,golos_equipa_epoca,classificacao_equipa').eq('fonte_email',treinadorEmail).order('nome');
+    const{data}=await supa.from('atletas_360').select('id,nome,primeiro_nome,ano_nascimento,clube_actual,escalao,fonte_email,encarregado_email,rating_geral,badge_estado,area_excelencia_1,area_excelencia_2,area_excelencia_3,posicao_principal,associacao,divisao,epoca_ref,golos_epoca,jogos_epoca,assist_epoca,golos_equipa_epoca,classificacao_equipa,treinador_email').or('fonte_email.eq.'+treinadorEmail+',treinador_email.eq.'+treinadorEmail).order('nome');
     meusAtletas=data||[];
     renderAtletas();
     preSelecionarDoHash();
+    carregarPorAdicionar();
   }catch(e){
     lista.innerHTML='<div class="empty-state">Erro a carregar atletas.</div>';
   }
+}
+async function carregarPorAdicionar(){
+  const box=document.getElementById('por-adicionar');
+  if(!box || !USING_SB) return;
+  try{
+    const {data} = await supa.rpc('ytb_treinador_atletas_por_adicionar');
+    const lista = data||[];
+    if(!lista.length){ box.innerHTML=''; return; }
+    box.innerHTML = '<div style="background:var(--bg3);border:1px solid var(--gold-border,rgba(212,175,55,.35));border-radius:12px;padding:14px;margin-bottom:16px">'
+      +'<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:var(--fs-sub);color:var(--gold)">⏳ '+lista.length+' inscrito'+(lista.length===1?'':'s')+' pela família</div>'
+      +'<div style="font-size:var(--fs-legenda);color:var(--slate);margin:4px 0 10px">Alguém se inscreveu sozinho — confirma se é teu atleta antes de adicionar.</div>'
+      +lista.map(function(a){
+        return '<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-top:1px solid var(--border)">'
+          +'<div><div style="font-weight:700">'+esc(a.nome||'—')+'</div>'
+          +'<div style="font-size:var(--fs-legenda);color:var(--slate)">'+esc(a.clube||'sem clube')+(a.escalao?(' · '+esc(a.escalao)):'')+(a.ano_nascimento?(' · '+a.ano_nascimento):'')+'</div></div>'
+          +'<button class="btn btn-secondary" style="min-height:38px;padding:0 14px" onclick="adicionarAtletaAuto(\''+a.id+'\',this)">+ Adicionar</button>'
+          +'</div>';
+      }).join('')
+      +'</div>';
+  }catch(e){ box.innerHTML=''; }
+}
+async function adicionarAtletaAuto(id, btn){
+  if(btn){ btn.disabled=true; btn.textContent='A adicionar…'; }
+  try{
+    const {data} = await supa.rpc('ytb_treinador_atleta_adicionar',{p_atleta:id});
+    if(!data || !data.ok){ showToast('Não foi possível adicionar ('+((data&&data.motivo)||'erro')+')'); if(btn){btn.disabled=false;btn.textContent='+ Adicionar';} return; }
+    showToast(esc(data.nome||'Atleta')+' adicionado ao teu plantel ✓');
+    carregarAtletas(); // recarrega tudo: sai da lista "por adicionar", entra no plantel
+  }catch(e){ showToast('Sem ligação'); if(btn){btn.disabled=false;btn.textContent='+ Adicionar';} }
 }
 
 // vindo de acompanhamento.html (links Avaliar/Prescrever levam #<nome do atleta>)
