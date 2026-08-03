@@ -1,0 +1,9 @@
+-- 065: fundador pediu para o nome dele nao aparecer a familia quando age
+-- como admin. Investigado antes de mexer: a timeline principal ja usa so
+-- papeis genericos, nunca email/nome. Dois problemas reais encontrados:
+-- (1) leitura de contexto por IA mostrava "pedida por <parte-antes-do-@>";
+-- (2) ytb_treinador_atleta_adicionar (migracao 064, mesma sessao) gravava
+-- o email cru no evento, corrigido antes de chegar a producao real.
+-- Correcao generica (nao hardcoded a este email): qualquer perfil com
+-- papel=admin aparece como "Admin" a familia, nunca o email/nome pessoal.
+-- Corpo integral no historico Supabase (065_nao_expor_email_admin_a_familia).
