@@ -35,7 +35,7 @@ img{max-width:100%; display:block}
 .mono,[class*="num"],.tabular{font-variant-numeric:tabular-nums}
 
 /* ===================== FORMULÁRIOS ======================================== */
-input,select,textarea,button{font-family:var(--font-body); font-size:14px; color:var(--text)}
+input,select,textarea,button{font-family:var(--font-body); font-size:14px; color:var(--text); -webkit-text-size-adjust:100%; text-size-adjust:100%}
 input,select,textarea{
   background:var(--bg3); border:1px solid var(--border); border-radius:var(--r-sm);
   padding:11px 12px; width:100%; outline:none; transition:border-color .15s, background .15s;
