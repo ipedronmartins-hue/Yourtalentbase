@@ -1,0 +1,8 @@
+-- 063: ytb_admin_fechar_epoca — operacao segura de virar de epoca, arquiva
+-- antes de zerar. Nasce de um incidente real do dia 3 de agosto: um UPDATE
+-- direto zerou golos_epoca/jogos_epoca/assist_epoca de TODOS os atletas sem
+-- nenhum passo de arquivo automatico. De 6 atletas com estatisticas reais
+-- da 2025/26, so 2 estavam seguros (ja arquivados manualmente antes); 1
+-- recuperado por acaso via snapshot de avaliacao IA; 2 com dados nao
+-- recuperaveis por SQL (so PITR do Supabase, fora do alcance desta ferramenta).
+-- Corpo integral no historico Supabase (063_ytb_admin_fechar_epoca).
