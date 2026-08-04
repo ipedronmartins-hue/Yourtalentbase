@@ -1268,15 +1268,20 @@ function renderClubes(){
 }
 
 // ════════════════ WHATSAPP TEMPLATES ════════════════
-function templateA(a){
+function templateA(a, meuEmail){
   const primeiroNome = a.primeiro_nome || a.nome.split(' ')[0];
   const dataInsc = fmtDate(a.created_at);
   const urlOcultar = `https://yourtalentbase.pt/acesso.html`;
+  // quando quem inscreveu foi o próprio admin (ex: atleta de teste, gestão
+  // interna), a família não precisa de ver o nome pessoal — mostra "a
+  // equipa". Quando foi um treinador real, o nome fica (informação legítima).
+  const ehEuProprio = meuEmail && (a.fonte_email||'').toLowerCase() === meuEmail;
+  const quem = ehEuProprio ? 'a equipa YourTalentBase' : `${a.fonte_nome} (${a.fonte})`;
   return `Olá ${a.encarregado_nome || ''},
 
 Sou da YourTalentBase (yourtalentbase.pt).
 
-O atleta ${primeiroNome} foi inscrito na nossa base nacional de scouting de formação por ${a.fonte_nome} (${a.fonte}) em ${dataInsc} para fins de desenvolvimento desportivo e visibilidade junto de clubes e olheiros.
+O atleta ${primeiroNome} foi inscrito na nossa base nacional de scouting de formação por ${quem} em ${dataInsc} para fins de desenvolvimento desportivo e visibilidade junto de clubes e olheiros.
 
 Detalhes:
 • Nome: ${a.nome}
@@ -1289,7 +1294,7 @@ ${urlOcultar}
 Para questões: geral@yourtalentbase.pt
 
 Cumprimentos,
-Ivo Martins · YourTalentBase`;
+Equipa YourTalentBase`;
 }
 
 function templateB(p, a){
@@ -1308,17 +1313,20 @@ Aceita partilharmos o seu contacto com este clube?
 • Quero saber mais → falamos primeiro
 
 Cumprimentos,
-Ivo Martins · YourTalentBase`;
+Equipa YourTalentBase`;
 }
 
-function enviarWhatsAppPendente(id){
+async function enviarWhatsAppPendente(id){
   const a = allAtletas.find(x => x.id === id);
   if(!a){ toast('Atleta não encontrado', 'error'); return; }
   if(!a.encarregado_telefone){ toast('Falta telefone do EE', 'error'); return; }
 
+  let meuEmail = '';
+  try { const { data:{ session } } = await supa.auth.getSession(); meuEmail = (session?.user?.email||'').toLowerCase(); } catch(e){}
+
   currentAtleta = a;
   waMode = 'pendente';
-  const text = templateA(a);
+  const text = templateA(a, meuEmail);
   document.getElementById('wa-sub').innerHTML = `<strong>${escapeHtml(a.encarregado_nome)}</strong> · ${escapeHtml(a.encarregado_telefone)}<br>Notificação inicial pós-inscrição (Template A)`;
   document.getElementById('wa-text').value = text;
   const phone = fmtPhone(a.encarregado_telefone).replace(/^\+/, '').replace(/^00/, '');
