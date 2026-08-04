@@ -1,0 +1,5 @@
+-- 068: densidade.epocas media anos-civis com eventos, nao epocas de
+-- carreira reais. Descoberto ao gerar o cartao de partilha do Vasco: 6
+-- epocas de curriculo, mas mostrava "1". Corrigido para o maior entre
+-- epocas em atletas_360_historico e anos-civis de eventos.
+-- Corpo integral no historico Supabase (068_densidade_epocas_usa_carreira_real).
