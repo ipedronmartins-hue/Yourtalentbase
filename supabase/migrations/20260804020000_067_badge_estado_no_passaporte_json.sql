@@ -1,0 +1,4 @@
+-- 067: badge_estado passa a vir no JSON do passaporte (identidade.badge_estado).
+-- Necessario para o cartao de partilha (PNG) mostrar o selo real do atleta.
+-- Assinatura nao mudou — revoke da 059 mantido, confirmado apos aplicar.
+-- Corpo integral no historico Supabase (067_badge_estado_no_passaporte_json).
