@@ -312,7 +312,8 @@ body{margin:0;padding:0;height:100vh;height:100dvh;width:100vw;position:relative
           <div class="fb-treinos" id="fbTreinos"></div>
         </div>
         <div class="fb-actions">
-          <button class="btn-play" onclick="resetarCen()">↺ Tentar Outra</button>
+          <button class="btn-play" onclick="proximoCenario()">Próximo cenário →</button>
+          <button class="btn-icon-side" onclick="resetarCen()" title="Repetir este cenário">↺</button>
           <button class="btn-icon-side" onclick="abrirShare()">📤</button>
         </div>
       </div>
@@ -469,6 +470,8 @@ function renderFrameInto(playersGroupId, ballGroupId, frame) {
 // MODE 0: CENÁRIOS
 // ═══════════════════════════════════════════════════════
 let activeCenario = null;
+let activeIdx = -1;
+let ecVistos = new Set(); // cenários já feitos nesta sessão — o "próximo" evita repetir enquanto houver por ver
 let cenAnimId = null, cenAnimStart = 0, cenAnimating = false;
 
 // ═══ R4 · Ligação ao Passaporte Digital ═══
@@ -560,6 +563,8 @@ function renderCenarios() {
 
 function abrirCenario(idx) {
   activeCenario = CENARIOS[idx];
+  activeIdx = idx;
+  ecVistos.add(idx);
   document.getElementById('cenList').style.display = 'none';
   document.getElementById('cenActive').classList.add('active');
   document.getElementById('cenNumLabel').textContent = `Cenário ${String(idx+1).padStart(2,'0')}`;
@@ -641,6 +646,20 @@ function escolher(opcaoId) {
   fb.classList.add('show');
 }
 
+function proximoCenario(){
+  const recSet = ecCenariosRecomendados();
+  const todos = CENARIOS.map((c,i)=>i);
+  // ordem de prioridade: recomendado+por ver → qualquer um por ver → recomendado já visto → o resto
+  const porVer = todos.filter(i => !ecVistos.has(i));
+  const escolha =
+    porVer.find(i => recSet.has(i)) ??
+    porVer[0] ??
+    todos.find(i => recSet.has(i) && i !== activeIdx) ??
+    todos.find(i => i !== activeIdx) ??
+    0;
+  document.getElementById('feedbackPanel').classList.remove('show');
+  abrirCenario(escolha);
+}
 function resetarCen() {
   document.getElementById('feedbackPanel').classList.remove('show');
   document.getElementById('opcoesPanel').classList.remove('show');
