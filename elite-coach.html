@@ -446,14 +446,31 @@ function renderFrameInto(playersGroupId, ballGroupId, frame) {
   let html = '';
   Object.entries(frame.players).forEach(([id, p]) => {
     const colorBase = p.team === 'us' ? '#D4AF37' : '#E05050';
-    const colorStroke = p.team === 'us' ? '#F0CC55' : '#FF7878';
-    const colorText = p.team === 'us' ? '#000' : '#FFF';
-    const r = p.highlight ? 18 : 16;
+    const colorDark  = p.team === 'us' ? '#B8932A' : '#B03A3A';
+    const colorHead  = p.team === 'us' ? '#F0CC55' : '#F07A7A';
+    const s = p.highlight ? 1.18 : 1;
+    // orientado para a bola quando existe (a maioria dos cenários trata da leitura
+    // de jogo à volta da bola) — sem isso, fica de frente para a baliza adversária.
+    // atan2 devolve 0° para a direita; a pose desenhada aponta "para cima" (-y),
+    // por isso soma-se 90° para alinhar o zero da pose com o zero trigonométrico.
+    let ang = 0;
+    if (frame.ball) {
+      const dx = frame.ball.x - p.x, dy = frame.ball.y - p.y;
+      if (Math.abs(dx) > 1 || Math.abs(dy) > 1) ang = Math.atan2(dy, dx) * 180/Math.PI + 90;
+    }
     html += `
       <g class="player ${p.highlight ? 'highlight' : ''}" transform="translate(${p.x},${p.y})">
-        ${p.highlight ? `<circle r="${r+6}" fill="${colorBase}22"/>` : ''}
-        <circle class="player-circle" r="${r}" fill="${colorBase}" stroke="${colorStroke}" stroke-width="2"/>
-        <text y="5" text-anchor="middle" font-size="13" font-weight="900" fill="${colorText}" font-family="Barlow Condensed">${(p.label||'').substring(0,2).toUpperCase()}</text>
+        ${p.highlight ? `<circle r="17" fill="${colorBase}22"/>` : ''}
+        <g transform="rotate(${ang.toFixed(1)}) scale(${s})">
+          <ellipse cx="0" cy="15" rx="8" ry="2.3" fill="#000" opacity=".28"/>
+          <path d="M -2.5,3 L -8,14" stroke="${colorBase}" stroke-width="3.6" fill="none" stroke-linecap="round"/>
+          <path d="M 2.5,3 L 7.5,14" stroke="${colorBase}" stroke-width="3.6" fill="none" stroke-linecap="round"/>
+          <path d="M -4.5,-9.5 Q 0,-12 4.5,-9.5 L 3.5,4 Q 0,5.3 -3.5,4 Z" fill="${colorBase}" stroke="${colorDark}" stroke-width=".8"/>
+          <path d="M -3.8,-8 L -9.5,-3" stroke="${colorBase}" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+          <path d="M 3.8,-8 L 9.5,-1.5" stroke="${colorBase}" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+          <circle cx="0" cy="-14" r="4.8" fill="${colorHead}" stroke="${colorDark}" stroke-width=".8"/>
+          <text x="0" y="-1.5" text-anchor="middle" font-size="5.6" font-weight="900" fill="#000" font-family="Barlow Condensed" transform="rotate(${(-ang).toFixed(1)})">${(p.label||'').substring(0,2).toUpperCase()}</text>
+        </g>
       </g>`;
   });
   gP.innerHTML = html;
