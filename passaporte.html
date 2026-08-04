@@ -467,12 +467,10 @@
     setTimeout(function(){ b.textContent=t0; b.style.background=bg; b.style.color=cl; b.style.border=bd; },1800); }
   function share(){
     var d=window.__raw;
-    var areas = d && d.perfil_areas && d.perfil_areas.areas;
-    if(!USING_SB || !areas || !areas.length){
-      // sem avaliação suficiente para gerar o pentagrama: a imagem ficaria
-      // vazia/feia (o mesmo problema que já existia com evolução/compromisso
-      // a 0) — em vez disso, só o link, que pelo menos serve para a própria
-      // família reabrir a página.
+    var carreira = d && d.carreira;
+    if(!USING_SB || !carreira || !carreira.length){
+      // sem histórico registado: a tabela ficaria vazia — em vez disso, só
+      // o link, que pelo menos serve para a própria família reabrir a página.
       var txt=(d?d.identidade.nome:'')+' — passaporte digital · YourTalentBase';
       var url=location.href;
       if(navigator.share){navigator.share({title:'Passaporte do Atleta',text:txt,url:url}).catch(function(){});}
@@ -483,56 +481,97 @@
   }
 
   /* ── cartão de partilha (PNG) ──
-     Nunca mostra números crus (evolução %, compromisso, consistência) —
-     só o pentagrama (forma + tendência, sem valor) e factos que resistem
-     a inflação (épocas, observadores, eventos). Tudo em SVG puro (não
-     HTML/CSS) para conversão fiável a PNG em qualquer browser. */
+     Nunca mostra: altura/peso (o próprio formulário já diz "nunca visível
+     ao público" — um cartão para Instagram é esse público), data de
+     nascimento exacta (nome real + camisola + clube + data exacta
+     identifica uma criança de forma completa demais — só a idade),
+     números de avaliação crus (evolução %, compromisso, consistência).
+     Mostra: camisola (número + nome curto, ou iniciais se não preenchido),
+     o histórico real (época a época), e factos que resistem a inflação
+     (épocas, competições, títulos — não scores). Tudo em SVG puro. */
   function svgCartao(d){
-    var id=d.identidade, areas=d.perfil_areas.areas, dens=d.densidade||{};
+    var id=d.identidade, dens=d.densidade||{}, carreira=d.carreira||[];
     var BADGE_LABELS={observado:'👀 Observado','em-crescimento':'📈 Em Crescimento','hidden-gem':'💎 Hidden Gem',destaque:'★ YTB Acompanhado'};
     var badgeLabel = id.badge_estado ? BADGE_LABELS[id.badge_estado] : null;
-    var W=1080,H=1350, cx=540, cy=760, R=175, n=areas.length;
-    function pt(i,f){ var ang=-Math.PI/2+i*(2*Math.PI/n), r=R*f; return [cx+r*Math.cos(ang), cy+r*Math.sin(ang)]; }
-    var poly = areas.map(function(a,i){ return pt(i, Math.max(0.06,(a.v||0)/5)).join(','); }).join(' ');
-    var grelha = [0.5,1].map(function(f){
-      return '<polygon points="'+areas.map(function(a,i){return pt(i,f).join(',');}).join(' ')+'" fill="none" stroke="#2A362B" stroke-width="1.4"/>';
-    }).join('');
-    var eixos = areas.map(function(a,i){ var p=pt(i,1); return '<line x1="'+cx+'" y1="'+cy+'" x2="'+p[0].toFixed(1)+'" y2="'+p[1].toFixed(1)+'" stroke="#2A362B" stroke-width="1.4"/>'; }).join('');
-    var pontos = areas.map(function(a,i){ var p=pt(i,Math.max(0.06,(a.v||0)/5)); return '<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="6" fill="#D4AF37"/>'; }).join('');
-    var setas={subir:'\u2197',descer:'\u2198',estavel:'\u2192'}, cores={subir:'#00D46A',descer:'#E0A458',estavel:'#8FA090'};
-    var rotulos = areas.map(function(a,i){
-      var p=pt(i,1.26);
-      var s = a.t ? '<text x="'+p[0].toFixed(1)+'" y="'+(p[1]+24).toFixed(1)+'" text-anchor="middle" font-size="19" fill="'+(cores[a.t]||'#8FA090')+'">'+(setas[a.t]||'')+'</text>' : '';
-      return '<text x="'+p[0].toFixed(1)+'" y="'+p[1].toFixed(1)+'" text-anchor="middle" font-size="22" font-weight="700" fill="#ECEFEA" font-family="Poppins,Plus Jakarta Sans,sans-serif">'+esc(a.l)+'</text>'+s;
-    }).join('');
-    var meta = [id.posicao,id.clube,id.escalao].filter(Boolean).join(' · ');
-    var selo = badgeLabel ? '<g><rect x="290" y="440" width="500" height="72" rx="36" fill="#141C15" stroke="#D4AF37" stroke-opacity=".4" stroke-width="1.5"/>'
-      +'<text x="540" y="486" text-anchor="middle" font-size="24" font-weight="700" fill="#D4AF37" font-family="Poppins,sans-serif">'+esc(badgeLabel)+'</text></g>' : '';
-    var dchips = [
-      [dens.epocas,'Épocas registadas'],[dens.observadores,'Observadores'],[dens.eventos,'Factos no percurso']
-    ].filter(function(x){return x[0]!=null;});
-    var dx0 = 540 - (dchips.length-1)*180/2;
-    var densHtml = dchips.map(function(c,i){
-      var x=dx0+i*180;
-      return '<text x="'+x+'" y="1108" text-anchor="middle" font-size="46" font-weight="700" fill="#ECEFEA" font-family="Poppins,sans-serif">'+esc(String(c[0]))+'</text>'
-        +'<text x="'+x+'" y="1136" text-anchor="middle" font-size="15" fill="#6E7A6F" letter-spacing="1" font-family="Poppins,sans-serif">'+esc(c[1].toUpperCase())+'</text>';
-    }).join('');
-    return ''
-      +'<svg xmlns="http://www.w3.org/2000/svg" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'">'
-      +'<rect width="'+W+'" height="'+H+'" fill="#080C08"/>'
-      +'<circle cx="920" cy="60" r="380" fill="#D4AF37" opacity=".05"/>'
-      +'<circle cx="120" cy="1300" r="380" fill="#00D46A" opacity=".03"/>'
-      +'<circle cx="540" cy="120" r="26" fill="#0A0F0A" stroke="#D4AF37" stroke-width="2.5"/>'
-      +'<text x="540" y="129" text-anchor="middle" font-size="24" font-weight="700" fill="#D4AF37" font-family="Barlow Condensed,Impact,sans-serif">P</text>'
-      +'<text x="540" y="176" text-anchor="middle" font-size="19" font-weight="700" fill="#D4AF37" letter-spacing="1" font-family="Poppins,sans-serif">YOURTALENTBASE</text>'
-      +'<text x="540" y="270" text-anchor="middle" font-size="66" font-weight="700" fill="#ECEFEA" font-family="Barlow Condensed,Impact,sans-serif">'+esc(id.nome||'')+'</text>'
-      +'<text x="540" y="312" text-anchor="middle" font-size="24" fill="#8FA090" font-family="Poppins,sans-serif">'+esc(meta)+'</text>'
-      +selo
-      +grelha+eixos+'<polygon points="'+poly+'" fill="#D4AF37" fill-opacity=".2" stroke="#D4AF37" stroke-width="3"/>'+pontos+rotulos
-      +densHtml
-      +'<line x1="340" y1="1200" x2="740" y2="1200" stroke="#1F2520" stroke-width="1.5"/>'
-      +'<text x="540" y="1240" text-anchor="middle" font-size="19" fill="#6E7A6F" font-family="Poppins,sans-serif">O passaporte digital do atleta · <tspan fill="#D4AF37" font-weight="700">yourtalentbase.pt</tspan></text>'
-      +'</svg>';
+    var W=1080,H=1350;
+    var html = '<rect width="'+W+'" height="'+H+'" fill="#080C08"/>'
+      +'<circle cx="960" cy="40" r="340" fill="#D4AF37" opacity=".05"/>'
+      +'<circle cx="80" cy="1310" r="300" fill="#00D46A" opacity=".03"/>';
+
+    // header
+    html += '<circle cx="70" cy="66" r="24" fill="#0A0F0A" stroke="#D4AF37" stroke-width="2.2"/>'
+      +'<text x="70" y="75" text-anchor="middle" font-size="22" font-weight="700" fill="#D4AF37" font-family="Barlow Condensed,Impact,sans-serif">P</text>'
+      +'<text x="106" y="60" font-size="17" font-weight="700" fill="#D4AF37" letter-spacing="1" font-family="Poppins,sans-serif">YOURTALENTBASE</text>'
+      +'<text x="106" y="80" font-size="13" fill="#6E7A6F" font-family="Poppins,sans-serif">Passaporte Digital do Atleta</text>';
+    if(badgeLabel){
+      html += '<rect x="'+(W-330)+'" y="42" width="290" height="46" rx="23" fill="#141C15" stroke="#D4AF37" stroke-opacity=".4" stroke-width="1.3"/>'
+        +'<text x="'+(W-185)+'" y="71" text-anchor="middle" font-size="17" font-weight="700" fill="#D4AF37" font-family="Poppins,sans-serif">'+esc(badgeLabel)+'</text>';
+    }
+    html += '<line x1="60" y1="112" x2="'+(W-60)+'" y2="112" stroke="#1F2520" stroke-width="1.5"/>';
+
+    // camisola (ou iniciais, se não houver número/nome de camisola definidos)
+    var cx=195, cy=290;
+    html += '<g transform="translate('+cx+','+cy+')">';
+    if(id.numero_camisola!=null || id.nome_camisola){
+      html += '<path d="M-90 -80 L-60 -100 Q-30 -112 0 -100 L30 -80 L70 -50 L45 -10 L25 -28 L25 180 L-95 180 L-95 -28 L-115 -10 L-155 -50 Z" fill="#141C15" stroke="#D4AF37" stroke-width="2.5" stroke-linejoin="round" transform="scale(0.85)"/>'
+        +'<text x="-38" y="70" text-anchor="middle" font-size="92" font-weight="900" fill="#D4AF37" font-family="Barlow Condensed,Impact,sans-serif">'+esc(id.numero_camisola!=null?id.numero_camisola:'')+'</text>'
+        +'<text x="-38" y="112" text-anchor="middle" font-size="18" font-weight="700" fill="#ECEFEA" letter-spacing="1.5" font-family="Poppins,sans-serif">'+esc(id.nome_camisola||'')+'</text>';
+    } else {
+      var iniciais = (id.nome||'').split(' ').filter(Boolean).slice(0,2).map(function(w){return w[0];}).join('').toUpperCase();
+      html += '<circle cx="-38" cy="30" r="115" fill="#141C15" stroke="#D4AF37" stroke-width="2.5"/>'
+        +'<text x="-38" y="55" text-anchor="middle" font-size="78" font-weight="900" fill="#D4AF37" font-family="Barlow Condensed,Impact,sans-serif">'+esc(iniciais)+'</text>';
+    }
+    html += '</g>';
+
+    // identidade
+    var tx=400;
+    html += '<text x="'+tx+'" y="190" font-size="54" font-weight="700" fill="#ECEFEA" font-family="Barlow Condensed,Impact,sans-serif">'+esc(id.nome||'')+'</text>';
+    var meta=[id.posicao, id.idade?(id.idade+' anos'):null, id.clube, id.escalao].filter(Boolean).join('  ·  ');
+    html += '<text x="'+tx+'" y="228" font-size="21" fill="#8FA090" font-family="Poppins,sans-serif">'+esc(meta)+'</text>';
+    html += '<rect x="'+tx+'" y="256" width="'+(W-tx-70)+'" height="96" rx="14" fill="#141C15" stroke="#2A362B" stroke-width="1.3"/>'
+      +'<text x="'+(tx+24)+'" y="288" font-size="13" font-weight="700" fill="#00D46A" letter-spacing="1.5" font-family="Poppins,sans-serif">ÉPOCA ATUAL</text>'
+      +'<text x="'+(tx+24)+'" y="322" font-size="27" font-weight="700" fill="#ECEFEA" font-family="Barlow Condensed,Impact,sans-serif">'+esc(dens.epocas||carreira.length)+'ª ÉPOCA NO '+esc((id.clube||'').toUpperCase())+'</text>';
+    var atual = carreira[0]||{};
+    html += '<text x="'+(tx+24)+'" y="345" font-size="15" fill="#6E7A6F" font-family="Poppins,sans-serif">'+esc([atual.escalao,atual.divisao].filter(Boolean).join(' · '))+'</text>';
+
+    // histórico
+    var ty=480;
+    html += '<text x="60" y="'+ty+'" font-size="30" font-weight="700" fill="#ECEFEA" font-family="Barlow Condensed,Impact,sans-serif">📖 HISTORIAL</text>';
+    var rowY=ty+40, rowH=88;
+    html += '<line x1="60" y1="'+rowY+'" x2="'+(W-60)+'" y2="'+rowY+'" stroke="#2A362B" stroke-width="1.5"/>'
+      +'<text x="60" y="'+(rowY+28)+'" font-size="13" font-weight="700" fill="#6E7A6F" letter-spacing="1.5" font-family="Poppins,sans-serif">ÉPOCA</text>'
+      +'<text x="190" y="'+(rowY+28)+'" font-size="13" font-weight="700" fill="#6E7A6F" letter-spacing="1.5" font-family="Poppins,sans-serif">ONDE COMPETIU</text>'
+      +'<text x="610" y="'+(rowY+28)+'" font-size="13" font-weight="700" fill="#6E7A6F" letter-spacing="1.5" font-family="Poppins,sans-serif">RESULTADO</text>';
+    var y0=rowY+50, MAX_LINHAS=8; // limite de segurança de altura — carreiras muito longas cortam às mais recentes
+    carreira.slice(0,MAX_LINHAS).forEach(function(c,i){
+      var y=y0+i*rowH, actual=i===0, corTxt=actual?'#D4AF37':'#ECEFEA';
+      if(i>0) html += '<line x1="60" y1="'+(y-rowH+34)+'" x2="'+(W-60)+'" y2="'+(y-rowH+34)+'" stroke="#1A231B" stroke-width="1"/>';
+      html += '<text x="60" y="'+y+'" font-size="24" font-weight="700" fill="'+corTxt+'" font-family="Barlow Condensed,Impact,sans-serif">'+esc(c.epoca||'')+'</text>'
+        +'<text x="190" y="'+y+'" font-size="22" fill="'+corTxt+'" font-family="Poppins,sans-serif">'+esc([c.escalao,c.divisao].filter(Boolean).join(' · '))+'</text>';
+      var temTitulo = c.titulos && c.titulos.length;
+      var icone = temTitulo ? '🏆' : (/pandemia/i.test(c.classificacao||'')?'📅':(/lugar/i.test(c.classificacao||'')?'📊':''));
+      var LIMITE=34, txtRes = c.classificacao||'';
+      if(txtRes.length>LIMITE) txtRes = txtRes.slice(0,LIMITE-1).trim()+'…';
+      html += '<text x="610" y="'+y+'" font-size="21" fill="'+(temTitulo?'#D4AF37':corTxt)+'" font-family="Poppins,sans-serif">'+(icone?icone+' ':'')+esc(txtRes)+'</text>';
+    });
+    var tabelaFim = y0 + (Math.min(carreira.length,MAX_LINHAS)-1)*rowH + 40;
+
+    // stats agregados
+    var sy=tabelaFim+50;
+    html += '<line x1="60" y1="'+(sy-30)+'" x2="'+(W-60)+'" y2="'+(sy-30)+'" stroke="#2A362B" stroke-width="1.5"/>';
+    var stats=[[dens.epocas,'ÉPOCAS'],[dens.competicoes,'COMPETIÇÕES'],[dens.titulos,'TÍTULOS']].filter(function(s){return s[0]!=null;});
+    var sxw=(W-120)/Math.max(1,stats.length);
+    stats.forEach(function(s,i){
+      var x = 60 + sxw*i + sxw/2;
+      html += '<text x="'+x+'" y="'+(sy+34)+'" text-anchor="middle" font-size="46" font-weight="700" fill="#ECEFEA" font-family="Barlow Condensed,Impact,sans-serif">'+esc(String(s[0]))+'</text>'
+        +'<text x="'+x+'" y="'+(sy+60)+'" text-anchor="middle" font-size="14" fill="#6E7A6F" letter-spacing="1" font-family="Poppins,sans-serif">'+s[1]+'</text>';
+    });
+
+    // rodapé
+    html += '<line x1="340" y1="'+(sy+96)+'" x2="740" y2="'+(sy+96)+'" stroke="#1F2520" stroke-width="1.5"/>'
+      +'<text x="'+(W/2)+'" y="'+(sy+134)+'" text-anchor="middle" font-size="19" fill="#6E7A6F" font-family="Poppins,sans-serif">O passaporte digital do atleta · <tspan fill="#D4AF37" font-weight="700">yourtalentbase.pt</tspan></text>';
+
+    return '<svg xmlns="http://www.w3.org/2000/svg" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'">'+html+'</svg>';
   }
   function svgParaPngBlob(svgStr, w, h){
     return new Promise(function(resolve,reject){

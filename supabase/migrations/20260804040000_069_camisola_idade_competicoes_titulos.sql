@@ -1,0 +1,7 @@
+-- 069: cartao de partilha redesenhado com mockup de referencia do fundador
+-- (tabela de historico, stats agregados). Campos novos: numero_camisola,
+-- nome_camisola. Barreiras: sem altura/peso (formulario ja diz "nunca
+-- visivel ao publico"), idade em vez de data de nascimento exacta.
+-- densidade.competicoes e densidade.titulos calculados a partir do
+-- historico real, nao inflacionados.
+-- Corpo integral no historico Supabase (069_camisola_idade_competicoes_titulos).
