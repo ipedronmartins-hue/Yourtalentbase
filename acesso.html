@@ -21,15 +21,15 @@
 <link rel="stylesheet" href="ytb.css">
 <style>
   *{box-sizing:border-box; margin:0; padding:0}
-  html,body{height:100%}
+  html,body{min-height:100%}
   body{
     background:
       radial-gradient(1200px 600px at 50% -10%, #0E140E 0%, var(--bg) 60%);
     color:var(--text);
     font-family:'Plus Jakarta Sans',system-ui,sans-serif;
     -webkit-font-smoothing:antialiased;
-    display:flex; align-items:center; justify-content:center;
-    padding:24px; min-height:100dvh;
+    display:flex; align-items:safe center; justify-content:center;
+    padding:24px; min-height:100dvh; overflow-y:auto;
   }
   .card{
     width:100%; max-width:380px;
@@ -178,6 +178,9 @@
     <section id="step-escolha" class="step" aria-labelledby="t-escolha">
       <p class="eyebrow">Acesso confirmado</p>
       <h1 id="t-escolha">Escolhe o atleta</h1>
+      <input type="text" id="escolha-busca" placeholder="Procurar por nome ou clube…" autocomplete="off"
+        style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:11px;padding:11px 13px;font-family:inherit;font-size:14px;margin-bottom:10px;outline:none">
+      <div id="escolha-chips" style="display:flex;gap:7px;overflow-x:auto;padding-bottom:9px;margin-bottom:6px;scrollbar-width:none"></div>
       <div id="escolha-list" class="pick-list"></div>
     </section>
 
@@ -292,18 +295,53 @@
   btnOutro.addEventListener('click', function(){ show('email'); elEmail.focus(); });
 
   // ── PASSO 3 · escolher atleta (mesmo email, mais do que um filho) ──
+  var filtroClube='', filtroTexto='';
   function renderEscolha(lista){
     ultimaLista=lista;
-    $('escolha-list').innerHTML = lista.map(function(a){
+    montarChips(lista);
+    aplicarFiltro();
+  }
+  function montarChips(lista){
+    var box=$('escolha-chips');
+    if(lista.length<6){ box.innerHTML=''; box.style.display='none'; return; } // poucos atletas: chips só atrapalham
+    box.style.display='flex';
+    var clubes=[]; lista.forEach(function(a){ var c=(a.clube||'').trim(); if(c&&clubes.indexOf(c)<0) clubes.push(c); });
+    clubes.sort();
+    var chip=function(v,label,ativo){
+      return '<button type="button" class="chip-clube" data-v="'+escHtml(v)+'" style="flex:0 0 auto;white-space:nowrap;padding:7px 14px;border-radius:999px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;border:1px solid '+(ativo?'var(--gold)':'var(--border)')+';background:'+(ativo?'var(--gold-soft,rgba(212,175,55,.14))':'var(--bg)')+';color:'+(ativo?'var(--gold)':'var(--slate)')+'">'+escHtml(label)+'</button>';
+    };
+    box.innerHTML = chip('', 'Todos ('+lista.length+')', filtroClube==='')
+      + clubes.map(function(c){
+          var n=lista.filter(function(a){return (a.clube||'').trim()===c;}).length;
+          return chip(c, c+' ('+n+')', filtroClube===c);
+        }).join('');
+    Array.prototype.forEach.call(box.querySelectorAll('.chip-clube'), function(b){
+      b.addEventListener('click', function(){ filtroClube=b.getAttribute('data-v'); montarChips(ultimaLista); aplicarFiltro(); });
+    });
+  }
+  function aplicarFiltro(){
+    var termo=filtroTexto.trim().toLowerCase();
+    var filtrada=ultimaLista.filter(function(a){
+      var noClube = !filtroClube || (a.clube||'').trim()===filtroClube;
+      var noTexto = !termo || (a.nome||'').toLowerCase().indexOf(termo)>=0 || (a.clube||'').toLowerCase().indexOf(termo)>=0 || (a.escalao||'').toLowerCase().indexOf(termo)>=0;
+      return noClube && noTexto;
+    });
+    pintarLista(filtrada);
+  }
+  var buscaEl=$('escolha-busca');
+  if(buscaEl) buscaEl.addEventListener('input', function(){ filtroTexto=buscaEl.value||''; aplicarFiltro(); });
+
+  function pintarLista(lista){
+    $('escolha-list').innerHTML = lista.length ? lista.map(function(a){
       return '<button type="button" class="pick-row" data-id="'+escHtml(a.id)+'">'
         + '<span><span class="pick-nm">'+escHtml(a.nome)+'</span>'
         + '<span class="pick-mt">'+escHtml(a.escalao||'')+(a.clube?(' · '+escHtml(a.clube)):'')+'</span></span>'
         + '<span class="pick-go">→</span></button>';
-    }).join('');
+    }).join('') : '<p style="color:var(--slate);font-size:13.5px;padding:14px 2px">Ninguém encontrado — tenta outro termo.</p>';
     Array.prototype.forEach.call($('escolha-list').querySelectorAll('.pick-row'), function(b){
       b.addEventListener('click', function(){
         var id=b.getAttribute('data-id');
-        var a=lista.filter(function(x){return x.id===id;})[0];
+        var a=ultimaLista.filter(function(x){return x.id===id;})[0];
         if(a) afterPick(a);
       });
     });
