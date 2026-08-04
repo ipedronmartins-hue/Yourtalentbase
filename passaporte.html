@@ -1583,7 +1583,7 @@
     supa.rpc('ytb_passaporte_admin',{ p_atleta: adminAtleta }).then(function(res){
       if(res.error){ adminErro('Só administradores podem abrir passaportes por aqui.'); return; }
       if(!res.data){ adminErro('Sem acesso, ou este atleta não existe.'); return; }
-      try{ var nm=(res.data.identidade&&res.data.identidade.nome)||'atleta'; show(mapFromRPC(res.data)); adminBanner(nm); }
+      try{ var nm=(res.data.identidade&&res.data.identidade.nome)||'atleta'; show(mapFromRPC(res.data)); adminBanner(nm); carregarTreino(adminAtleta); }
       catch(e){ adminErro('Não foi possível ler o passaporte deste atleta.'); }
     }).catch(function(){ adminErro('Falha de ligação. Tenta novamente.'); });
   } else if(USING_SB && scoutAtleta){
@@ -1607,7 +1607,7 @@
     supa.rpc('ytb_passaporte_treinador',{ p_atleta: treinadorAtleta }).then(function(res){
       if(res.error){ adminErro('Só treinadores podem abrir passaportes por aqui.'); return; }
       if(!res.data){ adminErro('Sem acesso — entra primeiro no painel do treinador, ou este atleta não é teu.'); return; }
-      try{ var nm=(res.data.identidade&&res.data.identidade.nome)||'atleta'; show(mapFromRPC(res.data)); treinadorBanner(nm); }
+      try{ var nm=(res.data.identidade&&res.data.identidade.nome)||'atleta'; show(mapFromRPC(res.data)); treinadorBanner(nm); carregarTreino(treinadorAtleta); }
       catch(e){ adminErro('Não foi possível ler o passaporte deste atleta.'); }
     }).catch(function(){ adminErro('Falha de ligação. Tenta novamente.'); });
   } else if(USING_SB && familiaAtleta){

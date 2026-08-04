@@ -37,7 +37,10 @@
     border:1px solid var(--border); border-radius:20px;
     padding:34px 28px 26px;
     box-shadow:0 30px 80px -40px #000, inset 0 1px 0 #ffffff08;
+    transition:max-width .25s ease;
   }
+  /* a escolha do atleta é uma lista, não um formulário — merece o ecrã inteiro */
+  .card.wide{max-width:640px}
   /* ── Selo (assinatura): o único lugar com ouro ── */
   .seal{
     width:54px; height:54px; margin:0 auto 18px;
@@ -116,18 +119,20 @@
   .success-sub{text-align:center; color:var(--slate); font-size:14px; line-height:1.55; margin-top:-8px}
   .success-sub b{color:var(--text); font-weight:600}
 
-  /* escolha de atleta (mais do que um filho no mesmo email) */
-  .pick-list{display:flex; flex-direction:column; gap:9px}
+  /* escolha de atleta (mais do que um filho no mesmo email) — estilo WP8:
+     lista plana, sem caixas, tipografia grande, a largura toda ao serviço do nome */
+  .pick-list{display:flex; flex-direction:column}
   .pick-row{
-    display:flex; align-items:center; justify-content:space-between; gap:10px;
-    width:100%; text-align:left; background:var(--bg); border:1px solid var(--border);
-    border-radius:12px; padding:14px 15px; cursor:pointer; transition:.14s;
+    display:flex; align-items:center; justify-content:space-between; gap:14px;
+    width:100%; text-align:left; background:none; border:none; border-bottom:1px solid var(--border);
+    border-radius:0; padding:16px 2px; cursor:pointer; transition:.14s;
     color:var(--text); font-family:inherit;
   }
-  .pick-row:hover{border-color:#2C342C}
-  .pick-nm{font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:16px}
-  .pick-mt{font-size:11.5px; color:var(--slate); margin-top:2px}
-  .pick-go{flex:none; color:var(--slate); font-size:17px}
+  .pick-row:first-child{border-top:1px solid var(--border)}
+  .pick-row:active{background:#ffffff06}
+  .pick-nm{font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:21px; line-height:1.15}
+  .pick-mt{font-size:12.5px; color:var(--slate); margin-top:3px}
+  .pick-go{flex:none; color:var(--slate); font-size:19px}
 
   .demo{
     margin-top:18px; text-align:center; font-size:11px; letter-spacing:.06em;
@@ -179,7 +184,7 @@
       <p class="eyebrow">Acesso confirmado</p>
       <h1 id="t-escolha">Escolhe o atleta</h1>
       <input type="text" id="escolha-busca" placeholder="Procurar por nome ou clube…" autocomplete="off"
-        style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:11px;padding:11px 13px;font-family:inherit;font-size:14px;margin-bottom:10px;outline:none">
+        style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:11px;padding:13px 15px;font-family:inherit;font-size:15px;margin-bottom:12px;outline:none">
       <div id="escolha-chips" style="display:flex;gap:7px;overflow-x:auto;padding-bottom:9px;margin-bottom:6px;scrollbar-width:none"></div>
       <div id="escolha-list" class="pick-list"></div>
     </section>
@@ -248,6 +253,8 @@
     ['email','aguarda','escolha','consentimento','sucesso'].forEach(function(n){
       $('step-'+n).classList.toggle('active', n===name);
     });
+    var cardEl=document.querySelector('.card');
+    if(cardEl) cardEl.classList.toggle('wide', name==='escolha');
   }
   function err(text){ msgEmail.textContent=text; msgEmail.classList.add('show'); }
   function clearErr(){ msgEmail.classList.remove('show'); }

@@ -1,0 +1,9 @@
+-- 066: ytb_plano_atual so aceitava o encarregado_email exato. Investigado a
+-- pedido do fundador: o plano do Guilherme Barbosa existe e esta completo;
+-- o problema era que a chamada carregarTreino() no passaporte.html so
+-- corria no ramo "modo familia" -- admin/treinador nunca a chamavam.
+-- Corrigido nos dois niveis: RPC aceita agora tambem admin e o treinador
+-- responsavel (mesma regra de posse de ytb_passaporte_treinador); e
+-- treinador_nome devolve "Admin" quando quem prescreveu foi um admin
+-- (mesma regra generica da migracao 065).
+-- Corpo integral no historico Supabase (066_ytb_plano_atual_admin_treinador).
