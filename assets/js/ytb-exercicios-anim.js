@@ -667,6 +667,213 @@ CENAS.me5=function(){
   return wrap(p,chao()+fig+html,css);
 };
 
+/* — de7 passe ou finta: obstáculo fixo, bola vai para um lado ou outro (alterna) — */
+CENAS.de7=function(){
+  var p='ep'+(seq++);
+  var f0=boneco({x:26,bracos:['26,36 18,44','26,36 34,42'],pernas:['26,52 20,66 18,78','26,52 32,60 38,66']});
+  var obst='<path d="M74 76 L79 62 L84 76 Z" fill="'+PROP+'"/>';
+  var css='@keyframes '+p+'b{0%,8%{transform:translate(0,0)}42%{transform:translate(46px,0)}46%,50%{transform:translate(46px,-16px)}88%{transform:translate(92px,-16px)}92%,100%{transform:translate(0,0)}}'
+    +'.on .'+p+'-b{animation:'+p+'b 3s ease-in-out infinite}'
+    +'@keyframes '+p+'b2{0%,50%{transform:translate(0,0);opacity:0}54%{opacity:1}88%{transform:translate(92px,20px);opacity:1}92%,100%{transform:translate(0,0);opacity:0}}'
+    +'.on .'+p+'-b2{animation:'+p+'b2 6s ease-in-out infinite}';
+  return wrap(p,chao()+obst+f0
+    +'<g class="'+p+'-b"><circle cx="40" cy="73" r="4.5" fill="'+BOLA+'"/></g>',css);
+};
+
+/* — de8 reagir ao sinal: palmas piscam, o pé toca a bola logo a seguir — */
+CENAS.de8=function(){
+  var p='ep'+(seq++);
+  var f0=boneco({x:52,bracos:['52,36 44,44','52,36 60,44'],pernas:['52,52 46,66 44,78','52,52 62,60 70,68']});
+  var css='@keyframes '+p+'p{0%,20%{opacity:.25;transform:scale(1)}24%{opacity:1;transform:scale(1.3)}30%,100%{opacity:.25;transform:scale(1)}}'
+    +'.on .'+p+'-p{transform-box:fill-box;transform-origin:center;animation:'+p+'p 1.6s ease-out infinite}'
+    +'@keyframes '+p+'b{0%,30%{transform:translateX(0)}55%{transform:translateX(14px)}100%{transform:translateX(0)}}'
+    +'.on .'+p+'-b{animation:'+p+'b 1.6s ease-in-out infinite}';
+  var maos='<g class="'+p+'-p"><path d="M22 26 L28 20 M22 20 L28 26" stroke="'+VERDE+'" stroke-width="2" stroke-linecap="round"/></g>';
+  return wrap(p,chao()+maos+f0+'<g class="'+p+'-b"><circle cx="70" cy="74" r="4.5" fill="'+BOLA+'"/></g>',css);
+};
+
+/* — de9 espaço livre: 4 cones, corre sempre para o que está mais isolado — */
+CENAS.de9=function(){
+  var p='ep'+(seq++);
+  var cones='<path d="M25 76 L29 66 L33 76 Z" fill="'+PROP+'"/><path d="M87 76 L91 66 L95 76 Z" fill="'+PROP+'"/>'
+    +'<path d="M56 22 L60 12 L64 22 Z" fill="'+PROP+'"/><path d="M56 76 L60 66 L64 76 Z" fill="'+PROP+'"/>';
+  var f0=boneco({x:0,hy:46,sh:28,hd:[0,20],bracos:['0,30 -8,38','0,30 8,36'],pernas:['0,46 -6,58 -8,70','0,46 6,58 8,70']});
+  var f1=boneco({x:0,hy:46,sh:28,hd:[0,20],bracos:['0,30 -8,36','0,30 8,38'],pernas:['0,46 -8,58 -6,70','0,46 8,58 6,70']});
+  var fb=flip(p,[f0,f1],0.42);
+  var css=fb.css
+    +'@keyframes '+p+'m{0%,20%{transform:translate(29,50)}45%,65%{transform:translate(91,50)}90%,100%{transform:translate(60,16)}}'
+    +'.on .'+p+'-m{animation:'+p+'m 3s ease-in-out infinite}';
+  return wrap(p,chao()+cones+'<g class="'+p+'-m">'+fb.html+'</g>',css);
+};
+
+/* — de10 remate ou passe: baliza de um lado, colega do outro, decide sob tempo — */
+CENAS.de10=function(){
+  var p='ep'+(seq++);
+  var f0=boneco({x:36,bracos:['36,36 28,44','36,36 44,42'],pernas:['36,52 30,66 28,78','36,52 42,64 40,78']});
+  var baliza='<g stroke="'+PROP+'" stroke-width="2.5" fill="none"><path d="M96 74 V38 H114"/></g>';
+  var colega=boneco({x:70,hy:66,sh:50,hd:[70,42],bracos:['70,52 62,60','70,52 78,60'],pernas:['70,66 64,72 62,80','70,66 76,72 78,80']});
+  var css='@keyframes '+p+'v{0%,30%{opacity:0;transform:translateY(2px)}40%,70%{opacity:1;transform:translateY(0)}80%,100%{opacity:0}}'
+    +'.on .'+p+'-v{animation:'+p+'v 2.6s steps(1) infinite}'
+    +'@keyframes '+p+'b1{0%,68%{transform:translate(0,0);opacity:0}72%{opacity:1}98%{transform:translate(58px,-24px);opacity:1}100%{opacity:0}}'
+    +'.on .'+p+'-b1{animation:'+p+'b1 5.2s ease-out infinite}'
+    +'@keyframes '+p+'b2{0%{transform:translate(0,0);opacity:0}50%,68%{transform:translate(0,0);opacity:0}72%{opacity:1}98%{transform:translate(34px,14px);opacity:1}100%{opacity:0}}'
+    +'.on .'+p+'-b2{animation:'+p+'b2 2.6s ease-out infinite}';
+  var relogio='<text class="'+p+'-v" x="20" y="20" font-size="10" fill="'+AZUL+'" font-family="sans-serif" font-weight="bold" opacity="0">⏱</text>';
+  return wrap(p,chao()+baliza+relogio+f0+colega
+    +'<g class="'+p+'-b1"><circle cx="40" cy="73" r="4.5" fill="'+BOLA+'"/></g>'
+    +'<g class="'+p+'-b2" opacity="0"><circle cx="40" cy="73" r="4.5" fill="'+BOLA+'"/></g>',css);
+};
+
+/* — ta6 ler o passe seguinte: ecrã pausa, seta de previsão aparece antes da confirmação — */
+CENAS.ta6=function(){
+  var p='ep'+(seq++);
+  var ecra='<rect x="30" y="24" width="60" height="38" rx="2" fill="none" stroke="'+PROP+'" stroke-width="2.5"/>';
+  var css='@keyframes '+p+'pl{0%,55%{opacity:.9}60%,100%{opacity:.9}}'
+    +'@keyframes '+p+'seta{0%,30%{opacity:0}38%,68%{opacity:1;stroke-dashoffset:0}72%,100%{opacity:0}}'
+    +'.on .'+p+'-seta{stroke-dasharray:20;stroke-dashoffset:20;animation:'+p+'seta 3s ease-out infinite}'
+    +'@keyframes '+p+'ok{0%,66%{opacity:0}72%,92%{opacity:1}100%{opacity:0}}'
+    +'.on .'+p+'-ok{animation:'+p+'ok 3s steps(1) infinite}';
+  var bola='<circle cx="46" cy="46" r="4" fill="'+BOLA+'"/>';
+  var seta='<line class="'+p+'-seta" x1="50" y1="46" x2="74" y2="38" stroke="'+VERDE+'" stroke-width="2" stroke-linecap="round" opacity="0"/>';
+  var ok='<text class="'+p+'-ok" x="78" y="34" font-size="10" fill="'+VERDE+'" font-family="sans-serif" font-weight="bold" opacity="0">✓</text>';
+  return wrap(p,chao(76)+ecra+bola+seta+ok,css);
+};
+
+/* — ta7 zonas de perigo: mapa, 3 zonas acendem em sequência (o próprio ta3, com zonas maiores) — */
+CENAS.ta7=function(){
+  var p='ep'+(seq++);
+  var campo='<rect x="20" y="20" width="80" height="50" fill="none" stroke="'+PROP+'" stroke-width="1.5" opacity=".7"/>';
+  var css='@keyframes '+p+'z1{0%,10%{opacity:.15}18%,42%{opacity:.7}50%,100%{opacity:.15}}'
+    +'@keyframes '+p+'z2{0%,42%{opacity:.15}50%,74%{opacity:.7}82%,100%{opacity:.15}}'
+    +'@keyframes '+p+'z3{0%,74%{opacity:.15}82%,96%{opacity:.7}100%{opacity:.15}}'
+    +'.on .'+p+'-z1{animation:'+p+'z1 4.2s ease-in-out infinite}'
+    +'.on .'+p+'-z2{animation:'+p+'z2 4.2s ease-in-out infinite}'
+    +'.on .'+p+'-z3{animation:'+p+'z3 4.2s ease-in-out infinite}';
+  var zonas='<rect class="'+p+'-z1" x="70" y="26" width="24" height="18" fill="'+VERM+'" opacity=".15"/>'
+    +'<rect class="'+p+'-z2" x="70" y="46" width="24" height="18" fill="'+VERM+'" opacity=".15"/>'
+    +'<rect class="'+p+'-z3" x="46" y="34" width="20" height="20" fill="'+VERM+'" opacity=".15"/>';
+  return wrap(p,chao(74)+campo+zonas,css);
+};
+
+/* — ta8 transição rápida: perde a bola, corre atrás e recupera nos primeiros segundos — */
+CENAS.ta8=function(){
+  var p='ep'+(seq++);
+  var f0=boneco({x:0,hy:50,sh:32,hd:[0,24],bracos:['0,34 -9,42','0,34 9,40'],pernas:['0,50 -7,64 -9,76','0,50 9,62 13,70']});
+  var f1=boneco({x:0,hy:50,sh:32,hd:[0,24],bracos:['0,34 9,40','0,34 -9,42'],pernas:['0,50 7,60 5,74','0,50 -7,58 -13,64']});
+  var fb=flip(p,[f0,f1],0.36);
+  var css=fb.css
+    +'@keyframes '+p+'m{0%,10%{transform:translateX(16px)}42%{transform:translateX(70px)}48%{transform:translateX(70px)}92%,100%{transform:translateX(16px)}}'
+    +'.on .'+p+'-m{animation:'+p+'m 2.4s cubic-bezier(.5,0,.5,1) infinite}'
+    +'@keyframes '+p+'b{0%,10%{transform:translateX(0)}40%{transform:translateX(70px)}48%,90%{transform:translateX(66px)}100%{transform:translateX(0)}}'
+    +'.on .'+p+'-b{animation:'+p+'b 2.4s ease-out infinite}';
+  return wrap(p,chao()+'<g class="'+p+'-m">'+fb.html+'</g>'
+    +'<g class="'+p+'-b"><circle cx="10" cy="73" r="4" fill="'+BOLA+'"/></g>',css);
+};
+
+/* — ta9 superioridade 2x1: dois companheiros disponíveis, decide consoante o espaço — */
+CENAS.ta9=function(){
+  var p='ep'+(seq++);
+  var f0=boneco({x:0,hy:50,sh:32,hd:[0,24],bracos:['0,34 -8,42','0,34 8,40'],pernas:['0,50 -6,64 -8,76','0,50 8,62 12,70']});
+  var comp1=boneco({x:96,hy:36,sh:20,hd:[96,14],bracos:['96,24 88,32','96,24 104,32'],pernas:['96,36 90,48 88,60','96,36 102,48 104,60']});
+  var comp2=boneco({x:96,hy:70,sh:54,hd:[96,48],bracos:['96,58 88,66','96,58 104,66'],pernas:['96,70 90,78 88,86','96,70 102,78 104,86']});
+  var css='@keyframes '+p+'m{0%,25%{transform:translate(18px,44px)}55%{transform:translate(60px,44px)}100%{transform:translate(60px,44px)}}'
+    +'.on .'+p+'-m{animation:'+p+'m 3s ease-out infinite}'
+    +'@keyframes '+p+'b{0%,55%{transform:translate(0,0);opacity:0}60%{opacity:1}92%{transform:translate(36px,-14px);opacity:1}100%{opacity:0}}'
+    +'.on .'+p+'-b{animation:'+p+'b 3s ease-out infinite}';
+  return wrap(p,chao(90)+comp1+comp2
+    +'<g class="'+p+'-m">'+f0+'</g>'
+    +'<g class="'+p+'-b"><circle cx="18" cy="66" r="4" fill="'+BOLA+'"/></g>',css);
+};
+
+/* — ta10 comunicação: balão de fala aparece por cima do boneco, curto e repetido — */
+CENAS.ta10=function(){
+  var p='ep'+(seq++);
+  var f0=boneco({x:52,bracos:['52,36 42,42','52,36 62,42'],pernas:['52,52 46,66 44,78','52,52 60,64 66,72']});
+  var css='@keyframes '+p+'f{0%,15%{opacity:0;transform:translateY(3px)}25%,55%{opacity:1;transform:translateY(0)}65%,100%{opacity:0}}'
+    +'.on .'+p+'-f{animation:'+p+'f 2s ease-out infinite}';
+  var balao='<g class="'+p+'-f" opacity="0"><path d="M64 12 h30 a3 3 0 0 1 3 3 v10 a3 3 0 0 1 -3 3 h-20 l-6 6 v-6 h-4 a3 3 0 0 1 -3 -3 v-10 a3 3 0 0 1 3 -3 Z" fill="'+VERDE+'"/>'
+    +'<text x="79" y="22" font-size="7" fill="#052" font-family="sans-serif" font-weight="bold" text-anchor="middle">VIRA!</text></g>';
+  return wrap(p,chao()+f0+'<circle cx="66" cy="74" r="4" fill="'+BOLA+'"/>'+balao,css);
+};
+
+/* — me6 rotina em 3 passos: três ícones acendem em sequência antes de jogar — */
+CENAS.me6=function(){
+  var p='ep'+(seq++);
+  var fig=boneco({x:60,bracos:['60,36 50,44','60,36 70,44'],pernas:['60,52 52,66 50,78','60,52 68,66 70,78']});
+  var css='@keyframes '+p+'1{0%,4%{opacity:.2}10%,28%{opacity:1}34%,100%{opacity:.2}}'
+    +'@keyframes '+p+'2{0%,34%{opacity:.2}40%,58%{opacity:1}64%,100%{opacity:.2}}'
+    +'@keyframes '+p+'3{0%,64%{opacity:.2}70%,88%{opacity:1}94%,100%{opacity:.2}}'
+    +'.on .'+p+'-1{animation:'+p+'1 4s ease-in-out infinite}'
+    +'.on .'+p+'-2{animation:'+p+'2 4s ease-in-out infinite}'
+    +'.on .'+p+'-3{animation:'+p+'3 4s ease-in-out infinite}';
+  var passos='<circle class="'+p+'-1" cx="26" cy="18" r="6" fill="none" stroke="'+AZUL+'" stroke-width="1.5" opacity=".2"/><text x="26" y="21" font-size="7" fill="'+AZUL+'" text-anchor="middle" font-family="sans-serif">1</text>'
+    +'<circle class="'+p+'-2" cx="46" cy="18" r="6" fill="none" stroke="'+AZUL+'" stroke-width="1.5" opacity=".2"/><text x="46" y="21" font-size="7" fill="'+AZUL+'" text-anchor="middle" font-family="sans-serif">2</text>'
+    +'<circle class="'+p+'-3" cx="66" cy="18" r="6" fill="none" stroke="'+AZUL+'" stroke-width="1.5" opacity=".2"/><text x="66" y="21" font-size="7" fill="'+AZUL+'" text-anchor="middle" font-family="sans-serif">3</text>';
+  return wrap(p,chao()+passos+fig,css);
+};
+
+/* — me7 fala contigo mesmo: erro (✗), seguido de balão de incentivo (não de remate falhado) — */
+CENAS.me7=function(){
+  var p='ep'+(seq++);
+  var f0=boneco({x:52,bracos:['52,36 44,44','52,36 60,44'],pernas:['52,52 46,66 44,78','52,52 60,66 58,78']});
+  var css='@keyframes '+p+'x{0%,10%{opacity:0}16%,40%{opacity:1}46%,100%{opacity:0}}'
+    +'.on .'+p+'-x{animation:'+p+'x 3s steps(1) infinite}'
+    +'@keyframes '+p+'f{0%,46%{opacity:0;transform:translateY(3px)}54%,86%{opacity:1;transform:translateY(0)}94%,100%{opacity:0}}'
+    +'.on .'+p+'-f{animation:'+p+'f 3s ease-out infinite}';
+  var x='<text class="'+p+'-x" x="38" y="20" font-size="11" fill="'+VERM+'" font-family="sans-serif" font-weight="bold" opacity="0">✗</text>';
+  var balao='<g class="'+p+'-f" opacity="0"><path d="M62 8 h34 a3 3 0 0 1 3 3 v10 a3 3 0 0 1 -3 3 h-24 l-6 6 v-6 h-4 a3 3 0 0 1 -3 -3 v-10 a3 3 0 0 1 3 -3 Z" fill="'+VERDE+'"/>'
+    +'<text x="79" y="18" font-size="6.5" fill="#052" font-family="sans-serif" font-weight="bold" text-anchor="middle">CONSIGO!</text></g>';
+  return wrap(p,chao()+f0+x+balao,css);
+};
+
+/* — me8 visualizar antes de dormir: boneco quieto, balão de pensamento com uma bola dentro — */
+CENAS.me8=function(){
+  var p='ep'+(seq++);
+  var f0='<g stroke="'+LINHA+'" stroke-width="3" stroke-linecap="round" fill="none">'
+    +'<circle cx="34" cy="62" r="5.5" fill="'+LINHA+'" stroke="none"/>'
+    +'<line x1="40" y1="64" x2="70" y2="70"/><polyline points="70,70 78,66"/></g>'; // deitado
+  var css='@keyframes '+p+'b{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.06);opacity:.85}}'
+    +'.on .'+p+'-b{transform-box:fill-box;transform-origin:center;animation:'+p+'b 2.6s ease-in-out infinite}'
+    +'@keyframes '+p+'z{0%,100%{opacity:.3}50%{opacity:1}}'
+    +'.on .'+p+'-z{animation:'+p+'z 2.6s ease-in-out infinite}';
+  var pensamento='<circle cx="46" cy="42" r="3" fill="none" stroke="'+PROP+'" stroke-width="1" opacity=".6"/>'
+    +'<circle cx="54" cy="34" r="4" fill="none" stroke="'+PROP+'" stroke-width="1" opacity=".6"/>'
+    +'<circle class="'+p+'-b" cx="68" cy="22" r="14" fill="none" stroke="'+PROP+'" stroke-width="1.5"/>'
+    +'<circle class="'+p+'-b" cx="68" cy="22" r="5" fill="'+BOLA+'"/>'
+    +'<text class="'+p+'-z" x="86" y="14" font-size="8" fill="'+AZUL+'" font-family="sans-serif">z</text>';
+  return wrap(p,chao(78)+f0+pensamento,css);
+};
+
+/* — me9 escala de esforço: reaproveita a cena de escrever, com um "medidor" 1-5 em vez de check-list — */
+CENAS.me9=function(){
+  var p='ep'+(seq++);
+  var papel='<rect x="34" y="26" width="52" height="44" rx="2" fill="none" stroke="'+PROP+'" stroke-width="2"/>';
+  var css='@keyframes '+p+'bar{0%,100%{transform:scaleY(0)}60%,90%{transform:scaleY(1)}}'
+    +'.on .'+p+'-bar{transform-box:fill-box;transform-origin:bottom;animation:'+p+'bar 3s ease-in-out infinite}';
+  var barras='';
+  for(var i=0;i<5;i++){
+    barras+='<rect class="'+p+'-bar" x="'+(41+i*8)+'" y="'+(64-i*4)+'" width="5" height="'+(6+i*4)+'" fill="'+(i<3?VERDE:BOLA)+'" style="animation-delay:'+(i*0.12)+'s"/>';
+  }
+  return wrap(p,papel+barras,css);
+};
+
+/* — me10 contar até 5: erro simulado, contagem visual, repete calmo — */
+CENAS.me10=function(){
+  var p='ep'+(seq++);
+  var f0=boneco({x:30,bracos:['30,36 22,44','30,36 38,42'],pernas:['30,52 24,66 22,78','30,52 40,60 46,66']});
+  var css='@keyframes '+p+'x{0%,8%{opacity:0}12%,26%{opacity:1}30%,100%{opacity:0}}'
+    +'.on .'+p+'-x{animation:'+p+'x 4s steps(1) infinite}';
+  var nums='';
+  for(var i=0;i<5;i++){
+    var ini=30+i*8, fim=ini+7;
+    css+='@keyframes '+p+'n'+i+'{0%,'+ini+'%{opacity:0}'+(ini+2)+'%,'+fim+'%{opacity:1}'+(fim+2)+'%,100%{opacity:0}}'
+      +'.on .'+p+'-n'+i+'{animation:'+p+'n'+i+' 4s steps(1) infinite}';
+    nums+='<text class="'+p+'-n'+i+'" x="'+(66+i*8)+'" y="24" font-size="8" fill="'+AZUL+'" font-family="sans-serif" font-weight="bold" opacity="0">'+(i+1)+'</text>';
+  }
+  var x='<text class="'+p+'-x" x="46" y="20" font-size="10" fill="'+VERM+'" font-family="sans-serif" font-weight="bold" opacity="0">✗</text>';
+  return wrap(p,chao()+f0+'<circle cx="40" cy="73" r="4" fill="'+BOLA+'"/>'+x+nums,css);
+};
+
 /* — cena genérica (fallback): bola a pulsar com setas de movimento — */
 CENAS.__generico=function(){
   var p='ep'+(seq++);
