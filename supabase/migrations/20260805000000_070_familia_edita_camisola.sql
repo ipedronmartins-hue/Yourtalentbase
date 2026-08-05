@@ -1,0 +1,4 @@
+-- 070: familia passa a editar numero_camisola e nome_camisola.
+-- Duas overloads antigas de ytb_familia_perfil_atualizar removidas
+-- explicitamente antes de criar a nova assinatura (17 params -> 19 params).
+-- Corpo integral no historico Supabase (070_familia_edita_camisola).

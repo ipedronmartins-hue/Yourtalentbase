@@ -510,33 +510,39 @@
     html += '<line x1="60" y1="118" x2="'+(W-60)+'" y2="118" stroke="#1F2520" stroke-width="1.5"/>';
 
     // ── camisola (vista de costas): nome em arco por cima, número ao centro ──
-    // Desenhada num espaço nativo de 340×400 e colocada à escala. O número muda
-    // de tamanho conforme os dígitos (medido: cada dígito ocupa 0.556×fs, o
-    // tronco útil tem ~118 — assim nunca encosta às margens, de 1 a 3 dígitos).
-    var temCamisola = (id.numero_camisola!=null || id.nome_camisola);
-    html += '<g transform="translate(16,104) scale(1.12)">';
-    if(temCamisola){
-      var nStr = String(id.numero_camisola!=null ? id.numero_camisola : '');
-      var fsNum = nStr.length>=3 ? 70 : (nStr.length===2 ? 104 : 132);
-      var nomeCam = String(id.nome_camisola||'').toUpperCase();
-      html += '<path d="M104 52 Q170 32 236 52 L286 88 L256 150 L232 128 L236 356 Q170 372 104 356 L108 128 L84 150 L54 88 Z" fill="#141C15" stroke="#D4AF37" stroke-width="3.2" stroke-linejoin="round"/>'
-        +'<path d="M104 52 Q170 86 236 52" fill="none" stroke="#D4AF37" stroke-width="3.2"/>'
-        +'<line x1="108" y1="128" x2="84" y2="150" stroke="#D4AF37" stroke-width="1.4" opacity=".4"/>'
-        +'<line x1="232" y1="128" x2="256" y2="150" stroke="#D4AF37" stroke-width="1.4" opacity=".4"/>';
-      if(nomeCam){
-        html += '<path id="ytbArcoNome" d="M116 192 Q170 168 224 192" fill="none"/>'
-          +'<text font-size="21" font-weight="700" fill="#ECEFEA" font-family="Poppins,sans-serif">'
-          +'<textPath href="#ytbArcoNome" xlink:href="#ytbArcoNome" startOffset="50%" text-anchor="middle" textLength="112" lengthAdjust="spacingAndGlyphs">'+esc(nomeCam)+'</textPath></text>';
-      }
-      html += '<text x="170" y="300" text-anchor="middle" font-size="'+fsNum+'" font-weight="900" fill="#D4AF37" font-family="Barlow Condensed,Impact,sans-serif">'+esc(nStr)+'</text>'
-        +'<circle cx="170" cy="338" r="17" fill="#0A0F0A" stroke="#D4AF37" stroke-width="1.7"/>'
-        +'<text x="170" y="345" text-anchor="middle" font-size="16" font-weight="700" fill="#D4AF37" font-family="Barlow Condensed,Impact,sans-serif">P</text>';
-    } else {
-      var iniciais = (id.nome||'').split(' ').filter(Boolean).slice(0,2).map(function(w){return w[0];}).join('').toUpperCase();
-      html += '<circle cx="170" cy="200" r="132" fill="#141C15" stroke="#D4AF37" stroke-width="3"/>'
-        +'<text x="170" y="234" text-anchor="middle" font-size="96" font-weight="900" fill="#D4AF37" font-family="Barlow Condensed,Impact,sans-serif">'+esc(iniciais)+'</text>';
+    // ── Bloco de identidade (esquerda) ──
+    // Tirada a camisola desenhada — parecia clip art, não fazia jus. Em vez
+    // disso, um painel tipográfico: nome de camisola em cima, número muito
+    // grande a fazer de "herói" visual, selo YTB por baixo como credencial.
+    // Presença sem gráfico figurativo.
+    var nStr = id.numero_camisola!=null ? String(id.numero_camisola) : '';
+    var nomeCam = String(id.nome_camisola||'').toUpperCase();
+    // fallback quando ainda não preencheram camisola: iniciais do nome real,
+    // como "monograma" a ocupar o painel — não repete em cima
+    var monograma = '';
+    if(!nStr && !nomeCam){
+      monograma = (id.nome||'').split(' ').filter(Boolean).slice(0,2).map(function(w){return w[0];}).join('').toUpperCase();
     }
-    html += '</g>';
+    var fsNum = nStr.length>=3 ? 150 : (nStr.length===2 ? 220 : 260);
+    html += '<rect x="60" y="150" width="290" height="360" rx="20" fill="#141C15" stroke="#2A362B" stroke-width="1.4"/>';
+    if(nomeCam){
+      var nomeMostrar = cortar(nomeCam, 22);
+      var forcaLarg = nomeMostrar.length >= 14 ? ' textLength="240" lengthAdjust="spacingAndGlyphs"' : '';
+      html += '<text x="205" y="222" text-anchor="middle" font-size="26" font-weight="700" fill="#ECEFEA" letter-spacing="2" font-family="Poppins,sans-serif"'+forcaLarg+'>'+esc(nomeMostrar)+'</text>'
+        +'<line x1="140" y1="240" x2="270" y2="240" stroke="#D4AF37" stroke-opacity=".35" stroke-width="1.4"/>';
+    }
+    if(nStr){
+      html += '<text x="205" y="400" text-anchor="middle" font-size="'+fsNum+'" font-weight="900" fill="#D4AF37" font-family="Barlow Condensed,Impact,sans-serif">'+esc(nStr)+'</text>';
+    } else if(monograma){
+      // monograma centrado verticalmente no painel (o nomeCam+linha em cima não existe neste caso)
+      html += '<text x="205" y="380" text-anchor="middle" font-size="180" font-weight="900" fill="#D4AF37" font-family="Barlow Condensed,Impact,sans-serif">'+esc(monograma)+'</text>';
+    } else if(nomeCam) {
+      // só nome, sem número: mantém as duas iniciais do nome de camisola como acento
+      html += '<text x="205" y="400" text-anchor="middle" font-size="160" font-weight="900" fill="#D4AF37" font-family="Barlow Condensed,Impact,sans-serif">'+esc(nomeCam.slice(0,2))+'</text>';
+    }
+    html += '<line x1="140" y1="440" x2="270" y2="440" stroke="#D4AF37" stroke-opacity=".35" stroke-width="1.4"/>'
+      +'<text x="205" y="472" text-anchor="middle" font-size="14" font-weight="700" fill="#00D46A" letter-spacing="1.6" font-family="Poppins,sans-serif">yourtalentbase.pt</text>'
+      +'<text x="205" y="492" text-anchor="middle" font-size="12" fill="#6E7A6F" letter-spacing="1" font-family="Poppins,sans-serif">PASSAPORTE VERIFICADO</text>';
 
     // ── identidade (coluna direita) ──
     var tx=400;
@@ -1336,6 +1342,8 @@
      +'<select class="fam-input" id="pf-pe" style="flex:1"><option value="">Pé</option><option value="D">Direito</option><option value="E">Esquerdo</option><option value="A">Ambidestro</option></select></div>'
      +'<div class="fam-row"><input class="fam-input" id="pf-zz" type="url" placeholder="URL ZeroZero (opcional)"></div>'
      +'<div class="fam-row"><input class="fam-input" id="pf-jp" type="url" placeholder="URL Joga+ (opcional)"></div>'
+     +'<div class="sub" style="margin:12px 0 6px;padding-top:10px;border-top:1px solid var(--border)">Camisola — aparece no cartão de partilha do passaporte.</div>'
+     +'<div class="fam-row"><input class="fam-input" id="pf-camnum" type="number" inputmode="numeric" min="1" max="99" placeholder="Nº (1-99)" style="flex:1"><input class="fam-input" id="pf-camnome" type="text" maxlength="20" placeholder="Nome nas costas (ex: V. COUTINHO)" style="flex:3"></div>'
      +'<div class="sub" style="margin:12px 0 8px;padding-top:10px;border-top:1px solid var(--border)">Contacto do encarregado de educação — para receberes o passaporte e os planos.</div>'
      +'<div class="fam-row"><input class="fam-input" id="pf-eenome" type="text" placeholder="O teu nome" style="flex:1"><input class="fam-input" id="pf-eetel" type="tel" placeholder="WhatsApp" style="flex:1"></div>'
      +'<button class="fam-btn" onclick="window.__perfilGravar()">Guardar perfil →</button></div>'
@@ -1422,6 +1430,7 @@
       set('pf-nome',p.nome); set('pf-ultnome',p.ultimo_nome); set('pf-ano',p.ano_nascimento); set('pf-mes',p.mes_nascimento); set('pf-dia',p.dia_nascimento); set('pf-sexo',p.sexo);
       set('pf-clube',p.clube_actual); set('pf-equipa',p.equipa); set('pf-escalao',p.escalao); set('pf-assoc',p.associacao);
       set('pf-pos',p.posicao_principal); set('pf-pe',p.pe_dominante); set('pf-zz',p.zerozero_url); set('pf-jp',p.joga_plus_url);
+      set('pf-camnum',p.numero_camisola); set('pf-camnome',p.nome_camisola);
       set('pf-eenome',p.encarregado_nome); set('pf-eetel',p.encarregado_telefone);
       set('ep-ref',p.epoca_ref); set('ep-div',p.divisao); set('ep-golos',p.golos_epoca); set('ep-jogos',p.jogos_epoca);
       set('ep-assist',p.assist_epoca); set('ep-minutos',p.minutos_epoca); set('ep-goleq',p.golos_equipa_epoca); set('ep-class',p.classificacao_equipa);
@@ -1436,14 +1445,16 @@
       p_atleta:window.__famAtleta, p_clube_actual:s('pf-clube'), p_equipa:s('pf-equipa'), p_escalao:s('pf-escalao'),
       p_associacao:s('pf-assoc'), p_posicao_principal:s('pf-pos'), p_pe_dominante:s('pf-pe'),
       p_zerozero_url:s('pf-zz'), p_joga_plus_url:s('pf-jp'), p_encarregado_nome:s('pf-eenome'), p_encarregado_telefone:s('pf-eetel'),
-      p_nome:s('pf-nome'), p_ultimo_nome:s('pf-ultnome'), p_ano_nascimento:n('pf-ano'), p_mes_nascimento:n('pf-mes'), p_dia_nascimento:n('pf-dia'), p_sexo:s('pf-sexo')
+      p_nome:s('pf-nome'), p_ultimo_nome:s('pf-ultnome'), p_ano_nascimento:n('pf-ano'), p_mes_nascimento:n('pf-mes'), p_dia_nascimento:n('pf-dia'), p_sexo:s('pf-sexo'),
+      p_numero_camisola:n('pf-camnum'), p_nome_camisola:s('pf-camnome')
     }).then(function(res){
       b.disabled=false; b.textContent='Guardar perfil →';
       if(res&&res.error){ toast('⚠ Sessão expirada — entra de novo'); return; }
       var d=res&&res.data;
       if(!d||!d.ok){
         var motivos={posicao_invalida:'posição inválida', sexo_invalido:'sexo inválido',
-          ano_nascimento_invalido:'ano de nascimento fora do intervalo esperado', mes_invalido:'mês inválido (1-12)', dia_invalido:'dia inválido (1-31)'};
+          ano_nascimento_invalido:'ano de nascimento fora do intervalo esperado', mes_invalido:'mês inválido (1-12)', dia_invalido:'dia inválido (1-31)',
+          numero_camisola_invalido:'número de camisola inválido (1-99)'};
         toast('⚠ '+(motivos[(d&&d.motivo)]||'Não gravado')); return;
       }
       btnOK(b,'✓ Perfil guardado'); toast('Perfil guardado ✓');
