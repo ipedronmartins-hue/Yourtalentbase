@@ -374,7 +374,7 @@ tr:last-child td{border-bottom:none}
     </div>
   </div>
 
-  <!-- TREINADORES (registos) -->
+  <!-- NOVOS REGISTOS (treinador/scout/família) -->
   <div class="section" id="section-treinadores">
     <div class="table-wrap">
       <table>
@@ -589,14 +589,29 @@ function fmtDate(d){ if(!d) return '—'; return new Date(d).toLocaleDateString(
 function fmtPhone(p){ if(!p) return '—'; return p.replace(/[\s\-\(\)]/g,''); }
 
 // Fila de decisões: à entrada, o admin vê só o que precisa de ação e salta lá.
-function renderFilaDecisoes(pendentes, pedidos, registos){
+// registosPorPapel: {treinador:N, scout:N, familia:N} — sem isto, um registo
+// de família pendente ficava escondido atrás do rótulo genérico "registo de
+// treinador" (a aba onde tudo isto vive chama-se "treinador" internamente,
+// mas contém os 3 papéis). O admin reportou perder-se exatamente por isto.
+function renderFilaDecisoes(pendentes, pedidos, registosPorPapel){
   const el = document.getElementById('fila-decisoes');
   const bd = document.getElementById('zona-bg-decidir');
-  if(bd){ const tot = (pendentes||0)+(pedidos||0)+(registos||0); bd.textContent = tot; bd.style.display = tot>0 ? '' : 'none'; }
+  const rp = registosPorPapel || {treinador:0, scout:0, familia:0};
+  const registos = (rp.treinador||0) + (rp.scout||0) + (rp.familia||0);
+  if(bd){ const tot = (pendentes||0)+(pedidos||0)+registos; bd.textContent = tot; bd.style.display = tot>0 ? '' : 'none'; }
   if(!el) return;
   const itens = [];
   if(pendentes > 0) itens.push({n:pendentes, txt:pendentes===1?'atleta por aprovar':'atletas por aprovar', tab:'pendentes', cor:'var(--orange)'});
-  if(registos > 0)  itens.push({n:registos, txt:registos===1?'registo de treinador':'registos de treinador', tab:'treinadores', cor:'var(--orange)'});
+  if(registos > 0){
+    // se houver mais do que um papel misturado, soletra cada um — nunca
+    // esconde família ou scout dentro de um total genérico
+    const partes = [];
+    if(rp.familia>0)   partes.push(rp.familia+' família');
+    if(rp.treinador>0) partes.push(rp.treinador+' treinador'+(rp.treinador>1?'es':''));
+    if(rp.scout>0)      partes.push(rp.scout+' scout'+(rp.scout>1?'s':''));
+    const txt = partes.length>1 ? partes.join(', ') : (registos===1?'novo registo':'novos registos');
+    itens.push({n:registos, txt:txt, tab:'treinadores', cor: rp.familia>0 ? 'var(--green)' : 'var(--orange)'});
+  }
   if(pedidos > 0)   itens.push({n:pedidos, txt:pedidos===1?'pedido de contacto':'pedidos de contacto', tab:'pedidos', cor:'var(--blue)'});
   if(!itens.length){
     el.innerHTML = '<div style="background:rgba(0,212,106,.06);border:1px solid rgba(0,212,106,.25);border-radius:10px;padding:11px 14px;font-size:var(--fs-corpo);color:#9fe0bb">✓ Nada à espera de decisão. Tudo tratado.</div>';
@@ -619,7 +634,7 @@ const ZONAS = {
 };
 const SEC_TITULO = {
   piloto:'🩺 Saúde do Piloto', atletas:'📋 Atletas', pendentes:'⏳ Atletas por aprovar', pedidos:'📞 Pedidos de contacto',
-  treinadores:'🎓 Registos de treinador', relatorios:'📄 Relatórios',
+  treinadores:'📝 Novos Registos (treinador · scout · família)', relatorios:'📄 Relatórios',
   atletastreinador:'⚽ Atletas de treinador · pagamentos', clubes:'🏢 Clubes',
   contas:'👤 Contas', comissoes:'💶 Comissões', portreinador:'📁 Atletas por treinador'
 };
@@ -796,11 +811,17 @@ async function load(){
 
     document.getElementById('tab-bg-pend').textContent = allPendentes.length;
     document.getElementById('tab-bg-ped').textContent = pedAbertos;
-    const treinPend = allTreinadores.filter(t => t.estado === 'pendente').length;
+    const treinPendentesLista = allTreinadores.filter(t => t.estado === 'pendente');
+    const registosPorPapel = {
+      treinador: treinPendentesLista.filter(t => (t.papel||'treinador') === 'treinador').length,
+      scout:     treinPendentesLista.filter(t => t.papel === 'scout').length,
+      familia:   treinPendentesLista.filter(t => t.papel === 'familia').length
+    };
+    const treinPend = treinPendentesLista.length;
     const elTrein = document.getElementById('tab-bg-trein');
     if(elTrein) elTrein.textContent = treinPend;
 
-    renderFilaDecisoes(allPendentes.length, pedAbertos, treinPend);
+    renderFilaDecisoes(allPendentes.length, pedAbertos, registosPorPapel);
     // o titulo "decidir" no pivot so se gera uma vez (iniciarPivotAdmin); o badge
     // atualiza-se aqui diretamente, sem reconstruir o titulo nem mudar de zona.
     var bDec=document.getElementById('zona-bg-decidir');
