@@ -574,7 +574,10 @@
         +'<text x="190" y="'+y+'" font-size="21" fill="'+corTxt+'" font-family="Poppins,sans-serif">'+esc(cortar([c.escalao,c.divisao].filter(Boolean).join(' · '),30))+'</text>';
       var temTitulo = c.titulos && c.titulos.length;
       var icone = temTitulo ? '🏆' : (/pandemia/i.test(c.classificacao||'')?'📅':(/lugar/i.test(c.classificacao||'')?'📊':''));
-      html += '<text x="610" y="'+y+'" font-size="21" fill="'+(temTitulo?'#D4AF37':corTxt)+'" font-family="Poppins,sans-serif">'+(icone?icone+' ':'')+esc(cortar(c.classificacao||'',38))+'</text>';
+      // limite reduzido (não 38): o ícone emoji ocupa mais largura visual do
+      // que um carácter normal — testado com texto real de 41 chars que saía
+      // do cartão mesmo já cortado a 38
+      html += '<text x="610" y="'+y+'" font-size="21" fill="'+(temTitulo?'#D4AF37':corTxt)+'" font-family="Poppins,sans-serif">'+(icone?icone+' ':'')+esc(cortar(c.classificacao||'',30))+'</text>';
     });
     var tabelaFim = y0 + (nLin-1)*rowH + 34;
 
