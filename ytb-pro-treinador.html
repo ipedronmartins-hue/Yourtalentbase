@@ -666,8 +666,15 @@ function renderAtletas(){
   lista.innerHTML=meusAtletas.map(a=>{
     const id=idade(a.ano_nascimento);
     const sel=atletaSel&&atletaSel.id===a.id;
+    // primeiro nome + último apelido (não o nome completo — nomes com 3-4
+    // partes ficam longos demais numa lista). Precisa do último apelido
+    // porque dois atletas com o mesmo primeiro nome ficavam indistinguíveis
+    // (ex: dois "Duarte" em clubes diferentes chamados quase igual).
+    const partesNome=String(a.nome||'').trim().split(/\s+/).filter(Boolean);
+    const apelido=partesNome.length>1?partesNome[partesNome.length-1]:'';
+    const nomeExibido=(a.primeiro_nome||partesNome[0]||a.nome||'')+(apelido?(' '+apelido):'');
     return '<div class="atleta-card'+(sel?' sel':'')+'" onclick="selecionarAtleta(\''+a.id+'\')">'+
-      '<div><div class="atleta-nome">'+esc(a.primeiro_nome||a.nome)+'</div>'+
+      '<div><div class="atleta-nome">'+esc(nomeExibido)+'</div>'+
       '<div class="atleta-meta">'+(id?('Sub-'+id+' · '):'')+esc(a.clube_actual||'')+'</div></div>'+
       '<div style="display:flex;align-items:center;gap:10px">'+
       (a.encarregado_email?'<button title="Enviar link de acesso à família" style="background:none;border:1px solid var(--border);border-radius:8px;padding:6px 9px;font-size:var(--fs-corpo);cursor:pointer" onclick="reenviarLink(\''+a.id+'\',event)">✉️</button>':'')+
