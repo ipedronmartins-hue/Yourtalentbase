@@ -235,7 +235,7 @@ tr:last-child td{border-bottom:none}
     <button class="tab" onclick="showZona('negocio',event)">💼 Negócio</button>
   </div>
   <!-- contadores por secção mantidos (ocultos) para compatibilidade com load() -->
-  <span id="tab-bg-pend" style="display:none">0</span><span id="tab-bg-ped" style="display:none">0</span><span id="tab-bg-trein" style="display:none">0</span>
+  <span id="tab-bg-pend" style="display:none">0</span><span id="tab-bg-ped" style="display:none">0</span><span id="tab-bg-trein" style="display:none">0</span><span id="tab-bg-semtrein" style="display:none">0</span>
 
   <!-- POR TREINADOR (pastas: clica num treinador, chega aos atletas dele) -->
   <div class="section" id="section-portreinador">
@@ -351,6 +351,23 @@ tr:last-child td{border-bottom:none}
           </tr>
         </thead>
         <tbody id="tbody-pendentes"><tr><td colspan="6" class="loading"><div class="spinner"></div></td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ATLETAS SEM TREINADOR (encaminhar manualmente) -->
+  <div class="section" id="section-semtreinador">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Atleta</th>
+            <th>Inscrito por</th>
+            <th>Data</th>
+            <th>Encaminhar para</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-semtreinador"><tr><td colspan="4" class="loading"><div class="spinner"></div></td></tr></tbody>
       </table>
     </div>
   </div>
@@ -579,6 +596,7 @@ verificarAdmin().then(ok => {
 
 const MESTRE_EMAILS = ['ipedronmartins@gmail.com','yourtalentbase@gmail.com']; // mesma lista de MESTRE (login) e CONTAS_PROTEGIDAS (contas)
 let allAtletas = [], allPendentes = [], allPedidos = [], allClubes = [], allTreinadores = [], allRelatorios = [], allAtletasTreinador = [];
+let allSemTreinador = [], allTreinadoresDisponiveis = [];
 let currentAtleta = null;
 let currentPedido = null;
 let waMode = null; // 'pendente' ou 'pedido'
@@ -593,15 +611,16 @@ function fmtPhone(p){ if(!p) return '—'; return p.replace(/[\s\-\(\)]/g,''); }
 // de família pendente ficava escondido atrás do rótulo genérico "registo de
 // treinador" (a aba onde tudo isto vive chama-se "treinador" internamente,
 // mas contém os 3 papéis). O admin reportou perder-se exatamente por isto.
-function renderFilaDecisoes(pendentes, pedidos, registosPorPapel){
+function renderFilaDecisoes(pendentes, pedidos, registosPorPapel, semTreinador){
   const el = document.getElementById('fila-decisoes');
   const bd = document.getElementById('zona-bg-decidir');
   const rp = registosPorPapel || {treinador:0, scout:0, familia:0};
   const registos = (rp.treinador||0) + (rp.scout||0) + (rp.familia||0);
-  if(bd){ const tot = (pendentes||0)+(pedidos||0)+registos; bd.textContent = tot; bd.style.display = tot>0 ? '' : 'none'; }
+  if(bd){ const tot = (pendentes||0)+(pedidos||0)+registos+(semTreinador||0); bd.textContent = tot; bd.style.display = tot>0 ? '' : 'none'; }
   if(!el) return;
   const itens = [];
   if(pendentes > 0) itens.push({n:pendentes, txt:pendentes===1?'atleta por aprovar':'atletas por aprovar', tab:'pendentes', cor:'var(--orange)'});
+  if(semTreinador > 0) itens.push({n:semTreinador, txt:semTreinador===1?'atleta sem treinador':'atletas sem treinador', tab:'semtreinador', cor:'var(--blue,#5AA9E6)'});
   if(registos > 0){
     // se houver mais do que um papel misturado, soletra cada um — nunca
     // esconde família ou scout dentro de um total genérico
@@ -627,7 +646,7 @@ function renderFilaDecisoes(pendentes, pedidos, registosPorPapel){
 // 3 zonas agrupam as 9 secções (que se mantêm intactas). Decidir primeiro.
 let __zonaAtiva = 'decidir';
 const ZONAS = {
-  decidir: ['pendentes','pedidos','treinadores'],
+  decidir: ['pendentes','pedidos','treinadores','semtreinador'],
   pessoas: ['portreinador','atletas','contas'],
   piloto: ['piloto'],
   negocio: ['clubes','atletastreinador','relatorios','comissoes']
@@ -636,7 +655,8 @@ const SEC_TITULO = {
   piloto:'🩺 Saúde do Piloto', atletas:'📋 Atletas', pendentes:'⏳ Atletas por aprovar', pedidos:'📞 Pedidos de contacto',
   treinadores:'📝 Novos Registos (treinador · scout · família)', relatorios:'📄 Relatórios',
   atletastreinador:'⚽ Atletas de treinador · pagamentos', clubes:'🏢 Clubes',
-  contas:'👤 Contas', comissoes:'💶 Comissões', portreinador:'📁 Atletas por treinador'
+  contas:'👤 Contas', comissoes:'💶 Comissões', portreinador:'📁 Atletas por treinador',
+  semtreinador:'🔗 Atletas sem treinador'
 };
 function garantirTitulo(sec, id){
   if(sec.querySelector('.zona-sec-titulo')) return;
@@ -800,6 +820,11 @@ async function load(){
     // pagamentos já registados (para saber o que já foi pago por atleta)
     try { const rp = await supa.from('pagamentos').select('email,servico,nome'); window._pagamentos = rp.data || []; } catch(e){ window._pagamentos = []; }
 
+    let st = { atletas: [], treinadores: [] };
+    try { const rs = await supa.rpc('ytb_admin_atletas_sem_treinador'); if(rs.data && rs.data.ok) st = rs.data; } catch(e){}
+    allSemTreinador = st.atletas || [];
+    allTreinadoresDisponiveis = st.treinadores || [];
+
     allPendentes = allAtletas.filter(x => x.estado === 'pendente');
 
     // KPIs
@@ -820,17 +845,20 @@ async function load(){
     const treinPend = treinPendentesLista.length;
     const elTrein = document.getElementById('tab-bg-trein');
     if(elTrein) elTrein.textContent = treinPend;
+    const elSemTrein = document.getElementById('tab-bg-semtrein');
+    if(elSemTrein) elSemTrein.textContent = allSemTreinador.length;
 
-    renderFilaDecisoes(allPendentes.length, pedAbertos, registosPorPapel);
+    renderFilaDecisoes(allPendentes.length, pedAbertos, registosPorPapel, allSemTreinador.length);
     // o titulo "decidir" no pivot so se gera uma vez (iniciarPivotAdmin); o badge
     // atualiza-se aqui diretamente, sem reconstruir o titulo nem mudar de zona.
     var bDec=document.getElementById('zona-bg-decidir');
-    if(bDec) bDec.textContent = String(allPendentes.length + pedAbertos + treinPend);
+    if(bDec) bDec.textContent = String(allPendentes.length + pedAbertos + treinPend + allSemTreinador.length);
     renderAtletas();
     renderPendentes();
     renderPedidos();
     renderClubes();
     renderTreinadores();
+    renderSemTreinador();
     renderRelatorios();
     renderAtletasTreinador();
     renderPorTreinador();
@@ -885,6 +913,54 @@ function abrirAtletasDoTreinador(email){
   if(busca){ busca.value = email; renderAtletas(); }
   const sec = document.getElementById('section-atletas');
   if(sec) sec.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+// ════════════════ SEM TREINADOR (encaminhar manualmente) ════════════════
+function renderSemTreinador(){
+  const tbody = document.getElementById('tbody-semtreinador');
+  if(!tbody) return;
+  if(!allSemTreinador.length){
+    tbody.innerHTML = '<tr><td colspan="4" class="empty"><div class="empty-icon">🔗</div>Todos os atletas já têm treinador associado.</td></tr>';
+    return;
+  }
+  if(!allTreinadoresDisponiveis.length){
+    tbody.innerHTML = '<tr><td colspan="4" class="empty"><div class="empty-icon">⚠️</div>Sem treinadores aprovados na plataforma para encaminhar.</td></tr>';
+    return;
+  }
+  const opcoes = '<option value="">Escolher treinador…</option>' +
+    allTreinadoresDisponiveis.map(t => `<option value="${escapeHtml(t.email)}">${escapeHtml(t.nome || t.email)}</option>`).join('');
+  tbody.innerHTML = allSemTreinador.map(a => `
+    <tr>
+      <td class="td-name">
+        <strong>${escapeHtml(a.nome)}</strong>
+        <div class="td-mute">${escapeHtml(a.escalao || '—')} · ${escapeHtml(a.clube || '—')}</div>
+      </td>
+      <td class="td-mute">${escapeHtml(a.fonte || '—')}${a.fonte_email ? ' · ' + escapeHtml(a.fonte_email) : ''}</td>
+      <td class="td-mute">${fmtDate(a.criado_em)}</td>
+      <td style="white-space:nowrap;display:flex;gap:6px;align-items:center">
+        <select id="sel-trein-${a.id}" style="background:var(--bg2,#0F1410);border:1px solid var(--border2,#2A322B);color:inherit;border-radius:8px;padding:6px 8px;font-family:inherit;font-size:var(--fs-corpo)">${opcoes}</select>
+        <button class="action-btn success" onclick="atribuirTreinadorAdmin('${a.id}')">✓ Encaminhar</button>
+      </td>
+    </tr>
+  `).join('');
+}
+async function atribuirTreinadorAdmin(atletaId){
+  const sel = document.getElementById('sel-trein-' + atletaId);
+  const email = sel ? sel.value : '';
+  if(!email){ toast('Escolhe um treinador primeiro', 'error'); return; }
+  try{
+    const { data, error } = await supa.rpc('ytb_admin_atribuir_treinador', { p_atleta: atletaId, p_treinador_email: email });
+    if(error) throw error;
+    if(!data || !data.ok){
+      const motivos = { nao_autorizado:'sem permissão', treinador_invalido:'esse treinador não está disponível', atleta_nao_encontrado:'atleta não encontrado' };
+      toast('Não foi possível: ' + (motivos[data && data.motivo] || (data && data.motivo) || 'erro'), 'error');
+      return;
+    }
+    toast(data.nome + ' encaminhado ✓', 'success');
+    await load();
+  }catch(err){
+    toast('Erro a encaminhar: ' + (err.message || err), 'error');
+  }
 }
 
 // ════════════════ ATLETAS ════════════════

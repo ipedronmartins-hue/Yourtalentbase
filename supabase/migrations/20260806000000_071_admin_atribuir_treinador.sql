@@ -1,0 +1,6 @@
+-- 071: admin passa a poder encaminhar manualmente atletas sem treinador
+-- para o treinador certo. O campo clube_actual e texto livre e
+-- inconsistente (confirmado com dados reais: o mesmo clube em 4 formas
+-- diferentes), por isso a correspondencia automatica por clube nao e
+-- fiavel -- o admin, que conhece o contexto real, encaminha manualmente.
+-- Corpo integral no historico Supabase (071_admin_atribuir_treinador).
