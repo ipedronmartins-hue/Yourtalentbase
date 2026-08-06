@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>YourTalentBase — A história do atleta, guardada para a vida</title>
-<meta name="description" content="Cada mudança de clube leva consigo o percurso de um jovem atleta. O YourTalentBase é o primeiro Passaporte Digital que regista o desenvolvimento para a vida — vivo, verificado, e do atleta.">
+<title>YourTalentBase — A história do jovem futebolista, guardada para a vida</title>
+<meta name="description" content="Cada mudança de clube leva consigo o percurso de um jovem futebolista. O YourTalentBase é o primeiro Passaporte Digital do futebol de formação que regista o desenvolvimento para a vida — vivo, verificado, e do atleta.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -202,10 +202,11 @@ footer .logo b{font-size:17px}
         <button class="pchip" data-p="clube" role="tab">Clube</button>
         <button class="pchip" data-p="scout" role="tab">Scout</button>
       </div>
+      <span class="eyebrow" style="display:block;margin-bottom:14px">⚽ Futebol de formação</span>
       <h1 id="ph-h1">A história do teu<br>filho está a <span class="fade">desaparecer</span>.</h1>
       <p class="sub" id="ph-sub">Cada mudança de clube, cada época que passa, leva consigo tudo o que ele construiu. Até agora.</p>
       <div class="hero-cta">
-        <a class="btn btn-primary btn-lg" id="ph-cta" href="acesso.html">Entrar <span class="arr">→</span></a>
+        <a class="btn btn-primary btn-lg" id="ph-cta" href="acesso.html">Criar o passaporte do meu filho <span class="arr">→</span></a>
         <a class="btn btn-ghost btn-lg" href="montra.html">Ver os percursos</a>
       </div>
     </div>
@@ -295,6 +296,98 @@ footer .logo b{font-size:17px}
   <a class="scrollcue" href="#numero" aria-label="Continuar"><span>Scroll</span><span class="ln"></span></a>
 </header>
 
+<!-- ===== PASSAPORTE DE EXEMPLO — logo a seguir à hero, para mostrar o produto antes do conceito ===== -->
+<section class="stage" id="exemplo-passaporte" style="padding-top:40px">
+  <div class="narrow">
+    <span class="eyebrow reveal" style="display:block;text-align:center;margin-bottom:10px">O produto, não só o conceito</span>
+    <h2 class="reveal" style="text-align:center;margin-bottom:8px">Isto é o que o teu filho vai ter.</h2>
+    <p class="sub reveal" style="text-align:center;max-width:520px;margin:0 auto 32px">Um passaporte real tem este aspeto ao fim de algumas épocas — dados fictícios aqui, só para veres a forma.</p>
+
+    <div class="pp-card reveal">
+      <span class="pp-tag">Exemplo ilustrativo</span>
+      <div class="pp-head">
+        <div class="pp-nome">Atleta Exemplo</div>
+        <div class="pp-meta">Médio · 12 anos · Clube Exemplo · Sub-13</div>
+        <div class="pp-selo">★ YTB Acompanhado</div>
+      </div>
+      <div class="pp-grid">
+        <svg id="exemplo-pentagrama" width="100%" height="260" viewBox="0 0 300 260"></svg>
+        <div class="pp-col">
+          <div class="pp-stats">
+            <div class="pp-stat"><div class="pp-stat-n">3</div><div class="pp-stat-l">Épocas</div></div>
+            <div class="pp-stat"><div class="pp-stat-n">1</div><div class="pp-stat-l">Título</div></div>
+            <div class="pp-stat"><div class="pp-stat-n up">+34%</div><div class="pp-stat-l">Evolução</div></div>
+          </div>
+          <div class="pp-hist-tit">Historial</div>
+          <div class="pp-hist-row">
+            <div><b>25/26 · Sub-13</b><div class="pp-hist-meta">Campeão de Série</div></div>
+            <div class="pp-hist-ico">🏆</div>
+          </div>
+          <div class="pp-hist-row" style="margin-bottom:0">
+            <div><b>24/25 · Sub-12</b><div class="pp-hist-meta">5º lugar</div></div>
+            <div class="pp-hist-ico" style="color:var(--slate)">📊</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<style>
+.pp-card{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;padding:28px;position:relative;overflow:hidden}
+.pp-tag{position:absolute;top:18px;right:18px;background:var(--bg3);border:1px solid var(--border2);border-radius:20px;padding:5px 14px;font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.3px}
+.pp-head{margin-bottom:20px;padding-right:110px}
+.pp-nome{font-family:var(--fd);font-weight:800;font-size:28px}
+.pp-meta{color:var(--slate);font-size:13px;margin-top:4px}
+.pp-selo{display:inline-block;background:var(--bg3);border:1px solid rgba(212,175,55,.4);border-radius:20px;padding:5px 13px;font-size:12px;font-weight:700;color:var(--gold);margin-top:10px}
+.pp-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:center}
+.pp-stats{display:flex;gap:10px;margin-bottom:14px}
+.pp-stat{flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:12px;padding:14px 6px;text-align:center;min-width:0}
+.pp-stat-n{font-family:var(--fd);font-weight:800;font-size:26px;white-space:nowrap}
+.pp-stat-n.up{color:var(--up)}
+.pp-stat-l{font-size:10px;color:var(--slate);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.pp-hist-tit{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;font-weight:700}
+.pp-hist-row{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 13px;display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+.pp-hist-row b{font-size:13px}
+.pp-hist-meta{font-size:11px;color:var(--slate)}
+.pp-hist-ico{color:var(--gold);flex-shrink:0;margin-left:8px}
+@media(max-width:680px){
+  .pp-card{padding:18px}
+  .pp-grid{grid-template-columns:1fr}
+  .pp-stat-n{font-size:21px}
+  .pp-tag{position:static;display:inline-block;margin-bottom:12px}
+  .pp-head{padding-right:0}
+}
+@media(max-width:360px){
+  .pp-stats{flex-wrap:wrap}
+  .pp-stat{flex:1 1 45%}
+}
+</style>
+<script>
+(function(){
+  var areas = [{l:'Técnica',v:4,t:'subir'},{l:'Decisão',v:3,t:'estavel'},{l:'Tática',v:4,t:'subir'},{l:'Físico',v:3,t:null},{l:'Mental',v:5,t:'subir'}];
+  var svg = document.getElementById('exemplo-pentagrama');
+  if(!svg) return;
+  var cx=150,cy=125,R=85,n=areas.length;
+  function pt(i,f){var ang=-Math.PI/2+i*(2*Math.PI/n),r=R*f;return [cx+r*Math.cos(ang),cy+r*Math.sin(ang)];}
+  var poly = areas.map(function(a,i){return pt(i,a.v/5).join(',');}).join(' ');
+  var html='';
+  [0.5,1].forEach(function(f){
+    var g=areas.map(function(a,i){return pt(i,f).join(',');}).join(' ');
+    html+='<polygon points="'+g+'" fill="none" stroke="#2A322B" stroke-width="1"/>';
+  });
+  areas.forEach(function(a,i){var p=pt(i,1);html+='<line x1="'+cx+'" y1="'+cy+'" x2="'+p[0].toFixed(1)+'" y2="'+p[1].toFixed(1)+'" stroke="#2A322B" stroke-width="1"/>';});
+  html+='<polygon points="'+poly+'" fill="#D4AF3733" stroke="#D4AF37" stroke-width="2.4"/>';
+  areas.forEach(function(a,i){var p=pt(i,a.v/5);html+='<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="4.5" fill="#D4AF37"/>';});
+  var setas={subir:'↗',descer:'↘',estavel:'→'}, cores={subir:'#00D46A',descer:'#E0A458',estavel:'#9AA39A'};
+  areas.forEach(function(a,i){
+    var p=pt(i,1.24);
+    html+='<text x="'+p[0].toFixed(1)+'" y="'+p[1].toFixed(1)+'" text-anchor="middle" font-size="14" font-weight="700" fill="#ECEFEA" font-family="Plus Jakarta Sans,sans-serif">'+a.l+'</text>';
+    if(a.t) html+='<text x="'+p[0].toFixed(1)+'" y="'+(p[1]+16).toFixed(1)+'" text-anchor="middle" font-size="13" fill="'+cores[a.t]+'">'+setas[a.t]+'</text>';
+  });
+  svg.innerHTML=html;
+})();
+</script>
+
 <section class="stage numstage" id="numero">
   <div class="narrow">
     <span class="eyebrow reveal">O custo do que não se regista</span>
@@ -382,7 +475,7 @@ footer .logo b{font-size:17px}
           <li><span class="mk">◇</span> Avaliação verificada por um treinador a cada trimestre</li>
           <li><span class="mk">◇</span> Treino prescrito para as debilidades reais</li>
         </ul>
-        <a class="pcta" href="https://wa.me/351913695846?text=Ol%C3%A1%21%20%F0%9F%91%8B%20Quero%20come%C3%A7ar%20no%20YourTalentBase%20para%20o%20meu%20filho%20%289%2C90%E2%82%AC/m%C3%AAs%20%2B%20avalia%C3%A7%C3%A3o%20trimestral%20de%2039%2C90%E2%82%AC%29.%20Como%20come%C3%A7o%3F" target="_blank" rel="noopener">Pedir acesso</a>
+        <a class="pcta" href="https://wa.me/351913695846?text=Ol%C3%A1%21%20%F0%9F%91%8B%20Quero%20come%C3%A7ar%20no%20YourTalentBase%20para%20o%20meu%20filho%20%289%2C90%E2%82%AC/m%C3%AAs%20%2B%20avalia%C3%A7%C3%A3o%20trimestral%20de%2039%2C90%E2%82%AC%29.%20Como%20come%C3%A7o%3F" target="_blank" rel="noopener">Criar o passaporte do meu filho</a>
       </div>
 
       <div class="pcard reveal">
@@ -395,7 +488,7 @@ footer .logo b{font-size:17px}
           <li><span class="mk">◇</span> Relatório com prova: observadores · eventos · épocas</li>
           <li><span class="mk">◇</span> Exportas em PDF, pronto a apresentar a um clube</li>
         </ul>
-        <a class="pcta" href="https://wa.me/351913695846?text=Ol%C3%A1%21%20%F0%9F%91%8B%20Quero%20o%20Scout%20Report%20no%20YourTalentBase%20%2839%2C90%E2%82%AC%20por%203%20relat%C3%B3rios%20em%20PDF%29.%20Como%20come%C3%A7o%3F" target="_blank" rel="noopener">Pedir acesso</a>
+        <a class="pcta" href="https://wa.me/351913695846?text=Ol%C3%A1%21%20%F0%9F%91%8B%20Quero%20o%20Scout%20Report%20no%20YourTalentBase%20%2839%2C90%E2%82%AC%20por%203%20relat%C3%B3rios%20em%20PDF%29.%20Como%20come%C3%A7o%3F" target="_blank" rel="noopener">Pedir o meu Scout Report</a>
       </div>
 
       <div class="pcard reveal">
@@ -408,7 +501,7 @@ footer .logo b{font-size:17px}
           <li><span class="mk">◇</span> Sessões de treino geradas por IA</li>
           <li><span class="mk">◇</span> Presenças, convocatórias e o Balneário</li>
         </ul>
-        <a class="pcta" href="https://wa.me/351913695846?text=Ol%C3%A1%21%20%F0%9F%91%8B%20Sou%20treinador%20e%20quero%20aceder%20ao%20CoachBase%20%289%2C90%E2%82%AC%2Fm%C3%AAs%29.%20Como%20come%C3%A7o%3F" target="_blank" rel="noopener">Pedir acesso</a>
+        <a class="pcta" href="https://wa.me/351913695846?text=Ol%C3%A1%21%20%F0%9F%91%8B%20Sou%20treinador%20e%20quero%20aceder%20ao%20CoachBase%20%289%2C90%E2%82%AC%2Fm%C3%AAs%29.%20Como%20come%C3%A7o%3F" target="_blank" rel="noopener">Ativar o CoachBase</a>
       </div>
 
       <div class="pcard reveal">
@@ -421,7 +514,7 @@ footer .logo b{font-size:17px}
           <li><span class="mk">◇</span> A tua marca no passaporte de cada atleta</li>
           <li><span class="mk">◇</span> CoachBase incluído para toda a equipa técnica</li>
         </ul>
-        <a class="pcta" href="https://wa.me/351913695846?text=Ol%C3%A1%21%20%F0%9F%91%8B%20Represento%20uma%20escolinha%2Facademia%20e%20quero%20saber%20mais%20sobre%20o%20pre%C3%A7o%20por%20atleta%20%2819%2C90%E2%82%AC%2Fm%C3%AAs%2C%20CoachBase%20inclu%C3%ADdo%29.%20Como%20come%C3%A7o%3F" target="_blank" rel="noopener">Pedir acesso</a>
+        <a class="pcta" href="https://wa.me/351913695846?text=Ol%C3%A1%21%20%F0%9F%91%8B%20Represento%20uma%20escolinha%2Facademia%20e%20quero%20saber%20mais%20sobre%20o%20pre%C3%A7o%20por%20atleta%20%2819%2C90%E2%82%AC%2Fm%C3%AAs%2C%20CoachBase%20inclu%C3%ADdo%29.%20Como%20come%C3%A7o%3F" target="_blank" rel="noopener">Registar a minha academia</a>
       </div>
 
     </div>
@@ -567,7 +660,7 @@ footer .logo b{font-size:17px}
   var PERSONAS={
     familia:{h1:'A história do teu<br>filho está a <span class="fade">desaparecer</span>.',
       sub:'Cada mudança de clube, cada época que passa, leva consigo tudo o que ele construiu. Até agora.',
-      cta:'Entrar', href:'acesso.html'},
+      cta:'Criar o passaporte do meu filho', href:'acesso.html'},
     treinador:{h1:'Vês o talento.<br>Agora <span class="fade">fica registado</span>.',
       sub:'Avalia, prescreve e prepara cada treino e jogo com o CoachBase — o retorno da família chega semana a semana.',
       cta:'Entrar como treinador', href:'ytb-pro-treinador.html'},
