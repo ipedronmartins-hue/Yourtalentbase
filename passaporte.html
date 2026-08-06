@@ -571,7 +571,7 @@
       var y=y0+i*rowH, actual=i===0, corTxt=actual?'#D4AF37':'#ECEFEA';
       if(i>0) html += '<line x1="60" y1="'+(y-rowH+32)+'" x2="'+(W-60)+'" y2="'+(y-rowH+32)+'" stroke="#1A231B" stroke-width="1"/>';
       html += '<text x="60" y="'+y+'" font-size="24" font-weight="700" fill="'+corTxt+'" font-family="Barlow Condensed,Impact,sans-serif">'+esc(c.epoca||'')+'</text>'
-        +'<text x="190" y="'+y+'" font-size="21" fill="'+corTxt+'" font-family="Poppins,sans-serif">'+esc(cortar([c.escalao,c.divisao].filter(Boolean).join(' · '),30))+'</text>';
+        +'<text x="190" y="'+y+'" font-size="21" fill="'+corTxt+'" font-family="Poppins,sans-serif">'+esc(cortar([c.escalao,c.divisao].filter(Boolean).join(' · '),36))+'</text>';
       var temTitulo = c.titulos && c.titulos.length;
       var icone = temTitulo ? '🏆' : (/pandemia/i.test(c.classificacao||'')?'📅':(/lugar/i.test(c.classificacao||'')?'📊':''));
       // limite reduzido (não 38): o ícone emoji ocupa mais largura visual do
