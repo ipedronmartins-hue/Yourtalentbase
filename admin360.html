@@ -364,10 +364,11 @@ tr:last-child td{border-bottom:none}
             <th>Atleta</th>
             <th>Inscrito por</th>
             <th>Data</th>
-            <th>Encaminhar para</th>
+            <th>Treinador atual</th>
+            <th>Atribuir / mudar</th>
           </tr>
         </thead>
-        <tbody id="tbody-semtreinador"><tr><td colspan="4" class="loading"><div class="spinner"></div></td></tr></tbody>
+        <tbody id="tbody-semtreinador"><tr><td colspan="5" class="loading"><div class="spinner"></div></td></tr></tbody>
       </table>
     </div>
   </div>
@@ -656,7 +657,7 @@ const SEC_TITULO = {
   treinadores:'📝 Novos Registos (treinador · scout · família)', relatorios:'📄 Relatórios',
   atletastreinador:'⚽ Atletas de treinador · pagamentos', clubes:'🏢 Clubes',
   contas:'👤 Contas', comissoes:'💶 Comissões', portreinador:'📁 Atletas por treinador',
-  semtreinador:'🔗 Atletas sem treinador'
+  semtreinador:'🔗 Atribuir / alterar treinador'
 };
 function garantirTitulo(sec, id){
   if(sec.querySelector('.zona-sec-titulo')) return;
@@ -845,14 +846,18 @@ async function load(){
     const treinPend = treinPendentesLista.length;
     const elTrein = document.getElementById('tab-bg-trein');
     if(elTrein) elTrein.textContent = treinPend;
+    // allSemTreinador agora traz TODOS os atletas (para permitir mudar
+    // treinador a qualquer momento, nao so atribuir uma vez) — a contagem
+    // de "precisa de acao" filtra só quem realmente nao tem.
+    const semTreinCount = allSemTreinador.filter(a => !a.treinador_email).length;
     const elSemTrein = document.getElementById('tab-bg-semtrein');
-    if(elSemTrein) elSemTrein.textContent = allSemTreinador.length;
+    if(elSemTrein) elSemTrein.textContent = semTreinCount;
 
-    renderFilaDecisoes(allPendentes.length, pedAbertos, registosPorPapel, allSemTreinador.length);
+    renderFilaDecisoes(allPendentes.length, pedAbertos, registosPorPapel, semTreinCount);
     // o titulo "decidir" no pivot so se gera uma vez (iniciarPivotAdmin); o badge
     // atualiza-se aqui diretamente, sem reconstruir o titulo nem mudar de zona.
     var bDec=document.getElementById('zona-bg-decidir');
-    if(bDec) bDec.textContent = String(allPendentes.length + pedAbertos + treinPend + allSemTreinador.length);
+    if(bDec) bDec.textContent = String(allPendentes.length + pedAbertos + treinPend + semTreinCount);
     renderAtletas();
     renderPendentes();
     renderPedidos();
@@ -920,16 +925,17 @@ function renderSemTreinador(){
   const tbody = document.getElementById('tbody-semtreinador');
   if(!tbody) return;
   if(!allSemTreinador.length){
-    tbody.innerHTML = '<tr><td colspan="4" class="empty"><div class="empty-icon">🔗</div>Todos os atletas já têm treinador associado.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" class="empty"><div class="empty-icon">🔗</div>Sem atletas na plataforma.</td></tr>';
     return;
   }
   if(!allTreinadoresDisponiveis.length){
-    tbody.innerHTML = '<tr><td colspan="4" class="empty"><div class="empty-icon">⚠️</div>Sem treinadores aprovados na plataforma para encaminhar.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" class="empty"><div class="empty-icon">⚠️</div>Sem treinadores aprovados na plataforma para atribuir.</td></tr>';
     return;
   }
-  const opcoes = '<option value="">Escolher treinador…</option>' +
-    allTreinadoresDisponiveis.map(t => `<option value="${escapeHtml(t.email)}">${escapeHtml(t.nome || t.email)}</option>`).join('');
-  tbody.innerHTML = allSemTreinador.map(a => `
+  tbody.innerHTML = allSemTreinador.map(a => {
+    const opcoes = '<option value="">— Sem treinador —</option>' +
+      allTreinadoresDisponiveis.map(t => `<option value="${escapeHtml(t.email)}"${t.email===a.treinador_email?' selected':''}>${escapeHtml(t.nome || t.email)}</option>`).join('');
+    return `
     <tr>
       <td class="td-name">
         <strong>${escapeHtml(a.nome)}</strong>
@@ -937,29 +943,29 @@ function renderSemTreinador(){
       </td>
       <td class="td-mute">${escapeHtml(a.fonte || '—')}${a.fonte_email ? ' · ' + escapeHtml(a.fonte_email) : ''}</td>
       <td class="td-mute">${fmtDate(a.criado_em)}</td>
+      <td>${a.treinador_email ? '<span style="color:var(--green,#00D46A)">'+escapeHtml(a.treinador_nome || a.treinador_email)+'</span>' : '<span style="color:var(--orange,#E0A458)">— nenhum —</span>'}</td>
       <td style="white-space:nowrap;display:flex;gap:6px;align-items:center">
         <select id="sel-trein-${a.id}" style="background:var(--bg2,#0F1410);border:1px solid var(--border2,#2A322B);color:inherit;border-radius:8px;padding:6px 8px;font-family:inherit;font-size:var(--fs-corpo)">${opcoes}</select>
-        <button class="action-btn success" onclick="atribuirTreinadorAdmin('${a.id}')">✓ Encaminhar</button>
+        <button class="action-btn success" onclick="atribuirTreinadorAdmin('${a.id}')">✓ Guardar</button>
       </td>
     </tr>
-  `).join('');
+  `;}).join('');
 }
 async function atribuirTreinadorAdmin(atletaId){
   const sel = document.getElementById('sel-trein-' + atletaId);
   const email = sel ? sel.value : '';
-  if(!email){ toast('Escolhe um treinador primeiro', 'error'); return; }
   try{
-    const { data, error } = await supa.rpc('ytb_admin_atribuir_treinador', { p_atleta: atletaId, p_treinador_email: email });
+    const { data, error } = await supa.rpc('ytb_admin_atribuir_treinador', { p_atleta: atletaId, p_treinador_email: email || null });
     if(error) throw error;
     if(!data || !data.ok){
       const motivos = { nao_autorizado:'sem permissão', treinador_invalido:'esse treinador não está disponível', atleta_nao_encontrado:'atleta não encontrado' };
       toast('Não foi possível: ' + (motivos[data && data.motivo] || (data && data.motivo) || 'erro'), 'error');
       return;
     }
-    toast(data.nome + ' encaminhado ✓', 'success');
+    toast(data.nome + (data.treinador_novo ? ' atribuído ✓' : ' ficou sem treinador ✓'), 'success');
     await load();
   }catch(err){
-    toast('Erro a encaminhar: ' + (err.message || err), 'error');
+    toast('Erro a guardar: ' + (err.message || err), 'error');
   }
 }
 

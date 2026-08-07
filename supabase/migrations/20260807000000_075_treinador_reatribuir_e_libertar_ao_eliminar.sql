@@ -1,0 +1,5 @@
+-- 075: atribuicao de treinador deixa de ser so-uma-vez. Admin pode
+-- mudar a qualquer momento (treinador nao quer o miudo, ou saiu da
+-- plataforma). Eliminar conta de treinador liberta os atletas dele
+-- automaticamente, em vez de os deixar presos a uma conta morta.
+-- Corpo integral no historico Supabase (075_treinador_reatribuir_e_libertar_ao_eliminar).
