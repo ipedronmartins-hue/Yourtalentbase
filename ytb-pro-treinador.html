@@ -628,7 +628,12 @@ async function carregarAtletas(){
   }
   lista.innerHTML='<div class="empty-state"><span class="spinner"></span></div>';
   try{
-    const{data}=await supa.from('atletas_360').select('id,nome,primeiro_nome,ano_nascimento,clube_actual,escalao,fonte_email,encarregado_email,rating_geral,badge_estado,area_excelencia_1,area_excelencia_2,area_excelencia_3,posicao_principal,associacao,divisao,epoca_ref,golos_epoca,jogos_epoca,assist_epoca,golos_equipa_epoca,classificacao_equipa,treinador_email').or('fonte_email.eq.'+treinadorEmail+',treinador_email.eq.'+treinadorEmail).order('nome');
+    // treinador_email (atribuição formal, feita pelo admin) tem sempre
+    // prioridade sobre fonte_email (quem inscreveu originalmente — nunca
+    // muda). Sem isto, reatribuir um atleta no admin não tinha efeito
+    // nenhum aqui: continuava a aparecer para quem o inscreveu, mesmo
+    // depois de formalmente passar para outro treinador.
+    const{data}=await supa.from('atletas_360').select('id,nome,primeiro_nome,ano_nascimento,clube_actual,escalao,fonte_email,encarregado_email,rating_geral,badge_estado,area_excelencia_1,area_excelencia_2,area_excelencia_3,posicao_principal,associacao,divisao,epoca_ref,golos_epoca,jogos_epoca,assist_epoca,golos_equipa_epoca,classificacao_equipa,treinador_email').or('treinador_email.eq.'+treinadorEmail+',and(treinador_email.is.null,fonte_email.eq.'+treinadorEmail+')').order('nome');
     meusAtletas=data||[];
     renderAtletas();
     preSelecionarDoHash();

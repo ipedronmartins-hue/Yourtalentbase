@@ -1,0 +1,7 @@
+-- 079: CORRECAO DE SEGURANCA GRAVE. Politica RLS "sel_treinador" nao
+-- tinha filtro de posse -- qualquer treinador via os 20 atletas da
+-- plataforma inteira, nao so os dele. Corrigida com a logica correta:
+-- treinador_email tem prioridade, fonte_email so como fallback quando
+-- nunca houve atribuicao formal. Testado com sessoes reais simuladas
+-- antes e depois de aplicar. Corpo integral no historico Supabase
+-- (079_rls_treinador_so_ve_os_seus).
