@@ -1,0 +1,15 @@
+-- 074: varredura de seguranca completa. Mais de 100 funcoes SECURITY
+-- DEFINER ytb_* estavam acessiveis a anon (permissao publica por
+-- defeito do Postgres, nunca revogada explicitamente nesta base de
+-- codigo mais antiga). Classificadas por padrao real (leitura do
+-- corpo de cada uma):
+-- - 3 legitimamente publicas ficam com anon: ytb_inscrever_livre,
+--   ytb_montra, ytb_registar_interesse.
+-- - 1 vulnerabilidade real corrigida: ytb_ec_registar nao verificava
+--   NENHUMA identidade -- qualquer pessoa anonima podia inserir
+--   resultados falsos de Elite Coach para qualquer atleta real.
+--   Adicionada verificacao _ytb_e_encarregado(p_atleta) ou admin.
+-- - As restantes ~100 ja tinham verificacao interna correta -- REVOKE
+--   e defesa em profundidade, sem risco (authenticated mantem acesso,
+--   confirmado com count(*)=0 apos aplicar).
+-- Corpo integral no historico Supabase (074_seguranca_revoke_massa_anon).
