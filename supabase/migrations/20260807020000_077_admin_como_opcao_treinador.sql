@@ -1,0 +1,5 @@
+-- 077+078: conta admin (ipedronmartins@gmail.com) passa a aparecer
+-- na lista de treinadores selecionaveis, e a atribuicao aceita-a.
+-- Faltava -- reportado pelo fundador por screenshot. Corpo integral
+-- no historico Supabase (077_admin_como_opcao_treinador,
+-- 078_atribuir_aceita_admin_como_treinador).
