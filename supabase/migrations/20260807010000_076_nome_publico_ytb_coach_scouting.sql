@@ -1,0 +1,5 @@
+-- 076: as duas contas do fundador mostram nome de marca ("YTB Coach"
+-- ou "YTB Scouting") em vez do nome pessoal, consoante o papel.
+-- Corrige de forma robusta o bug anterior (ytb_plano_atual comparava
+-- nome com email, nunca disparava — familia via "Ivo Martins").
+-- Corpo integral no historico Supabase (076_nome_publico_ytb_coach_scouting).
