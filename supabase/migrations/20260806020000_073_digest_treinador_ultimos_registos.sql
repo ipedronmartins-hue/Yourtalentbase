@@ -1,0 +1,7 @@
+-- 073: ytb_treinador_digest traz os ultimos 3 registos completos do
+-- diario (nao so o ultimo feedback isolado), incluindo repeticoes.
+-- REVOKE de anon corrigido nesta migracao — a funcao nunca tinha tido
+-- um revoke explicito, ficou acessivel a anon por defeito do Postgres
+-- (vulnerabilidade pre-existente, nao introduzida agora, descoberta
+-- ao fazer a verificacao de seguranca de rotina apos aplicar).
+-- Corpo integral no historico Supabase (073_digest_treinador_ultimos_registos).

@@ -1262,22 +1262,37 @@
     var mostrar=(diSel.tipo==='livre')?'flex':'none', mostrarLbl=(diSel.tipo==='livre')?'block':'none';
     var catRow=document.getElementById('di-cats'); if(catRow) catRow.style.display=mostrar;
     var catLbl=document.getElementById('di-cats-lbl'); if(catLbl) catLbl.style.display=mostrarLbl;
+    if(diSel.tipo!=='livre'){
+      diSel.cat=null;
+      document.querySelectorAll('#di-cats .fam-chip').forEach(function(c){c.classList.remove('on');});
+      var repsRow=document.getElementById('di-reps-row'); if(repsRow) repsRow.style.display='none';
+      var r=document.getElementById('di-reps'); if(r) r.value='';
+    }
   };
   window.__diMin=function(b){ diSel.min=parseInt(b.getAttribute('data-min')); document.querySelectorAll('#di-mins .fam-chip').forEach(function(c){c.classList.toggle('on',c===b);}); };
   window.__diCat=function(b){
     var chave=b.getAttribute('data-cat');
     diSel.cat=(diSel.cat===chave)?null:chave; // tocar outra vez desmarca — não força resposta
     document.querySelectorAll('#di-cats .fam-chip').forEach(function(c){c.classList.toggle('on',c.getAttribute('data-cat')===diSel.cat);});
+    var repsRow=document.getElementById('di-reps-row');
+    if(repsRow) repsRow.style.display=diSel.cat?'flex':'none';
+    if(!diSel.cat){ var r=document.getElementById('di-reps'); if(r) r.value=''; }
   };
   window.__diGravar=function(){
     var nota=(document.getElementById('di-nota').value||'').trim();
-    supa.rpc('ytb_diario_registar',{p_atleta:window.__famAtleta,p_atividade:diSel.tipo,p_minutos:diSel.min,p_nota:nota||null,p_categoria:diSel.tipo==='livre'?diSel.cat:null}).then(function(res){
+    var repsEl=document.getElementById('di-reps');
+    var reps=(repsEl && repsEl.value) ? parseInt(repsEl.value,10) : null;
+    if(reps!=null && (isNaN(reps)||reps<1)) reps=null;
+    supa.rpc('ytb_diario_registar',{p_atleta:window.__famAtleta,p_atividade:diSel.tipo,p_minutos:diSel.min,p_nota:nota||null,p_categoria:diSel.tipo==='livre'?diSel.cat:null,p_repeticoes:reps}).then(function(res){
       var d=res&&res.data;
       if(!d||!d.ok){ toast('⚠ Não gravado ('+((d&&d.motivo)||'erro')+')'); return; }
       document.getElementById('di-nota').value='';
+      if(repsEl) repsEl.value='';
       diSel.cat=null; document.querySelectorAll('#di-cats .fam-chip').forEach(function(c){c.classList.remove('on');});
+      var repsRow=document.getElementById('di-reps-row'); if(repsRow) repsRow.style.display='none';
       if(d.marco&&window.YTBVivo){ YTBVivo.marco(document.getElementById('diario-card')); toast('🏆 Marco: '+d.marco+' dias seguidos!'); }
       else toast('Diário registado ✓'+(d.streak?(' · sequência: '+d.streak+' dia'+(d.streak>1?'s':'')):''));
+      carregarDiarioHistorico();
     }).catch(function(){ toast('⚠ Sem ligação'); });
   };
 
@@ -1327,8 +1342,32 @@
      +'<div class="sub" id="di-cats-lbl" style="margin:2px 0 6px;font-size:var(--fs-legenda)">O que treinaste? (opcional)</div>'
      +'<div class="fam-row" id="di-cats">'+DI_CATS.map(function(o){return '<button class="fam-chip" data-cat="'+o[0]+'" onclick="window.__diCat(this)">'+o[1]+'</button>';}).join('')+'</div>'
      +'<div class="fam-row" id="di-mins">'+[30,45,60,90].map(function(m){return '<button class="fam-chip'+(m===60?' on':'')+'" data-min="'+m+'" onclick="window.__diMin(this)">'+m+'&#39;</button>';}).join('')+'</div>'
+     +'<div class="fam-row" id="di-reps-row" style="display:none"><input class="fam-input" id="di-reps" type="number" inputmode="numeric" min="1" max="2000" placeholder="Repetições (ex: 80 remates de pé fraco) — opcional"></div>'
      +'<input class="fam-input" id="di-nota" type="text" placeholder="Nota (opcional): onde, com quem, como correu">'
-     +'<button class="fam-btn" onclick="window.__diGravar()">Registar no diário →</button></div>';
+     +'<button class="fam-btn" onclick="window.__diGravar()">Registar no diário →</button>'
+     +'<div id="di-hist" style="margin-top:16px"></div></div>';
+    carregarDiarioHistorico();
+  }
+  function carregarDiarioHistorico(){
+    var el=document.getElementById('di-hist'); if(!el || !window.__famAtleta) return;
+    supa.rpc('ytb_diario_historico',{p_atleta:window.__famAtleta,p_limit:5}).then(function(res){
+      var d=res&&res.data;
+      if(!d||!d.ok||!d.registos||!d.registos.length){ el.innerHTML=''; return; }
+      var ICONES={livre:'⚽',jogo:'🏟️',clube:'🏃',plano:'📋'};
+      var CATS={tecnica:'Técnica',fisico:'Físico',decisao:'Decisão',tatica:'Tática',mental:'Mental'};
+      el.innerHTML='<div class="sub" style="margin-bottom:8px;font-size:var(--fs-legenda)">Últimos registos</div>'
+        + d.registos.map(function(r){
+          var partes=[];
+          if(r.categoria) partes.push(CATS[r.categoria]||r.categoria);
+          if(r.minutos) partes.push(r.minutos+' min');
+          if(r.repeticoes) partes.push(r.repeticoes+' repetições');
+          var dt=r.criado_em?new Date(r.criado_em).toLocaleDateString('pt-PT'):'';
+          return '<div style="display:flex;justify-content:space-between;gap:10px;font-size:var(--fs-corpo);padding:8px 0;border-bottom:1px solid var(--border)">'
+            +'<div><span style="margin-right:6px">'+(ICONES[r.atividade]||'📝')+'</span>'+esc(partes.join(' · ')||'—')+(r.feedback?'<div style="color:var(--slate);font-size:var(--fs-legenda);margin-top:2px">"'+esc(r.feedback)+'"</div>':'')+'</div>'
+            +'<div style="color:var(--muted);font-size:var(--fs-legenda);white-space:nowrap">'+dt+'</div>'
+            +'</div>';
+        }).join('');
+    }).catch(function(){});
   }
 
   function renderFamTools(){

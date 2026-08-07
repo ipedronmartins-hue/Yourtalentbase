@@ -1,0 +1,3 @@
+-- 072: diario de treinos ganha repeticoes (quando aplicavel) e um
+-- historico legivel para familia e treinador.
+-- Corpo integral no historico Supabase (072_diario_repeticoes_e_historico).

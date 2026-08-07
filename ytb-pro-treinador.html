@@ -515,6 +515,28 @@ function iniciarPivotTreinador(){
 }
 
 /* ════════ RETORNO (digest do treinador) ════════ */
+// Mini-histórico dos últimos registos do diário (não só o último feedback
+// isolado como antes) — inclui repetições quando a família as registou.
+// Pedido do fundador: "devia ser mais completo".
+function renderUltimosRegistos(registos){
+  if(!registos || !registos.length) return '';
+  const ICONES={livre:'⚽',jogo:'🏟️',clube:'🏃',plano:'📋'};
+  const CATS={tecnica:'Técnica',fisico:'Físico',decisao:'Decisão',tatica:'Tática',mental:'Mental'};
+  const linhas = registos.map(r=>{
+    const partes=[];
+    if(r.categoria) partes.push(CATS[r.categoria]||r.categoria);
+    if(r.minutos) partes.push(r.minutos+' min');
+    if(r.repeticoes) partes.push('<b style="color:var(--gold)">'+r.repeticoes+' repetições</b>');
+    const dt=r.criado_em?new Date(r.criado_em).toLocaleDateString('pt-PT',{day:'2-digit',month:'short'}):'';
+    const cabecalho=(ICONES[r.atividade]||'📝')+' '+(partes.join(' · ')||'—')+(dt?' · <span style="color:var(--slate)">'+dt+'</span>':'');
+    return '<div style="padding:5px 0;border-bottom:1px solid rgba(255,255,255,.05)">'
+      +'<div style="font-size:var(--fs-legenda)">'+cabecalho+'</div>'
+      +(r.feedback?'<div style="font-size:var(--fs-legenda);color:#ddd;margin-top:2px">💬 «'+esc(r.feedback)+'»</div>':'')
+      +'</div>';
+  }).join('');
+  return '<div style="background:rgba(255,255,255,.04);border-radius:8px;padding:8px 10px;margin-top:6px">'+linhas+'</div>';
+}
+
 async function renderRetorno(){
   const area=document.getElementById('retorno-area');
   if(!USING_SB){area.innerHTML='<div class="empty-state">Demo: sem dados reais.</div>';return;}
@@ -582,7 +604,7 @@ async function renderRetorno(){
       +'<div><div style="font-family:\'Barlow Condensed\';font-weight:900;font-size:var(--fs-titulo);color:var(--blue);line-height:1">'+(d.execucoes_total||0)+'</div><div style="font-size:var(--fs-micro);letter-spacing:1px;color:var(--slate);text-transform:uppercase">treinos no total</div></div>'
       +(conf!=null?'<div><div style="font-family:\'Barlow Condensed\';font-weight:900;font-size:var(--fs-titulo);color:'+(conf>=80?'var(--green)':conf>=60?'var(--gold)':'var(--orange)')+';line-height:1">'+conf+'%</div><div style="font-size:var(--fs-micro);letter-spacing:1px;color:var(--slate);text-transform:uppercase">confiança dos dados</div></div>':'')
       +'</div>'
-      +(d.ultimo_feedback?'<div style="font-size:var(--fs-legenda);color:#ddd;background:rgba(255,255,255,.04);border-radius:8px;padding:8px 10px;margin-top:6px">💬 «'+esc(d.ultimo_feedback)+'»</div>':'')
+      +renderUltimosRegistos(d.ultimos_registos)
       +(precisaAval?'<div style="font-size:var(--fs-legenda);color:var(--orange);margin-top:8px">📋 '+(diasAval==null?'Ainda sem avaliação tua':'Última avaliação há '+diasAval+' dias')+' — considera reavaliar.</div>':'')
       +(!d.execucoes_desde_plano&&d.plano_prescrito_em?'<div style="font-size:var(--fs-legenda);color:var(--slate);margin-top:6px">😴 O plano ainda não teve treinos — a família pode precisar de um empurrão.</div>':'')
       +'</div>';
