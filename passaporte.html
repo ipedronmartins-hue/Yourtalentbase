@@ -258,7 +258,8 @@
     var line=pts.map(function(p,i){return (i?'L':'M')+p[0]+','+p[1];}).join(' ');
     var area=line+' L'+w+','+h+' L0,'+h+' Z';
     var dots=pts.slice(-3).map(function(p,i){return '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+(i===2?4:3)+'" fill="#ECEFEA"/>';}).join('');
-    return '<div class="curvebox"><div class="cap"><div class="big num">+'+pct+'%</div><div class="lbl">Evolução · 24 meses</div></div>'+
+    var pctTxt = (pct==null) ? '<span class="v-vazio">—</span>' : ('+'+pct+'%');
+    return '<div class="curvebox"><div class="cap"><div class="big num">'+pctTxt+'</div><div class="lbl">Evolução · 24 meses</div></div>'+
       '<svg class="curve" viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none" aria-hidden="true">'+
       '<defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#00D46A" stop-opacity=".15"/><stop offset="1" stop-color="#00D46A" stop-opacity="0"/></linearGradient></defs>'+
       '<path d="'+area+'" fill="url(#cg)"/><path d="'+line+'" fill="none" stroke="#00D46A" stroke-width="2.2"/>'+dots+'</svg></div>';
