@@ -94,7 +94,8 @@
 
   <div class="field">
     <label class="label" for="f-clube">Clube</label>
-    <input class="input" id="f-clube" type="text" placeholder="Clube atual">
+    <input class="input" id="f-clube" type="text" placeholder="Começa a escrever o nome do clube…" list="lista-clubes" autocomplete="off">
+    <datalist id="lista-clubes"></datalist>
   </div>
 
   <div class="field">
@@ -151,6 +152,17 @@
   function gv(id){var e=document.getElementById(id);return e?(e.value||'').trim():'';}
   function showErr(m){var e=document.getElementById('err');e.textContent=m;e.style.display='block';e.scrollIntoView({behavior:'smooth',block:'center'});}
   function hideErr(){document.getElementById('err').style.display='none';}
+
+  // lista de clubes da AFPORTO para sugestão — texto livre continua
+  // possível (nem todos os clubes/regiões estão cobertos ainda), isto
+  // só ajuda quem está a escrever a acertar no nome certo, igual para todos.
+  if(USING_SB){
+    supa.from('clubes_afporto').select('nome').eq('ativo',true).order('nome').then(function(res){
+      var dl=document.getElementById('lista-clubes');
+      if(!dl || !res.data) return;
+      dl.innerHTML=res.data.map(function(c){return '<option value="'+String(c.nome).replace(/"/g,'&quot;')+'">';}).join('');
+    }).catch(function(){});
+  }
 
   function feito(){
     document.getElementById('wrap').innerHTML=
