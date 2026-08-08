@@ -1,0 +1,8 @@
+-- 081: CORRECAO GRAVE. ytb_consentir_email definia estado='aprovado'
+-- diretamente quando a familia acedia pela primeira vez, saltando a
+-- revisao do admin por completo. Reportado pelo fundador: "entraram
+-- atletas sem eu aprovar". Confirmado com dados reais: 7 atletas desde
+-- 5 de julho passaram por este caminho sem decisao do admin (todos do
+-- Gondomar SC -- o fundador decidiu deixa-los como estao, ja os
+-- conhece; a correcao aplica-se so daqui para a frente).
+-- Corpo integral no historico Supabase (081_consentimento_nao_aprova_automaticamente).
