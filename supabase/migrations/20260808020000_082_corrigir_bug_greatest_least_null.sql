@@ -1,0 +1,5 @@
+-- 082: bug GREATEST/LEAST com NULL corrigido na view atleta_passaporte.
+-- Sem dados reais, treinabilidade/compromisso mostravam 100 (falso
+-- "perfeito") para TODOS os 22 atletas, e adesao_plano 100% para quem
+-- nunca treinou. Corrigido para ficar null quando nao ha dados reais.
+-- Corpo integral no historico Supabase (082_corrigir_bug_greatest_least_null).

@@ -94,6 +94,7 @@
   .tile .v{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:var(--fs-titulo);line-height:1}
   .tile .v small{font-size:var(--fs-corpo);font-weight:700}
   .v.obs{color:var(--obs)} .v.dec{color:var(--dec)} .v.up{color:var(--up)}
+  .v-vazio{color:var(--muted);opacity:.6;font-size:.85em}
 
   /* densidade + legenda */
   .dens{display:flex;flex-wrap:wrap;align-items:center;gap:7px 14px;margin-top:12px;padding:11px 13px;background:var(--bg2);border:1px solid var(--border);border-radius:12px}
@@ -393,12 +394,15 @@
       '</div>'+curveSVG(d.evolucao.serie,d.evolucao.pct24)+'</div>';
     // contexto
     html+='<div class="ctx">'+d.contexto.map(function(c){return '<div><div class="v'+(c[2]?' num':'')+'">'+esc(c[0])+'</div><div class="l">'+esc(c[1])+'</div></div>';}).join('')+'</div>';
-    // 4 primários
+    // 4 primários — mostra '—' quando ainda não há dados reais, nunca
+    // um número que pareça calculado (0 ou 100 falsos escondem por
+    // completo a ausência de avaliações)
+    function tileVal(v, suf){ return v==null ? '<span class="v-vazio">—</span>' : (v+(suf||'')); }
     html+='<div class="prim">'+
-      '<div class="tile"><div class="l">Treinabilidade</div><div class="v obs num">'+ind.treinab+'</div></div>'+
-      '<div class="tile"><div class="l">Compromisso</div><div class="v obs num">'+ind.compromisso+'</div></div>'+
-      '<div class="tile"><div class="l">Consistência</div><div class="v dec num">'+ind.consistencia+'</div></div>'+
-      '<div class="tile"><div class="l">Evolução 24m</div><div class="v up num">+'+d.evolucao.pct24+'<small>%</small></div></div>'+
+      '<div class="tile"><div class="l">Treinabilidade</div><div class="v obs num">'+tileVal(ind.treinab)+'</div></div>'+
+      '<div class="tile"><div class="l">Compromisso</div><div class="v obs num">'+tileVal(ind.compromisso)+'</div></div>'+
+      '<div class="tile"><div class="l">Consistência</div><div class="v dec num">'+tileVal(ind.consistencia)+'</div></div>'+
+      '<div class="tile"><div class="l">Evolução 24m</div><div class="v up num">'+(d.evolucao.pct24==null?'<span class="v-vazio">—</span>':('+'+d.evolucao.pct24+'<small>%</small>'))+'</div></div>'+
       '</div>';
     // densidade
     html+='<div class="dens"><span class="lab">Densidade do retrato</span>'+d.densidade.map(function(x){return '<i><b class="num">'+x[0]+'</b>'+x[1]+'</i>';}).join('')+'</div>';
@@ -667,9 +671,9 @@
     var temCog=!!(cg&&cg.total>0);
     return {
       identidade:{nome:id.nome||'—', pos:id.posicao||'', pos_full:id.posicao||'', clube:id.clube||'', escalao:id.escalao||'', foto:id.foto||''},
-      evolucao:{pct24:Math.round(nz(ind.evolucao_pct)), serie:serie.length>1?serie:[50,50]},
+      evolucao:{pct24:(ind.evolucao_pct==null?null:Math.round(ind.evolucao_pct)), serie:serie.length>1?serie:[50,50]},
       contexto:[[id.associacao||'—','Associação'],[id.escalao||'—','Escalão']],
-      indicadores:{treinab:Math.round(nz(ind.treinabilidade)), compromisso:Math.round(nz(ind.compromisso)), consistencia:Math.round(nz(ind.consistencia)), verificacao:verifLabel(ind.nivel_verificacao)},
+      indicadores:{treinab:(ind.treinabilidade==null?null:Math.round(ind.treinabilidade)), compromisso:(ind.compromisso==null?null:Math.round(ind.compromisso)), consistencia:(ind.consistencia==null?null:Math.round(ind.consistencia)), verificacao:verifLabel(ind.nivel_verificacao)},
       densidade:[[String(nz(den.eventos)),'eventos'],[String(nz(den.avaliacoes)),'avaliações'],[String(nz(den.observadores)),'observadores'],[String(nz(den.epocas)),'épocas']],
       dna:dna,
       dnaStats:[[nz(ind.horas_treino_extra)+'h','Treino extra acumulado'],[relTime(ind.ultimo_evento)||'—','Último evento']],
