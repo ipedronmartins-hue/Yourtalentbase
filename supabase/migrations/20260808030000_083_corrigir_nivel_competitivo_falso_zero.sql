@@ -1,0 +1,10 @@
+-- 083: mesmo bug das migracoes 082 (numeros falsos escondendo ausencia
+-- de dados), manifestado por um mecanismo diferente. nivel_competitivo
+-- mostrava 0 (zero falso, parece "sem nivel competitivo") quando na
+-- realidade nao havia NENHUMA avaliacao de impacto/competitividade nem
+-- relatorio de jogo -- via COALESCE(subquery,0) explicito em vez do
+-- GREATEST/LEAST do bug anterior. Corrigido: fica null quando nenhuma
+-- das duas fontes tem dados. Frontend ja tinha o filtro certo
+-- (t[1]!==null), so faltava a BD parar de mentir -- nao precisou de
+-- alteracao. Corpo integral no historico Supabase
+-- (083_corrigir_nivel_competitivo_falso_zero).
