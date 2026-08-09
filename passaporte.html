@@ -472,16 +472,11 @@
     setTimeout(function(){ b.textContent=t0; b.style.background=bg; b.style.color=cl; b.style.border=bd; },1800); }
   function share(){
     var d=window.__raw;
-    var carreira = d && d.carreira;
-    if(!USING_SB || !carreira || !carreira.length){
-      // sem histórico registado: a tabela ficaria vazia — em vez disso, só
-      // o link, que pelo menos serve para a própria família reabrir a página.
-      var txt=(d?d.identidade.nome:'')+' — passaporte digital · YourTalentBase';
-      var url=location.href;
-      if(navigator.share){navigator.share({title:'Passaporte do Atleta',text:txt,url:url}).catch(function(){});}
-      else{ toast('Link copiado'); try{navigator.clipboard&&navigator.clipboard.writeText(txt+'\n'+url);}catch(e){} }
-      return;
-    }
+    if(!USING_SB || !d){ toast('⚠ Sem ligação'); return; }
+    // antes: sem historial de carreira, caía para um link simples — que
+    // exige login da família, inútil para quem recebe. O cartão (svgCartao)
+    // já trata bem os dois casos (com ou sem historial), por isso a
+    // partilha passa a gerar sempre uma imagem, nunca um link fechado.
     partilharCartaoImagem(d);
   }
 
@@ -558,15 +553,24 @@
       +'<text x="'+(tx+26)+'" y="318" font-size="13" font-weight="700" fill="#00D46A" letter-spacing="1.6" font-family="Poppins,sans-serif">ÉPOCA ATUAL</text>'
       +'<text x="'+(tx+26)+'" y="352" font-size="28" font-weight="700" fill="#ECEFEA" font-family="Barlow Condensed,Impact,sans-serif">'+esc(dens.epocas||carreira.length)+'ª ÉPOCA NO '+esc((id.clube||'').toUpperCase())+'</text>';
     var atual = carreira[0]||{};
-    html += '<text x="'+(tx+26)+'" y="376" font-size="15" fill="#6E7A6F" font-family="Poppins,sans-serif">'+esc([atual.escalao,atual.divisao].filter(Boolean).join(' · '))+'</text>';
+    var metaAtual = atual.escalao ? [atual.escalao,atual.divisao].filter(Boolean).join(' · ') : [id.escalao,id.posicao].filter(Boolean).join(' · ');
+    html += '<text x="'+(tx+26)+'" y="376" font-size="15" fill="#6E7A6F" font-family="Poppins,sans-serif">'+esc(metaAtual)+'</text>';
 
-    // ── histórico ──
+    // ── histórico (ou, sem carreira registada ainda, densidade real —
+    //    nunca uma tabela vazia, que parecia um erro/perfil incompleto) ──
     var ty=575;
-    html += '<text x="60" y="'+ty+'" font-size="30" font-weight="700" fill="#ECEFEA" font-family="Barlow Condensed,Impact,sans-serif">HISTORIAL</text>'
-      +'<line x1="60" y1="'+(ty+22)+'" x2="'+(W-60)+'" y2="'+(ty+22)+'" stroke="#2A362B" stroke-width="1.5"/>'
-      +'<text x="60" y="'+(ty+50)+'" font-size="13" font-weight="700" fill="#6E7A6F" letter-spacing="1.5" font-family="Poppins,sans-serif">ÉPOCA</text>'
-      +'<text x="190" y="'+(ty+50)+'" font-size="13" font-weight="700" fill="#6E7A6F" letter-spacing="1.5" font-family="Poppins,sans-serif">ONDE COMPETIU</text>'
-      +'<text x="610" y="'+(ty+50)+'" font-size="13" font-weight="700" fill="#6E7A6F" letter-spacing="1.5" font-family="Poppins,sans-serif">RESULTADO</text>';
+    if(carreira.length){
+      html += '<text x="60" y="'+ty+'" font-size="30" font-weight="700" fill="#ECEFEA" font-family="Barlow Condensed,Impact,sans-serif">HISTORIAL</text>'
+        +'<line x1="60" y1="'+(ty+22)+'" x2="'+(W-60)+'" y2="'+(ty+22)+'" stroke="#2A362B" stroke-width="1.5"/>'
+        +'<text x="60" y="'+(ty+50)+'" font-size="13" font-weight="700" fill="#6E7A6F" letter-spacing="1.5" font-family="Poppins,sans-serif">ÉPOCA</text>'
+        +'<text x="190" y="'+(ty+50)+'" font-size="13" font-weight="700" fill="#6E7A6F" letter-spacing="1.5" font-family="Poppins,sans-serif">ONDE COMPETIU</text>'
+        +'<text x="610" y="'+(ty+50)+'" font-size="13" font-weight="700" fill="#6E7A6F" letter-spacing="1.5" font-family="Poppins,sans-serif">RESULTADO</text>';
+    } else {
+      html += '<text x="60" y="'+ty+'" font-size="30" font-weight="700" fill="#ECEFEA" font-family="Barlow Condensed,Impact,sans-serif">A CONSTRUIR O PERCURSO</text>'
+        +'<line x1="60" y1="'+(ty+22)+'" x2="'+(W-60)+'" y2="'+(ty+22)+'" stroke="#2A362B" stroke-width="1.5"/>'
+        +'<text x="60" y="'+(ty+70)+'" font-size="19" fill="#8FA090" font-family="Poppins,sans-serif">Cada treino, cada avaliação, cada época fica registada</text>'
+        +'<text x="60" y="'+(ty+98)+'" font-size="19" fill="#8FA090" font-family="Poppins,sans-serif">a partir de agora — o histórico cresce com o tempo.</text>';
+    }
     var MAX_LINHAS=7, nLin=Math.min(carreira.length,MAX_LINHAS);
     var y0=ty+92, Y_FIM=1090;
     // altura de linha calculada a partir do espaço que sobra — assim uma
@@ -584,7 +588,7 @@
       // do cartão mesmo já cortado a 38
       html += '<text x="610" y="'+y+'" font-size="21" fill="'+(temTitulo?'#D4AF37':corTxt)+'" font-family="Poppins,sans-serif">'+(icone?icone+' ':'')+esc(cortar(c.classificacao||'',30))+'</text>';
     });
-    var tabelaFim = y0 + (nLin-1)*rowH + 34;
+    var tabelaFim = carreira.length ? (y0 + (nLin-1)*rowH + 34) : (ty+150);
 
     // ── stats (épocas + títulos; sem "competições": as épocas de pandemia
     //     contam na mesma — treinaram, e a época contou) ──
