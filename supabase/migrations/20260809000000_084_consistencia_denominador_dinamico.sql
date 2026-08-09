@@ -1,0 +1,7 @@
+-- 084: consistencia usava denominador fixo de 26 semanas, penalizando
+-- atletas cuja atividade real ainda nao tem 6 meses de historico.
+-- Vasco: 22 registos reais no diario, todos em 4 semanas distintas
+-- desde que comecou (ha 5 semanas) -- mas a formula dava 100*4/26=15%.
+-- Corrigido para usar o numero real de semanas desde a primeira
+-- atividade (teto 26): 100*4/5=80%, reflete a realidade.
+-- Corpo integral no historico Supabase (084_consistencia_denominador_dinamico).
