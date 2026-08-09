@@ -1269,12 +1269,21 @@
   window.__diTipo=function(b){
     diSel.tipo=b.getAttribute('data-tipo');
     document.querySelectorAll('#di-tipos .fam-chip').forEach(function(c){c.classList.toggle('on',c===b);});
-    var mostrar=(diSel.tipo==='livre')?'flex':'none', mostrarLbl=(diSel.tipo==='livre')?'block':'none';
+    // categoria (Técnica/Físico/Decisão/Tática/Mental) faz sentido em
+    // 'livre' e 'clube' — o clube é a maioria real do volume de treino,
+    // e sem categoria ali o pentagrama nunca tinha sinal suficiente. Jogo
+    // fica de fora: um jogo é holístico, não um foco de treino escolhido.
+    var comCategoria=(diSel.tipo==='livre'||diSel.tipo==='clube');
+    var mostrar=comCategoria?'flex':'none', mostrarLbl=comCategoria?'block':'none';
     var catRow=document.getElementById('di-cats'); if(catRow) catRow.style.display=mostrar;
     var catLbl=document.getElementById('di-cats-lbl'); if(catLbl) catLbl.style.display=mostrarLbl;
-    if(diSel.tipo!=='livre'){
+    if(!comCategoria){
       diSel.cat=null;
       document.querySelectorAll('#di-cats .fam-chip').forEach(function(c){c.classList.remove('on');});
+    }
+    // repetições continuam exclusivas de 'livre' — em treino de clube a
+    // família não acompanha de perto para contar repetições específicas
+    if(diSel.tipo!=='livre'){
       var repsRow=document.getElementById('di-reps-row'); if(repsRow) repsRow.style.display='none';
       var r=document.getElementById('di-reps'); if(r) r.value='';
     }
@@ -1293,7 +1302,7 @@
     var repsEl=document.getElementById('di-reps');
     var reps=(repsEl && repsEl.value) ? parseInt(repsEl.value,10) : null;
     if(reps!=null && (isNaN(reps)||reps<1)) reps=null;
-    supa.rpc('ytb_diario_registar',{p_atleta:window.__famAtleta,p_atividade:diSel.tipo,p_minutos:diSel.min,p_nota:nota||null,p_categoria:diSel.tipo==='livre'?diSel.cat:null,p_repeticoes:reps}).then(function(res){
+    supa.rpc('ytb_diario_registar',{p_atleta:window.__famAtleta,p_atividade:diSel.tipo,p_minutos:diSel.min,p_nota:nota||null,p_categoria:(diSel.tipo==='livre'||diSel.tipo==='clube')?diSel.cat:null,p_repeticoes:reps}).then(function(res){
       var d=res&&res.data;
       if(!d||!d.ok){ toast('⚠ Não gravado ('+((d&&d.motivo)||'erro')+')'); return; }
       document.getElementById('di-nota').value='';
