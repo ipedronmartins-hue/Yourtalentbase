@@ -1,0 +1,12 @@
+-- 085: DESCOBERTA MAIOR. treinabilidade/compromisso/nivel_competitivo/
+-- evolucao apareciam sempre vazios para toda a plataforma -- nao por
+-- falta de avaliacoes, mas porque a view lia de atleta_eventos
+-- (campos dim_*) enquanto o fluxo real (ytb_treinador_avaliar) sempre
+-- gravou em treinador_avaliacoes.criterios (54 avaliacoes reais, 21 de
+-- 22 atletas, Vasco com 9). Mapeamento definido com o fundador:
+-- treinabilidade=media(Ambicao,Reaccao a Adversidade,Reaccao a Perda),
+-- compromisso=Compromisso direto, nivel competitivo=media(Agressividade,
+-- Intensidade,1x1 Of,1x1 Def,Finalizacao). evolucao_pct: NTILE(2) sobre
+-- o historico real, nao janela fixa de 1,5-2 anos impossivel agora.
+-- Vasco: treinabilidade=79, compromisso=100, competitivo=78, evolucao=-1%.
+-- Corpo integral no historico Supabase (085_passaporte_usa_avaliacoes_reais).

@@ -258,11 +258,12 @@
     var line=pts.map(function(p,i){return (i?'L':'M')+p[0]+','+p[1];}).join(' ');
     var area=line+' L'+w+','+h+' L0,'+h+' Z';
     var dots=pts.slice(-3).map(function(p,i){return '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+(i===2?4:3)+'" fill="#ECEFEA"/>';}).join('');
-    var pctTxt = (pct==null) ? '<span class="v-vazio">—</span>' : ('+'+pct+'%');
-    return '<div class="curvebox"><div class="cap"><div class="big num">'+pctTxt+'</div><div class="lbl">Evolução · 24 meses</div></div>'+
+    var pctTxt = (pct==null) ? '<span class="v-vazio">—</span>' : ((pct>=0?'+':'')+pct+'%');
+    var corHex = (pct!=null && pct<0) ? '#E0A458' : '#00D46A';
+    return '<div class="curvebox"><div class="cap"><div class="big num" style="color:'+corHex+'">'+pctTxt+'</div><div class="lbl">Evolução · 24 meses</div></div>'+
       '<svg class="curve" viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none" aria-hidden="true">'+
-      '<defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#00D46A" stop-opacity=".15"/><stop offset="1" stop-color="#00D46A" stop-opacity="0"/></linearGradient></defs>'+
-      '<path d="'+area+'" fill="url(#cg)"/><path d="'+line+'" fill="none" stroke="#00D46A" stroke-width="2.2"/>'+dots+'</svg></div>';
+      '<defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+corHex+'" stop-opacity=".15"/><stop offset="1" stop-color="'+corHex+'" stop-opacity="0"/></linearGradient></defs>'+
+      '<path d="'+area+'" fill="url(#cg)"/><path d="'+line+'" fill="none" stroke="'+corHex+'" stroke-width="2.2"/>'+dots+'</svg></div>';
   }
 
   var FALTA_LBL={sexo:'sexo do atleta',altura_pai:'altura do pai',altura_mae:'altura da mãe',altura_atual:'uma medição de altura'};
@@ -403,7 +404,7 @@
       '<div class="tile"><div class="l">Treinabilidade</div><div class="v obs num">'+tileVal(ind.treinab)+'</div></div>'+
       '<div class="tile"><div class="l">Compromisso</div><div class="v obs num">'+tileVal(ind.compromisso)+'</div></div>'+
       '<div class="tile"><div class="l">Consistência</div><div class="v dec num">'+tileVal(ind.consistencia)+'</div></div>'+
-      '<div class="tile"><div class="l">Evolução 24m</div><div class="v up num">'+(d.evolucao.pct24==null?'<span class="v-vazio">—</span>':('+'+d.evolucao.pct24+'<small>%</small>'))+'</div></div>'+
+      '<div class="tile"><div class="l">Evolução 24m</div><div class="v '+(d.evolucao.pct24==null?'obs':(d.evolucao.pct24>=0?'up':'down'))+' num">'+(d.evolucao.pct24==null?'<span class="v-vazio">—</span>':((d.evolucao.pct24>=0?'+':'')+d.evolucao.pct24+'<small>%</small>'))+'</div></div>'+
       '</div>';
     // densidade
     html+='<div class="dens"><span class="lab">Densidade do retrato</span>'+d.densidade.map(function(x){return '<i><b class="num">'+x[0]+'</b>'+x[1]+'</i>';}).join('')+'</div>';
