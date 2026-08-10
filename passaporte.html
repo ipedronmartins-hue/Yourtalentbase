@@ -403,7 +403,7 @@
 
   function render(d){
     var id=d.identidade, ind=d.indicadores;
-    var html='<section id="grupo-filho" class="fam-group"><div class="fam-group-head"><span class="eyebrow">O teu filho</span><h2>Como ele está</h2><p class="fam-lede">O que já sabemos, resumido — a evidência completa fica no Passaporte.</p></div>';
+    var html='<section id="grupo-filho" class="fam-group"><div class="fam-group-head"><span class="eyebrow">Eu</span><h2>Como estou</h2><p class="fam-lede">O que já sei sobre mim, resumido — a evidência completa fica no Passaporte.</p></div>';
     // identidade + curva
     html+='<div class="pcard"><div class="head">'+
       '<div class="photo">'+(id.foto?'<div class="pp" style="background-image:url('+esc(id.foto)+')"></div>':'')+'</div>'+
@@ -450,7 +450,7 @@
     html+='<div id="fam-tools-slot"></div>';
     html+='</section>';
     // ===== PASSAPORTE (evidência profunda — épocas, marcos, avaliações, timeline) =====
-    html+='<section id="grupo-passaporte" class="fam-group"><div class="fam-group-head"><span class="eyebrow">O Passaporte</span><h2>O percurso dele</h2><p class="fam-lede">Tudo o que já ficou registado: quem o observou, como evoluiu, que épocas já fez. Isto não se apaga e vai com ele para onde for.</p></div>';
+    html+='<section id="grupo-passaporte" class="fam-group"><div class="fam-group-head"><span class="eyebrow">O Passaporte</span><h2>O meu percurso</h2><p class="fam-lede">Tudo o que já ficou registado: quem me observou, como evoluí, que épocas já fiz. Isto não se apaga e vai comigo para onde for.</p></div>';
     html+='<div class="dens"><span class="lab">Densidade do retrato</span>'+d.densidade.map(function(x){return '<i><b class="num">'+x[0]+'</b>'+x[1]+'</i>';}).join('')+'</div>';
     // legenda
     html+='<div class="legend">'+
@@ -482,7 +482,7 @@
     // próprio histórico (sem comparações entre atletas, por desenho)
     if(d.devScore){ html+='<div class="shead">Development Score</div>'+devScoreHTML(d.devScore); }
     // (pentagrama já aparece em "O teu filho" — não repetir aqui)
-    if(d.contextoIA && d.contextoIA.texto){ html+='<div class="shead">Leitura de contexto</div>'+contextoIAHTML(d.contextoIA); }
+    if(d.contextoIA && d.contextoIA.texto){ html+='<details class="ver-mais"><summary>Ver leitura de contexto</summary><div class="shead">Leitura de contexto</div>'+contextoIAHTML(d.contextoIA)+'</details>'; }
     // marcos
     html+='<div class="shead">Marcos da Carreira</div><div class="marcos">'+d.marcos.map(function(m){return '<div class="marco"><span class="ic">'+m[0]+'</span><span class="tt">'+esc(m[1])+'</span><span class="wn">'+esc(m[2])+'</span></div>';}).join('')+'</div>';
     // carreira (registada pela família, época a época — nunca inventada)
@@ -1390,8 +1390,25 @@
       var d=res&&res.data;
       if(!d||!d.ok){ toast('⚠ Não gravado ('+((d&&d.motivo)||'erro')+')'); return; }
       btnOK(document.getElementById('pais-btn'),'✓ Alturas guardadas'); toast('Guardado ✓ — a estimativa atualiza no passaporte');
+      // sem isto, a única confirmação era um toast que desaparece — dava
+      // a sensação de "nunca fica guardado", mesmo gravando corretamente
+      if(window.__d) window.__d.maturacao = Object.assign({}, window.__d.maturacao||{}, {altura_pai:pai!=null?pai:(window.__d.maturacao||{}).altura_pai, altura_mae:mae!=null?mae:(window.__d.maturacao||{}).altura_mae});
+      mostrarPaisAtual();
     }).catch(function(){ toast('⚠ Sem ligação'); });
   };
+  function mostrarPaisAtual(){
+    var el=document.getElementById('pais-atual'); if(!el) return;
+    var m=(window.__d&&window.__d.maturacao)||null;
+    var pai=m&&m.altura_pai!=null?m.altura_pai:null, mae=m&&m.altura_mae!=null?m.altura_mae:null;
+    if(pai==null && mae==null){ el.innerHTML=''; return; }
+    var partes=[];
+    if(pai!=null) partes.push('Pai '+pai+'cm');
+    if(mae!=null) partes.push('Mãe '+mae+'cm');
+    el.innerHTML='<span style="color:var(--up,#00D46A)">✓ Já registada</span> — '+esc(partes.join(' · '));
+    var elPai=document.getElementById('bio-pai'), elMae=document.getElementById('bio-mae');
+    if(elPai && pai!=null && !elPai.value) elPai.value=pai;
+    if(elMae && mae!=null && !elMae.value) elMae.value=mae;
+  }
 
   var POSICOES_FAM=[['','—'],['GR','Guarda-Redes'],['DC','Defesa Central'],['LD','Lateral Direito'],['LE','Lateral Esquerdo'],['MD','Médio Defensivo'],['MC','Médio Centro'],['MO','Médio Ofensivo'],['ED','Extremo Direito'],['EE','Extremo Esquerdo'],['PL','Ponta de Lança'],['AV','Avançado']];
   /* Diário de treinos — vive na aba "O que fazer agora", não na de dados.
@@ -1414,23 +1431,32 @@
   }
   function carregarDiarioHistorico(){
     var el=document.getElementById('di-hist'); if(!el || !window.__famAtleta) return;
-    supa.rpc('ytb_diario_historico',{p_atleta:window.__famAtleta,p_limit:5}).then(function(res){
+    supa.rpc('ytb_diario_historico',{p_atleta:window.__famAtleta,p_limit:8}).then(function(res){
       var d=res&&res.data;
       if(!d||!d.ok||!d.registos||!d.registos.length){ el.innerHTML=''; return; }
       var ICONES={livre:'⚽',jogo:'🏟️',clube:'🏃',plano:'📋'};
       var CATS={tecnica:'Técnica',fisico:'Físico',decisao:'Decisão',tatica:'Tática',mental:'Mental'};
-      el.innerHTML='<div class="sub" style="margin-bottom:8px;font-size:var(--fs-legenda)">Últimos registos</div>'
-        + d.registos.map(function(r){
-          var partes=[];
-          if(r.categoria) partes.push(CATS[r.categoria]||r.categoria);
-          if(r.minutos) partes.push(r.minutos+' min');
-          if(r.repeticoes) partes.push(r.repeticoes+' repetições');
-          var dt=r.criado_em?new Date(r.criado_em).toLocaleDateString('pt-PT'):'';
-          return '<div style="display:flex;justify-content:space-between;gap:10px;font-size:var(--fs-corpo);padding:8px 0;border-bottom:1px solid var(--border)">'
-            +'<div><span style="margin-right:6px">'+(ICONES[r.atividade]||'📝')+'</span>'+esc(partes.join(' · ')||'—')+(r.feedback?'<div style="color:var(--slate);font-size:var(--fs-legenda);margin-top:2px">"'+esc(r.feedback)+'"</div>':'')+'</div>'
-            +'<div style="color:var(--muted);font-size:var(--fs-legenda);white-space:nowrap">'+dt+'</div>'
-            +'</div>';
-        }).join('');
+      function linha(r){
+        var partes=[];
+        if(r.categoria) partes.push(CATS[r.categoria]||r.categoria);
+        if(r.minutos) partes.push(r.minutos+' min');
+        if(r.repeticoes) partes.push(r.repeticoes+' repetições');
+        var dt=r.criado_em?new Date(r.criado_em).toLocaleDateString('pt-PT'):'';
+        return '<div style="display:flex;justify-content:space-between;gap:10px;font-size:var(--fs-corpo);padding:8px 0;border-bottom:1px solid var(--border)">'
+          +'<div><span style="margin-right:6px">'+(ICONES[r.atividade]||'📝')+'</span>'+esc(partes.join(' · ')||'—')+(r.feedback?'<div style="color:var(--slate);font-size:var(--fs-legenda);margin-top:2px">"'+esc(r.feedback)+'"</div>':'')+'</div>'
+          +'<div style="color:var(--muted);font-size:var(--fs-legenda);white-space:nowrap">'+dt+'</div>'
+          +'</div>';
+      }
+      // só os 2 mais recentes ficam visíveis de imediato — o resto (até
+      // 8) fica atrás de "ver mais", para não criar uma lista enorme
+      // logo à primeira vista
+      var visiveis=d.registos.slice(0,2), resto=d.registos.slice(2);
+      var html='<div class="sub" style="margin-bottom:8px;font-size:var(--fs-legenda)">Últimos registos</div>'
+        + visiveis.map(linha).join('');
+      if(resto.length){
+        html+='<details class="ver-mais"><summary>Ver mais '+resto.length+'</summary>'+resto.map(linha).join('')+'</details>';
+      }
+      el.innerHTML=html;
     }).catch(function(){});
   }
 
@@ -1480,7 +1506,9 @@
      +'<div id="bio-hist" style="margin-top:10px"></div>'
      +'<div class="sub" style="margin:14px 0 8px;padding-top:12px;border-top:1px solid var(--border)">Altura dos pais — para estimar a altura adulta prevista. Basta uma vez.</div>'
      +'<div class="fam-row"><input class="fam-input" id="bio-pai" type="number" inputmode="decimal" placeholder="Altura do pai (cm)" style="flex:1"><input class="fam-input" id="bio-mae" type="number" inputmode="decimal" placeholder="Altura da mãe (cm)" style="flex:1"></div>'
-     +'<button class="fam-btn" id="pais-btn" onclick="window.__paisGravar()">Guardar altura dos pais →</button></div>';
+     +'<button class="fam-btn" id="pais-btn" onclick="window.__paisGravar()">Guardar altura dos pais →</button>'
+     +'<div id="pais-atual" style="margin-top:8px;font-size:var(--fs-legenda)"></div></div>';
+    mostrarPaisAtual();
     carregarBioHist();
     carregarPerfilForm();
     carregarCarreiraLista();
@@ -1618,7 +1646,7 @@
     // agora dentro do slot já preparado em "O teu filho" (fam-tools-slot),
     // para não fragmentar o resumo do atleta em duas secções diferentes.
     [
-      {id:'grupo-semana', eyebrow:'Hoje', titulo:'O que fazer agora',
+      {id:'grupo-semana', eyebrow:'Hoje', titulo:'O que tenho hoje',
        lede:'As missões que o treinador prescreveu e os jogos por responder. É por aqui que se começa.',
        filhos:['pp-jornada','fam-oqm','fam-diario']}
     ].forEach(function(g){
