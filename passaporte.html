@@ -412,7 +412,7 @@
       '</div></div>';
     // contexto
     html+='<div class="ctx">'+d.contexto.map(function(c){return '<div><div class="v'+(c[2]?' num':'')+'">'+esc(c[0])+'</div><div class="l">'+esc(c[1])+'</div></div>';}).join('')+'</div>';
-    // 4 primários — mostra '—' quando ainda não há dados reais, nunca
+    // 3 primários — mostra '—' quando ainda não há dados reais, nunca
     // um número que pareça calculado (0 ou 100 falsos escondem por
     // completo a ausência de avaliações)
     function tileVal(v, suf){ return v==null ? '<span class="v-vazio">—</span>' : (v+(suf||'')); }
@@ -421,6 +421,12 @@
       '<div class="tile"><div class="l">Compromisso</div><div class="v obs num">'+tileVal(ind.compromisso)+'</div></div>'+
       '<div class="tile"><div class="l">Consistência</div><div class="v dec num">'+tileVal(ind.consistencia)+'</div></div>'+
       '</div>';
+    // "nenhum — órfão": se falta treinabilidade ou compromisso, explica
+    // quem os produz (o treinador, não a plataforma) — nunca deixar um
+    // traço sozinho sem dizer o que falta e a quem pertence produzi-lo
+    if(ind.treinab==null || ind.compromisso==null){
+      html+='<div class="vazio-explicado" style="margin-top:8px"><p>Treinabilidade e compromisso vêm da avaliação do treinador — ainda '+(ind.treinab==null&&ind.compromisso==null?'não há nenhuma':'não há avaliações suficientes')+' registada'+(ind.treinab==null&&ind.compromisso==null?'':'s')+'.</p></div>';
+    }
     // pentagrama simples — a evidência semanal detalhada (5 deltas) fica
     // atrás de "Ver mais", não na primeira vista
     if(d.perfilAreas && d.perfilAreas.areas){ html+=radarAreasHTML(d.perfilAreas); }
@@ -1448,17 +1454,17 @@
      +'<div class="fam-row"><input class="fam-input" id="pf-eenome" type="text" placeholder="O teu nome" style="flex:1"><input class="fam-input" id="pf-eetel" type="tel" placeholder="WhatsApp" style="flex:1"></div>'
      +'<button class="fam-btn" onclick="window.__perfilGravar()">Guardar perfil →</button></div>'
      +'<div class="shead">Relatório do mês</div><div class="panel">'
-     +'<div class="sub" style="margin-bottom:10px">O mês dele numa folha: o que fez, o que o treinador viu, o que mudou. Para guardar em PDF ou mostrar a quem quiseres.</div>'
+     +'<div class="sub" style="margin-bottom:10px">O teu mês numa folha: o que fizeste, o que o treinador viu, o que mudou. Para guardar em PDF ou mostrar a quem quiseres.</div>'
      +'<button class="fam-btn" onclick="window.open(\'relatorio.html?atleta=\'+encodeURIComponent(window.__famAtleta),\'_blank\')">Abrir relatório deste mês →</button></div>'
      +'<div class="shead">Estatísticas da época</div><div class="panel" id="epoca-card">'
-     +'<div class="sub" style="margin-bottom:10px">Golos, jogos e assistências desta época — o orgulho fica registado no percurso dele.</div>'
+     +'<div class="sub" style="margin-bottom:10px">Golos, jogos e assistências desta época — o orgulho fica registado no teu percurso.</div>'
      +'<div class="fam-row"><input class="fam-input" id="ep-ref" type="text" placeholder="Época (ex: 2025/26)" style="flex:1"><input class="fam-input" id="ep-div" type="text" placeholder="Divisão / nível" style="flex:2"></div>'
      +'<div class="fam-row"><input class="fam-input" id="ep-golos" type="number" inputmode="numeric" placeholder="Golos" style="flex:1"><input class="fam-input" id="ep-jogos" type="number" inputmode="numeric" placeholder="Jogos" style="flex:1"><input class="fam-input" id="ep-assist" type="number" inputmode="numeric" placeholder="Assist." style="flex:1"><input class="fam-input" id="ep-minutos" type="number" inputmode="numeric" placeholder="Minutos" style="flex:1"></div>'
      +'<div class="fam-row"><input class="fam-input" id="ep-goleq" type="number" inputmode="numeric" placeholder="Golos da equipa" style="flex:1"><input class="fam-input" id="ep-class" type="text" placeholder="Classificação (ex: 3º de 12)" style="flex:2"></div>'
      +'<button class="fam-btn" onclick="window.__epocaGravar()">Guardar estatísticas →</button>'
      +'<button class="fam-btn" style="background:var(--bg3);color:var(--text);border:1px solid var(--border2)" onclick="window.__epocaFechar()">Fechar a época →</button>'
-     +'<div class="sub" style="margin:8px 0 0;font-size:var(--fs-legenda)">A época desportiva fecha a 30 de junho. Ao fechares, estes números ficam guardados no percurso dele — só leitura — e o cartão fica limpo para a época nova.</div></div>'
-     +'<div class="shead">O percurso dele</div><div class="panel" id="carreira-card">'
+     +'<div class="sub" style="margin:8px 0 0;font-size:var(--fs-legenda)">A época desportiva fecha a 30 de junho. Ao fechares, estes números ficam guardados no teu percurso — só leitura — e o cartão fica limpo para a época nova.</div></div>'
+     +'<div class="shead">O teu percurso</div><div class="panel" id="carreira-card">'
      +'<div class="sub" style="margin-bottom:10px">Época a época: clube, escalão e conquistas. É isto que os clubes e scouts veem como carreira — quem sabe a história és tu.</div>'
      +'<div id="car-lista" style="margin-bottom:10px"></div>'
      +'<div class="fam-row"><input class="fam-input" id="car-epoca" type="text" placeholder="Época (ex: 24/25)" style="flex:1"><input class="fam-input" id="car-clube" type="text" placeholder="Clube" style="flex:2"></div>'
@@ -1574,12 +1580,12 @@
       if(res&&res.error){ toast('⚠ Sessão expirada — entra de novo'); return; }
       var d=res&&res.data;
       if(!d||!d.ok){ toast('⚠ Não gravado ('+((d&&d.motivo)||'erro')+')'); return; }
-      btnOK(b,'✓ Guardadas'); toast('Estatísticas guardadas ✓ — ficam no percurso dele');
+      btnOK(b,'✓ Guardadas'); toast('Estatísticas guardadas ✓ — ficam no teu percurso');
     }).catch(function(){ b.disabled=false; b.textContent='Guardar estatísticas →'; toast('⚠ Sem ligação'); });
   };
   window.__epocaFechar=function(){
     var ref=(document.getElementById('ep-ref').value||'').trim()||'atual';
-    if(!confirm('Fechar a época '+ref+'? Os números ficam guardados no percurso dele (só leitura) e o cartão fica pronto para a época nova.')) return;
+    if(!confirm('Fechar a época '+ref+'? Os números ficam guardados no teu percurso (só leitura) e o cartão fica pronto para a época nova.')) return;
     var btns=document.getElementById('epoca-card').querySelectorAll('.fam-btn');
     var b=btns[btns.length-1];
     b.disabled=true; b.textContent='A fechar…';
@@ -1596,7 +1602,7 @@
       }
       ['ep-div','ep-golos','ep-jogos','ep-assist','ep-minutos','ep-goleq','ep-class'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
       var er=document.getElementById('ep-ref'); if(er) er.value=d.proxima||'';
-      btnOK(b,'✓ Época fechada'); toast('Época '+d.epoca+' fechada ✓ — ficou no percurso dele');
+      btnOK(b,'✓ Época fechada'); toast('Época '+d.epoca+' fechada ✓ — ficou no teu percurso');
       carregarCarreiraLista();
     }).catch(function(){ b.disabled=false; b.textContent='Fechar a época →'; toast('⚠ Sem ligação'); });
   };
