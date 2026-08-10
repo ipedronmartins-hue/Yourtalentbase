@@ -1828,12 +1828,25 @@
     b.style.cssText='position:sticky;top:0;z-index:99;background:#1A241A;border-bottom:1px solid #2A322B;color:#D4AF37;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:var(--fs-corpo);letter-spacing:.4px;text-align:center;padding:10px 14px';
     b.innerHTML='👁 MODO ADMIN · passaporte de '+esc(nome||'atleta')+' · vista de leitura';
     document.body.insertBefore(b, document.body.firstChild);
+    esconderPartilha();
+  }
+  // partilhar é uma decisão exclusiva da família (o encarregado): gera
+  // um cartão com nome, idade, clube e historial de carreira de uma
+  // criança, sem passar por nenhum consentimento adicional. Quem tem
+  // acesso "de leitura" (admin, treinador, scout, clube) não deve poder
+  // distribuir isso por conta própria, mesmo que tecnicamente consiga
+  // ver a página — o acesso é para acompanhar/avaliar, não para
+  // redistribuir dados identificáveis do atleta.
+  function esconderPartilha(){
+    var btn=document.getElementById('btn-share-top');
+    if(btn) btn.style.display='none';
   }
   function treinadorBanner(nome){
     var b=document.createElement('div');
     b.style.cssText='position:sticky;top:0;z-index:99;background:#1A241A;border-bottom:1px solid #2A322B;color:#D4AF37;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:var(--fs-corpo);letter-spacing:.4px;text-align:center;padding:10px 14px';
     b.innerHTML='⚽ MODO TREINADOR · passaporte de '+esc(nome||'atleta')+' · vista de leitura';
     document.body.insertBefore(b, document.body.firstChild);
+    esconderPartilha();
   }
   function demoBanner(){
     var b=document.createElement('div');
@@ -1847,6 +1860,7 @@
     b.innerHTML='<span>🔍 MODO SCOUT · atleta criado por ti · '+esc(nome||'atleta')+'</span>'
       +'<a href="scouts.html?atleta='+encodeURIComponent(atletaId)+'" style="background:#D4AF37;color:#0A0D0A;border-radius:8px;padding:6px 14px;text-decoration:none;font-weight:800;letter-spacing:.3px">📝 Novo Scout Report</a>';
     document.body.insertBefore(b, document.body.firstChild);
+    esconderPartilha();
   }
   function clubeBanner(nome){
     var b=document.createElement('div');
@@ -1856,6 +1870,7 @@
       +'<span>🏟️ MODO CLUBE · atleta da tua organização · '+esc(nome||'atleta')+'</span>'
       +'<a id="clube-banner-link" href="clube.html" style="background:#D4AF37;color:#0A0D0A;border-radius:8px;padding:6px 14px;text-decoration:none;font-weight:800;letter-spacing:.3px">← Os meus atletas</a>';
     document.body.insertBefore(b, document.body.firstChild);
+    esconderPartilha();
     // marca própria: a cor/logo vivem em atletas_360_clubes_subscritores, não no passaporte do atleta —
     // pede à parte, sem bloquear a leitura do passaporte se falhar.
     supa.rpc('ytb_clube_minha_conta').then(function(res){
