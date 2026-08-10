@@ -617,46 +617,69 @@
     // ── histórico (ou, sem carreira registada ainda, densidade real —
     //    nunca uma tabela vazia, que parecia um erro/perfil incompleto) ──
     var ty=548;
+    var usa2Col = carreira.length > 6;
     if(carreira.length){
       html += '<text x="60" y="'+ty+'" font-size="30" font-weight="700" fill="#ECEFEA" font-family="Barlow Condensed,Impact,sans-serif">HISTORIAL</text>'
         +'<line x1="60" y1="'+(ty+22)+'" x2="'+(W-60)+'" y2="'+(ty+22)+'" stroke="#2A362B" stroke-width="1.5"/>'
         +'<text x="60" y="'+(ty+50)+'" font-size="13" font-weight="700" fill="#6E7A6F" letter-spacing="1.5" font-family="Poppins,sans-serif">ÉPOCA</text>'
-        +'<text x="190" y="'+(ty+50)+'" font-size="13" font-weight="700" fill="#6E7A6F" letter-spacing="1.5" font-family="Poppins,sans-serif">ONDE COMPETIU</text>'
-        +'<text x="610" y="'+(ty+50)+'" font-size="13" font-weight="700" fill="#6E7A6F" letter-spacing="1.5" font-family="Poppins,sans-serif">RESULTADO</text>';
+        +'<text x="'+(usa2Col?128:190)+'" y="'+(ty+50)+'" font-size="13" font-weight="700" fill="#6E7A6F" letter-spacing="1.5" font-family="Poppins,sans-serif">ONDE COMPETIU</text>'
+        +'<text x="'+(usa2Col?330:610)+'" y="'+(ty+50)+'" font-size="13" font-weight="700" fill="#6E7A6F" letter-spacing="1.5" font-family="Poppins,sans-serif">RESULTADO</text>';
+      if(usa2Col){
+        // segunda coluna: mesmos três cabeçalhos, repetidos do lado direito
+        html += '<text x="555" y="'+(ty+50)+'" font-size="13" font-weight="700" fill="#6E7A6F" letter-spacing="1.5" font-family="Poppins,sans-serif">ÉPOCA</text>'
+          +'<text x="623" y="'+(ty+50)+'" font-size="13" font-weight="700" fill="#6E7A6F" letter-spacing="1.5" font-family="Poppins,sans-serif">ONDE COMPETIU</text>'
+          +'<text x="825" y="'+(ty+50)+'" font-size="13" font-weight="700" fill="#6E7A6F" letter-spacing="1.5" font-family="Poppins,sans-serif">RESULTADO</text>';
+      }
     } else {
       html += '<text x="60" y="'+ty+'" font-size="30" font-weight="700" fill="#ECEFEA" font-family="Barlow Condensed,Impact,sans-serif">A CONSTRUIR O PERCURSO</text>'
         +'<line x1="60" y1="'+(ty+22)+'" x2="'+(W-60)+'" y2="'+(ty+22)+'" stroke="#2A362B" stroke-width="1.5"/>'
         +'<text x="60" y="'+(ty+70)+'" font-size="19" fill="#8FA090" font-family="Poppins,sans-serif">Cada treino, cada avaliação, cada época fica registada</text>'
         +'<text x="60" y="'+(ty+98)+'" font-size="19" fill="#8FA090" font-family="Poppins,sans-serif">a partir de agora — o histórico cresce com o tempo.</text>';
     }
-    var MAX_LINHAS=8, nLin=Math.min(carreira.length,MAX_LINHAS);
-    var temMais = carreira.length > MAX_LINHAS;
-    // quando a carreira é mais longa do que cabe, a última linha visível
-    // não é mais um item cortado em silêncio — mostra quantas épocas
-    // ficaram de fora, honesto sobre o que existe mas não coube aqui
-    var linhasReais = temMais ? MAX_LINHAS-1 : nLin;
     var y0=ty+92, Y_FIM=1150;
-    // altura de linha calculada a partir do espaço que sobra — assim uma
-    // carreira longa nunca empurra os stats para fora do cartão
-    var rowH=Math.min(84, Math.max(50, (Y_FIM-y0)/Math.max(1,nLin)));
-    carreira.slice(0,linhasReais).forEach(function(c,i){
-      var y=y0+i*rowH, actual=i===0, corTxt=actual?'#D4AF37':'#ECEFEA';
-      if(i>0) html += '<line x1="60" y1="'+(y-rowH+32)+'" x2="'+(W-60)+'" y2="'+(y-rowH+32)+'" stroke="#1A231B" stroke-width="1"/>';
-      html += '<text x="60" y="'+y+'" font-size="24" font-weight="700" fill="'+corTxt+'" font-family="Barlow Condensed,Impact,sans-serif">'+esc(c.epoca||'')+'</text>'
-        +'<text x="190" y="'+y+'" font-size="21" fill="'+corTxt+'" font-family="Poppins,sans-serif">'+esc(cortar([c.escalao,c.divisao].filter(Boolean).join(' · '),36))+'</text>';
-      var temTitulo = c.titulos && c.titulos.length;
-      var icone = temTitulo ? '🏆' : (/pandemia/i.test(c.classificacao||'')?'📅':(/lugar/i.test(c.classificacao||'')?'📊':''));
-      // limite reduzido (não 38): o ícone emoji ocupa mais largura visual do
-      // que um carácter normal — testado com texto real de 41 chars que saía
-      // do cartão mesmo já cortado a 38
-      html += '<text x="610" y="'+y+'" font-size="21" fill="'+(temTitulo?'#D4AF37':corTxt)+'" font-family="Poppins,sans-serif">'+(icone?icone+' ':'')+esc(cortar(c.classificacao||'',30))+'</text>';
-    });
-    if(temMais){
-      var yMais=y0+linhasReais*rowH;
-      html += '<line x1="60" y1="'+(yMais-rowH+32)+'" x2="'+(W-60)+'" y2="'+(yMais-rowH+32)+'" stroke="#1A231B" stroke-width="1"/>'
-        +'<text x="60" y="'+yMais+'" font-size="21" fill="#6E7A6F" font-family="Poppins,sans-serif">+ '+(carreira.length-linhasReais)+' época'+((carreira.length-linhasReais)===1?'':'s')+' mais antiga'+((carreira.length-linhasReais)===1?'':'s')+' no passaporte completo</text>';
+    var tabelaFim = ty+150;
+    if(!carreira.length){
+      // tabelaFim já definido acima para este caso (sem histórico nenhum)
+    } else if(!usa2Col){
+      var nLin=carreira.length;
+      // altura de linha calculada a partir do espaço que sobra — assim uma
+      // carreira curta nunca fica com linhas apertadas sem necessidade
+      var rowH=Math.min(84, Math.max(50, (Y_FIM-y0)/Math.max(1,nLin)));
+      carreira.forEach(function(c,i){
+        var y=y0+i*rowH, actual=i===0, corTxt=actual?'#D4AF37':'#ECEFEA';
+        if(i>0) html += '<line x1="60" y1="'+(y-rowH+32)+'" x2="'+(W-60)+'" y2="'+(y-rowH+32)+'" stroke="#1A231B" stroke-width="1"/>';
+        html += '<text x="60" y="'+y+'" font-size="24" font-weight="700" fill="'+corTxt+'" font-family="Barlow Condensed,Impact,sans-serif">'+esc(c.epoca||'')+'</text>'
+          +'<text x="190" y="'+y+'" font-size="21" fill="'+corTxt+'" font-family="Poppins,sans-serif">'+esc(cortar([c.escalao,c.divisao].filter(Boolean).join(' · '),36))+'</text>';
+        var temTitulo = c.titulos && c.titulos.length;
+        var icone = temTitulo ? '🏆' : (/pandemia/i.test(c.classificacao||'')?'📅':(/lugar/i.test(c.classificacao||'')?'📊':''));
+        html += '<text x="610" y="'+y+'" font-size="21" fill="'+(temTitulo?'#D4AF37':corTxt)+'" font-family="Poppins,sans-serif">'+(icone?icone+' ':'')+esc(cortar(c.classificacao||'',30))+'</text>';
+      });
+      tabelaFim = y0 + (nLin-1)*rowH + 34;
+    } else {
+      // duas colunas lado a lado: a esquerda leva as épocas mais recentes,
+      // a direita continua a partir daí — nunca esconde nenhuma época,
+      // só reparte o espaço em vez de cortar a lista
+      var metade = Math.ceil(carreira.length/2);
+      var colEsq = carreira.slice(0, metade), colDir = carreira.slice(metade);
+      var nLinCol = metade;
+      var rowH = Math.min(84, Math.max(44, (Y_FIM-y0)/Math.max(1,nLinCol)));
+      function desenharColuna(lista, xEp, xLocal, xRes, xFim, primeiraColuna){
+        lista.forEach(function(c,i){
+          var y=y0+i*rowH, actual=primeiraColuna&&i===0, corTxt=actual?'#D4AF37':'#ECEFEA';
+          if(i>0) html += '<line x1="'+xEp+'" y1="'+(y-rowH+30)+'" x2="'+xFim+'" y2="'+(y-rowH+30)+'" stroke="#1A231B" stroke-width="1"/>';
+          html += '<text x="'+xEp+'" y="'+y+'" font-size="21" font-weight="700" fill="'+corTxt+'" font-family="Barlow Condensed,Impact,sans-serif">'+esc(c.epoca||'')+'</text>'
+            +'<text x="'+xLocal+'" y="'+y+'" font-size="17" fill="'+corTxt+'" font-family="Poppins,sans-serif">'+esc(cortar([c.escalao,c.divisao].filter(Boolean).join(' · '),20))+'</text>';
+          var temTitulo = c.titulos && c.titulos.length;
+          var icone = temTitulo ? '🏆' : (/pandemia/i.test(c.classificacao||'')?'📅':(/lugar/i.test(c.classificacao||'')?'📊':''));
+          html += '<text x="'+xRes+'" y="'+y+'" font-size="17" fill="'+(temTitulo?'#D4AF37':corTxt)+'" font-family="Poppins,sans-serif">'+(icone?icone+' ':'')+esc(cortar(c.classificacao||'',17))+'</text>';
+        });
+      }
+      desenharColuna(colEsq, 60, 128, 330, 505, true);
+      desenharColuna(colDir, 555, 623, 825, 1020, false);
+      // linha vertical fina a separar as duas colunas
+      html += '<line x1="530" y1="'+(y0-28)+'" x2="530" y2="'+(y0+(Math.max(colEsq.length,colDir.length)-1)*rowH+18)+'" stroke="#1A231B" stroke-width="1"/>';
+      tabelaFim = y0 + (nLinCol-1)*rowH + 34;
     }
-    var tabelaFim = carreira.length ? (y0 + (nLin-1)*rowH + 34) : (ty+150);
 
     // ── stats (épocas + títulos; sem "competições": as épocas de pandemia
     //     contam na mesma — treinaram, e a época contou) ──
