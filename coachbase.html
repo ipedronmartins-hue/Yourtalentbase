@@ -487,6 +487,22 @@ function tierDeEscalao(esc){
   if(/Sub-15|Sub-17|Sub-19/.test(esc))return 2;
   return 3;
 }
+// Linguagem comum de desenvolvimento (mesma dos 5 domínios do pentagrama
+// em passaporte.html: Técnica/Decisão/Tática/Físico/Mental). O CoachBase
+// continua com as suas próprias 9 categorias (mais úteis para planear
+// sessões de equipa), mas cada uma mapeia para um domínio -- para que,
+// no futuro, uma sessão de equipa possa contar como evidência no mesmo
+// vocabulário que o diário da família e as avaliações do treinador já
+// usam. Isto é só o mapeamento (a fundação); ainda não gera eventos
+// individuais por atleta -- isso exige decidir como uma sessão de
+// equipa (com presenças marcadas, não execução individual registada)
+// se traduz em evidência por atleta, o que é uma decisão de produto
+// separada, não só técnica.
+var CATEGORIA_PARA_DOMINIO={
+  fisico:'fisico', tecnica:'tecnica',
+  linha_defensiva:'tatica', saida_bola:'tatica', reacao_perda:'tatica',
+  rotina_seccao:'tatica', movimentacao:'tatica', bola_parada:'tatica', geral:'tatica'
+};
 var BANCO_EQUIPA={
   fisico:[
     {id:'fi1',nome:'Mobilidade dinâmica de ativação',sub:'ativacao',tierMin:0,min:8,int:1,equip:'nenhum',org:'círculo, espaço pessoal',foco:'preparar o corpo, prevenir lesão',obs:'balanços de perna, rotações de anca/ombro/tornozelo, sem estática'},

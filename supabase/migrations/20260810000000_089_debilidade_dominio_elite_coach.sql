@@ -1,0 +1,6 @@
+-- 089: item 5 do plano -- linguagem comum de 5 dominios. Nova funcao
+-- _ytb_debilidade_dominio traduz as 22 debilidades reais dos cenarios
+-- do Elite Coach para os 5 dominios do pentagrama (mesma tabela ja
+-- escrita no frontend, elite-coach-data.js). Nenhuma mapeia para
+-- 'fisico' -- correto, o Elite Coach e sobre decisao tatica.
+-- Corpo integral no historico Supabase (089_debilidade_dominio_elite_coach).

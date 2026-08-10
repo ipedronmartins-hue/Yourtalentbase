@@ -3,6 +3,25 @@
 // Coordenadas: SVG 500×740 (vertical, ataque para CIMA)
 // ═══════════════════════════════════════════════════════
 
+// Linguagem comum de desenvolvimento (mesma dos 5 domínios do pentagrama
+// em passaporte.html: Técnica/Decisão/Tática/Físico/Mental). Cada
+// "debilidade" dos cenários já é um conceito rico e específico (usado
+// também para recomendar cenários ao atleta) — este mapeamento não a
+// substitui, só traduz para o vocabulário comum, para que um resultado
+// do Elite Coach possa um dia contar como evidência no mesmo domínio
+// que uma avaliação do treinador ou um treino registado pela família.
+var DEBILIDADE_PARA_DOMINIO={
+  '1×1 defensivo':'tecnica', 'Controlo do pé fraco':'tecnica', 'Primeiro toque sob pressão':'tecnica',
+  'Proteção de bola':'tecnica', 'Timing de remate':'tecnica',
+  'Controlo + decisão':'decisao', 'Decisão ofensiva':'decisao', 'Decisão sair/ficar':'decisao',
+  'Decisão sob pressão':'decisao', 'Leitura de jogo':'decisao', 'Qualidade de decisão':'decisao',
+  'Tomada de decisão':'decisao',
+  'Inteligência sem bola':'tatica', 'Leitura da cobertura defensiva':'tatica', 'Posicionamento':'tatica',
+  'Reação à perda':'tatica', 'Timing de movimento':'tatica',
+  'Concentração após erro':'mental', 'Concentração':'mental', 'Controlo emocional':'mental',
+  'Reação emocional à substituição':'mental', 'Reação à adversidade':'mental'
+};
+
 // ─── 10 CENÁRIOS DE DECISÃO ──────────────────────────────
 const CENARIOS = [
   {
