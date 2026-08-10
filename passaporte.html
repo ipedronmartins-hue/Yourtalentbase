@@ -544,16 +544,19 @@
       +'<circle cx="60" cy="1330" r="300" fill="#00D46A" opacity=".03"/>';
 
     // ── header ──
-    // logótipo real: losango dourado (a marca), substitui o placeholder
-    // círculo+P anterior
-    html += '<rect x="52" y="48" width="30" height="30" fill="#D4AF37" transform="rotate(45 67 63)"/>'
-      +'<text x="112" y="61" font-size="18" font-weight="700" fill="#D4AF37" letter-spacing="1.2" font-family="Poppins,sans-serif">YOURTALENTBASE</text>'
-      +'<text x="112" y="82" font-size="13" fill="#6E7A6F" font-family="Poppins,sans-serif">Passaporte Digital do Atleta</text>';
+    // logótipo real: losango dourado (a marca) — maior, e o texto ao lado
+    // em Barlow Condensed/Impact (a mesma fonte de impacto do resto do
+    // cartão, não o Poppins fraco de antes) para ter o peso de uma marca,
+    // não de uma legenda
+    html += '<rect x="48" y="42" width="38" height="38" fill="#D4AF37" transform="rotate(45 67 61)"/>'
+      +'<text x="118" y="68" font-size="28" font-weight="900" fill="#D4AF37" letter-spacing="1" font-family="Barlow Condensed,Impact,sans-serif">YOURTALENTBASE</text>'
+      +'<text x="118" y="90" font-size="14" fill="#6E7A6F" font-family="Poppins,sans-serif">Passaporte Digital do Atleta</text>';
     if(badgeLabel){
-      html += '<rect x="'+(W-340)+'" y="44" width="300" height="48" rx="24" fill="#141C15" stroke="#D4AF37" stroke-opacity=".45" stroke-width="1.4"/>'
-        +'<text x="'+(W-190)+'" y="74" text-anchor="middle" font-size="18" font-weight="700" fill="#D4AF37" font-family="Poppins,sans-serif">'+esc(badgeLabel)+'</text>';
+      var badgeW = 78 + badgeLabel.length*13.5;
+      html += '<rect x="'+(W-60-badgeW)+'" y="40" width="'+badgeW+'" height="56" rx="28" fill="#141C15" stroke="#D4AF37" stroke-opacity=".5" stroke-width="1.6"/>'
+        +'<text x="'+(W-60-badgeW/2)+'" y="76" text-anchor="middle" font-size="24" font-weight="900" fill="#D4AF37" letter-spacing=".3" font-family="Barlow Condensed,Impact,sans-serif">'+esc(badgeLabel.toUpperCase())+'</text>';
     }
-    html += '<line x1="60" y1="118" x2="'+(W-60)+'" y2="118" stroke="#1F2520" stroke-width="1.5"/>';
+    html += '<line x1="60" y1="126" x2="'+(W-60)+'" y2="126" stroke="#1F2520" stroke-width="1.5"/>';
 
     // ── camisola (vista de costas): nome em arco por cima, número ao centro ──
     // ── Bloco de identidade (esquerda) ──
@@ -601,10 +604,19 @@
     var atual = carreira[0]||{};
     var metaAtual = atual.escalao ? [atual.escalao,atual.divisao].filter(Boolean).join(' · ') : [id.escalao,id.posicao].filter(Boolean).join(' · ');
     html += '<text x="'+(tx+26)+'" y="376" font-size="15" fill="#6E7A6F" font-family="Poppins,sans-serif">'+esc(metaAtual)+'</text>';
+    // preenche o espaço que ficaria vazio até ao início do historial —
+    // densidade de evidência, reforça "prova e verificação" em vez de
+    // deixar a coluna direita em branco
+    var partesDens=[];
+    if(dens.eventos) partesDens.push(dens.eventos+' eventos registados');
+    if(dens.observadores) partesDens.push(dens.observadores+' observador'+(dens.observadores===1?'':'es'));
+    if(partesDens.length){
+      html += '<text x="'+tx+'" y="440" font-size="17" fill="#8FA090" font-family="Poppins,sans-serif">'+esc(partesDens.join(' · '))+'</text>';
+    }
 
     // ── histórico (ou, sem carreira registada ainda, densidade real —
     //    nunca uma tabela vazia, que parecia um erro/perfil incompleto) ──
-    var ty=575;
+    var ty=548;
     if(carreira.length){
       html += '<text x="60" y="'+ty+'" font-size="30" font-weight="700" fill="#ECEFEA" font-family="Barlow Condensed,Impact,sans-serif">HISTORIAL</text>'
         +'<line x1="60" y1="'+(ty+22)+'" x2="'+(W-60)+'" y2="'+(ty+22)+'" stroke="#2A362B" stroke-width="1.5"/>'
@@ -618,7 +630,7 @@
         +'<text x="60" y="'+(ty+98)+'" font-size="19" fill="#8FA090" font-family="Poppins,sans-serif">a partir de agora — o histórico cresce com o tempo.</text>';
     }
     var MAX_LINHAS=7, nLin=Math.min(carreira.length,MAX_LINHAS);
-    var y0=ty+92, Y_FIM=1090;
+    var y0=ty+92, Y_FIM=1150;
     // altura de linha calculada a partir do espaço que sobra — assim uma
     // carreira de 7 épocas nunca empurra os stats para fora do cartão
     var rowH=Math.min(84, Math.max(50, (Y_FIM-y0)/Math.max(1,nLin)));
