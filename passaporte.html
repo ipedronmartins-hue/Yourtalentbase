@@ -544,8 +544,9 @@
       +'<circle cx="60" cy="1330" r="300" fill="#00D46A" opacity=".03"/>';
 
     // ── header ──
-    html += '<circle cx="72" cy="68" r="25" fill="#0A0F0A" stroke="#D4AF37" stroke-width="2.4"/>'
-      +'<text x="72" y="78" text-anchor="middle" font-size="23" font-weight="700" fill="#D4AF37" font-family="Barlow Condensed,Impact,sans-serif">P</text>'
+    // logótipo real: losango dourado (a marca), substitui o placeholder
+    // círculo+P anterior
+    html += '<rect x="52" y="48" width="30" height="30" fill="#D4AF37" transform="rotate(45 67 63)"/>'
       +'<text x="112" y="61" font-size="18" font-weight="700" fill="#D4AF37" letter-spacing="1.2" font-family="Poppins,sans-serif">YOURTALENTBASE</text>'
       +'<text x="112" y="82" font-size="13" fill="#6E7A6F" font-family="Poppins,sans-serif">Passaporte Digital do Atleta</text>';
     if(badgeLabel){
