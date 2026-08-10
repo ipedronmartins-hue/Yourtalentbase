@@ -1,0 +1,8 @@
+-- 086: pentagrama (perfil_areas) ganha um pequeno bonus por treino
+-- registado com categoria (diario, livre+clube, ultimas 8 semanas),
+-- alem da avaliacao formal do treinador (que continua a ser a base
+-- principal). Bonus: LEAST(0.5, minutos/500) -- nunca mais de 0.5
+-- pontos (escala 1-5) acima da avaliacao formal. Valor final sempre
+-- limitado a 5. Campo bonus_treino por area para o frontend distinguir
+-- a origem da subida.
+-- Corpo integral no historico Supabase (086_perfil_areas_com_bonus_treino).

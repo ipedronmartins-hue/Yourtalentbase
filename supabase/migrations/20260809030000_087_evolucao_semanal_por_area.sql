@@ -1,0 +1,6 @@
+-- 087: nova funcao _ytb_evolucao_semanal_areas -- o ganho desta semana
+-- em cada area do pentagrama, isolando o efeito do treino registado
+-- pela familia (a avaliacao formal mantem-se constante na comparacao
+-- semanal). Atualiza-se naturalmente todos os domingos (janela desliza
+-- semana a semana). Legenda incluida no payload.
+-- Corpo integral no historico Supabase (087_evolucao_semanal_por_area).

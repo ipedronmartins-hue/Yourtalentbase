@@ -88,7 +88,15 @@
   .ctx .l{font-size:var(--fs-micro);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-top:3px;line-height:1.3}
 
   /* ── 4 indicadores primários ── */
-  .prim{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+  .prim{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+  .evosemanal{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px 8px;margin-top:10px}
+  .evosemanal-tit{font-family:var(--fd);font-weight:800;font-size:14px;margin-bottom:10px;padding:0 6px}
+  .evosemanal-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:2px;text-align:center}
+  .evosemanal-item{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0}
+  .evosemanal-ico{font-size:15px}
+  .evosemanal-l{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.02em}
+  .evosemanal-v{font-family:var(--fd);font-weight:800;font-size:15px}
+  .evosemanal-legenda{font-size:var(--fs-legenda);color:var(--muted);margin-top:10px;text-align:center;padding:0 6px}
   .tile{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px 8px;text-align:center}
   .tile .l{font-size:var(--fs-legenda);text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:7px;line-height:1.3;min-height:23px;display:flex;align-items:center;justify-content:center}
   .tile .v{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:var(--fs-titulo);line-height:1}
@@ -393,7 +401,7 @@
       '<div class="photo">'+(id.foto?'<div class="pp" style="background-image:url('+esc(id.foto)+')"></div>':'')+'</div>'+
       '<div class="idblock"><div class="name">'+esc(id.nome)+'</div><div class="meta"><span class="pos">'+esc(id.pos)+'</span>'+esc(id.clube)+' · '+esc(id.pos_full)+'</div></div>'+
       '<div class="selo"><span class="v">✓</span><span class="src">'+esc(ind.verificacao)+'</span></div>'+
-      '</div>'+curveSVG(d.evolucao.serie,d.evolucao.pct24)+'</div>';
+      '</div></div>';
     // contexto
     html+='<div class="ctx">'+d.contexto.map(function(c){return '<div><div class="v'+(c[2]?' num':'')+'">'+esc(c[0])+'</div><div class="l">'+esc(c[1])+'</div></div>';}).join('')+'</div>';
     // 4 primários — mostra '—' quando ainda não há dados reais, nunca
@@ -404,9 +412,27 @@
       '<div class="tile"><div class="l">Treinabilidade</div><div class="v obs num">'+tileVal(ind.treinab)+'</div></div>'+
       '<div class="tile"><div class="l">Compromisso</div><div class="v obs num">'+tileVal(ind.compromisso)+'</div></div>'+
       '<div class="tile"><div class="l">Consistência</div><div class="v dec num">'+tileVal(ind.consistencia)+'</div></div>'+
-      '<div class="tile"><div class="l">Evolução 24m</div><div class="v '+(d.evolucao.pct24==null?'obs':(d.evolucao.pct24>=0?'up':'down'))+' num">'+(d.evolucao.pct24==null?'<span class="v-vazio">—</span>':((d.evolucao.pct24>=0?'+':'')+d.evolucao.pct24+'<small>%</small>'))+'</div></div>'+
       '</div>';
     // densidade
+    // evolução semanal por área (Técnica/Decisão/Tática/Físico/Mental) —
+    // reflete o treino registado (livre+clube) desta semana comparado
+    // com a semana anterior; a avaliação formal do treinador continua a
+    // ser a base do pentagrama, isto é só o pequeno empurrão do treino.
+    if(d.evolucaoSemanalAreas && d.evolucaoSemanalAreas.areas){
+      var icoEvo={tecnica:'⚽',decisao:'🧠',tatica:'🧭',fisico:'⚡',mental:'🔥'};
+      var labelCurto={tecnica:'Téc',decisao:'Dec',tatica:'Tát',fisico:'Fís',mental:'Men'};
+      html+='<div class="evosemanal"><div class="evosemanal-tit">Evolução desta semana</div>'+
+        '<div class="evosemanal-grid">'+d.evolucaoSemanalAreas.areas.map(function(a){
+          var delta=a.delta||0;
+          var cls=delta>0?'up':(delta<0?'down':'obs');
+          var txt=delta===0?'<span class="v-vazio">—</span>':((delta>0?'+':'')+delta);
+          return '<div class="evosemanal-item"><div class="evosemanal-ico">'+(icoEvo[a.k]||'')+'</div>'+
+            '<div class="evosemanal-l" title="'+esc(a.l)+'">'+esc(labelCurto[a.k]||a.l)+'</div>'+
+            '<div class="evosemanal-v '+cls+'">'+txt+'</div></div>';
+        }).join('')+'</div>'+
+        '<div class="evosemanal-legenda">'+esc(d.evolucaoSemanalAreas.legenda||'')+'</div>'+
+        '</div>';
+    }
     html+='<div class="dens"><span class="lab">Densidade do retrato</span>'+d.densidade.map(function(x){return '<i><b class="num">'+x[0]+'</b>'+x[1]+'</i>';}).join('')+'</div>';
     // legenda
     html+='<div class="legend">'+
@@ -688,6 +714,7 @@
       maturacao:r.maturacao||null,
       contextoIA:r.contexto_ia||null,
       perfilAreas:r.perfil_areas||null,
+      evolucaoSemanalAreas:r.evolucao_semanal_areas||null,
       devScore:r.dev_score||null,
       marcos:(r.marcos||[]).map(function(m){return ['◆',m.titulo||'',relTime(m.em)];}),
       carreira:(r.carreira||[]).map(function(c){

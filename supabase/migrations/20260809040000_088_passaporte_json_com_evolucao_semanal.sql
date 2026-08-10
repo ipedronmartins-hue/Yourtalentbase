@@ -1,0 +1,3 @@
+-- 088: _ytb_passaporte_json ganha o campo evolucao_semanal_areas,
+-- junto de perfil_areas.
+-- Corpo integral no historico Supabase (088_passaporte_json_com_evolucao_semanal).
