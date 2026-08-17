@@ -37,6 +37,9 @@ nav .wide{display:flex;align-items:center;justify-content:space-between;height:6
 .btn-lg{padding:16px 30px;font-size:15.5px}
 .btn-ghost{background:transparent;color:var(--text);border-color:var(--border2)}
 .btn-ghost:hover{border-color:var(--up);color:var(--up);transform:translateY(-2px)}
+/* nav: "Entrar" é sempre visível (quem já é cliente não deve procurar);
+   os links informativos recolhem no telemóvel para a barra não quebrar. */
+@media(max-width:820px){.nav-sec{display:none}}
 .hero-cta{display:flex;gap:13px;flex-wrap:wrap;margin-top:34px}
 @media(max-width:520px){.hero-cta{flex-direction:column}.hero-cta .btn{justify-content:center}}
 .stage{min-height:100vh;display:flex;flex-direction:column;justify-content:center;position:relative;padding:96px 0}
@@ -134,6 +137,18 @@ svg.curve{display:block;width:100%;height:clamp(290px,48vh,470px)}
   display:inline-flex;align-items:center;gap:8px;white-space:nowrap;transition:color .2s}
 .prow:hover .parr{color:var(--text)}
 .prow .parr .a{transition:transform .2s}.prow:hover .parr .a{transform:translateX(4px)}
+/* Portas: 4 cartões que se leem como UMA decisão, não 6 linhas que competem. */
+.porta-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.porta{display:flex;flex-direction:column;background:var(--bg2);border:1px solid var(--border);border-radius:16px;
+  padding:24px 22px;transition:border-color .2s,transform .2s,background .2s}
+.porta:hover{border-color:var(--up);transform:translateY(-3px);background:var(--bg3)}
+.porta-ico{font-size:26px;line-height:1;margin-bottom:12px}
+.porta-k{font-family:var(--fd);font-weight:900;font-size:22px;letter-spacing:.2px;margin-bottom:8px}
+.porta-d{font-size:14px;color:var(--slate);line-height:1.55;flex:1;margin-bottom:16px}
+.porta-cta{font-family:var(--fd);font-weight:800;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--up);
+  display:inline-flex;align-items:center;gap:8px}
+.porta-cta .a{transition:transform .2s}.porta:hover .porta-cta .a{transform:translateX(4px)}
+@media(max-width:680px){.porta-grid{grid-template-columns:1fr}}
 .price-stage{padding:clamp(80px,13vh,140px) 0;border-top:1px solid var(--border)}
 .price-stage h2{font-family:var(--fd);font-weight:900;font-size:clamp(2.2rem,5.4vw,3.6rem);line-height:1;letter-spacing:-.5px;text-align:center;margin:12px 0 14px}
 .price-stage .psay{text-align:center;font-size:clamp(15px,1.8vw,17px);color:var(--slate);max-width:34em;margin:0 auto clamp(34px,5vh,52px)}
@@ -188,9 +203,10 @@ footer .logo b{font-size:17px}
   <div class="wide">
     <a class="logo" href="#top"><b>YTB</b><span>YourTalentBase</span></a>
     <div style="display:flex;align-items:center;gap:8px">
-      <a class="btn btn-ghost" href="#academia">Para academias</a>
-      <a class="btn btn-ghost" href="sobre.html">Sobre</a>
-      <a class="btn btn-ghost" href="como-funciona.html">Como funciona <span class="arr">→</span></a>
+      <a class="btn btn-ghost nav-sec" href="#academia">Para academias</a>
+      <a class="btn btn-ghost nav-sec" href="sobre.html">Sobre</a>
+      <a class="btn btn-ghost nav-sec" href="como-funciona.html">Como funciona</a>
+      <a class="btn btn-primary" href="acesso.html">Entrar <span class="arr">→</span></a>
     </div>
   </div>
 </nav>
@@ -303,8 +319,8 @@ footer .logo b{font-size:17px}
 <section class="stage" id="exemplo-passaporte" style="padding-top:40px">
   <div class="narrow">
     <span class="eyebrow reveal" style="display:block;text-align:center;margin-bottom:10px">O produto, não só o conceito</span>
-    <h2 class="reveal" style="text-align:center;margin-bottom:8px">Isto é o que o teu filho vai ter.</h2>
-    <p class="sub reveal" style="text-align:center;max-width:520px;margin:0 auto 32px">Um passaporte real tem este aspeto ao fim de algumas épocas — dados fictícios aqui, só para veres a forma.</p>
+    <h2 class="reveal" style="text-align:center;margin-bottom:8px">O que hoje se perde,<br>aqui fica.</h2>
+    <p class="sub reveal" style="text-align:center;max-width:520px;margin:0 auto 32px">Mensagens, folhas de papel, vídeos no telemóvel, a memória do treinador. Um percurso. Uma história. Evidência que fica. <span style="color:var(--muted)">(Exemplo com dados fictícios, só para veres a forma.)</span></p>
 
     <div class="pp-card reveal">
       <span class="pp-tag">Exemplo ilustrativo</span>
@@ -314,14 +330,19 @@ footer .logo b{font-size:17px}
         <div class="pp-selo">★ YTB Acompanhado</div>
       </div>
       <div class="pp-grid">
-        <svg id="exemplo-pentagrama" width="100%" height="260" viewBox="0 0 300 260"></svg>
+        <div>
+          <svg id="exemplo-pentagrama" width="100%" height="260" viewBox="0 0 300 260"></svg>
+          <div class="pp-areas-lbl">Áreas acompanhadas</div>
+        </div>
         <div class="pp-col">
+          <div class="pp-hist-tit">Evidência registada</div>
           <div class="pp-stats">
-            <div class="pp-stat"><div class="pp-stat-n">3</div><div class="pp-stat-l">Épocas</div></div>
-            <div class="pp-stat"><div class="pp-stat-n">1</div><div class="pp-stat-l">Título</div></div>
-            <div class="pp-stat"><div class="pp-stat-n up">+34%</div><div class="pp-stat-l">Evolução</div></div>
+            <div class="pp-stat"><div class="pp-stat-n">4</div><div class="pp-stat-l">Avaliações</div></div>
+            <div class="pp-stat"><div class="pp-stat-n">12</div><div class="pp-stat-l">Sessões</div></div>
+            <div class="pp-stat"><div class="pp-stat-n">6</div><div class="pp-stat-l">Jogos</div></div>
+            <div class="pp-stat"><div class="pp-stat-n">1</div><div class="pp-stat-l">Scout</div></div>
           </div>
-          <div class="pp-hist-tit">Historial</div>
+          <div class="pp-hist-tit">Percurso</div>
           <div class="pp-hist-row">
             <div><b>25/26 · Sub-13</b><div class="pp-hist-meta">Campeão de Série</div></div>
             <div class="pp-hist-ico">🏆</div>
@@ -343,7 +364,9 @@ footer .logo b{font-size:17px}
 .pp-meta{color:var(--slate);font-size:13px;margin-top:4px}
 .pp-selo{display:inline-block;background:var(--bg3);border:1px solid rgba(212,175,55,.4);border-radius:20px;padding:5px 13px;font-size:12px;font-weight:700;color:var(--gold);margin-top:10px}
 .pp-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:center}
-.pp-stats{display:flex;gap:10px;margin-bottom:14px}
+.pp-areas-lbl{text-align:center;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-top:-8px}
+.pp-stats{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.pp-stats .pp-stat{flex:1 1 calc(25% - 6px)}
 .pp-stat{flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:12px;padding:14px 6px;text-align:center;min-width:0}
 .pp-stat-n{font-family:var(--fd);font-weight:800;font-size:26px;white-space:nowrap}
 .pp-stat-n.up{color:var(--up)}
@@ -360,9 +383,8 @@ footer .logo b{font-size:17px}
   .pp-tag{position:static;display:inline-block;margin-bottom:12px}
   .pp-head{padding-right:0}
 }
-@media(max-width:360px){
-  .pp-stats{flex-wrap:wrap}
-  .pp-stat{flex:1 1 45%}
+@media(max-width:680px){
+  .pp-stats .pp-stat{flex:1 1 calc(50% - 4px)}
 }
 </style>
 <script>
@@ -481,15 +503,33 @@ footer .logo b{font-size:17px}
 
 <section class="persona-stage" id="personas">
   <div class="narrow">
-    <span class="eyebrow reveal">Outras portas</span>
-    <h2 class="reveal" style="font-size:clamp(1.8rem,4.4vw,3rem)">Já és academia? <a href="clube.html" style="color:var(--gold);text-decoration:underline">Gerir a minha academia →</a><br>Se és outra coisa, entra por aqui.</h2>
-    <div class="prows">
-      <a class="prow reveal" href="acesso.html"><span class="pk">Pais</span><span class="pd">O percurso dele, guardado para sempre. E é dele.</span><span class="parr">Entrar <span class="a">→</span></span></a>
-      <a class="prow reveal" href="acesso.html"><span class="pk">Jogadores</span><span class="pd">A tua evolução, provada. Não dependes de um olhar de um dia.</span><span class="parr">A minha evolução <span class="a">→</span></span></a>
-      <a class="prow reveal" href="ytb-pro-treinador.html"><span class="pk">Treinador avulso</span><span class="pd">Não estás numa academia YTB? Vê o desenvolvimento real e prescreve na mesma.</span><span class="parr">Entrar como treinador <span class="a">→</span></span></a>
-      <a class="prow reveal" href="scouts.html"><span class="pk">Scouts</span><span class="pd">Cria o atleta, avalia e exporta o relatório. A tua observação entra no passaporte dele.</span><span class="parr">Abrir o Scout Report <span class="a">→</span></span></a>
-      <a class="prow reveal" href="scouting360.html"><span class="pk">Clubes a observar talento</span><span class="pd">Decisões com prova longitudinal, não com achismo.</span><span class="parr">Explorar talento <span class="a">→</span></span></a>
-      <a class="prow reveal" href="inscrever.html"><span class="pk">Atletas e Famílias</span><span class="pd">Cria um perfil grátis. Aparece para clubes quando fores observado.</span><span class="parr">Inscrever grátis <span class="a">→</span></span></a>
+    <span class="eyebrow reveal">Uma decisão, não uma lista</span>
+    <h2 class="reveal">O que procuras?</h2>
+    <div class="porta-grid">
+      <a class="porta reveal" href="inscrever.html">
+        <span class="porta-ico">⚽</span>
+        <span class="porta-k">Sou atleta ou pai</span>
+        <span class="porta-d">Acompanha o desenvolvimento e constrói o Passaporte. O percurso é dele, e fica com ele. <span style="color:var(--muted)">Já tens conta? Usa o Entrar, lá em cima.</span></span>
+        <span class="porta-cta">Criar passaporte grátis <span class="a">→</span></span>
+      </a>
+      <a class="porta reveal" href="clube.html">
+        <span class="porta-ico">🏟️</span>
+        <span class="porta-k">Tenho uma academia</span>
+        <span class="porta-d">Dá aos teus treinadores ferramentas profissionais e acompanhamento para cada atleta.</span>
+        <span class="porta-cta">Gerir a minha academia <span class="a">→</span></span>
+      </a>
+      <a class="porta reveal" href="ytb-pro-treinador.html">
+        <span class="porta-ico">🧠</span>
+        <span class="porta-k">Sou treinador</span>
+        <span class="porta-d">Não estás numa academia YTB? Continua a desenvolver os teus jogadores na mesma.</span>
+        <span class="porta-cta">Entrar como treinador <span class="a">→</span></span>
+      </a>
+      <a class="porta reveal" href="scouting360.html">
+        <span class="porta-ico">🔎</span>
+        <span class="porta-k">Sou scout ou clube</span>
+        <span class="porta-d">Não vejas apenas um jogo — consulta o percurso. A tua observação não desaparece: fica com o jogador.</span>
+        <span class="porta-cta">Explorar talento <span class="a">→</span></span>
+      </a>
     </div>
   </div>
 </section>
@@ -517,7 +557,7 @@ footer .logo b{font-size:17px}
       </div>
 
       <div class="pcard reveal">
-        <div class="ptag">Para treinadores avulso</div>
+        <div class="ptag">Para treinadores</div>
         <div class="pname">CoachBase</div>
         <div class="pprice"><span class="amt">9,90€</span><span class="per">/ mês</span></div>
         <div class="psub">Prancheta, sessões por IA e convocatórias — ferramenta de trabalho, fora de uma academia</div>
@@ -563,9 +603,9 @@ footer .logo b{font-size:17px}
 <section class="stage close-stage">
   <div class="narrow">
     <span class="eyebrow reveal">Começa agora</span>
-    <h2 class="reveal">Dá ao percurso dele a memória que merece.</h2>
-    <p class="sub reveal">Junta-te à primeira plataforma que regista o desenvolvimento de um atleta para a vida.</p>
-    <div class="reveal"><a class="btn btn-primary btn-lg" href="acesso.html">Entrar na plataforma <span class="arr">→</span></a></div>
+    <h2 class="reveal">Tens uma academia?</h2>
+    <p class="sub reveal">O trabalho que os teus treinadores já fazem pode ficar registado — e acompanhar cada atleta para a vida.</p>
+    <div class="reveal"><a class="btn btn-primary btn-lg" href="https://wa.me/351913695846?text=Ol%C3%A1%21%20%F0%9F%91%8B%20Represento%20uma%20escolinha%2Facademia%20e%20quero%20conhecer%20a%20YTB.%20Como%20come%C3%A7o%3F" target="_blank" rel="noopener">Quero conhecer a YTB <span class="arr">→</span></a></div>
     <p class="reveal" style="margin-top:14px;font-size:13px;color:var(--muted)">
       Prefere falar primeiro? <a href="https://wa.me/351913695846?text=Ol%C3%A1%21%20%F0%9F%91%8B%20Tenho%20uma%20d%C3%BAvida%20sobre%20o%20YourTalentBase." target="_blank" rel="noopener" style="color:var(--gold)">WhatsApp</a>
       · <a href="mailto:geral@yourtalentbase.pt" style="color:var(--gold)">geral@yourtalentbase.pt</a>
@@ -709,8 +749,6 @@ footer .logo b{font-size:17px}
       sub:'Cria o atleta, avalia-o no terreno e exporta o report — tudo converge no Passaporte Digital dele.',
       cta:'Abrir o Scout Report', href:'scouts.html'}
   };
-  var ORDEM=['clube','treinador','familia','scout'];
-  var atual='clube', timer=null, fixado=false;
   var h1=document.getElementById('ph-h1'), sub=document.getElementById('ph-sub'), cta=document.getElementById('ph-cta');
   var copy=document.querySelector('.hero-copy');
   if(!h1||!sub||!cta) return;
@@ -723,7 +761,6 @@ footer .logo b{font-size:17px}
   }
   function setPersona(k,anim){
     var p=PERSONAS[k]; if(!p) return;
-    atual=k;
     document.querySelectorAll('.pchip').forEach(function(c){c.classList.toggle('on',c.getAttribute('data-p')===k);});
     document.querySelectorAll('.hero-scene svg').forEach(function(s){
       s.classList.remove('on');
@@ -734,28 +771,14 @@ footer .logo b{font-size:17px}
       setTimeout(function(){ aplicar(p); copy.classList.remove('ph-swap'); },280);
     } else aplicar(p);
   }
+  // Os chips trocam a mensagem SÓ quando o utilizador clica. Não há rotação
+  // automática: antes o hero mudava sozinho de 6 em 6 segundos e trocava o
+  // destino do próprio CTA a meio do gesto de clicar — quem lia perdia-se e
+  // quem clicava aterrava noutro sítio. A página lidera com a academia e
+  // fica quieta; quem é outra coisa escolhe (chips ou "O que procuras?").
   document.querySelectorAll('.pchip').forEach(function(c){
-    c.addEventListener('click',function(){
-      fixado=true; if(timer){clearInterval(timer);timer=null;}
-      setPersona(c.getAttribute('data-p'),true);
-    });
+    c.addEventListener('click',function(){ setPersona(c.getAttribute('data-p'),true); });
   });
-  if(!reduce){
-    timer=setInterval(function(){
-      if(fixado) return;
-      setPersona(ORDEM[(ORDEM.indexOf(atual)+1)%ORDEM.length],true);
-    },6000);
-    // parar a rotação quando o hero sai do ecrã (não trocar às escondidas)
-    if('IntersectionObserver' in window){
-      var hero=document.getElementById('top');
-      if(hero) new IntersectionObserver(function(en){
-        if(!en[0].isIntersecting&&timer){clearInterval(timer);timer=null;}
-        else if(en[0].isIntersecting&&!timer&&!fixado){
-          timer=setInterval(function(){ if(!fixado) setPersona(ORDEM[(ORDEM.indexOf(atual)+1)%ORDEM.length],true); },6000);
-        }
-      },{threshold:.2}).observe(hero);
-    }
-  }
   // fundo vivo — decorativo, nunca dados reais (Constituição: menores)
   if(window.YTBVivo){ YTBVivo.particulas(document.getElementById('vivoCanvas')); }
 })();
