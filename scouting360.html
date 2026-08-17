@@ -173,7 +173,7 @@
       var lbl=sealLbl(a.nivel_verificacao), unv=(lbl==='Por verificar');
       var mx=tiles.map(function(t){
         var key=t[0], on=(key===sortBy), val=a[key==='evolucao'?'evolucao_pct':key];
-        var disp=(key==='evolucao')?(((val||0)>=0?'+':'')+(val||0)+'%'):(val==null?'—':val);
+        var disp=(val==null)?'—':((key==='evolucao')?((val>=0?'+':'')+val+'%'):val);
         return '<div class="mt-cell'+(on?' on':'')+'"><div class="v num">'+disp+'</div><div class="l">'+t[1]+'</div></div>';
       }).join('');
       return '<div class="card">'+
