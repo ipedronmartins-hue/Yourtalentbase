@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>YourTalentBase — A história do jovem futebolista, guardada para a vida</title>
-<meta name="description" content="Cada mudança de clube leva consigo o percurso de um jovem futebolista. O YourTalentBase é o primeiro Passaporte Digital do futebol de formação que regista o desenvolvimento para a vida — vivo, verificado, e do atleta.">
+<title>YourTalentBase — O sistema digital de acompanhamento para a tua academia</title>
+<meta name="description" content="A tua academia já desenvolve jogadores. A YTB transforma esse trabalho num sistema digital que fica com cada atleta: CoachBase para os treinadores, Passaporte Digital vitalício para cada família. Organização, acompanhamento e retenção, sem construir nada de raiz.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -150,6 +150,8 @@ svg.curve{display:block;width:100%;height:clamp(290px,48vh,470px)}
 .pcard li .mk{color:var(--up);flex:0 0 auto;font-size:12px;margin-top:2px}
 .pcta{display:block;text-align:center;background:var(--text);color:#0A0D0A;border-radius:12px;padding:14px;font-family:var(--fd);font-weight:800;font-size:15px;text-transform:uppercase;letter-spacing:.06em;text-decoration:none;transition:filter .15s}
 .pcta:hover{filter:brightness(1.06)}
+.pcard-feat{border-color:var(--gold-border);background:linear-gradient(180deg,var(--gold-soft),var(--bg2) 60%)}
+.pcard-feat .ptag{color:var(--gold)}
 .pnote{text-align:center;font-size:12.5px;color:var(--muted);margin:26px auto 0;max-width:40em}
 @media(max-width:640px){.pgrid{grid-template-columns:1fr}.pprice .amt{font-size:40px}}
 .close-stage{min-height:74vh;text-align:center;border-top:1px solid var(--border);
@@ -186,6 +188,7 @@ footer .logo b{font-size:17px}
   <div class="wide">
     <a class="logo" href="#top"><b>YTB</b><span>YourTalentBase</span></a>
     <div style="display:flex;align-items:center;gap:8px">
+      <a class="btn btn-ghost" href="#academia">Para academias</a>
       <a class="btn btn-ghost" href="sobre.html">Sobre</a>
       <a class="btn btn-ghost" href="como-funciona.html">Como funciona <span class="arr">→</span></a>
     </div>
@@ -197,22 +200,22 @@ footer .logo b{font-size:17px}
   <div class="narrow">
     <div class="hero-copy">
       <div class="persona-chips" role="tablist" aria-label="Escolhe o teu perfil">
-        <button class="pchip on" data-p="familia" role="tab">Família</button>
+        <button class="pchip on" data-p="clube" role="tab">Academia</button>
         <button class="pchip" data-p="treinador" role="tab">Treinador</button>
-        <button class="pchip" data-p="clube" role="tab">Clube</button>
+        <button class="pchip" data-p="familia" role="tab">Família</button>
         <button class="pchip" data-p="scout" role="tab">Scout</button>
       </div>
       <span class="eyebrow" style="display:block;margin-bottom:14px">⚽ Futebol de formação</span>
-      <h1 id="ph-h1">A história do teu<br>filho está a <span class="fade">desaparecer</span>.</h1>
-      <p class="sub" id="ph-sub">Cada mudança de clube, cada época que passa, leva consigo tudo o que ele construiu. Até agora.</p>
+      <h1 id="ph-h1">A tua academia já<br>desenvolve jogadores.<br><span class="fade">Isso agora fica registado.</span></h1>
+      <p class="sub" id="ph-sub">A YTB transforma o trabalho que já fazes num sistema digital de acompanhamento — o CoachBase para os teus treinadores, o Passaporte Digital para cada família. Sem construíres nada de raiz.</p>
       <div class="hero-cta">
-        <a class="btn btn-primary btn-lg" id="ph-cta" href="acesso.html">Criar passaporte <span class="arr">→</span></a>
+        <a class="btn btn-primary btn-lg" id="ph-cta" href="#academia">Ver para a minha academia <span class="arr">→</span></a>
         <a class="btn btn-ghost btn-lg" href="montra.html">Ver os percursos</a>
       </div>
     </div>
     <div class="hero-scene" id="ph-scene" aria-hidden="true">
       <!-- FAMÍLIA: pai e filho a acompanhar a evolução no telemóvel -->
-      <svg class="on" id="sc-familia" viewBox="0 0 340 260" xmlns="http://www.w3.org/2000/svg">
+      <svg id="sc-familia" viewBox="0 0 340 260" xmlns="http://www.w3.org/2000/svg">
         <rect x="150" y="24" rx="18" width="126" height="212" fill="var(--bg2)" stroke="var(--border2)"/>
         <rect x="162" y="44" rx="7" width="102" height="156" fill="var(--bg)"/>
         <rect x="170" y="56" rx="6" width="58" height="13" fill="rgba(0,212,106,.12)" stroke="rgba(0,212,106,.4)" stroke-width=".8"/>
@@ -253,8 +256,8 @@ footer .logo b{font-size:17px}
         <path d="M120 184 h100 l14 26 H106 Z" fill="var(--bg2)" stroke="var(--border2)"/>
         <polyline class="vg-draw" points="88,226 128,226 150,214 190,214" fill="none" stroke="var(--up)" stroke-width="2" stroke-linecap="round" opacity=".55"/>
       </svg>
-      <!-- CLUBE: crista, prancheta tática e gestão -->
-      <svg id="sc-clube" viewBox="0 0 340 260" xmlns="http://www.w3.org/2000/svg">
+      <!-- ACADEMIA: crista, prancheta tática e gestão -->
+      <svg class="on" id="sc-clube" viewBox="0 0 340 260" xmlns="http://www.w3.org/2000/svg">
         <path d="M170 22 L258 50 V138 Q258 202 170 238 Q82 202 82 138 V50 Z" fill="var(--bg2)" stroke="var(--border2)" stroke-width="1.6"/>
         <path d="M170 40 L240 62 V134 Q240 186 170 216 Q100 186 100 134 V62 Z" fill="var(--bg)" stroke="var(--border)"/>
         <line x1="104" y1="128" x2="236" y2="128" stroke="var(--border2)" stroke-width="1.4"/>
@@ -388,6 +391,49 @@ footer .logo b{font-size:17px}
 })();
 </script>
 
+<section class="persona-stage" id="academia">
+  <div class="narrow">
+    <span class="eyebrow reveal">Para a tua academia</span>
+    <h2 class="reveal">Um sistema, não uma<br>lista de funcionalidades.</h2>
+    <p class="sub reveal" style="margin-top:18px;max-width:640px">A tua academia já desenvolve jogadores. A YTB transforma esse trabalho num sistema digital de acompanhamento que fica com cada atleta — os teus treinadores trabalham melhor, e cada família recebe o percurso do filho.</p>
+    <div class="pilar-grid reveal" style="margin-top:clamp(30px,5vh,46px)">
+      <div class="pilar">
+        <div class="pilar-tag">01 · Para os teus treinadores</div>
+        <div class="pilar-nome">CoachBase</div>
+        <div class="pilar-desc">Prancheta tática, sessões geradas por IA, convocatórias, presenças, minutos — a ferramenta de trabalho do dia a dia. Já incluída para toda a equipa técnica.</div>
+      </div>
+      <div class="pilar">
+        <div class="pilar-tag">02 · Para cada atleta</div>
+        <div class="pilar-nome">Passaporte</div>
+        <div class="pilar-desc">Cada atleta constrói o seu percurso — épocas, avaliações verificadas, evolução. Fica com ele, mesmo que mude de clube. É o benefício que a família sente.</div>
+      </div>
+    </div>
+    <div class="sentinel-note reveal">
+      <span class="eyebrow" style="letter-spacing:2.5px">A seguir · Sentinel</span>
+      <p>A camada que vamos construir a seguir: transformar vídeo e observação em evidência, sempre com proveniência clara — nunca "o jogador é bom", sempre "foi identificado este comportamento, por quem, e quando". Ainda não existe. Não vendemos o que ainda não construímos.</p>
+    </div>
+    <div class="claims" style="margin-top:clamp(34px,5vh,52px)">
+      <span class="eyebrow reveal" style="display:block;margin-bottom:16px">Como é que a tua academia ganha com isto</span>
+      <div class="claim reveal"><span class="dash">—</span> Organização e acompanhamento reais, não folhas soltas.</div>
+      <div class="claim reveal"><span class="dash">—</span> Diferenciação: o que a academia ao lado não tem.</div>
+      <div class="claim reveal"><span class="dash">—</span> Retenção — o passaporte do filho é um motivo para não sair.</div>
+      <div class="claim reveal"><span class="dash">—</span> Valor percebido pelos pais, sem custo extra para eles.</div>
+      <div class="claim reveal"><span class="dash">—</span> Ferramenta profissional para os teus treinadores, incluída.</div>
+      <div class="claim reveal"><span class="dash">—</span> Base para criares serviços premium — acompanhamento individual, relatório de época.</div>
+    </div>
+  </div>
+</section>
+<style>
+.pilar-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.pilar{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:26px}
+.pilar-tag{font-family:var(--fd);font-weight:800;font-size:11px;letter-spacing:1.6px;text-transform:uppercase;color:var(--up);margin-bottom:10px}
+.pilar-nome{font-family:var(--fd);font-weight:900;font-size:28px;margin-bottom:10px}
+.pilar-desc{font-size:14px;color:var(--slate);line-height:1.55}
+.sentinel-note{margin-top:20px;border:1px dashed var(--border2);border-radius:14px;padding:18px 20px}
+.sentinel-note p{font-size:13px;color:var(--muted);line-height:1.55;margin-top:8px}
+@media(max-width:680px){.pilar-grid{grid-template-columns:1fr}}
+</style>
+
 <section class="stage numstage" id="numero">
   <div class="narrow">
     <span class="eyebrow reveal">O que fica, a partir de agora</span>
@@ -441,16 +487,14 @@ footer .logo b{font-size:17px}
 
 <section class="persona-stage" id="personas">
   <div class="narrow">
-    <span class="eyebrow reveal">Para quem é</span>
-    <h2 class="reveal">Todos os olhares.<br>Uma só verdade.</h2>
+    <span class="eyebrow reveal">Outras portas</span>
+    <h2 class="reveal" style="font-size:clamp(1.8rem,4.4vw,3rem)">Já és academia? <a href="clube.html" style="color:var(--gold);text-decoration:underline">Gerir a minha academia →</a><br>Se és outra coisa, entra por aqui.</h2>
     <div class="prows">
       <a class="prow reveal" href="acesso.html"><span class="pk">Pais</span><span class="pd">O percurso dele, guardado para sempre. E é dele.</span><span class="parr">Entrar <span class="a">→</span></span></a>
       <a class="prow reveal" href="acesso.html"><span class="pk">Jogadores</span><span class="pd">A tua evolução, provada. Não dependes de um olhar de um dia.</span><span class="parr">A minha evolução <span class="a">→</span></span></a>
-      <a class="prow reveal" href="ytb-pro-treinador.html"><span class="pk">Treinadores</span><span class="pd">Vê o desenvolvimento real. Prescreve. Acompanha o impacto.</span><span class="parr">Entrar como treinador <span class="a">→</span></span></a>
-      <a class="prow reveal" href="coachbase.html"><span class="pk">CoachBase</span><span class="pd">Prancheta animada, treinos por IA, convocatórias — e o Balneário, a comunidade privada dos misters.</span><span class="parr">Preparar o próximo treino <span class="a">→</span></span></a>
+      <a class="prow reveal" href="ytb-pro-treinador.html"><span class="pk">Treinador avulso</span><span class="pd">Não estás numa academia YTB? Vê o desenvolvimento real e prescreve na mesma.</span><span class="parr">Entrar como treinador <span class="a">→</span></span></a>
       <a class="prow reveal" href="scouts.html"><span class="pk">Scouts</span><span class="pd">Cria o atleta, avalia e exporta o relatório. A tua observação entra no passaporte dele.</span><span class="parr">Abrir o Scout Report <span class="a">→</span></span></a>
-      <a class="prow reveal" href="scouting360.html"><span class="pk">Clubes</span><span class="pd">Decisões com prova longitudinal, não com achismo.</span><span class="parr">Explorar talento <span class="a">→</span></span></a>
-      <a class="prow reveal" href="clube.html"><span class="pk">Academias e Escolinhas</span><span class="pd">Regista o teu plantel em bloco, com a tua marca no passaporte de cada atleta.</span><span class="parr">Gerir a minha academia <span class="a">→</span></span></a>
+      <a class="prow reveal" href="scouting360.html"><span class="pk">Clubes a observar talento</span><span class="pd">Decisões com prova longitudinal, não com achismo.</span><span class="parr">Explorar talento <span class="a">→</span></span></a>
       <a class="prow reveal" href="inscrever.html"><span class="pk">Atletas e Famílias</span><span class="pd">Cria um perfil grátis. Aparece para clubes quando fores observado.</span><span class="parr">Inscrever grátis <span class="a">→</span></span></a>
     </div>
   </div>
@@ -464,6 +508,32 @@ footer .logo b{font-size:17px}
     <h2 class="reveal">Simples. Sem letras pequenas.</h2>
     <p class="psay reveal">Pagas pelo que usas. O percurso do atleta fica registado para sempre.</p>
     <div class="pgrid">
+
+      <div class="pcard pcard-feat reveal">
+        <div class="ptag">★ Para escolinhas e academias</div>
+        <div class="pname">Academia</div>
+        <div class="pprice"><span class="amt">19,90€</span><span class="per">/ atleta / mês</span></div>
+        <div class="psub">Um preço por cada atleta do plantel — CoachBase incluído para os teus treinadores, sem custo extra</div>
+        <ul>
+          <li><span class="mk">◇</span> Inscrição do plantel em bloco</li>
+          <li><span class="mk">◇</span> A tua marca no passaporte de cada atleta</li>
+          <li><span class="mk">◇</span> CoachBase incluído para toda a equipa técnica</li>
+        </ul>
+        <a class="pcta" href="https://wa.me/351913695846?text=Ol%C3%A1%21%20%F0%9F%91%8B%20Represento%20uma%20escolinha%2Facademia%20e%20quero%20saber%20mais%20sobre%20o%20pre%C3%A7o%20por%20atleta%20%2819%2C90%E2%82%AC%2Fm%C3%AAs%2C%20CoachBase%20inclu%C3%ADdo%29.%20Como%20come%C3%A7o%3F" target="_blank" rel="noopener">Registar a minha academia</a>
+      </div>
+
+      <div class="pcard reveal">
+        <div class="ptag">Para treinadores avulso</div>
+        <div class="pname">CoachBase</div>
+        <div class="pprice"><span class="amt">9,90€</span><span class="per">/ mês</span></div>
+        <div class="psub">Prancheta, sessões por IA e convocatórias — ferramenta de trabalho, fora de uma academia</div>
+        <ul>
+          <li><span class="mk">◇</span> Prancheta animada fut7/9/11</li>
+          <li><span class="mk">◇</span> Sessões de treino geradas por IA</li>
+          <li><span class="mk">◇</span> Presenças, convocatórias e o Balneário</li>
+        </ul>
+        <a class="pcta" href="https://wa.me/351913695846?text=Ol%C3%A1%21%20%F0%9F%91%8B%20Sou%20treinador%20e%20quero%20aceder%20ao%20CoachBase%20%289%2C90%E2%82%AC%2Fm%C3%AAs%29.%20Como%20come%C3%A7o%3F" target="_blank" rel="noopener">Ativar o CoachBase</a>
+      </div>
 
       <div class="pcard reveal">
         <div class="ptag">Para famílias</div>
@@ -489,32 +559,6 @@ footer .logo b{font-size:17px}
           <li><span class="mk">◇</span> Exportas em PDF, pronto a apresentar a um clube</li>
         </ul>
         <a class="pcta" href="https://wa.me/351913695846?text=Ol%C3%A1%21%20%F0%9F%91%8B%20Quero%20o%20Scout%20Report%20no%20YourTalentBase%20%2839%2C90%E2%82%AC%20por%203%20relat%C3%B3rios%20em%20PDF%29.%20Como%20come%C3%A7o%3F" target="_blank" rel="noopener">Pedir o meu Scout Report</a>
-      </div>
-
-      <div class="pcard reveal">
-        <div class="ptag">Para treinadores</div>
-        <div class="pname">CoachBase</div>
-        <div class="pprice"><span class="amt">9,90€</span><span class="per">/ mês</span></div>
-        <div class="psub">Prancheta, sessões por IA e convocatórias — ferramenta de trabalho, avulso</div>
-        <ul>
-          <li><span class="mk">◇</span> Prancheta animada fut7/9/11</li>
-          <li><span class="mk">◇</span> Sessões de treino geradas por IA</li>
-          <li><span class="mk">◇</span> Presenças, convocatórias e o Balneário</li>
-        </ul>
-        <a class="pcta" href="https://wa.me/351913695846?text=Ol%C3%A1%21%20%F0%9F%91%8B%20Sou%20treinador%20e%20quero%20aceder%20ao%20CoachBase%20%289%2C90%E2%82%AC%2Fm%C3%AAs%29.%20Como%20come%C3%A7o%3F" target="_blank" rel="noopener">Ativar o CoachBase</a>
-      </div>
-
-      <div class="pcard reveal">
-        <div class="ptag">Para escolinhas e academias</div>
-        <div class="pname">Academia</div>
-        <div class="pprice"><span class="amt">19,90€</span><span class="per">/ atleta / mês</span></div>
-        <div class="psub">Um preço por cada atleta do plantel — CoachBase incluído para os teus treinadores, sem custo extra</div>
-        <ul>
-          <li><span class="mk">◇</span> Inscrição do plantel em bloco</li>
-          <li><span class="mk">◇</span> A tua marca no passaporte de cada atleta</li>
-          <li><span class="mk">◇</span> CoachBase incluído para toda a equipa técnica</li>
-        </ul>
-        <a class="pcta" href="https://wa.me/351913695846?text=Ol%C3%A1%21%20%F0%9F%91%8B%20Represento%20uma%20escolinha%2Facademia%20e%20quero%20saber%20mais%20sobre%20o%20pre%C3%A7o%20por%20atleta%20%2819%2C90%E2%82%AC%2Fm%C3%AAs%2C%20CoachBase%20inclu%C3%ADdo%29.%20Como%20come%C3%A7o%3F" target="_blank" rel="noopener">Registar a minha academia</a>
       </div>
 
     </div>
@@ -658,21 +702,21 @@ footer .logo b{font-size:17px}
   "use strict";
   var reduce=false; try{reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(e){}
   var PERSONAS={
-    familia:{h1:'A história do teu<br>filho está a <span class="fade">desaparecer</span>.',
-      sub:'Cada mudança de clube, cada época que passa, leva consigo tudo o que ele construiu. Até agora.',
-      cta:'Criar passaporte', href:'acesso.html'},
+    clube:{h1:'A tua academia já<br>desenvolve jogadores.<br><span class="fade">Isso agora fica registado.</span>',
+      sub:'A YTB transforma o trabalho que já fazes num sistema digital de acompanhamento — o CoachBase para os teus treinadores, o Passaporte Digital para cada família. Sem construíres nada de raiz.',
+      cta:'Ver para a minha academia', href:'#academia'},
     treinador:{h1:'Vês o talento.<br>Agora <span class="fade">fica registado</span>.',
       sub:'Avalia, prescreve e prepara cada treino e jogo com o CoachBase — o retorno da família chega semana a semana.',
       cta:'Entrar como treinador', href:'ytb-pro-treinador.html'},
-    clube:{h1:'Decisões com prova.<br>Não com <span class="fade">achismo</span>.',
-      sub:'O percurso longitudinal de cada atleta, verificado por scouts e treinadores que o viram de perto.',
-      cta:'Explorar talento', href:'scouting360.html'},
+    familia:{h1:'A história do teu<br>filho está a <span class="fade">desaparecer</span>.',
+      sub:'Cada mudança de clube, cada época que passa, leva consigo tudo o que ele construiu. Até agora.',
+      cta:'Criar passaporte', href:'acesso.html'},
     scout:{h1:'A tua observação<br>entra na <span class="fade">história</span>.',
       sub:'Cria o atleta, avalia-o no terreno e exporta o report — tudo converge no Passaporte Digital dele.',
       cta:'Abrir o Scout Report', href:'scouts.html'}
   };
-  var ORDEM=['familia','treinador','clube','scout'];
-  var atual='familia', timer=null, fixado=false;
+  var ORDEM=['clube','treinador','familia','scout'];
+  var atual='clube', timer=null, fixado=false;
   var h1=document.getElementById('ph-h1'), sub=document.getElementById('ph-sub'), cta=document.getElementById('ph-cta');
   var copy=document.querySelector('.hero-copy');
   if(!h1||!sub||!cta) return;
