@@ -139,6 +139,13 @@ body{max-width:520px;margin:0 auto;padding-bottom:60px}
 
   <a href="scouting360.html" style="display:block;text-align:center;background:var(--bg2);border:1px solid var(--gold-border);color:var(--gold);border-radius:9px;padding:9px;font-size:12px;font-weight:700;text-decoration:none;margin-bottom:14px">🔎 Descobrir talento noutros clubes → Scouting360</a>
 
+  <div class="section-title">Os meus <span style="color:var(--gold)">treinadores</span></div>
+  <div class="section-sub">Convida um treinador por email. Ele só passa a fazer parte da tua academia depois de aceitar — a academia nunca reivindica um treinador diretamente.</div>
+  <div style="display:flex;gap:8px;margin-bottom:16px">
+    <input class="input" id="convite-email" type="email" placeholder="email@do-treinador.com" style="flex:1">
+    <button class="btn btn-primary" style="width:auto;white-space:nowrap" onclick="convidarTreinador()">Convidar</button>
+  </div>
+
   <div class="section-title">Os meus <span style="color:var(--gold)">atletas</span></div>
   <div class="section-sub">Atletas da tua organização. O Passaporte Digital nasce automaticamente quando inscreves um novo.</div>
   <div style="display:flex;gap:8px;margin-bottom:12px">
@@ -294,6 +301,21 @@ async function mostrarMain(){
   await carregarMinhaConta();
   carregarMeusAtletas();
   carregarCapacidade();
+}
+
+async function convidarTreinador(){
+  const email = document.getElementById('convite-email').value.trim();
+  if(!email || email.indexOf('@') === -1){ toast('Email inválido', 'red'); return; }
+  try{
+    const{data,error}=await supa.rpc('ytb_clube_convidar_treinador',{p_email:email});
+    if(error || !data || !data.ok){
+      const motivos={'convite_ja_pendente':'Já há um convite pendente para este email.','email_invalido':'Email inválido.','sem_conta_associada':'A tua conta ainda não está associada a nenhuma organização.'};
+      toast(motivos[(data&&data.motivo)] || 'Não foi possível enviar o convite', 'red');
+      return;
+    }
+    toast('Convite enviado ✓ — o treinador vê o pedido quando entrar na conta dele', 'green');
+    document.getElementById('convite-email').value='';
+  }catch(e){ toast('Erro ao enviar convite', 'red'); }
 }
 
 async function carregarCapacidade(){

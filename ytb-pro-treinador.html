@@ -159,6 +159,8 @@ body{padding-bottom:40px}
     </div>
   </div>
 
+  <div id="convites-box" style="display:none"></div>
+
   <div class="tabs">
     <button class="tab active" onclick="setTab('atletas')">👥 Atletas</button>
     <button class="tab" onclick="setTab('avaliar')">📋 Avaliar</button>
@@ -405,6 +407,7 @@ let meusAtletas=[], atletaSel=null, avalSel=null;
 let toastTimer=null;
 
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function toast(msg){var t=document.getElementById('toast');if(!t)return;t.textContent=msg;t.classList.add('show');clearTimeout(t.__tm);t.__tm=setTimeout(function(){t.classList.remove('show');},2600);}
 function showToast(msg,dur){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),dur||2500);}
 function idade(ano){return ano?(2026-ano):null;}
 // idade do atleta para o motor de treino: prefere a data de nascimento;
@@ -472,8 +475,36 @@ function mostrarMain(){
   document.getElementById('tb-nome').textContent=treinadorNome;
   carregarAtletas();
   carregarComissoes();
+  verificarConvitesPendentes();
   // iluminação: o tab Retorno brilha quando há atividade recente das famílias
   if(USING_SB)supa.rpc('ytb_treinador_digest').then(r=>{if(r.data){digestCache=r.data;pintarGlowRetorno();}}).catch(()=>{});
+}
+
+async function verificarConvitesPendentes(){
+  try{
+    const{data,error}=await supa.rpc('ytb_treinador_convites_pendentes');
+    if(error || !data || !data.length) return;
+    const box=document.getElementById('convites-box');
+    box.style.display='block';
+    box.innerHTML=data.map(c=>
+      '<div style="background:rgba(212,175,55,.1);border:1px solid var(--gold-border);border-radius:11px;padding:14px 16px;margin:0 16px 12px">'
+      +'<div style="font-weight:700;margin-bottom:4px">🏟️ Convite de '+esc(c.academia_nome)+'</div>'
+      +'<div style="font-size:12px;color:var(--muted);margin-bottom:10px">Esta academia convidou-te para fazeres parte dela. Só entra em vigor se aceitares.</div>'
+      +'<div style="display:flex;gap:8px">'
+      +'<button class="btn btn-primary" style="flex:1" onclick="responderConvite(\''+c.id+'\',true)">Aceitar</button>'
+      +'<button class="btn btn-secondary" style="flex:1" onclick="responderConvite(\''+c.id+'\',false)">Recusar</button>'
+      +'</div></div>'
+    ).join('');
+  }catch(e){ /* silencioso — convite é informação de apoio, não deve bloquear o resto da página */ }
+}
+
+async function responderConvite(id, aceitar){
+  try{
+    const{data,error}=await supa.rpc('ytb_treinador_responder_convite',{p_id:id,p_aceitar:aceitar});
+    if(error || !data || !data.ok){ toast('Não foi possível responder ao convite'); return; }
+    toast(aceitar ? 'Convite aceite ✓' : 'Convite recusado');
+    verificarConvitesPendentes();
+  }catch(e){ toast('Erro ao responder ao convite'); }
 }
 
 function pintarGlowRetorno(){

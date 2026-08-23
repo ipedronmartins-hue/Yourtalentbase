@@ -1,0 +1,9 @@
+-- 096: fluxo de convite-aceitacao academia->treinador -- o que a 093
+-- ja tinha deixado marcado como "fica para a migracao seguinte".
+-- Academia so convida, treinador so pode responder a convites
+-- dirigidos ao PROPRIO email, verificado a cada chamada.
+-- Testado com cuidado redobrado (superficie de seguranca nova):
+-- duplicado bloqueado, visibilidade isolada por email, tentativa de
+-- ataque (aceitar convite de outra pessoa) bloqueada e confirmada,
+-- aceitacao legitima confirma academia_id correto.
+-- Corpo integral no historico Supabase (096).
