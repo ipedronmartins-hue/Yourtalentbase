@@ -1,0 +1,7 @@
+-- 094: capacidade de atletas por academia. NULL = sem limite definido,
+-- nenhuma academia existente fica bloqueada por omissao. Reutiliza a
+-- mesma definicao de posse que ytb_clube_meus_atletas ja usa desde a 093.
+-- Testado em dry-run: GFA com 10 atletas reais, limite=10 bloqueia,
+-- limite=15 passa, lote de 3 com 2 vagas cria 2 e bloqueia o 3o dentro
+-- do mesmo lote.
+-- Corpo integral no historico Supabase (094_capacidade_atletas_academia).

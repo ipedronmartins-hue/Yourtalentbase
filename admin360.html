@@ -1355,19 +1355,29 @@ function renderClubes(){
     tbody.innerHTML = '<tr><td colspan="6" class="empty"><div class="empty-icon">🏢</div>Sem clubes subscritores</td></tr>';
     return;
   }
-  tbody.innerHTML = f.map(c => `
+  tbody.innerHTML = f.map(c => {
+    // mesma definição de posse que ytb_clube_capacidade usa no backend —
+    // academia_id OU (fonte='clube' + fonte_email) — para a contagem no
+    // admin nunca divergir da que a própria academia vê
+    const usados = allAtletas.filter(a => a.estado !== 'arquivado' &&
+      (a.academia_id === c.id || (a.fonte === 'clube' && (a.fonte_email||'').toLowerCase() === (c.responsavel_email||'').toLowerCase()))
+    ).length;
+    return `
     <tr>
       <td class="td-name"><strong>${escapeHtml(c.clube_nome)}</strong></td>
       <td>${escapeHtml(c.responsavel_nome)}<div class="td-mute">${escapeHtml(c.responsavel_email)}</div></td>
       <td><span class="pill pill-admin">${c.plano || 'sem plano'}</span><div class="td-mute">${c.valor_mensal ? c.valor_mensal + '€/mês' : '—'}</div></td>
       <td><span class="pill pill-${c.estado_subscricao === 'ativa' ? 'aprovado' : c.estado_subscricao === 'cancelada' ? 'rejeitado' : 'pendente'}">${c.estado_subscricao}</span></td>
+      <td class="td-mute">${c.limite_atletas ? usados+' / '+c.limite_atletas : usados+' · sem limite'}</td>
       <td class="td-mute">${fmtDate(c.subscrito_em)}<br>${c.subscricao_ate ? '→ ' + fmtDate(c.subscricao_ate) : ''}</td>
       <td style="white-space:nowrap">
         <button class="action-btn" onclick="editarClube('${c.id}')">✏️</button>
+        <button class="action-btn" title="Limite de atletas" onclick="abrirLimiteClube('${escapeHtml(c.responsavel_email)}','${c.limite_atletas||''}')">🎚️</button>
         <button class="action-btn danger" onclick="apagarClube('${c.id}','${escapeHtml(c.clube_nome)}')">🗑</button>
       </td>
     </tr>
-  `).join('');
+  `;
+  }).join('');
 }
 
 // ════════════════ WHATSAPP TEMPLATES ════════════════
@@ -1863,6 +1873,22 @@ async function apagarClube(id, nome){
   if(!confirm(`Apagar clube "${nome}"?`)) return;
   await supa.rpc('ytb_admin_clube_remover', { p_id:id });
   toast('Clube apagado', 'green');
+  load();
+}
+
+async function abrirLimiteClube(email, limiteAtual){
+  const atual = limiteAtual ? `atualmente ${limiteAtual}` : 'sem limite definido';
+  const resp = prompt(`Limite de atletas ativos para ${email} (${atual}).\nDeixa em branco para remover o limite.`, limiteAtual||'');
+  if(resp === null) return; // cancelou
+  const novoLimite = resp.trim() === '' ? null : parseInt(resp, 10);
+  if(resp.trim() !== '' && (isNaN(novoLimite) || novoLimite <= 0)){
+    toast('Limite tem de ser um número maior que zero', 'red'); return;
+  }
+  const { data, error } = await supa.rpc('ytb_admin_academia_limite', { p_academia_email: email, p_novo_limite: novoLimite });
+  if(error || !data || !data.ok){
+    toast('Erro: ' + (data && data.motivo || error?.message || 'desconhecido'), 'red'); return;
+  }
+  toast(novoLimite ? `Limite definido: ${novoLimite} atletas` : 'Limite removido', 'green');
   load();
 }
 

@@ -108,6 +108,17 @@ body{max-width:520px;margin:0 auto;padding-bottom:60px}
     <button class="lote-rm" style="color:var(--gold);width:34px;height:34px;flex:none" title="Marca da organização" onclick="abrirMarca()">🎨</button>
   </div>
 
+  <div id="capacidade-box" style="display:none;background:var(--bg2);border:1px solid var(--border);border-radius:11px;padding:14px;margin:0 0 16px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
+      <span style="font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--muted)">Atletas</span>
+      <span style="font-size:13px;font-weight:700;color:#fff" id="cap-numeros">—</span>
+    </div>
+    <div style="background:var(--bg3);border-radius:6px;height:8px;overflow:hidden">
+      <div id="cap-barra" style="height:100%;background:var(--gold);width:0%;transition:width .3s"></div>
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-top:6px" id="cap-legenda"></div>
+  </div>
+
   <!-- MODAL MARCA PRÓPRIA -->
   <div class="na-modal" id="marcaModal">
     <div class="na-box">
@@ -282,6 +293,26 @@ async function mostrarMain(){
   document.getElementById('nav-back').style.display='none';
   await carregarMinhaConta();
   carregarMeusAtletas();
+  carregarCapacidade();
+}
+
+async function carregarCapacidade(){
+  try{
+    const{data,error}=await supa.rpc('ytb_clube_capacidade');
+    if(error||!data||!data.ok) return; // sem conta associada ou sem permissão — não mostra nada, não é erro do utilizador
+    const box=document.getElementById('capacidade-box');
+    if(data.limite==null){ box.style.display='none'; return; } // sem limite definido ainda: não mostrar nada em vez de "X/∞" confuso
+    box.style.display='block';
+    document.getElementById('cap-numeros').textContent=data.usados+' / '+data.limite;
+    const pct=Math.min(100, Math.round((data.usados/data.limite)*100));
+    const barra=document.getElementById('cap-barra');
+    barra.style.width=pct+'%';
+    barra.style.background = data.atingido ? 'var(--red)' : (pct>=80 ? '#E0A458' : 'var(--gold)');
+    const legenda=document.getElementById('cap-legenda');
+    legenda.textContent = data.atingido
+      ? 'Capacidade atingida — fala com a equipa YTB para adicionares mais atletas.'
+      : data.disponivel+' vaga'+(data.disponivel===1?'':'s')+' disponíve'+(data.disponivel===1?'l':'is');
+  }catch(e){ /* silencioso — a capacidade é informação de apoio, não deve bloquear o resto da página */ }
 }
 
 async function carregarMinhaConta(){
