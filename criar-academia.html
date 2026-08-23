@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Criar a minha academia · YourTalentBase</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/ytb-vivo.css">
+<script src="/assets/js/ytb-vivo.js"></script>
+<script src="/assets/js/ytb-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --bg:#080C08;--bg2:#0F1410;--bg3:#161D17;--bg4:#1A241A;--border:#1F2520;--border2:#2A322B;
+    --text:#ECEFEA;--slate:#9AA39A;--muted:#6B756C;--gold:#D4AF37;--up:#00D46A;--down:#ff5050;
+    --fd:'Barlow Condensed',sans-serif;--fb:'Plus Jakarta Sans',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:var(--fb);-webkit-font-smoothing:antialiased;line-height:1.5;min-height:100vh;padding:24px 16px 60px}
+  .wrap{max-width:520px;margin:0 auto}
+  .brand{display:flex;align-items:center;gap:9px;margin-bottom:26px}
+  .brand b{font-family:var(--fd);font-weight:900;font-size:20px;letter-spacing:.5px;color:var(--gold)}
+  .brand span{font-family:var(--fd);font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--slate)}
+  h1{font-family:var(--fd);font-weight:900;font-size:34px;line-height:1.02;letter-spacing:-.01em}
+  h1 em{font-style:normal;color:var(--gold)}
+  .sub{color:var(--slate);font-size:14px;margin-top:8px}
+  .info{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin:18px 0 22px;font-size:13px;color:var(--slate);line-height:1.55}
+  .info b{color:var(--text)}
+  .field{margin-bottom:14px}
+  .label{display:block;font-family:var(--fd);font-weight:700;font-size:13px;letter-spacing:.5px;text-transform:uppercase;color:var(--slate);margin-bottom:6px}
+  .req{color:var(--gold)}
+  .input{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:11px;padding:13px 14px;color:var(--text);font-family:var(--fb);font-size:15px;transition:.14s}
+  .input:focus{outline:none;border-color:var(--slate)}
+  .hint{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.4}
+  .row{display:flex;gap:10px}
+  .row .field{flex:1}
+  .btn{width:100%;background:var(--gold);color:#0A0F0A;border:none;border-radius:11px;padding:15px;font-family:var(--fd);font-weight:800;font-size:16px;letter-spacing:.3px;cursor:pointer;margin-top:6px}
+  .btn:disabled{opacity:.6}
+  .err{color:var(--down);font-size:13px;margin-top:10px;display:none}
+  .success{display:none;text-align:center;padding:40px 10px}
+  .success .ico{font-size:48px;margin-bottom:16px}
+  .success h2{font-family:var(--fd);font-weight:900;font-size:26px;margin-bottom:10px}
+  .success p{color:var(--slate);font-size:14px;line-height:1.6;max-width:380px;margin:0 auto}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand"><b>YTB</b><span>Academia</span></div>
+
+  <div id="form-view">
+    <h1>Transforma o trabalho da tua <em>academia</em>.</h1>
+    <p class="sub">Organiza equipas, treinadores e atletas, e dá às famílias uma forma simples de acompanhar o percurso de cada jogador.</p>
+
+    <div class="info">Depois de enviares o pedido, a equipa YTB confirma os dados e ativa a tua academia — normalmente em pouco tempo. Não é preciso cartão de crédito para pedir.</div>
+
+    <div class="field">
+      <label class="label">Nome da academia <span class="req">*</span></label>
+      <input class="input" id="f-nome" type="text" placeholder="Ex: Academia de Futebol XYZ">
+    </div>
+    <div class="field">
+      <label class="label">O teu nome <span class="req">*</span></label>
+      <input class="input" id="f-resp" type="text" placeholder="Quem vai gerir a conta">
+    </div>
+    <div class="field">
+      <label class="label">Email <span class="req">*</span></label>
+      <input class="input" id="f-email" type="email" placeholder="o-teu@email.com">
+      <div class="hint">É para este email que vamos avisar quando a academia estiver pronta.</div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label class="label">Telefone</label>
+        <input class="input" id="f-tel" type="tel" placeholder="912 345 678">
+      </div>
+      <div class="field">
+        <label class="label">Cidade</label>
+        <input class="input" id="f-cidade" type="text" placeholder="Ex: Gondomar">
+      </div>
+    </div>
+
+    <button class="btn" id="btn" onclick="submeter()">Pedir a criação da academia →</button>
+    <div class="err" id="err"></div>
+  </div>
+
+  <div class="success" id="success-view">
+    <div class="ico">✅</div>
+    <h2>Pedido recebido!</h2>
+    <p>Recebemos o pedido da tua academia. Vamos confirmar os dados e avisar-te por email assim que estiver pronta.</p>
+  </div>
+</div>
+
+<script>
+  var CFG = window.YTB_CONFIG || {};
+  var URL_ = CFG.SUPABASE_URL || '', KEY = CFG.SUPABASE_KEY || '';
+  var supa = window.supabase.createClient(URL_, KEY);
+
+  function val(id){ return document.getElementById(id).value.trim(); }
+  function mostrarErro(msg){
+    var e = document.getElementById('err');
+    e.textContent = msg; e.style.display = 'block';
+  }
+
+  async function submeter(){
+    var nome = val('f-nome'), resp = val('f-resp'), email = val('f-email');
+    var tel = val('f-tel'), cidade = val('f-cidade');
+    document.getElementById('err').style.display = 'none';
+
+    if(!nome){ mostrarErro('Falta o nome da academia.'); return; }
+    if(!resp){ mostrarErro('Falta o teu nome.'); return; }
+    if(!email || email.indexOf('@') === -1){ mostrarErro('O email não parece válido.'); return; }
+
+    var btn = document.getElementById('btn');
+    btn.disabled = true; btn.textContent = 'A enviar...';
+
+    try{
+      var r = await supa.rpc('ytb_academia_registar_publico', {
+        p_nome: nome, p_resp: resp, p_email: email,
+        p_tel: tel || null, p_cidade: cidade || null
+      });
+      if(r.error){ mostrarErro('Não foi possível enviar. Tenta de novo daqui a pouco.'); btn.disabled=false; btn.textContent='Pedir a criação da academia →'; return; }
+      var data = r.data;
+      if(!data || !data.ok){
+        var motivos = {
+          'ja_existe_pedido': 'Já existe um pedido com este email. A equipa YTB vai entrar em contacto.',
+          'email_invalido': 'O email não parece válido.',
+          'nome_obrigatorio': 'Falta o nome da academia.',
+          'responsavel_obrigatorio': 'Falta o teu nome.'
+        };
+        mostrarErro(motivos[(data && data.motivo)] || 'Não foi possível enviar o pedido.');
+        btn.disabled = false; btn.textContent = 'Pedir a criação da academia →';
+        return;
+      }
+      document.getElementById('form-view').style.display = 'none';
+      document.getElementById('success-view').style.display = 'block';
+    }catch(e){
+      mostrarErro('Não foi possível enviar. Tenta de novo daqui a pouco.');
+      btn.disabled = false; btn.textContent = 'Pedir a criação da academia →';
+    }
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+-- 095: estado da academia (aprovacao) separado de estado_subscricao
+-- (pagamento). Nova RPC publica ytb_academia_registar_publico -- so
+-- cria o PEDIDO (estado='pendente'), nunca login/conta Auth. Academias
+-- ja existentes ficam 'ativa' por omissao, GFA nao afetada.
+-- Testado em dry-run antes de aplicar: GFA inalterada; registo publico
+-- valido cria pendente com pagamento null (nao inventado); duplicados
+-- pelo mesmo email bloqueados; email invalido rejeitado.
+-- Corpo integral no historico Supabase (095).

@@ -456,12 +456,13 @@ tr:last-child td{border-bottom:none}
             <th>Clube</th>
             <th>Responsável</th>
             <th>Plano</th>
-            <th>Estado</th>
-            <th>Subscrição</th>
+            <th>Estado (aprovação)</th>
+            <th>Subscrição (pagamento)</th>
+            <th>Capacidade</th>
             <th>Acções</th>
           </tr>
         </thead>
-        <tbody id="tbody-clubes"><tr><td colspan="6" class="loading"><div class="spinner"></div></td></tr></tbody>
+        <tbody id="tbody-clubes"><tr><td colspan="7" class="loading"><div class="spinner"></div></td></tr></tbody>
       </table>
     </div>
   </div>
@@ -1352,7 +1353,7 @@ function renderClubes(){
   }
   const tbody = document.getElementById('tbody-clubes');
   if(!f.length){
-    tbody.innerHTML = '<tr><td colspan="6" class="empty"><div class="empty-icon">🏢</div>Sem clubes subscritores</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-icon">🏢</div>Sem clubes subscritores</td></tr>';
     return;
   }
   tbody.innerHTML = f.map(c => {
@@ -1362,14 +1363,20 @@ function renderClubes(){
     const usados = allAtletas.filter(a => a.estado !== 'arquivado' &&
       (a.academia_id === c.id || (a.fonte === 'clube' && (a.fonte_email||'').toLowerCase() === (c.responsavel_email||'').toLowerCase()))
     ).length;
+    const est = c.estado || 'ativa'; // academias antigas sem o campo ainda preenchido
+    const pillEstado = est==='pendente' ? 'pendente' : (est==='rejeitada'||est==='suspensa' ? 'rejeitado' : 'aprovado');
+    const acoesEstado = est==='pendente'
+      ? `<button class="action-btn" title="Aprovar" onclick="mudarEstadoAcademia('${c.id}','aprovada')">✅</button>
+         <button class="action-btn danger" title="Rejeitar" onclick="mudarEstadoAcademia('${c.id}','rejeitada')">❌</button>`
+      : '';
     return `
-    <tr>
+    <tr${est==='pendente' ? ' style="background:rgba(212,175,55,.06)"' : ''}>
       <td class="td-name"><strong>${escapeHtml(c.clube_nome)}</strong></td>
       <td>${escapeHtml(c.responsavel_nome)}<div class="td-mute">${escapeHtml(c.responsavel_email)}</div></td>
       <td><span class="pill pill-admin">${c.plano || 'sem plano'}</span><div class="td-mute">${c.valor_mensal ? c.valor_mensal + '€/mês' : '—'}</div></td>
-      <td><span class="pill pill-${c.estado_subscricao === 'ativa' ? 'aprovado' : c.estado_subscricao === 'cancelada' ? 'rejeitado' : 'pendente'}">${c.estado_subscricao}</span></td>
+      <td><span class="pill pill-${pillEstado}">${est}</span>${acoesEstado}</td>
+      <td class="td-mute">${c.estado_subscricao || '—'}</td>
       <td class="td-mute">${c.limite_atletas ? usados+' / '+c.limite_atletas : usados+' · sem limite'}</td>
-      <td class="td-mute">${fmtDate(c.subscrito_em)}<br>${c.subscricao_ate ? '→ ' + fmtDate(c.subscricao_ate) : ''}</td>
       <td style="white-space:nowrap">
         <button class="action-btn" onclick="editarClube('${c.id}')">✏️</button>
         <button class="action-btn" title="Limite de atletas" onclick="abrirLimiteClube('${escapeHtml(c.responsavel_email)}','${c.limite_atletas||''}')">🎚️</button>
@@ -1378,6 +1385,17 @@ function renderClubes(){
     </tr>
   `;
   }).join('');
+}
+
+async function mudarEstadoAcademia(id, novoEstado){
+  const acao = novoEstado==='aprovada' ? 'aprovar' : 'rejeitar';
+  if(!confirm(`Confirmas que queres ${acao} este pedido de academia?`)) return;
+  const { data, error } = await supa.rpc('ytb_admin_academia_estado', { p_id:id, p_novo_estado:novoEstado });
+  if(error || !data || !data.ok){
+    toast('Erro: ' + (data && data.motivo || error?.message || 'desconhecido'), 'red'); return;
+  }
+  toast(novoEstado==='aprovada' ? 'Academia aprovada ✅' : 'Pedido rejeitado', 'green');
+  load();
 }
 
 // ════════════════ WHATSAPP TEMPLATES ════════════════
