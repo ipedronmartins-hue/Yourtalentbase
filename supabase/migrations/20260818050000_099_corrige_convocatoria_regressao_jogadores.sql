@@ -1,0 +1,8 @@
+-- 099: corrige regressao real introduzida pela 098 -- a Convocatoria
+-- usava a mesma ytb_coach_stats que ja mudara de forma, e o backend
+-- nunca verificava se o id do JSON correspondia a um atleta real
+-- antes de escrever no passaporte. Mesmo padrao ja validado em
+-- presencas: so escreve quando ha ligacao explicita.
+-- Testado nos dois sentidos: sem ligacao -> 0 eventos/jogos; com
+-- ligacao (Vasco real) -> 1 evento, 1 jogo, corretamente.
+-- Corpo integral no historico Supabase (099).

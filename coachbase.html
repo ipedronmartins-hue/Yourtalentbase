@@ -914,13 +914,13 @@ var POSICOES={
   fut9:[[1,'GR',150,390,'Guarda-redes'],[2,'LD',70,320,'Lateral direito: sobe e fecha'],[3,'DC',150,330,'Central: manda na linha'],[4,'LE',230,320,'Lateral esquerdo'],[5,'MDC',150,265,'Médio defensivo: equilíbrio'],[6,'MC',90,205,'Médio: ligação'],[8,'MC',210,205,'Médio: chegada à área'],[7,'EX',70,120,'Extremo: profundidade'],[9,'PL',180,100,'Ponta de lança: referência']],
   fut11:[[1,'GR',150,395,'Guarda-redes: jogo aéreo e com os pés'],[2,'LD',60,330,'Lateral direito: corredor todo'],[3,'DC',115,345,'Central direito: duelos e saída'],[4,'DC',185,345,'Central esquerdo: antecipação'],[5,'LE',240,330,'Lateral esquerdo'],[6,'MDC',150,280,'Médio defensivo: escudo e 1ª fase'],[8,'MC',95,220,'Médio centro: box-to-box'],[10,'MO',185,215,'Médio ofensivo: última linha de passe'],[7,'ED',55,140,'Extremo direito: 1x1 e cruzamento'],[11,'EE',245,140,'Extremo esquerdo: dentro para rematar'],[9,'PL',150,95,'Ponta de lança: finalizador']]
 };
-var conv={},posSel=null,cvStats=[],cvAvulsos=[],cvBanco={}; // avulso: jogador so por nome, sem atleta_id (fora da YTB) — id sintetico 'av0','av1'...
-// cvBanco: atleta_id -> true, só quem o treinador tocou explicitamente para o banco (suplente). Ninguém entra por defeito.
+var conv={},posSel=null,cvStats=[],cvAvulsos=[],cvBanco={}; // avulso: jogador só por nome, nem sequer está na lista de jogadores do plantel — id sintético 'av0','av1'...
+// cvBanco: jogador_id -> true, só quem o treinador tocou explicitamente para o banco (suplente). Ninguém entra por defeito.
 function adicionarAvulso(){
   var el=document.getElementById('cv-avulso-nome');
   var nome=(el.value||'').trim();
   if(!nome){toast('Escreve o nome do jogador');return;}
-  cvAvulsos.push({atleta_id:'av'+cvAvulsos.length+'-'+Date.now(),nome:nome,avulso:true});
+  cvAvulsos.push({jogador_id:'av'+cvAvulsos.length+'-'+Date.now(),nome:nome,avulso:true});
   el.value='';
   pintarCvLista();
 }
@@ -961,26 +961,26 @@ function pintarCvLista(){
   var box=document.getElementById('cv-lista');
   var todos=cvStats.concat(cvAvulsos);
   if(!todos.length){box.innerHTML='<div class="s">Sem plantel ainda.</div>';return;}
-  var usados={};Object.keys(conv).forEach(function(k){usados[conv[k].atleta_id]=parseInt(k);});
+  var usados={};Object.keys(conv).forEach(function(k){usados[conv[k].jogador_id]=parseInt(k);});
   box.innerHTML=todos.map(function(a){
-    var num=usados[a.atleta_id];
-    var noBanco=!num&&cvBanco[a.atleta_id];
+    var num=usados[a.jogador_id];
+    var noBanco=!num&&cvBanco[a.jogador_id];
     var estado=num?'titular':(noBanco?'banco':'—');
     var cor=num?'var(--gold)':(noBanco?'var(--accent,#4a9eff)':'var(--muted)');
     var avulsoTag=a.avulso?' <span style="font-size:10px;color:var(--slate);font-weight:700;text-transform:uppercase">· avulso</span>':'';
-    return '<div class="linha" style="cursor:pointer" data-a="'+a.atleta_id+'"><div><div class="nm">'+(num?('<span style="color:var(--gold)">#'+num+'</span> '):'')+esc(a.nome)+avulsoTag+'</div>'
-      +'<div class="mt">'+(a.avulso?'Sem conta na YTB — não fica no percurso dele':(esc(a.posicao||'')+' · '+(a.presencas_30d||0)+' presenças/30d'+(a.faltas_30d?(' · '+a.faltas_30d+' faltas'):'')))+'</div></div>'
+    return '<div class="linha" style="cursor:pointer" data-a="'+a.jogador_id+'"><div><div class="nm">'+(num?('<span style="color:var(--gold)">#'+num+'</span> '):'')+esc(a.nome)+avulsoTag+'</div>'
+      +'<div class="mt">'+(a.avulso?'Só nesta convocatória — não fica registado':(esc(a.posicao||'')+' · '+(a.presencas_30d||0)+' presenças/30d'+(a.faltas_30d?(' · '+a.faltas_30d+' faltas'):'')+(a.ligado_a_atleta?' · 🪪 Passaporte':'')))+'</div></div>'
       +'<div style="font-size:12px;color:'+cor+'">'+estado+'</div></div>';
   }).join('');
   box.querySelectorAll('.linha').forEach(function(l){l.addEventListener('click',function(){
-    var id=l.getAttribute('data-a'),a=todos.find(function(x){return x.atleta_id===id;});
+    var id=l.getAttribute('data-a'),a=todos.find(function(x){return x.jogador_id===id;});
     if(posSel!=null){
-      Object.keys(conv).forEach(function(k){if(conv[k].atleta_id===id)delete conv[k];});
-      conv[posSel]={atleta_id:id,nome:a.nome};posSel=null;
+      Object.keys(conv).forEach(function(k){if(conv[k].jogador_id===id)delete conv[k];});
+      conv[posSel]={jogador_id:id,nome:a.nome};posSel=null;
       delete cvBanco[id];
     } else {
-      var jaTitular=Object.keys(conv).some(function(k){return conv[k].atleta_id===id;});
-      if(jaTitular){Object.keys(conv).forEach(function(k){if(conv[k].atleta_id===id)delete conv[k];});}
+      var jaTitular=Object.keys(conv).some(function(k){return conv[k].jogador_id===id;});
+      if(jaTitular){Object.keys(conv).forEach(function(k){if(conv[k].jogador_id===id)delete conv[k];});}
       else if(cvBanco[id]){delete cvBanco[id];}
       else{cvBanco[id]=true;}
     }
@@ -996,19 +996,19 @@ function sugerirBanco(){
 }
 function guardarConv(){
   // ids sinteticos 'avN-...' sao so para seguir seleção no ecrã — no jsonb gravado
-  // viram atleta_id:null (RPC ja salta a emissão de evento do livro-razão quando
-  // atleta_id é nulo, sem rejeitar o pedido); o nome fica, é a única identidade que têm.
+  // viram jogador_id:null (RPC ja salta a emissão de evento do livro-razão quando
+  // jogador_id é nulo, sem rejeitar o pedido); o nome fica, é a única identidade que têm.
   function idReal(id){ return /^av\d+-/.test(id) ? null : id; }
   var todos=cvStats.concat(cvAvulsos);
-  var lista=Object.keys(conv).map(function(k){return {atleta_id:idReal(conv[k].atleta_id),nome:conv[k].nome,numero:parseInt(k),papel:'titular'};});
+  var lista=Object.keys(conv).map(function(k){return {jogador_id:idReal(conv[k].jogador_id),nome:conv[k].nome,numero:parseInt(k),papel:'titular'};});
   Object.keys(cvBanco).forEach(function(id){
-    var a=todos.find(function(x){return x.atleta_id===id;});
-    if(a)lista.push({atleta_id:idReal(id),nome:a.nome,numero:null,papel:'suplente'});
+    var a=todos.find(function(x){return x.jogador_id===id;});
+    if(a)lista.push({jogador_id:idReal(id),nome:a.nome,numero:null,papel:'suplente'});
   });
-  if(!lista.length){toast('Toca nos atletas a convocar — ninguém entra por defeito');return;}
+  if(!lista.length){toast('Toca nos jogadores a convocar — ninguém entra por defeito');return;}
   var b=document.getElementById('btn-conv');b.disabled=true;b.innerHTML='<span class="spinner"></span> A guardar…';
   supa.rpc('ytb_coach_convocatoria_criar',{p_data:document.getElementById('cv-data').value||null,p_adversario:document.getElementById('cv-adv').value||null,p_formato:SEL.formato,p_lista:lista,p_banco:document.getElementById('cv-banco').value||null,p_jornada:document.getElementById('cv-jornada').value||null,p_tipo:document.getElementById('cv-tipo').value||'oficial'})
-    .then(function(r){var d=r.data;if(r.error||!d||!d.ok)throw new Error((d&&d.motivo)||'erro');toast('✓ Convocatória guardada — "Convocado" no passaporte de cada um');})
+    .then(function(r){var d=r.data;if(r.error||!d||!d.ok)throw new Error((d&&d.motivo)||'erro');toast('✓ Convocatória guardada');})
     .catch(function(e){toast('⚠ '+e.message);})
     .then(function(){b.disabled=false;b.textContent='Guardar convocatória →';});
 }
