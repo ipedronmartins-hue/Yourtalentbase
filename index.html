@@ -149,6 +149,13 @@ svg.curve{display:block;width:100%;height:clamp(290px,48vh,470px)}
   display:inline-flex;align-items:center;gap:8px}
 .porta-cta .a{transition:transform .2s}.porta:hover .porta-cta .a{transform:translateX(4px)}
 @media(max-width:680px){.porta-grid{grid-template-columns:1fr}}
+.porta-mini-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.porta-mini{flex:1;min-width:200px;display:flex;align-items:center;gap:9px;background:var(--bg2);border:1px solid var(--border);
+  border-radius:11px;padding:12px 14px;font-size:13px;color:var(--slate);text-decoration:none;transition:border-color .2s,background .2s}
+.porta-mini:hover{border-color:var(--up);background:var(--bg3)}
+.porta-mini b{color:var(--text);font-weight:700}
+.porta-mini-ico{font-size:16px;flex:none}
+@media(max-width:680px){.porta-mini-row{flex-direction:column}.porta-mini{min-width:0}}
 .price-stage{padding:clamp(80px,13vh,140px) 0;border-top:1px solid var(--border)}
 .price-stage h2{font-family:var(--fd);font-weight:900;font-size:clamp(2.2rem,5.4vw,3.6rem);line-height:1;letter-spacing:-.5px;text-align:center;margin:12px 0 14px}
 .price-stage .psay{text-align:center;font-size:clamp(15px,1.8vw,17px);color:var(--slate);max-width:34em;margin:0 auto clamp(34px,5vh,52px)}
@@ -506,30 +513,24 @@ footer .logo b{font-size:17px}
     <span class="eyebrow reveal">Uma decisão, não uma lista</span>
     <h2 class="reveal">O que procuras?</h2>
     <div class="porta-grid">
-      <a class="porta reveal" href="inscrever.html">
-        <span class="porta-ico">⚽</span>
-        <span class="porta-k">Sou atleta ou pai</span>
-        <span class="porta-d">Acompanha o desenvolvimento e constrói o Passaporte. O percurso é dele, e fica com ele. <span style="color:var(--muted)">Já tens conta? Usa o Entrar, lá em cima.</span></span>
-        <span class="porta-cta">Criar passaporte grátis <span class="a">→</span></span>
-      </a>
-      <a class="porta reveal" href="clube.html">
+      <a class="porta reveal" href="criar-academia.html">
         <span class="porta-ico">🏟️</span>
         <span class="porta-k">Tenho uma academia</span>
         <span class="porta-d">Dá aos teus treinadores ferramentas profissionais e acompanhamento para cada atleta.</span>
-        <span class="porta-cta">Gerir a minha academia <span class="a">→</span></span>
+        <span class="porta-cta">Criar a minha academia <span class="a">→</span></span>
       </a>
-      <a class="porta reveal" href="ytb-pro-treinador.html">
+      <a class="porta reveal" href="coachbase.html">
         <span class="porta-ico">🧠</span>
-        <span class="porta-k">Sou treinador</span>
-        <span class="porta-d">Não estás numa academia YTB? Continua a desenvolver os teus jogadores na mesma.</span>
-        <span class="porta-cta">Entrar como treinador <span class="a">→</span></span>
+        <span class="porta-k">CoachBase</span>
+        <span class="porta-d">Prancheta, sessões por IA, convocatórias e Balneário. A ferramenta de trabalho do treinador, fora de uma academia.</span>
+        <span class="porta-cta">Entrar no CoachBase <span class="a">→</span></span>
       </a>
-      <a class="porta reveal" href="scouting360.html">
-        <span class="porta-ico">🔎</span>
-        <span class="porta-k">Sou scout ou clube</span>
-        <span class="porta-d">Não vejas apenas um jogo — consulta o percurso. A tua observação não desaparece: fica com o jogador.</span>
-        <span class="porta-cta">Explorar talento <span class="a">→</span></span>
-      </a>
+    </div>
+    <p style="text-align:center;font-size:12px;color:var(--muted);margin-top:12px">Já tens conta de academia? <a href="clube.html" style="color:var(--muted);text-decoration:underline">Entra aqui</a>.</p>
+    <div class="porta-mini-row">
+      <a class="porta-mini reveal" href="inscrever.html"><span class="porta-mini-ico">⚽</span><span>Sou atleta ou pai — <b>Criar passaporte grátis</b></span></a>
+      <a class="porta-mini reveal" href="ytb-pro-treinador.html"><span class="porta-mini-ico">👤</span><span>Acompanhamento individual — <b>Pro Treinador</b></span></a>
+      <a class="porta-mini reveal" href="scouting360.html"><span class="porta-mini-ico">🔎</span><span>Sou scout ou clube — <b>Explorar talento</b></span></a>
     </div>
   </div>
 </section>
@@ -546,28 +547,28 @@ footer .logo b{font-size:17px}
       <div class="pcard pcard-feat reveal">
         <div class="ptag">★ Para escolinhas e academias</div>
         <div class="pname">Academia</div>
-        <div class="pprice"><span class="amt">19,90€</span><span class="per">/ atleta / mês</span></div>
-        <div class="psub">Um preço por cada atleta do plantel — CoachBase incluído para os teus treinadores, sem custo extra</div>
+        <div class="pprice"><span class="amt">50€</span><span class="per">/ mês, até 50 atletas</span></div>
+        <div class="psub">Um preço fixo para o plantel todo — CoachBase incluído para os teus treinadores, sem custo extra</div>
         <ul>
           <li><span class="mk">◇</span> Inscrição do plantel em bloco</li>
           <li><span class="mk">◇</span> A tua marca no passaporte de cada atleta</li>
           <li><span class="mk">◇</span> CoachBase incluído para toda a equipa técnica</li>
         </ul>
-        <a class="pcta" href="https://wa.me/351913695846?text=Ol%C3%A1%21%20%F0%9F%91%8B%20Represento%20uma%20escolinha%2Facademia%20e%20quero%20saber%20mais%20sobre%20o%20pre%C3%A7o%20por%20atleta%20%2819%2C90%E2%82%AC%2Fm%C3%AAs%2C%20CoachBase%20inclu%C3%ADdo%29.%20Como%20come%C3%A7o%3F" target="_blank" rel="noopener">Registar a minha academia</a>
-        <a href="criar-academia.html" style="display:block;text-align:center;margin-top:8px;font-size:12px;color:var(--muted);text-decoration:underline">ou preenche o formulário →</a>
+        <a class="pcta" href="criar-academia.html">Criar a minha academia →</a>
+        <a href="https://wa.me/351913695846?text=Ol%C3%A1%21%20%F0%9F%91%8B%20Represento%20uma%20escolinha%2Facademia%20e%20quero%20saber%20mais%20sobre%20o%20plano%20%2850%E2%82%AC%2Fm%C3%AAs%2C%20at%C3%A9%2050%20atletas%2C%20CoachBase%20inclu%C3%ADdo%29.%20Como%20come%C3%A7o%3F" target="_blank" rel="noopener" style="display:block;text-align:center;margin-top:8px;font-size:12px;color:var(--muted);text-decoration:underline">ou fala connosco por WhatsApp →</a>
       </div>
 
       <div class="pcard reveal">
         <div class="ptag">Para treinadores</div>
         <div class="pname">CoachBase</div>
-        <div class="pprice"><span class="amt">9,90€</span><span class="per">/ mês</span></div>
+        <div class="pprice"><span class="amt">20€</span><span class="per">/ época · sem mensalidade</span></div>
         <div class="psub">Prancheta, sessões por IA e convocatórias — ferramenta de trabalho, fora de uma academia</div>
         <ul>
           <li><span class="mk">◇</span> Prancheta animada fut7/9/11</li>
           <li><span class="mk">◇</span> Sessões de treino geradas por IA</li>
           <li><span class="mk">◇</span> Presenças, convocatórias e o Balneário</li>
         </ul>
-        <a class="pcta" href="https://wa.me/351913695846?text=Ol%C3%A1%21%20%F0%9F%91%8B%20Sou%20treinador%20e%20quero%20aceder%20ao%20CoachBase%20%289%2C90%E2%82%AC%2Fm%C3%AAs%29.%20Como%20come%C3%A7o%3F" target="_blank" rel="noopener">Ativar o CoachBase</a>
+        <a class="pcta" href="https://wa.me/351913695846?text=Ol%C3%A1%21%20%F0%9F%91%8B%20Sou%20treinador%20e%20quero%20aceder%20ao%20CoachBase%20%2820%E2%82%AC%2F%C3%A9poca%2C%20sem%20mensalidade%29.%20Como%20come%C3%A7o%3F" target="_blank" rel="noopener">Ativar o CoachBase</a>
       </div>
 
       <div class="pcard reveal">
