@@ -120,6 +120,26 @@
     </select>
   </div>
 
+  <details style="margin:4px 0 18px">
+    <summary style="cursor:pointer;font-family:var(--fd);font-weight:700;font-size:13px;color:var(--slate);letter-spacing:.3px">+ Contexto competitivo desta época (opcional, mas ajuda muito)</summary>
+    <div style="margin-top:14px">
+      <div class="hint" style="margin-bottom:14px">30 golos numa equipa que marca 250 não valem o mesmo que 30 numa equipa que marca 60 — se souberes estes números, a primeira avaliação já nasce mais precisa.</div>
+      <div class="row">
+        <div class="field"><label class="label" for="f-divisao">Divisão / nível</label><input class="input" id="f-divisao" type="text" placeholder="Ex: 1ª Divisão Distrital"></div>
+        <div class="field"><label class="label" for="f-epoca">Época</label><input class="input" id="f-epoca" type="text" placeholder="25/26"></div>
+      </div>
+      <div class="row">
+        <div class="field"><label class="label" for="f-golos">Golos</label><input class="input" id="f-golos" type="number" inputmode="numeric" min="0" placeholder="0"></div>
+        <div class="field"><label class="label" for="f-jogos">Jogos</label><input class="input" id="f-jogos" type="number" inputmode="numeric" min="0" placeholder="0"></div>
+        <div class="field"><label class="label" for="f-assist">Assist.</label><input class="input" id="f-assist" type="number" inputmode="numeric" min="0" placeholder="0"></div>
+      </div>
+      <div class="row">
+        <div class="field"><label class="label" for="f-golos-equipa">Golos da equipa (total)</label><input class="input" id="f-golos-equipa" type="number" inputmode="numeric" min="0" placeholder="Ex: 60"></div>
+        <div class="field"><label class="label" for="f-classificacao">Classificação da equipa</label><input class="input" id="f-classificacao" type="text" placeholder="Ex: 3º lugar"></div>
+      </div>
+    </div>
+  </details>
+
   <div class="field">
     <label class="label" for="f-zz">Link ZeroZero <span class="req">*</span></label>
     <input class="input" id="f-zz" type="url" placeholder="https://www.zerozero.pt/jogador/...">
@@ -177,6 +197,10 @@
     var nome=gv('f-nome'), nascStr=gv('f-nasc'), pos=gv('f-pos'),
         clube=gv('f-clube'), assoc=gv('f-assoc'), esquema=gv('f-esquema'),
         zz=gv('f-zz'), email=gv('f-email');
+    var divisao=gv('f-divisao'), epoca=gv('f-epoca'), classificacao=gv('f-classificacao');
+    var golosStr=gv('f-golos'), jogosStr=gv('f-jogos'), assistStr=gv('f-assist'), golosEquipaStr=gv('f-golos-equipa');
+    var golos=golosStr?parseInt(golosStr,10):null, jogos=jogosStr?parseInt(jogosStr,10):null,
+        assist=assistStr?parseInt(assistStr,10):null, golosEquipa=golosEquipaStr?parseInt(golosEquipaStr,10):null;
     var consent=document.getElementById('f-consent').checked;
 
     if(!nome){ showErr('Indica o nome do atleta.'); return; }
@@ -195,7 +219,10 @@
     supa.rpc('ytb_inscrever_livre',{
       p_nome:nome, p_ano:ano, p_posicao:pos, p_clube:clube,
       p_associacao:assoc, p_zerozero:zz, p_contacto:email,
-      p_dia_nasc:dia, p_mes_nasc:mes, p_esquema:esquema||null
+      p_dia_nasc:dia, p_mes_nasc:mes, p_esquema:esquema||null,
+      p_divisao:divisao||null, p_epoca:epoca||null,
+      p_golos:golos, p_jogos:jogos, p_assist:assist,
+      p_golos_equipa:golosEquipa, p_classificacao:classificacao||null
     }).then(function(res){
       var d=res&&res.data;
       if(res&&res.error){ btn.innerHTML='Inscrever grátis →'; btn.disabled=false; showErr('Não foi possível inscrever. Tenta novamente.'); return; }

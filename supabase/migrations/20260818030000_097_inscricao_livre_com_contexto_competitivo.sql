@@ -1,0 +1,9 @@
+-- 097: ytb_inscrever_livre ganha os campos de contexto competitivo
+-- (divisao, epoca, golos, jogos, assist, golos_equipa, classificacao)
+-- que a avaliacao contextual do Pro Treinador ja usa -- todos
+-- opcionais, passaporte nasce com dados em vez de vazio.
+-- Assinatura mudou -- precisou de DROP antes do CREATE (apanhado no
+-- dry-run: Postgres cria funcao sobreposta em vez de substituir).
+-- Testado: sem contexto grava tudo null; com contexto grava os 7
+-- campos corretamente.
+-- Corpo integral no historico Supabase (097).
