@@ -1,0 +1,5 @@
+-- 100: interface para o treinador ligar um jogador operacional a um
+-- atleta YTB real ja legitimamente dele (mesma definicao de posse do
+-- Pro Treinador). Testado: ataque a atleta de outrem bloqueado;
+-- ligacao legitima funciona corretamente.
+-- Corpo integral no historico Supabase (100).

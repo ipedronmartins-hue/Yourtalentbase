@@ -866,7 +866,8 @@ function carregarPlantel(){
     if(!plantel.length){box.innerHTML='<div class="s">Ainda não tens jogadores. Adiciona o primeiro em baixo — nome, posição e número, sem mais nada.</div>';return;}
     box.innerHTML=plantel.map(function(a){
       var st=presEstado[a.jogador_id]||'presente';presEstado[a.jogador_id]=st;
-      return '<div class="linha"><div><div class="nm">'+esc(a.nome)+'</div><div class="mt">'+esc(a.posicao||'')+(a.numero?' · nº'+a.numero:'')+(a.ligado_a_atleta?' · 🪪 ligado ao Passaporte':'')+'</div></div>'
+      var ligacao=a.ligado_a_atleta?' · 🪪 ligado ao Passaporte':' <a href="#" onclick="ligarJogador(\''+a.jogador_id+'\');return false;" style="color:var(--gold);text-decoration:underline">· ligar ao Passaporte</a>';
+      return '<div class="linha"><div><div class="nm">'+esc(a.nome)+'</div><div class="mt">'+esc(a.posicao||'')+(a.numero?' · nº'+a.numero:'')+ligacao+'</div></div>'
         +'<button class="pbtn '+st+'" data-a="'+a.jogador_id+'">'+rot(st)+'</button></div>';
     }).join('');
     box.querySelectorAll('.pbtn').forEach(function(b){b.addEventListener('click',function(){
@@ -874,6 +875,22 @@ function carregarPlantel(){
       var novo=ordem[(ordem.indexOf(presEstado[id])+1)%3];presEstado[id]=novo;
       b.className='pbtn '+novo;b.textContent=rot(novo);
     });});
+  });
+}
+function ligarJogador(jogadorId){
+  supa.rpc('ytb_coach_meus_atletas_disponiveis').then(function(r){
+    var atletas=r.data||[];
+    if(!atletas.length){toast('Sem atletas disponíveis — precisas de já ter atletas geridos noutro sítio (Pro Treinador ou academia) para ligar.');return;}
+    var texto='A que atleta queres ligar este jogador?\n\n'+atletas.map(function(a,i){return (i+1)+'. '+a.nome+' ('+(a.escalao||'—')+')';}).join('\n')+'\n\nEscreve o número:';
+    var escolha=prompt(texto);
+    var idx=parseInt(escolha,10)-1;
+    if(isNaN(idx)||idx<0||idx>=atletas.length){return;}
+    supa.rpc('ytb_coach_jogador_ligar_atleta',{p_jogador_id:jogadorId,p_atleta_id:atletas[idx].id}).then(function(r2){
+      var d=r2.data;
+      if(r2.error||!d||!d.ok){toast('Não foi possível ligar: '+((d&&d.motivo)||'erro'));return;}
+      toast('✓ Ligado ao Passaporte — presenças e convocatórias deste jogador passam a contar no percurso dele');
+      carregarPlantel();
+    });
   });
 }
 function criarJogador(){
