@@ -1,0 +1,9 @@
+-- 098: CoachBase ganha jogadores operacionais proprios, desacoplados
+-- de atletas_360. coach_jogadores.atleta_360_id e ligacao EXPLICITA
+-- opcional, nunca automatica. Presenca de jogador sem ligacao nunca
+-- gera evento no passaporte; com ligacao, continua a gerar.
+-- Auditoria confirmou antes de mexer: todo o uso real ate hoje e so
+-- da conta mestre, zero risco de dados de terceiros.
+-- Testado nos dois sentidos: sem ligacao -> 0 eventos; com ligacao
+-- (Vasco real) -> 1 evento, corretamente.
+-- Corpo integral no historico Supabase (098).
