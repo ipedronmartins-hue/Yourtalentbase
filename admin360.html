@@ -298,21 +298,34 @@ tr:last-child td{border-bottom:none}
       </div>
     </div>
 
-    <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:14px;margin-bottom:14px">
-      <div style="font-size:var(--fs-legenda);color:var(--slate);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Registar cobrança recebida</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <select class="f-select" id="cob-tipo" style="min-width:170px">
-          <option value="avaliacao">Avaliação (39,90€ · 19,90€ treinador)</option>
-          <option value="mensalidade">Mensalidade (9,90€ · 4,90€ treinador)</option>
-          <option value="coachbase">CoachBase avulso (9,90€ · 100% YTB)</option>
-          <option value="scout">Scout Report (39,90€ · 100% YTB)</option>
-          <option value="academia_atleta">Academia por atleta (30/30/40)</option>
-        </select>
-        <input class="search" id="cob-atleta" type="text" placeholder="Nome do atleta (opcional)" style="min-width:160px">
-        <input class="search" id="cob-treinador" type="text" placeholder="Email do treinador" style="min-width:180px">
-        <input class="search" id="cob-valor" type="number" step="0.01" placeholder="Valor total recebido (€)" style="min-width:160px">
-        <button class="action-btn success" onclick="registarCobranca()">+ Registar</button>
+    <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:16px;margin-bottom:14px">
+      <div style="font-size:var(--fs-legenda);color:var(--slate);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px">Registar cobrança recebida</div>
+      <div style="font-size:var(--fs-legenda);color:var(--muted);margin-bottom:12px">Os preços entre parêntesis são só referência — o valor a repartir é sempre o que escreveres em baixo.</div>
+      <div style="display:grid;grid-template-columns:minmax(230px,1.4fr) repeat(3,minmax(150px,1fr));gap:10px;margin-bottom:10px">
+        <div>
+          <label style="display:block;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Tipo de cobrança</label>
+          <select class="f-select" id="cob-tipo" style="width:100%">
+            <option value="avaliacao">Avaliação (39,90€ · 19,90€ tr.)</option>
+            <option value="mensalidade">Mensalidade Pro Treinador (9,90€ · 4,90€ tr.)</option>
+            <option value="coachbase">CoachBase avulso (20€/época)</option>
+            <option value="scout">Scout Report (39,90€)</option>
+            <option value="academia_atleta">Academia — mensal (50€ até 50 atletas)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Atleta (opcional)</label>
+          <input class="search" id="cob-atleta" type="text" placeholder="Nome do atleta" style="width:100%;min-width:0">
+        </div>
+        <div>
+          <label style="display:block;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Email do treinador</label>
+          <input class="search" id="cob-treinador" type="text" placeholder="email@exemplo.com" style="width:100%;min-width:0">
+        </div>
+        <div>
+          <label style="display:block;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Valor total recebido (€)</label>
+          <input class="search" id="cob-valor" type="number" step="0.01" placeholder="Ex: 50.00" style="width:100%;min-width:0">
+        </div>
       </div>
+      <button class="action-btn success" onclick="registarCobranca()">+ Registar cobrança</button>
       <div style="font-size:var(--fs-legenda);color:var(--slate);margin-top:8px">A repartição (treinador/academia/YTB) é calculada automaticamente pelo tipo — nunca à mão.</div>
     </div>
 
