@@ -387,7 +387,11 @@ footer .logo b{font-size:17px}
     color:#0A0F0A;background:var(--gold);border-radius:99px;padding:4px 10px;white-space:nowrap}
   .mt-nome{font-family:var(--fd);font-weight:900;font-size:var(--fs-titulo);line-height:1.1;margin-bottom:4px}
   .mt-meta{font-size:var(--fs-legenda);color:var(--muted);margin-bottom:18px}
-  .mt-prova{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding-top:16px;border-top:1px solid var(--border)}
+  .mt-prova{display:grid;grid-template-columns:repeat(auto-fit,minmax(70px,1fr));gap:10px;padding-top:16px;border-top:1px solid var(--border)}
+  .mt-marco{display:flex;gap:7px;align-items:flex-start;font-size:var(--fs-legenda);color:var(--slate);line-height:1.5;
+    background:var(--gold-soft);border:1px solid var(--gold-border);border-radius:var(--r-sm);padding:9px 11px;margin-bottom:16px}
+  .mt-mk{color:var(--gold);flex:none}
+  .mt-verif{font-size:var(--fs-micro);color:var(--muted);margin-top:12px;text-transform:uppercase;letter-spacing:.6px}
   .mt-v{font-family:var(--fd);font-weight:900;font-size:var(--fs-sub);color:var(--text)}
   .mt-l{font-size:var(--fs-micro);color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
   .mt-dots{display:flex;gap:6px;justify-content:center;margin-top:18px}
@@ -447,6 +451,9 @@ footer .logo b{font-size:17px}
       <div class="mt-card on" style="position:relative"><div class="mt-nome" style="color:var(--muted)">A carregar percursos…</div></div>
     </div>
     <div class="mt-dots" id="mt-dots"></div>
+    <p class="reveal" style="text-align:center;margin-top:16px;font-size:var(--fs-legenda);color:var(--muted);max-width:420px;margin-left:auto;margin-right:auto">
+      É este cartão que cada família pode gerar e partilhar a partir do Passaporte — com clubes, treinadores, ou quem quiser.
+    </p>
     <div style="text-align:center;margin-top:20px"><a class="btn btn-ghost" href="montra.html">Ver todos os percursos <span class="arr">→</span></a></div>
   </div>
 </section>
@@ -471,14 +478,18 @@ footer .logo b{font-size:17px}
 <div class="sheet" id="sh-coachbase">
   <div class="sheet-grab"></div><button class="sheet-x" onclick="fecharPainel()">✕</button>
   <h3>Coach<span style="color:var(--gold)">Base</span></h3>
-  <div class="sh-sub">A ferramenta de trabalho do treinador. Sem academia, sem burocracia.</div>
+  <div class="sh-sub">A ferramenta de trabalho do treinador — oito áreas, do desenho da jogada ao minuto jogado. Sem academia, sem burocracia.</div>
   <div class="sh-price">20€</div>
   <div class="sh-per">por época · sem mensalidade</div>
   <ul>
-    <li><span class="mk">◇</span> Prancheta animada fut7/9/11</li>
-    <li><span class="mk">◇</span> Sessões e microciclo gerados</li>
-    <li><span class="mk">◇</span> Presenças, convocatórias e minutos</li>
-    <li><span class="mk">◇</span> O Balneário — só treinadores</li>
+    <li><span class="mk">◇</span> <b>Prancheta</b> animada fut7/9/11 — jogadores, setas, vários momentos e reprodução</li>
+    <li><span class="mk">◇</span> <b>Sessão</b> gerada de um banco de 85 exercícios, filtrada por escalão, material e foco</li>
+    <li><span class="mk">◇</span> <b>Microciclo</b> MD-4 / MD-2 / MD-1 — a semana inteira até ao jogo</li>
+    <li><span class="mk">◇</span> <b>Presenças</b> em 5-6 toques, com o teu próprio plantel</li>
+    <li><span class="mk">◇</span> <b>Adversário</b> — lê a próxima equipa e adapta a tua tática</li>
+    <li><span class="mk">◇</span> <b>Convocatória</b> visual, com o onze montado no campo</li>
+    <li><span class="mk">◇</span> <b>Minutos</b> e rotação — quem joga pouco não passa despercebido</li>
+    <li><span class="mk">◇</span> <b>Balneário</b> — só treinadores, partilha de jogadas e dúvidas</li>
   </ul>
   <a class="sh-cta" href="coachbase.html">Entrar no CoachBase →</a>
   <a class="sh-alt" href="https://wa.me/351913695846?text=Ol%C3%A1%21%20%F0%9F%91%8B%20Sou%20treinador%20e%20quero%20o%20CoachBase%20%2820%E2%82%AC%2F%C3%A9poca%29.%20Como%20come%C3%A7o%3F" target="_blank" rel="noopener">falar por WhatsApp</a>
@@ -513,22 +524,36 @@ footer .logo b{font-size:17px}
     <li><span class="mk">◇</span> O Passaporte continua grátis à parte</li>
   </ul>
   <a class="sh-cta" href="https://wa.me/351913695846?text=Ol%C3%A1%21%20%F0%9F%91%8B%20Quero%20o%20Pro%20Treinador%20para%20o%20meu%20filho%20%289%2C90%E2%82%AC%2Fm%C3%AAs%20%2B%2039%2C90%E2%82%AC%20por%20avalia%C3%A7%C3%A3o%29." target="_blank" rel="noopener">Quero acompanhamento →</a>
+  <a class="sh-alt" href="ytb-pro-treinador.html">sou treinador e quero acompanhar atletas — entrar</a>
   <a class="sh-alt" href="inscrever.html">ou só o Passaporte grátis</a>
 </div>
 
 <div class="sheet" id="sh-scout">
   <div class="sheet-grab"></div><button class="sheet-x" onclick="fecharPainel()">✕</button>
-  <h3>Scout <span style="color:var(--gold)">Report</span></h3>
-  <div class="sh-sub">Transforma uma observação num relatório profissional que fica associado ao percurso do jogador.</div>
-  <div class="sh-price">39,90€</div>
-  <div class="sh-per">3 relatórios exportáveis em PDF</div>
-  <ul>
-    <li><span class="mk">◇</span> Observação por critérios, verificada</li>
-    <li><span class="mk">◇</span> Relatório com prova: observadores, eventos, épocas</li>
-    <li><span class="mk">◇</span> Fica ligado ao passaporte do atleta</li>
-  </ul>
-  <a class="sh-cta" href="scouting360.html">Explorar talento →</a>
-  <a class="sh-alt" href="scouts.html">já sou scout — entrar</a>
+  <h3>Observar e <span style="color:var(--gold)">descobrir</span></h3>
+  <div class="sh-sub">Duas coisas diferentes, conforme o que fazes.</div>
+
+  <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r-sm);padding:16px;margin-bottom:12px">
+    <div style="font-family:var(--fd);font-weight:900;font-size:var(--fs-sub);margin-bottom:4px">Scout Report</div>
+    <div style="font-size:var(--fs-legenda);color:var(--muted);margin-bottom:10px">Para quem observa e avalia jogadores · 39,90€ / 3 relatórios</div>
+    <div style="font-size:var(--fs-corpo);color:var(--slate);line-height:1.7">
+      ◇ Observação por critérios, verificada<br>
+      ◇ Relatório profissional exportável em PDF<br>
+      ◇ Fica ligado ao percurso do atleta — a tua observação não desaparece
+    </div>
+    <a class="sh-cta" style="margin-top:14px" href="scouts.html">Abrir a Área Scout →</a>
+  </div>
+
+  <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r-sm);padding:16px">
+    <div style="font-family:var(--fd);font-weight:900;font-size:var(--fs-sub);margin-bottom:4px">Scouting360</div>
+    <div style="font-size:var(--fs-legenda);color:var(--muted);margin-bottom:10px">Para clubes que procuram atletas · acesso por pedido</div>
+    <div style="font-size:var(--fs-corpo);color:var(--slate);line-height:1.7">
+      ◇ Descobre atletas com percurso documentado<br>
+      ◇ Não vês só um jogo — vês o histórico todo<br>
+      ◇ Pedes contacto, e a família decide se aceita
+    </div>
+    <a class="sh-cta" style="margin-top:14px" href="scouting360.html">Explorar talento →</a>
+  </div>
 </div>
 
 
@@ -596,15 +621,21 @@ function _montraArranca(){
     wrap.innerHTML=lista.map(function(a,i){
       var meta=[POS[a.posicao]||a.posicao,a.escalao,a.clube].filter(Boolean).join(' · ');
       var selo=a.acompanhado?'<span class="mt-selo">★ YTB Acompanhado</span>':'';
+      var marco=(a.marcos&&a.marcos.length&&a.marcos[0]&&a.marcos[0].titulo)
+        ?'<div class="mt-marco"><span class="mt-mk">◆</span>'+esc(a.marcos[0].titulo)+'</div>':'';
+      var verif=a.verificacao?'<div class="mt-verif">✦ percurso verificado por '+esc(a.verificacao)+'</div>':'';
+      var desde=a.desde?('<div><div class="mt-v">'+esc(String(a.desde))+'</div><div class="mt-l">desde</div></div>'):'';
       return '<div class="mt-card'+(i===0?' on':'')+'">'
         +'<div class="mt-top"><span class="mt-pos">'+esc(a.posicao||'—')+'</span>'+selo+'</div>'
         +'<div class="mt-nome">'+esc(a.nome||'—')+'</div>'
         +'<div class="mt-meta">'+esc(meta)+'</div>'
+        +marco
         +'<div class="mt-prova">'
         +'<div><div class="mt-v">'+(a.eventos!=null?a.eventos:'—')+'</div><div class="mt-l">eventos</div></div>'
         +'<div><div class="mt-v">'+(a.observadores!=null?a.observadores:'—')+'</div><div class="mt-l">'+(a.observadores===1?'observador':'observadores')+'</div></div>'
         +'<div><div class="mt-v">'+(a.epocas!=null?a.epocas:'—')+'</div><div class="mt-l">'+(a.epocas===1?'época':'épocas')+'</div></div>'
-        +'</div></div>';
+        +desde
+        +'</div>'+verif+'</div>';
     }).join('');
 
     if(dots) dots.innerHTML=lista.map(function(_,i){return '<span class="mt-dot'+(i===0?' on':'')+'"></span>';}).join('');
@@ -618,7 +649,7 @@ function _montraArranca(){
       cards[n].classList.remove('on'); if(pontos[n])pontos[n].classList.remove('on');
       n=i; cards[n].classList.add('on'); if(pontos[n])pontos[n].classList.add('on');
     }
-    function arrancar(){ timer=setInterval(function(){ mostrar((n+1)%cards.length); },2000); }
+    function arrancar(){ timer=setInterval(function(){ mostrar((n+1)%cards.length); },5000); }
     function parar(){ if(timer){clearInterval(timer);timer=null;} }
     arrancar();
     // pausa quando a aba está escondida (não gasta bateria a animar o que ninguém vê)
