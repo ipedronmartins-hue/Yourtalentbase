@@ -336,6 +336,10 @@ body.pr-cheio #pr-sair{display:block}
     <div class="card">
       <div class="h">Presenças <span style="color:var(--gold)">de hoje</span></div>
       <div class="s">Toca no estado de cada jogador e guarda. 5-6 toques e está feito.</div>
+      <div id="aviso-offline" style="display:none;background:rgba(224,82,82,.1);border:1px solid rgba(224,82,82,.35);border-radius:10px;padding:11px 13px;margin-bottom:12px;font-size:13px;line-height:1.5;color:var(--text)">
+        <b>⚠ Sem rede.</b> As presenças precisam de ligação para ficarem guardadas — anota num papel se estiveres no campo.
+        <div style="color:var(--muted);font-size:12px;margin-top:5px">A prancheta, as sessões e o microciclo continuam a funcionar sem rede.</div>
+      </div>
       <div id="pres-lista"><div class="s">A carregar plantel…</div></div>
       <button class="btn" id="btn-pres" onclick="guardarPresencas()" style="margin-top:8px">Guardar presenças →</button>
       <div style="display:flex;gap:6px;margin-top:12px">
@@ -929,8 +933,22 @@ function criarJogador(){
   });
 }
 function rot(s){return s==='presente'?'✔ Presente':(s==='falta'?'✖ Falta':'📝 Justificada');}
+function pintarEstadoRede(){
+  var box=document.getElementById('aviso-offline');
+  if(box) box.style.display = (navigator.onLine===false) ? 'block' : 'none';
+  var btn=document.getElementById('btn-pres');
+  if(btn) btn.style.opacity = (navigator.onLine===false) ? '.5' : '';
+}
+window.addEventListener('online',pintarEstadoRede);
+window.addEventListener('offline',pintarEstadoRede);
+document.addEventListener('DOMContentLoaded',pintarEstadoRede);
+
 function guardarPresencas(){
   if(!plantel.length){toast('Sem plantel');return;}
+  if(navigator.onLine===false){
+    toast('⚠ Sem rede — as presenças precisam de ligação para ficarem guardadas. A prancheta e as sessões continuam a funcionar.');
+    return;
+  }
   var b=document.getElementById('btn-pres');b.disabled=true;b.innerHTML='<span class="spinner"></span> A guardar…';
   var hoje=new Date().toISOString().slice(0,10);
   supa.rpc('ytb_coach_sessao_criar',{p_titulo:'Treino '+hoje,p_data:hoje,p_escalao:SEL.escalao,p_formato:SEL.formato,p_n_atletas:plantel.length,p_duracao:null,p_material:null,p_foco:null,p_plano:null,p_origem:'local'})
@@ -940,7 +958,14 @@ function guardarPresencas(){
       return supa.rpc('ytb_coach_presencas_marcar',{p_sessao:d.id,p_lista:lista});
     })
     .then(function(r){var d=r.data;if(r.error||!d||!d.ok)throw new Error((d&&d.motivo)||'erro');toast('✓ '+d.marcadas+' presenças registadas');})
-    .catch(function(e){toast('⚠ '+e.message);})
+    .catch(function(e){
+      var m=String(e&&e.message||'');
+      var falhaRede = navigator.onLine===false || /fetch|network|failed|load/i.test(m);
+      toast(falhaRede
+        ? '⚠ Não ficou guardado — sem ligação. Tenta de novo quando tiveres rede.'
+        : '⚠ Não ficou guardado ('+m+'). Tenta de novo.');
+      pintarEstadoRede();
+    })
     .then(function(){b.disabled=false;b.textContent='Guardar presenças →';});
 
 }
@@ -1046,7 +1071,14 @@ function guardarConv(){
   var b=document.getElementById('btn-conv');b.disabled=true;b.innerHTML='<span class="spinner"></span> A guardar…';
   supa.rpc('ytb_coach_convocatoria_criar',{p_data:document.getElementById('cv-data').value||null,p_adversario:document.getElementById('cv-adv').value||null,p_formato:SEL.formato,p_lista:lista,p_banco:document.getElementById('cv-banco').value||null,p_jornada:document.getElementById('cv-jornada').value||null,p_tipo:document.getElementById('cv-tipo').value||'oficial'})
     .then(function(r){var d=r.data;if(r.error||!d||!d.ok)throw new Error((d&&d.motivo)||'erro');toast('✓ Convocatória guardada');})
-    .catch(function(e){toast('⚠ '+e.message);})
+    .catch(function(e){
+      var m=String(e&&e.message||'');
+      var falhaRede = navigator.onLine===false || /fetch|network|failed|load/i.test(m);
+      toast(falhaRede
+        ? '⚠ Não ficou guardado — sem ligação. Tenta de novo quando tiveres rede.'
+        : '⚠ Não ficou guardado ('+m+'). Tenta de novo.');
+      pintarEstadoRede();
+    })
     .then(function(){b.disabled=false;b.textContent='Guardar convocatória →';});
 }
 
