@@ -397,7 +397,37 @@ footer .logo b{font-size:17px}
   .mt-dots{display:flex;gap:6px;justify-content:center;margin-top:18px}
   .mt-dot{width:6px;height:6px;border-radius:99px;background:var(--border2);transition:background .3s,width .3s}
   .mt-dot.on{background:var(--gold);width:18px}
+  /* camisola: o numero e o nome que ele usa no jogo */
+  .mt-shirt{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+  .mt-num{font-family:var(--fd);font-weight:900;font-size:44px;line-height:1;color:var(--gold);min-width:52px;text-align:center}
+  .mt-cam{font-family:var(--fd);font-weight:800;font-size:var(--fs-legenda);letter-spacing:1.2px;text-transform:uppercase;color:var(--slate)}
+  .mt-tit{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+  .mt-tchip{display:inline-flex;align-items:center;gap:5px;font-size:var(--fs-micro);font-weight:700;letter-spacing:.4px;
+    color:var(--gold);background:var(--gold-soft);border:1px solid var(--gold-border);border-radius:99px;padding:4px 10px}
+
+  /* pilares (perdidos ao reescrever o miolo — repostos com tokens) */
+  .pilar-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:8px}
+  @media(max-width:680px){.pilar-grid{grid-template-columns:1fr}}
+  .pilar{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:22px 20px}
+  .pilar-nome{font-family:var(--fd);font-weight:900;font-size:var(--fs-sub);color:var(--gold);margin-bottom:8px}
+  .pilar-desc{font-size:var(--fs-corpo);color:var(--slate);line-height:1.55}
 </style>
+
+<section class="mt-stage" id="montra-viva">
+  <div class="narrow">
+    <span class="eyebrow reveal" style="display:block;text-align:center">Não é uma promessa</span>
+    <h2 class="reveal" style="text-align:center;margin-bottom:8px">Percursos a acontecer.</h2>
+    <p class="sub reveal" style="text-align:center;max-width:440px;margin:0 auto">Atletas reais, com autorização das famílias. Isto é o que fica registado.</p>
+    <div class="mt-wrap reveal" id="mt-wrap">
+      <div class="mt-card on" style="position:relative"><div class="mt-nome" style="color:var(--muted)">A carregar percursos…</div></div>
+    </div>
+    <div class="mt-dots" id="mt-dots"></div>
+    <p class="reveal" style="text-align:center;margin-top:16px;font-size:var(--fs-legenda);color:var(--muted);max-width:420px;margin-left:auto;margin-right:auto">
+      É este cartão que cada família pode gerar e partilhar a partir do Passaporte — com clubes, treinadores, ou quem quiser.
+    </p>
+    <div style="text-align:center;margin-top:20px"><a class="btn btn-ghost" href="montra.html">Ver todos os percursos <span class="arr">→</span></a></div>
+  </div>
+</section>
 
 <section class="persona-stage" id="personas">
   <div class="narrow">
@@ -439,22 +469,6 @@ footer .logo b{font-size:17px}
       <div class="pilar reveal"><div class="pilar-nome">Prova</div><div class="pilar-desc">Cada registo diz quem observou, quando e em que contexto. Não são números soltos.</div></div>
       <div class="pilar reveal"><div class="pilar-nome">Decide a família</div><div class="pilar-desc">Nada é público sem autorização. E pode ser retirada a qualquer momento.</div></div>
     </div>
-  </div>
-</section>
-
-<section class="mt-stage" id="montra-viva">
-  <div class="narrow">
-    <span class="eyebrow reveal" style="display:block;text-align:center">Não é uma promessa</span>
-    <h2 class="reveal" style="text-align:center;margin-bottom:8px">Percursos a acontecer.</h2>
-    <p class="sub reveal" style="text-align:center;max-width:440px;margin:0 auto">Atletas reais, com autorização das famílias. Isto é o que fica registado.</p>
-    <div class="mt-wrap reveal" id="mt-wrap">
-      <div class="mt-card on" style="position:relative"><div class="mt-nome" style="color:var(--muted)">A carregar percursos…</div></div>
-    </div>
-    <div class="mt-dots" id="mt-dots"></div>
-    <p class="reveal" style="text-align:center;margin-top:16px;font-size:var(--fs-legenda);color:var(--muted);max-width:420px;margin-left:auto;margin-right:auto">
-      É este cartão que cada família pode gerar e partilhar a partir do Passaporte — com clubes, treinadores, ou quem quiser.
-    </p>
-    <div style="text-align:center;margin-top:20px"><a class="btn btn-ghost" href="montra.html">Ver todos os percursos <span class="arr">→</span></a></div>
   </div>
 </section>
 
@@ -625,16 +639,28 @@ function _montraArranca(){
         ?'<div class="mt-marco"><span class="mt-mk">◆</span>'+esc(a.marcos[0].titulo)+'</div>':'';
       var verif=a.verificacao?'<div class="mt-verif">✦ percurso verificado por '+esc(a.verificacao)+'</div>':'';
       var desde=a.desde?('<div><div class="mt-v">'+esc(String(a.desde))+'</div><div class="mt-l">desde</div></div>'):'';
+      var shirt=(a.numero!=null||a.camisola)
+        ?'<div class="mt-shirt">'+(a.numero!=null?'<div class="mt-num">'+esc(String(a.numero))+'</div>':'')
+          +'<div><div class="mt-nome">'+esc(a.nome||'—')+'</div>'
+          +(a.camisola?'<div class="mt-cam">'+esc(a.camisola)+'</div>':'')
+          +'<div class="mt-meta" style="margin:2px 0 0">'+esc(meta)+'</div></div></div>'
+        :'<div class="mt-nome">'+esc(a.nome||'—')+'</div><div class="mt-meta">'+esc(meta)+'</div>';
+      var tits='';
+      if(a.titulos&&a.titulos.length){
+        tits='<div class="mt-tit">'+a.titulos.slice(0,3).map(function(t){
+          return '<span class="mt-tchip">🏆 '+esc(t.titulo)+(t.epoca?' · '+esc(t.epoca):'')+'</span>';
+        }).join('')+(a.n_titulos>3?'<span class="mt-tchip">+'+(a.n_titulos-3)+'</span>':'')+'</div>';
+      }
       return '<div class="mt-card'+(i===0?' on':'')+'">'
         +'<div class="mt-top"><span class="mt-pos">'+esc(a.posicao||'—')+'</span>'+selo+'</div>'
-        +'<div class="mt-nome">'+esc(a.nome||'—')+'</div>'
-        +'<div class="mt-meta">'+esc(meta)+'</div>'
+        +shirt
+        +tits
         +marco
         +'<div class="mt-prova">'
         +'<div><div class="mt-v">'+(a.eventos!=null?a.eventos:'—')+'</div><div class="mt-l">eventos</div></div>'
         +'<div><div class="mt-v">'+(a.observadores!=null?a.observadores:'—')+'</div><div class="mt-l">'+(a.observadores===1?'observador':'observadores')+'</div></div>'
         +'<div><div class="mt-v">'+(a.epocas!=null?a.epocas:'—')+'</div><div class="mt-l">'+(a.epocas===1?'época':'épocas')+'</div></div>'
-        +desde
+        +(a.n_titulos?'<div><div class="mt-v">'+a.n_titulos+'</div><div class="mt-l">'+(a.n_titulos===1?'título':'títulos')+'</div></div>':desde)
         +'</div>'+verif+'</div>';
     }).join('');
 

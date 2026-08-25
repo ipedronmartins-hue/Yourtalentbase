@@ -1,0 +1,6 @@
+-- 106: Montra passa a mostrar titulos reais (de atletas_360_historico),
+-- numero e nome de camisola, e o numero de epocas verdadeiro.
+-- Bug: 'epocas' contava anos-civil de atleta_eventos (so existem desde
+-- 2026) -> dava 1; o historico real do Vasco tem 8 epocas e 3 titulos.
+-- Nota: h.titulos e text[], precisou de unnest() e nao jsonb_*.
+-- Corpo integral no historico Supabase (106).
