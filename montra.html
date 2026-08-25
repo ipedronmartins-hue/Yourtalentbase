@@ -193,9 +193,11 @@
     grid.innerHTML=lista.map(function(a){
       var pos=a.posicao?('<span class="c-pos">'+esc(a.posicao)+'</span>'):'<span></span>';
       var selo=seloDe(a.verificacao);
+      var ESTATUTOS={'em-crescimento':'📈 Em Crescimento','hidden-gem':'💎 Hidden Gem','observado':'👀 Observado'};
       var topoDir=a.acompanhado
         ?'<span class="c-acomp">★ YTB ACOMPANHADO</span>'
-        :(selo?('<span class="c-selo">✦ '+esc(selo)+'</span>'):(a.ativo?'<span class="c-ativo"><span class="pulse"></span>ativo</span>':''));
+        :(ESTATUTOS[a.estatuto]?('<span class="c-selo">'+esc(ESTATUTOS[a.estatuto])+'</span>')
+          :(selo?('<span class="c-selo">✦ '+esc(selo)+'</span>'):(a.ativo?'<span class="c-ativo"><span class="pulse"></span>ativo</span>':'')));
       var meta=[POS[a.posicao]||a.posicao,a.escalao,a.associacao].filter(Boolean).join(' · ');
       var prova='<div class="c-prova">'
         +'<div><div class="v">'+(a.epocas!=null?a.epocas:'—')+'</div><div class="l">'+(a.epocas===1?'época':'épocas')+'</div></div>'

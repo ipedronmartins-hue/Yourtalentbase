@@ -1,0 +1,6 @@
+-- 102: CORRIGE a 101. badge_estado='destaque' (definido pelo treinador
+-- na avaliacao contextual, ja se chamava "★ YTB Acompanhado") passa a
+-- ser a fonte de verdade, em vez do criterio automatico da 101 que
+-- marcava 23 de 23 atletas e ignorava a decisao editorial.
+-- Criterio de atividade fica so como guarda (selo cai se parou ha 90d).
+-- Corpo integral no historico Supabase (102).
