@@ -10,6 +10,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/css/ytb-vivo.css">
 <script src="/assets/js/ytb-vivo.js"></script>
+<script src="/assets/js/ytb-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
 <link rel="stylesheet" href="ytb-tokens.css">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -324,50 +326,73 @@ footer .logo b{font-size:17px}
 
 <!-- ===== PASSAPORTE DE EXEMPLO — logo a seguir à hero, para mostrar o produto antes do conceito ===== -->
 <style>
-  /* ── painéis deslizantes (o detalhe sai da página, entra por cima) ── */
+  /* Tudo aqui usa os tokens oficiais (ytb-tokens.css): --fs-*, --r*, --fd/--fb.
+     Sem valores soltos — é o que garante a coerência com o resto da plataforma. */
+
+  /* ── painéis deslizantes ── */
   .sheet-bg{position:fixed;inset:0;background:rgba(4,7,4,.72);backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .32s cubic-bezier(.2,.7,.2,1);z-index:90}
   .sheet-bg.on{opacity:1;pointer-events:auto}
   .sheet{position:fixed;left:50%;bottom:0;transform:translate(-50%,100%);width:min(560px,100%);max-height:88vh;overflow-y:auto;
-    background:var(--bg2);border:1px solid var(--border);border-radius:22px 22px 0 0;z-index:91;
+    background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg) var(--r-lg) 0 0;z-index:91;box-shadow:var(--shadow);
     transition:transform .38s cubic-bezier(.2,.8,.2,1);padding:26px 22px 34px;-webkit-overflow-scrolling:touch}
   .sheet.on{transform:translate(-50%,0)}
-  @media(min-width:680px){.sheet{bottom:auto;top:50%;transform:translate(-50%,calc(-50% + 20px)) scale(.98);opacity:0;border-radius:22px}
+  @media(min-width:680px){.sheet{bottom:auto;top:50%;transform:translate(-50%,calc(-50% + 20px)) scale(.98);opacity:0;border-radius:var(--r-lg)}
     .sheet.on{transform:translate(-50%,-50%) scale(1);opacity:1}}
   .sheet-grab{width:38px;height:4px;background:var(--border2);border-radius:99px;margin:0 auto 18px}
   @media(min-width:680px){.sheet-grab{display:none}}
   .sheet-x{position:absolute;top:16px;right:18px;width:30px;height:30px;border-radius:99px;border:1px solid var(--border);
-    background:var(--bg3);color:var(--slate);font-size:16px;line-height:1;cursor:pointer}
-  .sheet h3{font-family:var(--fd);font-weight:900;font-size:30px;line-height:1.05;margin-bottom:6px}
-  .sheet .sh-sub{color:var(--slate);font-size:14px;line-height:1.55;margin-bottom:20px}
-  .sheet .sh-price{font-family:var(--fd);font-weight:900;font-size:38px;color:var(--gold);line-height:1;margin-bottom:2px}
-  .sheet .sh-per{font-size:13px;color:var(--muted);margin-bottom:18px}
+    background:var(--bg3);color:var(--slate);font-size:var(--fs-corpo);line-height:1;cursor:pointer}
+  .sheet h3{font-family:var(--fd);font-weight:900;font-size:var(--fs-titulo);line-height:1.05;margin-bottom:6px}
+  .sheet .sh-sub{color:var(--slate);font-size:var(--fs-corpo);line-height:1.55;margin-bottom:20px}
+  .sheet .sh-price{font-family:var(--fd);font-weight:900;font-size:var(--fs-hero);color:var(--gold);line-height:1;margin-bottom:2px}
+  .sheet .sh-per{font-size:var(--fs-legenda);color:var(--muted);margin-bottom:18px}
   .sheet ul{list-style:none;margin:0 0 22px}
-  .sheet li{display:flex;gap:9px;font-size:14px;color:var(--slate);line-height:1.5;padding:7px 0;border-bottom:1px solid var(--border)}
+  .sheet li{display:flex;gap:9px;font-size:var(--fs-corpo);color:var(--slate);line-height:1.5;padding:7px 0;border-bottom:1px solid var(--border)}
   .sheet li:last-child{border-bottom:0}
   .sheet li .mk{color:var(--up);flex:none}
-  .sh-cta{display:block;text-align:center;background:var(--gold);color:#0A0F0A;border-radius:12px;padding:15px;
-    font-family:var(--fd);font-weight:800;font-size:16px;letter-spacing:.3px;text-decoration:none}
-  .sh-alt{display:block;text-align:center;margin-top:10px;font-size:13px;color:var(--muted);text-decoration:underline}
+  .sh-cta{display:block;text-align:center;background:var(--gold);color:#0A0F0A;border-radius:var(--r-sm);padding:15px;
+    font-family:var(--fd);font-weight:800;font-size:var(--fs-sub);letter-spacing:.3px;text-decoration:none}
+  .sh-alt{display:block;text-align:center;margin-top:10px;font-size:var(--fs-legenda);color:var(--muted);text-decoration:underline}
 
-  /* ── as duas portas, agora o centro da página ── */
+  /* ── as duas portas ── */
   .doors{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px}
   @media(max-width:680px){.doors{grid-template-columns:1fr}}
   .door{position:relative;display:flex;flex-direction:column;background:var(--bg2);border:1px solid var(--border);
-    border-radius:18px;padding:26px 22px;cursor:pointer;text-align:left;transition:border-color .22s,transform .22s;font:inherit;color:inherit}
+    border-radius:var(--r);padding:26px 22px;cursor:pointer;text-align:left;transition:border-color .22s,transform .22s;font:inherit;color:inherit}
   .door:hover{border-color:var(--gold-border);transform:translateY(-2px)}
-  .door-ico{font-size:28px;line-height:1;margin-bottom:14px}
-  .door-k{font-family:var(--fd);font-weight:900;font-size:26px;letter-spacing:-.2px;margin-bottom:8px}
-  .door-d{font-size:14px;color:var(--slate);line-height:1.55;flex:1;margin-bottom:16px}
-  .door-p{font-family:var(--fd);font-weight:800;font-size:15px;color:var(--gold)}
-  .door-more{font-size:13px;color:var(--muted);margin-top:6px}
+  .door-ico{width:34px;height:34px;margin-bottom:14px;color:var(--gold)}
+  .door-k{font-family:var(--fd);font-weight:900;font-size:var(--fs-titulo);letter-spacing:-.2px;margin-bottom:8px}
+  .door-d{font-size:var(--fs-corpo);color:var(--slate);line-height:1.55;flex:1;margin-bottom:16px}
+  .door-p{font-family:var(--fd);font-weight:800;font-size:var(--fs-sub);color:var(--gold)}
+  .door-more{font-size:var(--fs-legenda);color:var(--muted);margin-top:6px}
 
   .mini-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
-  .mini{flex:1;min-width:190px;display:flex;align-items:center;gap:9px;background:var(--bg2);border:1px solid var(--border);
-    border-radius:12px;padding:13px 15px;font-size:13px;color:var(--slate);cursor:pointer;text-align:left;font:inherit;transition:border-color .2s}
+  .mini{flex:1;min-width:190px;display:flex;align-items:center;gap:10px;background:var(--bg2);border:1px solid var(--border);
+    border-radius:var(--r-sm);padding:13px 15px;font-size:var(--fs-corpo);color:var(--slate);cursor:pointer;text-align:left;font:inherit;transition:border-color .2s}
   .mini:hover{border-color:var(--up)}
   .mini b{color:var(--text);font-weight:700}
-  .mini-ico{font-size:16px;flex:none}
+  .mini-ico{width:18px;height:18px;flex:none;color:var(--slate)}
   @media(max-width:680px){.mini-row{flex-direction:column}.mini{min-width:0}}
+
+  /* ── montra rotativa ── */
+  .mt-stage{padding:clamp(70px,11vh,120px) 0;border-top:1px solid var(--border)}
+  .mt-wrap{position:relative;min-height:210px;margin-top:26px}
+  .mt-card{position:absolute;inset:0;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);
+    padding:24px;opacity:0;transform:translateY(10px);transition:opacity .55s cubic-bezier(.2,.7,.2,1),transform .55s cubic-bezier(.2,.7,.2,1);pointer-events:none}
+  .mt-card.on{opacity:1;transform:none;pointer-events:auto}
+  .mt-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+  .mt-pos{font-family:var(--fd);font-weight:800;font-size:var(--fs-legenda);letter-spacing:.8px;color:var(--slate);
+    background:var(--bg3);border:1px solid var(--border);border-radius:99px;padding:4px 10px}
+  .mt-selo{font-family:var(--fd);font-weight:900;font-size:var(--fs-micro);letter-spacing:.8px;text-transform:uppercase;
+    color:#0A0F0A;background:var(--gold);border-radius:99px;padding:4px 10px;white-space:nowrap}
+  .mt-nome{font-family:var(--fd);font-weight:900;font-size:var(--fs-titulo);line-height:1.1;margin-bottom:4px}
+  .mt-meta{font-size:var(--fs-legenda);color:var(--muted);margin-bottom:18px}
+  .mt-prova{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding-top:16px;border-top:1px solid var(--border)}
+  .mt-v{font-family:var(--fd);font-weight:900;font-size:var(--fs-sub);color:var(--text)}
+  .mt-l{font-size:var(--fs-micro);color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+  .mt-dots{display:flex;gap:6px;justify-content:center;margin-top:18px}
+  .mt-dot{width:6px;height:6px;border-radius:99px;background:var(--border2);transition:background .3s,width .3s}
+  .mt-dot.on{background:var(--gold);width:18px}
 </style>
 
 <section class="persona-stage" id="personas">
@@ -378,14 +403,14 @@ footer .logo b{font-size:17px}
 
     <div class="doors">
       <button class="door reveal" onclick="abrirPainel('academia')">
-        <span class="door-ico">🏟️</span>
+        <svg class="door-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-5h6v5"/></svg>
         <span class="door-k">Tenho uma academia</span>
         <span class="door-d">Os teus treinadores trabalham melhor e cada atleta leva o percurso consigo. Acompanha e aconselha os melhores.</span>
         <span class="door-p">Planos a partir de 50€/mês</span>
         <span class="door-more">Ver como funciona →</span>
       </button>
       <button class="door reveal" onclick="abrirPainel('coachbase')">
-        <span class="door-ico">🧠</span>
+        <svg class="door-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 4v16"/></svg>
         <span class="door-k">Sou treinador</span>
         <span class="door-d">Prancheta, sessões geradas, convocatórias, presenças e o Balneário. A ferramenta do dia a dia.</span>
         <span class="door-p">20€ por época</span>
@@ -394,9 +419,9 @@ footer .logo b{font-size:17px}
     </div>
 
     <div class="mini-row">
-      <button class="mini reveal" onclick="abrirPainel('passaporte')"><span class="mini-ico">⚽</span><span>Sou pai/mãe ou atleta — <b>Passaporte grátis</b></span></button>
-      <button class="mini reveal" onclick="abrirPainel('pro')"><span class="mini-ico">👤</span><span>Quero acompanhamento — <b>Pro Treinador</b></span></button>
-      <button class="mini reveal" onclick="abrirPainel('scout')"><span class="mini-ico">🔎</span><span>Sou scout ou clube — <b>Scout Report</b></span></button>
+      <button class="mini reveal" onclick="abrirPainel('passaporte')"><svg class="mini-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 7l3.5 2.5-1.3 4.1h-4.4L8.5 9.5z" stroke-linejoin="round"/></svg><span>Sou pai/mãe ou atleta — <b>Passaporte grátis</b></span></button>
+      <button class="mini reveal" onclick="abrirPainel('pro')"><svg class="mini-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.9 3.1-7 7-7s7 3.1 7 7"/></svg><span>Quero acompanhamento — <b>Pro Treinador</b></span></button>
+      <button class="mini reveal" onclick="abrirPainel('scout')"><svg class="mini-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><span>Sou scout ou clube — <b>Scout Report</b></span></button>
     </div>
   </div>
 </section>
@@ -410,6 +435,19 @@ footer .logo b{font-size:17px}
       <div class="pilar reveal"><div class="pilar-nome">Prova</div><div class="pilar-desc">Cada registo diz quem observou, quando e em que contexto. Não são números soltos.</div></div>
       <div class="pilar reveal"><div class="pilar-nome">Decide a família</div><div class="pilar-desc">Nada é público sem autorização. E pode ser retirada a qualquer momento.</div></div>
     </div>
+  </div>
+</section>
+
+<section class="mt-stage" id="montra-viva">
+  <div class="narrow">
+    <span class="eyebrow reveal" style="display:block;text-align:center">Não é uma promessa</span>
+    <h2 class="reveal" style="text-align:center;margin-bottom:8px">Percursos a acontecer.</h2>
+    <p class="sub reveal" style="text-align:center;max-width:440px;margin:0 auto">Atletas reais, com autorização das famílias. Isto é o que fica registado.</p>
+    <div class="mt-wrap reveal" id="mt-wrap">
+      <div class="mt-card on" style="position:relative"><div class="mt-nome" style="color:var(--muted)">A carregar percursos…</div></div>
+    </div>
+    <div class="mt-dots" id="mt-dots"></div>
+    <div style="text-align:center;margin-top:20px"><a class="btn btn-ghost" href="montra.html">Ver todos os percursos <span class="arr">→</span></a></div>
   </div>
 </section>
 
@@ -537,6 +575,60 @@ function fecharPainel(){
   document.body.style.overflow='';
 }
 document.addEventListener('keydown',function(e){ if(e.key==='Escape')fecharPainel(); });
+
+/* ── montra rotativa: atletas reais, 2 em 2 segundos ── */
+function _montraArranca(){
+  var CFG=window.YTB_CONFIG||{};
+  if(!CFG.SUPABASE_URL||!window.supabase)return;
+  var supa=window.supabase.createClient(CFG.SUPABASE_URL,CFG.SUPABASE_KEY);
+  var POS={GR:'Guarda-redes',DC:'Defesa central',LD:'Lateral direito',LE:'Lateral esquerdo',
+           MD:'Médio defensivo',MC:'Médio centro',MO:'Médio ofensivo',ED:'Extremo direito',
+           EE:'Extremo esquerdo',PL:'Ponta de lança',AV:'Avançado'};
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+
+  supa.rpc('ytb_montra',{}).then(function(r){
+    var lista=(r&&r.data)||[];
+    var wrap=document.getElementById('mt-wrap'), dots=document.getElementById('mt-dots');
+    if(!wrap)return;
+    if(!lista.length){ wrap.innerHTML='<div class="mt-card on" style="position:relative"><div class="mt-nome" style="color:var(--muted)">Ainda sem percursos públicos.</div><div class="mt-meta">Os atletas aparecem aqui quando as famílias autorizam.</div></div>'; return; }
+    lista=lista.slice(0,6);
+
+    wrap.innerHTML=lista.map(function(a,i){
+      var meta=[POS[a.posicao]||a.posicao,a.escalao,a.clube].filter(Boolean).join(' · ');
+      var selo=a.acompanhado?'<span class="mt-selo">★ YTB Acompanhado</span>':'';
+      return '<div class="mt-card'+(i===0?' on':'')+'">'
+        +'<div class="mt-top"><span class="mt-pos">'+esc(a.posicao||'—')+'</span>'+selo+'</div>'
+        +'<div class="mt-nome">'+esc(a.nome||'—')+'</div>'
+        +'<div class="mt-meta">'+esc(meta)+'</div>'
+        +'<div class="mt-prova">'
+        +'<div><div class="mt-v">'+(a.eventos!=null?a.eventos:'—')+'</div><div class="mt-l">eventos</div></div>'
+        +'<div><div class="mt-v">'+(a.observadores!=null?a.observadores:'—')+'</div><div class="mt-l">'+(a.observadores===1?'observador':'observadores')+'</div></div>'
+        +'<div><div class="mt-v">'+(a.epocas!=null?a.epocas:'—')+'</div><div class="mt-l">'+(a.epocas===1?'época':'épocas')+'</div></div>'
+        +'</div></div>';
+    }).join('');
+
+    if(dots) dots.innerHTML=lista.map(function(_,i){return '<span class="mt-dot'+(i===0?' on':'')+'"></span>';}).join('');
+
+    if(lista.length<2)return;
+    var reduce=false; try{reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(e){}
+    if(reduce)return; // respeita quem pediu menos movimento
+
+    var cards=wrap.querySelectorAll('.mt-card'), pontos=dots?dots.querySelectorAll('.mt-dot'):[], n=0, timer=null;
+    function mostrar(i){
+      cards[n].classList.remove('on'); if(pontos[n])pontos[n].classList.remove('on');
+      n=i; cards[n].classList.add('on'); if(pontos[n])pontos[n].classList.add('on');
+    }
+    function arrancar(){ timer=setInterval(function(){ mostrar((n+1)%cards.length); },2000); }
+    function parar(){ if(timer){clearInterval(timer);timer=null;} }
+    arrancar();
+    // pausa quando a aba está escondida (não gasta bateria a animar o que ninguém vê)
+    document.addEventListener('visibilitychange',function(){ document.hidden?parar():(timer||arrancar()); });
+    wrap.addEventListener('mouseenter',parar); wrap.addEventListener('mouseleave',function(){ timer||arrancar(); });
+  }).catch(function(){});
+}
+// o script do Supabase tem defer — só arranca quando a página (e ele) estiverem prontos
+if(document.readyState==='loading'){ window.addEventListener('DOMContentLoaded',_montraArranca); }
+else { _montraArranca(); }
 </script>
 
 <script>
