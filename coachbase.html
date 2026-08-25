@@ -130,6 +130,19 @@ body.pr-cheio.pr-deitado #prancheta-svg{
   transform:translate(-50%,-50%) rotate(90deg); transform-origin:center;
   width:auto; height:auto;  /* medidas postas pelo JS: dependem do espaco real */
 }
+/* Deitado FORA do ecrã inteiro (tablet ao comprido): o campo roda para
+   aproveitar a largura. O wrapper precisa de altura própria porque um
+   elemento rodado mantém a caixa de layout original — sem isto, o campo
+   rodado sairia por cima do que vem a seguir. */
+body.pr-deitado-solto #pr-campo-wrap{
+  position:relative; display:flex; align-items:center; justify-content:center;
+  height:calc(100vh - 190px); min-height:320px; overflow:hidden;
+}
+body.pr-deitado-solto #prancheta-svg{
+  position:absolute; top:50%; left:50%;
+  transform:translate(-50%,-50%) rotate(90deg); transform-origin:center;
+  max-width:none; max-height:none; aspect-ratio:auto;
+}
 /* Dock vertical à esquerda, estilo Ubuntu — ferramentas principais sempre à vista,
    o resto atrás do "mais" numa segunda coluna que desliza ao lado. */
 body.pr-cheio .pr-tools{
@@ -1436,11 +1449,19 @@ var PR=(function(){
     var s=document.getElementById('prancheta-svg');
     var w=document.getElementById('pr-campo-wrap');
     if(!s||!w) return;
-    var deitado=document.body.classList.contains('pr-cheio') && w.clientWidth > w.clientHeight;
+    var cheio=document.body.classList.contains('pr-cheio');
+    // Deitado no ecrã inteiro (como antes), ou num ecrã largo e baixo mesmo
+    // sem ecrã inteiro — é o caso do tablet pousado no banco, onde o campo
+    // vertical ficava pequeno ao centro a desperdiçar dois terços do ecrã.
+    var tabletAoComprido = !cheio && window.innerWidth >= 900 && window.innerWidth > window.innerHeight;
+    var deitado = (cheio && w.clientWidth > w.clientHeight) || tabletAoComprido;
     document.body.classList.toggle('pr-deitado', deitado);
+    document.body.classList.toggle('pr-deitado-solto', tabletAoComprido);
     if(!deitado){ s.style.width=''; s.style.height=''; return; }
+    var alturaUtil = cheio ? w.clientHeight : Math.max(320, window.innerHeight - 190);
+    var larguraUtil = cheio ? w.clientWidth : w.clientWidth;
     // depois de rodar: largura visivel = altura CSS, altura visivel = largura CSS
-    var esc=Math.min(w.clientHeight/340, w.clientWidth/520);
+    var esc=Math.min(alturaUtil/340, larguraUtil/520);
     s.style.width =(340*esc)+'px';
     s.style.height=(520*esc)+'px';
   }
@@ -1477,6 +1498,7 @@ var PR=(function(){
     formar();ligar();render();pintarJogadas();
     // primeiro migra o que estiver no dispositivo, depois carrega do servidor
     migrarLocais().then(carregarJogadas);
+    medirCampo();
   }
   return {init:init,render:render,reformatar:reformatar,addEquipaB:addEquipaB,addBola:addBola,addCone:addCone,cheio:cheio,mais:mais,
     undo:undo,limpar:limpar,guardarMomento:guardarMomento,irFrame:irFrame,reproduzir:reproduzir,
