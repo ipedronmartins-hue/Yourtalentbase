@@ -1,0 +1,3 @@
+-- 104: ytb_clube_meus_atletas devolve badge_estado e rating_geral,
+-- para a academia ver o estatuto atual de cada atleta na lista.
+-- Corpo integral no historico Supabase (104).

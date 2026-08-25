@@ -1,0 +1,9 @@
+-- 103: academias passam a poder acompanhar/classificar os proprios
+-- atletas (badge_estado, rating, areas de excelencia), tal como a YTB.
+-- Corrige tambem dois bugs reais: (1) a posse era so fonte_email, o
+-- que impedia o treinador ATRIBUIDO de classificar (nos 10 atletas da
+-- GFA o fonte_email e do pai que inscreveu -- nem o Nuno Teles
+-- conseguia); (2) existiam duas versoes sobrepostas da funcao.
+-- Proveniencia distingue fonte='academia' de 'treinador'.
+-- Testado: treinador atribuido ok, academia ok, estranho bloqueado.
+-- Corpo integral no historico Supabase (103).

@@ -424,17 +424,43 @@ async function carregarMeusAtletas(){
   } else {
     area.innerHTML=meusAtletasCache.map(a=>{
       const badge=a.estado==='arquivado'?'arquivado':'aprovado';
+      const ESTAT={'observado':'👀','em-crescimento':'📈','hidden-gem':'💎','destaque':'★'};
+      const estat=a.badge_estado?('<span class="ac-badge aprovado" title="Estatuto atribuído">'+ESTAT[a.badge_estado]+' '+esc(a.badge_estado.replace('-',' '))+'</span>'):'';
       return '<div class="atleta-card">'
         +'<div style="flex:1;min-width:0"><div class="ac-nome">'+esc(a.nome)+'</div>'
-        +'<div class="ac-meta">'+(a.ano||'?')+' · '+esc(a.posicao||'—')+' · '+esc(a.escalao||'—')+' <span class="ac-badge '+badge+'">'+esc(a.estado||'')+'</span></div>'
+        +'<div class="ac-meta">'+(a.ano||'?')+' · '+esc(a.posicao||'—')+' · '+esc(a.escalao||'—')+' <span class="ac-badge '+badge+'">'+esc(a.estado||'')+'</span> '+estat+'</div>'
         +'<div class="ac-mini" id="ac-mini-'+a.id+'"></div></div>'
         +'<div class="ac-actions">'
+        +(a.estado!=='arquivado'?'<button onclick="abrirAcompanhamento(\''+a.id+'\')" title="Acompanhar este atleta">📊</button>':'')
         +'<button onclick="location.href=\'passaporte.html?clube='+a.id+'\'">📔</button>'
         +(a.estado!=='arquivado'?'<button onclick="arquivarAtleta(\''+a.id+'\')">🗄</button>':'')
         +'</div></div>';
     }).join('');
     pintarMiniJornadas();
   }
+}
+
+async function abrirAcompanhamento(id){
+  const a=meusAtletasCache.find(x=>x.id===id);
+  if(!a){toast('Atleta não encontrado','red');return;}
+  const OPCOES=[['','— sem estatuto —'],['observado','👀 Observado'],['em-crescimento','📈 Em Crescimento'],['hidden-gem','💎 Hidden Gem'],['destaque','★ YTB Acompanhado']];
+  const atual=a.badge_estado||'';
+  const texto='Acompanhamento de '+a.nome+'\n\nQue estatuto queres atribuir?\n\n'
+    +OPCOES.map((o,i)=>(i+1)+'. '+o[1]+(o[0]===atual?'  ← atual':'')).join('\n')
+    +'\n\nEscreve o número:';
+  const escolha=prompt(texto);
+  if(escolha===null)return;
+  const idx=parseInt(escolha,10)-1;
+  if(isNaN(idx)||idx<0||idx>=OPCOES.length){toast('Opção inválida','red');return;}
+  const novo=OPCOES[idx][0];
+  try{
+    const{data,error}=await supa.rpc('ytb_treinador_atleta_classificar',{p_atleta:id,p_badge_estado:novo||''});
+    if(error||!data||!data.ok){
+      toast('Não foi possível: '+((data&&data.motivo)||'erro'),'red');return;
+    }
+    toast(novo?('✓ '+a.nome+' — '+OPCOES[idx][1]):'✓ Estatuto removido','green');
+    carregarMeusAtletas();
+  }catch(e){ toast('Erro ao guardar','red'); }
 }
 
 // mini-jornada por atleta: Inscrito → Passaporte → Oportunidades
