@@ -84,7 +84,12 @@ body{max-width:900px;margin:0 auto;padding-bottom:70px}
 .pr-acao{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
 .pr-acao button{min-height:48px;border-radius:10px;border:1px solid var(--border);background:var(--bg3);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;padding:0 14px;flex:1;min-width:110px}
 .pr-acao button.dourado{background:var(--gold);color:#000;border-color:var(--gold);font-weight:800}
-#prancheta-svg{width:100%;max-width:640px;display:block;margin:0 auto;border-radius:12px;background:#0B120C;touch-action:none;user-select:none}
+/* O campo é vertical (340x520): limitar só a largura fazia a altura disparar
+   (640px de largura => 979px de altura, que não cabe num portátil). Com
+   width:auto + height limitada, é a ALTURA que manda e a largura acompanha —
+   assim o SVG encolhe todo, sem ficarem margens mortas aos lados. */
+#prancheta-svg{width:auto;height:min(calc(100vh - 260px), 979px);max-width:100%;aspect-ratio:340/520;display:block;margin:0 auto;border-radius:12px;background:#0B120C;touch-action:none;user-select:none}
+@media(max-height:700px){#prancheta-svg{height:calc(100vh - 190px)}}
 .pr-frames{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:10px}
 .pr-frames .fr{width:44px;height:44px;border-radius:9px;border:1px solid var(--border);background:var(--bg3);color:var(--slate);font-weight:900;font-family:'Barlow Condensed';font-size:16px;cursor:pointer}
 .pr-frames .fr.on{border-color:var(--gold);color:var(--gold)}
