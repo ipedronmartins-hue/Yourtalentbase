@@ -1,0 +1,6 @@
+-- 107: jogadas da prancheta saem do localStorage para o servidor.
+-- Ate agora um treinador perdia todas as jogadas ao limpar o browser
+-- ou mudar de dispositivo. Apagar e arquivar, nao delete.
+-- Testado: isolamento entre treinadores confirmado (B nao ve nem
+-- consegue editar as jogadas de A).
+-- Corpo integral no historico Supabase (107).

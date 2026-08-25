@@ -90,6 +90,7 @@ body{max-width:900px;margin:0 auto;padding-bottom:70px}
 .pr-frames .fr.on{border-color:var(--gold);color:var(--gold)}
 .pr-jogadas{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
 .pr-jogadas .jg{background:var(--bg3);border:1px solid var(--border);border-radius:999px;padding:10px 14px;font-size:13px;color:#fff;cursor:pointer;display:flex;gap:8px;align-items:center}
+.pr-jogadas .jg-on{border-color:var(--gold);background:var(--gold-soft)}
 .pr-jogadas .jg b{color:var(--gold)}
 .pr-jogadas .jg .x{color:var(--red);font-weight:900;padding:0 2px}
 
@@ -1329,30 +1330,90 @@ var PR=(function(){
     img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(xml);
   }
 
-  var LS='ytbPranchetaJogadas';
-  function jogadas(){try{return JSON.parse(localStorage.getItem(LS)||'[]');}catch(e){return[];}}
-  function guardarJogada(){
-    var nome=window.prompt('Nome da jogada:','Jogada '+(jogadas().length+1));
-    if(!nome)return;
-    var lista=jogadas();
-    lista.push({nome:nome,formato:SEL.formato,estado:{tokens:E.tokens,setas:E.setas,tracos:E.tracos},frames:E.frames,ts:Date.now()});
-    localStorage.setItem(LS,JSON.stringify(lista));
-    pintarJogadas();toast('Jogada guardada 💾 (neste dispositivo)');
+  var LS='ytbPranchetaJogadas';   // legado: só para migrar o que ficou no dispositivo
+  var JOGADAS=[];                 // agora vem do servidor
+  var jogadaAberta=null;          // id da que está aberta, para guardar por cima em vez de duplicar
+
+  function jogadasLocais(){try{return JSON.parse(localStorage.getItem(LS)||'[]');}catch(e){return[];}}
+
+  // Migração silenciosa: quem já tinha jogadas neste dispositivo não as perde.
+  // Sobem uma vez para o servidor e a cópia local é marcada como migrada.
+  function migrarLocais(){
+    var locais=jogadasLocais();
+    if(!locais.length)return Promise.resolve(0);
+    var envios=locais.map(function(j){
+      return supa.rpc('ytb_coach_jogada_guardar',{
+        p_nome:j.nome||'Jogada', p_formato:j.formato||null,
+        p_estado:j.estado||{tokens:[],setas:[],tracos:[]}, p_frames:j.frames||[]
+      });
+    });
+    return Promise.all(envios).then(function(res){
+      var ok=res.filter(function(r){return r&&r.data&&r.data.ok;}).length;
+      if(ok){
+        try{ localStorage.setItem(LS+'_migrado',JSON.stringify(locais)); localStorage.removeItem(LS); }catch(e){}
+        toast('✓ '+ok+' jogada'+(ok===1?'':'s')+' deste dispositivo guardada'+(ok===1?'':'s')+' na tua conta');
+      }
+      return ok;
+    }).catch(function(){ return 0; });
   }
+
+  function carregarJogadas(){
+    return supa.rpc('ytb_coach_minhas_jogadas').then(function(r){
+      JOGADAS=(r&&r.data)||[];
+      pintarJogadas();
+      return JOGADAS;
+    }).catch(function(){ pintarJogadas(); });
+  }
+
+  function guardarJogada(){
+    if(navigator.onLine===false){ toast('⚠ Sem rede — a jogada não fica guardada na tua conta. Tenta quando tiveres ligação.'); return; }
+    var sugestao = jogadaAberta ? (JOGADAS.find(function(x){return x.id===jogadaAberta;})||{}).nome : ('Jogada '+(JOGADAS.length+1));
+    var nome=window.prompt('Nome da jogada:', sugestao||'Jogada');
+    if(!nome)return;
+    var mesma = jogadaAberta && JOGADAS.some(function(x){return x.id===jogadaAberta && x.nome===nome;});
+    supa.rpc('ytb_coach_jogada_guardar',{
+      p_nome:nome, p_formato:SEL.formato,
+      p_estado:{tokens:E.tokens,setas:E.setas,tracos:E.tracos}, p_frames:E.frames,
+      p_id: mesma ? jogadaAberta : null
+    }).then(function(r){
+      var d=r&&r.data;
+      if(r.error||!d||!d.ok){ toast('⚠ Não ficou guardada'+((d&&d.motivo)?' ('+d.motivo+')':'')); return; }
+      jogadaAberta=d.id;
+      toast(mesma?'✓ Jogada atualizada':'✓ Jogada guardada na tua conta');
+      carregarJogadas();
+    }).catch(function(){ toast('⚠ Não ficou guardada — sem ligação.'); });
+  }
+
   function pintarJogadas(){
     var box=document.getElementById('pr-jogadas');if(!box)return;
-    box.innerHTML=jogadas().map(function(j,i){
-      return '<span class="jg" onclick="PR.abrirJogada('+i+')"><b>▶</b> '+esc(j.nome)+' <span class="x" onclick="event.stopPropagation();PR.apagarJogada('+i+')">✕</span></span>';
+    if(!JOGADAS.length){ box.innerHTML='<span class="s" style="font-size:12px;color:var(--muted)">Sem jogadas guardadas ainda.</span>'; return; }
+    box.innerHTML=JOGADAS.map(function(j){
+      return '<span class="jg'+(j.id===jogadaAberta?' jg-on':'')+'" onclick="PR.abrirJogada(\''+j.id+'\')"><b>▶</b> '+esc(j.nome)+' <span class="x" onclick="event.stopPropagation();PR.apagarJogada(\''+j.id+'\')">✕</span></span>';
     }).join('');
   }
-  function abrirJogada(i){
-    var j=jogadas()[i];if(!j)return;
+
+  function abrirJogada(id){
+    var j=JOGADAS.find(function(x){return x.id===id;});if(!j)return;
     SEL.formato=j.formato||SEL.formato;
-    E.tokens=j.estado.tokens;E.setas=j.estado.setas;E.tracos=j.estado.tracos;
+    var st=j.estado||{};
+    E.tokens=st.tokens||[];E.setas=st.setas||[];E.tracos=st.tracos||[];
     E.frames=j.frames||[];E.frameAtual=E.frames.length-1;
-    render();toast('Jogada aberta: '+j.nome);
+    jogadaAberta=id;
+    render();pintarJogadas();toast('Jogada aberta: '+j.nome);
   }
-  function apagarJogada(i){var lista=jogadas();lista.splice(i,1);localStorage.setItem(LS,JSON.stringify(lista));pintarJogadas();}
+
+  function apagarJogada(id){
+    var j=JOGADAS.find(function(x){return x.id===id;});
+    if(!j)return;
+    if(!window.confirm('Apagar "'+j.nome+'"?'))return;
+    supa.rpc('ytb_coach_jogada_apagar',{p_id:id}).then(function(r){
+      var d=r&&r.data;
+      if(r.error||!d||!d.ok){ toast('⚠ Não foi possível apagar'); return; }
+      if(jogadaAberta===id)jogadaAberta=null;
+      toast('Jogada apagada');
+      carregarJogadas();
+    }).catch(function(){ toast('⚠ Sem ligação'); });
+  }
 
   /* Ecrã inteiro. Base em CSS porque o iPhone não deixa pedir fullscreen a um
      elemento qualquer — e é o telemóvel que vai estar no balneário. Quando a API
@@ -1407,7 +1468,11 @@ var PR=(function(){
     if(e.key==='Escape' && document.body.classList.contains('pr-cheio')) cheio(false);
   });
 
-  function init(){formar();ligar();render();pintarJogadas();}
+  function init(){
+    formar();ligar();render();pintarJogadas();
+    // primeiro migra o que estiver no dispositivo, depois carrega do servidor
+    migrarLocais().then(carregarJogadas);
+  }
   return {init:init,render:render,reformatar:reformatar,addEquipaB:addEquipaB,addBola:addBola,addCone:addCone,cheio:cheio,mais:mais,
     undo:undo,limpar:limpar,guardarMomento:guardarMomento,irFrame:irFrame,reproduzir:reproduzir,
     exportarPNG:exportarPNG,guardarJogada:guardarJogada,abrirJogada:abrirJogada,apagarJogada:apagarJogada,_estado:E};
