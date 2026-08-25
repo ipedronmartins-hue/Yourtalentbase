@@ -376,8 +376,10 @@ footer .logo b{font-size:17px}
 
   /* ── montra rotativa ── */
   .mt-stage{padding:clamp(70px,11vh,120px) 0;border-top:1px solid var(--border)}
-  .mt-wrap{position:relative;min-height:210px;margin-top:26px}
-  .mt-card{position:absolute;inset:0;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);
+  /* empilhamento em grelha: todos os cartões na mesma célula, o contentor
+     cresce até ao mais alto — sem altura fixa, nada transborda */
+  .mt-wrap{display:grid;margin-top:26px}
+  .mt-card{grid-area:1/1;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);
     padding:24px;opacity:0;transform:translateY(10px);transition:opacity .55s cubic-bezier(.2,.7,.2,1),transform .55s cubic-bezier(.2,.7,.2,1);pointer-events:none}
   .mt-card.on{opacity:1;transform:none;pointer-events:auto}
   .mt-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
@@ -401,6 +403,19 @@ footer .logo b{font-size:17px}
   .mt-shirt{display:flex;align-items:center;gap:12px;margin-bottom:14px}
   .mt-num{font-family:var(--fd);font-weight:900;font-size:44px;line-height:1;color:var(--gold);min-width:52px;text-align:center}
   .mt-cam{font-family:var(--fd);font-weight:800;font-size:var(--fs-legenda);letter-spacing:1.2px;text-transform:uppercase;color:var(--slate)}
+  @media(max-width:560px){
+    .mt-card{padding:20px 18px}
+    .mt-num{font-size:34px;min-width:38px}
+    .mt-shirt{gap:10px}
+    .mt-shirt .mt-nome{font-size:var(--fs-sub);line-height:1.15}
+    .mt-prova{grid-template-columns:repeat(2,1fr);gap:12px}
+    /* em ecrãs estreitos o selo deixa de ser nowrap e encurta */
+    .mt-selo{white-space:normal;text-align:right;line-height:1.25}
+  }
+  /* nada dentro do cartão pode forçar a largura para lá do ecrã */
+  .mt-card,.mt-card *{min-width:0}
+  .mt-nome,.mt-meta,.mt-cam{overflow-wrap:anywhere}
+  .mt-shirt>div:last-child{flex:1;min-width:0}
   .mt-tit{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
   .mt-tchip{display:inline-flex;align-items:center;gap:5px;font-size:var(--fs-micro);font-weight:700;letter-spacing:.4px;
     color:var(--gold);background:var(--gold-soft);border:1px solid var(--gold-border);border-radius:99px;padding:4px 10px}
@@ -419,7 +434,7 @@ footer .logo b{font-size:17px}
     <h2 class="reveal" style="text-align:center;margin-bottom:8px">Percursos a acontecer.</h2>
     <p class="sub reveal" style="text-align:center;max-width:440px;margin:0 auto">Atletas reais, com autorização das famílias. Isto é o que fica registado.</p>
     <div class="mt-wrap reveal" id="mt-wrap">
-      <div class="mt-card on" style="position:relative"><div class="mt-nome" style="color:var(--muted)">A carregar percursos…</div></div>
+      <div class="mt-card on"><div class="mt-nome" style="color:var(--muted)">A carregar percursos…</div></div>
     </div>
     <div class="mt-dots" id="mt-dots"></div>
     <p class="reveal" style="text-align:center;margin-top:16px;font-size:var(--fs-legenda);color:var(--muted);max-width:420px;margin-left:auto;margin-right:auto">
@@ -629,7 +644,7 @@ function _montraArranca(){
     var lista=(r&&r.data)||[];
     var wrap=document.getElementById('mt-wrap'), dots=document.getElementById('mt-dots');
     if(!wrap)return;
-    if(!lista.length){ wrap.innerHTML='<div class="mt-card on" style="position:relative"><div class="mt-nome" style="color:var(--muted)">Ainda sem percursos públicos.</div><div class="mt-meta">Os atletas aparecem aqui quando as famílias autorizam.</div></div>'; return; }
+    if(!lista.length){ wrap.innerHTML='<div class="mt-card on"><div class="mt-nome" style="color:var(--muted)">Ainda sem percursos públicos.</div><div class="mt-meta">Os atletas aparecem aqui quando as famílias autorizam.</div></div>'; return; }
     lista=lista.slice(0,6);
 
     wrap.innerHTML=lista.map(function(a,i){
