@@ -1,0 +1,7 @@
+-- 101: criterio tecnico de "YTB Acompanhado" na Montra -- relacao
+-- profissional + pelo menos 1 avaliacao real de treinador +
+-- atividade nos ultimos 90 dias. Escolhido com base em dados reais:
+-- todos os 23 atletas ativos ja tem treinador/academia, entao um
+-- criterio so de "tem relacao" marcaria toda a gente e esvaziaria o
+-- selo. Consentimento inalterado.
+-- Corpo integral no historico Supabase (101).

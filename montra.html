@@ -56,6 +56,7 @@
 
   /* v3: percurso e proveniência (nunca notas) */
   .c-selo{display:inline-flex;align-items:center;gap:5px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:10px;letter-spacing:.8px;text-transform:uppercase;color:var(--gold);background:var(--gold-soft);border:1px solid var(--gold-border);border-radius:999px;padding:4px 9px;white-space:nowrap}
+  .c-acomp{display:inline-flex;align-items:center;gap:5px;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:10px;letter-spacing:.8px;text-transform:uppercase;color:#0A0F0A;background:var(--gold);border:1px solid var(--gold);border-radius:999px;padding:4px 9px;white-space:nowrap}
   .c-ativo{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--up)}
   .c-ativo .pulse{width:6px;height:6px;border-radius:50%;background:var(--up);flex:none}
   .c-prova{display:flex;gap:2px;margin-top:12px;background:var(--bg);border:1px solid var(--border);border-radius:10px;overflow:hidden}
@@ -192,7 +193,9 @@
     grid.innerHTML=lista.map(function(a){
       var pos=a.posicao?('<span class="c-pos">'+esc(a.posicao)+'</span>'):'<span></span>';
       var selo=seloDe(a.verificacao);
-      var topoDir=selo?('<span class="c-selo">✦ '+esc(selo)+'</span>'):(a.ativo?'<span class="c-ativo"><span class="pulse"></span>ativo</span>':'');
+      var topoDir=a.acompanhado
+        ?'<span class="c-acomp">★ YTB ACOMPANHADO</span>'
+        :(selo?('<span class="c-selo">✦ '+esc(selo)+'</span>'):(a.ativo?'<span class="c-ativo"><span class="pulse"></span>ativo</span>':''));
       var meta=[POS[a.posicao]||a.posicao,a.escalao,a.associacao].filter(Boolean).join(' · ');
       var prova='<div class="c-prova">'
         +'<div><div class="v">'+(a.epocas!=null?a.epocas:'—')+'</div><div class="l">'+(a.epocas===1?'época':'épocas')+'</div></div>'
