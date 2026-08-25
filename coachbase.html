@@ -219,8 +219,8 @@ body.pr-cheio #pr-sair{display:block}
     <div class="login-title">Coach<span>Base</span></div>
     <div class="login-sub">Prancheta com táticas nomeadas · banco de 85 exercícios (físico incluído a sério) · microciclos coerentes · leitura do adversário por IA · Balneário (a comunidade privada dos misters)</div>
     <div style="display:inline-flex;align-items:baseline;gap:6px;background:var(--gold-soft);border:1px solid var(--gold-border);border-radius:999px;padding:8px 18px;margin-bottom:8px">
-      <span style="font-family:'Barlow Condensed';font-weight:900;font-size:26px;color:var(--gold)">9,90€</span>
-      <span style="font-size:12px;color:var(--slate)">/mês por treinador</span>
+      <span style="font-family:'Barlow Condensed';font-weight:900;font-size:26px;color:var(--gold)">20€</span>
+      <span style="font-size:12px;color:var(--slate)">/época · sem mensalidade</span>
     </div>
   </div>
   <div class="login-box">
@@ -230,9 +230,13 @@ body.pr-cheio #pr-sair{display:block}
     <div class="err" id="lerr">Não foi possível enviar o link.</div>
     <div id="lok" style="display:none;color:var(--green);font-size:13px;margin:10px 0"></div>
     <button class="btn" id="lbtn" onclick="login()" style="margin-top:12px">Receber link de acesso →</button>
-    <div style="text-align:center;font-size:12px;color:var(--slate);margin-top:12px">Ainda não tens subscrição? <a href="https://wa.me/351913695846?text=Ol%C3%A1%21%20%F0%9F%91%8B%20Sou%20treinador%20e%20quero%20aceder%20ao%20CoachBase%20%289%2C90%E2%82%AC/m%C3%AAs%29.%20Como%20come%C3%A7o%3F" target="_blank" rel="noopener" style="color:var(--gold);font-weight:700;text-decoration:none">Pedir acesso via WhatsApp →</a></div>
+    <div style="text-align:center;font-size:12px;color:var(--slate);margin-top:12px">Ainda não tens subscrição? <a href="https://wa.me/351913695846?text=Ol%C3%A1%21%20%F0%9F%91%8B%20Sou%20treinador%20e%20quero%20aceder%20ao%20CoachBase%20%2820%E2%82%AC%2F%C3%A9poca%29.%20Como%20come%C3%A7o%3F" target="_blank" rel="noopener" style="color:var(--gold);font-weight:700;text-decoration:none">Pedir acesso via WhatsApp →</a></div>
   </div>
   <button class="btn btn-sec" onclick="experimentarSemEntrar()" style="max-width:440px;margin:0 auto;display:block">🔍 Experimentar sem entrar</button>
+  <div style="max-width:440px;margin:8px auto 0;text-align:center;font-size:12px;color:var(--muted);line-height:1.5">
+    Sem conta podes usar a prancheta, gerar sessões e microciclos — nada fica guardado.<br>
+    Presenças, convocatórias, minutos e Balneário precisam de conta.
+  </div>
 </div>
 
 <div id="main">
@@ -937,6 +941,7 @@ function ligarJogador(jogadorId){
   });
 }
 function criarJogador(){
+  if(precisaConta('criar jogadores'))return;
   var nome=document.getElementById('novo-jog-nome').value.trim();
   var pos=document.getElementById('novo-jog-pos').value.trim();
   var num=document.getElementById('novo-jog-num').value;
@@ -963,6 +968,7 @@ window.addEventListener('offline',pintarEstadoRede);
 document.addEventListener('DOMContentLoaded',pintarEstadoRede);
 
 function guardarPresencas(){
+  if(precisaConta('marcar presenças'))return;
   if(!plantel.length){toast('Sem plantel');return;}
   if(navigator.onLine===false){
     toast('⚠ Sem rede — as presenças precisam de ligação para ficarem guardadas. A prancheta e as sessões continuam a funcionar.');
@@ -1384,6 +1390,7 @@ var PR=(function(){
   }
 
   function guardarJogada(){
+    if(precisaConta('guardar jogadas'))return;
     if(navigator.onLine===false){ toast('⚠ Sem rede — a jogada não fica guardada na tua conta. Tenta quando tiveres ligação.'); return; }
     var sugestao = jogadaAberta ? (JOGADAS.find(function(x){return x.id===jogadaAberta;})||{}).nome : ('Jogada '+(JOGADAS.length+1));
     var nome=window.prompt('Nome da jogada:', sugestao||'Jogada');
@@ -1707,6 +1714,12 @@ function mostrarMain(){
   }
 }
 function experimentarSemEntrar(){ MODO_DEMO=true; mostrarMain(); }
+function precisaConta(oque){
+  if(!MODO_DEMO) return false;
+  toast('🔍 Demonstração — '+oque+' precisa de conta. Cria a tua para guardar o teu trabalho.');
+  return true;
+}
+
 // Processa a sessão SEM location.reload(): o onAuthStateChange dispara
 // logo ao carregar a página quando já há sessão (INITIAL_SESSION) e a cada
 // refresh de token — recarregar aqui cria um ciclo infinito entrar/sair
@@ -1724,7 +1737,15 @@ function processarSessao(s){
 }
 (function(){
   if(new URLSearchParams(location.search).get('demo')==='1'){experimentarSemEntrar();return;}
-  if(!USING_SB){mostrarMain();return;}
+  if(!USING_SB){
+    // O Supabase vem de um CDN externo: pode ser bloqueado por ad-blocker,
+    // estar lento, ou falhar. Antes, isto abria a app SEM LOGIN e sem sequer
+    // avisar que era demonstração — qualquer pessoa via o CoachBase inteiro.
+    var sub=document.querySelector('.login-sub');
+    if(sub) sub.innerHTML='Não foi possível ligar ao servidor — verifica a ligação ou desativa o bloqueador de anúncios para este site.'
+      +'<br><br><a href="?demo=1" style="color:var(--gold);text-decoration:underline">Ver em modo demonstração →</a>';
+    return;
+  }
   supa.auth.getSession().then(function(res){
     var s=res&&res.data&&res.data.session;
     if(s)processarSessao(s);
