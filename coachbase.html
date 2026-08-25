@@ -417,6 +417,11 @@ body.pr-cheio #pr-sair{display:block}
       <div class="s">Quem a família ainda não respondeu, quem foi convocado e não jogou, quantos minutos cada um leva. Vem das convocatórias que crias aqui — a família só confirma o que aconteceu.</div>
       <div id="min-lista"><div class="s">A carregar…</div></div>
     </div>
+    <div class="card">
+      <div class="h">O teu <span style="color:var(--gold)">percurso</span></div>
+      <div class="s">Cada época fica guardada. A época nova começa a 1 de julho, sem apagar nada do que já fizeste.</div>
+      <div id="epocas-lista"><div class="s">A carregar…</div></div>
+    </div>
   </div>
 </div>
 
@@ -439,7 +444,22 @@ function aplicarTabCB(idx){
   if(t==='adv')ADV.init();
   if(t==='minutos')carregarMinutos();
 }
+function carregarEpocas(){
+  var box=document.getElementById('epocas-lista');
+  supa.rpc('ytb_coach_historico_epocas').then(function(r){
+    var eps=r.data||[];
+    if(!eps.length){ box.innerHTML='<div class="s">Ainda sem histórico — assim que registares a primeira sessão, a época começa a contar.</div>'; return; }
+    box.innerHTML=eps.map(function(e){
+      var etiqueta=e.atual?'<span style="color:var(--up);font-size:10px;font-weight:800;letter-spacing:.5px"> ● EM CURSO</span>':'';
+      return '<div class="linha"><div><div class="nm">'+esc(e.epoca)+etiqueta+'</div>'
+        +'<div class="mt">'+e.sessoes+' '+(e.sessoes===1?'sessão':'sessões')
+        +' · '+e.convocatorias+' '+(e.convocatorias===1?'convocatória':'convocatórias')
+        +' · '+e.presencas+' presenças</div></div></div>';
+    }).join('');
+  }).catch(function(){ box.innerHTML='<div class="s">Não foi possível carregar o histórico.</div>'; });
+}
 function carregarMinutos(){
+  carregarEpocas();
   var box=document.getElementById('min-lista');
   supa.rpc('ytb_coach_minutos_resumo').then(function(r){
     var lista=r.data||[];

@@ -1,0 +1,5 @@
+-- 105: historico cumulativo por epoca no CoachBase. Epoca DERIVADA da
+-- data (_ytb_epoca_de, julho-junho) em vez de coluna nova -- nada
+-- para migrar, impossivel dessincronizar, funciona retroativamente.
+-- Testado nos casos-limite da viragem junho/julho.
+-- Corpo integral no historico Supabase (105).
