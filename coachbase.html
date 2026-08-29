@@ -581,7 +581,13 @@ var BANCO_EQUIPA={
     {id:'fi15',nome:'Resistência específica com bola (jogo contínuo)',sub:'resistencia',tierMin:2,min:15,int:3,equip:'coletes',org:'campo reduzido',foco:'resistência de jogo real',obs:'jogo sem paragens longas, rotação para manter intensidade'},
     {id:'fi16',nome:'Mobilidade de anca para futebolista',sub:'mobilidade',tierMin:0,min:6,int:1,equip:'nenhum',org:'individual',foco:'amplitude de movimento',obs:'agachamento profundo, borboleta, passada de lobo — rotina curta'},
     {id:'fi17',nome:'Pliometria avançada (saltos e mudanças)',sub:'forca',tierMin:3,min:10,int:3,equip:'nenhum',org:'estações',foco:'potência explosiva',obs:'aterragens controladas, volume baixo alta qualidade'},
-    {id:'fi18',nome:'Corrida de recuperação pós-jogo',sub:'resistencia',tierMin:1,min:10,int:1,equip:'nenhum',org:'grupo, ritmo leve',foco:'recuperação ativa',obs:'ritmo muito baixo, soltar as pernas — usar no dia a seguir ao jogo'}
+    {id:'fi18',nome:'Corrida de recuperação pós-jogo',sub:'recuperacao',tierMin:1,min:10,int:1,equip:'nenhum',org:'grupo, ritmo leve',foco:'recuperação ativa',obs:'ritmo muito baixo, soltar as pernas — usar no dia a seguir ao jogo'},
+    {id:'fi19',nome:'Retorno à calma com respiração',sub:'recuperacao',tierMin:0,min:6,int:1,equip:'nenhum',org:'círculo, sentados',foco:'baixar frequência cardíaca',obs:'respiração 4-6 (inspira 4s, expira 6s), alongamento passivo suave — momento para falar do treino'},
+    {id:'fi20',nome:'Libertação miofascial com bola',sub:'recuperacao',tierMin:1,min:8,int:1,equip:'bolas',org:'individual, no chão',foco:'aliviar tensão muscular',obs:'planta do pé, gémeo e glúteo, 30-40s por zona — pressão que incomoda mas não dói'},
+    {id:'fi21',nome:'Alongamento longo pós-esforço',sub:'recuperacao',tierMin:0,min:8,int:1,equip:'colchão',org:'individual',foco:'amplitude e recuperação',obs:'isquiotibiais, quadricípite, adutores e gémeos — 30s cada, sem molas, só no fim do treino'},
+    {id:'fi22',nome:'Caminhada e mobilidade articular final',sub:'recuperacao',tierMin:0,min:5,int:1,equip:'nenhum',org:'à volta do campo',foco:'transição para o descanso',obs:'andar a passo, círculos de tornozelo, anca e ombro — fecha a sessão sem parar de repente'},
+    {id:'fi23',nome:'Mobilidade de tornozelo e pé',sub:'mobilidade',tierMin:0,min:6,int:1,equip:'nenhum',org:'individual',foco:'amplitude e apoio',obs:'joelho à parede, elevações de gémeo, mobilidade do hálux — base para travar e mudar de direção'},
+    {id:'fi24',nome:'Mobilidade torácica e ombros',sub:'mobilidade',tierMin:1,min:6,int:1,equip:'nenhum',org:'pares',foco:'postura e rotação',obs:'rotações torácicas no chão, abertura de peito — ajuda a correr mais solto e a proteger a bola'}
   ],
   tecnica:[
     {id:'te1',nome:'Passe e movimento em triângulos',tierMin:0,min:8,int:1,equip:'bolas + cones',org:'grupos de 3, triângulo 8m',foco:'passe e apoio',obs:'passa e move-te sempre, nunca fica parado depois do passe'},
@@ -726,7 +732,8 @@ var DIA_PLANO={
     {nome:'Técnica',cat:'tecnica',n:1},
     {nome:'Saída de bola',cat:'saida_bola',n:1},
     {nome:'Rotina de secção',cat:'rotina_seccao',n:1},
-    {nome:'Jogo de posse',cat:'geral',sub:'posse',n:1}
+    {nome:'Jogo de posse',cat:'geral',sub:'posse',n:1},
+    {nome:'Retorno à calma',cat:'fisico',sub:'recuperacao',n:1}
   ]},
   'MD-2':{titulo:'Intensidade tática',blocos:[
     {nome:'Ativação',cat:'fisico',sub:'ativacao',n:1},
@@ -734,13 +741,15 @@ var DIA_PLANO={
     {nome:'Linha defensiva',cat:'linha_defensiva',n:1},
     {nome:'Reação à perda',cat:'reacao_perda',n:1},
     {nome:'Movimentação',cat:'movimentacao',n:1},
-    {nome:'Jogo de transição',cat:'geral',sub:'transicao',n:1}
+    {nome:'Jogo de transição',cat:'geral',sub:'transicao',n:1},
+    {nome:'Retorno à calma',cat:'fisico',sub:'recuperacao',n:1}
   ]},
   'MD-1':{titulo:'Ativação e afinação',blocos:[
     {nome:'Ativação leve',cat:'fisico',sub:'mobilidade',n:1},
     {nome:'Bolas paradas',cat:'bola_parada',capMin:10},
     {nome:'Movimentação · revisão',cat:'movimentacao',n:1},
-    {nome:'Finalização',cat:'geral',sub:'finalizacao',n:1}
+    {nome:'Finalização',cat:'geral',sub:'finalizacao',n:1},
+    {nome:'Retorno à calma',cat:'fisico',sub:'recuperacao',n:1}
   ]}
 };
 // blocos táticos/de bola-parada não têm conteúdo abaixo de tier1-2 de

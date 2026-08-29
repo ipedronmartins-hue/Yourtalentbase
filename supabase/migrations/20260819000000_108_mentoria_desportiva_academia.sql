@@ -1,0 +1,5 @@
+-- 108: contacto do responsavel pela mentoria desportiva de cada
+-- academia, visivel as familias dos seus atletas. YTB mostra o
+-- contacto, nao intermedeia nem certifica -- responsabilidade da
+-- academia. So quem tem relacao legitima com o atleta ve.
+-- Corpo integral no historico Supabase (108).

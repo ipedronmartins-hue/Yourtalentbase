@@ -268,6 +268,23 @@
   // ── helpers ──
   function el(html){var t=document.createElement('template');t.innerHTML=html.trim();return t.content.firstChild;}
   function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+
+  function carregarMentoria(atletaId){
+    if(!USING_SB)return;
+    supa.rpc('ytb_familia_mentoria',{p_atleta:atletaId}).then(function(res){
+      var box=document.getElementById('mentoria-box');
+      if(!box || res.error || !res.data)return;   // sem mentoria definida — não mostra nada, não é erro
+      var m=res.data;
+      box.innerHTML =
+        '<div class="shead">Mentoria desportiva</div>'+
+        '<div class="panel" style="border-color:var(--gold-border,rgba(212,175,55,.32))">'+
+          '<div style="font-weight:700;margin-bottom:2px">'+esc(m.nome)+'</div>'+
+          '<div style="font-size:12px;color:var(--muted);margin-bottom:8px">'+esc(m.academia)+(m.nota?' · '+esc(m.nota):'')+'</div>'+
+          '<div style="font-size:14px">'+esc(m.contacto)+'</div>'+
+          '<div style="font-size:11px;color:var(--muted);margin-top:8px">A academia disponibiliza este contacto — a YTB não intermedeia o acompanhamento.</div>'+
+        '</div>';
+    }).catch(function(){});
+  }
   function curveSVG(serie,pct){
     var w=636,h=150,n=serie.length;
     var pts=serie.map(function(v,i){return [ +(i*(w/(n-1))).toFixed(1), +(h - (v/100)*(h*0.74) - h*0.08).toFixed(1) ];});
@@ -483,6 +500,9 @@
     if(d.devScore){ html+='<div class="shead">Development Score</div>'+devScoreHTML(d.devScore); }
     // (pentagrama já aparece em "O teu filho" — não repetir aqui)
     if(d.contextoIA && d.contextoIA.texto){ html+='<details class="ver-mais"><summary>Ver leitura de contexto</summary><div class="shead">Leitura de contexto</div>'+contextoIAHTML(d.contextoIA)+'</details>'; }
+    // mentoria desportiva da academia (se existir) — carregada à parte,
+    // porque depende de uma chamada própria e não deve atrasar o resto
+    html+='<div id="mentoria-box"></div>';
     // marcos
     html+='<div class="shead">Marcos da Carreira</div><div class="marcos">'+d.marcos.map(function(m){return '<div class="marco"><span class="ic">'+m[0]+'</span><span class="tt">'+esc(m[1])+'</span><span class="wn">'+esc(m[2])+'</span></div>';}).join('')+'</div>';
     // carreira (registada pela família, época a época — nunca inventada)
@@ -2046,6 +2066,7 @@
         carregarFamiliaExtras(familiaAtleta);
         carregarTreino(familiaAtleta);
         carregarPrivacidade(familiaAtleta);
+        carregarMentoria(familiaAtleta);
       }catch(e){
         // NUNCA cair em dados de exemplo com sessão real — um erro de render
         // não pode vestir dados falsos de dados verdadeiros.

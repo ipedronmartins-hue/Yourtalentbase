@@ -105,6 +105,7 @@ body{max-width:520px;margin:0 auto;padding-bottom:60px}
       <div style="font-size:14px;font-weight:700;color:#fff" id="nome-clube">Organização</div>
       <div style="font-size:11px;color:var(--muted);margin-top:2px" id="plano-clube">—</div>
     </div>
+    <button class="lote-rm" style="color:var(--gold);width:34px;height:34px;flex:none" title="Mentoria desportiva" onclick="abrirMentoria()">🧭</button>
     <button class="lote-rm" style="color:var(--gold);width:34px;height:34px;flex:none" title="Marca da organização" onclick="abrirMarca()">🎨</button>
   </div>
 
@@ -134,6 +135,24 @@ body{max-width:520px;margin:0 auto;padding-bottom:60px}
       <div class="err" id="marca-err" style="display:none"></div>
       <button class="btn btn-primary" id="marca-btn" style="margin-top:6px" onclick="guardarMarca()">Guardar marca →</button>
       <button class="btn btn-secondary" style="margin-top:8px" onclick="fecharMarca()">Fechar</button>
+    </div>
+  </div>
+
+  <!-- MENTORIA DESPORTIVA -->
+  <div class="na-modal" id="mentoriaModal">
+    <div class="na-box">
+      <div class="section-title" style="margin-bottom:2px">Mentoria <span style="color:var(--gold)">desportiva</span></div>
+      <div class="section-sub" style="margin-bottom:14px">Quem, na tua academia, acompanha o atleta para lá do futebol. O contacto fica visível às famílias dos teus atletas — e a mais ninguém.</div>
+      <div class="field"><label class="label">Nome do responsável</label><input class="input" id="ment_nome" type="text" placeholder="Ex: Ana Ferreira"></div>
+      <div class="field"><label class="label">Contacto</label><input class="input" id="ment_contacto" type="text" placeholder="Telefone ou email"></div>
+      <div class="field"><label class="label">Nota <span style="font-weight:400;color:var(--slate)">(opcional)</span></label>
+        <input class="input" id="ment_nota" type="text" placeholder="Ex: Psicóloga do desporto · terças e quintas"></div>
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:11px 13px;font-size:12px;color:var(--muted);line-height:1.55;margin-bottom:12px">
+        A YTB mostra este contacto, não intermedeia o acompanhamento. A responsabilidade pela qualificação de quem indicas é da academia.
+      </div>
+      <div class="err" id="ment-err" style="display:none"></div>
+      <button class="btn btn-primary" id="ment-btn" onclick="guardarMentoria()">Guardar →</button>
+      <button class="btn btn-secondary" style="margin-top:8px" onclick="fecharMentoria()">Fechar</button>
     </div>
   </div>
 
@@ -375,6 +394,34 @@ function abrirMarca(){
   document.getElementById('marcaModal').classList.add('show');
 }
 function fecharMarca(){ document.getElementById('marcaModal').classList.remove('show'); }
+
+function abrirMentoria(){
+  document.getElementById('ment-err').style.display='none';
+  document.getElementById('ment_nome').value=(minhaConta&&minhaConta.mentoria_nome)||'';
+  document.getElementById('ment_contacto').value=(minhaConta&&minhaConta.mentoria_contacto)||'';
+  document.getElementById('ment_nota').value=(minhaConta&&minhaConta.mentoria_nota)||'';
+  document.getElementById('mentoriaModal').classList.add('show');
+}
+function fecharMentoria(){ document.getElementById('mentoriaModal').classList.remove('show'); }
+
+async function guardarMentoria(){
+  const err=document.getElementById('ment-err');
+  err.style.display='none';
+  const nome=document.getElementById('ment_nome').value.trim();
+  const contacto=document.getElementById('ment_contacto').value.trim();
+  const nota=document.getElementById('ment_nota').value.trim();
+  if(nome && !contacto){ err.style.display='block'; err.textContent='Falta o contacto — sem ele a família não consegue chegar à pessoa.'; return; }
+  const btn=document.getElementById('ment-btn');
+  btn.disabled=true; btn.textContent='A guardar…';
+  try{
+    const{data,error}=await supa.rpc('ytb_clube_mentoria_definir',{p_nome:nome||null,p_contacto:contacto||null,p_nota:nota||null});
+    if(error||!data||!data.ok){ err.style.display='block'; err.textContent='Não foi possível guardar: '+((data&&data.motivo)||'erro'); return; }
+    if(minhaConta){ minhaConta.mentoria_nome=nome; minhaConta.mentoria_contacto=contacto; minhaConta.mentoria_nota=nota; }
+    toast('✓ Mentoria atualizada','green');
+    fecharMentoria();
+  }catch(e){ err.style.display='block'; err.textContent='Erro de ligação — tenta de novo.'; }
+  finally{ btn.disabled=false; btn.textContent='Guardar →'; }
+}
 document.addEventListener('DOMContentLoaded',function(){
   const picker=document.getElementById('marca_cor_picker');
   const texto=document.getElementById('marca_cor');

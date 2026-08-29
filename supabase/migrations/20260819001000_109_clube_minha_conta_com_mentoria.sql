@@ -1,0 +1,2 @@
+-- 109: ytb_clube_minha_conta devolve os campos de mentoria, sem os
+-- quais o modal de edicao nunca pre-preenchia o que ja estava guardado.
