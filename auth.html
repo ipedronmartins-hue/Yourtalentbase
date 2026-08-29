@@ -137,7 +137,7 @@ async function doMagic(){
   const { error } = await supa.auth.signInWithOtp({ email: email, options: { emailRedirectTo: redirect } });
   if(error){ mostrarErro('Nao foi possivel enviar o link. Tenta novamente.'); btn.disabled = false; btn.textContent = 'Entrar por link no email ✉'; return; }
   btn.textContent = 'Link enviado ✓ Ve o teu email';
-  document.getElementById('info').innerHTML = 'Abre o link no email para entrares. Podes fechar esta pagina.';
+  document.getElementById('info').innerHTML = 'Abre o link no email para entrares. Se abrir numa aba nova, esta entra sozinha — nao precisas de fazer mais nada aqui.';
 }
 
 async function doLogin(){
@@ -233,6 +233,19 @@ document.getElementById('email').addEventListener('keydown', e => {
   }
   document.getElementById('email').focus();
 })();
+
+// O link de acesso costuma abrir numa aba NOVA (comportamento do Gmail e da
+// maioria dos clientes de email). Essa aba nova autentica com sucesso, mas
+// esta aba original, caso a pessoa fique nela, só saberia disso ao dar
+// refresh manual. 'storage' dispara entre abas do mesmo browser quando a
+// sessão é escrita, por isso detetamos e encaminhamos sem precisar de refresh.
+window.addEventListener('storage', async (ev) => {
+  if(!ev.key || ev.key.indexOf('auth') === -1) return;
+  const { data: { session } } = await supa.auth.getSession();
+  if(!session) return;
+  const { data: perfil } = await supa.from('perfis').select('papel, estado').eq('id', session.user.id).maybeSingle();
+  if(perfil && perfil.estado === 'aprovado') irPara(perfil.papel);
+});
 </script>
 
 </body>

@@ -647,7 +647,9 @@ document.getElementById('email-input').addEventListener('keypress',e=>{if(e.key=
 
 /* arranque */
 document.addEventListener('DOMContentLoaded',()=>{processarSessao();});
-if(supa){supa.auth.onAuthStateChange(()=>{processarSessao();});}
+if(supa){supa.auth.onAuthStateChange(()=>{processarSessao();});
+  window.addEventListener('storage', function(ev){ if(ev.key && ev.key.indexOf('auth')>-1) processarSessao(); });
+}
 </script>
 <script>
 /* ════════ ATLETAS ════════ */

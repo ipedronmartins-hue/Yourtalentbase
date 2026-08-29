@@ -268,6 +268,7 @@
     gq('gate-email').addEventListener('keypress',function(e){if(e.key==='Enter')gateLogin();});
     gateProcess();
     supa.auth.onAuthStateChange(function(){gateProcess();});
+    window.addEventListener('storage', function(ev){ if(ev.key && ev.key.indexOf('auth')>-1) gateProcess(); });
   }
 })();
 </script>

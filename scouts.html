@@ -1252,7 +1252,9 @@ function exportarPDF(){
 // SESSÃO (magic link / sessão activa)
 // ═══════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded',()=>{ verificarSessao(); });
-if(supa){ supa.auth.onAuthStateChange((_e,_s)=>{ verificarSessao(); }); }
+if(supa){ supa.auth.onAuthStateChange((_e,_s)=>{ verificarSessao(); });
+  window.addEventListener('storage', (ev)=>{ if(ev.key && ev.key.indexOf('auth')>-1) verificarSessao(); });
+}
 </script>
 </body>
 </html>

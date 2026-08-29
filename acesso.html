@@ -416,6 +416,19 @@
       var session = res && res.data && res.data.session;
       if(session && session.user && session.user.email){ carregarAtletas(); }
     }).catch(function(){});
+    // O link de acesso costuma abrir numa aba NOVA (comportamento do Gmail
+    // e da maioria dos clientes de email) — essa aba autentica com sucesso,
+    // mas esta aba original, onde a família ficou à espera, só saberia
+    // disso ao dar refresh manual. 'storage' dispara entre abas do mesmo
+    // browser quando a sessão é escrita, por isso detetamos sem refresh.
+    window.addEventListener('storage', function(ev){
+      if(ev.key==='ytb-familia-auth' && ev.newValue){
+        supa.auth.getSession().then(function(res){
+          var session = res && res.data && res.data.session;
+          if(session && session.user && session.user.email){ carregarAtletas(); }
+        }).catch(function(){});
+      }
+    });
   }
 })();
 if('serviceWorker' in navigator){

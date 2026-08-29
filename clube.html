@@ -690,7 +690,10 @@ const wa=document.getElementById('wa-clube');
 if(wa) wa.href='https://wa.me/351913695846?text='+encodeURIComponent('Olá! 👋 Represento uma organização/clube e quero acesso à Área Clube da YourTalentBase. Podemos falar?');
 document.getElementById('email').addEventListener('keypress',e=>{if(e.key==='Enter')enviarLink();});
 document.addEventListener('DOMContentLoaded',verificarSessao);
-if(supa){ supa.auth.onAuthStateChange((_e,_s)=>{ verificarSessao(); }); }
+if(supa){ supa.auth.onAuthStateChange((_e,_s)=>{ verificarSessao(); });
+  // link de acesso pode abrir numa aba nova — esta deteta a sessão sem refresh
+  window.addEventListener('storage', (ev)=>{ if(ev.key && ev.key.indexOf('auth')>-1) verificarSessao(); });
+}
 </script>
 </body>
 </html>

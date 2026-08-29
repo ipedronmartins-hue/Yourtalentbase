@@ -1707,7 +1707,7 @@ function login(){
   supa.auth.signInWithOtp({email:email,options:{emailRedirectTo:location.href.split('#')[0].split('?')[0]}}).then(function(r){
     if(r.error){err.style.display='block';err.textContent='Não foi possível enviar o link.';b.disabled=false;b.textContent='Receber link de acesso →';return;}
     document.getElementById('lok').style.display='block';
-    document.getElementById('lok').textContent='Link enviado para '+email+' — abre-o para entrares.';
+    document.getElementById('lok').textContent='Link enviado para '+email+'. Abre-o — se abrir numa aba nova, esta entra sozinha; se não entrar em alguns segundos, volta aqui e recarrega a página.';
     b.textContent='Link enviado ✓';
   });
 }
@@ -1760,6 +1760,20 @@ function processarSessao(s){
     if(s)processarSessao(s);
   });
   supa.auth.onAuthStateChange(function(_e,s){ if(s)processarSessao(s); });
+  // O link de acesso costuma abrir numa aba NOVA (comportamento do Gmail
+  // e da maioria dos clientes de email). Essa aba nova autentica com
+  // sucesso, mas esta aba original — onde a pessoa ficou à espera — só
+  // saberia disso ao dar refresh manual. O evento 'storage' dispara
+  // nativamente entre abas do mesmo browser quando o localStorage muda,
+  // por isso conseguimos detetar a sessão sem pedir para recarregar.
+  window.addEventListener('storage', function(ev){
+    if(ev.key==='ytb-auth' && ev.newValue && !jaEntrou){
+      supa.auth.getSession().then(function(res){
+        var s=res&&res.data&&res.data.session;
+        if(s)processarSessao(s);
+      });
+    }
+  });
 })();
 if('serviceWorker' in navigator){
   window.addEventListener('load',function(){ navigator.serviceWorker.register('sw-coachbase.js').catch(function(){}); });
