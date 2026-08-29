@@ -242,12 +242,12 @@ body.pr-cheio #pr-sair{display:block}
 <div id="main">
   <div class="tabs">
     <button class="tab on" data-t="prancheta" onclick="tab('prancheta')">🎨 Prancheta</button>
-    <button class="tab" data-t="sessao" onclick="tab('sessao')">⚡ Sessão</button>
+    <button class="tab" data-t="sessao" onclick="tab('sessao')">⚡ Treino</button>
     <button class="tab" data-t="micro" onclick="tab('micro')">📅 Microciclo</button>
-    <button class="tab" data-t="pres" onclick="tab('pres')">✅ Presenças</button>
-    <button class="tab" data-t="adv" onclick="tab('adv')">🎯 Adversário</button>
+    <button class="tab" data-t="pres" onclick="tab('pres')">✅ A Equipa</button>
+    <button class="tab" data-t="adv" onclick="tab('adv')">🎯 O Adjunto</button>
     <button class="tab" data-t="conv" onclick="tab('conv')">📣 Convocatória</button>
-    <button class="tab" data-t="minutos" onclick="tab('minutos')">⏱ Minutos</button>
+    <button class="tab" data-t="minutos" onclick="tab('minutos')">⏱ Minutagem</button>
     <button class="tab" data-t="balneario" onclick="tab('balneario')">🗣 Balneário</button>
   </div>
 
@@ -383,23 +383,31 @@ body.pr-cheio #pr-sair{display:block}
   <!-- ADVERSÁRIO -->
   <div class="sec" id="sec-adv">
     <div class="card">
-      <div class="h">Ler o <span style="color:var(--gold)">adversário</span></div>
-      <div class="s">Responde ao que sabes sobre o próximo adversário — a IA cruza com a tua tática e com o teu plantel e sugere como adaptar.</div>
+      <div class="h" id="adv-titulo">O <span style="color:var(--gold)">Adjunto</span></div>
+      <div class="s">Marca o que já reparaste no adversário — o Adjunto cruza isto com a tua tática e o teu plantel, e diz o que ajustar.</div>
+      <label class="label">Como se chama o teu adjunto? <span style="font-weight:400;color:var(--muted)">(opcional)</span></label>
+      <input class="input" id="adv-nome-adjunto" maxlength="30" placeholder="ex: Rui" style="margin-bottom:14px">
       <div id="adv-tatica-aviso" style="font-size:12px;color:var(--orange);margin-bottom:10px"></div>
+
       <label class="label">Formação habitual do adversário</label>
       <div class="chips" id="adv-formacao"></div>
       <label class="label">Estilo predominante</label>
       <div class="chips" id="adv-estilo"></div>
-      <label class="label">Ponto forte principal</label>
-      <input class="input" id="adv-forte" maxlength="140" placeholder="ex: ala direito muito rápido, jogo aéreo forte…">
-      <label class="label" style="margin-top:8px">Ponto fraco principal</label>
-      <input class="input" id="adv-fraco" maxlength="140" placeholder="ex: laterais lentos na recuperação…">
-      <label class="label" style="margin-top:8px">Jogador mais perigoso</label>
-      <input class="input" id="adv-jogador" maxlength="140" placeholder="ex: nº 10, médio ofensivo, remate de fora da área">
-      <label style="display:flex;align-items:center;gap:8px;margin:12px 0 4px;font-size:13px;color:var(--slate);cursor:pointer">
-        <input type="checkbox" id="adv-bp" style="width:20px;height:20px;accent-color:#D4AF37"> São fortes em bolas paradas
-      </label>
-      <button class="btn" id="btn-adv" onclick="ADV.sugerir()" style="margin-top:10px">🧠 Pedir sugestão tática à IA</button>
+
+      <label class="label" style="margin-top:14px">Saída de bola deles — que reparaste?</label>
+      <div class="chips" id="adv-mom-saida"></div>
+
+      <label class="label" style="margin-top:14px">No ataque, o que fazem?</label>
+      <div class="chips" id="adv-mom-ataque"></div>
+      <input class="input" id="adv-jogador-chave" maxlength="80" placeholder="nº e nome do jogador-chave (se marcaste essa opção)" style="display:none;margin-top:8px">
+
+      <label class="label" style="margin-top:14px">Nas transições, como reagem?</label>
+      <div class="chips" id="adv-mom-transicao"></div>
+
+      <label class="label" style="margin-top:14px">Bolas paradas</label>
+      <div class="chips" id="adv-mom-bp"></div>
+
+      <button class="btn" id="btn-adv" onclick="ADV.sugerir()" style="margin-top:16px">🧠 Pedir sugestão ao Adjunto</button>
       <div class="err" id="adverr"></div>
     </div>
     <div id="adv-out"></div>
@@ -1649,15 +1657,75 @@ var BAL=(function(){
    pré-jogo; o treinador copia o que precisar para a sessão MD-1.*/
 var ADV=(function(){
   var iniciado=false;
+  var LS_NOME='ytbAdjuntoNome';
+  // cada pill já traz a frase pronta que entra no prompt — a pessoa marca,
+  // não escreve. Textos na 3ª pessoa, prontos a encadear.
+  var MOMENTOS={
+    saida:{label:'saída de bola', pills:[
+      ['curta','Sai sempre em curto, mesmo sob pressão','constrói sempre em jogo curto desde a defesa, mesmo sob pressão'],
+      ['longa','Evita jogar em curto, joga direto','evita construir em curto e joga direto assim que pode'],
+      ['sofre_pressao','Sofre muito sob pressão alta','sofre muito quando pressionado alto — perde a bola com frequência na saída'],
+      ['resiste_pressao','Sai bem mesmo sob pressão','sai bem mesmo sob pressão alta, não se atrapalha facilmente']
+    ]},
+    ataque:{label:'ataque organizado', pills:[
+      ['lado_dir','Ataca mais pelo lado direito deles','ataca sobretudo pelo seu corredor direito'],
+      ['lado_esq','Ataca mais pelo lado esquerdo deles','ataca sobretudo pelo seu corredor esquerdo'],
+      ['centro','Ataca mais pelo centro','ataca sobretudo por dentro, pelo corredor central'],
+      ['aereo_forte','Forte no jogo aéreo / cruzamentos','é forte no jogo aéreo e usa muito o cruzamento'],
+      ['aereo_fraco','Fraco no jogo aéreo','é fraco no jogo aéreo — pode ser explorado em bolas paradas nossas'],
+      ['jogador_chave','Depende de um jogador-chave','depende muito de um jogador-chave']
+    ]},
+    transicao:{label:'transições', pills:[
+      ['contra_rapido','Perigoso em contra-ataque rápido','é perigoso em transição rápida assim que recupera a bola'],
+      ['lento_a_recuar','Lento a recuar depois de perder a bola','é lento a reorganizar-se depois de perder a bola — boa oportunidade nossa em transição'],
+      ['recupera_rapido','Recompõe-se rápido depois de perder','reage bem e recompõe-se rapidamente depois de perder a bola']
+    ]},
+    bp:{label:'bolas paradas', pills:[
+      ['forte_of','Fortes ofensivamente em bolas paradas','são fortes ofensivamente em bolas paradas — atenção redobrada aí'],
+      ['fraco_def','Fracos defensivamente em bolas paradas','são fracos defensivamente em bolas paradas — boa oportunidade nossa']
+    ]}
+  };
+  var sel={saida:[],ataque:[],transicao:[],bp:[]};
+
+  function nome(){ try{return (localStorage.getItem(LS_NOME)||'').trim();}catch(e){return '';} }
+  function pintarNome(){
+    var n=nome();
+    document.getElementById('adv-titulo').innerHTML = n
+      ? 'O <span style="color:var(--gold)">'+esc(n)+'</span>'
+      : 'O <span style="color:var(--gold)">Adjunto</span>';
+    var tab=document.querySelector('.tab[data-t="adv"]');
+    if(tab) tab.textContent = '🎯 '+(n?('O '+n):'O Adjunto');
+  }
+
   function init(){
     if(iniciado)return; iniciado=true;
     var aviso=document.getElementById('adv-tatica-aviso');
-    aviso.textContent=SEL.formato==='fut11'?'':'A sugestão é mais precisa em fut11 (com uma tática nomeada escolhida na Sessão/Prancheta). Em '+SEL.formato+' a IA sugere na mesma, com base no que descreveres.';
+    aviso.textContent=SEL.formato==='fut11'?'':'A sugestão é mais precisa em fut11 (com uma tática nomeada escolhida na Sessão/Prancheta). Em '+SEL.formato+' o Adjunto sugere na mesma, com base no que marcares.';
+
+    document.getElementById('adv-nome-adjunto').value=nome();
+    document.getElementById('adv-nome-adjunto').addEventListener('input',function(e){
+      try{localStorage.setItem(LS_NOME,e.target.value);}catch(err){}
+      pintarNome();
+    });
+    pintarNome();
+
     chips('adv-formacao',Object.keys(TATICAS).map(function(k){return [k,TATICAS[k].label.split(' ·')[0]];}).concat([['?','Não sei / variável']]),
       function(){return ADV.formacaoAdv||'?'},function(v){ADV.formacaoAdv=v;});
     chips('adv-estilo',[['alta','Pressão alta'],['medio','Bloco médio'],['baixo','Bloco baixo'],['contra','Contra-ataque direto'],['posse','Posse longa']],
       function(){return ADV.estilo||'medio'},function(v){ADV.estilo=v;});
+
+    Object.keys(MOMENTOS).forEach(function(m){
+      chips('adv-mom-'+m, MOMENTOS[m].pills.map(function(p){return [p[0],p[1]];}),
+        function(){return sel[m];}, function(v){
+          var a=sel[m]; var i=a.indexOf(v); if(i>=0)a.splice(i,1); else a.push(v);
+          if(m==='ataque'){
+            var mostraInput = sel.ataque.indexOf('jogador_chave')>=0;
+            document.getElementById('adv-jogador-chave').style.display = mostraInput?'block':'none';
+          }
+        }, true);
+    });
   }
+
   function encaixePlantel(){
     return supa.rpc('ytb_coach_stats').then(function(r){
       var lista=r.data||[]; if(!lista.length)return 'plantel ainda sem atletas inscritos';
@@ -1666,14 +1734,24 @@ var ADV=(function(){
       return Object.keys(porPos).map(function(p){return porPos[p]+'× '+p;}).join(', ');
     }).catch(function(){return 'plantel indisponível agora';});
   }
+
+  function frasesDe(m){
+    return sel[m].map(function(id){
+      var p=MOMENTOS[m].pills.find(function(x){return x[0]===id;});
+      if(!p)return null;
+      if(id==='jogador_chave'){
+        var v=(document.getElementById('adv-jogador-chave').value||'').trim();
+        return p[2]+(v?(': '+v):'');
+      }
+      return p[2];
+    }).filter(Boolean);
+  }
+
   function sugerir(){
     var b=document.getElementById('btn-adv'), err=document.getElementById('adverr');
     err.style.display='none';
     var formacaoAdv=ADV.formacaoAdv||'?', estilo=({alta:'pressão alta',medio:'bloco médio',baixo:'bloco baixo',contra:'contra-ataque direto',posse:'posse longa e paciente'})[ADV.estilo||'medio'];
-    var forte=(document.getElementById('adv-forte').value||'').trim();
-    var fraco=(document.getElementById('adv-fraco').value||'').trim();
-    var jogador=(document.getElementById('adv-jogador').value||'').trim();
-    var bp=document.getElementById('adv-bp').checked;
+    var frasesSaida=frasesDe('saida'), frasesAtaque=frasesDe('ataque'), frasesTransicao=frasesDe('transicao'), frasesBP=frasesDe('bp');
     var nossaTat=SEL.formato==='fut11'?TATICAS[SEL.tatica]:null;
     b.disabled=true;b.innerHTML='<span class="spinner"></span> A analisar…';
     encaixePlantel().then(function(encaixe){
@@ -1681,18 +1759,19 @@ var ADV=(function(){
         +'A NOSSA equipa joga '+SEL.formato+(nossaTat?(' na tática '+SEL.tatica+' ('+nossaTat.desc+' Força: '+nossaTat.forte+' Vulnerabilidade: '+nossaTat.vulner+')'):'')+', escalão '+SEL.escalao+'.\n'
         +'O nosso plantel disponível por posição: '+encaixe+'.\n'
         +'O ADVERSÁRIO costuma jogar '+(formacaoAdv==='?'?'formação variável/desconhecida':formacaoAdv)+', com estilo de '+estilo+'.\n'
-        +(forte?('Ponto forte do adversário: '+forte+'.\n'):'')
-        +(fraco?('Ponto fraco do adversário: '+fraco+'.\n'):'')
-        +(jogador?('Jogador mais perigoso: '+jogador+'.\n'):'')
-        +(bp?'São fortes em bolas paradas — atenção redobrada aí.\n':'')
+        +(frasesSaida.length?('Na saída de bola, o adversário '+frasesSaida.join('; e ')+'.\n'):'')
+        +(frasesAtaque.length?('No ataque organizado, o adversário '+frasesAtaque.join('; e ')+'.\n'):'')
+        +(frasesTransicao.length?('Nas transições, o adversário '+frasesTransicao.join('; e ')+'.\n'):'')
+        +(frasesBP.length?(frasesBP.join('; e ')+'.\n'):'')
         +'ATENÇÃO AOS LADOS: as duas equipas jogam viradas uma para a outra, por isso os lados espelham-se. Um extremo ou lateral ESQUERDO do adversário ataca o NOSSO lado DIREITO, e um jogador DIREITO do adversário ataca o nosso lado ESQUERDO — nunca o mesmo lado. Sempre que mencionares proteger ou reforçar um lado, usa a perspetiva da NOSSA equipa e confirma mentalmente o espelhamento antes de escrever.\n'
         +'Responde em PT-PT, direto, sem markdown, em exatamente 4 parágrafos curtos com estes títulos em maiúsculas no início de cada um: "TÁTICA:" (mantemos a nossa ou ajustamos? sê específico), "MATCHUPS:" (que confrontos individuais/zonais explorar ou proteger — nomeia sempre o lado pela NOSSA perspetiva), "INSTRUÇÕES:" (2-3 instruções concretas para dar aos jogadores), "TREINO MD-1:" (o que priorizar na última sessão antes do jogo — liga a áreas como movimentação, linha defensiva ou bolas paradas).';
       return chamarIA(p,700);
     }).then(function(t){
-      document.getElementById('adv-out').innerHTML='<div class="card"><div class="h">Sugestão <span style="color:var(--gold)">tática</span></div><div style="font-size:13.5px;color:var(--white);line-height:1.7;white-space:pre-wrap">'+esc(t)+'</div></div>';
+      var n=nome();
+      document.getElementById('adv-out').innerHTML='<div class="card"><div class="h">'+(n?('O '+esc(n)+' <span style="color:var(--gold)">sugere</span>'):'Sugestão <span style="color:var(--gold)">tática</span>')+'</div><div style="font-size:13.5px;color:var(--white);line-height:1.7;white-space:pre-wrap">'+esc(t)+'</div></div>';
     }).catch(function(){
-      err.style.display='block';err.textContent='IA indisponível agora — tenta de novo daqui a pouco.';
-    }).then(function(){b.disabled=false;b.textContent='🧠 Pedir sugestão tática à IA';});
+      err.style.display='block';err.textContent='O Adjunto está indisponível agora — tenta de novo daqui a pouco.';
+    }).then(function(){b.disabled=false;b.innerHTML='🧠 Pedir sugestão ao Adjunto';});
   }
   return {init:init,sugerir:sugerir,formacaoAdv:null,estilo:null};
 })();
