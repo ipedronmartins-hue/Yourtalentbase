@@ -1704,7 +1704,7 @@ function login(){
   if(!email||email.indexOf('@')<1){err.style.display='block';err.textContent='Insere um email válido';return;}
   err.style.display='none';
   var b=document.getElementById('lbtn');b.disabled=true;b.textContent='A enviar…';
-  supa.auth.signInWithOtp({email:email,options:{emailRedirectTo:location.href.split('#')[0].split('?')[0]}}).then(function(r){
+  supa.auth.signInWithOtp({email:email,options:{emailRedirectTo:location.href.split('#')[0].split('?')[0],data:{papel_pretendido:'treinador'}}}).then(function(r){
     if(r.error){err.style.display='block';err.textContent='Não foi possível enviar o link.';b.disabled=false;b.textContent='Receber link de acesso →';return;}
     document.getElementById('lok').style.display='block';
     document.getElementById('lok').textContent='Link enviado para '+email+'. Abre-o — se abrir numa aba nova, esta entra sozinha; se não entrar em alguns segundos, volta aqui e recarrega a página.';

@@ -436,7 +436,7 @@ async function login(){
   const btn=document.getElementById('btn-entrar');btn.innerHTML='<span class="spinner"></span> A enviar...';btn.disabled=true;
   if(!USING_SB){treinadorNome='Treinador (demo)';treinadorEmail=email;mostrarMain();return;}
   try{
-    const{error}=await supa.auth.signInWithOtp({email:email,options:{emailRedirectTo:window.location.href.split('#')[0].split('?')[0]}});
+    const{error}=await supa.auth.signInWithOtp({email:email,options:{emailRedirectTo:window.location.href.split('#')[0].split('?')[0],data:{papel_pretendido:'treinador'}}});
     if(error)throw error;
     document.getElementById('login-box-form').style.display='none';
     estado.innerHTML='<div class="estado-pend"><div class="big">📧</div><div class="t">Verifica o teu email</div><div class="s">Enviámos um link para <strong>'+esc(email)+'</strong>. Abre e clica para entrares.</div></div>';

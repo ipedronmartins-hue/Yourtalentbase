@@ -486,7 +486,7 @@ async function enviarLink(){
   if(!supa){ err.textContent='Sistema não ligado. Tenta mais tarde.'; err.style.display='block'; return; }
   btn.disabled=true; btn.textContent='A enviar...';
   try{
-    const { error } = await supa.auth.signInWithOtp({ email: email, options:{ emailRedirectTo: window.location.href.split('#')[0].split('?')[0] } });
+    const { error } = await supa.auth.signInWithOtp({ email: email, options:{ emailRedirectTo: window.location.href.split('#')[0].split('?')[0], data:{ papel_pretendido:'scout' } } });
     if(error) throw error;
     ok.innerHTML='📩 Enviámos um link para <strong>'+email+'</strong>. Abre o email e clica para entrares.';
     ok.style.display='block';
