@@ -299,6 +299,7 @@ body.pr-cheio #pr-sair{display:block}
           <button onclick="PR.addBola()">⚽ Bola</button>
           <button onclick="PR.addCone()">🔺 Cone</button>
           <button onclick="PR.undo()">↩ Desfazer</button>
+          <button onclick="PR.redo()">↪ Refazer</button>
           <button onclick="PR.limpar()">🗑 Limpar</button>
         </div>
         <div class="pr-frames">
@@ -1198,10 +1199,10 @@ var PR=(function(){
     fut11:[[0.5,.94],[0.16,.8],[0.38,.82],[0.62,.82],[0.84,.8],[0.5,.68],[0.28,.58],[0.72,.58],[0.14,.44],[0.5,.42],[0.86,.44]]
   };
   var E={tokens:[],setas:[],tracos:[],frames:[],frameAtual:-1};
-  var modo='mover',undoStack=[],drag=null,setaTmp=null,tracoTmp=null,seq=1,aReproduzir=false;
+  var modo='mover',undoStack=[],redoStack=[],drag=null,setaTmp=null,tracoTmp=null,seq=1,aReproduzir=false;
 
   function svg(){return document.getElementById('prancheta-svg');}
-  function snap(){undoStack.push(JSON.stringify({tokens:E.tokens,setas:E.setas,tracos:E.tracos}));if(undoStack.length>40)undoStack.shift();}
+  function snap(){undoStack.push(JSON.stringify({tokens:E.tokens,setas:E.setas,tracos:E.tracos}));if(undoStack.length>40)undoStack.shift();redoStack.length=0;}
   function coords(ev){var s=svg(),p=s.createSVGPoint();p.x=ev.clientX;p.y=ev.clientY;var m=s.getScreenCTM();if(!m)return{x:0,y:0};var q=p.matrixTransform(m.inverse());return{x:Math.max(4,Math.min(W-4,q.x)),y:Math.max(4,Math.min(H-4,q.y))};}
 
   function formaAtual(){
@@ -1417,7 +1418,18 @@ var PR=(function(){
     }
   }
 
-  function undo(){var u=undoStack.pop();if(!u){toast('Nada a desfazer');return;}var f=JSON.parse(u);E.tokens=f.tokens;E.setas=f.setas;E.tracos=f.tracos;render();}
+  function undo(){
+    var u=undoStack.pop();
+    if(!u){toast('Nada a desfazer');return;}
+    redoStack.push(JSON.stringify({tokens:E.tokens,setas:E.setas,tracos:E.tracos}));
+    var f=JSON.parse(u);E.tokens=f.tokens;E.setas=f.setas;E.tracos=f.tracos;render();
+  }
+  function redo(){
+    var r=redoStack.pop();
+    if(!r){toast('Nada a refazer');return;}
+    undoStack.push(JSON.stringify({tokens:E.tokens,setas:E.setas,tracos:E.tracos}));
+    var f=JSON.parse(r);E.tokens=f.tokens;E.setas=f.setas;E.tracos=f.tracos;render();
+  }
   function limpar(){snap();E.setas=[];E.tracos=[];E.tokens=E.tokens.filter(function(t){return t.tipo==='A';});E.frames=[];E.frameAtual=-1;render();}
   function reformatar(){snap();E.tokens=E.tokens.filter(function(t){return t.tipo!=='A'&&t.tipo!=='B';});formar();render();}
 
@@ -1588,7 +1600,7 @@ var PR=(function(){
     medirCampo();
   }
   return {init:init,render:render,reformatar:reformatar,addEquipaB:addEquipaB,addBola:addBola,addCone:addCone,cheio:cheio,mais:mais,
-    undo:undo,limpar:limpar,guardarMomento:guardarMomento,irFrame:irFrame,reproduzir:reproduzir,
+    undo:undo,redo:redo,limpar:limpar,guardarMomento:guardarMomento,irFrame:irFrame,reproduzir:reproduzir,
     exportarPNG:exportarPNG,guardarJogada:guardarJogada,abrirJogada:abrirJogada,apagarJogada:apagarJogada,_estado:E};
 })();
 
