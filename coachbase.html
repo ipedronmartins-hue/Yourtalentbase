@@ -241,7 +241,8 @@ body.pr-cheio #pr-sair{display:block}
 
 <div id="main">
   <div class="tabs">
-    <button class="tab on" data-t="prancheta" onclick="tab('prancheta')">🎨 Prancheta</button>
+    <button class="tab on" data-t="jogo" onclick="tab('jogo')">🏟 Jogo</button>
+    <button class="tab" data-t="prancheta" onclick="tab('prancheta')">🎨 Prancheta</button>
     <button class="tab" data-t="sessao" onclick="tab('sessao')">⚡ Treino</button>
     <button class="tab" data-t="micro" onclick="tab('micro')">📅 Microciclo</button>
     <button class="tab" data-t="pres" onclick="tab('pres')">✅ A Equipa</button>
@@ -252,27 +253,27 @@ body.pr-cheio #pr-sair{display:block}
   </div>
 
   <!-- BALNEÁRIO -->
-  <div class="sec" id="sec-balneario">
+  <div class="sec on" id="sec-jogo">
     <div class="card">
-      <div class="h">O <span style="color:var(--gold)">Balneário</span></div>
-      <div class="s">Só treinadores. Táticas, ideias, dúvidas, desabafos — o que se diz no balneário fica no balneário.</div>
-      <div style="background:rgba(255,80,80,.07);border:1px solid rgba(255,80,80,.25);border-radius:9px;padding:9px 12px;font-size:11.5px;color:var(--slate);margin-bottom:12px">🚫 <b style="color:#fff">Regra da casa:</b> táticas e ideias, nunca miúdos identificáveis. Posts com dados de menores são removidos.</div>
-      <input class="input" id="bal-titulo" maxlength="140" placeholder="Título — ex: Como treinam a saída curta contra pressão alta?">
-      <textarea class="input" id="bal-corpo" rows="3" maxlength="4000" placeholder="Desenvolve (opcional)…" style="margin-top:8px"></textarea>
-      <label style="display:flex;align-items:center;gap:8px;margin:10px 0;font-size:13px;color:var(--slate);cursor:pointer">
-        <input type="checkbox" id="bal-anexar" style="width:20px;height:20px;accent-color:#D4AF37"> Anexar a jogada que está na prancheta 🎨
-      </label>
-      <button class="btn" id="bal-pub" onclick="BAL.publicar()">Publicar no Balneário →</button>
+      <div class="h">Próximo <span style="color:var(--gold)">jogo</span></div>
+      <div class="s">Cria o jogo primeiro — depois abres o Adjunto e a Convocatória já ligados a ele, e tudo fica no mesmo sítio quando quiseres rever.</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <input class="input" id="jg-adversario" placeholder="Adversário" style="flex:2;min-width:140px">
+        <input class="input" id="jg-data" type="date" style="flex:1;min-width:120px">
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+        <input class="input" id="jg-competicao" placeholder="Competição (opcional)" style="flex:1;min-width:140px">
+        <select class="input" id="jg-casa-fora" style="flex:0 0 110px">
+          <option value="casa">Em casa</option>
+          <option value="fora">Fora</option>
+        </select>
+      </div>
+      <button class="btn" onclick="JOGO.criar()" style="margin-top:10px">+ Criar jogo</button>
+      <div class="err" id="jgerr"></div>
     </div>
-    <div class="chips" id="bal-ordem">
-      <button class="chip on" data-o="recentes">🕐 Recentes</button>
-      <button class="chip" data-o="top">🔥 Top</button>
-    </div>
-    <div id="bal-feed"><div class="s" style="padding:0 4px">A carregar o balneário…</div></div>
+    <div id="jogo-lista"><div class="s">A carregar jogos…</div></div>
   </div>
-
-  <!-- PRANCHETA -->
-  <div class="sec on" id="sec-prancheta">
+  <div class="sec" id="sec-prancheta">
     <div class="card" id="pr-palco">
       <div class="h">Prancheta <span style="color:var(--gold)">tática</span></div>
       <div class="s">Desenha passes e corridas — a bola e os jogadores seguem as setas sozinhos ao reproduzir. "+ momento" só é preciso se quiseres controlar várias fases à mão.</div>
@@ -313,8 +314,6 @@ body.pr-cheio #pr-sair{display:block}
       </div>
     </div>
   </div>
-
-  <!-- SESSÃO -->
   <div class="sec" id="sec-sessao">
     <div class="card">
       <div class="h">Gerar <span style="color:var(--gold)">sessão de treino</span></div>
@@ -343,8 +342,6 @@ body.pr-cheio #pr-sair{display:block}
     </div>
     <div id="sessao-out"></div>
   </div>
-
-  <!-- MICROCICLO -->
   <div class="sec" id="sec-micro">
     <div class="card">
       <div class="h">Microciclo <span style="color:var(--gold)">da semana</span></div>
@@ -353,8 +350,6 @@ body.pr-cheio #pr-sair{display:block}
     </div>
     <div id="micro-out"></div>
   </div>
-
-  <!-- PRESENÇAS -->
   <div class="sec" id="sec-pres">
     <div class="card">
       <div class="h">Presenças <span style="color:var(--gold)">de hoje</span></div>
@@ -378,13 +373,11 @@ body.pr-cheio #pr-sair{display:block}
       <a class="btn btn-sec" href="ytb-pro-treinador.html" style="display:block;text-align:center;text-decoration:none;margin-top:8px">Conhecer o YTB Treinador →</a>
     </div>
   </div>
-  </div>
-
-  <!-- ADVERSÁRIO -->
   <div class="sec" id="sec-adv">
     <div class="card">
       <div class="h" id="adv-titulo">O <span style="color:var(--gold)">Adjunto</span></div>
       <div class="s">Marca o que já reparaste no adversário — o Adjunto cruza isto com a tua tática e o teu plantel, e diz o que ajustar.</div>
+      <div id="adv-jogo-ativo" style="display:none;background:var(--gold-soft);border:1px solid var(--gold-border);border-radius:9px;padding:10px 12px;margin-bottom:12px;font-size:13px"></div>
       <label class="label">Como se chama o teu adjunto? <span style="font-weight:400;color:var(--muted)">(opcional)</span></label>
       <input class="input" id="adv-nome-adjunto" maxlength="30" placeholder="ex: Rui" style="margin-bottom:14px">
       <div id="adv-tatica-aviso" style="font-size:12px;color:var(--orange);margin-bottom:10px"></div>
@@ -412,8 +405,6 @@ body.pr-cheio #pr-sair{display:block}
     </div>
     <div id="adv-out"></div>
   </div>
-
-  <!-- CONVOCATÓRIA -->
   <div class="sec" id="sec-conv">
     <div class="card">
       <div class="h">Convocatória <span style="color:var(--gold)">com campo</span></div>
@@ -444,8 +435,6 @@ body.pr-cheio #pr-sair{display:block}
       <div class="err" id="cverr"></div>
     </div>
   </div>
-
-  <!-- MINUTOS -->
   <div class="sec" id="sec-minutos">
     <div class="card">
       <div class="h">Minutos <span style="color:var(--gold)">e rotação</span></div>
@@ -458,6 +447,50 @@ body.pr-cheio #pr-sair{display:block}
       <div id="epocas-lista"><div class="s">A carregar…</div></div>
     </div>
   </div>
+  <div class="sec" id="sec-balneario">
+    <div class="card">
+      <div class="h">O <span style="color:var(--gold)">Balneário</span></div>
+      <div class="s">Só treinadores. Táticas, ideias, dúvidas, desabafos — o que se diz no balneário fica no balneário.</div>
+      <div style="background:rgba(255,80,80,.07);border:1px solid rgba(255,80,80,.25);border-radius:9px;padding:9px 12px;font-size:11.5px;color:var(--slate);margin-bottom:12px">🚫 <b style="color:#fff">Regra da casa:</b> táticas e ideias, nunca miúdos identificáveis. Posts com dados de menores são removidos.</div>
+      <input class="input" id="bal-titulo" maxlength="140" placeholder="Título — ex: Como treinam a saída curta contra pressão alta?">
+      <textarea class="input" id="bal-corpo" rows="3" maxlength="4000" placeholder="Desenvolve (opcional)…" style="margin-top:8px"></textarea>
+      <label style="display:flex;align-items:center;gap:8px;margin:10px 0;font-size:13px;color:var(--slate);cursor:pointer">
+        <input type="checkbox" id="bal-anexar" style="width:20px;height:20px;accent-color:#D4AF37"> Anexar a jogada que está na prancheta 🎨
+      </label>
+      <button class="btn" id="bal-pub" onclick="BAL.publicar()">Publicar no Balneário →</button>
+    </div>
+    <div class="chips" id="bal-ordem">
+      <button class="chip on" data-o="recentes">🕐 Recentes</button>
+      <button class="chip" data-o="top">🔥 Top</button>
+    </div>
+    <div id="bal-feed"><div class="s" style="padding:0 4px">A carregar o balneário…</div></div>
+  </div>
+
+
+  <!-- JOGO -->
+
+
+  <!-- PRANCHETA -->
+
+
+  <!-- SESSÃO -->
+
+
+  <!-- MICROCICLO -->
+
+
+  <!-- PRESENÇAS -->
+
+  </div>
+
+  <!-- ADVERSÁRIO -->
+
+
+  <!-- CONVOCATÓRIA -->
+
+
+  <!-- MINUTOS -->
+
 </div>
 
 <div class="toast" id="toast"></div>
@@ -468,11 +501,12 @@ var CFG=window.YTB_CONFIG||{}, USING_SB=!!(CFG.SUPABASE_URL&&CFG.SUPABASE_KEY&&w
 var supa=USING_SB?window.supabase.createClient(CFG.SUPABASE_URL,CFG.SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:'ytb-auth',flowType:'pkce'}}):null;
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 var toastT=null;function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(function(){t.classList.remove('show');},2800);}
-var CB_KEYS=['prancheta','sessao','micro','pres','adv','conv','minutos','balneario'];
-var CB_ROT=['prancheta','sessão','microciclo','presenças','adversário','convocatória','minutos','balneário'];
+var CB_KEYS=['jogo','prancheta','sessao','micro','pres','adv','conv','minutos','balneario'];
+var CB_ROT=['🏟 Jogo','🎨 Prancheta','⚡ Treino','📅 Microciclo','✅ A Equipa','🎯 O Adjunto','📣 Convocatória','⏱ Tempo de Jogo','🗣 Balneário'];
 var cbPivot=null; // {ir,atual} de YTBPivot.montar, depois de iniciado
 function aplicarTabCB(idx){
   var t=CB_KEYS[idx];
+  if(t==='jogo')JOGO.init();
   if(t==='pres')carregarPlantel();
   if(t==='conv')carregarConv();
   if(t==='balneario')BAL.carregar();
@@ -1655,9 +1689,85 @@ var BAL=(function(){
    conhecidas) com o que o treinador sabe do adversário e com o encaixe
    posicional do plantel. Não persiste em BD — é uma leitura pontual,
    pré-jogo; o treinador copia o que precisar para a sessão MD-1.*/
+/* ── JOGO: o objeto que junta convocatória, adjunto, prancheta e resultado ── */
+var JOGO=(function(){
+  var lista=[], ativoId=null, iniciado=false;
+
+  function init(){ if(iniciado)return; iniciado=true; carregar(); }
+
+  function carregar(){
+    return supa.rpc('ytb_coach_jogos_listar').then(function(r){
+      lista=(r&&r.data)||[]; pintar(); return lista;
+    }).catch(function(){ pintar(); });
+  }
+
+  function criar(){
+    var adv=(document.getElementById('jg-adversario').value||'').trim();
+    var data=document.getElementById('jg-data').value||null;
+    var comp=(document.getElementById('jg-competicao').value||'').trim();
+    var cf=document.getElementById('jg-casa-fora').value;
+    var err=document.getElementById('jgerr'); err.style.display='none';
+    if(!adv){ err.style.display='block'; err.textContent='Escreve o nome do adversário.'; return; }
+    supa.rpc('ytb_coach_jogo_criar',{p_adversario:adv,p_data:data,p_competicao:comp||null,p_casa_fora:cf,p_nossa_formacao:SEL.formato==='fut11'?SEL.tatica:null})
+      .then(function(r){
+        var d=r&&r.data;
+        if(r.error||!d||!d.ok){ err.style.display='block'; err.textContent='Não foi possível criar: '+((d&&d.motivo)||'erro'); return; }
+        document.getElementById('jg-adversario').value='';
+        document.getElementById('jg-competicao').value='';
+        toast('✓ Jogo criado');
+        carregar();
+      }).catch(function(){ err.style.display='block'; err.textContent='Sem ligação — tenta de novo.'; });
+  }
+
+  function pintar(){
+    var box=document.getElementById('jogo-lista'); if(!box)return;
+    if(!lista.length){ box.innerHTML='<div class="s">Ainda sem jogos. Cria o próximo em cima.</div>'; return; }
+    var hoje=new Date().toISOString().slice(0,10);
+    box.innerHTML=lista.map(function(j){
+      var passado = j.data_jogo && j.data_jogo < hoje;
+      var tem_analise = j.analise_ia && j.analise_ia.texto;
+      return '<div class="card" style="margin-bottom:10px">'
+        +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">'
+        +'<div><div class="h" style="font-size:16px;margin-bottom:2px">'+esc(j.adversario||'Adversário')+'</div>'
+        +'<div class="s" style="margin:0">'+(j.data_jogo?esc(j.data_jogo):'sem data')+(j.competicao?' · '+esc(j.competicao):'')+(j.casa_fora?(' · '+(j.casa_fora==='casa'?'em casa':'fora')):'')+'</div></div>'
+        +(passado?'<span style="font-size:11px;color:var(--muted);white-space:nowrap">jogado</span>':'<span style="font-size:11px;color:var(--up);white-space:nowrap">a preparar</span>')
+        +'</div>'
+        +(tem_analise?'<div style="font-size:12px;color:var(--gold);margin-top:8px">✓ já tens análise do Adjunto guardada aqui</div>':'')
+        +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">'
+        +'<button class="btn btn-sec" style="flex:1;min-width:140px" onclick="JOGO.prepararComAdjunto(\''+j.id+'\')">🎯 Preparar com o Adjunto</button>'
+        +(passado?'<button class="btn btn-sec" style="flex:1;min-width:140px" onclick="JOGO.registarResultado(\''+j.id+'\')">📋 Registar resultado</button>':'')
+        +'</div>'
+        +(j.resultado?'<div style="font-size:13px;color:var(--white);margin-top:8px"><b>Resultado:</b> '+esc(j.resultado)+'</div>':'')
+        +'</div>';
+    }).join('');
+  }
+
+  function prepararComAdjunto(id){
+    ativoId=id;
+    var j=lista.find(function(x){return x.id===id;});
+    tab('adv');
+    if(window.ADV) ADV.ligarAoJogo(j);
+  }
+
+  function registarResultado(id){
+    var atual=(lista.find(function(x){return x.id===id;})||{}).resultado||'';
+    var r=window.prompt('Resultado (ex: 3-1):', atual);
+    if(r===null)return;
+    supa.rpc('ytb_coach_jogo_atualizar',{p_id:id,p_campo:'resultado',p_valor:r}).then(function(res){
+      var d=res&&res.data;
+      if(res.error||!d||!d.ok){ toast('⚠ Não foi possível guardar o resultado'); return; }
+      toast('✓ Resultado guardado'); carregar();
+    }).catch(function(){ toast('⚠ Sem ligação'); });
+  }
+
+  return {init:init,criar:criar,prepararComAdjunto:prepararComAdjunto,registarResultado:registarResultado,
+    get ativoId(){return ativoId;}, set ativoId(v){ativoId=v;}, get lista(){return lista;}};
+})();
+
 var ADV=(function(){
   var iniciado=false;
   var LS_NOME='ytbAdjuntoNome';
+  var jogoAtivo=null;   // {id, adversario, data_jogo, ...} — quando definido, a análise gerada grava-se aqui
   // cada pill já traz a frase pronta que entra no prompt — a pessoa marca,
   // não escreve. Textos na 3ª pessoa, prontos a encadear.
   var MOMENTOS={
@@ -1693,8 +1803,28 @@ var ADV=(function(){
     document.getElementById('adv-titulo').innerHTML = n
       ? 'O <span style="color:var(--gold)">'+esc(n)+'</span>'
       : 'O <span style="color:var(--gold)">Adjunto</span>';
-    var tab=document.querySelector('.tab[data-t="adv"]');
-    if(tab) tab.textContent = '🎯 '+(n?('O '+n):'O Adjunto');
+    var rotulo='🎯 '+(n?('O '+n):'O Adjunto');
+    var idxAdv=CB_KEYS.indexOf('adv');
+    if(idxAdv>=0) CB_ROT[idxAdv]=rotulo;   // se o pivot re-renderizar depois, já sai correto
+    // botão real em cada sistema de navegação: o pivot cria data-i (índice),
+    // o HTML original usa data-t (chave) — o pivot pode já ter substituído
+    // o cabeçalho a esta altura, por isso procuram-se os dois.
+    var porIndice = idxAdv>=0 ? document.querySelector('.ytb-pivo-head button[data-i="'+idxAdv+'"]') : null;
+    if(porIndice) porIndice.textContent=rotulo;
+    var porChave=document.querySelector('.tab[data-t="adv"]');
+    if(porChave) porChave.textContent=rotulo;
+  }
+
+  function ligarAoJogo(j){
+    jogoAtivo=j||null;
+    var box=document.getElementById('adv-jogo-ativo');
+    if(!box)return;
+    if(!jogoAtivo){ box.style.display='none'; return; }
+    box.style.display='block';
+    box.innerHTML='🏟 A preparar: <b>'+esc(jogoAtivo.adversario||'jogo')+'</b>'+(jogoAtivo.data_jogo?(' · '+esc(jogoAtivo.data_jogo)):'')
+      +' <a href="#" onclick="ADV.ligarAoJogo(null);return false;" style="color:var(--muted);text-decoration:underline;margin-left:8px">tirar ligação</a>';
+    // se já houver formação/estilo guardados neste jogo, pré-seleciona
+    if(jogoAtivo.adversario_formacao){ ADV.formacaoAdv=jogoAtivo.adversario_formacao; chips('adv-formacao',Object.keys(TATICAS).map(function(k){return [k,TATICAS[k].label.split(' ·')[0]];}).concat([['?','Não sei / variável']]), function(){return ADV.formacaoAdv||'?'}, function(v){ADV.formacaoAdv=v;}); }
   }
 
   function init(){
@@ -1768,12 +1898,20 @@ var ADV=(function(){
       return chamarIA(p,700);
     }).then(function(t){
       var n=nome();
-      document.getElementById('adv-out').innerHTML='<div class="card"><div class="h">'+(n?('O '+esc(n)+' <span style="color:var(--gold)">sugere</span>'):'Sugestão <span style="color:var(--gold)">tática</span>')+'</div><div style="font-size:13.5px;color:var(--white);line-height:1.7;white-space:pre-wrap">'+esc(t)+'</div></div>';
+      var extra='';
+      if(jogoAtivo && jogoAtivo.id){
+        var contexto={formacao_adv:formacaoAdv,estilo:ADV.estilo||'medio',saida:sel.saida.slice(),ataque:sel.ataque.slice(),transicao:sel.transicao.slice(),bp:sel.bp.slice()};
+        supa.rpc('ytb_coach_jogo_gravar_analise',{p_jogo_id:jogoAtivo.id,p_texto:t,p_contexto:contexto,p_bolas_paradas:sel.bp.length>0})
+          .then(function(){ var el=document.getElementById('adv-guardado'); if(el) el.style.display='block'; })
+          .catch(function(){});
+        extra='<div id="adv-guardado" style="display:none;font-size:12px;color:var(--up);margin-top:10px">✓ Guardado no jogo vs '+esc(jogoAtivo.adversario||'')+' — fica lá quando voltares.</div>';
+      }
+      document.getElementById('adv-out').innerHTML='<div class="card"><div class="h">'+(n?('O '+esc(n)+' <span style="color:var(--gold)">sugere</span>'):'Sugestão <span style="color:var(--gold)">tática</span>')+'</div><div style="font-size:13.5px;color:var(--white);line-height:1.7;white-space:pre-wrap">'+esc(t)+'</div>'+extra+'</div>';
     }).catch(function(){
       err.style.display='block';err.textContent='O Adjunto está indisponível agora — tenta de novo daqui a pouco.';
     }).then(function(){b.disabled=false;b.innerHTML='🧠 Pedir sugestão ao Adjunto';});
   }
-  return {init:init,sugerir:sugerir,formacaoAdv:null,estilo:null};
+  return {init:init,sugerir:sugerir,ligarAoJogo:ligarAoJogo,formacaoAdv:null,estilo:null};
 })();
 
 /* ── login (mesmo padrão do painel do treinador) ── */

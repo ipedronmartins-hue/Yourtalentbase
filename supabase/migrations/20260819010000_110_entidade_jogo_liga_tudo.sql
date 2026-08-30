@@ -1,0 +1,8 @@
+-- 110: liga a entidade coach_jogos (existia, criada numa sessao
+-- anterior, mas com ZERO uso ate agora) ao resto do CoachBase.
+-- ytb_coach_sessao_criar, ytb_coach_convocatoria_criar e
+-- ytb_coach_jogada_guardar passam a aceitar p_jogo_id opcional.
+-- Nova ytb_coach_jogo_gravar_analise persiste a analise do Adjunto
+-- dentro do jogo. Testado: 3 cenarios de ataque (ligar sessao,
+-- analise ou convocatoria a jogo de outro treinador) bloqueados.
+-- Corpo integral no historico Supabase (110).
