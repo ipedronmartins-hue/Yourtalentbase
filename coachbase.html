@@ -42,12 +42,6 @@ body{max-width:900px;margin:0 auto;padding-bottom:70px}
 #main{display:none;padding:0 16px}
 .tabs{display:flex;gap:6px;margin:14px 0;overflow-x:auto;padding-bottom:2px}
 .tab{flex:1;min-width:120px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px 10px;color:var(--slate);font-family:'Barlow Condensed';font-weight:900;font-size:15px;letter-spacing:.5px;cursor:pointer;text-align:center}
-.grupos{display:flex;gap:8px;margin-top:14px}
-.grupo{flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:13px;padding:14px 8px;color:var(--slate);font-family:'Barlow Condensed';font-weight:900;font-size:14px;letter-spacing:.3px;cursor:pointer;text-align:center;transition:border-color .18s,color .18s}
-.grupo .ic{display:block;font-size:19px;margin-bottom:4px}
-.grupo.on{color:var(--gold);border-color:var(--gold-border);background:var(--gold-soft)}
-#cb-subtabs .tab{min-width:0;padding:11px 8px;font-size:12.5px;border-radius:10px}
-#cb-subtabs{margin:8px 0 14px !important}
 .tab.on{border-color:var(--gold);color:var(--gold);background:var(--gold-soft)}
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px}
 .h{font-family:'Barlow Condensed';font-weight:900;font-size:22px;margin-bottom:4px}
@@ -246,7 +240,7 @@ body.pr-cheio #pr-sair{display:block}
 </div>
 
 <div id="main">
-  <div class="tabs" style="display:none">
+  <div class="tabs">
     <button class="tab on" data-t="jogo" onclick="tab('jogo')">🏟 Jogo</button>
     <button class="tab" data-t="prancheta" onclick="tab('prancheta')">🎨 Prancheta</button>
     <button class="tab" data-t="sessao" onclick="tab('sessao')">⚡ Treino</button>
@@ -257,11 +251,6 @@ body.pr-cheio #pr-sair{display:block}
     <button class="tab" data-t="minutos" onclick="tab('minutos')">⏱ Tempo de Jogo</button>
     <button class="tab" data-t="balneario" onclick="tab('balneario')">🗣 Balneário</button>
   </div>
-  <!-- Navegação de 2 níveis: grupos (o que o treinador está a fazer) + sub-abas
-       (o ecrã específico dentro do grupo). Por baixo continua a ser o MESMO
-       pivot plano de sempre — isto só reorganiza como se chega lá. -->
-  <div class="grupos" id="cb-grupos"></div>
-  <div class="tabs" id="cb-subtabs" style="margin-top:8px"></div>
 
   <!-- BALNEÁRIO -->
   <div class="sec on" id="sec-jogo">
@@ -526,39 +515,9 @@ function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return
 var toastT=null;function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(function(){t.classList.remove('show');},2800);}
 var CB_KEYS=['jogo','prancheta','sessao','micro','pres','adv','conv','minutos','balneario'];
 var CB_ROT=['🏟 Jogo','🎨 Prancheta','⚡ Treino','📅 Microciclo','✅ A Equipa','🎯 O Adjunto','📣 Convocatória','⏱ Tempo de Jogo','🗣 Balneário'];
-// Reorganização em 4 áreas — "o que o treinador está a fazer", não a lista
-// plana de ecrãs. Cada chave aqui tem de existir em CB_KEYS. Só agrupa o que
-// já existe de facto: nada de "Sessões guardadas" ou "Exercícios", que ainda
-// não são ecrãs próprios.
-var CB_GRUPOS=[
-  {ic:'🏠',nome:'Equipa',membros:['pres','conv','minutos']},
-  {ic:'🎯',nome:'Treino',membros:['sessao','micro']},
-  {ic:'🧠',nome:'Jogo',membros:['jogo','prancheta','adv']},
-  {ic:'🗣',nome:'Balneário',membros:['balneario']}
-];
-function grupoDe(key){ return CB_GRUPOS.find(function(g){return g.membros.indexOf(key)>=0;}) || CB_GRUPOS[0]; }
-function renderGrupos(ativoKey){
-  var box=document.getElementById('cb-grupos'); if(!box)return;
-  var g=grupoDe(ativoKey);
-  box.innerHTML=CB_GRUPOS.map(function(gr){
-    return '<button type="button" class="grupo'+(gr===g?' on':'')+'" onclick="irParaGrupo(\''+gr.membros[0]+'\')"><span class="ic">'+gr.ic+'</span>'+gr.nome+'</button>';
-  }).join('');
-  renderSubtabs(g, ativoKey);
-}
-function renderSubtabs(g, ativoKey){
-  var box=document.getElementById('cb-subtabs'); if(!box)return;
-  if(g.membros.length<=1){ box.style.display='none'; return; }   // grupo de 1 (Balneário) não precisa de sub-abas
-  box.style.display='flex';
-  box.innerHTML=g.membros.map(function(k){
-    var idx=CB_KEYS.indexOf(k);
-    return '<button type="button" class="tab'+(k===ativoKey?' on':'')+'" onclick="tab(\''+k+'\')">'+CB_ROT[idx]+'</button>';
-  }).join('');
-}
-function irParaGrupo(primeiroMembro){ tab(primeiroMembro); }
 var cbPivot=null; // {ir,atual} de YTBPivot.montar, depois de iniciado
 function aplicarTabCB(idx){
   var t=CB_KEYS[idx];
-  renderGrupos(t);
   if(!USING_SB)return;   // modo demonstração / sem ligação: nada aqui tem conta para carregar,
                           // e cada uma destas chamadas faz supa.rpc(...) — sem esta guarda,
                           // supa===null lança e interrompe a navegação a meio (apanhado ao testar)
