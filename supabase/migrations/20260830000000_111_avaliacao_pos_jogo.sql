@@ -1,0 +1,5 @@
+-- 111: avaliacao pos-jogo estruturada (estrelas, o que funcionou, o
+-- que melhorar, nota do mister), base para a sugestao de treino
+-- seguinte. Categorias iguais aos FOCOS do gerador de sessao, para a
+-- ligacao ser direta. Testado: gravacao correta, ataque de outro
+-- treinador bloqueado. Corpo integral no historico Supabase (111).
