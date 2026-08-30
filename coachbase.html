@@ -318,6 +318,10 @@ body.pr-cheio #pr-sair{display:block}
     <div class="card">
       <div class="h">Gerar <span style="color:var(--gold)">sessão de treino</span></div>
       <div class="s">Escolhe o contexto — a sessão sai do banco de 85 exercícios do CoachBase, filtrado por escalão competitivo, material e (em fut11) pela tua tática.</div>
+      <label class="label">Ligar a um jogo <span style="font-weight:400;color:var(--muted)">(opcional — fica registado que este treino foi a preparar esse jogo)</span></label>
+      <select class="input" id="sessao-jogo-sel" style="margin-bottom:12px">
+        <option value="">— sem ligação —</option>
+      </select>
       <label class="label">Escalão</label>
       <div class="chips" id="c-esc"></div>
       <label class="label">Formato</label>
@@ -346,6 +350,10 @@ body.pr-cheio #pr-sair{display:block}
     <div class="card">
       <div class="h">Microciclo <span style="color:var(--gold)">da semana</span></div>
       <div class="s">Três sessões que se complementam até ao jogo: MD-4 constrói (físico + técnica + saída de bola + rotina de secção), MD-2 aperta (linha defensiva + reação à perda + movimentação), MD-1 afina (bolas paradas ≤10 min + revisão leve). Usa os mesmos seletores da Sessão.</div>
+      <label class="label">Ligar a um jogo <span style="font-weight:400;color:var(--muted)">(opcional — as 3 sessões ficam registadas como preparação para esse jogo)</span></label>
+      <select class="input" id="micro-jogo-sel" style="margin-bottom:12px">
+        <option value="">— sem ligação —</option>
+      </select>
       <button class="btn" id="btn-micro" onclick="gerarMicro()">📚 Gerar microciclo (3 sessões)</button>
     </div>
     <div id="micro-out"></div>
@@ -421,6 +429,10 @@ body.pr-cheio #pr-sair{display:block}
       <label class="label" style="margin-top:10px">Estratégia para o banco</label>
       <textarea class="input" id="cv-banco" rows="3" placeholder="Quem entra, quando, e para quê…"></textarea>
       <button class="btn btn-sec" onclick="sugerirBanco()" style="margin-top:8px">💡 Sugerir estratégia (IA)</button>
+      <label class="label" style="margin-top:10px">Ligar a um jogo <span style="font-weight:400;color:var(--muted)">(opcional)</span></label>
+      <select class="input" id="cv-jogo-sel" onchange="preencherDeJogo('cv',this.value)">
+        <option value="">— sem ligação, escrevo à mão —</option>
+      </select>
       <div class="grid2" style="margin-top:10px">
         <div><label class="label">Data do jogo</label><input class="input" id="cv-data" type="date"></div>
         <div><label class="label">Adversário</label><input class="input" id="cv-adv" type="text" placeholder="Nome do adversário"></div>
@@ -507,11 +519,20 @@ var cbPivot=null; // {ir,atual} de YTBPivot.montar, depois de iniciado
 function aplicarTabCB(idx){
   var t=CB_KEYS[idx];
   if(t==='jogo')JOGO.init();
+  if(t==='conv'||t==='sessao'||t==='micro')JOGO.carregar();
   if(t==='pres')carregarPlantel();
   if(t==='conv')carregarConv();
   if(t==='balneario')BAL.carregar();
   if(t==='adv')ADV.init();
   if(t==='minutos')carregarMinutos();
+}
+function preencherDeJogo(prefixo,jogoId){
+  if(prefixo!=='cv')return; // só a Convocatória tem campos próprios de data/adversário para pré-preencher
+  if(!jogoId){ return; }
+  var j=(JOGO.lista||[]).find(function(x){return x.id===jogoId;});
+  if(!j)return;
+  if(j.data_jogo) document.getElementById('cv-data').value=j.data_jogo;
+  if(j.adversario) document.getElementById('cv-adv').value=j.adversario;
 }
 function carregarEpocas(){
   var box=document.getElementById('epocas-lista');
@@ -926,8 +947,9 @@ function gerarSessao(){
 }
 function guardarSessao(){
   if(!ultimaSessao){toast('Gera primeiro uma sessão');return;}
-  supa.rpc('ytb_coach_sessao_criar',{p_titulo:ultimaSessao.titulo||'Sessão',p_data:new Date().toISOString().slice(0,10),p_escalao:SEL.escalao,p_formato:SEL.formato,p_n_atletas:SEL.n,p_duracao:SEL.dur,p_material:SEL.material,p_foco:SEL.foco,p_plano:ultimaSessao,p_origem:'local'})
-    .then(function(r){var d=r.data;if(r.error||!d||!d.ok){toast('⚠ Não guardado ('+((d&&d.motivo)||'erro')+')');return;}toast('Sessão guardada ✓');});
+  var jogoId=document.getElementById('sessao-jogo-sel').value||null;
+  supa.rpc('ytb_coach_sessao_criar',{p_titulo:ultimaSessao.titulo||'Sessão',p_data:new Date().toISOString().slice(0,10),p_escalao:SEL.escalao,p_formato:SEL.formato,p_n_atletas:SEL.n,p_duracao:SEL.dur,p_material:SEL.material,p_foco:SEL.foco,p_plano:ultimaSessao,p_origem:'local',p_jogo_id:jogoId})
+    .then(function(r){var d=r.data;if(r.error||!d||!d.ok){toast('⚠ Não guardado ('+((d&&d.motivo)||'erro')+')');return;}toast(jogoId?'✓ Sessão guardada, ligada ao jogo':'Sessão guardada ✓');});
 }
 function gerarMicro(){
   var b=document.getElementById('btn-micro');b.disabled=true;b.innerHTML='<span class="spinner"></span> A montar a semana…';
@@ -945,11 +967,12 @@ function gerarMicro(){
 }
 function guardarMicro(){
   var out=window.__micro||[];if(!out.length)return;
+  var jogoId=document.getElementById('micro-jogo-sel').value||null;
   var hoje=new Date(), i=0;
   function um(){
-    if(i>=out.length){toast('Microciclo guardado ✓ ('+out.length+' sessões)');return;}
+    if(i>=out.length){toast(jogoId?'Microciclo guardado ✓ ('+out.length+' sessões, ligadas ao jogo)':'Microciclo guardado ✓ ('+out.length+' sessões)');return;}
     var d=new Date(hoje);d.setDate(d.getDate()+i*2);
-    supa.rpc('ytb_coach_sessao_criar',{p_titulo:out[i].dia+' · '+(out[i].plano.titulo||'Sessão'),p_data:d.toISOString().slice(0,10),p_escalao:SEL.escalao,p_formato:SEL.formato,p_n_atletas:SEL.n,p_duracao:SEL.dur,p_material:SEL.material,p_foco:SEL.foco,p_plano:out[i].plano,p_origem:'local'})
+    supa.rpc('ytb_coach_sessao_criar',{p_titulo:out[i].dia+' · '+(out[i].plano.titulo||'Sessão'),p_data:d.toISOString().slice(0,10),p_escalao:SEL.escalao,p_formato:SEL.formato,p_n_atletas:SEL.n,p_duracao:SEL.dur,p_material:SEL.material,p_foco:SEL.foco,p_plano:out[i].plano,p_origem:'local',p_jogo_id:jogoId})
       .then(function(){i++;um();});
   }
   um();
@@ -1145,7 +1168,7 @@ function guardarConv(){
   });
   if(!lista.length){toast('Toca nos jogadores a convocar — ninguém entra por defeito');return;}
   var b=document.getElementById('btn-conv');b.disabled=true;b.innerHTML='<span class="spinner"></span> A guardar…';
-  supa.rpc('ytb_coach_convocatoria_criar',{p_data:document.getElementById('cv-data').value||null,p_adversario:document.getElementById('cv-adv').value||null,p_formato:SEL.formato,p_lista:lista,p_banco:document.getElementById('cv-banco').value||null,p_jornada:document.getElementById('cv-jornada').value||null,p_tipo:document.getElementById('cv-tipo').value||'oficial'})
+  supa.rpc('ytb_coach_convocatoria_criar',{p_data:document.getElementById('cv-data').value||null,p_adversario:document.getElementById('cv-adv').value||null,p_formato:SEL.formato,p_lista:lista,p_banco:document.getElementById('cv-banco').value||null,p_jornada:document.getElementById('cv-jornada').value||null,p_tipo:document.getElementById('cv-tipo').value||'oficial',p_jogo_id:document.getElementById('cv-jogo-sel').value||null})
     .then(function(r){var d=r.data;if(r.error||!d||!d.ok)throw new Error((d&&d.motivo)||'erro');toast('✓ Convocatória guardada');})
     .catch(function(e){
       var m=String(e&&e.message||'');
@@ -1697,8 +1720,21 @@ var JOGO=(function(){
 
   function carregar(){
     return supa.rpc('ytb_coach_jogos_listar').then(function(r){
-      lista=(r&&r.data)||[]; pintar(); return lista;
+      lista=(r&&r.data)||[]; pintar(); preencherSeletores(); return lista;
     }).catch(function(){ pintar(); });
+  }
+
+  function preencherSeletores(){
+    // qualquer <select id="*-jogo-sel"> da página passa a ter a lista de jogos —
+    // assim Convocatória, Treino e Microciclo escolhem o mesmo jogo sem repetir dados
+    var opcoes='<option value="">— sem ligação —</option>'+lista.map(function(j){
+      return '<option value="'+j.id+'">'+esc(j.adversario||'Jogo')+(j.data_jogo?(' · '+esc(j.data_jogo)):'')+'</option>';
+    }).join('');
+    document.querySelectorAll('select[id$="-jogo-sel"]').forEach(function(sel){
+      var atual=sel.value;
+      sel.innerHTML=opcoes;
+      if(atual) sel.value=atual;
+    });
   }
 
   function criar(){
@@ -1760,7 +1796,7 @@ var JOGO=(function(){
     }).catch(function(){ toast('⚠ Sem ligação'); });
   }
 
-  return {init:init,criar:criar,prepararComAdjunto:prepararComAdjunto,registarResultado:registarResultado,
+  return {init:init,carregar:carregar,criar:criar,prepararComAdjunto:prepararComAdjunto,registarResultado:registarResultado,
     get ativoId(){return ativoId;}, set ativoId(v){ativoId=v;}, get lista(){return lista;}};
 })();
 
