@@ -38,6 +38,9 @@ input[type=file]{color:var(--slate);font-size:var(--fs-legenda)}
 .stat b{display:block;color:var(--gold);font:900 20px var(--fd);margin-top:4px}
 .legend{display:flex;gap:16px;align-items:center;margin-top:12px;flex-wrap:wrap;font-size:var(--fs-legenda);color:var(--slate)}
 .legend i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+.linha-toggles{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.chipline{background:var(--bg3);border:1px solid var(--border);color:var(--slate);border-radius:999px;padding:8px 13px;font-size:var(--fs-micro);font-weight:800;letter-spacing:.5px;text-transform:uppercase;cursor:pointer}
+.chipline.on{color:var(--up);border-color:rgba(0,214,106,.4);background:rgba(0,214,106,.08)}
 .target{border:1px solid var(--gold-border);border-radius:10px;padding:12px;margin-top:12px;background:var(--gold-soft);font-size:var(--fs-legenda)}
 .target b{color:var(--gold)}
 .target .swap{display:flex;gap:8px;margin-top:8px}
@@ -95,9 +98,13 @@ input[type=file]{color:var(--slate);font-size:var(--fs-legenda)}
       <span><i style="background:#4da3ff"></i>Equipa A</span>
       <span><i style="background:#ff5470"></i>Equipa B</span>
       <span><i style="background:#e5bd32"></i>ainda a classificar</span>
-      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;margin-left:auto">
-        <input type="checkbox" id="mostrarLinhas"> Mostrar linhas de equipa
-      </label>
+    </div>
+    <div class="linha-toggles" id="linhaToggles">
+      <button class="chipline" data-l="GR">Guarda-redes</button>
+      <button class="chipline" data-l="DEF">Linha defensiva</button>
+      <button class="chipline" data-l="MED">Linha médios</button>
+      <button class="chipline" data-l="ATA">Linha ataque</button>
+      <button class="chipline" data-l="COMPLETA">GR → avançado</button>
     </div>
     <p id="separacao" class="notice"></p>
     <p id="linhasInfo" class="notice"></p>
@@ -159,7 +166,14 @@ video.onloadedmetadata=()=>{ canvas.width=video.videoWidth; canvas.height=video.
 video.ontimeupdate=()=>{ document.getElementById('mClock').textContent=fmt(video.currentTime); };
 video.onseeked=()=>draw();
 document.getElementById('speed').onchange=e=>{ video.playbackRate=parseFloat(e.target.value)||1; };
-document.getElementById('mostrarLinhas').onchange=()=>draw();
+document.querySelectorAll('.chipline').forEach(b=>{
+  b.onclick=()=>{
+    const k=b.dataset.l;
+    if(LINHAS_ATIVAS.has(k)){ LINHAS_ATIVAS.delete(k); b.classList.remove('on'); }
+    else { LINHAS_ATIVAS.add(k); b.classList.add('on'); }
+    draw();
+  };
+});
 
 // ── deteção multi-escala (mesmo motor do protótipo Analyst AI v2, já provado) ──
 function iou(a,b){
@@ -291,12 +305,10 @@ function gruposDaEquipa(equipa){
     const porX=(a,b)=>a.x-b.x;
     return {
       confirmado:true,
-      gr: marcados.filter(t=>t.papel==='GR'),
-      linhas: [
-        marcados.filter(t=>t.papel==='DEF').sort(porX),
-        marcados.filter(t=>t.papel==='MED').sort(porX),
-        marcados.filter(t=>t.papel==='ATA').sort(porX)
-      ].filter(g=>g.length)
+      GR: marcados.filter(t=>t.papel==='GR'),
+      DEF: marcados.filter(t=>t.papel==='DEF').sort(porX),
+      MED: marcados.filter(t=>t.papel==='MED').sort(porX),
+      ATA: marcados.filter(t=>t.papel==='ATA').sort(porX)
     };
   }
   // sem marcação suficiente: estimativa por profundidade (eixo Y) — nunca
@@ -304,10 +316,10 @@ function gruposDaEquipa(equipa){
   if(jog.length<3) return null;
   const porY=jog.slice().sort((a,b)=>a.y-b.y);
   const porGrupo=Math.ceil(porY.length/3);
-  const grupos=[porY.slice(0,porGrupo), porY.slice(porGrupo,porGrupo*2), porY.slice(porGrupo*2)]
+  const estimado=[porY.slice(0,porGrupo), porY.slice(porGrupo,porGrupo*2), porY.slice(porGrupo*2)]
     .filter(g=>g.length)
     .map(g=>g.slice().sort((a,b)=>a.x-b.x));
-  return {confirmado:false, gr:[], linhas:grupos};
+  return {confirmado:false, estimado};
 }
 function desenharLinha(pontos,cor,tracejado){
   if(pontos.length<2) return;
@@ -319,29 +331,37 @@ function desenharLinha(pontos,cor,tracejado){
   ctx.stroke();
   ctx.restore();
 }
+// cada botão liga/desliga a sua própria linha — permite isolar, por exemplo, só a
+// linha defensiva das duas equipas para ver a linha de fora de jogo, sem o resto.
+const LINHAS_ATIVAS=new Set();
 function desenharLinhasDeEquipa(){
   const infoEl=document.getElementById('linhasInfo');
-  if(!document.getElementById('mostrarLinhas').checked){ infoEl.textContent=''; return; }
-  let algumaConfirmada=false, algumaEstimada=false;
+  if(LINHAS_ATIVAS.size===0){ infoEl.textContent=''; return; }
+  let algumaConfirmada=false, algumaEstimadaPedida=false;
   for(const equipa of ['A','B']){
     const g=gruposDaEquipa(equipa);
     if(!g) continue;
     const cor = equipa==='A' ? '#4da3ff' : '#ff5470';
-    g.linhas.forEach(grupo=>desenharLinha(grupo,cor,!g.confirmado));
     if(g.confirmado){
       algumaConfirmada=true;
-      // linha única do GR até ao avançado, atravessando defesa→médios→ataque
-      const percurso=g.gr.concat(...g.linhas);
-      desenharLinha(percurso,cor,false);
-      g.gr.forEach(t=>{ ctx.save(); ctx.fillStyle=cor; ctx.beginPath(); ctx.arc(t.x,t.y,4,0,Math.PI*2); ctx.fill(); ctx.restore(); });
-    } else algumaEstimada=true;
+      if(LINHAS_ATIVAS.has('DEF')) desenharLinha(g.DEF,cor,false);
+      if(LINHAS_ATIVAS.has('MED')) desenharLinha(g.MED,cor,false);
+      if(LINHAS_ATIVAS.has('ATA')) desenharLinha(g.ATA,cor,false);
+      if(LINHAS_ATIVAS.has('GR')) g.GR.forEach(t=>{ ctx.save(); ctx.fillStyle=cor; ctx.beginPath(); ctx.arc(t.x,t.y,5,0,Math.PI*2); ctx.fill(); ctx.restore(); });
+      if(LINHAS_ATIVAS.has('COMPLETA')) desenharLinha(g.GR.concat(g.DEF,g.MED,g.ATA),cor,false);
+    } else {
+      // sem função marcada, não dá para isolar só "a defesa" com confiança — qualquer
+      // botão ligado mostra as 3 linhas estimadas em conjunto, sempre tracejadas
+      algumaEstimadaPedida=true;
+      g.estimado.forEach(grupo=>desenharLinha(grupo,cor,true));
+    }
   }
-  infoEl.innerHTML = algumaConfirmada && !algumaEstimada
-    ? 'Linhas confirmadas pelas funções que marcaste.'
+  infoEl.innerHTML = algumaConfirmada && !algumaEstimadaPedida
+    ? 'A mostrar linhas confirmadas pelas funções que marcaste.'
     : algumaConfirmada
-      ? 'Uma equipa com funções marcadas (linha sólida), outra ainda estimada por profundidade no ecrã (tracejada).'
-      : algumaEstimada
-        ? '<span class="warn">Linhas estimadas pela posição no ecrã — marca a função dos jogadores (GR/DEF/MED/ATA) para ficarem exatas.</span>'
+      ? 'Uma equipa com funções marcadas (linha sólida, respeitando o botão escolhido) — a outra ainda estimada por profundidade no ecrã (as 3 linhas juntas, tracejadas, porque sem função marcada não dá para isolar só uma).'
+      : algumaEstimadaPedida
+        ? '<span class="warn">Linhas estimadas pela posição no ecrã, não por função real — marca GR/DEF/MED/ATA nos jogadores para poderes isolar cada linha.</span>'
         : 'Ainda sem jogadores suficientes numa equipa para desenhar linhas.';
 }
 function draw(){
