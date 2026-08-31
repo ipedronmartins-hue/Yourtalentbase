@@ -1,28 +1,385 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>YTB Analyst · Vê futebol. Percebe o jogo.</title><meta name="theme-color" content="#080C08">
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="/assets/css/ytb-vivo.css"><link rel="stylesheet" href="ytb-tokens.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>YTB Analyst · Vê futebol. Percebe o jogo.</title>
+<meta name="theme-color" content="#080C08">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="ytb-tokens.css">
 <style>
-*{box-sizing:border-box;margin:0;padding:0}html,body{min-height:100%;background:var(--bg);color:var(--white);font-family:var(--fb)}button,input,select{font:inherit}body{max-width:1500px;margin:auto}.nav{height:58px;padding:0 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:rgba(8,12,8,.96);backdrop-filter:blur(16px);z-index:20}.brand{font:900 24px var(--fd)}.brand span{color:var(--gold)}.back{color:var(--slate);font-size:12px;text-decoration:none}.wrap{padding:30px 24px 60px}.hero{max-width:1180px;margin:0 auto 22px}.eyebrow{font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:7px}.title{font:900 clamp(44px,6vw,68px)/.9 var(--fd);letter-spacing:-1.4px}.sub{font-size:13px;color:var(--slate);line-height:1.6;margin-top:10px;max-width:720px}.workspace{max-width:1180px;margin:auto}.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:17px;margin-bottom:12px;box-shadow:var(--shadow)}.h{font:900 22px var(--fd);margin-bottom:4px}.s{font-size:11px;color:var(--slate);line-height:1.5;margin-bottom:14px}.setup{display:grid;grid-template-columns:1fr 210px 150px auto;gap:9px;align-items:end}.label{display:block;font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px}.input,select{width:100%;background:var(--bg3);color:var(--white);border:1px solid var(--border);border-radius:9px;padding:12px;font-size:13px;outline:0}.input:focus,select:focus{border-color:var(--gold)}.btn{border:0;border-radius:10px;background:var(--gold);color:#080C08;padding:13px 17px;font-weight:800;font-size:12px;cursor:pointer;white-space:nowrap}.btn:disabled{opacity:.45}.btn.sec{background:var(--bg3);border:1px solid var(--border);color:var(--white)}.loading{display:none;margin-top:12px}.loading.on{display:block}.bar{height:5px;background:var(--bg3);border-radius:5px;overflow:hidden}.bar i{display:block;width:0;height:100%;background:var(--gold);transition:width .35s}.steps{display:flex;gap:15px;margin-top:8px;flex-wrap:wrap}.steps span{font-size:9px;color:var(--muted)}.steps span.active{color:var(--white)}.video-grid{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:12px}.video{background:#030503;border:1px solid var(--border);border-radius:12px;overflow:hidden}.player{aspect-ratio:16/9;min-height:300px;position:relative;background:#050705}.player iframe{position:absolute;inset:0;width:100%;height:100%;border:0}.placeholder{height:100%;display:grid;place-items:center;text-align:center;color:var(--muted)}.play{width:60px;height:60px;border-radius:50%;display:grid;place-items:center;margin:auto;background:var(--gold-soft);border:1px solid var(--gold-border);color:var(--gold);font-size:20px}.placeholder p{margin-top:10px;font-size:11px}.tracking-layer{display:none;position:absolute;inset:0;z-index:3;pointer-events:none}.tracking-layer.on{display:block}.track-id{position:absolute;transform:translate(-50%,-50%);width:29px;height:29px;border-radius:50%;display:grid;place-items:center;background:rgba(8,12,8,.92);border:2px solid var(--gold);color:var(--gold);font:900 14px var(--fd);pointer-events:auto;cursor:pointer;box-shadow:0 3px 14px rgba(0,0,0,.5)}.track-id.selected{background:var(--gold);color:#000;box-shadow:0 0 0 4px rgba(240,190,0,.2)}.tracking-label{position:absolute;left:12px;top:12px;padding:7px 9px;border-radius:7px;background:rgba(8,12,8,.88);border:1px solid var(--border);font-size:9px;color:var(--green);font-weight:800}.controls{padding:10px 12px;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px}.time{font:900 18px var(--fd);color:var(--gold);min-width:50px}.ctrl{background:var(--bg3);border:1px solid var(--border);color:var(--white);border-radius:8px;padding:8px 10px;font-size:11px;cursor:pointer}.timeline{height:7px;background:var(--bg3);border-radius:5px;position:relative;flex:1;cursor:pointer}.needle{height:100%;width:0;background:var(--gold);border-radius:5px}.marker{position:absolute;top:-4px;width:5px;height:15px;background:var(--orange);border-radius:2px}.side-title{font:900 20px var(--fd);margin-bottom:10px}.focus{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:13px}.tag{font-size:9px;padding:6px 8px;border:1px solid var(--border);border-radius:999px;color:var(--slate);background:var(--bg3);cursor:pointer}.tag.on{color:var(--green);border-color:rgba(0,212,106,.3);background:rgba(0,212,106,.05)}.capture{border-top:1px solid var(--border);padding-top:12px}.capture-row{display:flex;gap:7px}.capture input{flex:1}.events{display:grid;gap:6px;margin-top:10px}.event{display:grid;grid-template-columns:48px 1fr auto;gap:8px;align-items:center;padding:9px;background:var(--bg3);border:1px solid var(--border);border-radius:8px}.event b{font:900 15px var(--fd);color:var(--gold)}.event span{font-size:10px}.event button{background:none;border:0;color:var(--muted);cursor:pointer}.player-list{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}.player-btn{padding:10px 4px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--slate);font:900 17px var(--fd);cursor:pointer}.player-btn.selected{border-color:var(--gold);color:var(--gold);background:var(--gold-soft)}.selected-box{margin-top:10px;padding:10px;border:1px solid rgba(240,190,0,.25);background:var(--gold-soft);border-radius:9px;font-size:10px;color:var(--slate)}.selected-box b{color:var(--gold);font:900 17px var(--fd)}.analysis{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}.finding{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:13px}.finding b{display:block;font:900 17px var(--fd);margin-bottom:4px}.finding p{font-size:11px;line-height:1.55;color:var(--slate)}.finding.green b{color:var(--green)}.finding.orange b{color:var(--orange)}.confidence{font-size:9px;color:var(--muted);margin-top:10px;line-height:1.5}.notice{font-size:10px;color:var(--muted);margin-top:8px;line-height:1.5}@media(max-width:1050px){.setup{grid-template-columns:1fr 1fr}.setup .full{grid-column:1/-1}.video-grid{grid-template-columns:1fr}.analysis{grid-template-columns:1fr 1fr}}@media(max-width:650px){.wrap{padding:24px 14px 50px}.nav{padding:0 15px}.setup{grid-template-columns:1fr}.setup .full{grid-column:auto}.analysis{grid-template-columns:1fr}.player{min-height:210px}.controls{flex-wrap:wrap}.timeline{order:5;flex-basis:100%}.capture-row{flex-direction:column}.event{grid-template-columns:45px 1fr auto}.player-list{grid-template-columns:repeat(6,1fr)}}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:var(--fb)}
+button,input,select{font:inherit}
+body{max-width:1180px;margin:auto}
+.nav{height:58px;padding:0 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:rgba(8,12,8,.96);backdrop-filter:blur(16px);z-index:20}
+.brand{font:900 24px var(--fd)}.brand span{color:var(--gold)}
+.back{color:var(--slate);font-size:var(--fs-legenda);text-decoration:none}
+.wrap{padding:30px 24px 60px}
+.hero{max-width:900px;margin:0 auto 22px}
+.eyebrow{font-size:var(--fs-micro);font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:7px}
+.title{font:900 clamp(34px,5vw,52px)/.98 var(--fd);letter-spacing:-1px}
+.sub{font-size:var(--fs-corpo);color:var(--slate);line-height:1.6;margin-top:10px;max-width:640px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:14px;box-shadow:var(--shadow)}
+.h{font:900 22px var(--fd);margin-bottom:4px}
+.s{font-size:var(--fs-legenda);color:var(--slate);line-height:1.55;margin-bottom:14px}
+.btn{border:0;border-radius:10px;background:var(--gold);color:#080C08;padding:13px 18px;font-weight:800;font-size:var(--fs-legenda);cursor:pointer}
+.btn:disabled{opacity:.4;cursor:default}
+.btn.sec{background:var(--bg3);border:1px solid var(--border);color:var(--text)}
+.filerow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+input[type=file]{color:var(--slate);font-size:var(--fs-legenda)}
+.status{font-size:var(--fs-legenda);color:var(--muted)}
+.stage{position:relative;background:#000;border-radius:12px;overflow:hidden}
+.stage video{display:block;width:100%;max-height:64vh}
+.stage canvas{position:absolute;inset:0;width:100%;height:100%}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.stat{background:var(--bg3);border:1px solid var(--border);padding:10px;border-radius:9px;text-align:center}
+.stat small{display:block;color:var(--muted);font-size:9px;text-transform:uppercase;letter-spacing:.5px}
+.stat b{display:block;color:var(--gold);font:900 20px var(--fd);margin-top:4px}
+.legend{display:flex;gap:16px;align-items:center;margin-top:12px;flex-wrap:wrap;font-size:var(--fs-legenda);color:var(--slate)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+.target{border:1px solid var(--gold-border);border-radius:10px;padding:12px;margin-top:12px;background:var(--gold-soft);font-size:var(--fs-legenda)}
+.target b{color:var(--gold)}
+.target .swap{display:flex;gap:8px;margin-top:8px}
+.target .swap button{flex:1;padding:8px;border-radius:8px;border:1px solid var(--border2);background:var(--bg3);color:var(--text);cursor:pointer;font-size:var(--fs-micro);font-weight:800;text-transform:uppercase}
+.target .swap button.on{border-color:var(--gold);color:var(--gold);background:var(--gold-soft)}
+.momento-form{display:grid;grid-template-columns:120px 150px 1fr auto;gap:8px;align-items:stretch}
+.momento-form select,.momento-form input{background:var(--bg3);color:var(--text);border:1px solid var(--border);border-radius:9px;padding:11px;font-size:var(--fs-legenda)}
+.momentos-list{display:grid;gap:6px;margin-top:12px}
+.momento{display:grid;grid-template-columns:52px 70px 110px 1fr auto;gap:8px;align-items:center;padding:9px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;font-size:var(--fs-legenda)}
+.momento b{font:900 14px var(--fd);color:var(--gold)}
+.momento .eq{font-weight:800;font-size:var(--fs-micro);text-transform:uppercase;color:var(--slate)}
+.momento .cat{font-size:var(--fs-micro);color:var(--slate)}
+.momento button{background:none;border:0;color:var(--muted);cursor:pointer}
+.rel-out{white-space:pre-wrap;font-size:var(--fs-corpo);line-height:1.65;color:var(--text);background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:16px;margin-top:12px}
+.warn{color:var(--warn)}
+.notice{font-size:var(--fs-micro);color:var(--muted);margin-top:10px;line-height:1.55}
+@media(max-width:760px){
+  .momento-form{grid-template-columns:1fr}
+  .momento{grid-template-columns:44px 1fr auto;grid-template-areas:"tempo cat rm" "eq nota nota"}
+  .stats{grid-template-columns:repeat(2,1fr)}
+}
 </style>
 </head>
 <body>
-<nav class="nav"><a class="back" href="javascript:history.back()">← Voltar</a><div class="brand">YTB <span>ANALYST</span></div><span style="width:38px"></span></nav>
-<main class="wrap"><section class="hero"><div class="eyebrow">Analista de jogo</div><h1 class="title">Vê futebol.<br><span style="color:var(--gold)">Percebe o jogo.</span></h1><p class="sub">Um segundo olhar sobre o jogo. A IA procura casos, erros e padrões no vídeo e transforma o que aconteceu numa leitura útil para o treinador.</p></section>
-<section class="workspace">
-<div class="card"><h2 class="h">Novo jogo</h2><p class="s">Cola o vídeo. Primeiro identificamos o jogo. Depois deixamos o Analyst trabalhar.</p><div class="setup"><div><label class="label">Link do YouTube</label><input id="url" class="input" placeholder="https://youtu.be/..." autocomplete="off"></div><div><label class="label">Equipa a analisar</label><select id="side"><option>Adversário</option><option>Equipa da casa</option><option>Equipa visitante</option><option>Ambas</option></select></div><div><label class="label">Escalão</label><select><option>Sub-13</option><option>Sub-15</option><option>Sub-17</option><option>Sub-19</option><option>Sénior</option></select></div><button id="load" class="btn">ABRIR VÍDEO</button></div><div id="loading" class="loading"><div class="bar"><i id="loadbar"></i></div><div class="steps"><span id="q1">Vídeo</span><span id="q2">Metadados</span><span id="q3">Preparar análise</span></div></div><p class="notice">O vídeo permanece no YouTube. Nesta fase, o player é a fonte visual; o motor de Computer Vision será ligado posteriormente.</p></div>
-<div class="video-grid"><div class="video"><div class="player" id="player"><div class="placeholder"><div><div class="play">▶</div><p>Cola um link do YouTube para abrir o jogo.</p></div></div><div class="tracking-layer" id="tracking"><div class="tracking-label">● TRACKING · IDs temporários</div></div></div><div class="controls"><button class="ctrl" id="play">▶</button><button class="ctrl" id="pause">Ⅱ</button><div class="time" id="clock">00:00</div><div class="timeline" id="timeline"><div class="needle" id="needle"></div><span class="marker" style="left:23%"></span><span class="marker" style="left:49%"></span><span class="marker" style="left:73%"></span></div><button class="ctrl" id="mark">＋ Momento</button></div></div>
-<aside><div class="card"><div class="side-title">Foco da análise</div><div class="focus"><button class="tag on">Organização</button><button class="tag on">Transições</button><button class="tag on">Pressão</button><button class="tag">Bolas paradas</button><button class="tag">Espaços</button><button class="tag">Jogadores</button></div><button id="detect" class="btn" style="width:100%;margin-bottom:12px">DETECTAR JOGADORES</button><div id="playerArea" class="hidden"><label class="label">Escolher jogador a acompanhar</label><div class="player-list" id="players"></div><div id="selected" class="selected-box">Nenhum jogador selecionado.</div></div><div class="capture"><label class="label">Nota do treinador</label><div class="capture-row"><input id="eventText" class="input" placeholder="Ex.: saída pelo lateral"></div><button id="addEvent" class="btn" style="margin-top:7px;width:100%">GUARDAR MOMENTO</button></div><div class="events" id="events"></div></div></aside></div>
-<div class="card"><h2 class="h">Leitura do jogo</h2><p class="s">Aqui é onde o Analyst deverá fazer o trabalho pesado: encontrar casos de jogo, agrupá-los e explicar porque são relevantes.</p><div class="analysis"><div class="finding green"><b>O que aconteceu</b><p>Eventos observados no vídeo, sempre ligados a um momento concreto.</p></div><div class="finding orange"><b>O que se repete</b><p>Padrões encontrados em várias situações semelhantes, em vez de acontecimentos isolados.</p></div><div class="finding"><b>Porque interessa</b><p>Interpretação e possíveis formas de explorar o comportamento observado.</p></div></div><p class="confidence">Regra do Analyst: uma conclusão importante deve ter evidência temporal. “Inferido” nunca deve aparecer como “confirmado”.</p></div>
-<div class="card"><h2 class="h">Próximo passo</h2><p class="s">Depois de conseguirmos detectar e seguir jogadores, o Analyst poderá produzir automaticamente relatórios individuais sem o treinador marcar cada lance.</p><div class="analysis"><div class="finding"><b>1 · Detetar</b><p>Encontrar jogadores e bola no vídeo.</p></div><div class="finding"><b>2 · Seguir</b><p>Atribuir um ID persistente e acompanhar a trajectória.</p></div><div class="finding"><b>3 · Perceber</b><p>Transformar eventos em casos, padrões e relatório.</p></div></div></div>
-</section></main>
-<script src="https://www.youtube.com/iframe_api"></script><script>
-let yt=null,duration=0,timer=null;const $=id=>document.getElementById(id);function videoId(url){try{const u=new URL(url);if(u.hostname.includes('youtu.be'))return u.pathname.slice(1).split('/')[0];if(u.searchParams.get('v'))return u.searchParams.get('v');const m=u.pathname.match(/\/shorts\/([^/]+)/);return m?m[1]:null}catch{return null}}function onYouTubeIframeAPIReady(){window.YT_READY=true}
-$('load').onclick=()=>{const id=videoId($('url').value.trim());if(!id){$('url').focus();return}loadVideo(id)};function loadVideo(id){$('player').innerHTML='<div id="ytplayer" style="position:absolute;inset:0;width:100%;height:100%"></div><div class="tracking-layer" id="tracking"><div class="tracking-label">● TRACKING · IDs temporários</div></div>';yt=new YT.Player('ytplayer',{videoId:id,width:'100%',height:'100%',playerVars:{rel:0,modestbranding:1,playsinline:1},events:{onReady:()=>{duration=yt.getDuration();$('loading').classList.remove('on');$('q1').classList.add('active');$('q2').classList.add('active');$('q3').classList.add('active');startClock()}}});$('loading').classList.add('on');let p=0;const x=setInterval(()=>{p+=20;$('loadbar').style.width=Math.min(p,100)+'%';if(p>=100)clearInterval(x)},150)}
-function startClock(){clearInterval(timer);timer=setInterval(()=>{if(!yt||typeof yt.getCurrentTime!=='function')return;const t=yt.getCurrentTime();$('clock').textContent=fmt(t);$('needle').style.width=duration?(t/duration*100)+'%':'0%'},500)}function fmt(s){s=Math.floor(s||0);return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
-$('play').onclick=()=>yt&&yt.playVideo();$('pause').onclick=()=>yt&&yt.pauseVideo();$('timeline').onclick=e=>{if(!yt||!duration)return;const r=e.currentTarget.getBoundingClientRect();yt.seekTo(((e.clientX-r.left)/r.width)*duration,true)};$('mark').onclick=()=>{if(!yt)return;$('eventText').focus();$('eventText').placeholder='Momento em '+fmt(yt.getCurrentTime())};$('addEvent').onclick=()=>{if(!yt)return;const text=$('eventText').value.trim()||'Momento observado';const t=yt.getCurrentTime();const el=document.createElement('div');el.className='event';el.innerHTML='<b>'+fmt(t)+'</b><span>'+esc(text)+'</span><button>▶</button>';el.querySelector('button').onclick=()=>yt.seekTo(t,true);$('events').prepend(el);$('eventText').value=''};function esc(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
-document.querySelectorAll('.tag').forEach(x=>x.onclick=()=>x.classList.toggle('on'));
-const demoPos=[['3',18,70],['4',31,58],['6',47,51],['7',67,58],['8',54,38],['10',78,31],['11',28,31],['5',42,68],['2',83,68],['9',62,22],['1',50,82]];let selectedPlayer=null;$('detect').onclick=()=>{if(!yt)return;const layer=$('tracking');layer.classList.add('on');$('playerArea').classList.remove('hidden');$('players').innerHTML='';demoPos.forEach(([n,x,y])=>{const dot=document.createElement('button');dot.className='track-id';dot.textContent=n;dot.style.left=x+'%';dot.style.top=y+'%';dot.onclick=()=>selectPlayer(n,dot);layer.appendChild(dot);const b=document.createElement('button');b.className='player-btn';b.textContent='#'+n;b.onclick=()=>selectPlayer(n,dot);$('players').appendChild(b)});$('detect').textContent='11 JOGADORES DETETADOS';$('detect').disabled=true};function selectPlayer(n,dot){selectedPlayer=n;document.querySelectorAll('.track-id').forEach(x=>x.classList.remove('selected'));document.querySelectorAll('.player-btn').forEach(x=>x.classList.remove('selected'));dot.classList.add('selected');[...document.querySelectorAll('.player-btn')].find(x=>x.textContent==='#'+n)?.classList.add('selected');$('selected').innerHTML='<b>#'+n+'</b> selecionado · pronto para tracking individual';}
-</script></body></html>
+
+<nav class="nav"><a class="back" href="coachbase.html">← CoachBase</a><div class="brand">YTB <span>ANALYST</span></div><span style="width:60px"></span></nav>
+
+<main class="wrap">
+  <section class="hero">
+    <div class="eyebrow">Analista de jogo</div>
+    <h1 class="title">Vê futebol.<br><span style="color:var(--gold)">Percebe o jogo.</span></h1>
+    <p class="sub">Carrega um vídeo do jogo. O Analyst deteta os jogadores em campo e agrupa-os em Equipa A / Equipa B pela cor do equipamento. Tu marcas os lances que interessam — o Analyst organiza-os num relatório.</p>
+  </section>
+
+  <div class="card">
+    <div class="h">1 · Carregar o vídeo</div>
+    <p class="s">Tem de ser um ficheiro de vídeo, não um link do YouTube — a deteção lê os pixels diretamente da imagem, e o YouTube não deixa fazer isso a partir daqui.</p>
+    <div class="filerow">
+      <input id="file" type="file" accept="video/*">
+      <button class="btn" id="start" disabled>DETETAR JOGADORES</button>
+      <button class="btn sec" id="stop">PARAR</button>
+      <span id="status" class="status">Escolhe um vídeo.</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="stage">
+      <video id="video" playsinline muted controls></video>
+      <canvas id="canvas"></canvas>
+    </div>
+    <div class="legend">
+      <span><i style="background:#4da3ff"></i>Equipa A</span>
+      <span><i style="background:#ff5470"></i>Equipa B</span>
+      <span><i style="background:#e5bd32"></i>ainda a classificar</span>
+    </div>
+    <div class="stats">
+      <div class="stat"><small>Deteções</small><b id="count">0</b></div>
+      <div class="stat"><small>Jogadores a seguir</small><b id="ids">0</b></div>
+      <div class="stat"><small>Equipa A</small><b id="nA">0</b></div>
+      <div class="stat"><small>Equipa B</small><b id="nB">0</b></div>
+    </div>
+    <div class="target" id="target">🎯 <b>Nenhum jogador selecionado.</b> Clica num círculo no vídeo.</div>
+    <p id="diag" class="notice">A deteção ainda não começou.</p>
+  </div>
+
+  <div class="card">
+    <div class="h">2 · Marcar lances</div>
+    <p class="s">Enquanto vês o vídeo, marca o que interessa. O Analyst só vai escrever sobre o que marcares aqui — nunca inventa lances que não marcaste.</p>
+    <div class="momento-form">
+      <select id="mEquipa"><option value="">Equipa —</option><option value="A">Equipa A</option><option value="B">Equipa B</option><option value="Ambas">Ambas</option></select>
+      <select id="mCat"><option>Erro tático</option><option>Boa decisão</option><option>Transição</option><option>Bola parada</option><option>Físico / Intensidade</option><option>Outro</option></select>
+      <input id="mNota" placeholder="O que aconteceu…" maxlength="140">
+      <button id="mAdd" class="btn">＋ Marcar em <span id="mClock">00:00</span></button>
+    </div>
+    <div id="momentos" class="momentos-list"></div>
+  </div>
+
+  <div class="card">
+    <div class="h">3 · Relatório</div>
+    <p class="s">Gerado a partir das tuas observações — a IA organiza e escreve, não deteta lances sozinha.</p>
+    <button id="gerarRel" class="btn" disabled>Gerar relatório dos lances marcados</button>
+    <div id="relatorio"></div>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.20.0/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.3/dist/coco-ssd.min.js"></script>
+<script>
+// ── estado ────────────────────────────────────────────────────────────────
+const video=document.getElementById('video'), canvas=document.getElementById('canvas'), ctx=canvas.getContext('2d');
+const colorCv=document.createElement('canvas'), colorCtx=colorCv.getContext('2d',{willReadFrequently:true});
+const fileInput=document.getElementById('file');
+let model=null, running=false, processing=false, nextId=1, tracks=[], selectedId=null, videoURL=null;
+let prevCentroids=null;
+let momentos=[];
+
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));}
+function fmt(s){s=Math.floor(s||0);return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
+
+fileInput.onchange=()=>{
+  const f=fileInput.files[0]; if(!f) return;
+  if(videoURL) URL.revokeObjectURL(videoURL);
+  videoURL=URL.createObjectURL(f);
+  video.src=videoURL;
+  document.getElementById('start').disabled=false;
+  document.getElementById('status').textContent='Vídeo carregado.';
+  tracks=[]; nextId=1; selectedId=null; prevCentroids=null;
+};
+video.onloadedmetadata=()=>{ canvas.width=video.videoWidth; canvas.height=video.videoHeight; draw(); };
+video.ontimeupdate=()=>{ document.getElementById('mClock').textContent=fmt(video.currentTime); };
+video.onseeked=()=>draw();
+
+// ── deteção multi-escala (mesmo motor do protótipo Analyst AI v2, já provado) ──
+function iou(a,b){
+  const ax=a.x-a.w/2, ay=a.y-a.h/2, bx=b.x-b.w/2, by=b.y-b.h/2;
+  const x1=Math.max(ax,bx), y1=Math.max(ay,by), x2=Math.min(ax+a.w,bx+b.w), y2=Math.min(ay+a.h,by+b.h);
+  const inter=Math.max(0,x2-x1)*Math.max(0,y2-y1);
+  return inter/(a.w*a.h+b.w*b.h-inter+1e-6);
+}
+function nms(arr){
+  arr.sort((a,b)=>b.score-a.score);
+  const out=[];
+  for(const p of arr) if(out.every(q=>iou(p,q)<.30)) out.push(p);
+  return out.slice(0,50);
+}
+async function detectTiles(){
+  const W=video.videoWidth, H=video.videoHeight;
+  if(!W||!H) return {dets:[]};
+  const src=document.createElement('canvas'), sctx=src.getContext('2d');
+  const configs=[{w:Math.min(960,W),h:Math.min(640,H)},{w:Math.min(640,W),h:Math.min(480,H)}];
+  let all=[];
+  for(const cfg of configs){
+    const tw=cfg.w, th=cfg.h, stepX=Math.max(1,tw*.48), stepY=Math.max(1,th*.48);
+    src.width=640; src.height=480;
+    for(let y=0;y<H;y+=stepY) for(let x=0;x<W;x+=stepX){
+      const xx=Math.min(x,W-tw), yy=Math.min(y,H-th);
+      sctx.clearRect(0,0,640,480);
+      sctx.drawImage(video,xx,yy,tw,th,0,0,640,480);
+      const preds=await model.detect(src,25,.12);
+      for(const p of preds){
+        if(p.class!=='person'||p.score<.12) continue;
+        const [px,py,pw,ph]=p.bbox;
+        const cx=xx+(px+pw/2)*tw/640, cy=yy+(py+ph/2)*th/480, w=pw*tw/640, h=ph*th/480;
+        if(w<7||h<10) continue;
+        all.push({x:cx,y:cy,w,h,score:p.score});
+      }
+    }
+  }
+  return {dets:nms(all)};
+}
+function updateTracks(dets){
+  const used=new Set(), fresh=[], maxD=Math.max(video.videoWidth,video.videoHeight)*.09;
+  for(const d of dets){
+    let best=null, bd=Infinity;
+    for(const tr of tracks){
+      if(used.has(tr.id)) continue;
+      const dd=Math.hypot(d.x-tr.x,d.y-tr.y), gate=Math.max(maxD,tr.w*.8,tr.h*.8);
+      if(dd<bd&&dd<gate){best=tr;bd=dd;}
+    }
+    if(best){ used.add(best.id); Object.assign(best,{x:d.x,y:d.y,w:d.w,h:d.h,score:d.score,miss:0}); fresh.push(best); }
+    else fresh.push({id:nextId++,...d,miss:0,team:null,teamManual:null,colAvg:null});
+  }
+  for(const tr of tracks) if(!fresh.includes(tr)&&tr.miss<5){ tr.miss++; fresh.push(tr); }
+  tracks=fresh.sort((a,b)=>a.id-b.id).slice(0,40);
+}
+
+// ── cor do equipamento → Equipa A / Equipa B ────────────────────────────────
+// Amostra a zona do tronco (evita cabelo em cima e relva/calções em baixo),
+// mantém uma média móvel por jogador para reduzir ruído de um frame só.
+function sampleColor(cx,cy,w,h){
+  const x=Math.max(0,Math.round(cx-w*0.25)), y=Math.max(0,Math.round(cy-h*0.25));
+  const ww=Math.min(colorCv.width-x,Math.max(1,Math.round(w*0.5)));
+  const hh=Math.min(colorCv.height-y,Math.max(1,Math.round(h*0.25)));
+  if(ww<1||hh<1) return null;
+  try{
+    const data=colorCtx.getImageData(x,y,ww,hh).data;
+    let r=0,g=0,b=0,n=0;
+    for(let i=0;i<data.length;i+=4){ r+=data[i]; g+=data[i+1]; b+=data[i+2]; n++; }
+    return n?{r:r/n,g:g/n,b:b/n}:null;
+  }catch(e){ return null; }
+}
+function chroma(c){ const s=c.r+c.g+c.b||1; return {x:c.r/s,y:c.g/s}; } // normalizado — menos sensível a sombra/luz
+function dist(a,b){ return Math.hypot(a.x-b.x,a.y-b.y); }
+function kmeans2(points){
+  if(points.length<2) return null;
+  let a=points[0], b=points[0], best=-1;
+  for(const p of points) for(const q of points){ const d=(p.x-q.x)**2+(p.y-q.y)**2; if(d>best){best=d;a=p;b=q;} }
+  let c0={x:a.x,y:a.y}, c1={x:b.x,y:b.y};
+  for(let it=0; it<6; it++){
+    let s0={x:0,y:0,n:0}, s1={x:0,y:0,n:0};
+    for(const p of points){
+      if(dist(p,c0)<=dist(p,c1)){ s0.x+=p.x;s0.y+=p.y;s0.n++; } else { s1.x+=p.x;s1.y+=p.y;s1.n++; }
+    }
+    if(s0.n) c0={x:s0.x/s0.n,y:s0.y/s0.n};
+    if(s1.n) c1={x:s1.x/s1.n,y:s1.y/s1.n};
+  }
+  return [c0,c1];
+}
+function updateColorsAndTeams(){
+  colorCv.width=video.videoWidth; colorCv.height=video.videoHeight;
+  colorCtx.drawImage(video,0,0);
+  for(const tr of tracks){
+    if(tr.miss>2) continue;
+    const c=sampleColor(tr.x,tr.y,tr.w,tr.h);
+    if(!c) continue;
+    tr.colAvg = tr.colAvg ? {r:tr.colAvg.r*.7+c.r*.3, g:tr.colAvg.g*.7+c.g*.3, b:tr.colAvg.b*.7+c.b*.3} : c;
+  }
+  const pts=tracks.filter(t=>t.miss<=2&&t.colAvg).map(t=>({t,...chroma(t.colAvg)}));
+  if(pts.length<2) return;
+  const cs=kmeans2(pts); if(!cs) return;
+  let [c0,c1]=cs;
+  if(prevCentroids){
+    const dSame=dist(c0,prevCentroids[0])+dist(c1,prevCentroids[1]);
+    const dSwap=dist(c0,prevCentroids[1])+dist(c1,prevCentroids[0]);
+    if(dSwap<dSame) [c0,c1]=[c1,c0];
+  }
+  prevCentroids=[c0,c1];
+  for(const p of pts){
+    if(p.t.teamManual){ p.t.team=p.t.teamManual; continue; }
+    p.t.team = dist(p,c0)<=dist(p,c1) ? 'A' : 'B';
+  }
+}
+
+// ── desenho ──────────────────────────────────────────────────────────────
+function draw(){
+  if(!canvas.width||!canvas.height) return;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  for(const t of tracks){
+    if(t.miss>2) continue;
+    const r=Math.max(15,Math.min(32,t.w*.38)), sel=t.id===selectedId;
+    const cor = t.team==='A' ? '#4da3ff' : t.team==='B' ? '#ff5470' : '#e5bd32';
+    ctx.beginPath(); ctx.arc(t.x,t.y,r,0,Math.PI*2);
+    ctx.fillStyle=sel?'rgba(0,214,106,.95)':'rgba(8,12,8,.9)'; ctx.fill();
+    ctx.strokeStyle=sel?'#00d66a':cor; ctx.lineWidth=sel?5:3; ctx.stroke();
+    ctx.fillStyle=sel?'#061008':cor;
+    ctx.font='bold '+Math.max(13,r*.65)+'px Arial'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(t.id,t.x,t.y);
+  }
+  document.getElementById('count').textContent=tracks.filter(t=>t.miss===0).length;
+  document.getElementById('ids').textContent=tracks.filter(t=>t.miss<=2).length;
+  document.getElementById('nA').textContent=tracks.filter(t=>t.miss<=2&&t.team==='A').length;
+  document.getElementById('nB').textContent=tracks.filter(t=>t.miss<=2&&t.team==='B').length;
+}
+canvas.onclick=e=>{
+  const rect=canvas.getBoundingClientRect();
+  const x=(e.clientX-rect.left)*canvas.width/rect.width, y=(e.clientY-rect.top)*canvas.height/rect.height;
+  let hit=null, bd=Infinity;
+  for(const t of tracks){ const d=Math.hypot(x-t.x,y-t.y); if(d<Math.max(40,t.w*.5,t.h*.5)&&d<bd){hit=t;bd=d;} }
+  selectedId = hit ? hit.id : null;
+  renderTarget(hit);
+  draw();
+};
+function renderTarget(hit){
+  const el=document.getElementById('target');
+  if(!hit){ el.innerHTML='🎯 <b>Nenhum jogador selecionado.</b> Clica num círculo no vídeo.'; return; }
+  el.innerHTML='🎯 <b>Jogador #'+hit.id+'</b> · equipa detetada: <b>'+(hit.team||'—')+'</b>'
+    +'<div class="swap"><button data-t="A">Equipa A</button><button data-t="B">Equipa B</button><button data-t="">auto</button></div>';
+  el.querySelectorAll('.swap button').forEach(b=>{
+    if(b.dataset.t===(hit.teamManual||'')) b.classList.add('on');
+    b.onclick=()=>{
+      hit.teamManual=b.dataset.t||null;
+      if(hit.teamManual) hit.team=hit.teamManual; // aplica já — não esperar pela próxima deteção (pode estar em pausa)
+      renderTarget(hit); draw();
+    };
+  });
+}
+
+// ── loop de deteção ──────────────────────────────────────────────────────
+async function run(){
+  if(running||processing) return;
+  running=true;
+  document.getElementById('status').textContent='A carregar modelo…';
+  await tf.ready();
+  model = model || await cocoSsd.load({base:'mobilenet_v2'});
+  document.getElementById('status').textContent='Deteção ativa';
+  video.play();
+  while(running && !video.ended){
+    if(!video.paused && !processing){
+      processing=true;
+      const r=await detectTiles();
+      updateTracks(r.dets);
+      updateColorsAndTeams();
+      document.getElementById('diag').innerHTML = r.dets.length
+        ? 'Encontradas <b>'+r.dets.length+'</b> pessoas neste frame.'
+        : '<span class="warn">Nenhuma pessoa passou o limiar. Tenta imagem mais próxima ou vídeo em maior resolução.</span>';
+      draw();
+      processing=false;
+    }
+    await new Promise(res=>setTimeout(res,40));
+  }
+  running=false; processing=false;
+}
+document.getElementById('start').onclick=run;
+document.getElementById('stop').onclick=()=>{ running=false; video.pause(); document.getElementById('status').textContent='Parado.'; };
+
+// ── lances marcados pelo treinador ───────────────────────────────────────
+function renderMomentos(){
+  const box=document.getElementById('momentos');
+  box.innerHTML = momentos.map((m,i)=>
+    '<div class="momento"><b>'+fmt(m.t)+'</b><span class="eq">'+esc(m.equipa||'—')+'</span>'
+    +'<span class="cat">'+esc(m.categoria)+'</span><span>'+esc(m.nota)+'</span>'
+    +'<button data-i="'+i+'">✕</button></div>'
+  ).join('');
+  box.querySelectorAll('button').forEach(b=>b.onclick=()=>{ momentos.splice(+b.dataset.i,1); renderMomentos(); });
+  document.getElementById('gerarRel').disabled = momentos.length===0;
+}
+document.getElementById('mAdd').onclick=()=>{
+  const nota=document.getElementById('mNota').value.trim();
+  momentos.push({
+    t: video.currentTime||0,
+    equipa: document.getElementById('mEquipa').value,
+    categoria: document.getElementById('mCat').value,
+    nota: nota||'(sem nota)'
+  });
+  document.getElementById('mNota').value='';
+  renderMomentos();
+};
+
+// ── relatório: a IA só organiza o que foi marcado, nunca inventa lances ──
+function chamarIA(prompt,maxTokens){
+  return fetch('/api/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt,max_tokens:maxTokens||1400})})
+    .then(r=>{ if(!r.ok) throw new Error('API '+r.status); return r.json(); })
+    .then(j=>{ let t=''; (j.content||[]).forEach(c=>{ if(c.type==='text') t+=c.text; }); return t.trim(); });
+}
+document.getElementById('gerarRel').onclick=async()=>{
+  const btn=document.getElementById('gerarRel');
+  btn.disabled=true; const original=btn.textContent; btn.textContent='A escrever…';
+  const lista=momentos.map(m=>'['+fmt(m.t)+'] Equipa '+(m.equipa||'não indicada')+' · '+m.categoria+': '+m.nota).join('\n');
+  const prompt='És um analista de futebol de formação. Abaixo estão lances REAIS marcados por um treinador enquanto via um vídeo de jogo, com o minuto, a equipa (A ou B) e a categoria de cada um.\n\n'+lista
+    +'\n\nEscreve um relatório curto em PT-PT, organizado assim:\n'
+    +'1. Resumo por equipa (separar Equipa A e Equipa B; se uma equipa não tiver lances suficientes, diz isso em vez de inventar)\n'
+    +'2. Padrões que se repetem (só se a mesma categoria aparecer 2 ou mais vezes)\n'
+    +'3. Prioridades objetivas para o próximo treino\n\n'
+    +'Regra absoluta: usa APENAS os lances listados acima. Nunca inventes lances, jogadores ou eventos que não estejam na lista. Sem markdown, texto direto.';
+  try{
+    const texto=await chamarIA(prompt,900);
+    document.getElementById('relatorio').innerHTML='<div class="rel-out">'+esc(texto)+'</div>';
+  }catch(e){
+    document.getElementById('relatorio').innerHTML='<p class="warn">Não foi possível gerar agora. Tenta de novo.</p>';
+  }
+  btn.disabled=false; btn.textContent=original;
+};
+</script>
+</body>
+</html>
