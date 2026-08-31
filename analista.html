@@ -95,8 +95,12 @@ input[type=file]{color:var(--slate);font-size:var(--fs-legenda)}
       <span><i style="background:#4da3ff"></i>Equipa A</span>
       <span><i style="background:#ff5470"></i>Equipa B</span>
       <span><i style="background:#e5bd32"></i>ainda a classificar</span>
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;margin-left:auto">
+        <input type="checkbox" id="mostrarLinhas"> Mostrar linhas de equipa
+      </label>
     </div>
     <p id="separacao" class="notice"></p>
+    <p id="linhasInfo" class="notice"></p>
     <div class="stats">
       <div class="stat"><small>Deteções</small><b id="count">0</b></div>
       <div class="stat"><small>Jogadores a seguir</small><b id="ids">0</b></div>
@@ -155,6 +159,7 @@ video.onloadedmetadata=()=>{ canvas.width=video.videoWidth; canvas.height=video.
 video.ontimeupdate=()=>{ document.getElementById('mClock').textContent=fmt(video.currentTime); };
 video.onseeked=()=>draw();
 document.getElementById('speed').onchange=e=>{ video.playbackRate=parseFloat(e.target.value)||1; };
+document.getElementById('mostrarLinhas').onchange=()=>draw();
 
 // ── deteção multi-escala (mesmo motor do protótipo Analyst AI v2, já provado) ──
 function iou(a,b){
@@ -204,7 +209,7 @@ function updateTracks(dets){
       if(dd<bd&&dd<gate){best=tr;bd=dd;}
     }
     if(best){ used.add(best.id); Object.assign(best,{x:d.x,y:d.y,w:d.w,h:d.h,score:d.score,miss:0}); fresh.push(best); }
-    else fresh.push({id:nextId++,...d,miss:0,team:null,teamManual:null,colAvg:null});
+    else fresh.push({id:nextId++,...d,miss:0,team:null,teamManual:null,colAvg:null,papel:null});
   }
   for(const tr of tracks) if(!fresh.includes(tr)&&tr.miss<5){ tr.miss++; fresh.push(tr); }
   tracks=fresh.sort((a,b)=>a.id-b.id).slice(0,40);
@@ -277,9 +282,72 @@ function updateColorsAndTeams(){
 }
 
 // ── desenho ──────────────────────────────────────────────────────────────
+// ── linhas de equipa: GR→11 confirmado (o treinador marcou função) ou
+// estimado por profundidade no ecrã (sem marcação nenhuma) ─────────────────
+function gruposDaEquipa(equipa){
+  const jog=tracks.filter(t=>t.miss<=2&&t.team===equipa);
+  const marcados=jog.filter(t=>t.papel);
+  if(marcados.length>=2){
+    const porX=(a,b)=>a.x-b.x;
+    return {
+      confirmado:true,
+      gr: marcados.filter(t=>t.papel==='GR'),
+      linhas: [
+        marcados.filter(t=>t.papel==='DEF').sort(porX),
+        marcados.filter(t=>t.papel==='MED').sort(porX),
+        marcados.filter(t=>t.papel==='ATA').sort(porX)
+      ].filter(g=>g.length)
+    };
+  }
+  // sem marcação suficiente: estimativa por profundidade (eixo Y) — nunca
+  // afirma "defesa"/"médios"/"ataque", porque não sabemos a orientação real do campo
+  if(jog.length<3) return null;
+  const porY=jog.slice().sort((a,b)=>a.y-b.y);
+  const porGrupo=Math.ceil(porY.length/3);
+  const grupos=[porY.slice(0,porGrupo), porY.slice(porGrupo,porGrupo*2), porY.slice(porGrupo*2)]
+    .filter(g=>g.length)
+    .map(g=>g.slice().sort((a,b)=>a.x-b.x));
+  return {confirmado:false, gr:[], linhas:grupos};
+}
+function desenharLinha(pontos,cor,tracejado){
+  if(pontos.length<2) return;
+  ctx.save();
+  ctx.strokeStyle=cor; ctx.lineWidth=2.5; ctx.setLineDash(tracejado?[7,6]:[]);
+  ctx.beginPath();
+  ctx.moveTo(pontos[0].x,pontos[0].y);
+  for(let i=1;i<pontos.length;i++) ctx.lineTo(pontos[i].x,pontos[i].y);
+  ctx.stroke();
+  ctx.restore();
+}
+function desenharLinhasDeEquipa(){
+  const infoEl=document.getElementById('linhasInfo');
+  if(!document.getElementById('mostrarLinhas').checked){ infoEl.textContent=''; return; }
+  let algumaConfirmada=false, algumaEstimada=false;
+  for(const equipa of ['A','B']){
+    const g=gruposDaEquipa(equipa);
+    if(!g) continue;
+    const cor = equipa==='A' ? '#4da3ff' : '#ff5470';
+    g.linhas.forEach(grupo=>desenharLinha(grupo,cor,!g.confirmado));
+    if(g.confirmado){
+      algumaConfirmada=true;
+      // linha única do GR até ao avançado, atravessando defesa→médios→ataque
+      const percurso=g.gr.concat(...g.linhas);
+      desenharLinha(percurso,cor,false);
+      g.gr.forEach(t=>{ ctx.save(); ctx.fillStyle=cor; ctx.beginPath(); ctx.arc(t.x,t.y,4,0,Math.PI*2); ctx.fill(); ctx.restore(); });
+    } else algumaEstimada=true;
+  }
+  infoEl.innerHTML = algumaConfirmada && !algumaEstimada
+    ? 'Linhas confirmadas pelas funções que marcaste.'
+    : algumaConfirmada
+      ? 'Uma equipa com funções marcadas (linha sólida), outra ainda estimada por profundidade no ecrã (tracejada).'
+      : algumaEstimada
+        ? '<span class="warn">Linhas estimadas pela posição no ecrã — marca a função dos jogadores (GR/DEF/MED/ATA) para ficarem exatas.</span>'
+        : 'Ainda sem jogadores suficientes numa equipa para desenhar linhas.';
+}
 function draw(){
   if(!canvas.width||!canvas.height) return;
   ctx.clearRect(0,0,canvas.width,canvas.height);
+  desenharLinhasDeEquipa();
   for(const t of tracks){
     if(t.miss>2) continue;
     const r=Math.max(15,Math.min(32,t.w*.38)), sel=t.id===selectedId;
@@ -309,23 +377,36 @@ canvas.onclick=e=>{
 function atualizarSelInfo(hit){
   const el=document.getElementById('mSelInfo');
   el.innerHTML = hit
-    ? 'A marcar para o <b>jogador #'+hit.id+'</b> (equipa '+(hit.team||'—')+'). Clica noutro jogador ou fora do vídeo para mudar.'
+    ? 'A marcar para o <b>jogador seguido nº'+hit.id+'</b> (equipa '+(hit.team||'—')+'). Clica noutro jogador ou fora do vídeo para mudar.'
     : 'Nenhum jogador selecionado no vídeo — o lance fica sem jogador identificado. Clica num círculo antes de marcar para o ligares.';
   // a equipa do jogador já é conhecida por deteção real — preenche, mas o treinador pode sempre mudar
   if(hit && hit.team) document.getElementById('mEquipa').value=hit.team;
 }
+const PAPEIS=['GR','DEF','MED','ATA'];
 function renderTarget(hit){
   const el=document.getElementById('target');
   if(!hit){ el.innerHTML='🎯 <b>Nenhum jogador selecionado.</b> Clica num círculo no vídeo.'; return; }
-  el.innerHTML='🎯 <b>Jogador #'+hit.id+'</b> · equipa detetada: <b>'+(hit.team||'—')+'</b>'
-    +'<div class="swap"><button data-t="A">Equipa A</button><button data-t="B">Equipa B</button><button data-t="">auto</button></div>';
-  el.querySelectorAll('.swap button').forEach(b=>{
+  // "nº"+hit.id é a ordem de deteção, não o número da camisola — nunca prometer o que não sabemos
+  el.innerHTML='🎯 <b>Jogador seguido nº'+hit.id+'</b> · equipa detetada: <b>'+(hit.team||'—')+'</b>'
+    +'<div class="swap swap-equipa">'
+    +'<button data-t="A">Equipa A</button><button data-t="B">Equipa B</button><button data-t="">auto</button>'
+    +'</div>'
+    +'<div class="swap swap-papel" style="margin-top:6px">'
+    +PAPEIS.map(p=>'<button data-p="'+p+'">'+p+'</button>').join('')
+    +'<button data-p="">sem função</button>'
+    +'</div>'
+    +'<p class="notice" style="margin-top:6px">Marca a função uma vez para a linha do GR ao avançado ficar exata. Sem marcação, as linhas são só uma estimativa pela posição no ecrã.</p>';
+  el.querySelectorAll('.swap-equipa button').forEach(b=>{
     if(b.dataset.t===(hit.teamManual||'')) b.classList.add('on');
     b.onclick=()=>{
       hit.teamManual=b.dataset.t||null;
       if(hit.teamManual) hit.team=hit.teamManual; // aplica já — não esperar pela próxima deteção (pode estar em pausa)
       renderTarget(hit); atualizarSelInfo(hit); draw();
     };
+  });
+  el.querySelectorAll('.swap-papel button').forEach(b=>{
+    if(b.dataset.p===(hit.papel||'')) b.classList.add('on');
+    b.onclick=()=>{ hit.papel=b.dataset.p||null; renderTarget(hit); draw(); };
   });
 }
 
