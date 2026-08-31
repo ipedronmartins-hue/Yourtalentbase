@@ -1462,6 +1462,7 @@ var PR=(function(){
   var LS='ytbPranchetaJogadas';   // legado: só para migrar o que ficou no dispositivo
   var JOGADAS=[];                 // agora vem do servidor
   var jogadaAberta=null;          // id da que está aberta, para guardar por cima em vez de duplicar
+  var sugestaoNomeExterna=null;   // preenchido por ADV.abrirNaPrancheta() — guardarJogada() usa isto se existir
 
   function jogadasLocais(){try{return JSON.parse(localStorage.getItem(LS)||'[]');}catch(e){return[];}}
 
@@ -1508,7 +1509,8 @@ var PR=(function(){
     if(precisaConta('guardar jogadas'))return;
     if(navigator.onLine===false){ toast('⚠ Sem rede — a jogada não fica guardada na tua conta. Tenta quando tiveres ligação.'); return; }
     var atual = jogadaAberta ? JOGADAS.find(function(x){return x.id===jogadaAberta;}) : null;
-    document.getElementById('mj-nome').value = atual ? atual.nome : ('Jogada '+(JOGADAS.length+1));
+    document.getElementById('mj-nome').value = sugestaoNomeExterna || (atual ? atual.nome : ('Jogada '+(JOGADAS.length+1)));
+    sugestaoNomeExterna=null;   // só se usa uma vez — depois volta ao comportamento normal
     categoriaEscolhida = (atual && atual.categoria) || null;
     pintarCategorias();
     document.getElementById('modalJogada').style.display='flex';
@@ -1637,7 +1639,8 @@ var PR=(function(){
   return {init:init,render:render,reformatar:reformatar,addEquipaB:addEquipaB,addBola:addBola,addCone:addCone,cheio:cheio,mais:mais,
     undo:undo,redo:redo,limpar:limpar,guardarMomento:guardarMomento,irFrame:irFrame,reproduzir:reproduzir,
     exportarPNG:exportarPNG,guardarJogada:guardarJogada,confirmarGuardarJogada:confirmarGuardarJogada,
-    fecharModalJogada:fecharModalJogada,abrirJogada:abrirJogada,apagarJogada:apagarJogada,_estado:E};
+    fecharModalJogada:fecharModalJogada,abrirJogada:abrirJogada,apagarJogada:apagarJogada,
+    set sugestaoNome(v){sugestaoNomeExterna=v;}, _estado:E};
 })();
 
 /* ── BALNEÁRIO — comunidade privada de treinadores (migração 028) ── */
@@ -2043,6 +2046,44 @@ var ADV=(function(){
     }).filter(Boolean);
   }
 
+  function renderAnaliseEstruturada(a, nomeAdjunto){
+    var titulo = nomeAdjunto ? ('O '+esc(nomeAdjunto)+' <span style="color:var(--gold)">encontrou isto</span>') : 'O Adjunto <span style="color:var(--gold)">encontrou isto</span>';
+    var listaFortes=(a.pontos_fortes||[]).map(function(x){return '<li>'+esc(x)+'</li>';}).join('');
+    var listaVuln=(a.vulnerabilidades||[]).map(function(x){return '<li>'+esc(x)+'</li>';}).join('');
+    var listaInstr=(a.instrucoes||[]).map(function(x){return '<li>'+esc(x)+'</li>';}).join('');
+    return '<div class="card"><div class="h">'+titulo+'</div>'
+      +(a.tatica_nota?'<div style="font-size:13px;color:var(--slate);margin-bottom:14px">'+(a.manter_tatica===false?'⚠ ':'✓ ')+esc(a.tatica_nota)+'</div>':'')
+      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">'
+      +'<div style="background:rgba(0,212,106,.07);border:1px solid rgba(0,212,106,.25);border-radius:10px;padding:12px"><div style="font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--up);margin-bottom:6px">Pontos fortes deles</div><ul style="margin:0;padding-left:18px;font-size:12.5px;color:var(--white);line-height:1.6">'+listaFortes+'</ul></div>'
+      +'<div style="background:rgba(224,164,88,.08);border:1px solid rgba(224,164,88,.3);border-radius:10px;padding:12px"><div style="font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--orange);margin-bottom:6px">Vulnerabilidades</div><ul style="margin:0;padding-left:18px;font-size:12.5px;color:var(--white);line-height:1.6">'+listaVuln+'</ul></div>'
+      +'</div>'
+      +(a.como_explorar?'<div style="margin-bottom:8px"><b style="font-size:12px;color:var(--gold)">Como explorar</b><div style="font-size:13px;color:var(--white);line-height:1.6">'+esc(a.como_explorar)+'</div></div>':'')
+      +(a.o_que_evitar?'<div style="margin-bottom:12px"><b style="font-size:12px;color:var(--gold)">O que evitar</b><div style="font-size:13px;color:var(--white);line-height:1.6">'+esc(a.o_que_evitar)+'</div></div>':'')
+      +(listaInstr?'<div style="margin-bottom:12px"><b style="font-size:12px;color:var(--gold)">Instruções aos jogadores</b><ul style="margin:4px 0 0;padding-left:18px;font-size:13px;color:var(--white);line-height:1.6">'+listaInstr+'</ul></div>':'')
+      +(a.treino_md1?'<div><b style="font-size:12px;color:var(--gold)">Treino MD-1</b><div style="font-size:13px;color:var(--white);line-height:1.6">'+esc(a.treino_md1)+'</div></div>':'')
+      +'<button class="btn btn-sec" style="margin-top:14px" onclick="ADV.abrirNaPrancheta()">🎨 Abrir na prancheta</button>'
+      +'</div>';
+  }
+
+  function renderAnaliseTexto(t, nomeAdjunto){
+    // rede de segurança: a IA nem sempre devolve JSON válido — nunca falhar
+    // silenciosamente, mostra o texto corrido em vez de ecrã vazio
+    return '<div class="card"><div class="h">'+(nomeAdjunto?('O '+esc(nomeAdjunto)+' <span style="color:var(--gold)">sugere</span>'):'Sugestão <span style="color:var(--gold)">tática</span>')+'</div>'
+      +'<div style="font-size:13.5px;color:var(--white);line-height:1.7;white-space:pre-wrap">'+esc(t)+'</div>'
+      +'<button class="btn btn-sec" style="margin-top:14px" onclick="ADV.abrirNaPrancheta()">🎨 Abrir na prancheta</button>'
+      +'</div>';
+  }
+
+  function abrirNaPrancheta(){
+    // NUNCA gera posições/setas automaticamente — a IA sugere o plano em
+    // palavras, o treinador é quem desenha. Só prepara o nome da jogada,
+    // pronto para quando ele carregar em "Guardar jogada".
+    var sugestaoNome = jogoAtivo && jogoAtivo.adversario ? ('Plano vs '+jogoAtivo.adversario) : 'Plano de jogo';
+    tab('prancheta');
+    if(window.PR) PR.sugestaoNome=sugestaoNome;
+    toast('Desenha o plano na prancheta — o nome "'+sugestaoNome+'" já fica pronto quando guardares');
+  }
+
   function sugerir(){
     var b=document.getElementById('btn-adv'), err=document.getElementById('adverr');
     err.style.display='none';
@@ -2060,24 +2101,34 @@ var ADV=(function(){
         +(frasesTransicao.length?('Nas transições, o adversário '+frasesTransicao.join('; e ')+'.\n'):'')
         +(frasesBP.length?(frasesBP.join('; e ')+'.\n'):'')
         +'ATENÇÃO AOS LADOS: as duas equipas jogam viradas uma para a outra, por isso os lados espelham-se. Um extremo ou lateral ESQUERDO do adversário ataca o NOSSO lado DIREITO, e um jogador DIREITO do adversário ataca o nosso lado ESQUERDO — nunca o mesmo lado. Sempre que mencionares proteger ou reforçar um lado, usa a perspetiva da NOSSA equipa e confirma mentalmente o espelhamento antes de escrever.\n'
-        +'Responde em PT-PT, direto, sem markdown, em exatamente 4 parágrafos curtos com estes títulos em maiúsculas no início de cada um: "TÁTICA:" (mantemos a nossa ou ajustamos? sê específico), "MATCHUPS:" (que confrontos individuais/zonais explorar ou proteger — nomeia sempre o lado pela NOSSA perspetiva), "INSTRUÇÕES:" (2-3 instruções concretas para dar aos jogadores), "TREINO MD-1:" (o que priorizar na última sessão antes do jogo — liga a áreas como movimentação, linha defensiva ou bolas paradas).';
-      return chamarIA(p,700);
+        +'Responde em PT-PT APENAS com um objeto JSON válido (sem markdown, sem texto antes ou depois), com exatamente estas chaves:\n'
+        +'{"manter_tatica":true ou false, "tatica_nota":"uma frase curta — mantemos a nossa tática ou ajustamos, e porquê",'
+        +' "pontos_fortes":["exatamente 3 pontos fortes do adversário, cada um numa frase curta"],'
+        +' "vulnerabilidades":["exatamente 3 vulnerabilidades do adversário, cada uma numa frase curta"],'
+        +' "como_explorar":"1-2 frases concretas sobre como tirar partido das vulnerabilidades",'
+        +' "o_que_evitar":"1-2 frases concretas sobre o que não arriscar dado os pontos fortes deles",'
+        +' "instrucoes":["2 a 3 instruções concretas e curtas para dar aos jogadores"],'
+        +' "treino_md1":"1-2 frases sobre o que priorizar na última sessão antes do jogo"}';
+      return chamarIA(p,900);
     }).then(function(t){
       var n=nome();
+      var estruturado=null;
+      try{ estruturado=parseJSON(t); }catch(e){ estruturado=null; }   // rede de segurança: IA nem sempre obedece ao formato pedido
+      var html = estruturado ? renderAnaliseEstruturada(estruturado, n) : renderAnaliseTexto(t, n);
       var extra='';
       if(jogoAtivo && jogoAtivo.id){
-        var contexto={formacao_adv:formacaoAdv,estilo:ADV.estilo||'medio',saida:sel.saida.slice(),ataque:sel.ataque.slice(),transicao:sel.transicao.slice(),bp:sel.bp.slice()};
+        var contexto={formacao_adv:formacaoAdv,estilo:ADV.estilo||'medio',saida:sel.saida.slice(),ataque:sel.ataque.slice(),transicao:sel.transicao.slice(),bp:sel.bp.slice(),estruturado:estruturado};
         supa.rpc('ytb_coach_jogo_gravar_analise',{p_jogo_id:jogoAtivo.id,p_texto:t,p_contexto:contexto,p_bolas_paradas:sel.bp.length>0})
           .then(function(){ var el=document.getElementById('adv-guardado'); if(el) el.style.display='block'; })
           .catch(function(){});
         extra='<div id="adv-guardado" style="display:none;font-size:12px;color:var(--up);margin-top:10px">✓ Guardado no jogo vs '+esc(jogoAtivo.adversario||'')+' — fica lá quando voltares.</div>';
       }
-      document.getElementById('adv-out').innerHTML='<div class="card"><div class="h">'+(n?('O '+esc(n)+' <span style="color:var(--gold)">sugere</span>'):'Sugestão <span style="color:var(--gold)">tática</span>')+'</div><div style="font-size:13.5px;color:var(--white);line-height:1.7;white-space:pre-wrap">'+esc(t)+'</div>'+extra+'</div>';
+      document.getElementById('adv-out').innerHTML = html + (extra?('<div class="card">'+extra+'</div>'):'');
     }).catch(function(){
       err.style.display='block';err.textContent='O Adjunto está indisponível agora — tenta de novo daqui a pouco.';
     }).then(function(){b.disabled=false;b.innerHTML='🧠 Pedir sugestão ao Adjunto';});
   }
-  return {init:init,sugerir:sugerir,ligarAoJogo:ligarAoJogo,formacaoAdv:null,estilo:null};
+  return {init:init,sugerir:sugerir,ligarAoJogo:ligarAoJogo,abrirNaPrancheta:abrirNaPrancheta,formacaoAdv:null,estilo:null};
 })();
 
 /* ── login (mesmo padrão do painel do treinador) ── */
