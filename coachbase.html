@@ -315,6 +315,19 @@ body.pr-cheio #pr-sair{display:block}
         <div class="pr-jogadas" id="pr-jogadas"></div>
       </div>
     </div>
+
+    <!-- MODAL: guardar jogada com categoria tática -->
+    <div id="modalJogada" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:2000;align-items:center;justify-content:center;padding:16px">
+      <div class="card" style="max-width:420px;width:100%;margin:0">
+        <div class="h">Guardar <span style="color:var(--gold)">jogada</span></div>
+        <label class="label">Nome</label>
+        <input class="input" id="mj-nome" placeholder="Ex: Pressão alta 4-3-3" style="margin-bottom:12px">
+        <label class="label">Categoria <span style="font-weight:400;color:var(--muted)">(opcional)</span></label>
+        <div class="chips" id="mj-categoria" style="margin-bottom:16px"></div>
+        <button class="btn" onclick="PR.confirmarGuardarJogada()">Guardar →</button>
+        <button class="btn btn-sec" style="margin-top:8px" onclick="PR.fecharModalJogada()">Cancelar</button>
+      </div>
+    </div>
   </div>
   <div class="sec" id="sec-sessao">
     <div class="card">
@@ -1481,31 +1494,53 @@ var PR=(function(){
     }).catch(function(){ pintarJogadas(); });
   }
 
+  var CATEGORIAS_JOGADA=[['org_ofensiva','Organização ofensiva'],['org_defensiva','Organização defensiva'],['transicao_ofensiva','Transição ofensiva'],['transicao_defensiva','Transição defensiva'],['bola_parada','Bola parada']];
+  var categoriaEscolhida=null;
+
+  function pintarCategorias(){
+    chips('mj-categoria', CATEGORIAS_JOGADA, function(){return categoriaEscolhida;}, function(v){
+      categoriaEscolhida = (categoriaEscolhida===v) ? null : v;   // clicar na já escolhida desmarca — é opcional
+      pintarCategorias();
+    });
+  }
+
   function guardarJogada(){
     if(precisaConta('guardar jogadas'))return;
     if(navigator.onLine===false){ toast('⚠ Sem rede — a jogada não fica guardada na tua conta. Tenta quando tiveres ligação.'); return; }
-    var sugestao = jogadaAberta ? (JOGADAS.find(function(x){return x.id===jogadaAberta;})||{}).nome : ('Jogada '+(JOGADAS.length+1));
-    var nome=window.prompt('Nome da jogada:', sugestao||'Jogada');
-    if(!nome)return;
+    var atual = jogadaAberta ? JOGADAS.find(function(x){return x.id===jogadaAberta;}) : null;
+    document.getElementById('mj-nome').value = atual ? atual.nome : ('Jogada '+(JOGADAS.length+1));
+    categoriaEscolhida = (atual && atual.categoria) || null;
+    pintarCategorias();
+    document.getElementById('modalJogada').style.display='flex';
+  }
+
+  function fecharModalJogada(){ document.getElementById('modalJogada').style.display='none'; }
+
+  function confirmarGuardarJogada(){
+    var nome=(document.getElementById('mj-nome').value||'').trim();
+    if(!nome){ toast('Falta o nome da jogada'); return; }
     var mesma = jogadaAberta && JOGADAS.some(function(x){return x.id===jogadaAberta && x.nome===nome;});
     supa.rpc('ytb_coach_jogada_guardar',{
       p_nome:nome, p_formato:SEL.formato,
       p_estado:{tokens:E.tokens,setas:E.setas,tracos:E.tracos}, p_frames:E.frames,
-      p_id: mesma ? jogadaAberta : null
+      p_id: mesma ? jogadaAberta : null, p_categoria: categoriaEscolhida
     }).then(function(r){
       var d=r&&r.data;
       if(r.error||!d||!d.ok){ toast('⚠ Não ficou guardada'+((d&&d.motivo)?' ('+d.motivo+')':'')); return; }
       jogadaAberta=d.id;
       toast(mesma?'✓ Jogada atualizada':'✓ Jogada guardada na tua conta');
+      fecharModalJogada();
       carregarJogadas();
     }).catch(function(){ toast('⚠ Não ficou guardada — sem ligação.'); });
   }
 
+  var CATEGORIA_ABREV={org_ofensiva:'Org. ofensiva',org_defensiva:'Org. defensiva',transicao_ofensiva:'Transição of.',transicao_defensiva:'Transição def.',bola_parada:'Bola parada'};
   function pintarJogadas(){
     var box=document.getElementById('pr-jogadas');if(!box)return;
     if(!JOGADAS.length){ box.innerHTML='<span class="s" style="font-size:12px;color:var(--muted)">Sem jogadas guardadas ainda.</span>'; return; }
     box.innerHTML=JOGADAS.map(function(j){
-      return '<span class="jg'+(j.id===jogadaAberta?' jg-on':'')+'" onclick="PR.abrirJogada(\''+j.id+'\')"><b>▶</b> '+esc(j.nome)+' <span class="x" onclick="event.stopPropagation();PR.apagarJogada(\''+j.id+'\')">✕</span></span>';
+      var cat = j.categoria ? (' <span style="color:var(--muted);font-weight:400">· '+esc(CATEGORIA_ABREV[j.categoria]||j.categoria)+'</span>') : '';
+      return '<span class="jg'+(j.id===jogadaAberta?' jg-on':'')+'" onclick="PR.abrirJogada(\''+j.id+'\')"><b>▶</b> '+esc(j.nome)+cat+' <span class="x" onclick="event.stopPropagation();PR.apagarJogada(\''+j.id+'\')">✕</span></span>';
     }).join('');
   }
 
@@ -1601,7 +1636,8 @@ var PR=(function(){
   }
   return {init:init,render:render,reformatar:reformatar,addEquipaB:addEquipaB,addBola:addBola,addCone:addCone,cheio:cheio,mais:mais,
     undo:undo,redo:redo,limpar:limpar,guardarMomento:guardarMomento,irFrame:irFrame,reproduzir:reproduzir,
-    exportarPNG:exportarPNG,guardarJogada:guardarJogada,abrirJogada:abrirJogada,apagarJogada:apagarJogada,_estado:E};
+    exportarPNG:exportarPNG,guardarJogada:guardarJogada,confirmarGuardarJogada:confirmarGuardarJogada,
+    fecharModalJogada:fecharModalJogada,abrirJogada:abrirJogada,apagarJogada:apagarJogada,_estado:E};
 })();
 
 /* ── BALNEÁRIO — comunidade privada de treinadores (migração 028) ── */

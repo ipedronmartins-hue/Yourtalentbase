@@ -1,0 +1,2 @@
+-- 112: categoria tatica nas jogadas guardadas. Corpo integral no
+-- historico Supabase (112).

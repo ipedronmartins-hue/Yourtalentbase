@@ -1,0 +1,3 @@
+-- 113: ytb_coach_minhas_jogadas passa a devolver a categoria --
+-- usava jsonb_build_object explicito, nao devolvia campos novos
+-- automaticamente. Corpo integral no historico Supabase (113).
