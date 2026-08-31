@@ -1,0 +1,2 @@
+-- 114: favoritos de exercicios do banco CoachBase, guardados no
+-- servidor. Corpo integral no historico Supabase (114).

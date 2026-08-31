@@ -218,7 +218,7 @@ body.pr-cheio #pr-sair{display:block}
   <div class="login-wrap">
     <div style="font-size:52px;margin-bottom:10px">🧠</div>
     <div class="login-title">Coach<span>Base</span></div>
-    <div class="login-sub">Prancheta com táticas nomeadas · banco de 85 exercícios (físico incluído a sério) · microciclos coerentes · leitura do adversário por IA · Balneário (a comunidade privada dos misters)</div>
+    <div class="login-sub">Prancheta com táticas nomeadas · banco de 95 exercícios (físico incluído a sério) · microciclos coerentes · leitura do adversário por IA · Balneário (a comunidade privada dos misters)</div>
     <div style="display:inline-flex;align-items:baseline;gap:6px;background:var(--gold-soft);border:1px solid var(--gold-border);border-radius:999px;padding:8px 18px;margin-bottom:8px">
       <span style="font-family:'Barlow Condensed';font-weight:900;font-size:26px;color:var(--gold)">20€</span>
       <span style="font-size:12px;color:var(--slate)">/época · sem mensalidade</span>
@@ -332,7 +332,7 @@ body.pr-cheio #pr-sair{display:block}
   <div class="sec" id="sec-sessao">
     <div class="card">
       <div class="h">Gerar <span style="color:var(--gold)">sessão de treino</span></div>
-      <div class="s">Escolhe o contexto — a sessão sai do banco de 85 exercícios do CoachBase, filtrado por escalão competitivo, material e (em fut11) pela tua tática.</div>
+      <div class="s">Escolhe o contexto — a sessão sai do banco de 95 exercícios do CoachBase, filtrado por escalão competitivo, material e (em fut11) pela tua tática.</div>
       <label class="label">Ligar a um jogo <span style="font-weight:400;color:var(--muted)">(opcional — fica registado que este treino foi a preparar esse jogo)</span></label>
       <select class="input" id="sessao-jogo-sel" style="margin-bottom:12px">
         <option value="">— sem ligação —</option>
@@ -360,6 +360,15 @@ body.pr-cheio #pr-sair{display:block}
       <div class="err" id="serr"></div>
     </div>
     <div id="sessao-out"></div>
+    <div class="card">
+      <div class="h">★ <span style="color:var(--gold)">Favoritos</span></div>
+      <div class="s">Marca uma estrela em qualquer exercício de uma sessão gerada — fica aqui, para não teres de o procurar outra vez.</div>
+      <div id="favoritos-lista"><div class="s">A carregar…</div></div>
+    </div>
+    <div class="card">
+      <div class="h">🕘 Usados <span style="color:var(--gold)">recentemente</span></div>
+      <div id="recentes-lista"><div class="s">A carregar…</div></div>
+    </div>
   </div>
   <div class="sec" id="sec-micro">
     <div class="card">
@@ -538,6 +547,7 @@ function aplicarTabCB(idx){
                           // supa===null lança e interrompe a navegação a meio (apanhado ao testar)
   if(t==='jogo')JOGO.init();
   if(t==='conv'||t==='sessao'||t==='micro')JOGO.carregar();
+  if(t==='sessao'){carregarFavoritosExercicios();pintarRecentesLista();}
   if(t==='pres')carregarPlantel();
   if(t==='conv')carregarConv();
   if(t==='balneario')BAL.carregar();
@@ -797,14 +807,22 @@ function poolCategoria(cat,tier,sub,tatica){
 }
 var LS_HIST='ytbCoachHistExercicios';
 function historico(){try{return JSON.parse(localStorage.getItem(LS_HIST)||'[]');}catch(e){return[];}}
-function registarUso(ids){var h=historico();ids.forEach(function(id){h.push(id);});if(h.length>250)h=h.slice(-250);localStorage.setItem(LS_HIST,JSON.stringify(h));}
+function exercicioPorId(id){
+  var cats=Object.keys(BANCO_EQUIPA);
+  for(var i=0;i<cats.length;i++){
+    var achado=(BANCO_EQUIPA[cats[i]]||[]).find(function(d){return d.id===id;});
+    if(achado)return achado;
+  }
+  return null;
+}
+function registarUso(ids){var h=historico();ids.forEach(function(id){h.push(id);});if(h.length>250)h=h.slice(-250);localStorage.setItem(LS_HIST,JSON.stringify(h));pintarRecentesLista();}
 function escolher(lista,n){
   var h=historico();
   var pont=lista.map(function(d){var idx=h.lastIndexOf(d.id);return {d:d,score:idx<0?-1:idx};});
   pont.sort(function(a,b){return a.score-b.score;});
   return pont.slice(0,Math.max(0,n)).map(function(p){return p.d;});
 }
-function drillParaBloco(d){return {nome:d.nome,organizacao:d.org||'',instrucoes:(d.foco?d.foco+'. ':'')+(d.obs||''),tempo:d.min};}
+function drillParaBloco(d){return {id:d.id,nome:d.nome,organizacao:d.org||'',instrucoes:(d.foco?d.foco+'. ':'')+(d.obs||''),tempo:d.min};}
 
 /* — plano semanal: cada dia cobre áreas de conteúdo diferentes e
    complementares (nunca tudo espremido numa sessão só) — */
@@ -940,6 +958,45 @@ function chamarIA(prompt,maxTokens){
 }
 function parseJSON(t){t=t.replace(/^```json?/i,'').replace(/```$/,'').trim();var i=t.indexOf('{'),f=t.lastIndexOf('}');if(i<0||f<0)throw new Error('sem JSON');return JSON.parse(t.slice(i,f+1));}
 
+var FAVORITOS_EXERCICIOS=[];
+function carregarFavoritosExercicios(){
+  return supa.rpc('ytb_coach_exercicios_favoritos_listar').then(function(r){
+    FAVORITOS_EXERCICIOS=(r&&r.data)||[];
+    pintarFavoritosLista();
+    return FAVORITOS_EXERCICIOS;
+  }).catch(function(){ pintarFavoritosLista(); return FAVORITOS_EXERCICIOS; });
+}
+function pintarFavoritosLista(){
+  var box=document.getElementById('favoritos-lista'); if(!box)return;
+  var itens=FAVORITOS_EXERCICIOS.map(exercicioPorId).filter(Boolean);
+  if(!itens.length){ box.innerHTML='<div class="s">Ainda sem favoritos — marca uma estrela numa sessão gerada.</div>'; return; }
+  box.innerHTML=itens.map(function(d){
+    return '<div class="ex"><div class="en">'+esc(d.nome)+' <span onclick="toggleFavoritoExercicio(\''+d.id+'\')" style="cursor:pointer;color:var(--gold);font-size:14px">★</span></div>'
+      +(d.org?'<div class="eo">📐 '+esc(d.org)+'</div>':'')+'</div>';
+  }).join('');
+}
+function pintarRecentesLista(){
+  var box=document.getElementById('recentes-lista'); if(!box)return;
+  var h=historico().slice().reverse();   // mais recente primeiro
+  var vistos={}, ids=[];
+  h.forEach(function(id){ if(!vistos[id] && ids.length<8){ vistos[id]=true; ids.push(id); } });
+  var itens=ids.map(exercicioPorId).filter(Boolean);
+  if(!itens.length){ box.innerHTML='<div class="s">Ainda sem exercícios usados nesta conta.</div>'; return; }
+  box.innerHTML=itens.map(function(d){
+    return '<div class="ex"><div class="en">'+esc(d.nome)+'</div>'+(d.org?'<div class="eo">📐 '+esc(d.org)+'</div>':'')+'</div>';
+  }).join('');
+}
+function toggleFavoritoExercicio(id){
+  var eraFav=FAVORITOS_EXERCICIOS.indexOf(id)>=0;
+  supa.rpc('ytb_coach_exercicio_favoritar',{p_exercicio_id:id,p_favorito:!eraFav}).then(function(r){
+    var d=r&&r.data;
+    if(r.error||!d||!d.ok){ toast('⚠ Não foi possível guardar'); return; }
+    if(eraFav){ var i=FAVORITOS_EXERCICIOS.indexOf(id); if(i>=0)FAVORITOS_EXERCICIOS.splice(i,1); }
+    else FAVORITOS_EXERCICIOS.push(id);
+    pintarFavoritosLista();
+    if(ultimaSessao) renderSessao(ultimaSessao,'sessao-out');   // repinta as estrelas visíveis na sessão gerada, se houver
+  }).catch(function(){ toast('⚠ Sem ligação'); });
+}
 function renderSessao(plano,mount){
   var total=(plano.blocos||[]).reduce(function(s,b){return s+(b.min||0);},0);
   var h='<div class="card"><div class="h">'+esc(plano.titulo||'Sessão')+'</div>'
@@ -947,7 +1004,10 @@ function renderSessao(plano,mount){
   (plano.blocos||[]).forEach(function(b){
     h+='<div class="bloco"><div class="bt">'+esc(b.nome)+' <span style="color:var(--slate);font-size:12px">· '+(b.min||0)+' min</span></div>';
     (b.exercicios||[]).forEach(function(e){
-      h+='<div class="ex"><div class="en">'+esc(e.nome)+'</div>'
+      var fav = e.id && FAVORITOS_EXERCICIOS.indexOf(e.id)>=0;
+      h+='<div class="ex"><div class="en">'+esc(e.nome)
+        +(e.id?' <span onclick="toggleFavoritoExercicio(\''+e.id+'\')" style="cursor:pointer;color:'+(fav?'var(--gold)':'var(--muted)')+';font-size:14px">'+(fav?'★':'☆')+'</span>':'')
+        +'</div>'
         +(e.organizacao?'<div class="eo">📐 '+esc(e.organizacao)+'</div>':'')
         +(e.instrucoes?'<div class="ed">'+esc(e.instrucoes)+'</div>':'')+'</div>';
     });
