@@ -79,6 +79,9 @@ input[type=file]{color:var(--slate);font-size:var(--fs-legenda)}
       <input id="file" type="file" accept="video/*">
       <button class="btn" id="start" disabled>DETETAR JOGADORES</button>
       <button class="btn sec" id="stop">PARAR</button>
+      <select id="speed" title="Velocidade de reprodução">
+        <option value="1">1×</option><option value="1.5">1.5×</option><option value="2">2×</option>
+      </select>
       <span id="status" class="status">Escolhe um vídeo.</span>
     </div>
   </div>
@@ -93,6 +96,7 @@ input[type=file]{color:var(--slate);font-size:var(--fs-legenda)}
       <span><i style="background:#ff5470"></i>Equipa B</span>
       <span><i style="background:#e5bd32"></i>ainda a classificar</span>
     </div>
+    <p id="separacao" class="notice"></p>
     <div class="stats">
       <div class="stat"><small>Deteções</small><b id="count">0</b></div>
       <div class="stat"><small>Jogadores a seguir</small><b id="ids">0</b></div>
@@ -106,6 +110,7 @@ input[type=file]{color:var(--slate);font-size:var(--fs-legenda)}
   <div class="card">
     <div class="h">2 · Marcar lances</div>
     <p class="s">Enquanto vês o vídeo, marca o que interessa. O Analyst só vai escrever sobre o que marcares aqui — nunca inventa lances que não marcaste.</p>
+    <p id="mSelInfo" class="notice">Nenhum jogador selecionado no vídeo — o lance fica sem jogador identificado. Clica num círculo antes de marcar para o ligares.</p>
     <div class="momento-form">
       <select id="mEquipa"><option value="">Equipa —</option><option value="A">Equipa A</option><option value="B">Equipa B</option><option value="Ambas">Ambas</option></select>
       <select id="mCat"><option>Erro tático</option><option>Boa decisão</option><option>Transição</option><option>Bola parada</option><option>Físico / Intensidade</option><option>Outro</option></select>
@@ -149,6 +154,7 @@ fileInput.onchange=()=>{
 video.onloadedmetadata=()=>{ canvas.width=video.videoWidth; canvas.height=video.videoHeight; draw(); };
 video.ontimeupdate=()=>{ document.getElementById('mClock').textContent=fmt(video.currentTime); };
 video.onseeked=()=>draw();
+document.getElementById('speed').onchange=e=>{ video.playbackRate=parseFloat(e.target.value)||1; };
 
 // ── deteção multi-escala (mesmo motor do protótipo Analyst AI v2, já provado) ──
 function iou(a,b){
@@ -255,6 +261,15 @@ function updateColorsAndTeams(){
     if(dSwap<dSame) [c0,c1]=[c1,c0];
   }
   prevCentroids=[c0,c1];
+  // aviso de confiança: se as duas cores médias estão perto uma da outra (equipas
+  // parecidas, ou pouca gente ainda detetada), a separação em A/B não é fiável —
+  // dizer isso em vez de fingir a mesma certeza de sempre.
+  const LIMIAR_SEPARACAO=0.12;
+  const separacao=dist(c0,c1);
+  const avisoEl=document.getElementById('separacao');
+  avisoEl.innerHTML = separacao<LIMIAR_SEPARACAO
+    ? '<span class="warn">⚠ Cores das equipas parecidas — a separação A/B pode não ser fiável. Confirma manualmente clicando nos jogadores.</span>'
+    : '';
   for(const p of pts){
     if(p.t.teamManual){ p.t.team=p.t.teamManual; continue; }
     p.t.team = dist(p,c0)<=dist(p,c1) ? 'A' : 'B';
@@ -288,8 +303,17 @@ canvas.onclick=e=>{
   for(const t of tracks){ const d=Math.hypot(x-t.x,y-t.y); if(d<Math.max(40,t.w*.5,t.h*.5)&&d<bd){hit=t;bd=d;} }
   selectedId = hit ? hit.id : null;
   renderTarget(hit);
+  atualizarSelInfo(hit);
   draw();
 };
+function atualizarSelInfo(hit){
+  const el=document.getElementById('mSelInfo');
+  el.innerHTML = hit
+    ? 'A marcar para o <b>jogador #'+hit.id+'</b> (equipa '+(hit.team||'—')+'). Clica noutro jogador ou fora do vídeo para mudar.'
+    : 'Nenhum jogador selecionado no vídeo — o lance fica sem jogador identificado. Clica num círculo antes de marcar para o ligares.';
+  // a equipa do jogador já é conhecida por deteção real — preenche, mas o treinador pode sempre mudar
+  if(hit && hit.team) document.getElementById('mEquipa').value=hit.team;
+}
 function renderTarget(hit){
   const el=document.getElementById('target');
   if(!hit){ el.innerHTML='🎯 <b>Nenhum jogador selecionado.</b> Clica num círculo no vídeo.'; return; }
@@ -300,7 +324,7 @@ function renderTarget(hit){
     b.onclick=()=>{
       hit.teamManual=b.dataset.t||null;
       if(hit.teamManual) hit.team=hit.teamManual; // aplica já — não esperar pela próxima deteção (pode estar em pausa)
-      renderTarget(hit); draw();
+      renderTarget(hit); atualizarSelInfo(hit); draw();
     };
   });
 }
@@ -337,7 +361,7 @@ document.getElementById('stop').onclick=()=>{ running=false; video.pause(); docu
 function renderMomentos(){
   const box=document.getElementById('momentos');
   box.innerHTML = momentos.map((m,i)=>
-    '<div class="momento"><b>'+fmt(m.t)+'</b><span class="eq">'+esc(m.equipa||'—')+'</span>'
+    '<div class="momento"><b>'+fmt(m.t)+'</b><span class="eq">'+esc(m.equipa||'—')+(m.jogador?' #'+m.jogador:'')+'</span>'
     +'<span class="cat">'+esc(m.categoria)+'</span><span>'+esc(m.nota)+'</span>'
     +'<button data-i="'+i+'">✕</button></div>'
   ).join('');
@@ -346,9 +370,12 @@ function renderMomentos(){
 }
 document.getElementById('mAdd').onclick=()=>{
   const nota=document.getElementById('mNota').value.trim();
+  // liga ao jogador selecionado no vídeo (deteção real), se houver um — nunca inventado
+  const jogadorAtivo = tracks.find(t=>t.id===selectedId && t.miss<=2);
   momentos.push({
     t: video.currentTime||0,
     equipa: document.getElementById('mEquipa').value,
+    jogador: jogadorAtivo ? jogadorAtivo.id : null,
     categoria: document.getElementById('mCat').value,
     nota: nota||'(sem nota)'
   });
@@ -365,8 +392,8 @@ function chamarIA(prompt,maxTokens){
 document.getElementById('gerarRel').onclick=async()=>{
   const btn=document.getElementById('gerarRel');
   btn.disabled=true; const original=btn.textContent; btn.textContent='A escrever…';
-  const lista=momentos.map(m=>'['+fmt(m.t)+'] Equipa '+(m.equipa||'não indicada')+' · '+m.categoria+': '+m.nota).join('\n');
-  const prompt='És um analista de futebol de formação. Abaixo estão lances REAIS marcados por um treinador enquanto via um vídeo de jogo, com o minuto, a equipa (A ou B) e a categoria de cada um.\n\n'+lista
+  const lista=momentos.map(m=>'['+fmt(m.t)+'] Equipa '+(m.equipa||'não indicada')+(m.jogador?' · Jogador #'+m.jogador:'')+' · '+m.categoria+': '+m.nota).join('\n');
+  const prompt='És um analista de futebol de formação. Abaixo estão lances REAIS marcados por um treinador enquanto via um vídeo de jogo, com o minuto, a equipa (A ou B), por vezes o número do jogador (identificado por deteção de vídeo, não pelo nome real), e a categoria de cada um.\n\n'+lista
     +'\n\nEscreve um relatório curto em PT-PT, organizado assim:\n'
     +'1. Resumo por equipa (separar Equipa A e Equipa B; se uma equipa não tiver lances suficientes, diz isso em vez de inventar)\n'
     +'2. Padrões que se repetem (só se a mesma categoria aparecer 2 ou mais vezes)\n'
