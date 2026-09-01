@@ -50,6 +50,8 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-hei
 .section + .section{margin-top:22px}
 .zona-pivo-painel{padding:2px 2px 24px}
 .zona-sec-titulo{font-family:'Barlow Condensed';font-weight:900;font-size:var(--fs-sub);letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin:0 0 10px;padding-bottom:7px;border-bottom:1px solid var(--border)}
+.zona-sec-titulo.clicavel{display:flex;align-items:center;justify-content:space-between;width:100%;background:none;border:none;border-bottom:1px solid var(--border);cursor:pointer;font-family:'Barlow Condensed';font-weight:900;font-size:var(--fs-sub);letter-spacing:1px;text-transform:uppercase;color:var(--gold);padding:0 0 10px;margin:0 0 10px}
+.zona-sec-seta{font-size:14px;color:var(--muted);margin-left:8px}
 
 /* KPIs */
 .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px}
@@ -696,11 +698,31 @@ const SEC_TITULO = {
   contas:'👤 Contas', comissoes:'💶 Comissões', portreinador:'📁 Atletas por treinador',
   semtreinador:'🔗 Atribuir / alterar treinador'
 };
-function garantirTitulo(sec, id){
+function garantirTitulo(sec, id, colapsavel){
   if(sec.querySelector('.zona-sec-titulo')) return;
-  const h = document.createElement('div');
-  h.className = 'zona-sec-titulo';
+  // envolve o conteúdo já existente num corpo próprio, para poder escondê-lo
+  // inteiro sem mexer no resto da lógica que já preenche a secção
+  var corpo = document.createElement('div');
+  corpo.className = 'zona-sec-corpo';
+  while(sec.firstChild) corpo.appendChild(sec.firstChild);
+  sec.appendChild(corpo);
+
+  var h = document.createElement(colapsavel ? 'button' : 'div');
+  h.className = 'zona-sec-titulo' + (colapsavel ? ' clicavel' : '');
   h.textContent = SEC_TITULO[id] || id;
+  if(colapsavel){
+    h.type = 'button';
+    var seta = document.createElement('span');
+    seta.className = 'zona-sec-seta';
+    seta.textContent = '▸';
+    h.appendChild(seta);
+    corpo.style.display = 'none';   // reduz ruído: só abre quando há necessidade real
+    h.addEventListener('click', function(){
+      var aberto = corpo.style.display !== 'none';
+      corpo.style.display = aberto ? 'none' : '';
+      seta.textContent = aberto ? '▸' : '▾';
+    });
+  }
   sec.insertBefore(h, sec.firstChild);
 }
 
@@ -730,9 +752,14 @@ function iniciarPivotAdmin(){
   var ZP_ROT=['decidir','pessoas','coachbase','negócio'];
   var paineis=ZP_KEYS.map(function(zona,i){
     var wrap=document.createElement('div'); wrap.className='zona-pivo-painel'; wrap.id='zona-painel-'+zona;
-    (ZONAS[zona]||[]).forEach(function(id){
+    var membros = ZONAS[zona]||[];
+    membros.forEach(function(id){
       var s=document.getElementById('section-'+id);
-      if(s){ garantirTitulo(s, id); wrap.appendChild(s); }
+      // "Decidir" fica sempre tudo à vista (é o que precisa de ação até seres
+      // tu a resolver); zonas com uma única secção também não colapsam --
+      // esconder a única coisa que lá está só criaria um clique extra à toa
+      var colapsavel = zona!=='decidir' && membros.length>1;
+      if(s){ garantirTitulo(s, id, colapsavel); wrap.appendChild(s); }
     });
     cont.appendChild(wrap);
     var rot=ZP_ROT[i]+(zona==='decidir'?' <span class="badge badge-red" id="zona-bg-decidir">'+((document.getElementById('zona-bg-decidir')||{}).textContent||'0')+'</span>':'');
