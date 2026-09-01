@@ -277,17 +277,14 @@ body.pr-cheio #pr-sair{display:block}
   <div class="sec" id="sec-prancheta">
     <div class="card" id="pr-palco">
       <div class="h">Prancheta <span style="color:var(--gold)">tática</span></div>
-      <div class="s">Desenha passes e corridas — a bola e os jogadores seguem as setas sozinhos ao reproduzir. "+ momento" só é preciso se quiseres controlar várias fases à mão.</div>
+      <div class="s">Arrasta um jogador até outro para desenhar um passe, ou até um espaço livre para desenhar a corrida dele. Fora dos jogadores, desenha à mão livre. A bola e os jogadores seguem as setas sozinhos ao reproduzir.</div>
       <button type="button" id="pr-abrir" onclick="PR.cheio(true)" style="min-height:48px;width:100%;border-radius:10px;border:1px solid var(--gold);background:var(--gold-soft);color:var(--gold);font-family:inherit;font-weight:800;font-size:14px;cursor:pointer;margin-bottom:10px">⛶ Ecrã inteiro — mostrar aos jogadores</button>
       <div class="chips" id="pr-fmt"></div>
       <div id="pr-tatica-wrap" hidden>
         <div class="chips" id="pr-tatica" style="margin-bottom:8px"></div>
       </div>
       <div class="pr-tools" id="pr-tools">
-        <button class="tl on" data-m="mover"><span class="ic">✋</span>Mover</button>
-        <button class="tl" data-m="passe"><span class="ic">➡</span>Passe</button>
-        <button class="tl" data-m="corrida"><span class="ic">🏃</span>Corrida</button>
-        <button class="tl" data-m="desenho"><span class="ic">✏️</span>Livre</button>
+        <button class="tl on" data-m="desenhar"><span class="ic">✏️</span>Desenhar</button>
         <button class="tl" data-m="apagar"><span class="ic">🧽</span>Apagar</button>
         <button type="button" id="pr-mais" onclick="PR.mais()">⋯<br>mais</button>
       </div>
@@ -1272,7 +1269,7 @@ var PR=(function(){
     fut11:[[0.5,.94],[0.16,.8],[0.38,.82],[0.62,.82],[0.84,.8],[0.5,.68],[0.28,.58],[0.72,.58],[0.14,.44],[0.5,.42],[0.86,.44]]
   };
   var E={tokens:[],setas:[],tracos:[],frames:[],frameAtual:-1};
-  var modo='mover',undoStack=[],redoStack=[],drag=null,setaTmp=null,tracoTmp=null,seq=1,aReproduzir=false;
+  var modo='desenhar',undoStack=[],redoStack=[],drag=null,dragOrigem=null,setaTmp=null,tracoTmp=null,seq=1,aReproduzir=false;
 
   function svg(){return document.getElementById('prancheta-svg');}
   function snap(){undoStack.push(JSON.stringify({tokens:E.tokens,setas:E.setas,tracos:E.tracos}));if(undoStack.length>40)undoStack.shift();redoStack.length=0;}
@@ -1321,6 +1318,7 @@ var PR=(function(){
   }
   function render(){
     var h=campo();
+    var alvoDestacado = drag ? tokenProximo(drag.x,drag.y,drag.id) : null;   // durante o arrasto, sinaliza quem vai receber o "passe" se soltar aqui
     E.tracos.forEach(function(t,i){
       h+='<polyline data-traco="'+i+'" points="'+t.pts.map(function(p){return p[0]+','+p[1];}).join(' ')+'" fill="none" stroke="#5AA9E6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>';
     });
@@ -1332,7 +1330,10 @@ var PR=(function(){
       else if(t.tipo==='cone'){h+='<path data-tok="'+t.id+'" style="cursor:grab" d="M'+t.x+' '+(t.y-9)+' L'+(t.x-8)+' '+(t.y+7)+' L'+(t.x+8)+' '+(t.y+7)+' Z" fill="#E0A458" stroke="#8a5a20" stroke-width="1.5"/>';}
       else{
         var fill=t.tipo==='A'?'#D4AF37':'#1A241A', stroke=t.tipo==='A'?'#8a701d':'#EAF3EA', txt=t.tipo==='A'?'#0A0D0A':'#EAF3EA';
-        h+='<g data-tok="'+t.id+'" style="cursor:grab"><circle cx="'+t.x+'" cy="'+t.y+'" r="14" fill="'+fill+'" stroke="'+stroke+'" stroke-width="2"/>'
+        var destacado = alvoDestacado && alvoDestacado.id===t.id;
+        h+='<g data-tok="'+t.id+'" style="cursor:grab">'
+          +(destacado?'<circle cx="'+t.x+'" cy="'+t.y+'" r="19" fill="none" stroke="#D4AF37" stroke-width="2.5" stroke-dasharray="4 3"/>':'')
+          +'<circle cx="'+t.x+'" cy="'+t.y+'" r="14" fill="'+fill+'" stroke="'+stroke+'" stroke-width="2"/>'
           +'<text x="'+t.x+'" y="'+(t.y+5)+'" text-anchor="middle" font-family="Arial" font-size="13" font-weight="800" fill="'+txt+'">'+t.n+'</text></g>';
       }
     });
@@ -1341,14 +1342,37 @@ var PR=(function(){
   }
 
   function alvoToken(ev){var el=ev.target.closest?ev.target.closest('[data-tok]'):null;if(!el)return null;var id=el.getAttribute('data-tok');return E.tokens.find(function(t){return t.id===id;});}
+  function tokenProximo(x,y,excluirId){
+    // mesmo raio (40px) já usado na reprodução automática para ligar setas a jogadores —
+    // generoso o suficiente para o dedo, sem apanhar um jogador que só está por perto
+    var melhor=null;
+    E.tokens.forEach(function(t){
+      if(t.id===excluirId)return;
+      var d=Math.hypot(t.x-x,t.y-y);
+      if(d<40 && (!melhor||d<melhor.d)) melhor={tok:t,d:d};
+    });
+    return melhor?melhor.tok:null;
+  }
   function ligar(){
     var s=svg();
     s.addEventListener('pointerdown',function(ev){
       if(aReproduzir)return;
       var c=coords(ev);
-      if(modo==='mover'){var t=alvoToken(ev);if(t){snap();drag=t;s.setPointerCapture(ev.pointerId);}}
-      else if(modo==='passe'||modo==='corrida'){setaTmp={tipo:modo,x1:c.x,y1:c.y,x2:c.x,y2:c.y};s.setPointerCapture(ev.pointerId);}
-      else if(modo==='desenho'){tracoTmp={pts:[[Math.round(c.x),Math.round(c.y)]]};s.setPointerCapture(ev.pointerId);}
+      if(modo==='desenhar'){
+        var t=alvoToken(ev);
+        if(t){
+          // começa em cima de um jogador: o gesto decide-se sozinho ao soltar —
+          // termina perto de outro jogador = passe; termina em espaço vazio = corrida
+          snap();
+          drag=t;
+          dragOrigem={x:t.x,y:t.y};
+          s.setPointerCapture(ev.pointerId);
+        } else {
+          // começa em espaço vazio: traço à mão livre
+          tracoTmp={pts:[[Math.round(c.x),Math.round(c.y)]]};
+          s.setPointerCapture(ev.pointerId);
+        }
+      }
       else if(modo==='apagar'){
         var tok=alvoToken(ev);
         var st=ev.target.closest?ev.target.closest('[data-seta]'):null;
@@ -1367,7 +1391,21 @@ var PR=(function(){
       else if(tracoTmp){var u=tracoTmp.pts[tracoTmp.pts.length-1];if(Math.abs(u[0]-c.x)+Math.abs(u[1]-c.y)>4){tracoTmp.pts.push([Math.round(c.x),Math.round(c.y)]);render();}}
     });
     function solta(){
-      if(drag)drag=null;
+      if(drag){
+        var moveu=Math.hypot(drag.x-dragOrigem.x,drag.y-dragOrigem.y)>12;   // limiar mínimo — um toque sem arrastar não cria seta nenhuma
+        if(moveu){
+          var alvo=tokenProximo(drag.x,drag.y,drag.id);
+          if(alvo){
+            // terminou em cima de outro jogador — passe: a bola vai até lá, quem passou fica onde estava
+            E.setas.push({tipo:'passe',x1:dragOrigem.x,y1:dragOrigem.y,x2:alvo.x,y2:alvo.y});
+            drag.x=dragOrigem.x;drag.y=dragOrigem.y;
+          } else {
+            // terminou em espaço vazio — corrida: o jogador fica na posição nova, com o percurso desenhado
+            E.setas.push({tipo:'corrida',x1:dragOrigem.x,y1:dragOrigem.y,x2:drag.x,y2:drag.y});
+          }
+        }
+        drag=null;dragOrigem=null;render();
+      }
       if(setaTmp){if(Math.abs(setaTmp.x2-setaTmp.x1)+Math.abs(setaTmp.y2-setaTmp.y1)>12){snap();E.setas.push(setaTmp);}setaTmp=null;render();}
       if(tracoTmp){if(tracoTmp.pts.length>2){snap();E.tracos.push(tracoTmp);}tracoTmp=null;render();}
     }
