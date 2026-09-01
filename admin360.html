@@ -231,7 +231,6 @@ tr:last-child td{border-bottom:none}
   <div class="tabs">
     <button class="tab active" onclick="showZona('decidir',event)">🔔 Decidir <span class="badge badge-red" id="zona-bg-decidir">0</span></button>
     <button class="tab" onclick="showZona('pessoas',event)">👥 Pessoas</button>
-    <button class="tab" onclick="showZona('piloto',event)">🩺 Piloto</button>
     <button class="tab" onclick="showZona('negocio',event)">💼 Negócio</button>
   </div>
   <!-- contadores por secção mantidos (ocultos) para compatibilidade com load() -->
@@ -448,14 +447,6 @@ tr:last-child td{border-bottom:none}
   </div>
 
   <!-- CLUBES SUBSCRITORES -->
-  <div class="section" id="section-piloto">
-    <div style="font-size:var(--fs-legenda);color:var(--muted);margin-bottom:12px">Não é um dashboard: é o estado de saúde. Responde a uma pergunta — <strong style="color:var(--text)">a YTB está a criar hábito ou a morrer?</strong> Semana atual (2ª feira → agora).</div>
-    <div id="piloto-alertas"></div>
-    <div id="piloto-circulos" style="margin:14px 0"></div>
-    <div id="piloto-blocos" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px"></div>
-    <div id="piloto-semcontacto" style="margin-top:14px"></div>
-    <div style="font-size:var(--fs-micro);color:var(--muted);margin-top:14px;line-height:1.5">A métrica de dependência ("se desligassem, quem telefonava primeiro?") não se mede aqui — mede-se ao teu telefone. Regista quem liga.</div>
-  </div>
 
   <div class="section" id="section-clubes">
     <div style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
@@ -663,11 +654,10 @@ let __zonaAtiva = 'decidir';
 const ZONAS = {
   decidir: ['pendentes','pedidos','treinadores','semtreinador'],
   pessoas: ['portreinador','atletas','contas'],
-  piloto: ['piloto'],
   negocio: ['clubes','atletastreinador','relatorios','comissoes']
 };
 const SEC_TITULO = {
-  piloto:'🩺 Saúde do Piloto', atletas:'📋 Atletas', pendentes:'⏳ Atletas por aprovar', pedidos:'📞 Pedidos de contacto',
+  atletas:'📋 Atletas', pendentes:'⏳ Atletas por aprovar', pedidos:'📞 Pedidos de contacto',
   treinadores:'📝 Novos Registos (treinador · scout · família)', relatorios:'📄 Relatórios',
   atletastreinador:'⚽ Atletas de treinador · pagamentos', clubes:'🏢 Clubes',
   contas:'👤 Contas', comissoes:'💶 Comissões', portreinador:'📁 Atletas por treinador',
@@ -681,74 +671,7 @@ function garantirTitulo(sec, id){
   sec.insertBefore(h, sec.firstChild);
 }
 
-// ═══════ PAINEL DE SAÚDE DO PILOTO ═══════
-async function carregarPainelPiloto(){
-  const alv = document.getElementById('piloto-alertas');
-  if(alv) alv.innerHTML = '<div style="color:var(--muted);font-size:var(--fs-legenda)">A medir…</div>';
-  let d = null;
-  try { const r = await supa.rpc('ytb_painel_piloto'); d = r && r.data; } catch(e){}
-  if(!d || d.ok === false){ if(alv) alv.innerHTML = '<div style="color:var(--red);font-size:var(--fs-legenda)">Sem acesso ao painel.</div>'; return; }
-
-  // alertas primeiro — o painel existe para gritar, não para decorar
-  const alertas = d.alertas || [];
-  document.getElementById('piloto-alertas').innerHTML = alertas.length
-    ? alertas.map(a => '<div style="padding:9px 12px;margin-bottom:6px;font-size:var(--fs-legenda);font-weight:700;border:1px solid '+(a.nivel==='vermelho'?'rgba(255,80,80,.4)':'rgba(224,164,88,.4)')+';color:'+(a.nivel==='vermelho'?'var(--red)':'var(--orange)')+'">'+(a.nivel==='vermelho'?'🚨 ':'⚠️ ')+escapeHtml(a.msg)+'</div>').join('')
-    : '<div style="padding:9px 12px;font-size:var(--fs-legenda);font-weight:700;border:1px solid rgba(0,212,106,.35);color:var(--green)">✅ Sem alertas ativos</div>';
-
-  // círculos fechados — o indicador único
-  const c = d.circulos || {completos:0,total:0,detalhe:[]};
-  const pct = c.total ? Math.round(100*c.completos/c.total) : 0;
-  document.getElementById('piloto-circulos').innerHTML =
-    '<div style="border:1px solid var(--border2);padding:16px">'+
-    '<div style="font-size:var(--fs-micro);font-weight:800;letter-spacing:2px;color:var(--muted);text-transform:uppercase">Círculos fechados esta semana</div>'+
-    '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:var(--fs-hero);font-weight:800;line-height:1.1;color:'+(pct>=70?'var(--green)':(pct>=30?'var(--orange)':'var(--red)'))+'">'+c.completos+' / '+c.total+'</div>'+
-    '<div style="font-size:var(--fs-legenda);color:var(--slate);margin-bottom:10px">treinador alimentou → família respondeu → atleta participou → sistema devolveu</div>'+
-    '<div style="display:flex;flex-wrap:wrap;gap:5px">'+
-      (c.detalhe||[]).map(a => '<span title="T:'+(a.t?'✓':'✗')+' F:'+(a.f?'✓':'✗')+' A:'+(a.a?'✓':'✗')+' S:'+(a.s?'✓':'✗')+'" style="font-size:var(--fs-micro);font-weight:700;padding:4px 8px;border:1px solid '+(a.completo?'rgba(0,212,106,.4)':'var(--border2)')+';color:'+(a.completo?'var(--green)':'var(--muted)')+'">'+(a.completo?'●':'○')+' '+escapeHtml(a.nome.split(' ')[0])+' <span style="letter-spacing:1px">'+(a.t?'T':'·')+(a.f?'F':'·')+(a.a?'A':'·')+(a.s?'S':'·')+'</span></span>').join('')+
-    '</div></div>';
-
-  // 4 blocos de recorrência
-  function bloco(titulo, linhas){
-    return '<div style="border:1px solid var(--border2);padding:12px 14px">'+
-      '<div style="font-size:var(--fs-micro);font-weight:800;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:8px">'+titulo+'</div>'+
-      linhas.map(l => '<div style="display:flex;justify-content:space-between;font-size:var(--fs-legenda);padding:3px 0"><span style="color:var(--slate)">'+l[0]+'</span><strong style="color:'+(l[2]||'var(--text)')+'">'+l[1]+'</strong></div>').join('')+'</div>';
-  }
-  const t=d.treinador||{}, f=d.familia||{}, a=d.atleta||{}, ac=d.academia||{};
-  const nunca = v => (v===-1||v===null||v===undefined) ? 'nunca' : v;
-  document.getElementById('piloto-blocos').innerHTML =
-    bloco('🔄 O treinador voltou?', [
-      ['Avaliações hoje', t.avaliacoes_hoje||0],
-      ['Dias desde a última avaliação', nunca(t.dias_desde_ultima_avaliacao), (t.dias_desde_ultima_avaliacao===-1||t.dias_desde_ultima_avaliacao>3)?'var(--red)':'var(--green)'],
-      ['% atletas avaliados esta semana', (t.pct_atletas_avaliados_semana||0)+'%'],
-      ['Treinadores ativos (7 dias)', t.treinadores_ativos_7d||0]
-    ]) +
-    bloco('👨‍👩‍👦 A família voltou?', [
-      ['Famílias que abriram o passaporte', f.familias_abriram_semana||0],
-      ['Dias desde o último acesso', nunca(f.dias_desde_ultimo_acesso)],
-      ['Missões cumpridas esta semana', f.missoes_cumpridas_semana||0],
-      ['Relatórios mensais vistos', f.relatorios_vistos_semana||0]
-    ]) +
-    bloco('⚽ O atleta voltou?', [
-      ['Missões do plano concluídas', a.missoes_concluidas_semana||0],
-      ['Treinos livres', a.missoes_livres_semana||0],
-      ['Cenários Elite Coach', a.elite_coach_semana||0],
-      ['Atletas com atividade', a.atletas_com_atividade_semana||0]
-    ]) +
-    bloco('🏟️ A academia voltou?', [
-      ['Atletas ativos', ac.atletas_ativos||0],
-      ['Dias consecutivos com atividade', ac.dias_consecutivos_com_atividade||0],
-      ['Sem contacto há 14+ dias', (ac.sem_contacto_14d||[]).length, (ac.sem_contacto_14d||[]).length?'var(--red)':'var(--green)']
-    ]);
-
-  // lista nominal dos sem-contacto (o alerta com nomes, para agir)
-  const sc = ac.sem_contacto_14d||[];
-  document.getElementById('piloto-semcontacto').innerHTML = sc.length
-    ? '<div style="font-size:var(--fs-micro);font-weight:800;letter-spacing:1.5px;color:var(--red);text-transform:uppercase;margin-bottom:6px">Sem qualquer contacto</div>'+
-      sc.map(x => '<div style="font-size:var(--fs-legenda);padding:4px 0;border-bottom:1px dotted var(--border2)"><span style="color:var(--text)">'+escapeHtml(x.nome)+'</span> <span style="color:var(--muted)">· '+(x.dias===null?'nunca teve atividade':('há '+x.dias+' dias'))+'</span></div>').join('')
-    : '';
-}
-
-var ZP_KEYS=['decidir','pessoas','piloto','negocio'];
+var ZP_KEYS=['decidir','pessoas','negocio'];
 var admPivot=null; // {ir,atual} de YTBPivot.montar, depois de iniciado
 function aplicarZona(idx){
   var zona=ZP_KEYS[idx];
@@ -756,7 +679,6 @@ function aplicarZona(idx){
   var ids=ZONAS[zona]||[];
   if(ids.includes('contas')) carregarContas();
   if(ids.includes('comissoes')) carregarComissoes();
-  if(ids.includes('piloto')) carregarPainelPiloto();
   try{ window.scrollTo({top:0,behavior:'smooth'}); }catch(e){}
 }
 function showZona(zona){
@@ -770,7 +692,7 @@ function iniciarPivotAdmin(){
   var head=document.querySelector('.tabs'); if(!head) return;
   var cont=document.getElementById('adm-pivot');
   if(!cont){ cont=document.createElement('div'); cont.id='adm-pivot'; head.parentNode.insertBefore(cont, head.nextSibling); }
-  var ZP_ROT=['decidir','pessoas','piloto','negócio'];
+  var ZP_ROT=['decidir','pessoas','negócio'];
   var paineis=ZP_KEYS.map(function(zona,i){
     var wrap=document.createElement('div'); wrap.className='zona-pivo-painel'; wrap.id='zona-painel-'+zona;
     (ZONAS[zona]||[]).forEach(function(id){
@@ -1075,11 +997,20 @@ function renderPedidos(){
     tbody.innerHTML = '<tr><td colspan="6" class="empty"><div class="empty-icon">📭</div>Sem pedidos</td></tr>';
     return;
   }
-  tbody.innerHTML = allPedidos.map(p => {
+  // abertos (a precisar de ação) sempre primeiro — senão um pedido novo perde-se
+  // no meio de pedidos antigos já resolvidos, ordenados só por data
+  const fechados = ['aceite','recusado'];
+  const ordenados = allPedidos.slice().sort((a,b) => {
+    const aAberto = !fechados.includes(a.estado), bAberto = !fechados.includes(b.estado);
+    if(aAberto !== bAberto) return aAberto ? -1 : 1;
+    return 0;   // dentro do mesmo grupo, mantém a ordem que já veio (mais recente primeiro)
+  });
+  tbody.innerHTML = ordenados.map(p => {
     const atleta = allAtletas.find(a => a.id === p.atleta_id);
+    const aberto = !fechados.includes(p.estado);
     return `
-      <tr>
-        <td class="td-name"><strong>${escapeHtml(p.clube_nome)}</strong></td>
+      <tr${aberto ? ' style="background:rgba(212,175,55,.06);border-left:3px solid var(--gold)"' : ''}>
+        <td class="td-name">${aberto ? '<span style="color:var(--gold);font-weight:800;font-size:11px;letter-spacing:.5px">NOVO · </span>' : ''}<strong>${escapeHtml(p.clube_nome)}</strong></td>
         <td>${escapeHtml(p.responsavel_nome)}<div class="td-mute">${escapeHtml(p.responsavel_email || '')}</div></td>
         <td>
           ${atleta ? `<strong>${escapeHtml(atleta.nome)}</strong><div class="td-mute">${escapeHtml(atleta.posicao_principal)} · ${escapeHtml(atleta.escalao)} · ${escapeHtml(atleta.clube_actual)}</div>` : '<span class="td-mute">Atleta removido</span>'}
@@ -1246,7 +1177,15 @@ function renderTreinadores(){
     tbody.innerHTML = '<tr><td colspan="5" class="empty"><div class="empty-icon">🎓</div>Sem registos de treinadores</td></tr>';
     return;
   }
-  tbody.innerHTML = allTreinadores.map(t => {
+  // um registo novo (pendente/contactado) tem de aparecer antes de registos já
+  // fechados há meses — senão perde-se numa lista que só ordena por data
+  const abertos = ['pendente','contactado'];
+  const ordenados = allTreinadores.slice().sort((a,b) => {
+    const aAberto = abertos.includes(a.estado || 'pendente'), bAberto = abertos.includes(b.estado || 'pendente');
+    if(aAberto !== bAberto) return aAberto ? -1 : 1;
+    return 0;
+  });
+  tbody.innerHTML = ordenados.map(t => {
     const est = t.estado || 'pendente';
     const pillMap = { pendente:'pendente', contactado:'pendente', aprovado:'aprovado', rejeitado:'rejeitado' };
     const pill = pillMap[est] || 'pendente';
@@ -1266,9 +1205,10 @@ function renderTreinadores(){
     }
     const papelEmoji = { treinador:'🎓', scout:'🔍', familia:'👨‍👩‍👦' }[t.papel] || '🎓';
     const papelLabel = { treinador:'Treinador', scout:'Scout', familia:'Família' }[t.papel] || 'Treinador';
+    const destaque = abertos.includes(est) ? ' style="background:rgba(212,175,55,.06);border-left:3px solid var(--gold)"' : '';
     return `
-      <tr>
-        <td class="td-name"><strong>${escapeHtml(t.nome)}</strong><div class="td-mute">${papelEmoji} ${papelLabel}</div></td>
+      <tr${destaque}>
+        <td class="td-name">${abertos.includes(est) ? '<span style="color:var(--gold);font-weight:800;font-size:11px;letter-spacing:.5px">NOVO · </span>' : ''}<strong>${escapeHtml(t.nome)}</strong><div class="td-mute">${papelEmoji} ${papelLabel}</div></td>
         <td>${escapeHtml(t.email)}${tel ? '<div class="td-mute">📱 ' + escapeHtml(tel) + '</div>' : '<div class="td-mute" style="color:var(--orange)">sem telemóvel</div>'}</td>
         <td><span class="pill pill-${pill}">${escapeHtml(estLabel)}</span></td>
         <td class="td-mute">${fmtDate(t.criado_em)}</td>
