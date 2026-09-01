@@ -231,6 +231,7 @@ tr:last-child td{border-bottom:none}
   <div class="tabs">
     <button class="tab active" onclick="showZona('decidir',event)">🔔 Decidir <span class="badge badge-red" id="zona-bg-decidir">0</span></button>
     <button class="tab" onclick="showZona('pessoas',event)">👥 Pessoas</button>
+    <button class="tab" onclick="showZona('coachbase',event)">🧠 CoachBase</button>
     <button class="tab" onclick="showZona('negocio',event)">💼 Negócio</button>
   </div>
   <!-- contadores por secção mantidos (ocultos) para compatibilidade com load() -->
@@ -446,6 +447,36 @@ tr:last-child td{border-bottom:none}
     </div>
   </div>
 
+  <!-- COACHBASE -->
+  <div class="section" id="section-coachbase">
+    <div id="cb-resumo" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px">
+      <div class="loading"><div class="spinner"></div></div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Treinador</th><th>Estado</th><th>Jogadores</th><th>Sessões</th><th>Jogos</th><th>Convocatórias</th><th>Pago</th></tr>
+        </thead>
+        <tbody id="tbody-coachbase"><tr><td colspan="7" class="loading"><div class="spinner"></div></td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ACADEMIAS -->
+  <div class="section" id="section-academias">
+    <div id="ac-resumo" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px">
+      <div class="loading"><div class="spinner"></div></div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Academia</th><th>Estado</th><th>Plano</th><th>Atletas</th><th>Treinadores</th><th>Mentoria</th></tr>
+        </thead>
+        <tbody id="tbody-academias"><tr><td colspan="6" class="loading"><div class="spinner"></div></td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
   <!-- CLUBES SUBSCRITORES -->
 
   <div class="section" id="section-clubes">
@@ -654,10 +685,12 @@ let __zonaAtiva = 'decidir';
 const ZONAS = {
   decidir: ['pendentes','pedidos','treinadores','semtreinador'],
   pessoas: ['portreinador','atletas','contas'],
-  negocio: ['clubes','atletastreinador','relatorios','comissoes']
+  coachbase: ['coachbase'],
+  negocio: ['academias','clubes','atletastreinador','relatorios','comissoes']
 };
 const SEC_TITULO = {
   atletas:'📋 Atletas', pendentes:'⏳ Atletas por aprovar', pedidos:'📞 Pedidos de contacto',
+  coachbase:'🧠 CoachBase', academias:'🏟️ Academias',
   treinadores:'📝 Novos Registos (treinador · scout · família)', relatorios:'📄 Relatórios',
   atletastreinador:'⚽ Atletas de treinador · pagamentos', clubes:'🏢 Clubes',
   contas:'👤 Contas', comissoes:'💶 Comissões', portreinador:'📁 Atletas por treinador',
@@ -671,7 +704,7 @@ function garantirTitulo(sec, id){
   sec.insertBefore(h, sec.firstChild);
 }
 
-var ZP_KEYS=['decidir','pessoas','negocio'];
+var ZP_KEYS=['decidir','pessoas','coachbase','negocio'];
 var admPivot=null; // {ir,atual} de YTBPivot.montar, depois de iniciado
 function aplicarZona(idx){
   var zona=ZP_KEYS[idx];
@@ -679,6 +712,8 @@ function aplicarZona(idx){
   var ids=ZONAS[zona]||[];
   if(ids.includes('contas')) carregarContas();
   if(ids.includes('comissoes')) carregarComissoes();
+  if(ids.includes('coachbase')) carregarCoachBase();
+  if(ids.includes('academias')) carregarAcademiasAdmin();
   try{ window.scrollTo({top:0,behavior:'smooth'}); }catch(e){}
 }
 function showZona(zona){
@@ -692,7 +727,7 @@ function iniciarPivotAdmin(){
   var head=document.querySelector('.tabs'); if(!head) return;
   var cont=document.getElementById('adm-pivot');
   if(!cont){ cont=document.createElement('div'); cont.id='adm-pivot'; head.parentNode.insertBefore(cont, head.nextSibling); }
-  var ZP_ROT=['decidir','pessoas','negócio'];
+  var ZP_ROT=['decidir','pessoas','coachbase','negócio'];
   var paineis=ZP_KEYS.map(function(zona,i){
     var wrap=document.createElement('div'); wrap.className='zona-pivo-painel'; wrap.id='zona-painel-'+zona;
     (ZONAS[zona]||[]).forEach(function(id){
@@ -2045,6 +2080,65 @@ async function eliminarConta(email){
   } catch(e){ toast('Erro: ' + (e && e.message || ''), 'error'); }
 }
 
+// ═══ CoachBase: resumo real de treinadores ativos, nao "aprovados" em geral ═══
+async function carregarCoachBase(){
+  const box = document.getElementById('cb-resumo');
+  const tb = document.getElementById('tbody-coachbase');
+  try {
+    const { data: r, error } = await supa.rpc('ytb_admin_coachbase_resumo');
+    if(error || !r || !r.ok){ box.innerHTML = '<div class="fin-card">Sem acesso ao resumo.</div>'; return; }
+    box.innerHTML = `
+      <div class="fin-card"><div class="fin-card-n">${r.treinadores_ativos}</div><div class="fin-card-l">Treinadores ativos</div></div>
+      <div class="fin-card"><div class="fin-card-n">${r.sessoes_geradas}</div><div class="fin-card-l">Sessões geradas</div></div>
+      <div class="fin-card"><div class="fin-card-n">${r.jogos_registados}</div><div class="fin-card-l">Jogos registados</div></div>
+      <div class="fin-card"><div class="fin-card-n">${r.jogadores_registados}</div><div class="fin-card-l">Jogadores CoachBase</div></div>
+      <div class="fin-card"><div class="fin-card-n" style="color:${r.pagamentos_registados>0?'var(--green)':'var(--orange)'}">${r.pagamentos_registados}</div><div class="fin-card-l">Pagamentos registados</div></div>
+    `;
+    const lista = r.lista || [];
+    if(!lista.length){ tb.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-icon">🧠</div>Ainda sem treinadores com atividade real no CoachBase</td></tr>'; return; }
+    tb.innerHTML = lista.map(t => `
+      <tr>
+        <td class="td-name"><strong>${escapeHtml(t.nome)}</strong><div class="td-mute">${escapeHtml(t.email)}</div></td>
+        <td><span class="pill pill-${t.estado_conta==='aprovado'?'aprovado':'pendente'}">${escapeHtml(t.estado_conta||'—')}</span></td>
+        <td>${t.n_jogadores}</td>
+        <td>${t.n_sessoes}</td>
+        <td>${t.n_jogos}</td>
+        <td>${t.n_convocatorias}</td>
+        <td>${t.pago ? '<span style="color:var(--green)">✓ pago</span>' : '<span class="td-mute">sem pagamento</span>'}</td>
+      </tr>`).join('');
+  } catch(e){ toast('Erro: ' + (e && e.message || ''), 'error'); }
+}
+
+// ═══ Academias: resumo real, capacidade e mentoria ═══
+async function carregarAcademiasAdmin(){
+  const box = document.getElementById('ac-resumo');
+  const tb = document.getElementById('tbody-academias');
+  try {
+    const { data: r, error } = await supa.rpc('ytb_admin_academias_resumo');
+    if(error || !r || !r.ok){ box.innerHTML = '<div class="fin-card">Sem acesso ao resumo.</div>'; return; }
+    box.innerHTML = `
+      <div class="fin-card"><div class="fin-card-n">${r.total}</div><div class="fin-card-l">Total de academias</div></div>
+      <div class="fin-card"><div class="fin-card-n" style="color:var(--green)">${r.ativas}</div><div class="fin-card-l">Ativas</div></div>
+      <div class="fin-card"><div class="fin-card-n" style="color:var(--orange)">${r.pendentes}</div><div class="fin-card-l">Pendentes</div></div>
+      <div class="fin-card"><div class="fin-card-n" style="color:var(--red)">${r.suspensas}</div><div class="fin-card-l">Suspensas</div></div>
+    `;
+    const lista = r.lista || [];
+    if(!lista.length){ tb.innerHTML = '<tr><td colspan="6" class="empty"><div class="empty-icon">🏟️</div>Ainda sem academias registadas</td></tr>'; return; }
+    tb.innerHTML = lista.map(a => {
+      const limite = a.limite_atletas ? `${a.n_atletas} / ${a.limite_atletas}` : `${a.n_atletas}`;
+      const capacidadeCheia = a.limite_atletas && a.n_atletas >= a.limite_atletas;
+      return `
+      <tr>
+        <td class="td-name"><strong>${escapeHtml(a.nome)}</strong></td>
+        <td><span class="pill pill-${a.estado==='ativa'?'aprovado':a.estado==='pendente'?'pendente':'rejeitado'}">${escapeHtml(a.estado)}</span></td>
+        <td>${escapeHtml(a.plano||'—')}</td>
+        <td${capacidadeCheia?' style="color:var(--orange);font-weight:800"':''}>${limite}${capacidadeCheia?' ⚠':''}</td>
+        <td>${a.n_treinadores}</td>
+        <td>${a.mentoria_definida ? '<span style="color:var(--green)">✓ definida</span>' : '<span class="td-mute">não definida</span>'}</td>
+      </tr>`;
+    }).join('');
+  } catch(e){ toast('Erro: ' + (e && e.message || ''), 'error'); }
+}
 
 // ═══ Comissões: ver quem receber, marcar como pago ═══
 async function carregarComissoes(){

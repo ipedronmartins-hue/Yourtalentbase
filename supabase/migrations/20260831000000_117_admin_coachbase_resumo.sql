@@ -1,0 +1,2 @@
+-- 117: resumo do CoachBase para o admin. Corpo integral no historico
+-- Supabase (117).

@@ -1,0 +1,2 @@
+-- 118: resumo de academias para o admin. Corpo integral no historico
+-- Supabase (118).
