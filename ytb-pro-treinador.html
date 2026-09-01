@@ -814,6 +814,7 @@ async function submeterInscricao(){
 <script>
 /* ════════ AVALIAÇÃO (2 níveis: 5 buckets no campo, detalhe opcional) ════════ */
 let avNivel1={};
+let avNivel1Tocado={};
 function renderAvaliar(){
   const area=document.getElementById('avaliar-area');
   const sub=document.getElementById('avaliar-sub');
@@ -824,6 +825,7 @@ function renderAvaliar(){
   }
   sub.textContent='A avaliar: '+esc(atletaSel.primeiro_nome||atletaSel.nome)+' · um toque por área · 1 (prioridade) a 5 (forte)';
   avNivel1={tecnica:3,decisao:3,tatica:3,fisico:3,mental:3};
+  avNivel1Tocado={};   // um "3" que ninguém tocou não é uma avaliação — é só o ponto de partida do botão
   let html='<div id="jornada-treinador"></div>';
   BUCKETS.forEach(function(b){
     const k=b[0];
@@ -1036,6 +1038,7 @@ function avFocoSet(f){
 }
 function avTocar(k,n){
   avNivel1[k]=n;
+  avNivel1Tocado[k]=true;
   for(let i=1;i<=5;i++){
     const el=document.getElementById('bk-'+k+'-'+i);
     if(el) el.className=(i===n?('on'+(n<=2?' fraco':'')):'');
@@ -1077,11 +1080,12 @@ async function montarJornadaTreinador(){
 }
 
 function recolherScores(){
-  // nível 1 sempre (5 notas deliberadas, uma por bucket); nível 2 só o que o
-  // treinador tocou de propósito — o Dev Score faz a média do que existir,
-  // por isso só entram notas com intenção, não defaults
+  // nível 1: só entra o que foi mesmo tocado — um "3" nunca visto pelo
+  // treinador não é uma avaliação, é só onde o botão começa. Antes disto,
+  // quase todas as avaliações reais tinham "Mental":3,"Físico":3,"Decisão":3
+  // repetidos — os defaults a poluir a média que decide o rating público.
   const scores={};
-  BUCKETS.forEach(function(b){ scores[BUCKET_LBL[b[0]]]=avNivel1[b[0]]||3; });
+  BUCKETS.forEach(function(b){ if(avNivel1Tocado[b[0]]) scores[BUCKET_LBL[b[0]]]=avNivel1[b[0]]; });
   Object.keys(CRIT_DEB).forEach(function(name){
     const el=document.getElementById('av_'+name.replace(/[^a-z]/gi,'_').toLowerCase());
     if(el&&el.dataset.touched) scores[name]=parseInt(el.value);
@@ -1113,6 +1117,10 @@ function mediasPorCat(scores){
 async function gerarAvaliacao(){
   if(!atletaSel)return;
   const scores=recolherScores();
+  if(Object.keys(scores).length===0){
+    toast('Toca em pelo menos uma área antes de concluir — sem isso não há nada para avaliar.');
+    return;
+  }
   const debs=detectarDebilidades(scores);
   const medias=mediasPorCat(scores);
   const plano=gerarPlano(debs, idadeDoAtleta(atletaSel));

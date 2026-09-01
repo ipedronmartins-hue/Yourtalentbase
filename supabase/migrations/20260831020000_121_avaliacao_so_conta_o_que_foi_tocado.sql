@@ -1,0 +1,4 @@
+-- 121: corrige integridade dos dados de avaliacao do Pro Treinador --
+-- valores por omissao nunca tocados estavam a poluir a media que
+-- decide o rating publico do atleta. Corpo integral no historico
+-- Supabase (121).
