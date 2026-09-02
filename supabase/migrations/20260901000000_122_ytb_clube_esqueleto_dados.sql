@@ -1,0 +1,5 @@
+-- 122: fundacao de dados do YTB Clube, construida em paralelo, sem
+-- porta na navegacao. Reaproveita atletas_360_clubes_subscritores
+-- como o "clube" (nao duplica entidade), adiciona equipas, plantel,
+-- membros com papel operacional, jogos e convocatorias ao nivel do
+-- clube. Corpo integral no historico Supabase (122).

@@ -1,0 +1,2 @@
+-- 123: RPCs de membros, equipas e plantel do YTB Clube. Corpo
+-- integral no historico Supabase (123).

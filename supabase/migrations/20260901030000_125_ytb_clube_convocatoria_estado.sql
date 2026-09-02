@@ -1,0 +1,2 @@
+-- 125: leitura do estado de uma convocatoria. Corpo integral no
+-- historico Supabase (125).
