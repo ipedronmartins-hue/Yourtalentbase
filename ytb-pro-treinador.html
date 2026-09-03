@@ -815,7 +815,7 @@ async function submeterInscricao(){
 /* ════════ AVALIAÇÃO (2 níveis: 5 buckets no campo, detalhe opcional) ════════ */
 let avNivel1={};
 let avNivel1Tocado={};
-function renderAvaliar(){
+async function renderAvaliar(){
   const area=document.getElementById('avaliar-area');
   const sub=document.getElementById('avaliar-sub');
   if(!atletaSel){
@@ -826,11 +826,22 @@ function renderAvaliar(){
   sub.textContent='A avaliar: '+esc(atletaSel.primeiro_nome||atletaSel.nome)+' · um toque por área · 1 (prioridade) a 5 (forte)';
   avNivel1={tecnica:3,decisao:3,tatica:3,fisico:3,mental:3};
   avNivel1Tocado={};   // um "3" que ninguém tocou não é uma avaliação — é só o ponto de partida do botão
+
+  // busca a avaliação anterior — sem isto, cada avaliação é uma fotografia
+  // isolada; com isto, o treinador vê logo se subiu ou desceu desde a última vez
+  let anterior=null;
+  try{
+    const {data:h}=await supa.rpc('ytb_treinador_avaliacoes_historico',{p_atleta:atletaSel.id,p_limite:1});
+    if(h&&h.ok&&h.lista&&h.lista[0]) anterior=h.lista[0].criterios||{};
+  }catch(e){ /* sem histórico anterior — segue como primeira avaliação, sem comparação */ }
+
   let html='<div id="jornada-treinador"></div>';
   BUCKETS.forEach(function(b){
     const k=b[0];
+    const valorAntes = anterior ? anterior[BUCKET_LBL[k]] : null;
     html+='<div class="bk-row" id="bk-'+k+'">'
-      +'<div class="bk-head"><span>'+b[1]+'</span><span class="bk-nome">'+b[2]+'</span></div>'
+      +'<div class="bk-head"><span>'+b[1]+'</span><span class="bk-nome">'+b[2]+'</span>'
+      +(valorAntes?' <span style="font-weight:400;color:var(--muted);font-size:var(--fs-legenda)">· antes: '+valorAntes+'</span>':'')+'</div>'
       +'<div class="bk-sub">'+b[3]+'</div>'
       +'<div class="bk-dots">'+[1,2,3,4,5].map(function(n){
         return '<button type="button" id="bk-'+k+'-'+n+'" class="'+(n===3?'on':'')+'" onclick="avTocar(\''+k+'\','+n+')">'+n+'</button>';

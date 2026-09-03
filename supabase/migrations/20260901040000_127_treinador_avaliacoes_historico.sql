@@ -1,0 +1,2 @@
+-- 127: leitura do historico de avaliacoes de um atleta. Corpo
+-- integral no historico Supabase (127).
