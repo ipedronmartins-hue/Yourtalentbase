@@ -1,0 +1,4 @@
+-- 140: isolamento real por equipa dentro do clube -- corrige gap
+-- onde um treinador atribuido a uma equipa conseguia mexer nos dados
+-- de outra equipa do mesmo clube. Corpo integral no historico
+-- Supabase (140).
