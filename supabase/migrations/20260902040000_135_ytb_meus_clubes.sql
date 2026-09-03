@@ -1,0 +1,2 @@
+-- 135: descobrir a que clube(s) o utilizador tem acesso e com que
+-- papel. Corpo integral no historico Supabase (135).

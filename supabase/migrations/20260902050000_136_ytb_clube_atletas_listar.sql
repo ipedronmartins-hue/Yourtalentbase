@@ -1,0 +1,2 @@
+-- 136: listar atletas de um clube, para escolher por nome ao
+-- adicionar ao plantel. Corpo integral no historico Supabase (136).

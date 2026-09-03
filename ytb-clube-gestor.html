@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>YTB Clube · Gestão</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/ytb-vivo.css">
+<script src="/assets/js/ytb-vivo.js"></script>
+<script src="/assets/js/ytb-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="ytb-tokens.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:var(--bg);color:var(--white);font-family:'Plus Jakarta Sans',sans-serif;min-height:100vh}
+body{max-width:560px;margin:0 auto;padding-bottom:60px}
+.nav{position:sticky;top:0;z-index:100;background:rgba(8,12,8,.97);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:13px 18px;display:flex;align-items:center;justify-content:space-between}
+.nav-title{font-family:'Barlow Condensed';font-weight:900;font-size:18px;letter-spacing:.3px}
+.nav-title span{color:var(--gold)}
+.nav-logout{font-size:11px;color:var(--red);cursor:pointer;background:none;border:none;font-family:inherit;display:none}
+.login-wrap{padding:50px 22px 0;text-align:center}
+.login-icon{font-size:56px;margin-bottom:14px}
+.login-title{font-family:'Barlow Condensed';font-weight:900;font-size:36px;line-height:1;letter-spacing:-1px;margin-bottom:6px}
+.login-title span{color:var(--gold)}
+.login-sub{font-size:13px;color:var(--slate);margin-bottom:24px}
+.input{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;color:var(--white);font-family:inherit;font-size:15px;margin-bottom:10px}
+.btn{width:100%;background:var(--gold);border:none;border-radius:10px;padding:14px;color:#0A0D0A;font-family:inherit;font-weight:800;font-size:14px;cursor:pointer}
+.btn-sec{background:var(--bg2);color:var(--white);border:1px solid var(--border)}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px}
+.h{font-family:'Barlow Condensed';font-weight:900;font-size:20px;margin-bottom:6px}
+.h span{color:var(--gold)}
+.s{font-size:13px;color:var(--slate);line-height:1.5;margin-bottom:10px}
+.tabs{display:flex;gap:6px;margin:14px 0;overflow-x:auto;padding:0 14px 2px}
+.tab{flex:0 0 auto;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px 16px;color:var(--slate);font-family:'Barlow Condensed';font-weight:900;font-size:14px;letter-spacing:.3px;cursor:pointer;white-space:nowrap}
+.tab.on{border-color:var(--gold);color:var(--gold);background:var(--gold-soft)}
+.content{padding:0 14px}
+.sec{display:none}
+.sec.on{display:block}
+.label{font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px}
+.chip{background:var(--bg3);border:1px solid var(--border);border-radius:999px;padding:8px 14px;font-family:inherit;font-weight:700;font-size:13px;color:var(--slate);cursor:pointer;margin:0 6px 6px 0}
+.chip.on{background:var(--gold-soft);border-color:var(--gold-border);color:var(--gold)}
+.pill{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.5px;padding:3px 8px;border-radius:6px;text-transform:uppercase}
+.pill-verde{background:rgba(0,212,106,.15);color:var(--up)}
+.pill-laranja{background:rgba(224,164,88,.15);color:var(--orange)}
+.pill-vermelho{background:rgba(255,80,80,.15);color:var(--red)}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 20px;font-size:13px;opacity:0;pointer-events:none;transition:.25s;z-index:999;max-width:90%;text-align:center}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="nav">
+  <div class="nav-title">YTB <span>Clube</span></div>
+  <button class="nav-logout" id="btn-logout">Sair</button>
+</div>
+<div id="login-view" class="login-wrap">
+  <div class="login-icon">🏟️</div>
+  <div class="login-title">YTB <span>Clube</span></div>
+  <div class="login-sub">Equipas, plantel, jogos e convocatórias — tudo num só sítio.</div>
+  <input class="input" id="login-email" type="email" placeholder="O teu email">
+  <button class="btn" id="btn-enviar-link">Entrar →</button>
+  <div class="s" id="login-msg" style="margin-top:12px"></div>
+</div>
+<div id="main" style="display:none">
+  <div class="tabs" id="tabs-topo"></div>
+  <div class="content">
+    <div class="sec on" id="sec-equipas"></div>
+    <div class="sec" id="sec-plantel"></div>
+    <div class="sec" id="sec-jogos"></div>
+    <div class="sec" id="sec-convocatorias"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>const CFG = window.YTB_CONFIG || {};
+const USING_SB = !!(CFG.SUPABASE_URL && CFG.SUPABASE_KEY && window.supabase);
+const supa = USING_SB ? window.supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_KEY, {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:'ytb-clube-auth',flowType:'pkce'}}) : null;
+
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function toast(msg){var t=document.getElementById('toast');if(!t)return;t.textContent=msg;t.classList.add('show');clearTimeout(t.__tm);t.__tm=setTimeout(function(){t.classList.remove('show');},2800);}
+
+var meuClube=null, minhasEquipas=[], equipaAtiva=null, atletasDoClube=[], plantelDaEquipa=[], jogosDaEquipa=[];
+
+/* ══════ AUTENTICAÇÃO ══════ */
+async function verificarSessao(){
+  if(!USING_SB){ document.getElementById('login-msg').textContent='Sem ligação ao servidor.'; return; }
+  const {data:{session}} = await supa.auth.getSession();
+  if(session){ mostrarMain(); } else { document.getElementById('login-view').style.display='block'; }
+}
+document.getElementById('btn-enviar-link').onclick=async function(){
+  var email=(document.getElementById('login-email').value||'').trim();
+  if(!email){ toast('Escreve o teu email'); return; }
+  document.getElementById('login-msg').textContent='A enviar...';
+  const {error}=await supa.auth.signInWithOtp({email:email, options:{emailRedirectTo:window.location.href.split('#')[0].split('?')[0]}});
+  document.getElementById('login-msg').textContent = error ? ('Erro: '+error.message) : 'Liga chegou ao teu email — pode abrir noutro separador.';
+};
+document.getElementById('btn-logout').onclick=async function(){ await supa.auth.signOut(); window.location.reload(); };
+// deteção de sessão criada noutro separador (o link de acesso abre sempre um novo) —
+// sem isto, quem fizer login por email nunca via o separador original mudar
+window.addEventListener('storage', function(ev){ if(ev.key && ev.key.indexOf('ytb-clube-auth')>-1) verificarSessao(); });
+if(supa) supa.auth.onAuthStateChange(function(){ verificarSessao(); });
+
+async function mostrarMain(){
+  document.getElementById('login-view').style.display='none';
+  document.getElementById('main').style.display='block';
+  document.getElementById('btn-logout').style.display='block';
+  await carregarMeusClubes();
+}
+
+/* ══════ CLUBES E EQUIPAS ══════ */
+async function carregarMeusClubes(){
+  const {data:r}=await supa.rpc('ytb_meus_clubes');
+  const lista=(r&&r.ok&&r.lista)||[];
+  if(!lista.length){
+    document.getElementById('sec-equipas').innerHTML='<div class="card"><div class="h">Sem acesso a nenhum <span>clube</span></div><div class="s">Pede ao administrador da YTB para te associar a um clube.</div></div>';
+    montarTabsTopo();
+    return;
+  }
+  meuClube=lista[0]; // um só clube por agora — escolher entre vários fica para quando for preciso
+  await carregarEquipas();
+}
+async function carregarEquipas(){
+  const {data:r}=await supa.rpc('ytb_clube_equipas_listar',{p_clube_id:meuClube.clube_id});
+  minhasEquipas=(r&&r.ok&&r.lista)||[];
+  if(!equipaAtiva && minhasEquipas.length) equipaAtiva=minhasEquipas[0];
+  pintarEquipas();
+  montarTabsTopo();
+  if(equipaAtiva){ await Promise.all([carregarPlantel(), carregarJogos(), carregarAtletasDoClube()]); }
+}
+function pintarEquipas(){
+  const box=document.getElementById('sec-equipas');
+  var html='<div class="card"><div class="h">'+esc(meuClube.nome)+' <span>· '+esc(meuClube.papel)+'</span></div>';
+  html += minhasEquipas.length ? '' : '<div class="s">Ainda sem equipas. Cria a primeira abaixo.</div>';
+  html += '</div>';
+  if(minhasEquipas.length){
+    html += '<div class="card"><div class="label">Equipas</div>';
+    html += minhasEquipas.map(function(e){
+      return '<div class="chip'+(equipaAtiva&&equipaAtiva.id===e.id?' on':'')+'" onclick="selecionarEquipa(\''+e.id+'\')">'+esc(e.nome)+' · '+esc(e.epoca)+' <span style="opacity:.6">('+e.n_plantel+')</span></div>';
+    }).join('');
+    html += '</div>';
+  }
+  if(['admin','secretaria','team_manager'].indexOf(meuClube.papel)>=0){
+    html += '<div class="card"><div class="h">Criar <span>equipa</span></div>'
+      +'<label class="label">Nome</label><input class="input" id="eq-nome" placeholder="Ex: Sub-13">'
+      +'<label class="label">Época</label><input class="input" id="eq-epoca" placeholder="Ex: 2026/27" value="2026/27">'
+      +'<label class="label">Escalão</label><input class="input" id="eq-escalao" placeholder="Ex: Sub-13">'
+      +'<button class="btn" onclick="criarEquipa()">Criar equipa →</button></div>';
+  }
+  box.innerHTML=html;
+}
+window.selecionarEquipa=async function(id){
+  equipaAtiva=minhasEquipas.find(function(e){return e.id===id;});
+  pintarEquipas();
+  await Promise.all([carregarPlantel(), carregarJogos()]);
+};
+window.criarEquipa=async function(){
+  var nome=(document.getElementById('eq-nome').value||'').trim();
+  var epoca=(document.getElementById('eq-epoca').value||'').trim();
+  var escalao=(document.getElementById('eq-escalao').value||'').trim()||null;
+  if(!nome||!epoca){ toast('Falta o nome ou a época'); return; }
+  const {data:r}=await supa.rpc('ytb_clube_equipa_criar',{p_clube_id:meuClube.clube_id,p_nome:nome,p_epoca:epoca,p_escalao:escalao});
+  if(!r||!r.ok){ toast('⚠ Não foi possível: '+((r&&r.motivo)||'erro')); return; }
+  toast('✓ Equipa criada'); await carregarEquipas();
+};
+
+/* ══════ PLANTEL ══════ */
+async function carregarAtletasDoClube(){
+  const {data:r}=await supa.rpc('ytb_clube_atletas_listar',{p_clube_id:meuClube.clube_id});
+  atletasDoClube=(r&&r.ok&&r.lista)||[];
+}
+async function carregarPlantel(){
+  if(!equipaAtiva) return;
+  const {data:r}=await supa.rpc('ytb_clube_plantel_listar',{p_equipa_id:equipaAtiva.id});
+  plantelDaEquipa=(r&&r.ok&&r.lista)||[];
+  pintarPlantel();
+}
+function pintarPlantel(){
+  const box=document.getElementById('sec-plantel');
+  if(!equipaAtiva){ box.innerHTML='<div class="card"><div class="s">Escolhe uma equipa na aba Equipas primeiro.</div></div>'; return; }
+  var html='<div class="card"><div class="h">Plantel <span>'+esc(equipaAtiva.nome)+'</span></div>';
+  html += plantelDaEquipa.length ? plantelDaEquipa.map(function(p){
+    return '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span>'+(p.numero?'<b style="color:var(--gold)">#'+p.numero+'</b> ':'')+esc(p.nome)+'</span><span style="color:var(--muted);font-size:12px">'+esc(p.posicao||'')+'</span></div>';
+  }).join('') : '<div class="s">Ainda sem atletas nesta equipa.</div>';
+  html += '</div>';
+  var jaNoPlantel={}; plantelDaEquipa.forEach(function(p){jaNoPlantel[p.atleta_id]=true;});
+  var disponiveis=atletasDoClube.filter(function(a){return !jaNoPlantel[a.id];});
+  if(disponiveis.length && ['admin','secretaria','team_manager'].indexOf(meuClube.papel)>=0){
+    html += '<div class="card"><div class="h">Adicionar <span>atleta</span></div>'
+      +'<label class="label">Atleta</label><select class="input" id="pl-atleta">'
+      +disponiveis.map(function(a){return '<option value="'+a.id+'">'+esc(a.nome)+' ('+esc(a.escalao||'')+')</option>';}).join('')
+      +'</select>'
+      +'<label class="label">Número <span style="font-weight:400;color:var(--muted)">(opcional)</span></label><input class="input" id="pl-numero" type="number" min="1" max="99">'
+      +'<label class="label">Posição <span style="font-weight:400;color:var(--muted)">(opcional)</span></label><input class="input" id="pl-posicao" placeholder="Ex: Médio">'
+      +'<button class="btn" onclick="adicionarAoPlantel()">Adicionar ao plantel →</button></div>';
+  }
+  box.innerHTML=html;
+}
+window.adicionarAoPlantel=async function(){
+  var atletaId=document.getElementById('pl-atleta').value;
+  var numero=document.getElementById('pl-numero').value||null;
+  var posicao=(document.getElementById('pl-posicao').value||'').trim()||null;
+  const {data:r}=await supa.rpc('ytb_clube_plantel_adicionar',{p_equipa_id:equipaAtiva.id,p_atleta_id:atletaId,p_numero:numero,p_posicao:posicao});
+  if(!r||!r.ok){ toast('⚠ Não foi possível: '+((r&&r.motivo)||'erro')); return; }
+  toast('✓ Adicionado ao plantel'); await carregarEquipas(); await carregarPlantel();
+};
+
+/* ══════ JOGOS E CONVOCATÓRIAS ══════ */
+async function carregarJogos(){
+  if(!equipaAtiva) return;
+  const {data:r}=await supa.rpc('ytb_clube_jogos_listar',{p_equipa_id:equipaAtiva.id});
+  jogosDaEquipa=(r&&r.ok&&r.lista)||[];
+  pintarJogos();
+}
+function pintarJogos(){
+  const box=document.getElementById('sec-jogos');
+  if(!equipaAtiva){ box.innerHTML='<div class="card"><div class="s">Escolhe uma equipa na aba Equipas primeiro.</div></div>'; return; }
+  var html='<div class="card"><div class="h">Jogos <span>'+esc(equipaAtiva.nome)+'</span></div>';
+  html += jogosDaEquipa.length ? jogosDaEquipa.map(function(j){
+    return '<div style="padding:10px 0;border-bottom:1px solid var(--border)">'
+      +'<div style="font-weight:800">'+esc(j.adversario||'Adversário')+'</div>'
+      +'<div class="s" style="margin:2px 0">'+(j.data_jogo?esc(j.data_jogo):'sem data')+(j.casa_fora?(' · '+(j.casa_fora==='casa'?'em casa':'fora')):'')+(j.resultado?(' · '+esc(j.resultado)):'')+'</div>'
+      +(j.convocatoria_id
+        ? '<button class="btn btn-sec" style="margin-top:4px" onclick="verConvocatoria(\''+j.convocatoria_id+'\')">Ver convocatória →</button>'
+        : '<button class="btn btn-sec" style="margin-top:4px" onclick="abrirCriarConvocatoria(\''+j.id+'\')">Convocar →</button>')
+      +'</div>';
+  }).join('') : '<div class="s">Ainda sem jogos.</div>';
+  html += '</div>';
+  if(['admin','secretaria','team_manager','treinador'].indexOf(meuClube.papel)>=0){
+    html += '<div class="card"><div class="h">Criar <span>jogo</span></div>'
+      +'<label class="label">Adversário</label><input class="input" id="jg-adversario" placeholder="Ex: Rio Tinto">'
+      +'<label class="label">Data</label><input class="input" id="jg-data" type="date">'
+      +'<label class="label">Competição <span style="font-weight:400;color:var(--muted)">(opcional)</span></label><input class="input" id="jg-competicao" placeholder="Ex: Distrital">'
+      +'<div class="chips" id="jg-casa-fora" style="display:flex;margin-bottom:10px"><button class="chip on" data-v="casa" onclick="chipCasaFora(this)">Em casa</button><button class="chip" data-v="fora" onclick="chipCasaFora(this)">Fora</button></div>'
+      +'<button class="btn" onclick="criarJogo()">Criar jogo →</button></div>';
+  }
+  html += '<div id="convocatoria-area"></div>';
+  box.innerHTML=html;
+}
+window.chipCasaFora=function(btn){
+  document.querySelectorAll('#jg-casa-fora .chip').forEach(function(b){b.classList.toggle('on',b===btn);});
+};
+window.criarJogo=async function(){
+  var adversario=(document.getElementById('jg-adversario').value||'').trim();
+  var data=document.getElementById('jg-data').value||null;
+  var competicao=(document.getElementById('jg-competicao').value||'').trim()||null;
+  var casaFora=(document.querySelector('#jg-casa-fora .chip.on')||{}).dataset ? document.querySelector('#jg-casa-fora .chip.on').getAttribute('data-v') : 'casa';
+  if(!adversario){ toast('Falta o adversário'); return; }
+  const {data:r}=await supa.rpc('ytb_clube_jogo_criar',{p_equipa_id:equipaAtiva.id,p_adversario:adversario,p_data:data,p_competicao:competicao,p_casa_fora:casaFora});
+  if(!r||!r.ok){ toast('⚠ Não foi possível: '+((r&&r.motivo)||'erro')); return; }
+  toast('✓ Jogo criado'); await carregarJogos();
+};
+window.abrirCriarConvocatoria=function(jogoId){
+  var area=document.getElementById('convocatoria-area');
+  if(!plantelDaEquipa.length){ toast('A equipa ainda não tem plantel'); return; }
+  area.innerHTML='<div class="card"><div class="h">Convocar <span>plantel</span></div>'
+    +'<div id="conv-checks">'+plantelDaEquipa.map(function(p){
+      return '<label style="display:flex;align-items:center;gap:8px;padding:6px 0"><input type="checkbox" checked value="'+p.atleta_id+'"> '+(p.numero?'#'+p.numero+' ':'')+esc(p.nome)+'</label>';
+    }).join('')+'</div>'
+    +'<button class="btn" onclick="confirmarConvocatoria(\''+jogoId+'\')">Confirmar convocatória →</button></div>';
+  area.scrollIntoView({behavior:'smooth'});
+};
+window.confirmarConvocatoria=async function(jogoId){
+  var ids=Array.prototype.slice.call(document.querySelectorAll('#conv-checks input:checked')).map(function(i){return i.value;});
+  if(!ids.length){ toast('Escolhe pelo menos um atleta'); return; }
+  const {data:r}=await supa.rpc('ytb_clube_convocatoria_criar',{p_jogo_id:jogoId,p_atletas:ids});
+  if(!r||!r.ok){ toast('⚠ Não foi possível: '+((r&&r.motivo)||'erro')); return; }
+  toast('✓ Convocatória criada — a família já pode responder no Passaporte');
+  document.getElementById('convocatoria-area').innerHTML='';
+  await carregarJogos();
+};
+window.verConvocatoria=async function(convId){
+  const {data:r}=await supa.rpc('ytb_clube_convocatoria_estado',{p_convocatoria_id:convId});
+  var area=document.getElementById('convocatoria-area');
+  if(!r||!r.ok){ area.innerHTML='<div class="card"><div class="s">⚠ Não foi possível carregar.</div></div>'; return; }
+  var lista=r.lista||[];
+  var rotulo={convocado:['A aguardar','pill-laranja'],pendente:['A aguardar','pill-laranja'],aceite:['Confirmado','pill-verde'],recusado:['Não vai','pill-vermelho']};
+  area.innerHTML='<div class="card"><div class="h">Estado da <span>convocatória</span></div>'
+    +lista.map(function(x){
+      var r2=rotulo[x.resposta]||['—','pill-laranja'];
+      return '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span>'+esc(x.nome)+'</span><span class="pill '+r2[1]+'">'+r2[0]+'</span></div>';
+    }).join('')+'</div>';
+  area.scrollIntoView({behavior:'smooth'});
+};
+
+/* ══════ NAVEGAÇÃO ══════ */
+var TABS=[['equipas','Equipas'],['plantel','Plantel'],['jogos','Jogos']];
+function montarTabsTopo(){
+  document.getElementById('tabs-topo').innerHTML=TABS.map(function(t,i){
+    return '<button class="tab'+(i===0?' on':'')+'" data-t="'+t[0]+'" onclick="tab(\''+t[0]+'\')">'+t[1]+'</button>';
+  }).join('');
+}
+window.tab=function(t){
+  document.querySelectorAll('.tab').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-t')===t);});
+  document.querySelectorAll('.sec').forEach(function(s){s.classList.toggle('on',s.id==='sec-'+t);});
+};
+verificarSessao();
+</script></body>
+</html>
