@@ -212,18 +212,28 @@ async function carregarJogos(){
 function pintarJogos(){
   const box=document.getElementById('sec-jogos');
   if(!equipaAtiva){ box.innerHTML='<div class="card"><div class="s">Escolhe uma equipa na aba Equipas primeiro.</div></div>'; return; }
+  var hoje=new Date().toISOString().slice(0,10);
+  var podeGerir=['admin','secretaria','team_manager','treinador'].indexOf(meuClube.papel)>=0;
   var html='<div class="card"><div class="h">Jogos <span>'+esc(equipaAtiva.nome)+'</span></div>';
   html += jogosDaEquipa.length ? jogosDaEquipa.map(function(j){
+    var jaPassou = j.data_jogo && j.data_jogo < hoje;
     return '<div style="padding:10px 0;border-bottom:1px solid var(--border)">'
       +'<div style="font-weight:800">'+esc(j.adversario||'Adversário')+'</div>'
-      +'<div class="s" style="margin:2px 0">'+(j.data_jogo?esc(j.data_jogo):'sem data')+(j.casa_fora?(' · '+(j.casa_fora==='casa'?'em casa':'fora')):'')+(j.resultado?(' · '+esc(j.resultado)):'')+'</div>'
+      +'<div class="s" style="margin:2px 0">'+(j.data_jogo?esc(j.data_jogo):'sem data')+(j.casa_fora?(' · '+(j.casa_fora==='casa'?'em casa':'fora')):'')
+      +(j.resultado?(' · <b style="color:var(--white)">'+esc(j.resultado)+'</b>'):'')+'</div>'
+      +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">'
       +(j.convocatoria_id
-        ? '<button class="btn btn-sec" style="margin-top:4px" onclick="verConvocatoria(\''+j.convocatoria_id+'\')">Ver convocatória →</button>'
-        : '<button class="btn btn-sec" style="margin-top:4px" onclick="abrirCriarConvocatoria(\''+j.id+'\')">Convocar →</button>')
+        ? '<button class="btn btn-sec" style="flex:1;min-width:140px" onclick="verConvocatoria(\''+j.convocatoria_id+'\')">Ver convocatória →</button>'
+        : '<button class="btn btn-sec" style="flex:1;min-width:140px" onclick="abrirCriarConvocatoria(\''+j.id+'\')">Convocar →</button>')
+      +(podeGerir && jaPassou
+        ? '<button class="btn btn-sec" style="flex:1;min-width:140px" onclick="abrirRegistarResultado(\''+j.id+'\',\''+esc(j.resultado||'')+'\')">'+(j.resultado?'Corrigir resultado':'Registar resultado')+' →</button>'
+        : '')
+      +'</div>'
+      +'<div id="resultado-form-'+j.id+'"></div>'
       +'</div>';
   }).join('') : '<div class="s">Ainda sem jogos.</div>';
   html += '</div>';
-  if(['admin','secretaria','team_manager','treinador'].indexOf(meuClube.papel)>=0){
+  if(podeGerir){
     html += '<div class="card"><div class="h">Criar <span>jogo</span></div>'
       +'<label class="label">Adversário</label><input class="input" id="jg-adversario" placeholder="Ex: Rio Tinto">'
       +'<label class="label">Data</label><input class="input" id="jg-data" type="date">'
@@ -278,6 +288,19 @@ window.verConvocatoria=async function(convId){
       return '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span>'+esc(x.nome)+'</span><span class="pill '+r2[1]+'">'+r2[0]+'</span></div>';
     }).join('')+'</div>';
   area.scrollIntoView({behavior:'smooth'});
+};
+
+window.abrirRegistarResultado=function(jogoId, resultadoAtual){
+  var area=document.getElementById('resultado-form-'+jogoId);
+  area.innerHTML='<div style="display:flex;gap:8px;margin-top:8px">'
+    +'<input class="input" id="rj-input-'+jogoId+'" placeholder="Ex: 3-1" value="'+esc(resultadoAtual)+'" style="margin-bottom:0">'
+    +'<button class="btn" style="width:auto;padding:0 16px" onclick="confirmarResultado(\''+jogoId+'\')">✓</button></div>';
+};
+window.confirmarResultado=async function(jogoId){
+  var resultado=(document.getElementById('rj-input-'+jogoId).value||'').trim();
+  const {data:r}=await supa.rpc('ytb_clube_jogo_resultado',{p_jogo_id:jogoId,p_resultado:resultado});
+  if(!r||!r.ok){ toast('⚠ Não foi possível: '+((r&&r.motivo)||'erro')); return; }
+  toast('✓ Resultado guardado'); await carregarJogos();
 };
 
 /* ══════ MEMBROS (só admin do clube) ══════ */

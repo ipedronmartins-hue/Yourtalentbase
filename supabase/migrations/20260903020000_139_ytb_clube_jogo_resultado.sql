@@ -1,0 +1,2 @@
+-- 139: registar/corrigir o resultado de um jogo do clube. Corpo
+-- integral no histórico Supabase (139).
