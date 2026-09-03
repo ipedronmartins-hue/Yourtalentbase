@@ -388,6 +388,33 @@
       +(quais.length?('<br>Baseada em: '+esc(quais.join(' · '))):'<br>Sem contexto competitivo preenchido — por isso diz o que diz.')
       +'</div></div>';
   }
+  function carregarConvocatoriasPendentes(atletaId){
+    var area=document.getElementById('convocatoria-pendente-area');
+    if(!area || !atletaId) return;
+    supa.rpc('ytb_familia_convocatorias_pendentes',{p_atleta:atletaId}).then(function(res){
+      var d=res&&res.data;
+      if(res.error || !d || !d.ok || !d.lista || !d.lista.length){ area.innerHTML=''; return; }
+      area.innerHTML=d.lista.map(function(c){
+        var dt=c.data_jogo?new Date(c.data_jogo+'T12:00').toLocaleDateString('pt-PT',{weekday:'long',day:'numeric',month:'long'}):'';
+        return '<div class="panel" style="border-color:var(--gold-border);background:var(--gold-soft);margin-bottom:14px">'
+          +'<div class="hd"><h3>🏟️ Convocado</h3><span class="badge">'+esc(c.equipa_nome||'')+'</span></div>'
+          +'<div class="sub" style="color:var(--white);font-weight:600">'+esc(c.adversario||'Adversário')+(c.casa_fora?(' · '+(c.casa_fora==='casa'?'em casa':'fora')):'')+(dt?(' · '+dt):'')+'</div>'
+          +'<div style="display:flex;gap:8px;margin-top:10px">'
+          +'<button class="fam-btn" style="flex:1;background:var(--up);color:#04150c" onclick="window.__responderConvocatoria(\''+c.convocatoria_id+'\',\''+atletaId+'\',\'aceite\',this)">✓ Vou</button>'
+          +'<button class="fam-btn" style="flex:1;background:var(--bg3);color:var(--slate)" onclick="window.__responderConvocatoria(\''+c.convocatoria_id+'\',\''+atletaId+'\',\'recusado\',this)">Não vou</button>'
+          +'</div></div>';
+      }).join('');
+    }).catch(function(){ area.innerHTML=''; });
+  }
+  window.__responderConvocatoria=function(convId, atletaId, resposta, btn){
+    var cartao=btn.closest('.panel');
+    supa.rpc('ytb_familia_convocatoria_responder',{p_convocatoria_id:convId,p_atleta_id:atletaId,p_resposta:resposta}).then(function(res){
+      var d=res&&res.data;
+      if(res.error || !d || !d.ok){ toast('⚠ Não foi possível responder'); return; }
+      toast(resposta==='aceite' ? '✓ Confirmado — o treinador já vê a tua resposta' : 'Registado — o treinador já vê a tua resposta');
+      if(cartao) cartao.remove();
+    }).catch(function(){ toast('⚠ Sem ligação — tenta outra vez'); });
+  };
   function carregarSemanaFogo(atletaId){
     var area=document.getElementById('semana-fogo-area');
     if(!area || !atletaId) return;
@@ -462,7 +489,8 @@
 
   function render(d){
     var id=d.identidade, ind=d.indicadores;
-    var html='<section id="grupo-filho" class="fam-group"><div class="fam-group-head"><span class="eyebrow">Eu</span><h2>Como estou</h2><p class="fam-lede">O que já sei sobre mim, resumido — a evidência completa fica no Passaporte.</p></div>';
+    var html='<div id="convocatoria-pendente-area"></div>';
+    html+='<section id="grupo-filho" class="fam-group"><div class="fam-group-head"><span class="eyebrow">Eu</span><h2>Como estou</h2><p class="fam-lede">O que já sei sobre mim, resumido — a evidência completa fica no Passaporte.</p></div>';
     // identidade + curva
     html+='<div class="pcard"><div class="head">'+
       '<div class="photo">'+(id.foto?'<div class="pp" style="background-image:url('+esc(id.foto)+')"></div>':'')+'</div>'+
@@ -2080,7 +2108,7 @@
     supa.rpc('ytb_passaporte_admin',{ p_atleta: adminAtleta }).then(function(res){
       if(res.error){ adminErro('Só administradores podem abrir passaportes por aqui.'); return; }
       if(!res.data){ adminErro('Sem acesso, ou este atleta não existe.'); return; }
-      try{ var nm=(res.data.identidade&&res.data.identidade.nome)||'atleta'; show(mapFromRPC(res.data)); adminBanner(nm); carregarTreino(adminAtleta); carregarSemanaFogo(adminAtleta); }
+      try{ var nm=(res.data.identidade&&res.data.identidade.nome)||'atleta'; show(mapFromRPC(res.data)); adminBanner(nm); carregarTreino(adminAtleta); carregarSemanaFogo(adminAtleta); carregarConvocatoriasPendentes(adminAtleta); }
       catch(e){ adminErro('Não foi possível ler o passaporte deste atleta.'); }
     }).catch(function(){ adminErro('Falha de ligação. Tenta novamente.'); });
   } else if(USING_SB && scoutAtleta){
@@ -2088,7 +2116,7 @@
     supa.rpc('ytb_passaporte_scout',{ p_atleta: scoutAtleta }).then(function(res){
       if(res.error){ adminErro('Só scouts podem abrir passaportes por aqui.'); return; }
       if(!res.data){ adminErro('Sem acesso, ou este atleta não existe, ou não foi criado por ti.'); return; }
-      try{ var nm=(res.data.identidade&&res.data.identidade.nome)||'atleta'; show(mapFromRPC(res.data)); scoutBanner(nm, scoutAtleta); carregarSemanaFogo(scoutAtleta); }
+      try{ var nm=(res.data.identidade&&res.data.identidade.nome)||'atleta'; show(mapFromRPC(res.data)); scoutBanner(nm, scoutAtleta); carregarSemanaFogo(scoutAtleta); carregarConvocatoriasPendentes(scoutAtleta); }
       catch(e){ adminErro('Não foi possível ler o passaporte deste atleta.'); }
     }).catch(function(){ adminErro('Falha de ligação. Tenta novamente.'); });
   } else if(USING_SB && clubeAtleta){
@@ -2096,7 +2124,7 @@
     supa.rpc('ytb_passaporte_clube',{ p_atleta: clubeAtleta }).then(function(res){
       if(res.error){ adminErro('Só clubes podem abrir passaportes por aqui.'); return; }
       if(!res.data){ adminErro('Sem acesso, ou este atleta não existe, ou não é da tua organização.'); return; }
-      try{ var nm=(res.data.identidade&&res.data.identidade.nome)||'atleta'; show(mapFromRPC(res.data)); clubeBanner(nm); carregarSemanaFogo(clubeAtleta); }
+      try{ var nm=(res.data.identidade&&res.data.identidade.nome)||'atleta'; show(mapFromRPC(res.data)); clubeBanner(nm); carregarSemanaFogo(clubeAtleta); carregarConvocatoriasPendentes(clubeAtleta); }
       catch(e){ adminErro('Não foi possível ler o passaporte deste atleta.'); }
     }).catch(function(){ adminErro('Falha de ligação. Tenta novamente.'); });
   } else if(USING_SB && treinadorAtleta){
@@ -2104,7 +2132,7 @@
     supa.rpc('ytb_passaporte_treinador',{ p_atleta: treinadorAtleta }).then(function(res){
       if(res.error){ adminErro('Só treinadores podem abrir passaportes por aqui.'); return; }
       if(!res.data){ adminErro('Sem acesso — entra primeiro no painel do treinador, ou este atleta não é teu.'); return; }
-      try{ var nm=(res.data.identidade&&res.data.identidade.nome)||'atleta'; show(mapFromRPC(res.data)); treinadorBanner(nm); carregarTreino(treinadorAtleta); carregarSemanaFogo(treinadorAtleta); }
+      try{ var nm=(res.data.identidade&&res.data.identidade.nome)||'atleta'; show(mapFromRPC(res.data)); treinadorBanner(nm); carregarTreino(treinadorAtleta); carregarSemanaFogo(treinadorAtleta); carregarConvocatoriasPendentes(treinadorAtleta); }
       catch(e){ adminErro('Não foi possível ler o passaporte deste atleta.'); }
     }).catch(function(){ adminErro('Falha de ligação. Tenta novamente.'); });
   } else if(USING_SB && familiaAtleta){
@@ -2116,7 +2144,7 @@
         show(mapFromRPC(res.data));
         carregarFamiliaExtras(familiaAtleta);
         carregarTreino(familiaAtleta);
-        carregarSemanaFogo(familiaAtleta);
+        carregarSemanaFogo(familiaAtleta); carregarConvocatoriasPendentes(familiaAtleta);
         carregarPrivacidade(familiaAtleta);
         carregarMentoria(familiaAtleta);
       }catch(e){

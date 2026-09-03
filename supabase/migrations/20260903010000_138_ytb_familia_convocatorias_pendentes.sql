@@ -1,0 +1,3 @@
+-- 138: listar convocatorias pendentes de um atleta para a familia
+-- responder no Passaporte. Corpo integral no historico Supabase
+-- (138).
