@@ -1,0 +1,4 @@
+-- 134: corrige erro real (meu) -- o tempo de jogo so aumentava o
+-- exigido, nunca contava para o conseguido. Quanto mais tempo de
+-- jogo, mais dificil ficava bater o alvo semanal. Corpo integral no
+-- historico Supabase (134).
