@@ -66,7 +66,7 @@ body{max-width:560px;margin:0 auto;padding-bottom:60px}
     <div class="sec on" id="sec-equipas"></div>
     <div class="sec" id="sec-plantel"></div>
     <div class="sec" id="sec-jogos"></div>
-    <div class="sec" id="sec-convocatorias"></div>
+    <div class="sec" id="sec-membros"></div>
   </div>
 </div>
 <div class="toast" id="toast"></div>
@@ -280,16 +280,65 @@ window.verConvocatoria=async function(convId){
   area.scrollIntoView({behavior:'smooth'});
 };
 
+/* ══════ MEMBROS (só admin do clube) ══════ */
+var PAPEIS_CLUBE=[['admin','Admin'],['secretaria','Secretaria'],['team_manager','Team Manager'],['treinador','Treinador'],['scout','Scout']];
+var membrosDoClube=[];
+async function carregarMembros(){
+  const {data:r}=await supa.rpc('ytb_clube_membros_listar',{p_clube_id:meuClube.clube_id});
+  membrosDoClube=(r&&r.ok&&r.lista)||[];
+  pintarMembros();
+}
+function pintarMembros(){
+  const box=document.getElementById('sec-membros');
+  var html='<div class="card"><div class="h">Membros <span>do clube</span></div>';
+  html += membrosDoClube.length ? membrosDoClube.map(function(m){
+    var rotulo=(PAPEIS_CLUBE.find(function(p){return p[0]===m.papel;})||[,m.papel])[1];
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">'
+      +'<span>'+esc(m.email)+(m.equipa_nome?(' <span style="color:var(--muted);font-size:12px">· '+esc(m.equipa_nome)+'</span>'):'')+'</span>'
+      +'<span style="display:flex;align-items:center;gap:8px"><span class="pill pill-verde">'+esc(rotulo)+'</span>'
+      +'<button style="background:none;border:none;color:var(--red);cursor:pointer;font-size:16px" onclick="removerMembro(\''+esc(m.email)+'\',\''+m.papel+'\')" title="Remover">✕</button></span>'
+      +'</div>';
+  }).join('') : '<div class="s">Ainda sem outros membros — és o único a gerir este clube.</div>';
+  html += '</div>';
+  html += '<div class="card"><div class="h">Adicionar <span>membro</span></div>'
+    +'<label class="label">Email</label><input class="input" id="mb-email" type="email" placeholder="email@exemplo.com">'
+    +'<label class="label">Papel</label><select class="input" id="mb-papel">'
+    +PAPEIS_CLUBE.map(function(p){return '<option value="'+p[0]+'">'+p[1]+'</option>';}).join('')
+    +'</select>'
+    +'<div class="s">Não precisa de ter conta ainda — o papel fica reservado a este email assim que entrar na YTB.</div>'
+    +'<button class="btn" onclick="adicionarMembro()">Adicionar →</button></div>';
+  box.innerHTML=html;
+}
+window.adicionarMembro=async function(){
+  var email=(document.getElementById('mb-email').value||'').trim();
+  var papel=document.getElementById('mb-papel').value;
+  if(!email){ toast('Falta o email'); return; }
+  const {data:r}=await supa.rpc('ytb_clube_membro_adicionar',{p_clube_id:meuClube.clube_id,p_email:email,p_papel:papel});
+  if(!r||!r.ok){ toast('⚠ Não foi possível: '+((r&&r.motivo)||'erro')); return; }
+  toast('✓ Membro adicionado'); document.getElementById('mb-email').value=''; await carregarMembros();
+};
+window.removerMembro=async function(email,papel){
+  const {data:r}=await supa.rpc('ytb_clube_membro_remover',{p_clube_id:meuClube.clube_id,p_email:email,p_papel:papel});
+  if(!r||!r.ok){
+    var motivo=(r&&r.motivo)==='ultimo_admin' ? 'não podes remover o último admin — adiciona outro primeiro' : ((r&&r.motivo)||'erro');
+    toast('⚠ '+motivo); return;
+  }
+  toast('✓ Removido'); await carregarMembros();
+};
+
 /* ══════ NAVEGAÇÃO ══════ */
 var TABS=[['equipas','Equipas'],['plantel','Plantel'],['jogos','Jogos']];
 function montarTabsTopo(){
-  document.getElementById('tabs-topo').innerHTML=TABS.map(function(t,i){
+  var tabs=TABS.slice();
+  if(meuClube && meuClube.papel==='admin') tabs.push(['membros','Membros']);
+  document.getElementById('tabs-topo').innerHTML=tabs.map(function(t,i){
     return '<button class="tab'+(i===0?' on':'')+'" data-t="'+t[0]+'" onclick="tab(\''+t[0]+'\')">'+t[1]+'</button>';
   }).join('');
 }
 window.tab=function(t){
   document.querySelectorAll('.tab').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-t')===t);});
   document.querySelectorAll('.sec').forEach(function(s){s.classList.toggle('on',s.id==='sec-'+t);});
+  if(t==='membros') carregarMembros();
 };
 verificarSessao();
 </script></body>

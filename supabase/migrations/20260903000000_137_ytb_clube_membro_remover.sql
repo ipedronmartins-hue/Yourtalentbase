@@ -1,0 +1,2 @@
+-- 137: remover um membro do clube, com proteção contra remover o
+-- último admin. Corpo integral no histórico Supabase (137).
