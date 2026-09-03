@@ -388,6 +388,48 @@
       +(quais.length?('<br>Baseada em: '+esc(quais.join(' · '))):'<br>Sem contexto competitivo preenchido — por isso diz o que diz.')
       +'</div></div>';
   }
+  function carregarSemanaFogo(atletaId){
+    var area=document.getElementById('semana-fogo-area');
+    if(!area || !atletaId) return;
+    supa.rpc('ytb_treinador_semana_atleta',{p_atleta:atletaId}).then(function(res){
+      var d=res&&res.data;
+      if(res.error || !d || !d.ok){
+        // sem dados suficientes (ou sem acesso) — não deixa "Esta semana" pendurado sem conteúdo
+        var shead=area.previousElementSibling;
+        if(shead && shead.classList && shead.classList.contains('shead')) shead.style.display='none';
+        area.style.display='none';
+        return;
+      }
+      area.innerHTML=semanaFogoHTML(d);
+    }).catch(function(){
+      var shead=area.previousElementSibling;
+      if(shead && shead.classList && shead.classList.contains('shead')) shead.style.display='none';
+      area.style.display='none';
+    });
+  }
+  function semanaFogoHTML(sem){
+    var pct=Math.max(0,Math.min(100,sem.percentagem||0));
+    var cheia=pct>=100;
+    var horas=(sem.minutos_treino/60).toFixed(1).replace('.0','').replace('.',',');
+    var tetoHoras=(sem.teto_minutos/60).toFixed(1).replace('.0','').replace('.',',');
+    var corBarra=cheia?'linear-gradient(90deg,#FF6B35,#FFB627)':'linear-gradient(90deg,#E05050,#FF6B35)';
+    var alvoMissoes=2, minPorMissao=15;
+    var faltamMissoes=Math.max(0, alvoMissoes-(sem.missoes_esta_semana||0));
+    var pctComMissoes = faltamMissoes>0
+      ? Math.max(0,Math.min(100, Math.round(100*(sem.minutos_treino+faltamMissoes*minPorMissao)/Math.max(sem.teto_minutos,1))))
+      : pct;
+    return '<div class="panel">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">'+
+        '<div style="font-size:var(--fs-corpo);font-weight:800">'+(cheia?'🔥 ':'')+horas+'h de '+tetoHoras+'h</div>'+
+        (sem.streak_semanas>0?'<div style="font-size:var(--fs-legenda);font-weight:800;color:#FF6B35">🔥 '+sem.streak_semanas+' semana'+(sem.streak_semanas===1?'':'s')+' seguida'+(sem.streak_semanas===1?'':'s')+'</div>':'')+
+      '</div>'+
+      '<div class="barx" style="margin-top:10px;height:14px"><i style="width:'+pct+'%;background:'+corBarra+'"></i></div>'+
+      '<div class="sub" style="margin:8px 0 0">Clube, jogo ou treino por tua conta — tudo conta. Reinicia à segunda-feira.</div>'+
+      (faltamMissoes>0
+        ? '<div class="sub" style="margin:8px 0 0;color:var(--muted)">'+sem.missoes_esta_semana+' de '+alvoMissoes+' missões esta semana — se cumprires as que faltam, chegas a '+pctComMissoes+'%.</div>'
+        : (sem.missoes_esta_semana>0?'<div class="sub" style="margin:8px 0 0;color:var(--up)">✓ missões da semana cumpridas</div>':''))+
+      '</div>';
+  }
   function devScoreHTML(ds){
     if(ds.estado==='em_pausa'){
       return '<div class="panel"><div style="font-size:var(--fs-corpo);font-weight:800;margin-bottom:6px">🏖️ Época em pausa</div><div class="sub" style="margin:0">Estamos em férias — o score não desce enquanto não há treinos. Quando a época recomeçar, o relógio volta a contar. As missões e o Elite Coach continuam disponíveis, e só podem somar.</div></div>';
@@ -398,7 +440,7 @@
     var tend={subiu:['↗ a subir','var(--up)'],estavel:['→ estável','var(--slate)'],desceu:['↘ a descer','var(--orange, #E8A33D)']}[ds.tendencia]||['',''];
     var c=ds.componentes||{};
     var linhas=[];
-    if(c.adesao) linhas.push(['Missões cumpridas', c.adesao.feitas+' de '+Math.round(c.adesao.esperadas), Math.round((c.adesao.ratio||0)*100)]);
+    if(c.volume) linhas.push(['Treino real', c.volume.semanas_no_teto+' de '+Math.round(c.volume.de)+' semanas', Math.round((c.volume.ratio||0)*100)]);
     if(c.consistencia) linhas.push(['Consistência', c.consistencia.semanas_ativas+' de '+Math.round(c.consistencia.de)+' semanas', Math.round((c.consistencia.ratio||0)*100)]);
     if(c.tendencia) linhas.push(['Avaliação do treinador', c.tendencia.de+' → '+c.tendencia.para, Math.round(((c.tendencia.delta+0.5)/1)*100)]);
     if(c.cognitivo) linhas.push(['Decisões certas', c.cognitivo.certos+' de '+c.cognitivo.total, Math.round(100*c.cognitivo.certos/Math.max(1,c.cognitivo.total))]);
@@ -411,7 +453,7 @@
         (ds.em_pausa?'<div style="font-size:var(--fs-legenda);font-weight:700;color:var(--slate);padding-bottom:14px">🏖️ férias — o relógio está parado, o score não desce</div>':'')+
       '</div>'+
       '<div class="barx" style="margin-top:12px"><i style="width:'+Math.max(0,Math.min(100,ds.score))+'%;background:var(--up)"></i></div>'+
-      '<div class="sub" style="margin:10px 0 0">Mede o teu desenvolvimento — não o teu talento. Compara-te só contigo próprio'+(desde?(', desde '+esc(desde)):'')+'. Sobe com missões cumpridas, consistência e a avaliação do treinador.</div>'+
+      '<div class="sub" style="margin:10px 0 0">Mede o teu desenvolvimento — não o teu talento. Compara-te só contigo próprio'+(desde?(', desde '+esc(desde)):'')+'. Sobe com treino real, consistência e a avaliação do treinador.</div>'+
       (linhas.length?('<div class="dna-grid" style="margin-top:14px">'+linhas.map(function(l){
         return '<div class="trait"><div class="tl"><span>'+esc(l[0])+'</span><b class="num" style="color:var(--text)">'+esc(l[1])+'</b></div><div class="barx"><i style="width:'+Math.max(0,Math.min(100,l[2]))+'%;background:var(--obs-bar)"></i></div></div>';
       }).join('')+'</div>'):'')+
@@ -495,6 +537,10 @@
       '</div>'+
       '<div class="dna-grid" style="margin-top:16px">'+cg.tipos.map(function(t){return '<div class="trait"><div class="tl"><span>'+esc(t[0])+'</span><b class="obs num">'+t[1]+'%</b></div><div class="barx"><i style="width:'+t[1]+'%;background:var(--obs-bar)"></i></div></div>';}).join('')+'</div>'+
       '</div>'; }
+    // Semana em fogo — o que está a acontecer AGORA, reinicia à segunda-feira.
+    // Contribui para o Development Score só quando a semana fechar (ao domingo).
+    // Carregado à parte (carregarSemanaFogo), não bloqueia o resto da página.
+    html+='<div class="shead">Esta semana</div><div id="semana-fogo-area"></div>';
     // Development Score — mede desenvolvimento, nunca talento; só contra o
     // próprio histórico (sem comparações entre atletas, por desenho)
     if(d.devScore){ html+='<div class="shead">Development Score</div>'+devScoreHTML(d.devScore); }
@@ -2034,7 +2080,7 @@
     supa.rpc('ytb_passaporte_admin',{ p_atleta: adminAtleta }).then(function(res){
       if(res.error){ adminErro('Só administradores podem abrir passaportes por aqui.'); return; }
       if(!res.data){ adminErro('Sem acesso, ou este atleta não existe.'); return; }
-      try{ var nm=(res.data.identidade&&res.data.identidade.nome)||'atleta'; show(mapFromRPC(res.data)); adminBanner(nm); carregarTreino(adminAtleta); }
+      try{ var nm=(res.data.identidade&&res.data.identidade.nome)||'atleta'; show(mapFromRPC(res.data)); adminBanner(nm); carregarTreino(adminAtleta); carregarSemanaFogo(adminAtleta); }
       catch(e){ adminErro('Não foi possível ler o passaporte deste atleta.'); }
     }).catch(function(){ adminErro('Falha de ligação. Tenta novamente.'); });
   } else if(USING_SB && scoutAtleta){
@@ -2042,7 +2088,7 @@
     supa.rpc('ytb_passaporte_scout',{ p_atleta: scoutAtleta }).then(function(res){
       if(res.error){ adminErro('Só scouts podem abrir passaportes por aqui.'); return; }
       if(!res.data){ adminErro('Sem acesso, ou este atleta não existe, ou não foi criado por ti.'); return; }
-      try{ var nm=(res.data.identidade&&res.data.identidade.nome)||'atleta'; show(mapFromRPC(res.data)); scoutBanner(nm, scoutAtleta); }
+      try{ var nm=(res.data.identidade&&res.data.identidade.nome)||'atleta'; show(mapFromRPC(res.data)); scoutBanner(nm, scoutAtleta); carregarSemanaFogo(scoutAtleta); }
       catch(e){ adminErro('Não foi possível ler o passaporte deste atleta.'); }
     }).catch(function(){ adminErro('Falha de ligação. Tenta novamente.'); });
   } else if(USING_SB && clubeAtleta){
@@ -2050,7 +2096,7 @@
     supa.rpc('ytb_passaporte_clube',{ p_atleta: clubeAtleta }).then(function(res){
       if(res.error){ adminErro('Só clubes podem abrir passaportes por aqui.'); return; }
       if(!res.data){ adminErro('Sem acesso, ou este atleta não existe, ou não é da tua organização.'); return; }
-      try{ var nm=(res.data.identidade&&res.data.identidade.nome)||'atleta'; show(mapFromRPC(res.data)); clubeBanner(nm); }
+      try{ var nm=(res.data.identidade&&res.data.identidade.nome)||'atleta'; show(mapFromRPC(res.data)); clubeBanner(nm); carregarSemanaFogo(clubeAtleta); }
       catch(e){ adminErro('Não foi possível ler o passaporte deste atleta.'); }
     }).catch(function(){ adminErro('Falha de ligação. Tenta novamente.'); });
   } else if(USING_SB && treinadorAtleta){
@@ -2058,7 +2104,7 @@
     supa.rpc('ytb_passaporte_treinador',{ p_atleta: treinadorAtleta }).then(function(res){
       if(res.error){ adminErro('Só treinadores podem abrir passaportes por aqui.'); return; }
       if(!res.data){ adminErro('Sem acesso — entra primeiro no painel do treinador, ou este atleta não é teu.'); return; }
-      try{ var nm=(res.data.identidade&&res.data.identidade.nome)||'atleta'; show(mapFromRPC(res.data)); treinadorBanner(nm); carregarTreino(treinadorAtleta); }
+      try{ var nm=(res.data.identidade&&res.data.identidade.nome)||'atleta'; show(mapFromRPC(res.data)); treinadorBanner(nm); carregarTreino(treinadorAtleta); carregarSemanaFogo(treinadorAtleta); }
       catch(e){ adminErro('Não foi possível ler o passaporte deste atleta.'); }
     }).catch(function(){ adminErro('Falha de ligação. Tenta novamente.'); });
   } else if(USING_SB && familiaAtleta){
@@ -2070,6 +2116,7 @@
         show(mapFromRPC(res.data));
         carregarFamiliaExtras(familiaAtleta);
         carregarTreino(familiaAtleta);
+        carregarSemanaFogo(familiaAtleta);
         carregarPrivacidade(familiaAtleta);
         carregarMentoria(familiaAtleta);
       }catch(e){
