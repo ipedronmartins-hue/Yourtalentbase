@@ -1,0 +1,4 @@
+-- 131: corrige bug real confirmado com evidencia (screenshot do
+-- Vasco) -- pausas descontadas so do denominador, nao do numerador,
+-- dando proporcoes impossiveis tipo "7 de 5". Corpo integral no
+-- historico Supabase (131).

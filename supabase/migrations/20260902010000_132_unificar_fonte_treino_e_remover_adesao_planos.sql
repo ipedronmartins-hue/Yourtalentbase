@@ -1,0 +1,4 @@
+-- 132: unifica a fonte de "treino executado" (familia_treinos em vez
+-- da copia via trigger em atleta_eventos) e remove "Adesao aos
+-- planos" do calculo -- nunca pode penalizar quem treina muito por
+-- iniciativa propria. Corpo integral no historico Supabase (132).
