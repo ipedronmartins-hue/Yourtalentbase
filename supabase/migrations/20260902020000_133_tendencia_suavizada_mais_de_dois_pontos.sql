@@ -1,0 +1,4 @@
+-- 133: suaviza a componente "Avaliacao do treinador" do Development
+-- Score -- primeira metade dos dias de avaliacao vs segunda metade,
+-- em vez de so o primeiro dia contra o ultimo. Corpo integral no
+-- historico Supabase (133).
