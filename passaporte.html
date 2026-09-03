@@ -1413,7 +1413,9 @@
     var repsEl=document.getElementById('di-reps');
     var reps=(repsEl && repsEl.value) ? parseInt(repsEl.value,10) : null;
     if(reps!=null && (isNaN(reps)||reps<1)) reps=null;
-    supa.rpc('ytb_diario_registar',{p_atleta:window.__famAtleta,p_atividade:diSel.tipo,p_minutos:diSel.min,p_nota:nota||null,p_categoria:(diSel.tipo==='livre'||diSel.tipo==='clube')?diSel.cat:null,p_repeticoes:reps}).then(function(res){
+    var dataEl=document.getElementById('di-data');
+    var dataEscolhida=(dataEl && dataEl.value) ? dataEl.value : null;
+    supa.rpc('ytb_diario_registar',{p_atleta:window.__famAtleta,p_atividade:diSel.tipo,p_minutos:diSel.min,p_nota:nota||null,p_categoria:(diSel.tipo==='livre'||diSel.tipo==='clube')?diSel.cat:null,p_repeticoes:reps,p_data:dataEscolhida}).then(function(res){
       var d=res&&res.data;
       if(!d||!d.ok){ toast('⚠ Não gravado ('+((d&&d.motivo)||'erro')+')'); return; }
       document.getElementById('di-nota').value='';
@@ -1483,8 +1485,11 @@
      sequência quebra — precisamente o retorno que a Regra de Ouro exige. */
   function renderDiario(){
     var box=document.getElementById('fam-diario'); if(!box) return;
+    var hojeLocal=(function(){var d=new Date();var mm=String(d.getMonth()+1).padStart(2,'0');var dd=String(d.getDate()).padStart(2,'0');return d.getFullYear()+'-'+mm+'-'+dd;})();
     box.innerHTML='<div class="shead">Diário de treinos</div><div class="panel" id="diario-card">'
-     +'<div class="sub" style="margin-bottom:10px">Treinaste hoje fora do plano? Jogo, treino do clube ou por tua conta — tudo conta para a sequência e fica no percurso.</div>'
+     +'<div class="sub" style="margin-bottom:10px">Treinaste fora do plano? Jogo, treino do clube ou por tua conta — tudo conta para a sequência e fica no percurso. Escolhe o dia se não foi hoje.</div>'
+     +'<label class="sub" style="display:block;margin:2px 0 4px;font-size:var(--fs-legenda)">Quando foi</label>'
+     +'<input class="fam-input" id="di-data" type="date" value="'+hojeLocal+'" max="'+hojeLocal+'" style="margin-bottom:10px">'
      +'<div class="fam-row" id="di-tipos">'+[['livre','⚽ Livre'],['jogo','🏟️ Jogo'],['clube','🏃 Clube']].map(function(o){return '<button class="fam-chip'+(o[0]==='livre'?' on':'')+'" data-tipo="'+o[0]+'" onclick="window.__diTipo(this)">'+o[1]+'</button>';}).join('')+'</div>'
      +'<div class="sub" id="di-cats-lbl" style="margin:2px 0 6px;font-size:var(--fs-legenda)">O que treinaste? (opcional)</div>'
      +'<div class="fam-row" id="di-cats">'+DI_CATS.map(function(o){return '<button class="fam-chip" data-cat="'+o[0]+'" onclick="window.__diCat(this)">'+o[1]+'</button>';}).join('')+'</div>'

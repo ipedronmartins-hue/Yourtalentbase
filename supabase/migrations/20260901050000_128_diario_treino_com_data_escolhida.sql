@@ -1,0 +1,3 @@
+-- 128: diario de treino ganha data opcional -- causa raiz do "fica
+-- sempre no dia a seguir" era falta de campo de data, nao fuso
+-- horario. Corpo integral no historico Supabase (128).
