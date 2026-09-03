@@ -1,0 +1,2 @@
+-- 129: barra semanal com teto de 4h30+jogo e streak de semanas
+-- consecutivas. Corpo integral no historico Supabase (129).

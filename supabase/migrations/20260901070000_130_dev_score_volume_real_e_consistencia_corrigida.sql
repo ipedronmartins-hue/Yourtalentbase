@@ -1,0 +1,3 @@
+-- 130: Development Score passa a contar volume real de treino (nao
+-- so missoes prescritas), e corrige o bug "6 de 4" na Consistencia.
+-- Corpo integral no historico Supabase (130).
