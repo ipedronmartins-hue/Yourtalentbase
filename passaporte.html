@@ -475,9 +475,9 @@
       '<i><span class="dot" style="background:var(--dec-bar2)"></span>declarado (família)</i>'+
       '<i><span class="dot" style="background:var(--gold)"></span>verificação · selo</i></div>';
     // DNA
-    html+='<div class="shead">DNA do Atleta</div><div class="panel">'+
-      '<div class="hd"><h3>Comportamento acumulado</h3><span class="badge">difícil de copiar</span></div>'+
-      '<div class="sub">Construído ao longo de 3 épocas. Não é um snapshot — é um padrão.</div><div class="dna-grid">'+
+    html+='<div class="shead">Como joga sempre</div><div class="panel">'+
+      '<div class="hd"><h3>O que se repete</h3><span class="badge">3 épocas a observar</span></div>'+
+      '<div class="sub">Visto ao longo de 3 épocas — não é um dia bom, é o que se repete sempre.</div><div class="dna-grid">'+
       d.dna.map(function(t){var bar=t[2]==='obs'?'var(--obs-bar)':'var(--dec-bar2)';
         return '<div class="trait"><div class="tl"><span>'+esc(t[0])+'</span><b class="'+t[2]+' num">'+t[1]+'</b></div><div class="barx"><i style="width:'+t[1]+'%;background:'+bar+'"></i></div></div>';}).join('')+
       '</div><div class="stats">'+d.dnaStats.map(function(s){return '<div><div class="v num">'+esc(s[0])+'</div><div class="l">'+esc(s[1])+'</div></div>';}).join('')+'</div></div>';
@@ -489,7 +489,7 @@
       '<div class="hd"><h3>Tomada de decisão</h3><span class="badge">Elite Coach</span></div>'+
       '<div class="sub">A evoluir ao longo do tempo. Mede a decisão — não o golo.</div>'+
       '<div style="display:flex;flex-wrap:wrap;gap:14px 24px;align-items:flex-end;margin-top:12px">'+
-        '<div style="flex:0 0 auto"><div class="num" style="font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:var(--fs-titulo);line-height:1;color:var(--obs)">'+cg.acerto+'<small style="font-size:var(--fs-sub)">%</small></div><div style="font-size:var(--fs-legenda);text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-top:4px">acerto global</div></div>'+
+        '<div style="flex:0 0 auto"><div class="num" style="font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:var(--fs-titulo);line-height:1;color:var(--obs)">'+cg.acerto+'<small style="font-size:var(--fs-sub)">%</small></div><div style="font-size:var(--fs-legenda);text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-top:4px">decide bem</div></div>'+
         '<div style="flex:0 0 auto"><div class="num" style="font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:var(--fs-titulo);line-height:1">'+cg.total+'</div><div style="font-size:var(--fs-legenda);text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-top:4px">decisões</div></div>'+
         (cgT>0?'<div style="flex:0 0 auto;margin-left:auto;color:var(--up);font-size:var(--fs-corpo);font-weight:600;white-space:nowrap">↗ +'+cgT+' nos últimos meses</div>':'')+
       '</div>'+
