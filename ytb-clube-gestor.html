@@ -3077,11 +3077,54 @@ function pintarSecretaria(){
       ['MC','Médio Centro'],['MO','Médio Ofensivo'],['ED','Extremo Direito'],['EE','Extremo Esquerdo'],['PL','Ponta de Lança'],['AV','Avançado']]
       .map(function(p){return '<option value="'+p[0]+'">'+p[1]+'</option>';}).join('')
     +'</select></div></div>'
+    +'<label class="label">Equipa <span style="font-weight:400;color:var(--muted)">(opcional — junta logo ao plantel)</span></label>'
+    +'<select class="input" id="sec-equipa">'
+    +'<option value="">— nenhuma por agora —</option>'
+    +minhasEquipas.map(function(e){return '<option value="'+e.id+'">'+esc(e.nome)+' · '+esc(e.epoca)+'</option>';}).join('')
+    +'</select>'
     +'<label class="label">Email do encarregado <span style="font-weight:400;color:var(--muted)">(para aceder ao Passaporte)</span></label>'
     +'<input class="input" id="sec-email-enc" type="email">'
     +'<button class="btn" onclick="criarAtletaSecretaria()">Criar atleta →</button>'
-    +'<div id="sec-duplicados"></div></div>';
+    +'<div id="sec-duplicados"></div></div>'
+    +'<div id="atribuicao-treinadores-area"><div class="card"><div class="s">A carregar…</div></div></div>';
+  carregarEPintarAtribuicaoTreinadores();
 }
+async function carregarEPintarAtribuicaoTreinadores(){
+  const {data:r}=await supa.rpc('ytb_clube_membros_listar',{p_clube_id:meuClube.clube_id});
+  var todosMembros=(r&&r.ok&&r.lista)||[];
+  var emailsTreinadores=Array.from(new Set(todosMembros.filter(function(m){return m.papel==='treinador';}).map(function(m){return m.email;})));
+  var area=document.getElementById('atribuicao-treinadores-area');
+  if(!area) return;
+  var html='<div class="card"><div class="h">Atribuir <span style="color:var(--gold)">treinador</span> a equipa</div>';
+  if(!emailsTreinadores.length){
+    html+='<div class="s">Ainda não há treinadores neste clube — insere primeiro um em "Adicionar membro" na aba Membros, com o papel Treinador.</div>';
+  } else if(!minhasEquipas.length){
+    html+='<div class="s">Ainda não há equipas criadas.</div>';
+  } else {
+    html+='<div class="s">Escolhe, para cada equipa, qual dos treinadores já registados fica responsável por ela.</div>';
+    html+=minhasEquipas.map(function(e){
+      var atual=todosMembros.find(function(m){return m.papel==='treinador'&&m.equipa_id===e.id;});
+      return '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)">'
+        +'<span style="flex:1">'+esc(e.nome)+' · '+esc(e.epoca)+'</span>'
+        +'<select class="input" id="atr-tr-'+e.id+'" style="margin:0;width:auto;flex:1">'
+        +'<option value="">— ninguém —</option>'
+        +emailsTreinadores.map(function(em){return '<option value="'+esc(em)+'"'+(atual&&atual.email===em?' selected':'')+'>'+esc(em)+'</option>';}).join('')
+        +'</select>'
+        +'<button class="btn btn-sec" style="width:auto;padding:8px 12px;margin-top:0" onclick="atribuirTreinadorEquipa(\''+e.id+'\')">Guardar</button>'
+        +'</div>';
+    }).join('');
+  }
+  html+='</div>';
+  area.innerHTML=html;
+}
+window.atribuirTreinadorEquipa=async function(equipaId){
+  var email=document.getElementById('atr-tr-'+equipaId).value;
+  if(!email){ toast('Escolhe um treinador'); return; }
+  const {data:r}=await supa.rpc('ytb_clube_membro_adicionar',{p_clube_id:meuClube.clube_id,p_email:email,p_papel:'treinador',p_equipa_id:equipaId});
+  if(!r||!r.ok){ toast('⚠ Não foi possível: '+((r&&r.motivo)||'erro')); return; }
+  toast('✓ Treinador atribuído a esta equipa');
+  await carregarEPintarAtribuicaoTreinadores();
+};
 window.criarAtletaSecretaria=async function(forcarNovo){
   var nome=(document.getElementById('sec-nome').value||'').trim();
   var ano=parseInt(document.getElementById('sec-ano').value,10);
@@ -3104,7 +3147,14 @@ window.criarAtletaSecretaria=async function(forcarNovo){
     toast('⚠ Não foi possível: '+((r&&r.motivo)||'erro')); return;
   }
   dupArea.innerHTML='';
-  toast('✓ Atleta criado');
+  var equipaEscolhida=document.getElementById('sec-equipa').value;
+  if(equipaEscolhida){
+    var rp=await supa.rpc('ytb_clube_plantel_adicionar',{p_equipa_id:equipaEscolhida,p_atleta_id:r.id});
+    if(!rp.data||!rp.data.ok){ toast('Atleta criado, mas não foi possível juntar à equipa ('+((rp.data&&rp.data.motivo)||'erro')+')'); }
+    else { toast('✓ Atleta criado e já na equipa'); }
+  } else {
+    toast('✓ Atleta criado');
+  }
   document.getElementById('sec-nome').value='';document.getElementById('sec-ano').value='';document.getElementById('sec-email-enc').value='';
   await carregarAtletasDoClube();
 };
