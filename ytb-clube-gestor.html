@@ -285,9 +285,27 @@ window.verConvocatoria=async function(convId){
   area.innerHTML='<div class="card"><div class="h">Estado da <span>convocatória</span></div>'
     +lista.map(function(x){
       var r2=rotulo[x.resposta]||['—','pill-laranja'];
-      return '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span>'+esc(x.nome)+'</span><span class="pill '+r2[1]+'">'+r2[0]+'</span></div>';
+      return '<div style="padding:8px 0;border-bottom:1px solid var(--border)">'
+        +'<div style="display:flex;justify-content:space-between;align-items:center"><span>'+esc(x.nome)+'</span><span class="pill '+r2[1]+'">'+r2[0]+'</span></div>'
+        +'<div style="display:flex;align-items:center;gap:8px;margin-top:6px">'
+        +'<label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--slate)"><input type="checkbox" id="pres-'+x.atleta_id+'" '+(x.presente?'checked':'')+' onchange="window.__togglePresenca(\''+x.atleta_id+'\')"> Esteve presente</label>'
+        +'<input class="input" id="min-'+x.atleta_id+'" type="number" min="0" max="150" placeholder="min" value="'+(x.minutos||'')+'" style="width:70px;margin-bottom:0;display:'+(x.presente?'block':'none')+'">'
+        +'<button class="btn btn-sec" style="width:auto;padding:8px 12px;margin-top:0" onclick="window.__guardarPresenca(\''+convId+'\',\''+x.atleta_id+'\')">Guardar</button>'
+        +'</div></div>';
     }).join('')+'</div>';
   area.scrollIntoView({behavior:'smooth'});
+};
+window.__togglePresenca=function(atletaId){
+  var box=document.getElementById('pres-'+atletaId), min=document.getElementById('min-'+atletaId);
+  min.style.display=box.checked?'block':'none';
+};
+window.__guardarPresenca=async function(convId, atletaId){
+  var presente=document.getElementById('pres-'+atletaId).checked;
+  var minutosVal=document.getElementById('min-'+atletaId).value;
+  var minutos=(presente && minutosVal!=='') ? parseInt(minutosVal,10) : null;
+  const {data:r}=await supa.rpc('ytb_clube_presenca_registar',{p_convocatoria_id:convId,p_atleta_id:atletaId,p_presente:presente,p_minutos:minutos});
+  if(!r||!r.ok){ toast('⚠ Não foi possível: '+((r&&r.motivo)||'erro')); return; }
+  toast('✓ Guardado');
 };
 
 window.abrirRegistarResultado=function(jogoId, resultadoAtual){

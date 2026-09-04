@@ -1,0 +1,3 @@
+-- 141: presencas e minutos no jogo, reaproveitando a relacao
+-- convocatoria+atleta ja existente. Corpo integral no historico
+-- Supabase (141).
