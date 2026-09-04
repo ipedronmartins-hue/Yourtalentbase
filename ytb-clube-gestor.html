@@ -804,6 +804,34 @@ function guardarSessao(){
     .then(function(r){var d=r.data;if(r.error||!d||!d.ok){toast('⚠ Não guardado ('+((d&&d.motivo)||'erro')+')');return;}toast('✓ Sessão guardada na equipa');});
 }
 
+/* ══════ microciclo, copiado do CoachBase (migração 144) ══════ */
+function gerarMicro(){
+  var b=document.getElementById('btn-micro');b.disabled=true;b.innerHTML='<span class="spinner"></span> A montar a semana…';
+  setTimeout(function(){
+    var dias=['MD-4','MD-2','MD-1'];
+    var out=dias.map(function(d){return {plano:montarSessao(d),dia:d};});
+    var h='';out.forEach(function(o){var tot=(o.plano.blocos||[]).reduce(function(s,x){return s+(x.min||0);},0);
+      h+='<div class="card"><div class="h">'+esc(o.dia)+' · '+esc(o.plano.titulo||'')+'</div><div class="s">'+tot+' min · 📚 banco CoachBase</div>';
+      (o.plano.blocos||[]).forEach(function(bl){h+='<div class="bloco"><div class="bt">'+esc(bl.nome)+' · '+(bl.min||0)+'′</div>';(bl.exercicios||[]).forEach(function(e){h+='<div class="ex"><div class="en">'+esc(e.nome)+'</div>'+(e.instrucoes?'<div class="ed">'+esc(e.instrucoes)+'</div>':'')+'</div>';});h+='</div>';});
+      h+='</div>';});
+    h+='<div class="card"><div class="s">As 3 sessões complementam-se: MD-4 constrói (físico + saída de bola + secção), MD-2 aperta (linha defensiva, reação à perda, movimentação), MD-1 afina (bolas paradas ≤10 min, revisão leve). O mesmo exercício não se repete duas semanas seguidas.</div><button class="btn" onclick="guardarMicro()">💾 Guardar as 3 sessões</button></div>';
+    document.getElementById('micro-out').innerHTML=h;window.__micro=out;
+    b.disabled=false;b.textContent='📚 Gerar microciclo (3 sessões)';
+  },150);
+}
+function guardarMicro(){
+  var out=window.__micro||[];if(!out.length)return;
+  if(!equipaAtiva){toast('Escolhe uma equipa primeiro');return;}
+  var i=0;
+  function um(){
+    if(i>=out.length){toast('Microciclo guardado na equipa ✓ ('+out.length+' sessões)');return;}
+    supa.rpc('ytb_clube_sessao_criar',{p_equipa_id:equipaAtiva.id,p_titulo:out[i].dia+' · '+(out[i].plano.titulo||'Sessão'),p_escalao:SEL.escalao,p_formato:SEL.formato,p_n_atletas:SEL.n,p_duracao:SEL.dur,p_material:SEL.material,p_foco:SEL.foco,p_plano:out[i].plano})
+      .then(function(){i++;um();});
+  }
+  um();
+}
+
+
 /* ══════ TREINOS (gerador de sessão — cópia adaptada do CoachBase) ══════ */
 function pintarTreinos(){
   const box=document.getElementById('sec-treinos');
@@ -823,6 +851,10 @@ function pintarTreinos(){
     +'<button class="btn" id="btn-gerar" onclick="gerarSessao()">📚 Gerar sessão do banco</button>'
     +'<div class="err" id="serr"></div></div>'
     +'<div id="sessao-out"></div>'
+    +'<div class="card"><div class="h">Microciclo <span style="color:var(--gold)">da semana</span></div>'
+    +'<div class="s">Três sessões que se complementam até ao jogo: MD-4 constrói, MD-2 aperta, MD-1 afina. Usa os mesmos seletores de cima.</div>'
+    +'<button class="btn" id="btn-micro" onclick="gerarMicro()">📚 Gerar microciclo (3 sessões)</button></div>'
+    +'<div id="micro-out"></div>'
     +'<div class="card"><div class="h">★ <span style="color:var(--gold)">Favoritos</span></div>'
     +'<div class="s">Marca uma estrela em qualquer exercício de uma sessão gerada — fica aqui, para não teres de o procurar outra vez.</div>'
     +'<div id="favoritos-lista"><div class="s">A carregar…</div></div></div>'
