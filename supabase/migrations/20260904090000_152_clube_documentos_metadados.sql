@@ -1,0 +1,3 @@
+-- 152: metadados de documentos sensiveis do atleta (CC, CC
+-- encarregado, foto, Modelo 2, exame medico). Corpo integral no
+-- historico Supabase (152).

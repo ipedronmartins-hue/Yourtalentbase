@@ -1,0 +1,9 @@
+-- 153: CRITICO -- clube_membros tinha RLS ativo mas zero politicas
+-- desde a fundacao do Clube, fazendo _ytb_clube_tem_papel e funcoes
+-- similares (LANGUAGE SQL, sujeitas a "inlining" pelo Postgres)
+-- devolverem sempre false quando chamadas fora do contexto
+-- privilegiado de uma RPC plpgsql. So descoberto ao testar politicas
+-- de storage com SET LOCAL ROLE authenticated pela primeira vez
+-- nesta sessao -- as RPCs plpgsql ja existentes NUNCA foram afetadas
+-- (confirmado com teste real). Corpo integral no historico Supabase
+-- (153).

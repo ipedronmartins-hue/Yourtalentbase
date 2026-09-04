@@ -1,0 +1,4 @@
+-- 155: nova funcao _ytb_documento_pode_aceder (PLPGSQL, nao SQL) para
+-- as politicas de storage nao dependerem de RLS de outra tabela com
+-- mecanismo de identificacao diferente. Corpo integral no historico
+-- Supabase (155).

@@ -1,0 +1,2 @@
+-- 154: politicas de storage para o bucket privado clube-documentos.
+-- Corpo integral no historico Supabase (154), substituido pela 155.
