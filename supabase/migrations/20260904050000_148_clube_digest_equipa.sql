@@ -1,0 +1,2 @@
+-- 148: digest da equipa do Clube, filtrado pelo plantel em vez de
+-- historico do treinador. Corpo integral no historico Supabase (148).

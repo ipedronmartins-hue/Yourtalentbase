@@ -58,6 +58,11 @@ body{max-width:560px;margin:0 auto;padding-bottom:60px}
 .ex .en{font-weight:800;font-size:14px}
 .ex .eo{font-size:12px;color:var(--up)}
 .ex .ed{font-size:12.5px;color:var(--slate);line-height:1.5;margin-top:3px}
+/* trazidas do ytb-pro-treinador.html para a aba Retorno do Clube */
+.empty-state{text-align:center;color:var(--muted);padding:30px 16px;font-size:14px;line-height:1.6}
+.empty-emoji{font-size:32px;margin-bottom:10px}
+.dash-card{background:var(--bg2);border:1px solid var(--border);border-radius:11px;padding:14px;margin-bottom:10px}
+.dash-card-eyebrow{font-size:11px;font-weight:800;letter-spacing:1.5px;color:var(--gold);text-transform:uppercase;margin-bottom:6px}
 /* trazido do coachbase.html para a prancheta do Clube */
 .pr-tools{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
 .pr-tools .tl{min-width:64px;min-height:52px;border-radius:11px;border:1px solid var(--border);background:var(--bg3);color:var(--slate);font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 10px}
@@ -241,6 +246,7 @@ body.pr-cheio #pr-sair{display:block}
       </div>
     </div>
     <div class="sec" id="sec-avaliar"></div>
+    <div class="sec" id="sec-retorno"><div class="card"><div class="h">O teu <span>retorno</span></div><div class="s">O que aconteceu depois de avaliares e prescreveres: quem treinou, como correu, quem precisa de nova avaliação.</div><div id="retorno-area"></div></div></div>
   </div>
 </div>
 <div class="toast" id="toast"></div>
@@ -2134,6 +2140,109 @@ function gerarPlano(debs, idadeAtleta){
 }
 
 
+/* ══════ retorno, copiado do Pro Treinador (migração 148) ══════ */
+function pintarGlowRetorno(){
+  const t=document.querySelector('.tab[data-t="retorno"]');
+  if(!t||!digestCache)return;
+  const temNovidades=digestCache.some(d=>(d.execucoes_desde_plano||0)>0&&d.ultima_atividade&&(Date.now()-new Date(d.ultima_atividade).getTime())<7*86400000);
+  t.classList.toggle('vivo-glow',temNovidades);
+}
+
+function renderUltimosRegistos(registos){
+  if(!registos || !registos.length) return '';
+  const ICONES={livre:'⚽',jogo:'🏟️',clube:'🏃',plano:'📋'};
+  const CATS={tecnica:'Técnica',fisico:'Físico',decisao:'Decisão',tatica:'Tática',mental:'Mental'};
+  const linhas = registos.map(r=>{
+    const partes=[];
+    if(r.categoria) partes.push(CATS[r.categoria]||r.categoria);
+    if(r.minutos) partes.push(r.minutos+' min');
+    if(r.repeticoes) partes.push('<b style="color:var(--gold)">'+r.repeticoes+' repetições</b>');
+    const dt=r.criado_em?new Date(r.criado_em).toLocaleDateString('pt-PT',{day:'2-digit',month:'short'}):'';
+    const cabecalho=(ICONES[r.atividade]||'📝')+' '+(partes.join(' · ')||'—')+(dt?' · <span style="color:var(--slate)">'+dt+'</span>':'');
+    return '<div style="padding:5px 0;border-bottom:1px solid rgba(255,255,255,.05)">'
+      +'<div style="font-size:var(--fs-legenda)">'+cabecalho+'</div>'
+      +(r.feedback?'<div style="font-size:var(--fs-legenda);color:#ddd;margin-top:2px">💬 «'+esc(r.feedback)+'»</div>':'')
+      +'</div>';
+  }).join('');
+  return '<div style="background:rgba(255,255,255,.04);border-radius:8px;padding:8px 10px;margin-top:6px">'+linhas+'</div>';
+}
+
+async function renderRetorno(){
+  const area=document.getElementById('retorno-area');
+  if(!equipaAtiva){area.innerHTML='<div class="empty-state">Escolhe uma equipa primeiro.</div>';return;}
+  area.innerHTML='<div class="empty-state"><span class="spinner"></span> A carregar retorno…</div>';
+  let digest=null;
+  try{
+    const{data,error}=await supa.rpc('ytb_clube_digest_equipa',{p_equipa_id:equipaAtiva.id});
+    if(error||!data||!data.ok)throw new Error((data&&data.motivo)||(error&&error.message)||'erro');
+    digest=data.lista;
+    digestCache=digest||[]; // partilha com o mapa da jornada
+    pintarGlowRetorno();
+  }catch(e){
+    area.innerHTML='<div class="empty-state">⚠ Não foi possível carregar o retorno ('+esc(e.message||'erro')+').</div>';
+    return;
+  }
+  if(!digest||!digest.length){
+    area.innerHTML='<div class="empty-state"><div class="empty-emoji">🔄</div>Ainda sem retorno.<br>Inscreve e avalia atletas — quando as famílias treinarem, vês aqui o resultado.</div>';
+    return;
+  }
+  // mesma prioridade do briefing de segunda (acompanhamento.html):
+  // quem precisa do treinador primeiro, não quem mexeu por último
+  const prioridadeDe=d=>{
+    let p=0, acao=null;
+    if(d.dias_desde_avaliacao==null||d.dias_desde_avaliacao>45){p+=3;acao=acao||'Reavaliar';}
+    const ck=d.ultimo_checkin_jogo;
+    if(ck&&ck.dificuldade!=null&&ck.dificuldade>=4){p+=2;acao=acao||'Rever o objetivo';}
+    if(d.plano_prescrito_em&&!d.execucoes_desde_plano){p+=2;acao=acao||'Falar com a família';}
+    if(d.confianca_media!=null&&d.confianca_media<60)p+=1;
+    if(!d.ultima_atividade||(Date.now()-new Date(d.ultima_atividade).getTime())/86400000>14){p+=1;acao=acao||'Falar com a família';}
+    return {p,acao};
+  };
+  digest.sort((a,b)=>prioridadeDe(b).p-prioridadeDe(a).p);
+  // O Retorno e uma fila de prioridade de TODOS os atletas — e esse e o valor dele.
+  // Mas se vieste com um atleta selecionado, a selecao nao pode desaparecer em
+  // silencio: esse fica em primeiro, marcado, e os restantes por baixo.
+  const selId = atletaSel && atletaSel.id;
+  if(selId && digest.some(d=>d.atleta_id===selId)){
+    digest = digest.filter(d=>d.atleta_id===selId).concat(digest.filter(d=>d.atleta_id!==selId));
+  }
+  let html='', jaSeparou=false;
+  digest.forEach((d,idx)=>{
+    if(selId && idx===1 && digest[0].atleta_id===selId && !jaSeparou){
+      jaSeparou=true;
+      html+='<div style="display:flex;align-items:center;gap:10px;margin:22px 0 12px">'
+        +'<div style="height:1px;background:var(--border2);flex:1"></div>'
+        +'<span style="font-size:var(--fs-micro);font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)">Os outros atletas</span>'
+        +'<div style="height:1px;background:var(--border2);flex:1"></div></div>';
+    }
+    const ult=d.ultima_atividade?new Date(d.ultima_atividade).toLocaleDateString('pt-PT',{day:'2-digit',month:'short'}):null;
+    const diasAval=d.dias_desde_avaliacao;
+    const precisaAval=diasAval==null||diasAval>45;
+    const conf=d.confianca_media;
+    const pri=prioridadeDe(d);
+    const ds=(d.dev_score&&d.dev_score.estado==='ok')?d.dev_score:null;
+    const ehSel = selId && d.atleta_id===selId;
+    html+='<div class="dash-card"'+(ehSel?' style="border-color:var(--gold)"':'')+'>'
+      +(ehSel?'<div style="font-size:var(--fs-micro);font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:6px">Atleta selecionado</div>':'')
+      +'<div class="dash-card-header"><div class="dash-card-eyebrow">'+esc(d.nome||'Atleta')+(d.escalao?' · '+esc(d.escalao):'')
+      +(ds?' · <span style="color:var(--gold)">Score '+ds.score+(ds.tendencia==='subiu'?' ↗':ds.tendencia==='desceu'?' ↘':'')+'</span>':'')+'</div>'
+      +(ult?'<div class="dash-card-action">último treino: '+ult+'</div>':'')+'</div>'
+      +(pri.acao?'<div style="font-size:var(--fs-legenda);color:var(--gold);margin:2px 0 4px">→ o sistema recomenda: <b>'+esc(pri.acao)+'</b></div>':'')
+      +'<a href="passaporte.html?treinador='+encodeURIComponent(d.atleta_id)+'" style="font-size:var(--fs-legenda);color:var(--slate);text-decoration:none;border:1px solid var(--border);border-radius:7px;padding:4px 9px;display:inline-block;margin:2px 0 4px">📔 Passaporte →</a>'
+      +'<div style="display:flex;gap:14px;margin:8px 0 4px;flex-wrap:wrap">'
+      +'<div><div style="font-family:\'Barlow Condensed\';font-weight:900;font-size:var(--fs-titulo);color:var(--gold);line-height:1">'+(d.execucoes_desde_plano||0)+'</div><div style="font-size:var(--fs-micro);letter-spacing:1px;color:var(--slate);text-transform:uppercase">treinos desde o plano</div></div>'
+      +'<div><div style="font-family:\'Barlow Condensed\';font-weight:900;font-size:var(--fs-titulo);color:var(--blue);line-height:1">'+(d.execucoes_total||0)+'</div><div style="font-size:var(--fs-micro);letter-spacing:1px;color:var(--slate);text-transform:uppercase">treinos no total</div></div>'
+      +(conf!=null?'<div><div style="font-family:\'Barlow Condensed\';font-weight:900;font-size:var(--fs-titulo);color:'+(conf>=80?'var(--green)':conf>=60?'var(--gold)':'var(--orange)')+';line-height:1">'+conf+'%</div><div style="font-size:var(--fs-micro);letter-spacing:1px;color:var(--slate);text-transform:uppercase">confiança dos dados</div></div>':'')
+      +'</div>'
+      +renderUltimosRegistos(d.ultimos_registos)
+      +(precisaAval?'<div style="font-size:var(--fs-legenda);color:var(--orange);margin-top:8px">📋 '+(diasAval==null?'Ainda sem avaliação tua':'Última avaliação há '+diasAval+' dias')+' — considera reavaliar.</div>':'')
+      +(!d.execucoes_desde_plano&&d.plano_prescrito_em?'<div style="font-size:var(--fs-legenda);color:var(--slate);margin-top:6px">😴 O plano ainda não teve treinos — a família pode precisar de um empurrão.</div>':'')
+      +'</div>';
+  });
+  area.innerHTML=html;
+}
+
+
 /* ══════ AVALIAR (Pro Treinador, PID — copiado e adaptado) ══════ */
 var atletaSel=null, avalSel=null;
 function pintarAvaliar(){
@@ -2168,7 +2277,7 @@ window.selecionarAtletaAvaliar=function(id){
 };
 
 /* ══════ NAVEGAÇÃO ══════ */
-var TABS=[['equipas','Equipas'],['plantel','Plantel'],['jogos','Jogos'],['treinos','Treinos'],['prancheta','Prancheta'],['avaliar','Avaliar']];
+var TABS=[['equipas','Equipas'],['plantel','Plantel'],['jogos','Jogos'],['treinos','Treinos'],['prancheta','Prancheta'],['avaliar','Avaliar'],['retorno','Retorno']];
 function montarTabsTopo(){
   var tabs=TABS.slice();
   if(meuClube && meuClube.papel==='admin') tabs.push(['membros','Membros']);
@@ -2183,6 +2292,7 @@ window.tab=function(t){
   if(t==='treinos') pintarTreinos();
   if(t==='prancheta'){ montarSeletores(); if(window.PR){ PR.reformatar(); PR.carregarJogadas(); } }
   if(t==='avaliar') pintarAvaliar();
+  if(t==='retorno') renderRetorno();
 };
 verificarSessao();
 </script></body>
