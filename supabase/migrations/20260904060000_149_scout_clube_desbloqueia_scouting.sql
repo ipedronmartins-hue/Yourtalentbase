@@ -1,0 +1,2 @@
+-- 149: _ytb_e_scout() reconhece scout so-do-clube, usada por 5
+-- funcoes. Corpo integral no historico Supabase (149).

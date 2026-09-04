@@ -1,0 +1,3 @@
+-- 150: ytb_scout_relatorio_criar/anterior tinham verificacao duplicada
+-- inline, nao cobertas pela migracao 149. Corrigidas para usar
+-- _ytb_e_scout(). Corpo integral no historico Supabase (150).
