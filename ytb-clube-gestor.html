@@ -58,6 +58,117 @@ body{max-width:560px;margin:0 auto;padding-bottom:60px}
 .ex .en{font-weight:800;font-size:14px}
 .ex .eo{font-size:12px;color:var(--up)}
 .ex .ed{font-size:12.5px;color:var(--slate);line-height:1.5;margin-top:3px}
+/* trazido do coachbase.html para a prancheta do Clube */
+.pr-tools{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.pr-tools .tl{min-width:64px;min-height:52px;border-radius:11px;border:1px solid var(--border);background:var(--bg3);color:var(--slate);font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 10px}
+.pr-tools .tl .ic{font-size:18px}
+.pr-tools .tl.on{border-color:var(--gold);color:var(--gold);background:var(--gold-soft)}
+.pr-acao{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.pr-acao button{min-height:48px;border-radius:10px;border:1px solid var(--border);background:var(--bg3);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;padding:0 14px;flex:1;min-width:110px}
+.pr-acao button.dourado{background:var(--gold);color:#000;border-color:var(--gold);font-weight:800}
+/* O campo é vertical (340x520): limitar só a largura fazia a altura disparar
+   (640px de largura => 979px de altura, que não cabe num portátil). Com
+   width:auto + height limitada, é a ALTURA que manda e a largura acompanha —
+   assim o SVG encolhe todo, sem ficarem margens mortas aos lados. */
+#prancheta-svg{width:auto;height:min(calc(100vh - 260px), 979px);max-width:100%;aspect-ratio:340/520;display:block;margin:0 auto;border-radius:12px;background:#0B120C;touch-action:none;user-select:none}
+@media(max-height:700px){#prancheta-svg{height:calc(100vh - 190px)}}
+.pr-frames{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.pr-frames .fr{width:44px;height:44px;border-radius:9px;border:1px solid var(--border);background:var(--bg3);color:var(--slate);font-weight:900;font-family:'Barlow Condensed';font-size:16px;cursor:pointer}
+.pr-frames .fr.on{border-color:var(--gold);color:var(--gold)}
+.pr-jogadas{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.pr-jogadas .jg{background:var(--bg3);border:1px solid var(--border);border-radius:999px;padding:10px 14px;font-size:13px;color:#fff;cursor:pointer;display:flex;gap:8px;align-items:center}
+.pr-jogadas .jg-on{border-color:var(--gold);background:var(--gold-soft)}
+.pr-jogadas .jg b{color:var(--gold)}
+.pr-jogadas .jg .x{color:var(--red);font-weight:900;padding:0 2px}
+
+/* ── prancheta em ecrã inteiro ──
+   Base em CSS (position:fixed), não na Fullscreen API: o iPhone não permite
+   fullscreen em elementos arbitrários, e no balneário o telemóvel é o que há.
+   Quando a API existe (Android, iPad, desktop) pede-se também, para esconder
+   a barra do browser — mas o modo funciona na mesma sem ela. */
+body.pr-cheio{overflow:hidden}
+body.pr-cheio #pr-palco{
+  position:fixed; inset:0; z-index:300; background:#080C08;
+  display:flex; flex-direction:row; padding:0; margin:0; border:none; border-radius:0;
+}
+body.pr-cheio #pr-palco .h,
+body.pr-cheio #pr-palco .s,
+body.pr-cheio #pr-palco #pr-fmt,
+body.pr-cheio #pr-palco #pr-tatica-wrap,
+body.pr-cheio #pr-abrir{display:none}
+
+/* o campo ocupa tudo o que sobra; o wrapper e o palco da rotacao */
+body.pr-cheio #pr-campo-wrap{
+  order:3; flex:1; min-height:0; position:relative; overflow:hidden;
+  display:flex; align-items:center; justify-content:center;
+}
+body.pr-cheio #prancheta-svg{
+  max-width:none; width:100%; height:100%; border-radius:0; margin:0;
+}
+/* deitado: o campo roda para ficar ao comprido. O arrasto acompanha sozinho —
+   coords() usa getScreenCTM(), cuja matriz ja inclui esta transformacao. */
+body.pr-cheio.pr-deitado #prancheta-svg{
+  position:absolute; top:50%; left:50%;
+  transform:translate(-50%,-50%) rotate(90deg); transform-origin:center;
+  width:auto; height:auto;  /* medidas postas pelo JS: dependem do espaco real */
+}
+/* Deitado FORA do ecrã inteiro (tablet ao comprido): o campo roda para
+   aproveitar a largura. O wrapper precisa de altura própria porque um
+   elemento rodado mantém a caixa de layout original — sem isto, o campo
+   rodado sairia por cima do que vem a seguir. */
+body.pr-deitado-solto #pr-campo-wrap{
+  position:relative; display:flex; align-items:center; justify-content:center;
+  height:calc(100vh - 190px); min-height:320px; overflow:hidden;
+}
+body.pr-deitado-solto #prancheta-svg{
+  position:absolute; top:50%; left:50%;
+  transform:translate(-50%,-50%) rotate(90deg); transform-origin:center;
+  max-width:none; max-height:none; aspect-ratio:auto;
+}
+/* Dock vertical à esquerda, estilo Ubuntu — ferramentas principais sempre à vista,
+   o resto atrás do "mais" numa segunda coluna que desliza ao lado. */
+body.pr-cheio .pr-tools{
+  order:1; flex-direction:column; flex-wrap:nowrap; margin:0;
+  width:72px; height:100%; flex:0 0 auto;
+  padding:calc(10px + env(safe-area-inset-top)) 8px calc(10px + env(safe-area-inset-bottom));
+  background:rgba(11,18,12,.96); backdrop-filter:blur(8px);
+  border-right:1px solid var(--border); justify-content:flex-start; gap:8px;
+  overflow-y:auto; scrollbar-width:none;
+}
+body.pr-cheio .pr-tools::-webkit-scrollbar{display:none}
+body.pr-cheio .pr-tools .tl{flex:0 0 auto;width:100%;min-width:0;min-height:56px}
+#pr-extra{display:none}
+body.pr-cheio #pr-extra{
+  order:2; flex:0 0 auto; width:172px; height:100%;
+  padding:calc(10px + env(safe-area-inset-top)) 10px calc(10px + env(safe-area-inset-bottom));
+  background:rgba(11,18,12,.96); border-right:1px solid var(--border);
+  flex-direction:column; gap:10px; overflow-y:auto; scrollbar-width:none;
+}
+body.pr-cheio #pr-extra::-webkit-scrollbar{display:none}
+body.pr-cheio.pr-mais #pr-extra{display:flex}
+body.pr-cheio .pr-acao,
+body.pr-cheio .pr-frames,
+body.pr-cheio .pr-jogadas{flex-direction:column;gap:6px;margin:0}
+body.pr-cheio .pr-acao button{min-height:40px;font-size:12px;width:100%;padding:0 10px}
+#pr-mais{
+  display:none; flex:0 0 auto; width:100%; min-width:52px; min-height:48px; border-radius:11px;
+  border:1px solid var(--border); background:var(--bg3); color:var(--slate);
+  font-family:inherit; font-weight:800; font-size:12px; cursor:pointer;
+}
+body.pr-cheio #pr-mais{display:block}
+body.pr-cheio.pr-mais #pr-mais{border-color:var(--gold);color:var(--gold)}
+#pr-sair{
+  display:none; position:fixed; top:calc(10px + env(safe-area-inset-top)); right:10px; z-index:310;
+  min-height:44px; padding:0 16px; border-radius:999px; border:1px solid var(--gold);
+  background:rgba(11,18,12,.92); color:var(--gold); font-family:inherit; font-weight:800; font-size:13px; cursor:pointer;
+}
+body.pr-cheio #pr-sair{display:block}
+/* deitado num telemovel as ferramentas encolhem, para o campo respirar */
+@media (orientation:landscape) and (max-height:560px){
+  body.pr-cheio .pr-tools .tl,body.pr-cheio #pr-mais{min-height:40px;min-width:50px;font-size:11px;padding:4px 8px}
+  body.pr-cheio .pr-tools .tl .ic{font-size:15px}
+}
+
 </style>
 </head>
 <body>
@@ -81,6 +192,54 @@ body{max-width:560px;margin:0 auto;padding-bottom:60px}
     <div class="sec" id="sec-jogos"></div>
     <div class="sec" id="sec-membros"></div>
     <div class="sec" id="sec-treinos"></div>
+    <div class="sec" id="sec-prancheta">
+      <div class="card" id="pr-palco">
+        <div class="h">Prancheta <span style="color:var(--gold)">tática</span></div>
+        <div class="s">Arrasta um jogador até outro para desenhar um passe, ou até um espaço livre para desenhar a corrida dele. Fora dos jogadores, desenha à mão livre.</div>
+        <button type="button" id="pr-abrir" onclick="PR.cheio(true)" style="min-height:48px;width:100%;border-radius:10px;border:1px solid var(--gold);background:var(--gold-soft);color:var(--gold);font-family:inherit;font-weight:800;font-size:14px;cursor:pointer;margin-bottom:10px">⛶ Ecrã inteiro — mostrar aos jogadores</button>
+        <div class="chips" id="pr-fmt"></div>
+        <div id="pr-tatica-wrap" hidden><div class="chips" id="pr-tatica" style="margin-bottom:8px"></div></div>
+        <div class="pr-tools" id="pr-tools">
+          <button class="tl on" data-m="desenhar"><span class="ic">✏️</span>Desenhar</button>
+          <button class="tl" data-m="apagar"><span class="ic">🧽</span>Apagar</button>
+          <button type="button" id="pr-mais" onclick="PR.mais()">⋯<br>mais</button>
+        </div>
+        <div id="pr-campo-wrap"><svg id="prancheta-svg" viewBox="0 0 340 520" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"></svg></div>
+        <button type="button" id="pr-sair" onclick="PR.cheio(false)">✕ Sair</button>
+        <div id="pr-extra">
+          <div class="pr-acao">
+            <button onclick="PR.addEquipaB()">＋ Equipa B</button>
+            <button onclick="PR.addBola()">⚽ Bola</button>
+            <button onclick="PR.addCone()">🔺 Cone</button>
+            <button onclick="PR.undo()">↩ Desfazer</button>
+            <button onclick="PR.redo()">↪ Refazer</button>
+            <button onclick="PR.limpar()">🗑 Limpar</button>
+          </div>
+          <div class="pr-frames">
+            <span style="font-size:11px;color:var(--slate);font-weight:700;letter-spacing:1px;text-transform:uppercase">Jogada:</span>
+            <span id="pr-frames-lista"></span>
+            <button class="fr" style="width:auto;padding:0 12px;font-size:13px" onclick="PR.guardarMomento()">＋ momento</button>
+            <button class="fr" style="width:auto;padding:0 12px;font-size:13px;border-color:var(--gold);color:var(--gold)" onclick="PR.reproduzir()">▶ reproduzir</button>
+          </div>
+          <div class="pr-acao">
+            <button class="dourado" onclick="PR.exportarPNG()">📸 Exportar imagem</button>
+            <button onclick="PR.guardarJogada()">💾 Guardar jogada</button>
+          </div>
+          <div class="pr-jogadas" id="pr-jogadas"></div>
+        </div>
+      </div>
+      <div id="modalJogada" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:2000;align-items:center;justify-content:center;padding:16px">
+        <div class="card" style="max-width:420px;width:100%;margin:0">
+          <div class="h">Guardar <span style="color:var(--gold)">jogada</span></div>
+          <label class="label">Nome</label>
+          <input class="input" id="mj-nome" placeholder="Ex: Pressão alta 4-3-3" style="margin-bottom:12px">
+          <label class="label">Categoria <span style="font-weight:400;color:var(--muted)">(opcional)</span></label>
+          <div class="chips" id="mj-categoria" style="margin-bottom:16px"></div>
+          <button class="btn" onclick="PR.confirmarGuardarJogada()">Guardar →</button>
+          <button class="btn btn-sec" style="margin-top:8px" onclick="PR.fecharModalJogada()">Cancelar</button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 <div class="toast" id="toast"></div>
@@ -380,6 +539,493 @@ window.removerMembro=async function(email,papel){
   }
   toast('✓ Removido'); await carregarMembros();
 };
+
+/* ══════ prancheta, copiada do CoachBase (migração 144) ══════ */
+var PR=(function(){
+  var W=340,H=520;
+  var FORMACOES={
+    fut7:[[0.5,.93],[0.28,.76],[0.72,.76],[0.2,.58],[0.5,.6],[0.8,.58],[0.5,.42]],
+    fut9:[[0.5,.93],[0.22,.78],[0.5,.8],[0.78,.78],[0.5,.66],[0.25,.56],[0.75,.56],[0.35,.42],[0.65,.42]],
+    fut11:[[0.5,.94],[0.16,.8],[0.38,.82],[0.62,.82],[0.84,.8],[0.5,.68],[0.28,.58],[0.72,.58],[0.14,.44],[0.5,.42],[0.86,.44]]
+  };
+  var E={tokens:[],setas:[],tracos:[],frames:[],frameAtual:-1};
+  var modo='desenhar',undoStack=[],redoStack=[],drag=null,dragOrigem=null,setaTmp=null,tracoTmp=null,seq=1,aReproduzir=false;
+
+  function svg(){return document.getElementById('prancheta-svg');}
+  function snap(){undoStack.push(JSON.stringify({tokens:E.tokens,setas:E.setas,tracos:E.tracos}));if(undoStack.length>40)undoStack.shift();redoStack.length=0;}
+  function coords(ev){var s=svg(),p=s.createSVGPoint();p.x=ev.clientX;p.y=ev.clientY;var m=s.getScreenCTM();if(!m)return{x:0,y:0};var q=p.matrixTransform(m.inverse());return{x:Math.max(4,Math.min(W-4,q.x)),y:Math.max(4,Math.min(H-4,q.y))};}
+
+  function formaAtual(){
+    if(SEL.formato==='fut11'&&window.TATICAS&&TATICAS[SEL.tatica])return TATICAS[SEL.tatica].pos;
+    return FORMACOES[SEL.formato]||FORMACOES.fut7;
+  }
+  function formar(){
+    E.tokens=E.tokens.filter(function(t){return t.tipo!=='A';});
+    formaAtual().forEach(function(p,i){
+      E.tokens.push({id:'t'+(seq++),tipo:'A',n:i+1,x:p[0]*W,y:p[1]*H});
+    });
+  }
+  function addEquipaB(){
+    snap();
+    E.tokens=E.tokens.filter(function(t){return t.tipo!=='B';});
+    formaAtual().forEach(function(p,i){
+      E.tokens.push({id:'t'+(seq++),tipo:'B',n:i+1,x:(1-p[0])*W,y:(1-p[1])*H});
+    });
+    render();
+  }
+  function addBola(){snap();E.tokens.push({id:'t'+(seq++),tipo:'bola',x:W/2,y:H/2});render();}
+  function addCone(){snap();E.tokens.push({id:'t'+(seq++),tipo:'cone',x:W/2,y:H*0.3});render();}
+
+  function campo(){
+    return '<rect x="0" y="0" width="'+W+'" height="'+H+'" fill="#123D1E"/>'
+      +'<rect x="0" y="0" width="'+W+'" height="'+(H/2)+'" fill="#144222" opacity=".6"/>'
+      +'<rect x="8" y="8" width="'+(W-16)+'" height="'+(H-16)+'" fill="none" stroke="#EAF3EA" stroke-opacity=".55" stroke-width="2"/>'
+      +'<line x1="8" y1="'+(H/2)+'" x2="'+(W-8)+'" y2="'+(H/2)+'" stroke="#EAF3EA" stroke-opacity=".55" stroke-width="2"/>'
+      +'<circle cx="'+(W/2)+'" cy="'+(H/2)+'" r="38" fill="none" stroke="#EAF3EA" stroke-opacity=".55" stroke-width="2"/>'
+      +'<rect x="'+(W/2-66)+'" y="8" width="132" height="52" fill="none" stroke="#EAF3EA" stroke-opacity=".55" stroke-width="2"/>'
+      +'<rect x="'+(W/2-66)+'" y="'+(H-60)+'" width="132" height="52" fill="none" stroke="#EAF3EA" stroke-opacity=".55" stroke-width="2"/>'
+      +'<rect x="'+(W/2-30)+'" y="2" width="60" height="6" fill="#EAF3EA" fill-opacity=".7"/>'
+      +'<rect x="'+(W/2-30)+'" y="'+(H-8)+'" width="60" height="6" fill="#EAF3EA" fill-opacity=".7"/>';
+  }
+  function seta(s,i,tmp){
+    var dx=s.x2-s.x1,dy=s.y2-s.y1,L=Math.sqrt(dx*dx+dy*dy)||1,ux=dx/L,uy=dy/L;
+    var ax=s.x2-ux*10,ay=s.y2-uy*10;
+    var cor=s.tipo==='passe'?'#F5C842':'#EAF3EA';
+    var dash=s.tipo==='passe'?' stroke-dasharray="7 5"':'';
+    return '<g data-seta="'+i+'"'+(tmp?' opacity=".6"':'')+'>'
+      +'<line x1="'+s.x1+'" y1="'+s.y1+'" x2="'+ax+'" y2="'+ay+'" stroke="'+cor+'" stroke-width="3"'+dash+' stroke-linecap="round"/>'
+      +'<path d="M'+s.x2+' '+s.y2+' L'+(ax-uy*6)+' '+(ay+ux*6)+' L'+(ax+uy*6)+' '+(ay-ux*6)+' Z" fill="'+cor+'"/></g>';
+  }
+  function render(){
+    var h=campo();
+    var alvoDestacado = drag ? tokenProximo(drag.x,drag.y,drag.id) : null;   // durante o arrasto, sinaliza quem vai receber o "passe" se soltar aqui
+    E.tracos.forEach(function(t,i){
+      h+='<polyline data-traco="'+i+'" points="'+t.pts.map(function(p){return p[0]+','+p[1];}).join(' ')+'" fill="none" stroke="#5AA9E6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>';
+    });
+    if(tracoTmp)h+='<polyline points="'+tracoTmp.pts.map(function(p){return p[0]+','+p[1];}).join(' ')+'" fill="none" stroke="#5AA9E6" stroke-width="3" opacity=".6"/>';
+    E.setas.forEach(function(s,i){h+=seta(s,i,false);});
+    if(setaTmp)h+=seta(setaTmp,-1,true);
+    E.tokens.forEach(function(t){
+      if(t.tipo==='bola'){h+='<g data-tok="'+t.id+'" style="cursor:grab"><circle cx="'+t.x+'" cy="'+t.y+'" r="8" fill="#FFFFFF" stroke="#111" stroke-width="1.5"/><circle cx="'+t.x+'" cy="'+t.y+'" r="3" fill="none" stroke="#111" stroke-width="1"/></g>';}
+      else if(t.tipo==='cone'){h+='<path data-tok="'+t.id+'" style="cursor:grab" d="M'+t.x+' '+(t.y-9)+' L'+(t.x-8)+' '+(t.y+7)+' L'+(t.x+8)+' '+(t.y+7)+' Z" fill="#E0A458" stroke="#8a5a20" stroke-width="1.5"/>';}
+      else{
+        var fill=t.tipo==='A'?'#D4AF37':'#1A241A', stroke=t.tipo==='A'?'#8a701d':'#EAF3EA', txt=t.tipo==='A'?'#0A0D0A':'#EAF3EA';
+        var destacado = alvoDestacado && alvoDestacado.id===t.id;
+        h+='<g data-tok="'+t.id+'" style="cursor:grab">'
+          +(destacado?'<circle cx="'+t.x+'" cy="'+t.y+'" r="19" fill="none" stroke="#D4AF37" stroke-width="2.5" stroke-dasharray="4 3"/>':'')
+          +'<circle cx="'+t.x+'" cy="'+t.y+'" r="14" fill="'+fill+'" stroke="'+stroke+'" stroke-width="2"/>'
+          +'<text x="'+t.x+'" y="'+(t.y+5)+'" text-anchor="middle" font-family="Arial" font-size="13" font-weight="800" fill="'+txt+'">'+t.n+'</text></g>';
+      }
+    });
+    svg().innerHTML=h;
+    pintarFrames();
+  }
+
+  function alvoToken(ev){var el=ev.target.closest?ev.target.closest('[data-tok]'):null;if(!el)return null;var id=el.getAttribute('data-tok');return E.tokens.find(function(t){return t.id===id;});}
+  function tokenProximo(x,y,excluirId){
+    // mesmo raio (40px) já usado na reprodução automática para ligar setas a jogadores —
+    // generoso o suficiente para o dedo, sem apanhar um jogador que só está por perto
+    var melhor=null;
+    E.tokens.forEach(function(t){
+      if(t.id===excluirId)return;
+      var d=Math.hypot(t.x-x,t.y-y);
+      if(d<40 && (!melhor||d<melhor.d)) melhor={tok:t,d:d};
+    });
+    return melhor?melhor.tok:null;
+  }
+  function ligar(){
+    var s=svg();
+    s.addEventListener('pointerdown',function(ev){
+      if(aReproduzir)return;
+      var c=coords(ev);
+      if(modo==='desenhar'){
+        var t=alvoToken(ev);
+        if(t){
+          // começa em cima de um jogador: o gesto decide-se sozinho ao soltar —
+          // termina perto de outro jogador = passe; termina em espaço vazio = corrida
+          snap();
+          drag=t;
+          dragOrigem={x:t.x,y:t.y};
+          s.setPointerCapture(ev.pointerId);
+        } else {
+          // começa em espaço vazio: traço à mão livre
+          tracoTmp={pts:[[Math.round(c.x),Math.round(c.y)]]};
+          s.setPointerCapture(ev.pointerId);
+        }
+      }
+      else if(modo==='apagar'){
+        var tok=alvoToken(ev);
+        var st=ev.target.closest?ev.target.closest('[data-seta]'):null;
+        var tr=ev.target.closest?ev.target.closest('[data-traco]'):null;
+        if(tok){snap();E.tokens=E.tokens.filter(function(x){return x.id!==tok.id;});render();}
+        else if(st){snap();E.setas.splice(parseInt(st.getAttribute('data-seta')),1);render();}
+        else if(tr){snap();E.tracos.splice(parseInt(tr.getAttribute('data-traco')),1);render();}
+      }
+      ev.preventDefault();
+    });
+    s.addEventListener('pointermove',function(ev){
+      if(aReproduzir)return;
+      var c=coords(ev);
+      if(drag){drag.x=c.x;drag.y=c.y;render();}
+      else if(setaTmp){setaTmp.x2=c.x;setaTmp.y2=c.y;render();}
+      else if(tracoTmp){var u=tracoTmp.pts[tracoTmp.pts.length-1];if(Math.abs(u[0]-c.x)+Math.abs(u[1]-c.y)>4){tracoTmp.pts.push([Math.round(c.x),Math.round(c.y)]);render();}}
+    });
+    function solta(){
+      if(drag){
+        var moveu=Math.hypot(drag.x-dragOrigem.x,drag.y-dragOrigem.y)>12;   // limiar mínimo — um toque sem arrastar não cria seta nenhuma
+        if(moveu){
+          var alvo=tokenProximo(drag.x,drag.y,drag.id);
+          if(alvo){
+            // terminou em cima de outro jogador — passe: a bola vai até lá, quem passou fica onde estava
+            E.setas.push({tipo:'passe',x1:dragOrigem.x,y1:dragOrigem.y,x2:alvo.x,y2:alvo.y});
+            drag.x=dragOrigem.x;drag.y=dragOrigem.y;
+          } else {
+            // terminou em espaço vazio — corrida: o jogador fica na posição nova, com o percurso desenhado
+            E.setas.push({tipo:'corrida',x1:dragOrigem.x,y1:dragOrigem.y,x2:drag.x,y2:drag.y});
+          }
+        }
+        drag=null;dragOrigem=null;render();
+      }
+      if(setaTmp){if(Math.abs(setaTmp.x2-setaTmp.x1)+Math.abs(setaTmp.y2-setaTmp.y1)>12){snap();E.setas.push(setaTmp);}setaTmp=null;render();}
+      if(tracoTmp){if(tracoTmp.pts.length>2){snap();E.tracos.push(tracoTmp);}tracoTmp=null;render();}
+    }
+    s.addEventListener('pointerup',solta);
+    s.addEventListener('pointercancel',solta);
+    document.querySelectorAll('#pr-tools .tl').forEach(function(b){
+      b.addEventListener('click',function(){
+        modo=b.getAttribute('data-m');
+        document.querySelectorAll('#pr-tools .tl').forEach(function(x){x.classList.toggle('on',x===b);});
+      });
+    });
+  }
+
+  /* frames → jogada animada (conceito de interpolação vindo do elite-coach) */
+  function guardarMomento(){
+    E.frames.push(JSON.parse(JSON.stringify({tokens:E.tokens,setas:E.setas,tracos:E.tracos})));
+    E.frameAtual=E.frames.length-1;
+    toast('Momento '+E.frames.length+' guardado');
+    pintarFrames();
+  }
+  function pintarFrames(){
+    var box=document.getElementById('pr-frames-lista');if(!box)return;
+    box.innerHTML=E.frames.map(function(_,i){
+      return '<button class="fr'+(i===E.frameAtual?' on':'')+'" onclick="PR.irFrame('+i+')">'+(i+1)+'</button>';
+    }).join('');
+  }
+  function irFrame(i){
+    if(i<0||i>=E.frames.length)return;
+    var f=JSON.parse(JSON.stringify(E.frames[i]));
+    E.tokens=f.tokens;E.setas=f.setas;E.tracos=f.tracos;E.frameAtual=i;
+    render();
+  }
+  /* Reprodução automática — segue as setas desenhadas, sem exigir "momentos".
+     Corrida: liga cada seta ao jogador mais próximo do seu início (raio 40px,
+     generoso o suficiente para o dedo que começou a desenhar em cima do token
+     mas sem raio 14) e anima-o até à ponta. Passe: encadeia as setas a partir
+     de onde a bola está agora (a ponta de uma liga ao início da seguinte),
+     e a bola percorre essa cadeia em sequência, não em paralelo — é assim que
+     um passe se lê. Corridas e passe acontecem ao mesmo tempo, como no campo. */
+  function reproduzirAuto(){
+    var corridas=E.setas.filter(function(s){return s.tipo==='corrida';});
+    var passes=E.setas.filter(function(s){return s.tipo==='passe';});
+    if(!corridas.length && !passes.length){ toast('Desenha uma seta de passe ou de corrida — ou guarda 2 momentos'); return; }
+    aReproduzir=true; var DUR=1400;
+
+    var jogadores=E.tokens.filter(function(t){return t.tipo!=='bola'&&t.tipo!=='cone';});
+    var moves=corridas.map(function(s){
+      var melhor=null;
+      jogadores.forEach(function(t){
+        var d=Math.hypot(t.x-s.x1,t.y-s.y1);
+        if(d<40 && (!melhor||d<melhor.d)) melhor={id:t.id,d:d};
+      });
+      return melhor?{id:melhor.id,from:{x:0,y:0},to:{x:s.x2,y:s.y2}}:null;
+    }).filter(Boolean);
+    // "from" fixa-se no arranque do tick, com a posição real nesse instante —
+    // se o jogador já tiver sido movido à mão entretanto, a animação parte daí.
+
+    var bola=E.tokens.find(function(t){return t.tipo==='bola';});
+    // A bola é normalmente colocada no DESTINO do passe (é para ali que vai),
+    // não na posição de partida — por isso a cadeia não começa "de onde a
+    // bola está agora". Começa na raiz: a seta cujo início não é o fim de
+    // nenhuma outra. Se houver mais que uma sequência solta, usa-se a maior.
+    var cadeia=[];
+    if(bola && passes.length){
+      var raizes=passes.map(function(s,i){
+        var ehDestino=passes.some(function(o,j){ return j!==i && Math.hypot(o.x2-s.x1,o.y2-s.y1)<40; });
+        return ehDestino?-1:i;
+      }).filter(function(i){return i>=0;});
+      raizes.forEach(function(r0){
+        var atual={x:passes[r0].x1,y:passes[r0].y1}, seq=[], livres=passes.map(function(_,i){return i;});
+        while(true){
+          var idx=-1,melhorD=40;
+          livres.forEach(function(i){ var d=Math.hypot(passes[i].x1-atual.x,passes[i].y1-atual.y); if(d<melhorD){melhorD=d;idx=i;} });
+          if(idx===-1) break;
+          seq.push(passes[idx]); atual={x:passes[idx].x2,y:passes[idx].y2};
+          livres=livres.filter(function(i){return i!==idx;});
+        }
+        if(seq.length>cadeia.length) cadeia=seq;
+      });
+    }
+
+    moves.forEach(function(m){ var t=E.tokens.find(function(x){return x.id===m.id;}); if(t) m.from={x:t.x,y:t.y}; });
+    var t0=performance.now();
+    function tick(now){
+      var k=Math.min(1,(now-t0)/DUR); var ease=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
+      moves.forEach(function(m){
+        var t=E.tokens.find(function(x){return x.id===m.id;});
+        if(t){ t.x=m.from.x+(m.to.x-m.from.x)*ease; t.y=m.from.y+(m.to.y-m.from.y)*ease; }
+      });
+      if(bola && cadeia.length){
+        var pos=ease*cadeia.length, seg=Math.min(cadeia.length-1,Math.floor(pos)), segK=pos-seg, s=cadeia[seg];
+        bola.x=s.x1+(s.x2-s.x1)*segK; bola.y=s.y1+(s.y2-s.y1)*segK;
+      }
+      render();
+      if(k<1) requestAnimationFrame(tick); else aReproduzir=false;
+    }
+    requestAnimationFrame(tick);
+  }
+
+  function reproduzir(){
+    if(E.frames.length>=2){
+    var i=0,DUR=850;
+    function passo(){
+      var A=E.frames[i],B=E.frames[i+1],t0=performance.now();
+      E.setas=B.setas;E.tracos=B.tracos;
+      function tick(now){
+        var k=Math.min(1,(now-t0)/DUR);k=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
+        E.tokens=A.tokens.map(function(a){
+          var b=B.tokens.find(function(x){return x.id===a.id;})||a;
+          return Object.assign({},a,{x:a.x+(b.x-a.x)*k,y:a.y+(b.y-a.y)*k});
+        });
+        render();
+        if(k<1)requestAnimationFrame(tick);
+        else{i++;if(i<E.frames.length-1)passo();else{aReproduzir=false;E.frameAtual=E.frames.length-1;irFrame(E.frameAtual);}}
+      }
+      requestAnimationFrame(tick);
+    }
+    passo();
+    } else {
+      reproduzirAuto();
+    }
+  }
+
+  function undo(){
+    var u=undoStack.pop();
+    if(!u){toast('Nada a desfazer');return;}
+    redoStack.push(JSON.stringify({tokens:E.tokens,setas:E.setas,tracos:E.tracos}));
+    var f=JSON.parse(u);E.tokens=f.tokens;E.setas=f.setas;E.tracos=f.tracos;render();
+  }
+  function redo(){
+    var r=redoStack.pop();
+    if(!r){toast('Nada a refazer');return;}
+    undoStack.push(JSON.stringify({tokens:E.tokens,setas:E.setas,tracos:E.tracos}));
+    var f=JSON.parse(r);E.tokens=f.tokens;E.setas=f.setas;E.tracos=f.tracos;render();
+  }
+  function limpar(){snap();E.setas=[];E.tracos=[];E.tokens=E.tokens.filter(function(t){return t.tipo==='A';});E.frames=[];E.frameAtual=-1;render();}
+  function reformatar(){snap();E.tokens=E.tokens.filter(function(t){return t.tipo!=='A'&&t.tipo!=='B';});formar();render();}
+
+  function exportarPNG(){
+    var xml=new XMLSerializer().serializeToString(svg());
+    var img=new Image();
+    img.onload=function(){
+      var c=document.createElement('canvas');c.width=W*2;c.height=H*2;
+      var ctx=c.getContext('2d');ctx.scale(2,2);ctx.drawImage(img,0,0,W,H);
+      var a=document.createElement('a');a.download='jogada-ytb.png';a.href=c.toDataURL('image/png');a.click();
+      toast('Imagem exportada 📸');
+    };
+    img.onerror=function(){toast('⚠ Não foi possível exportar');};
+    img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(xml);
+  }
+
+  var LS='ytbPranchetaJogadas';   // legado: só para migrar o que ficou no dispositivo
+  var JOGADAS=[];                 // agora vem do servidor
+  var jogadaAberta=null;          // id da que está aberta, para guardar por cima em vez de duplicar
+  var sugestaoNomeExterna=null;   // preenchido por ADV.abrirNaPrancheta() — guardarJogada() usa isto se existir
+
+  function jogadasLocais(){try{return JSON.parse(localStorage.getItem(LS)||'[]');}catch(e){return[];}}
+
+  // Migração silenciosa: quem já tinha jogadas neste dispositivo não as perde.
+  // Sobem uma vez para o servidor e a cópia local é marcada como migrada.
+  function migrarLocais(){
+    var locais=jogadasLocais();
+    if(!locais.length)return Promise.resolve(0);
+    var envios=locais.map(function(j){
+      return supa.rpc('ytb_coach_jogada_guardar',{
+        p_nome:j.nome||'Jogada', p_formato:j.formato||null,
+        p_estado:j.estado||{tokens:[],setas:[],tracos:[]}, p_frames:j.frames||[]
+      });
+    });
+    return Promise.all(envios).then(function(res){
+      var ok=res.filter(function(r){return r&&r.data&&r.data.ok;}).length;
+      if(ok){
+        try{ localStorage.setItem(LS+'_migrado',JSON.stringify(locais)); localStorage.removeItem(LS); }catch(e){}
+        toast('✓ '+ok+' jogada'+(ok===1?'':'s')+' deste dispositivo guardada'+(ok===1?'':'s')+' na tua conta');
+      }
+      return ok;
+    }).catch(function(){ return 0; });
+  }
+
+  function carregarJogadas(){
+    if(!window.equipaAtiva) return Promise.resolve([]);
+    return supa.rpc('ytb_clube_jogadas_listar',{p_equipa_id:window.equipaAtiva.id}).then(function(r){
+      var d=r&&r.data;
+      JOGADAS=(d&&d.ok&&d.lista)||[];
+      pintarJogadas();
+      return JOGADAS;
+    }).catch(function(){ pintarJogadas(); });
+  }
+
+  var CATEGORIAS_JOGADA=[['org_ofensiva','Organização ofensiva'],['org_defensiva','Organização defensiva'],['transicao_ofensiva','Transição ofensiva'],['transicao_defensiva','Transição defensiva'],['bola_parada','Bola parada']];
+  var categoriaEscolhida=null;
+
+  function pintarCategorias(){
+    chips('mj-categoria', CATEGORIAS_JOGADA, function(){return categoriaEscolhida;}, function(v){
+      categoriaEscolhida = (categoriaEscolhida===v) ? null : v;   // clicar na já escolhida desmarca — é opcional
+      pintarCategorias();
+    });
+  }
+
+  function guardarJogada(){
+    if(navigator.onLine===false){ toast('⚠ Sem rede — a jogada não fica guardada na tua conta. Tenta quando tiveres ligação.'); return; }
+    var atual = jogadaAberta ? JOGADAS.find(function(x){return x.id===jogadaAberta;}) : null;
+    document.getElementById('mj-nome').value = sugestaoNomeExterna || (atual ? atual.nome : ('Jogada '+(JOGADAS.length+1)));
+    sugestaoNomeExterna=null;   // só se usa uma vez — depois volta ao comportamento normal
+    categoriaEscolhida = (atual && atual.categoria) || null;
+    pintarCategorias();
+    document.getElementById('modalJogada').style.display='flex';
+  }
+
+  function fecharModalJogada(){ document.getElementById('modalJogada').style.display='none'; }
+
+  function confirmarGuardarJogada(){
+    var nome=(document.getElementById('mj-nome').value||'').trim();
+    if(!nome){ toast('Falta o nome da jogada'); return; }
+    if(!window.equipaAtiva){ toast('Escolhe uma equipa primeiro'); return; }
+    var mesma = jogadaAberta && JOGADAS.some(function(x){return x.id===jogadaAberta && x.nome===nome;});
+    supa.rpc('ytb_clube_jogada_guardar',{
+      p_equipa_id: window.equipaAtiva.id,
+      p_id: mesma ? jogadaAberta : null,
+      p_nome:nome, p_formato:SEL.formato, p_categoria: categoriaEscolhida,
+      p_dados:{tokens:E.tokens,setas:E.setas,tracos:E.tracos,frames:E.frames}
+    }).then(function(r){
+      var d=r&&r.data;
+      if(r.error||!d||!d.ok){ toast('⚠ Não ficou guardada'+((d&&d.motivo)?' ('+d.motivo+')':'')); return; }
+      jogadaAberta=d.id;
+      toast(mesma?'✓ Jogada atualizada':'✓ Jogada guardada na equipa');
+      fecharModalJogada();
+      carregarJogadas();
+    }).catch(function(){ toast('⚠ Não ficou guardada — sem ligação.'); });
+  }
+
+  var CATEGORIA_ABREV={org_ofensiva:'Org. ofensiva',org_defensiva:'Org. defensiva',transicao_ofensiva:'Transição of.',transicao_defensiva:'Transição def.',bola_parada:'Bola parada'};
+  function pintarJogadas(){
+    var box=document.getElementById('pr-jogadas');if(!box)return;
+    if(!JOGADAS.length){ box.innerHTML='<span class="s" style="font-size:12px;color:var(--muted)">Sem jogadas guardadas ainda.</span>'; return; }
+    box.innerHTML=JOGADAS.map(function(j){
+      var cat = j.categoria ? (' <span style="color:var(--muted);font-weight:400">· '+esc(CATEGORIA_ABREV[j.categoria]||j.categoria)+'</span>') : '';
+      return '<span class="jg'+(j.id===jogadaAberta?' jg-on':'')+'" onclick="PR.abrirJogada(\''+j.id+'\')"><b>▶</b> '+esc(j.nome)+cat+' <span class="x" onclick="event.stopPropagation();PR.apagarJogada(\''+j.id+'\')">✕</span></span>';
+    }).join('');
+  }
+
+  function abrirJogada(id){
+    var j=JOGADAS.find(function(x){return x.id===id;});if(!j)return;
+    SEL.formato=j.formato||SEL.formato;
+    var st=j.estado||{};
+    E.tokens=st.tokens||[];E.setas=st.setas||[];E.tracos=st.tracos||[];
+    E.frames=j.frames||[];E.frameAtual=E.frames.length-1;
+    jogadaAberta=id;
+    render();pintarJogadas();toast('Jogada aberta: '+j.nome);
+  }
+
+  function apagarJogada(id){
+    var j=JOGADAS.find(function(x){return x.id===id;});
+    if(!j)return;
+    if(!window.confirm('Apagar "'+j.nome+'"?'))return;
+    supa.rpc('ytb_clube_jogada_apagar',{p_id:id}).then(function(r){
+      var d=r&&r.data;
+      if(r.error||!d||!d.ok){ toast('⚠ Não foi possível apagar'); return; }
+      if(jogadaAberta===id)jogadaAberta=null;
+      toast('Jogada apagada');
+      carregarJogadas();
+    }).catch(function(){ toast('⚠ Sem ligação'); });
+  }
+
+  /* Ecrã inteiro. Base em CSS porque o iPhone não deixa pedir fullscreen a um
+     elemento qualquer — e é o telemóvel que vai estar no balneário. Quando a API
+     existe, pede-se também, só para arrumar a barra do browser; se falhar, o modo
+     imersivo funciona na mesma. Mantém o ecrã aceso enquanto durar, se der. */
+  var wakeLock=null;
+
+  /* Deitado, o campo roda 90 graus para ficar ao comprido — um campo vertical
+     encaixado num ecra largo fica minusculo (as barras pretas dos dois lados).
+     A rotacao e CSS, e o arrasto acompanha sem uma linha de matematica: coords()
+     usa getScreenCTM(), cuja matriz ja inclui a transformacao do elemento.
+     As medidas tem de vir do JS porque um elemento rodado mantem a caixa de
+     layout original — o CSS sozinho nao sabe trocar largura por altura. */
+  function medirCampo(){
+    var s=document.getElementById('prancheta-svg');
+    var w=document.getElementById('pr-campo-wrap');
+    if(!s||!w) return;
+    var cheio=document.body.classList.contains('pr-cheio');
+    // Deitado no ecrã inteiro (como antes), ou num ecrã largo e baixo mesmo
+    // sem ecrã inteiro — é o caso do tablet pousado no banco, onde o campo
+    // vertical ficava pequeno ao centro a desperdiçar dois terços do ecrã.
+    var tabletAoComprido = !cheio && window.innerWidth >= 900 && window.innerWidth > window.innerHeight;
+    var deitado = (cheio && w.clientWidth > w.clientHeight) || tabletAoComprido;
+    document.body.classList.toggle('pr-deitado', deitado);
+    document.body.classList.toggle('pr-deitado-solto', tabletAoComprido);
+    if(!deitado){ s.style.width=''; s.style.height=''; return; }
+    var alturaUtil = cheio ? w.clientHeight : Math.max(320, window.innerHeight - 190);
+    var larguraUtil = cheio ? w.clientWidth : w.clientWidth;
+    // depois de rodar: largura visivel = altura CSS, altura visivel = largura CSS
+    var esc=Math.min(alturaUtil/340, larguraUtil/520);
+    s.style.width =(340*esc)+'px';
+    s.style.height=(520*esc)+'px';
+  }
+  addEventListener('resize',medirCampo,{passive:true});
+  addEventListener('orientationchange',function(){ setTimeout(medirCampo,180); },{passive:true});
+
+  function mais(){ document.body.classList.toggle('pr-mais'); setTimeout(medirCampo,0); }
+
+  async function cheio(ligar){
+    document.body.classList.toggle('pr-cheio', !!ligar);
+    if(!ligar) document.body.classList.remove('pr-mais','pr-deitado');
+    var palco=document.getElementById('pr-palco');
+    if(ligar){
+      if(palco && palco.requestFullscreen){ try{ await palco.requestFullscreen({navigationUI:'hide'}); }catch(e){} }
+      try{ if(navigator.wakeLock) wakeLock=await navigator.wakeLock.request('screen'); }catch(e){}
+      try{ if(screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); }catch(e){}
+    } else {
+      if(document.fullscreenElement && document.exitFullscreen){ try{ await document.exitFullscreen(); }catch(e){} }
+      if(wakeLock){ try{ wakeLock.release(); }catch(e){} wakeLock=null; }
+    }
+    render();
+    setTimeout(medirCampo,60);   // depois do layout assentar
+    setTimeout(medirCampo,320);  // e depois da animacao de fullscreen, se houver
+  }
+  // sair pelo botão do sistema ou pelo Esc deixa o CSS coerente
+  document.addEventListener('fullscreenchange',function(){
+    if(!document.fullscreenElement && document.body.classList.contains('pr-cheio')) cheio(false);
+  });
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape' && document.body.classList.contains('pr-cheio')) cheio(false);
+  });
+
+  function init(){
+    formar();ligar();render();pintarJogadas();
+    // no Clube não há jogadas antigas em localStorage a migrar (mecanismo do
+    // CoachBase avulso) -- o carregamento real acontece quando a aba
+    // Prancheta é aberta, via PR.carregarJogadas() (equipaAtiva só existe
+    // depois do login, nunca no arranque desta IIFE)
+    medirCampo();
+  }
+  return {init:init,render:render,reformatar:reformatar,addEquipaB:addEquipaB,addBola:addBola,addCone:addCone,cheio:cheio,mais:mais,
+    undo:undo,redo:redo,limpar:limpar,guardarMomento:guardarMomento,irFrame:irFrame,reproduzir:reproduzir,
+    exportarPNG:exportarPNG,guardarJogada:guardarJogada,confirmarGuardarJogada:confirmarGuardarJogada,
+    fecharModalJogada:fecharModalJogada,abrirJogada:abrirJogada,apagarJogada:apagarJogada,carregarJogadas:carregarJogadas,
+    set sugestaoNome(v){sugestaoNomeExterna=v;}, _estado:E};
+})();
+
 
 /* ══════ config e banco de exercícios, copiados do CoachBase (migração 142) ══════ */
 var SEL={escalao:'Sub-11',formato:'fut7',n:12,dur:75,material:['bolas','coletes','cones'],foco:'posse',tatica:'4-4-2'};
@@ -717,7 +1363,8 @@ function montarSeletores(){
   // original — não fazem parte desta fatia (só o gerador de treino),
   // por isso removidas aqui (chamá-las com elementos inexistentes
   // interrompia toda a execução seguinte com "Cannot set properties of null")
-  chipsTatica('c-tatica');
+  chips('pr-fmt',[['fut7','Fut7'],['fut9','Fut9'],['fut11','Fut11']],function(){return SEL.formato},function(v){SEL.formato=v;if(window.PR)PR.reformatar();atualizarTatica();});
+  chipsTatica('c-tatica');chipsTatica('pr-tatica');
   pintarInfoTatica();atualizarTatica();
 }
 function stepN(d){SEL.n=Math.max(4,Math.min(30,SEL.n+d));document.getElementById('v-n').textContent=SEL.n;}
@@ -866,7 +1513,7 @@ function pintarTreinos(){
 }
 
 /* ══════ NAVEGAÇÃO ══════ */
-var TABS=[['equipas','Equipas'],['plantel','Plantel'],['jogos','Jogos'],['treinos','Treinos']];
+var TABS=[['equipas','Equipas'],['plantel','Plantel'],['jogos','Jogos'],['treinos','Treinos'],['prancheta','Prancheta']];
 function montarTabsTopo(){
   var tabs=TABS.slice();
   if(meuClube && meuClube.papel==='admin') tabs.push(['membros','Membros']);
@@ -879,6 +1526,7 @@ window.tab=function(t){
   document.querySelectorAll('.sec').forEach(function(s){s.classList.toggle('on',s.id==='sec-'+t);});
   if(t==='membros') carregarMembros();
   if(t==='treinos') pintarTreinos();
+  if(t==='prancheta'){ montarSeletores(); if(window.PR){ PR.reformatar(); PR.carregarJogadas(); } }
 };
 verificarSessao();
 </script></body>
