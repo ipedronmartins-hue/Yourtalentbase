@@ -3086,9 +3086,53 @@ function pintarSecretaria(){
     +'<input class="input" id="sec-email-enc" type="email">'
     +'<button class="btn" onclick="criarAtletaSecretaria()">Criar atleta →</button>'
     +'<div id="sec-duplicados"></div></div>'
+    +'<div class="card"><div class="h">Documentos <span style="color:var(--gold)">do atleta</span></div>'
+    +'<div class="s">CC, foto, Modelo 2, exame médico — ficam guardados de forma privada, só visíveis à secretaria, ao admin e ao encarregado do próprio atleta.</div>'
+    +'<label class="label">Atleta</label><select class="input" id="doc-atleta" onchange="carregarDocumentosAtleta()">'
+    +'<option value="">— escolhe um atleta —</option>'
+    +atletasDoClube.map(function(a){return '<option value="'+a.id+'">'+esc(a.primeiro_nome||a.nome)+'</option>';}).join('')
+    +'</select>'
+    +'<label class="label">Tipo de documento</label><select class="input" id="doc-tipo">'
+    +[['cc','CC do atleta'],['cc_encarregado','CC do encarregado'],['foto','Foto'],['modelo2','Modelo 2'],['exame_medico','Exame médico']]
+      .map(function(t){return '<option value="'+t[0]+'">'+t[1]+'</option>';}).join('')
+    +'</select>'
+    +'<label class="label">Ficheiro</label><input class="input" id="doc-ficheiro" type="file" accept="image/*,.pdf">'
+    +'<button class="btn" onclick="enviarDocumento()">Enviar →</button>'
+    +'<div id="doc-lista" style="margin-top:12px"></div></div>'
     +'<div id="atribuicao-treinadores-area"><div class="card"><div class="s">A carregar…</div></div></div>';
   carregarEPintarAtribuicaoTreinadores();
 }
+window.enviarDocumento=async function(){
+  var atletaId=document.getElementById('doc-atleta').value;
+  var tipo=document.getElementById('doc-tipo').value;
+  var input=document.getElementById('doc-ficheiro');
+  var ficheiro=input.files&&input.files[0];
+  if(!atletaId){ toast('Escolhe um atleta primeiro'); return; }
+  if(!ficheiro){ toast('Escolhe um ficheiro'); return; }
+  var ext=(ficheiro.name.split('.').pop()||'bin').toLowerCase();
+  var caminho=meuClube.clube_id+'/'+atletaId+'/'+tipo+'-'+Date.now()+'.'+ext;
+  const up=await supa.storage.from('clube-documentos').upload(caminho, ficheiro);
+  if(up.error){ toast('⚠ Não foi possível enviar: '+up.error.message); return; }
+  const {data:r}=await supa.rpc('ytb_clube_documento_registar',{p_atleta_id:atletaId,p_tipo:tipo,p_caminho_storage:caminho,p_nome_ficheiro:ficheiro.name});
+  if(!r||!r.ok){ toast('⚠ Ficheiro enviado, mas não foi possível registar: '+((r&&r.motivo)||'erro')); return; }
+  toast('✓ Documento guardado');
+  input.value='';
+  await window.carregarDocumentosAtleta();
+};
+window.carregarDocumentosAtleta=async function(){
+  var atletaId=document.getElementById('doc-atleta').value;
+  var lista=document.getElementById('doc-lista');
+  if(!atletaId){ lista.innerHTML=''; return; }
+  const {data:r}=await supa.rpc('ytb_clube_documentos_listar',{p_atleta_id:atletaId});
+  if(!r||!r.ok){ lista.innerHTML='<div class="s">⚠ Não foi possível carregar.</div>'; return; }
+  var docs=r.lista||[];
+  var ROTULOS={cc:'CC do atleta',cc_encarregado:'CC do encarregado',foto:'Foto',modelo2:'Modelo 2',exame_medico:'Exame médico'};
+  lista.innerHTML=docs.length ? docs.map(function(d){
+    return '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px">'
+      +'<span>'+(ROTULOS[d.tipo]||d.tipo)+' — '+esc(d.nome_ficheiro)+'</span>'
+      +'<span style="color:var(--muted)">'+new Date(d.enviado_em).toLocaleDateString('pt-PT')+'</span></div>';
+  }).join('') : '<div class="s">Ainda sem documentos para este atleta.</div>';
+};
 async function carregarEPintarAtribuicaoTreinadores(){
   const {data:r}=await supa.rpc('ytb_clube_membros_listar',{p_clube_id:meuClube.clube_id});
   var todosMembros=(r&&r.ok&&r.lista)||[];
