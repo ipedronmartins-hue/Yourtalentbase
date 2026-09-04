@@ -1,0 +1,3 @@
+-- 151: criacao de atleta pela Secretaria do Clube, reaproveitando a
+-- logica de validacao/dedupe ja construida para a Academia. Corpo
+-- integral no historico Supabase (151).

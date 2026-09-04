@@ -399,6 +399,7 @@ body.pr-cheio #pr-sair{display:block}
     <div class="sec" id="sec-avaliar"></div>
     <div class="sec" id="sec-retorno"><div class="card"><div class="h">O teu <span>retorno</span></div><div class="s">O que aconteceu depois de avaliares e prescreveres: quem treinou, como correu, quem precisa de nova avaliação.</div><div id="retorno-area"></div></div></div>
     <div class="sec" id="sec-scout"></div>
+    <div class="sec" id="sec-secretaria"></div>
   </div>
   <div class="report-modal" id="reportModal">
     <div class="report-toolbar">
@@ -3064,11 +3065,56 @@ window.preencherDeAtletaSelecionadoClube=function(){
 };
 
 
+/* ══════ SECRETARIA (admin/secretaria) ══════ */
+function pintarSecretaria(){
+  const box=document.getElementById('sec-secretaria');
+  box.innerHTML='<div class="card"><div class="h">Criar <span style="color:var(--gold)">atleta</span></div>'
+    +'<div class="s">O atleta fica logo ligado a este clube. Se já existir um atleta parecido (nome + ano), a YTB avisa antes de duplicar.</div>'
+    +'<label class="label">Nome completo</label><input class="input" id="sec-nome">'
+    +'<div class="grid2"><div><label class="label">Ano de nascimento</label><input class="input" id="sec-ano" type="number" placeholder="Ex: 2014"></div>'
+    +'<div><label class="label">Posição</label><select class="input" id="sec-pos">'
+    +[['GR','Guarda-Redes'],['DC','Defesa Central'],['LD','Lateral Direito'],['LE','Lateral Esquerdo'],['MD','Médio Defensivo'],
+      ['MC','Médio Centro'],['MO','Médio Ofensivo'],['ED','Extremo Direito'],['EE','Extremo Esquerdo'],['PL','Ponta de Lança'],['AV','Avançado']]
+      .map(function(p){return '<option value="'+p[0]+'">'+p[1]+'</option>';}).join('')
+    +'</select></div></div>'
+    +'<label class="label">Email do encarregado <span style="font-weight:400;color:var(--muted)">(para aceder ao Passaporte)</span></label>'
+    +'<input class="input" id="sec-email-enc" type="email">'
+    +'<button class="btn" onclick="criarAtletaSecretaria()">Criar atleta →</button>'
+    +'<div id="sec-duplicados"></div></div>';
+}
+window.criarAtletaSecretaria=async function(forcarNovo){
+  var nome=(document.getElementById('sec-nome').value||'').trim();
+  var ano=parseInt(document.getElementById('sec-ano').value,10);
+  var pos=document.getElementById('sec-pos').value;
+  var emailEnc=(document.getElementById('sec-email-enc').value||'').trim();
+  if(!nome||!ano){ toast('Falta o nome ou o ano de nascimento'); return; }
+  const {data:r}=await supa.rpc('ytb_clube_secretaria_atleta_criar',{
+    p_clube_id:meuClube.clube_id, p_nome:nome, p_ano:ano, p_pos:pos,
+    p_email_enc:emailEnc||null, p_confirmar_novo:!!forcarNovo
+  });
+  var dupArea=document.getElementById('sec-duplicados');
+  if(!r||!r.ok){
+    if(r&&r.motivo==='duplicado_possivel'){
+      dupArea.innerHTML='<div class="panel" style="border-color:var(--gold-border);margin-top:12px">'
+        +'<div class="s" style="color:var(--white)">Já existe um atleta parecido — confirma que não é a mesma pessoa:</div>'
+        +(r.candidatos||[]).map(function(c){return '<div class="s">· '+esc(c.nome)+' ('+esc(c.ano)+') — '+esc(c.clube||'')+'</div>';}).join('')
+        +'<button class="btn" style="margin-top:8px" onclick="criarAtletaSecretaria(true)">Não é a mesma pessoa — criar assim mesmo →</button></div>';
+      return;
+    }
+    toast('⚠ Não foi possível: '+((r&&r.motivo)||'erro')); return;
+  }
+  dupArea.innerHTML='';
+  toast('✓ Atleta criado');
+  document.getElementById('sec-nome').value='';document.getElementById('sec-ano').value='';document.getElementById('sec-email-enc').value='';
+  await carregarAtletasDoClube();
+};
+
 /* ══════ NAVEGAÇÃO ══════ */
 var TABS=[['equipas','Equipas'],['plantel','Plantel'],['jogos','Jogos'],['treinos','Treinos'],['prancheta','Prancheta'],['avaliar','Avaliar'],['retorno','Retorno']];
 function montarTabsTopo(){
   var tabs=TABS.slice();
   if(meuClube && (meuClube.papel==='scout'||meuClube.papel==='admin')) tabs.push(['scout','Scout']);
+  if(meuClube && (meuClube.papel==='secretaria'||meuClube.papel==='admin')) tabs.push(['secretaria','Secretaria']);
   if(meuClube && meuClube.papel==='admin') tabs.push(['membros','Membros']);
   document.getElementById('tabs-topo').innerHTML=tabs.map(function(t,i){
     return '<button class="tab'+(i===0?' on':'')+'" data-t="'+t[0]+'" onclick="tab(\''+t[0]+'\')">'+t[1]+'</button>';
@@ -3083,6 +3129,7 @@ window.tab=function(t){
   if(t==='avaliar') pintarAvaliar();
   if(t==='retorno') renderRetorno();
   if(t==='scout') pintarScout();
+  if(t==='secretaria') pintarSecretaria();
 };
 verificarSessao();
 </script></body>
