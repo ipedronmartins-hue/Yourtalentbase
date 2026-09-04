@@ -45,6 +45,19 @@ body{max-width:560px;margin:0 auto;padding-bottom:60px}
 .pill-vermelho{background:rgba(255,80,80,.15);color:var(--red)}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 20px;font-size:13px;opacity:0;pointer-events:none;transition:.25s;z-index:999;max-width:90%;text-align:center}
 .toast.show{opacity:1}
+/* trazidas do coachbase.html para o gerador de treino do Clube */
+.err{color:var(--red);font-size:12px;text-align:center;margin-top:8px;display:none}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.step{display:flex;align-items:center;gap:12px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:8px 10px}
+.step button{width:44px;height:44px;border-radius:9px;border:1px solid var(--border);background:var(--bg2);color:#fff;font-size:20px;cursor:pointer}
+.step .v{flex:1;text-align:center;font-family:'Barlow Condensed';font-weight:900;font-size:24px}
+.bloco{border:1px solid var(--border);border-radius:11px;padding:13px;margin-bottom:9px;background:var(--bg3)}
+.bloco .bt{font-family:'Barlow Condensed';font-weight:900;font-size:16px;color:var(--gold)}
+.ex{border-top:1px solid var(--border);padding:9px 0}
+.ex .en{font-weight:800;font-size:14px}
+.ex .eo{font-size:12px;color:var(--up)}
+.ex .ed{font-size:12.5px;color:var(--slate);line-height:1.5;margin-top:3px}
 </style>
 </head>
 <body>
@@ -67,6 +80,7 @@ body{max-width:560px;margin:0 auto;padding-bottom:60px}
     <div class="sec" id="sec-plantel"></div>
     <div class="sec" id="sec-jogos"></div>
     <div class="sec" id="sec-membros"></div>
+    <div class="sec" id="sec-treinos"></div>
   </div>
 </div>
 <div class="toast" id="toast"></div>
@@ -367,8 +381,460 @@ window.removerMembro=async function(email,papel){
   toast('✓ Removido'); await carregarMembros();
 };
 
+/* ══════ config e banco de exercícios, copiados do CoachBase (migração 142) ══════ */
+var SEL={escalao:'Sub-11',formato:'fut7',n:12,dur:75,material:['bolas','coletes','cones'],foco:'posse',tatica:'4-4-2'};
+var LS_TATICA='ytbCoachTatica';
+(function(){try{var t=localStorage.getItem(LS_TATICA);if(t)SEL.tatica=t;}catch(e){}})();
+function guardarTaticaEscolhida(v){SEL.tatica=v;try{localStorage.setItem(LS_TATICA,v);}catch(e){}}
+var ESCALOES=['Sub-10','Sub-11','Sub-12','Sub-13','Sub-15','Sub-17','Sub-19','Seniores'];
+var MATERIAIS=[['bolas','⚽ Bolas'],['coletes','🎽 Coletes'],['cones','🔺 Cones'],['balizas','🥅 Balizas pequenas'],['escada','🪜 Escada'],['barreiras','🚧 Barreiras']];
+var FOCOS=[['posse','Posse'],['finalizacao','Finalização'],['transicao','Transições'],['defesa','Defesa'],['fisico','Físico'],['jogo','Jogo']];
+
+/* ══════════════════════════════════════════════════════════════════
+   BANCO DE EXERCÍCIOS DE EQUIPA — 85 exercícios reais, por escalão
+   competitivo. Substitui a antiga geração 100% por IA (repetitiva:
+   um único prompt genérico convergia sempre nas mesmas 5 ideias).
+   Agora o CONTEÚDO é determinístico e curado — a IA fica reservada
+   para julgamento tático (painel Adversário), onde de facto acrescenta
+   valor. tierMin/tierMax usam a escala de competitividade (0-3), não
+   a idade em anos — ver tierDeEscalao(). equip é filtrado contra os
+   materiais escolhidos (bolas/coletes/cones/balizas/escada/barreiras);
+   outro equipamento mencionado (colchão, halteres…) não bloqueia.
+   ══════════════════════════════════════════════════════════════════ */
+var TIER_NOME=['Formação (Sub-10/11)','Pré-competitivo (Sub-12/13)','Competitivo (Sub-15/17/19)','Seniores'];
+function tierDeEscalao(esc){
+  if(/Sub-10|Sub-11/.test(esc))return 0;
+  if(/Sub-12|Sub-13/.test(esc))return 1;
+  if(/Sub-15|Sub-17|Sub-19/.test(esc))return 2;
+  return 3;
+}
+// Linguagem comum de desenvolvimento (mesma dos 5 domínios do pentagrama
+// em passaporte.html: Técnica/Decisão/Tática/Físico/Mental). O CoachBase
+// continua com as suas próprias 9 categorias (mais úteis para planear
+// sessões de equipa), mas cada uma mapeia para um domínio -- para que,
+// no futuro, uma sessão de equipa possa contar como evidência no mesmo
+// vocabulário que o diário da família e as avaliações do treinador já
+// usam. Isto é só o mapeamento (a fundação); ainda não gera eventos
+// individuais por atleta -- isso exige decidir como uma sessão de
+// equipa (com presenças marcadas, não execução individual registada)
+// se traduz em evidência por atleta, o que é uma decisão de produto
+// separada, não só técnica.
+var CATEGORIA_PARA_DOMINIO={
+  fisico:'fisico', tecnica:'tecnica',
+  linha_defensiva:'tatica', saida_bola:'tatica', reacao_perda:'tatica',
+  rotina_seccao:'tatica', movimentacao:'tatica', bola_parada:'tatica', geral:'tatica'
+};
+var BANCO_EQUIPA={
+  fisico:[
+    {id:'fi1',nome:'Mobilidade dinâmica de ativação',sub:'ativacao',tierMin:0,min:8,int:1,equip:'nenhum',org:'círculo, espaço pessoal',foco:'preparar o corpo, prevenir lesão',obs:'balanços de perna, rotações de anca/ombro/tornozelo, sem estática'},
+    {id:'fi2',nome:'Escada de agilidade',sub:'velocidade',tierMin:0,min:8,int:2,equip:'escada',org:'fila, um a um',foco:'coordenação e rapidez de pés',obs:'passos curtos e rápidos, tronco alto, olhar em frente'},
+    {id:'fi3',nome:'Sprints curtos com bola',sub:'velocidade',tierMin:1,min:8,int:3,equip:'bolas + cones',org:'pares, 15m',foco:'velocidade com controlo',obs:'condução em sprint, travagem controlada no cone'},
+    {id:'fi4',nome:'Sprints sem bola 10-20m',sub:'velocidade',tierMin:1,min:8,int:3,equip:'cones',org:'vagas de 3',foco:'velocidade máxima',obs:'recuperação completa entre repetições, técnica de arranque'},
+    {id:'fi5',nome:'Circuito de força com peso do corpo',sub:'forca',tierMin:1,min:10,int:2,equip:'nenhum',org:'estações em círculo',foco:'força funcional',obs:'agachamento, prancha, afundo, saltos — técnica antes de carga'},
+    {id:'fi6',nome:'Saltos pliométricos baixos',sub:'forca',tierMin:1,min:8,int:2,equip:'cones',org:'fila',foco:'potência de perna, aterragem segura',obs:'aterrar com joelhos alinhados, volume baixo nesta faixa'},
+    {id:'fi7',nome:'Corrida contínua leve',sub:'resistencia',tierMin:0,min:10,int:1,equip:'nenhum',org:'grupo, à volta do campo',foco:'base aeróbia lúdica',obs:'ritmo de conversa, nunca ofegante'},
+    {id:'fi8',nome:'Fartlek com bola',sub:'resistencia',tierMin:1,min:12,int:2,equip:'bolas + cones',org:'circuito com zonas',foco:'resistência específica',obs:'alterna ritmo lento/rápido conduzindo bola por zonas marcadas'},
+    {id:'fi9',nome:'Circuito de resistência intervalada',sub:'resistencia',tierMin:2,min:14,int:3,equip:'cones + coletes',org:'2 grupos, estações',foco:'capacidade aeróbia de jogo',obs:'30s trabalho / 30s recuperação, 8 estações'},
+    {id:'fi10',nome:'Treino de força com carga externa',sub:'forca',tierMin:3,min:15,int:3,equip:'halteres',org:'estações supervisionadas',foco:'força máxima e potência',obs:'só maturação física adulta — técnica sempre antes de carga'},
+    {id:'fi11',nome:'Prevenção de lesão · isquiotibiais e adutores',sub:'mobilidade',tierMin:1,min:8,int:1,equip:'colchão',org:'pares',foco:'prevenção de lesão',obs:'nórdicos excêntricos, ponte, alongamento ativo — nunca saltar'},
+    {id:'fi12',nome:'Core anti-rotação',sub:'core',tierMin:1,min:7,int:2,equip:'nenhum',org:'individual',foco:'estabilidade do tronco',obs:'prancha lateral, pallof press com colete, controlo, não velocidade'},
+    {id:'fi13',nome:'Sprints repetidos com mudança de direção',sub:'velocidade',tierMin:2,min:10,int:3,equip:'cones',org:'vagas',foco:'agilidade competitiva',obs:'travagem, corte, reaceleração — replica exigência real de jogo'},
+    {id:'fi14',nome:'Velocidade de reação',sub:'velocidade',tierMin:2,min:8,int:3,equip:'nenhum',org:'pares',foco:'tempo de reação',obs:'ao sinal, sprint de 5-10m — decisão rápida, não repetição mecânica'},
+    {id:'fi15',nome:'Resistência específica com bola (jogo contínuo)',sub:'resistencia',tierMin:2,min:15,int:3,equip:'coletes',org:'campo reduzido',foco:'resistência de jogo real',obs:'jogo sem paragens longas, rotação para manter intensidade'},
+    {id:'fi16',nome:'Mobilidade de anca para futebolista',sub:'mobilidade',tierMin:0,min:6,int:1,equip:'nenhum',org:'individual',foco:'amplitude de movimento',obs:'agachamento profundo, borboleta, passada de lobo — rotina curta'},
+    {id:'fi17',nome:'Pliometria avançada (saltos e mudanças)',sub:'forca',tierMin:3,min:10,int:3,equip:'nenhum',org:'estações',foco:'potência explosiva',obs:'aterragens controladas, volume baixo alta qualidade'},
+    {id:'fi18',nome:'Corrida de recuperação pós-jogo',sub:'recuperacao',tierMin:1,min:10,int:1,equip:'nenhum',org:'grupo, ritmo leve',foco:'recuperação ativa',obs:'ritmo muito baixo, soltar as pernas — usar no dia a seguir ao jogo'},
+    {id:'fi19',nome:'Retorno à calma com respiração',sub:'recuperacao',tierMin:0,min:6,int:1,equip:'nenhum',org:'círculo, sentados',foco:'baixar frequência cardíaca',obs:'respiração 4-6 (inspira 4s, expira 6s), alongamento passivo suave — momento para falar do treino'},
+    {id:'fi20',nome:'Libertação miofascial com bola',sub:'recuperacao',tierMin:1,min:8,int:1,equip:'bolas',org:'individual, no chão',foco:'aliviar tensão muscular',obs:'planta do pé, gémeo e glúteo, 30-40s por zona — pressão que incomoda mas não dói'},
+    {id:'fi21',nome:'Alongamento longo pós-esforço',sub:'recuperacao',tierMin:0,min:8,int:1,equip:'colchão',org:'individual',foco:'amplitude e recuperação',obs:'isquiotibiais, quadricípite, adutores e gémeos — 30s cada, sem molas, só no fim do treino'},
+    {id:'fi22',nome:'Caminhada e mobilidade articular final',sub:'recuperacao',tierMin:0,min:5,int:1,equip:'nenhum',org:'à volta do campo',foco:'transição para o descanso',obs:'andar a passo, círculos de tornozelo, anca e ombro — fecha a sessão sem parar de repente'},
+    {id:'fi23',nome:'Mobilidade de tornozelo e pé',sub:'mobilidade',tierMin:0,min:6,int:1,equip:'nenhum',org:'individual',foco:'amplitude e apoio',obs:'joelho à parede, elevações de gémeo, mobilidade do hálux — base para travar e mudar de direção'},
+    {id:'fi24',nome:'Mobilidade torácica e ombros',sub:'mobilidade',tierMin:1,min:6,int:1,equip:'nenhum',org:'pares',foco:'postura e rotação',obs:'rotações torácicas no chão, abertura de peito — ajuda a correr mais solto e a proteger a bola'}
+  ],
+  tecnica:[
+    {id:'te1',nome:'Passe e movimento em triângulos',tierMin:0,min:8,int:1,equip:'bolas + cones',org:'grupos de 3, triângulo 8m',foco:'passe e apoio',obs:'passa e move-te sempre, nunca fica parado depois do passe'},
+    {id:'te2',nome:'Condução sob pressão em espaço reduzido',tierMin:1,min:8,int:2,equip:'coletes + cones',org:'grupos de 4-6, quadrado 10m',foco:'proteção de bola',obs:'corpo entre a bola e o adversário, cabeça levantada'},
+    {id:'te3',nome:'Finalização após combinação',tierMin:1,min:9,int:2,equip:'balizas',org:'filas alternadas',foco:'remate após 1-2 toques',obs:'qualidade do último toque antes do remate, não só o remate'},
+    {id:'te4',nome:'Receção orientada sob pressão passiva',tierMin:1,min:7,int:2,equip:'coletes',org:'pares com 1 defesa passiva',foco:'primeiro toque para a frente',obs:'orienta o corpo antes de receber, decide antes de tocar'},
+    {id:'te5',nome:'Cabeceamento ofensivo e defensivo',tierMin:2,min:8,int:2,equip:'bolas',org:'pares/trios',foco:'timing de salto',obs:'volume controlado, foco na técnica de testa, não na força'},
+    {id:'te6',nome:'Remate de fora da área',tierMin:2,min:8,int:2,equip:'balizas',org:'fila, ângulos variados',foco:'potência e colocação',obs:'apoio do pé de base, contacto no meio da bola'},
+    {id:'te7',nome:'Drible 1x1 com finta decisiva',tierMin:1,min:8,int:2,equip:'cones',org:'pares em corredor 5m',foco:'finta eficaz, não coreografia',obs:'só uma finta bem feita vale mais que três mal feitas'},
+    {id:'te8',nome:'Passe longo de mudança de orientação',tierMin:2,min:8,int:2,equip:'bolas',org:'2 grupos, campo largo',foco:'precisão a média/longa distância',obs:'trajetória e peso do passe, chega ao pé do colega em condições de jogar'},
+    {id:'te9',nome:'Finalização de primeira',tierMin:2,min:7,int:2,equip:'balizas',org:'cruzamentos/passes laterais',foco:'remate sem controlar',obs:'timing de chegada à bola, superfície de contacto'},
+    {id:'te10',nome:'Jogo dos passes em círculo',tierMin:0,min:7,int:1,equip:'bolas',org:'círculo, todos com bola',foco:'passe e receção lúdicos',obs:'passa ao colega do lado ao sinal, sem deixar cair — celebra os acertos'},
+    {id:'te11',nome:'Condução em par (sombra)',tierMin:0,min:7,int:1,equip:'bolas',org:'pares, um conduz outro imita',foco:'condução com cabeça levantada',obs:'quem segue copia velocidade e direção sem tocar no colega'}
+  ],
+  linha_defensiva:[
+    {id:'ld1',nome:'Linha compacta e subida coordenada',tierMin:1,min:10,int:2,equip:'coletes + cones',org:'4 defesas em linha + apoio',foco:'sobem e descem juntos',obs:'um manda, todos ouvem — nunca um sozinho adiantado'},
+    {id:'ld2',nome:'Armadilha do fora de jogo',tierMin:2,min:10,int:2,equip:'coletes',org:'linha defensiva vs atacantes',foco:'timing da subida',obs:'sobe no momento do passe, não antes — comunicação verbal constante'},
+    {id:'ld3',nome:'Basculação da linha (bola lateral)',tierMin:2,min:9,int:2,equip:'coletes + cones',org:'4 defesas + 1 bola lateral',foco:'deslizar em bloco conforme a bola',obs:'o mais próximo da bola pressiona, os outros fecham espaços'},
+    {id:'ld4',nome:'Cobertura e equilíbrio 1x1+1',tierMin:1,min:8,int:2,equip:'coletes',org:'2 defesas vs 1 atacante',foco:'quem pressiona, quem cobre',obs:'nunca os dois ao mesmo tempo na bola'},
+    {id:'ld5',nome:'Defesa da profundidade (bola por trás)',tierMin:2,min:9,int:2,equip:'cones',org:'linha vs jogador em profundidade',foco:'controlar o espaço nas costas',obs:'recuar em corrida controlada, não de costas viradas'},
+    {id:'ld6',nome:'Compactação vertical defesa-meio-campo',tierMin:2,min:10,int:2,equip:'coletes',org:'8 jogadores, 2 linhas',foco:'reduzir espaço entre linhas',obs:'a linha do meio-campo protege a linha defensiva, distância curta'},
+    {id:'ld7',nome:'Jogo de posição defensiva 4x3',tierMin:1,min:10,int:2,equip:'coletes',org:'4 defesas vs 3 atacantes',foco:'situação de superioridade defensiva',obs:'organização acima de individualismo, comunica sempre'}
+  ],
+  saida_bola:[
+    {id:'sb1',nome:'Saída curta pelo guarda-redes',tierMin:1,min:9,int:1,equip:'balizas + cones',org:'GR + 4 defesas vs pressão',foco:'construção desde trás',obs:'GR decide entre curto e longo consoante a pressão'},
+    {id:'sb2',nome:'Rotação do médio defensivo na saída',tierMin:2,min:9,int:2,equip:'coletes',org:'linha defensiva + 1 MDC',foco:'terceiro homem na saída',obs:'o MDC desce entre os centrais para criar superioridade'},
+    {id:'sb3',nome:'Saída de bola contra pressão alta',tierMin:2,min:10,int:3,equip:'coletes',org:'11 vs 8, adversário pressiona alto',foco:'jogar sob pressão real',obs:'decisão rápida, um toque quando o adversário está perto'},
+    {id:'sb4',nome:'Progressão em Y pelos corredores',tierMin:1,min:9,int:2,equip:'cones',org:'linha defensiva + laterais + MC',foco:'sair pelos corredores',obs:'lateral abre, central conduz, MC recebe de costas viradas e vira'},
+    {id:'sb5',nome:'5 contra 2 com pressão orientada',tierMin:1,min:8,int:2,equip:'coletes + cones',org:'7 jogadores, quadrado',foco:'saída sob pressão em espaço curto',obs:'2 toques máximo, orientação do corpo antes de receber'},
+    {id:'sb6',nome:'Construção com falso 9 a descer',tierMin:2,min:9,int:2,equip:'coletes',org:'ataque organizado vs defesa passiva',foco:'criar linha de passe extra',obs:'o avançado desce para ligar o jogo, o espaço fica para o médio chegar'},
+    {id:'sb7',nome:'Saída de bola após lance defensivo',tierMin:2,min:8,int:2,equip:'coletes',org:'recuperação de bola → transição',foco:'primeiro passe pós-recuperação',obs:'olhar para a frente antes do passe seguro para trás'}
+  ],
+  reacao_perda:[
+    {id:'rp1',nome:'Contra-pressão nos 5 segundos',tierMin:2,min:9,int:3,equip:'coletes',org:'jogo posicional, perda condicionada',foco:'recuperar nos primeiros 5s',obs:'os 3 mais próximos da bola pressionam imediatamente após perder'},
+    {id:'rp2',nome:'Transição defensiva 1x1 imediata',tierMin:1,min:8,int:2,equip:'coletes',org:'pares',foco:'reação individual à perda',obs:'quem perde a bola é o primeiro a pressionar, sem hesitar'},
+    {id:'rp3',nome:'Fechar linhas de passe após perda',tierMin:2,min:9,int:2,equip:'coletes',org:'jogo 6x6 em espaço reduzido',foco:'reorganização coletiva',obs:'não correr atrás da bola, fechar o espaço entre linhas'},
+    {id:'rp4',nome:'Gestão de risco em contra-ataque adversário',tierMin:3,min:6,int:1,equip:'nenhum',org:'situação de contra-ataque adversário',foco:'decisão tática de último recurso',obs:'só tiers maduros — quando e como cortar o contra-ataque com inteligência'},
+    {id:'rp5',nome:'Recuperar e reiniciar posse',tierMin:1,min:8,int:2,equip:'coletes',org:'jogo condicionado',foco:'recuperar sem perder de novo',obs:'após recuperar, primeiro toque seguro, não arriscar logo'},
+    {id:'rp6',nome:'Posse com regra de consequência na perda',tierMin:2,min:9,int:2,equip:'coletes',org:'8x8, campo médio',foco:'consequência tática da perda',obs:'equipa que perde tem 6s para recuperar ou o jogo reinicia'},
+    {id:'rp7',nome:'Reação coletiva a contra-ataque',tierMin:2,min:10,int:3,equip:'coletes',org:'11 vs 8, perda em zona alta',foco:'travar o contra-ataque',obs:'o mais próximo trava, os outros recuam em bloco'}
+  ],
+  rotina_seccao:[
+    {id:'rs1',nome:'Rotina da linha defensiva (bloco de 4)',tierMin:1,min:10,int:2,equip:'coletes',org:'4 defesas isolados',foco:'automatismos de deslocação',obs:'repete subida/descida/basculação até ser automático'},
+    {id:'rs2',nome:'Comunicação entre centrais',tierMin:1,min:7,int:1,equip:'nenhum',org:'2 centrais',foco:'linguagem defensiva comum',obs:'define quem sai, quem cobre — em voz alta, sempre'},
+    {id:'rs3',nome:'Rotina de laterais (subir e cobrir)',tierMin:2,min:8,int:2,equip:'cones',org:'2 laterais + 2 alas',foco:'sincronização lateral-ala',obs:'nunca os dois no ataque ao mesmo tempo'},
+    {id:'rs4',nome:'Rotina do meio-campo (triângulo rotativo)',tierMin:2,min:9,int:2,equip:'coletes',org:'3 médios',foco:'ocupação racional do espaço',obs:'um sobe, um fica, um circula — nunca os 3 na mesma linha'},
+    {id:'rs5',nome:'Ligação meio-campo → ataque',tierMin:2,min:8,int:2,equip:'coletes',org:'3 médios + 2 avançados',foco:'timing do passe entre linhas',obs:'o passe sai quando o avançado se desmarca, não antes'},
+    {id:'rs6',nome:'Pressão coletiva sincronizada do meio-campo',tierMin:2,min:9,int:2,equip:'coletes',org:'5 jogadores',foco:'pressão orientada',obs:'todos pressionam na mesma direção, cortando linhas de passe'},
+    {id:'rs7',nome:'Rotina do ataque (movimento sem bola)',tierMin:1,min:8,int:2,equip:'coletes',org:'3 avançados/extremos',foco:'ocupar espaços vazios',obs:'nunca dois jogadores na mesma zona ao mesmo tempo'},
+    {id:'rs8',nome:'Combinações do ataque em zona final',tierMin:2,min:9,int:2,equip:'coletes + balizas',org:'3-4 atacantes vs defesa',foco:'último terço',obs:'paredes, terceiro homem, cruzamento — decisão rápida perto da área'},
+    {id:'rs9',nome:'Rotina do trio ofensivo (largura e profundidade)',tierMin:2,min:9,int:2,equip:'coletes',org:'2 extremos + 1 ponta-de-lança',foco:'equilíbrio largura/profundidade',obs:'quando um extremo entra para dentro, o lateral ocupa a largura'}
+  ],
+  movimentacao:[
+    {id:'mv1',nome:'Rotação do 4-3-3: extremo para dentro',tatica:'4-3-3',tierMin:2,min:9,int:2,equip:'coletes',foco:'criar espaço para o lateral',obs:'extremo entra, lateral sobe pela linha — timing é tudo'},
+    {id:'mv2',nome:'Duplo pivot do 4-5-1',tatica:'4-5-1',tierMin:2,min:9,int:2,equip:'coletes',foco:'equilíbrio defensivo com saída limpa',obs:'os dois médios defensivos nunca saem da linha ao mesmo tempo'},
+    {id:'mv3',nome:'Alas do 3-4-2-1 a dar largura',tatica:'3-4-2-1',tierMin:2,min:9,int:2,equip:'coletes',foco:'largura sem laterais',obs:'ala sobe até à linha do meio-campo adversário, central cobre atrás'},
+    {id:'mv4',nome:'Duas linhas de 4 do 4-4-2',tatica:'4-4-2',tierMin:1,min:8,int:2,equip:'coletes',foco:'compactação clássica',obs:'as duas linhas de 4 movem-se juntas, como um acordeão'},
+    {id:'mv5',nome:'Meia-ponta do 4-2-3-1 entre linhas',tatica:'4-2-3-1',tierMin:2,min:9,int:2,equip:'coletes',foco:'receber entre as linhas adversárias',obs:'o 10 procura sempre o espaço às costas do médio adversário'},
+    {id:'mv6',nome:'Wing-backs do 3-5-2 no ataque',tatica:'3-5-2',tierMin:2,min:9,int:2,equip:'coletes',foco:'transição de 3 para 5 defesas',obs:'ao perder a bola, o wing-back recua rápido para formar linha de 5'},
+    {id:'mv7',nome:'Falso 9 e chegada do médio',tatica:'geral',tierMin:2,min:8,int:2,equip:'coletes',foco:'criar superioridade numérica',obs:'o avançado desce, o médio ocupa o espaço nas costas da defesa'},
+    {id:'mv8',nome:'Basculação tática por zona forte',tatica:'geral',tierMin:1,min:8,int:2,equip:'coletes',foco:'todos orientados para o lado da bola',obs:'equipa inteira desliza como bloco para o corredor da bola'},
+    {id:'mv9',nome:'Sobreposição lateral-extremo',tatica:'geral',tierMin:1,min:8,int:2,equip:'coletes',foco:'criar 2x1 no corredor',obs:'lateral por fora, extremo por dentro — surpreende o defesa adversário'},
+    {id:'mv10',nome:'Permuta de posições no ataque',tatica:'geral',tierMin:2,min:9,int:2,equip:'coletes',foco:'imprevisibilidade ofensiva',obs:'avançados trocam de zona sem avisar, mantendo sempre alguém em profundidade'}
+  ],
+  bola_parada:[
+    {id:'bp1',nome:'Canto ofensivo · marcação por zona',tierMin:1,min:5,int:1,equip:'cones',foco:'ocupar zonas-chave da área',obs:'1º poste, 2º poste, entrada da área — cada jogador sabe a sua zona'},
+    {id:'bp2',nome:'Canto ofensivo · marcações combinadas',tierMin:2,min:5,int:2,equip:'coletes',foco:'bloqueios legais e desmarcação',obs:'ecrã no primeiro jogador, remate do segundo'},
+    {id:'bp3',nome:'Canto defensivo · zona + individual',tierMin:2,min:5,int:1,equip:'coletes',foco:'organização defensiva do canto',obs:'define quem marca a zona e quem marca o jogador perigoso'},
+    {id:'bp4',nome:'Livre direto · barreira e remate',tierMin:1,min:5,int:1,equip:'balizas',foco:'organização da barreira',obs:'nº certo de jogadores na barreira, GR ajusta o poste curto'},
+    {id:'bp5',nome:'Livre indireto perto da área',tierMin:2,min:5,int:2,equip:'coletes',foco:'jogada ensaiada curta',obs:'2-3 opções memorizadas, decide-se no momento consoante a defesa'},
+    {id:'bp6',nome:'Defesa de livre lateral',tierMin:2,min:5,int:1,equip:'coletes',foco:'bloco defensivo organizado',obs:'linha alta ou baixa consoante a distância à baliza'},
+    {id:'bp7',nome:'Lançamento lateral longo (rotina)',tierMin:1,min:4,int:1,equip:'nenhum',foco:'aproveitar lançamento como arma',obs:'jogador alto no primeiro poste, lançador treina distância'},
+    {id:'bp8',nome:'Pénalti · rotina mental e técnica',tierMin:2,min:4,int:1,equip:'balizas',foco:'gestão da pressão',obs:'rotina pré-remate fixa, decisão do canto antes de correr'}
+  ],
+  geral:[
+    {id:'ge1',nome:'Rondo 5x2',sub:'posse',tierMin:0,min:8,int:2,equip:'coletes + cones',foco:'posse sob pressão',obs:'2 toques, quem perder entra no meio'},
+    {id:'ge2',nome:'Jogo posicional 4x4+3',sub:'posse',tierMin:2,min:10,int:2,equip:'coletes + cones',foco:'superioridade posicional',obs:'os 3 apoios jogam sempre para a equipa com bola'},
+    {id:'ge3',nome:'Jogo com zonas de finalização',sub:'finalizacao',tierMin:1,min:9,int:2,equip:'balizas',foco:'finalização em contexto',obs:'só conta golo se a jogada passar pela zona marcada'},
+    {id:'ge4',nome:'Transição rápida 3x3+GR',sub:'transicao',tierMin:2,min:9,int:3,equip:'balizas',foco:'decisão rápida em transição',obs:'ao recuperar, ataca em 5s ou perde a posse'},
+    {id:'ge5',nome:'Jogo reduzido 4x4 sem balizas',sub:'posse',tierMin:1,min:8,int:2,equip:'coletes + cones',foco:'segurança de posse',obs:'conta-se passes consecutivos, não golos'},
+    {id:'ge6',nome:'Finalização rápida 2x1',sub:'finalizacao',tierMin:1,min:8,int:2,equip:'balizas',foco:'decisão perto da baliza',obs:'2 atacantes vs 1 defesa, decide entre passe e remate'},
+    {id:'ge7',nome:'Jogo condicionado a 2 toques',sub:'posse',tierMin:2,min:9,int:2,equip:'coletes',foco:'velocidade de circulação',obs:'obriga a pensar antes de receber'},
+    {id:'ge8',nome:'Jogo formal reduzido',sub:'jogo',tierMin:0,min:12,int:2,equip:'balizas',foco:'aplicação livre de tudo o que se treinou',obs:'intervém pouco, deixa jogar e corrige no intervalo'},
+    {id:'ge9',nome:'Jogo com superioridade numérica rotativa',sub:'transicao',tierMin:2,min:9,int:2,equip:'coletes',foco:'explorar espaço extra',obs:'muda o jogador a mais a cada 3 minutos'},
+    {id:'ge10',nome:'Jogo formal completo',sub:'jogo',tierMin:1,min:15,int:2,equip:'balizas',foco:'transferir para competição',obs:'condições reais, árbitro se possível'},
+    {id:'ge11',nome:'Jogo dos números (muda de equipa)',sub:'jogo',tierMin:0,tierMax:1,min:9,int:1,equip:'coletes',foco:'jogo lúdico com regra simples',obs:'ao apito, o treinador chama um número e esse jogador muda de equipa'},
+    {id:'ge12',nome:'Apanhada com bola nos pés',sub:'posse',tierMin:0,tierMax:1,min:8,int:1,equip:'nenhum',foco:'condução em fuga divertida',obs:'quem é apanhado só pode voltar a jogar depois de dar 5 toques na bola'}
+  ]
+};
+
+/* — táticas fut11: nomeadas, com posições p/ prancheta e leitura própria
+   (usadas pelas drills de movimentacao e pelo painel Adversário) — */
+var TATICAS={
+  '4-4-2':{label:'4-4-2 · dois blocos de 4',desc:'Compacto e equilibrado, fácil de ensinar, boa cobertura lateral.',forte:'Compacto, cobertura lateral dupla, forte em bolas paradas com 2 pontas-de-lança.',vulner:'Pouca criatividade entre linhas; pode ficar em inferioridade no meio-campo contra sistemas com 3 médios.',
+    pos:[[.5,.94,'GR'],[.18,.78,'LD'],[.38,.80,'DC'],[.62,.80,'DC'],[.82,.78,'LE'],[.16,.58,'MD'],[.4,.60,'MC'],[.6,.60,'MC'],[.84,.58,'ME'],[.4,.40,'PL'],[.6,.40,'PL']]},
+  '4-3-3':{label:'4-3-3 · largura pelos extremos',desc:'Pressão alta e largura natural pelos extremos, triângulo no meio-campo.',forte:'Pressão coordenada, largura ofensiva, 3 opções de finalização.',vulner:'Espaço nas costas dos laterais se os extremos não ajudarem a defender.',
+    pos:[[.5,.94,'GR'],[.16,.78,'LD'],[.38,.80,'DC'],[.62,.80,'DC'],[.84,.78,'LE'],[.32,.62,'MC'],[.5,.64,'MDC'],[.68,.62,'MC'],[.14,.42,'ED'],[.5,.36,'PL'],[.86,.42,'EE']]},
+  '4-5-1':{label:'4-5-1 · solidez defensiva',desc:'Bloco defensivo sólido com 5 no meio-campo, um só ponta-de-lança de referência.',forte:'Muito difícil de ultrapassar no meio-campo, seguro.',vulner:'Isolamento do avançado, pouca presença na área em jogadas construídas.',
+    pos:[[.5,.94,'GR'],[.16,.78,'LD'],[.38,.80,'DC'],[.62,.80,'DC'],[.84,.78,'LE'],[.12,.58,'ED'],[.34,.62,'MC'],[.5,.64,'MDC'],[.66,.62,'MC'],[.88,.58,'EE'],[.5,.38,'PL']]},
+  '3-4-2-1':{label:'3-4-2-1 (342) · árvore de Natal',desc:'3 centrais e alas que dão largura, dois apoios atrás do ponta-de-lança.',forte:'Superioridade numérica no meio-campo, 2 jogadores criativos perto da baliza.',vulner:'Vulnerável nas costas dos alas se recuarem tarde; exige alas com muita resistência.',
+    pos:[[.5,.94,'GR'],[.3,.80,'DC'],[.5,.82,'DC'],[.7,.80,'DC'],[.12,.60,'ALA'],[.38,.62,'MC'],[.62,.62,'MC'],[.88,.60,'ALA'],[.38,.42,'MOA'],[.62,.42,'MOA'],[.5,.30,'PL']]},
+  '4-2-3-1':{label:'4-2-3-1 · duplo pivot + meia-ponta',desc:'Duplo pivot protege a defesa, meia-ponta liga o jogo entre linhas.',forte:'Equilíbrio defensivo, o 10 encontra espaço entre linhas adversárias.',vulner:'Depende muito da qualidade do jogador entre linhas; isola-se se pressionado.',
+    pos:[[.5,.94,'GR'],[.16,.78,'LD'],[.38,.80,'DC'],[.62,.80,'DC'],[.84,.78,'LE'],[.38,.64,'MDC'],[.62,.64,'MDC'],[.14,.48,'ED'],[.5,.46,'MOA'],[.86,.48,'EE'],[.5,.32,'PL']]},
+  '3-5-2':{label:'3-5-2 · wing-backs',desc:'Wing-backs dão largura total, 2 pontas-de-lança fazem parcerias ofensivas.',forte:'Domínio do meio-campo (5 jogadores), duas referências ofensivas.',vulner:'Exige muita corrida dos wing-backs; espaço grande atrás deles em transição.',
+    pos:[[.5,.94,'GR'],[.3,.80,'DC'],[.5,.82,'DC'],[.7,.80,'DC'],[.1,.58,'AE'],[.35,.62,'MC'],[.5,.66,'MDC'],[.65,.62,'MC'],[.9,.58,'AE'],[.4,.38,'PL'],[.6,.38,'PL']]}
+};
+
+/* — motor determinístico: escolhe do banco, filtra equip/tier, evita
+   repetir o que já saiu recentemente (histórico local, por navegador) — */
+function equipOk(equipStr){
+  var toks=(equipStr||'').toLowerCase(), chaves=['bolas','coletes','cones','balizas','escada','barreiras'];
+  for(var i=0;i<chaves.length;i++){var k=chaves[i],sing=k.slice(0,-1);
+    if((toks.indexOf(k)>-1||toks.indexOf(sing)>-1)&&SEL.material.indexOf(k)<0)return false;}
+  return true;
+}
+function poolCategoria(cat,tier,sub,tatica){
+  return (BANCO_EQUIPA[cat]||[]).filter(function(d){
+    if(tier<d.tierMin||(d.tierMax!=null&&tier>d.tierMax))return false;
+    if(!equipOk(d.equip))return false;
+    if(sub&&d.sub!==sub)return false;
+    if(cat==='movimentacao'&&tatica){if(d.tatica!=='geral'&&d.tatica!==tatica)return false;}
+    return true;
+  });
+}
+var LS_HIST='ytbCoachHistExercicios';
+function historico(){try{return JSON.parse(localStorage.getItem(LS_HIST)||'[]');}catch(e){return[];}}
+function exercicioPorId(id){
+  var cats=Object.keys(BANCO_EQUIPA);
+  for(var i=0;i<cats.length;i++){
+    var achado=(BANCO_EQUIPA[cats[i]]||[]).find(function(d){return d.id===id;});
+    if(achado)return achado;
+  }
+  return null;
+}
+function registarUso(ids){var h=historico();ids.forEach(function(id){h.push(id);});if(h.length>250)h=h.slice(-250);localStorage.setItem(LS_HIST,JSON.stringify(h));pintarRecentesLista();}
+function escolher(lista,n){
+  var h=historico();
+  var pont=lista.map(function(d){var idx=h.lastIndexOf(d.id);return {d:d,score:idx<0?-1:idx};});
+  pont.sort(function(a,b){return a.score-b.score;});
+  return pont.slice(0,Math.max(0,n)).map(function(p){return p.d;});
+}
+function drillParaBloco(d){return {id:d.id,nome:d.nome,organizacao:d.org||'',instrucoes:(d.foco?d.foco+'. ':'')+(d.obs||''),tempo:d.min};}
+
+/* — plano semanal: cada dia cobre áreas de conteúdo diferentes e
+   complementares (nunca tudo espremido numa sessão só) — */
+var DIA_PLANO={
+  'MD-4':{titulo:'Construção',blocos:[
+    {nome:'Ativação',cat:'fisico',sub:'ativacao',n:1},
+    {nome:'Preparação física',cat:'fisico',sub:'resistencia',n:1},
+    {nome:'Técnica',cat:'tecnica',n:1},
+    {nome:'Saída de bola',cat:'saida_bola',n:1},
+    {nome:'Rotina de secção',cat:'rotina_seccao',n:1},
+    {nome:'Jogo de posse',cat:'geral',sub:'posse',n:1},
+    {nome:'Retorno à calma',cat:'fisico',sub:'recuperacao',n:1}
+  ]},
+  'MD-2':{titulo:'Intensidade tática',blocos:[
+    {nome:'Ativação',cat:'fisico',sub:'ativacao',n:1},
+    {nome:'Físico · velocidade',cat:'fisico',sub:'velocidade',n:1},
+    {nome:'Linha defensiva',cat:'linha_defensiva',n:1},
+    {nome:'Reação à perda',cat:'reacao_perda',n:1},
+    {nome:'Movimentação',cat:'movimentacao',n:1},
+    {nome:'Jogo de transição',cat:'geral',sub:'transicao',n:1},
+    {nome:'Retorno à calma',cat:'fisico',sub:'recuperacao',n:1}
+  ]},
+  'MD-1':{titulo:'Ativação e afinação',blocos:[
+    {nome:'Ativação leve',cat:'fisico',sub:'mobilidade',n:1},
+    {nome:'Bolas paradas',cat:'bola_parada',capMin:10},
+    {nome:'Movimentação · revisão',cat:'movimentacao',n:1},
+    {nome:'Finalização',cat:'geral',sub:'finalizacao',n:1},
+    {nome:'Retorno à calma',cat:'fisico',sub:'recuperacao',n:1}
+  ]}
+};
+// blocos táticos/de bola-parada não têm conteúdo abaixo de tier1-2 de
+// propósito (linha de fora-de-jogo, rotinas de canto etc. não fazem
+// sentido em fut7 formativo) — sem substituto, a sessão dos mais novos
+// ficava demasiado curta. Cada bloco vazio cai num tipo de conteúdo
+// realmente adequado à idade, com o nome do bloco ajustado com honestidade.
+var SUBSTITUTOS={linha_defensiva:['rotina_seccao','geral'],reacao_perda:['tecnica','geral'],
+  movimentacao:['tecnica','geral'],saida_bola:['tecnica','geral'],rotina_seccao:['tecnica','geral'],
+  bola_parada:['tecnica','geral']};
+
+function montarSessao(diaTag){
+  var dia=DIA_PLANO[diaTag]||DIA_PLANO['MD-4'];
+  var tier=tierDeEscalao(SEL.escalao);
+  var usados=[], blocos=[];
+  function semRepetirNaSessao(lista){return lista.filter(function(d){return usados.indexOf(d.id)<0;});}
+  dia.blocos.forEach(function(spec){
+    var tatica=SEL.formato==='fut11'?SEL.tatica:null;
+    var pool=semRepetirNaSessao(poolCategoria(spec.cat,tier,spec.sub,tatica));
+    if(!pool.length)pool=semRepetirNaSessao(poolCategoria(spec.cat,tier,null,null)); // relaxa sub/tática
+    var nomeBloco=spec.nome, adaptado=false;
+    if(!pool.length&&SUBSTITUTOS[spec.cat]){
+      for(var s=0;s<SUBSTITUTOS[spec.cat].length&&!pool.length;s++){
+        pool=semRepetirNaSessao(poolCategoria(SUBSTITUTOS[spec.cat][s],tier,null,null));
+        if(pool.length)adaptado=true;
+      }
+    }
+    // último recurso: já usámos tudo o que existe para este tier nesta
+    // sessão — melhor repetir um exercício adequado do que deixar o
+    // bloco vazio (só acontece em bancos muito pequenos, ex. Sub-10)
+    if(!pool.length){
+      pool=poolCategoria(spec.cat,tier,null,null);
+      if(!pool.length&&SUBSTITUTOS[spec.cat]){
+        SUBSTITUTOS[spec.cat].forEach(function(sc){if(!pool.length){pool=poolCategoria(sc,tier,null,null);if(pool.length)adaptado=true;}});
+      }
+    }
+    if(!pool.length)return;
+    if(adaptado)nomeBloco=spec.nome+' (adaptado à idade)';
+    var escolhidos;
+    if(spec.capMin){
+      // bola parada: 1-2 exercícios que juntos não passem o limite (regra do fundador)
+      escolhidos=escolher(pool,pool.length);
+      var soma=0,fica=[];
+      for(var i=0;i<escolhidos.length&&fica.length<2;i++){
+        if(soma+escolhidos[i].min<=spec.capMin){fica.push(escolhidos[i]);soma+=escolhidos[i].min;}
+      }
+      escolhidos=fica.length?fica:[escolhidos[0]];
+    } else {
+      escolhidos=escolher(pool,spec.n||1);
+    }
+    if(!escolhidos.length)return;
+    usados=usados.concat(escolhidos.map(function(d){return d.id;}));
+    blocos.push({nome:nomeBloco,min:escolhidos.reduce(function(s,d){return s+d.min;},0),exercicios:escolhidos.map(drillParaBloco)});
+  });
+  registarUso(usados);
+  var tCard=SEL.formato==='fut11'&&TATICAS[SEL.tatica]?' · '+TATICAS[SEL.tatica].label.split(' ·')[0]:'';
+  return {titulo:dia.titulo+' · '+SEL.escalao+' ('+SEL.formato+tCard+')',blocos:blocos};
+}
+
+function chips(id,itens,get,set,multi){
+  var box=document.getElementById(id);
+  box.innerHTML=itens.map(function(it){var v=Array.isArray(it)?it[0]:it,l=Array.isArray(it)?it[1]:it;
+    var on=multi?get().indexOf(v)>=0:get()===v;
+    return '<button class="chip'+(on?' on':'')+'" data-v="'+esc(v)+'">'+esc(l)+'</button>';}).join('');
+  box.querySelectorAll('.chip').forEach(function(b){b.addEventListener('click',function(){
+    var v=b.getAttribute('data-v');
+    if(multi){var a=get();var i=a.indexOf(v);if(i>=0)a.splice(i,1);else a.push(v);set(a);}else set(v);
+    chips(id,itens,get,set,multi);
+    if(id==='cv-fmt')desenharCampo();
+    if(id==='pr-fmt'){if(window.PR)PR.reformatar();atualizarTatica();}
+    if(id==='c-fmt')atualizarTatica();
+  });});
+}
+function chipsTatica(id){
+  var itens=Object.keys(TATICAS).map(function(k){return [k,TATICAS[k].label.split(' ·')[0]];});
+  chips(id,itens,function(){return SEL.tatica},function(v){guardarTaticaEscolhida(v);pintarInfoTatica();if(window.PR)PR.reformatar();});
+}
+function pintarInfoTatica(){
+  var box=document.getElementById('tatica-info');if(!box)return;
+  var t=TATICAS[SEL.tatica];
+  box.innerHTML=t?('<div style="font-size:12.5px;color:var(--slate);line-height:1.6"><b style="color:#fff">'+esc(t.label)+'</b> — '+esc(t.desc)
+    +'<br>✔ <span style="color:var(--green)">'+esc(t.forte)+'</span><br>⚠ <span style="color:var(--orange)">'+esc(t.vulner)+'</span></div>'):'';
+}
+function atualizarTatica(){
+  var mostra=SEL.formato==='fut11';
+  ['tatica-wrap','pr-tatica-wrap'].forEach(function(id){var el=document.getElementById(id);if(el)el.hidden=!mostra;});
+}
+function montarSeletores(){
+  chips('c-esc',ESCALOES,function(){return SEL.escalao},function(v){SEL.escalao=v});
+  chips('c-fmt',[['fut7','Fut7'],['fut9','Fut9'],['fut11','Fut11']],function(){return SEL.formato},function(v){SEL.formato=v});
+  chips('c-dur',[[60,'60′'],[75,'75′'],[90,'90′']].map(function(x){return [String(x[0]),x[1]]}),function(){return String(SEL.dur)},function(v){SEL.dur=parseInt(v)});
+  chips('c-mat',MATERIAIS,function(){return SEL.material},function(a){SEL.material=a},true);
+  chips('c-foco',FOCOS,function(){return SEL.foco},function(v){SEL.foco=v});
+  // cv-fmt e pr-fmt pertencem à Convocatória e à Prancheta do CoachBase
+  // original — não fazem parte desta fatia (só o gerador de treino),
+  // por isso removidas aqui (chamá-las com elementos inexistentes
+  // interrompia toda a execução seguinte com "Cannot set properties of null")
+  chipsTatica('c-tatica');
+  pintarInfoTatica();atualizarTatica();
+}
+function stepN(d){SEL.n=Math.max(4,Math.min(30,SEL.n+d));document.getElementById('v-n').textContent=SEL.n;}
+
+/* ── IA (reservada ao painel Adversário — julgamento tático, não listas) ── */
+function chamarIA(prompt,maxTokens){
+  return fetch('/api/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt,max_tokens:maxTokens||1400})})
+    .then(function(r){if(!r.ok)throw new Error('API '+r.status);return r.json();})
+    .then(function(j){var t='';(j.content||[]).forEach(function(c){if(c.type==='text')t+=c.text;});return t.trim();});
+}
+function parseJSON(t){t=t.replace(/^```json?/i,'').replace(/```$/,'').trim();var i=t.indexOf('{'),f=t.lastIndexOf('}');if(i<0||f<0)throw new Error('sem JSON');return JSON.parse(t.slice(i,f+1));}
+
+var FAVORITOS_EXERCICIOS=[];
+function carregarFavoritosExercicios(){
+  return supa.rpc('ytb_coach_exercicios_favoritos_listar').then(function(r){
+    FAVORITOS_EXERCICIOS=(r&&r.data)||[];
+    pintarFavoritosLista();
+    return FAVORITOS_EXERCICIOS;
+  }).catch(function(){ pintarFavoritosLista(); return FAVORITOS_EXERCICIOS; });
+}
+function pintarFavoritosLista(){
+  var box=document.getElementById('favoritos-lista'); if(!box)return;
+  var itens=FAVORITOS_EXERCICIOS.map(exercicioPorId).filter(Boolean);
+  if(!itens.length){ box.innerHTML='<div class="s">Ainda sem favoritos — marca uma estrela numa sessão gerada.</div>'; return; }
+  box.innerHTML=itens.map(function(d){
+    return '<div class="ex"><div class="en">'+esc(d.nome)+' <span onclick="toggleFavoritoExercicio(\''+d.id+'\')" style="cursor:pointer;color:var(--gold);font-size:14px">★</span></div>'
+      +(d.org?'<div class="eo">📐 '+esc(d.org)+'</div>':'')+'</div>';
+  }).join('');
+}
+function pintarRecentesLista(){
+  var box=document.getElementById('recentes-lista'); if(!box)return;
+  var h=historico().slice().reverse();   // mais recente primeiro
+  var vistos={}, ids=[];
+  h.forEach(function(id){ if(!vistos[id] && ids.length<8){ vistos[id]=true; ids.push(id); } });
+  var itens=ids.map(exercicioPorId).filter(Boolean);
+  if(!itens.length){ box.innerHTML='<div class="s">Ainda sem exercícios usados nesta conta.</div>'; return; }
+  box.innerHTML=itens.map(function(d){
+    return '<div class="ex"><div class="en">'+esc(d.nome)+'</div>'+(d.org?'<div class="eo">📐 '+esc(d.org)+'</div>':'')+'</div>';
+  }).join('');
+}
+function toggleFavoritoExercicio(id){
+  var eraFav=FAVORITOS_EXERCICIOS.indexOf(id)>=0;
+  supa.rpc('ytb_coach_exercicio_favoritar',{p_exercicio_id:id,p_favorito:!eraFav}).then(function(r){
+    var d=r&&r.data;
+    if(r.error||!d||!d.ok){ toast('⚠ Não foi possível guardar'); return; }
+    if(eraFav){ var i=FAVORITOS_EXERCICIOS.indexOf(id); if(i>=0)FAVORITOS_EXERCICIOS.splice(i,1); }
+    else FAVORITOS_EXERCICIOS.push(id);
+    pintarFavoritosLista();
+    if(ultimaSessao) renderSessao(ultimaSessao,'sessao-out');   // repinta as estrelas visíveis na sessão gerada, se houver
+  }).catch(function(){ toast('⚠ Sem ligação'); });
+}
+function renderSessao(plano,mount){
+  var total=(plano.blocos||[]).reduce(function(s,b){return s+(b.min||0);},0);
+  var h='<div class="card"><div class="h">'+esc(plano.titulo||'Sessão')+'</div>'
+    +'<div class="s">'+SEL.escalao+' · '+SEL.formato+' · '+SEL.n+' atletas · '+total+' min · 📚 banco CoachBase</div>';
+  (plano.blocos||[]).forEach(function(b){
+    h+='<div class="bloco"><div class="bt">'+esc(b.nome)+' <span style="color:var(--slate);font-size:12px">· '+(b.min||0)+' min</span></div>';
+    (b.exercicios||[]).forEach(function(e){
+      var fav = e.id && FAVORITOS_EXERCICIOS.indexOf(e.id)>=0;
+      h+='<div class="ex"><div class="en">'+esc(e.nome)
+        +(e.id?' <span onclick="toggleFavoritoExercicio(\''+e.id+'\')" style="cursor:pointer;color:'+(fav?'var(--gold)':'var(--muted)')+';font-size:14px">'+(fav?'★':'☆')+'</span>':'')
+        +'</div>'
+        +(e.organizacao?'<div class="eo">📐 '+esc(e.organizacao)+'</div>':'')
+        +(e.instrucoes?'<div class="ed">'+esc(e.instrucoes)+'</div>':'')+'</div>';
+    });
+    h+='</div>';
+  });
+  h+='<div style="display:flex;gap:8px;margin-top:6px"><button class="btn" style="flex:1" onclick="guardarSessao()">💾 Guardar</button><button class="btn btn-sec" style="flex:1" onclick="window.print()">🖨 Imprimir</button></div></div>';
+  document.getElementById(mount).innerHTML=h;
+}
+var ultimaSessao=null;
+function gerarSessao(){
+  var b=document.getElementById('btn-gerar');b.disabled=true;b.innerHTML='<span class="spinner"></span> A montar a sessão…';
+  setTimeout(function(){
+    ultimaSessao=montarSessao('MD-4');
+    renderSessao(ultimaSessao,'sessao-out');
+    b.disabled=false;b.textContent='📚 Gerar sessão do banco';
+  },150); // respiro visual — a montagem é instantânea, não há chamada de rede
+}
+function guardarSessao(){
+  if(!ultimaSessao){toast('Gera primeiro uma sessão');return;}
+  if(!equipaAtiva){toast('Escolhe uma equipa primeiro');return;}
+  supa.rpc('ytb_clube_sessao_criar',{p_equipa_id:equipaAtiva.id,p_titulo:ultimaSessao.titulo||'Sessão',p_escalao:SEL.escalao,p_formato:SEL.formato,p_n_atletas:SEL.n,p_duracao:SEL.dur,p_material:SEL.material,p_foco:SEL.foco,p_plano:ultimaSessao})
+    .then(function(r){var d=r.data;if(r.error||!d||!d.ok){toast('⚠ Não guardado ('+((d&&d.motivo)||'erro')+')');return;}toast('✓ Sessão guardada na equipa');});
+}
+
+/* ══════ TREINOS (gerador de sessão — cópia adaptada do CoachBase) ══════ */
+function pintarTreinos(){
+  const box=document.getElementById('sec-treinos');
+  if(!equipaAtiva){ box.innerHTML='<div class="card"><div class="s">Escolhe uma equipa na aba Equipas primeiro.</div></div>'; return; }
+  box.innerHTML='<div class="card">'
+    +'<div class="h">Gerar <span style="color:var(--gold)">sessão de treino</span></div>'
+    +'<div class="s">A sessão sai do banco de 95 exercícios do CoachBase, filtrado por escalão competitivo, material e (em fut11) pela tática da equipa.</div>'
+    +'<label class="label">Escalão</label><div class="chips" id="c-esc"></div>'
+    +'<label class="label">Formato</label><div class="chips" id="c-fmt"></div>'
+    +'<div id="tatica-wrap" hidden><label class="label">A nossa tática</label><div class="chips" id="c-tatica"></div><div id="tatica-info" style="margin:0 0 12px"></div></div>'
+    +'<div class="grid2" style="margin-bottom:12px">'
+    +'<div><label class="label">Nº de atletas</label><div class="step"><button onclick="stepN(-1)">−</button><div class="v" id="v-n">12</div><button onclick="stepN(1)">+</button></div></div>'
+    +'<div><label class="label">Duração</label><div class="chips" id="c-dur" style="margin:0"></div></div>'
+    +'</div>'
+    +'<label class="label">Material disponível</label><div class="chips" id="c-mat"></div>'
+    +'<label class="label">Foco da sessão</label><div class="chips" id="c-foco"></div>'
+    +'<button class="btn" id="btn-gerar" onclick="gerarSessao()">📚 Gerar sessão do banco</button>'
+    +'<div class="err" id="serr"></div></div>'
+    +'<div id="sessao-out"></div>'
+    +'<div class="card"><div class="h">★ <span style="color:var(--gold)">Favoritos</span></div>'
+    +'<div class="s">Marca uma estrela em qualquer exercício de uma sessão gerada — fica aqui, para não teres de o procurar outra vez.</div>'
+    +'<div id="favoritos-lista"><div class="s">A carregar…</div></div></div>'
+    +'<div class="card"><div class="h">🕘 Usados <span style="color:var(--gold)">recentemente</span></div>'
+    +'<div id="recentes-lista"><div class="s">A carregar…</div></div></div>';
+  montarSeletores();
+  carregarFavoritosExercicios();
+  pintarRecentesLista();
+}
+
 /* ══════ NAVEGAÇÃO ══════ */
-var TABS=[['equipas','Equipas'],['plantel','Plantel'],['jogos','Jogos']];
+var TABS=[['equipas','Equipas'],['plantel','Plantel'],['jogos','Jogos'],['treinos','Treinos']];
 function montarTabsTopo(){
   var tabs=TABS.slice();
   if(meuClube && meuClube.papel==='admin') tabs.push(['membros','Membros']);
@@ -380,6 +846,7 @@ window.tab=function(t){
   document.querySelectorAll('.tab').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-t')===t);});
   document.querySelectorAll('.sec').forEach(function(s){s.classList.toggle('on',s.id==='sec-'+t);});
   if(t==='membros') carregarMembros();
+  if(t==='treinos') pintarTreinos();
 };
 verificarSessao();
 </script></body>

@@ -1,0 +1,4 @@
+-- 143: treinador reconhecido so via clube_membros conta para efeitos
+-- de acesso ao motor do CoachBase (28 funcoes protegidas por
+-- _ytb_e_treinador_estrito). Corpo integral no historico Supabase
+-- (143).

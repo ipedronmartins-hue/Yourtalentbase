@@ -1,0 +1,2 @@
+-- 142: sessoes de treino do Clube, primeira peca da copia do CoachBase
+-- para o Clube. Corpo integral no historico Supabase (142).
