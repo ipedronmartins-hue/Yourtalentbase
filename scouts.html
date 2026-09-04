@@ -823,19 +823,12 @@ async function gerarReport(){
   const pos=document.getElementById('sr_pos').value;
   if(!pos){alert('Selecciona a posição');return}
 
-  // R5: confirmar identidade ANTES de gastar crédito — dedupe na origem
+  // R5: confirmar identidade ANTES de gerar — dedupe na origem
   const atletaConfirmado = await confirmarIdentidadeAtleta(nome);
   if(atletaConfirmado === undefined) return; // scout cancelou
 
-  // Gastar 1 crédito NO SERVIDOR (à prova de browser). -1 = sem créditos.
-  let restantes=-1;
-  if(scoutAtual && scoutAtual.papel==='admin'){
-    restantes=999; // conta administrativa: não gasta créditos
-  } else {
-    try{ const { data } = await supa.rpc('scout_gastar_credito'); restantes=(data===null||data===undefined)?-1:data; }
-    catch(e){ alert('Não foi possível validar créditos: '+(e.message||'erro')); return; }
-    if(restantes<0){ alert('Não tens créditos disponíveis. Contacta a YTB para adquirir mais.'); carregarHistorico(); return; }
-  }
+  // já não gasta crédito: a análise passou a ser determinística (biblioteca de
+  // frases por critério, sem chamada a IA), sem custo real por relatório
 
   // Recolher scores
   const scores={};
@@ -885,23 +878,16 @@ async function gerarReport(){
     rating:calcRating(mediaGeral)
   };
 
-  // Pedir análise IA
+  // Montar a análise — determinística, instantânea, sem custo por relatório
   const btn=document.getElementById('gerar-btn');
   const stat=document.getElementById('gerar-status');
-  btn.disabled=true;btn.textContent='⏳ A gerar análise IA...';
-  stat.style.display='block';stat.textContent='A pensar... 10-25 segundos.';
+  btn.disabled=true;btn.textContent='⏳ A montar o relatório...';
+  stat.style.display='block';stat.textContent='Um momento...';
   const avisos=[];
 
-  try{
-    const ia=await chamarIA(dados);
-    dados.analise=ia.analise||'';
-    dados.posicoes=ia.posicoes||{principal:dados.posicaoLabel,alternativa:'-',desenvolvimento:'-',texto:''};
-  }catch(e){
-    console.error('Erro IA:',e);
-    dados.analise=gerarAnaliseFallback(dados);
-    dados.posicoes={principal:dados.posicaoLabel,alternativa:'-',desenvolvimento:'-',texto:'Análise textual gerada localmente (IA indisponível).'};
-    avisos.push('IA indisponível — usando análise local.');
-  }
+  const analiseGerada=gerarAnaliseDeterministica(dados);
+  dados.analise=analiseGerada.analise;
+  dados.posicoes=analiseGerada.posicoes;
 
   // Guardar Supabase — nomes alinhados com a tabela real 'relatorios'
   try{
@@ -971,112 +957,161 @@ async function gerarReport(){
 // ═══════════════════════════════════════════════
 // IA — chama o endpoint /api/claude
 // ═══════════════════════════════════════════════
-async function chamarIA(d){
-  // Construir lista de critérios
-  let critLista='';
-  Object.entries(CRITERIOS).forEach(([cat,items])=>{
-    critLista+='\n['+CAT_INFO[cat].label.toUpperCase()+' — média '+d.medias[cat]+'/5]\n';
-    items.forEach(n=>{critLista+='  • '+n+': '+d.scores[n]+'/5\n'});
-  });
-
-  const prompt=`És um scout sénior YTB. Escreves relatórios profissionais em PT-PT (Portugal), com tom analítico e técnico, sem floreados. Não usas linguagem motivacional vazia.
-
-DADOS DO ATLETA:
-Nome: ${d.nome}
-Posição: ${d.posicaoLabel} (${d.posicao})
-Escalão: ${d.escalao}
-Clube: ${d.clube||'-'}
-Pé: ${d.pe}
-Estrutura: ${d.estrutura}
-Camisola: ${d.camisola}
-
-Dados competitivos:
-Jogos: ${d.jogos} · Minutos: ${d.minutos} · Golos: ${d.golos} · Assistências: ${d.assistencias} · Classificação da equipa: ${d.classEquipa}
-
-Avaliação (escala 1-5):${critLista}
-
-Médias por categoria: Técnicos ${d.medias.tecnicos} · Tácticos ${d.medias.tacticos} · Físicos ${d.medias.fisicos} · Mentais ${d.medias.mentais}
-Média geral: ${d.mediaGeral}/5
-Classificação global: ${scoreLabel(d.mediaGeral)}
-
-Notas do scout: ${d.notas||'-'}
-
-TAREFA: Devolve um JSON com 2 campos.
-
-1. "analise" — texto com 4 secções em markdown leve:
-
-# RELATÓRIO DE SCOUTING — ${d.nome.toUpperCase()} (${d.escalao})
-${d.clube?d.clube:'-'} | ${d.posicaoLabel} | Época 2025/2026
-
-## 1. Estilo de Jogo
-[2-3 parágrafos. Caracteriza o atleta como jogador, contextualizando os números (jogos, minutos, golos, assistências) e a posição que ocupa.]
-
-## 2. Pontos Fortes
-[3 sub-secções com ### subtítulos. Cada uma com 1 parágrafo. Liga os pontos altos da avaliação a comportamentos observáveis no jogo.]
-
-## 3. Áreas a Desenvolver
-[2 sub-secções com ### subtítulos. Cada uma com 1 parágrafo. Foca em pontos de melhoria reais, sem dramatizar.]
-
-## 4. Recomendação Final
-[1 parágrafo. Sintetiza o perfil, projecta horizonte de desenvolvimento, dá indicação clara de acompanhamento.]
-
-2. "posicoes" — JSON com 4 campos:
-{
-  "principal": "Nome posição principal sugerida (ex: Defesa Lateral)",
-  "alternativa": "Posição alternativa (ex: Médio Central)",
-  "desenvolvimento": "Posição que pode atingir com desenvolvimento (ex: Médio Ala)",
-  "texto": "3 parágrafos a fundamentar as 3 sugestões. Refere critérios específicos da avaliação."
-}
-
-REGRAS:
-- PT-PT (português europeu, não brasileiro)
-- Sem listas com asteriscos no analise — usar prosa
-- Concreto e específico — ligar à avaliação real
-- Sem clichés ("céu é o limite", "atleta com futuro brilhante")
-- Mínimo 350 palavras na análise, máximo 600
-- Texto da posição: 150-250 palavras
-
-Devolve APENAS um JSON válido com {"analise":"...","posicoes":{...}}. Nada antes nem depois. Sem markdown wrapper.`;
-
-  const r=await fetch('/api/claude',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({prompt:prompt,max_tokens:2200})
-  });
-  if(!r.ok)throw new Error('API '+r.status);
-  const j=await r.json();
-  let txt='';
-  if(j.content&&j.content.length){
-    j.content.forEach(c=>{if(c.type==='text')txt+=c.text});
+/* ══════ biblioteca de frases por critério — análise determinística, sem custo por relatório ══════ */
+const FRASES_CRITERIO = {
+  '1x1 Defensivo': {
+    alto: 'Mostra segurança nos duelos defensivos individuais, com boa leitura do momento de intervenção.',
+    baixo: 'Revela dificuldades nos duelos defensivos diretos, com tendência a chegar tarde ao lance.'
+  },
+  '1x1 Ofensivo': {
+    alto: 'Resolve com eficácia situações de um-contra-um ofensivo, criando vantagem através do drible ou da mudança de direção.',
+    baixo: 'Tem dificuldade em ultrapassar o adversário direto em situações de um-contra-um.'
+  },
+  'Recepção': {
+    alto: 'Controla a bola com qualidade sob pressão, preparando o toque seguinte com uma só ação.',
+    baixo: 'A primeira receção é ainda irregular, especialmente com o adversário próximo.'
+  },
+  'Passe': {
+    alto: 'Executa o passe com precisão e critério, tanto em curta como em média distância.',
+    baixo: 'O passe apresenta imprecisões recorrentes, sobretudo em situações de maior pressão.'
+  },
+  'Condução': {
+    alto: 'Conduz a bola com naturalidade, mantendo o controlo mesmo em velocidade.',
+    baixo: 'A condução perde fluidez sob pressão, com a bola a afastar-se do corpo.'
+  },
+  'Finalização': {
+    alto: 'Remata com qualidade técnica e boa colocação, aproveitando bem as oportunidades criadas.',
+    baixo: 'A finalização carece de consistência, com dificuldade em concretizar situações claras.'
+  },
+  'Jogo Aéreo': {
+    alto: 'Impõe-se no jogo aéreo, com bom timing de salto e capacidade de impacto na bola.',
+    baixo: 'O jogo aéreo é uma limitação clara, tanto na fase ofensiva como defensiva.'
+  },
+  'Velocidade de Execução': {
+    alto: 'Executa as ações com rapidez de pensamento e movimento, sem perder qualidade técnica.',
+    baixo: 'A execução das ações é lenta, dando tempo ao adversário para se reorganizar.'
+  },
+  'Inteligência Táctica': {
+    alto: 'Lê o jogo com antecedência, ocupando espaços e antecipando linhas de passe.',
+    baixo: 'A leitura do jogo é ainda limitada, com posicionamento frequentemente reativo.'
+  },
+  'Tomada de Decisão': {
+    alto: 'Decide bem sob pressão, escolhendo a opção mais adequada ao contexto do lance.',
+    baixo: 'As decisões em campo são inconsistentes, com escolhas que nem sempre se ajustam ao momento do jogo.'
+  },
+  'Reacção à Perda': {
+    alto: 'Reage de imediato à perda de bola, pressionando ou reorganizando-se sem hesitação.',
+    baixo: 'A reação à perda de bola é lenta, o que expõe a equipa em transição defensiva.'
+  },
+  'Dinâmica Ofensiva': {
+    alto: 'Movimenta-se com inteligência sem bola, criando linhas de passe e espaço para os colegas.',
+    baixo: 'A movimentação sem bola é ainda estática, limitando as opções ofensivas da equipa.'
+  },
+  'Dinâmica Defensiva': {
+    alto: 'Participa ativamente na organização defensiva, ajustando a posição em função da bola e dos colegas.',
+    baixo: 'O envolvimento na fase defensiva é irregular, com desatenções no reposicionamento.'
+  },
+  'Velocidade': {
+    alto: 'Possui velocidade acima da média para o escalão, notada tanto em arranque como em corrida prolongada.',
+    baixo: 'A velocidade é um ponto a trabalhar, sobretudo em situações de recuperação defensiva.'
+  },
+  'Força': {
+    alto: 'Tem boa capacidade de contacto físico, mantendo-se firme nos duelos corpo a corpo.',
+    baixo: 'Perde a maioria dos duelos físicos diretos, cedendo espaço com facilidade.'
+  },
+  'Resistência': {
+    alto: 'Mantém o nível de desempenho ao longo dos 90 minutos, sem quebra visível de intensidade.',
+    baixo: 'Nota-se quebra de rendimento físico na segunda parte dos jogos.'
+  },
+  'Intensidade': {
+    alto: 'Joga com intensidade constante, tanto na pressão como no apoio ao colega.',
+    baixo: 'A intensidade de jogo é irregular, com fases de menor envolvimento.'
+  },
+  'Liderança': {
+    alto: 'Assume responsabilidade dentro do grupo, comunicando e orientando os colegas em campo.',
+    baixo: 'Ainda não assume um papel de referência dentro do grupo, mesmo em momentos que o pediam.'
+  },
+  'Reacção à Adversidade': {
+    alto: 'Mantém o nível de desempenho mesmo em contextos adversos, sem sinais de quebra emocional.',
+    baixo: 'O rendimento ressente-se visivelmente perante contrariedades no jogo.'
+  },
+  'Carácter': {
+    alto: 'Revela maturidade competitiva acima da média etária, mantendo-se competitivo até ao apito final.',
+    baixo: 'Falta ainda maturidade competitiva para lidar com os momentos mais exigentes do jogo.'
+  },
+  'Ambição': {
+    alto: 'Demonstra vontade clara de evoluir, procurando responsabilidade dentro da equipa.',
+    baixo: 'A postura em campo não transmite ambição competitiva evidente.'
+  },
+  'Agressividade': {
+    alto: 'Compete com agressividade saudável, sem comprometer a disciplina táctica.',
+    baixo: 'Falta agressividade competitiva nos momentos decisivos do jogo.'
+  },
+  'Espírito Colectivo': {
+    alto: 'Antepõe o coletivo ao individual, participando ativamente no equilíbrio da equipa.',
+    baixo: 'O jogo tende a ser individualista, com pouca ligação aos movimentos coletivos.'
+  },
+  'Compromisso': {
+    alto: 'Mostra compromisso evidente com as tarefas da equipa, mesmo fora da posse de bola.',
+    baixo: 'O nível de compromisso com as tarefas coletivas é ainda inconsistente.'
+  },
+  'Dinâmica de Grupo': {
+    alto: 'Integra-se bem na dinâmica do grupo, ajustando o seu jogo ao contexto da equipa.',
+    baixo: 'A integração na dinâmica coletiva ainda não é evidente no seu jogo.'
   }
-  // Tentar parsear JSON
-  let parsed;
-  try{
-    const m=txt.match(/\{[\s\S]*\}/);
-    parsed=JSON.parse(m?m[0]:txt);
-  }catch(e){
-    // Fallback: trata tudo como analise
-    parsed={analise:txt,posicoes:null};
-  }
-  return parsed;
+};
+
+function gerarAnaliseDeterministica(d){
+  var todos = [];
+  Object.entries(d.scores).forEach(function(entry){ todos.push({nome:entry[0], val:entry[1]}); });
+  var fortes = todos.filter(function(c){return c.val>=4;}).sort(function(a,b){return b.val-a.val;}).slice(0,3);
+  var fracos = todos.filter(function(c){return c.val<=2;}).sort(function(a,b){return a.val-b.val;}).slice(0,2);
+
+  var pontosFortesTxt = fortes.length
+    ? fortes.map(function(c){ return '### '+c.nome+'\n'+FRASES_CRITERIO[c.nome].alto; }).join('\n\n')
+    : '### Perfil equilibrado\nNão se destacam picos claros acima da média nos critérios avaliados — o perfil é regular em todas as componentes.';
+
+  var areasTxt = fracos.length
+    ? fracos.map(function(c){ return '### '+c.nome+'\n'+FRASES_CRITERIO[c.nome].baixo; }).join('\n\n')
+    : '### Sem áreas críticas identificadas\nNão se identificam pontos claramente abaixo da média nos critérios avaliados nesta observação.';
+
+  var LABEL_CAT = {tecnicos:'perfil técnico', tacticos:'leitura de jogo', fisicos:'presença física', mentais:'atitude competitiva'};
+  var catForte = Object.entries(d.medias).sort(function(a,b){return b[1]-a[1];})[0][0];
+
+  var analise = '# RELATÓRIO DE SCOUTING — '+d.nome.toUpperCase()+' ('+d.escalao+')\n'
+    +(d.clube||'-')+' | '+d.posicaoLabel+' | Época '+(d.epoca||'2025/2026')+'\n\n'
+    +'## 1. Estilo de Jogo\n'
+    +'Atleta avaliado em '+d.posicaoLabel+', com '+LABEL_CAT[catForte]+' como componente mais forte do perfil observado. '
+    +'Em '+d.jogos+' jogos disputados ('+d.minutos+' minutos), regista '+d.golos+' golo'+(Number(d.golos)===1?'':'s')+' e '+d.assistencias+' assistência'+(Number(d.assistencias)===1?'':'s')
+    +(d.classEquipa&&d.classEquipa!=='-'?(', com a equipa a terminar em '+d.classEquipa):'')+'. '
+    +'Classificação global da observação: '+scoreLabel(d.mediaGeral)+' ('+d.mediaGeral+'/5).\n\n'
+    +'## 2. Pontos Fortes\n'+pontosFortesTxt+'\n\n'
+    +'## 3. Áreas a Desenvolver\n'+areasTxt+'\n\n'
+    +'## 4. Recomendação Final\n'
+    +d.rating.acao+' — '+d.rating.desc+'. Horizonte de acompanhamento: '+d.rating.horizonte+'.';
+
+  return {analise: analise, posicoes: gerarSugestaoPosicoes(d, catForte, LABEL_CAT)};
 }
 
-function gerarAnaliseFallback(d){
-  return `# RELATÓRIO DE SCOUTING — ${d.nome.toUpperCase()} (${d.escalao})
-${d.clube||'-'} | ${d.posicaoLabel} | Época 2025/2026
-
-## 1. Estilo de Jogo
-Atleta avaliado em ${d.posicaoLabel}, com perfil global ${scoreLabel(d.mediaGeral).toLowerCase()} (média ${d.mediaGeral}/5).
-
-## 2. Pontos Fortes
-Categorias acima da média: ${Object.entries(d.medias).filter(([k,v])=>v>=4).map(([k])=>CAT_INFO[k].label).join(', ')||'A definir'}.
-
-## 3. Áreas a Desenvolver
-Categorias abaixo da média: ${Object.entries(d.medias).filter(([k,v])=>v<3).map(([k])=>CAT_INFO[k].label).join(', ')||'Nenhuma área crítica identificada'}.
-
-## 4. Recomendação Final
-${d.rating.acao} — ${d.rating.desc}. Horizonte: ${d.rating.horizonte}.`;
+var ADJACENCIA_POSICAO = {
+  GR:{alt:'Guarda-Redes', dev:'Guarda-Redes'}, DC:{alt:'Lateral Direito', dev:'Médio Defensivo'},
+  LD:{alt:'Lateral Esquerdo', dev:'Médio Defensivo'}, LE:{alt:'Lateral Direito', dev:'Médio Defensivo'},
+  MD:{alt:'Defesa Central', dev:'Médio Centro'}, MC:{alt:'Médio Defensivo', dev:'Médio Ofensivo'},
+  MO:{alt:'Médio Centro', dev:'Extremo Direito'}, ED:{alt:'Extremo Esquerdo', dev:'Avançado'},
+  EE:{alt:'Extremo Direito', dev:'Avançado'}, PL:{alt:'Avançado', dev:'Médio Ofensivo'}, AV:{alt:'Ponta de Lança', dev:'Médio Ofensivo'}
+};
+function gerarSugestaoPosicoes(d, catForte, LABEL_CAT){
+  var adj = ADJACENCIA_POSICAO[d.posicao] || {alt:d.posicaoLabel, dev:d.posicaoLabel};
+  return {
+    principal: d.posicaoLabel,
+    alternativa: adj.alt,
+    desenvolvimento: adj.dev,
+    texto: 'Observado principalmente em '+d.posicaoLabel+', posição onde já demonstra o essencial do seu perfil. '
+      +'Como alternativa próxima, '+adj.alt+' aproveitaria de forma semelhante as suas características dominantes. '
+      +'Com desenvolvimento sustentado, sobretudo ao nível de '+LABEL_CAT[catForte]+', poderá evoluir para '+adj.dev+'.'
+  };
 }
+
 
 // ═══════════════════════════════════════════════
 // RENDER REPORT (visual igual ao PDF)
