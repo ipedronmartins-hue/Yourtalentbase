@@ -1,0 +1,2 @@
+-- 145: ytb_clube_atletas_listar ganha campos de idade/nome para a
+-- avaliacao funcionar. Corpo integral no historico Supabase (145).

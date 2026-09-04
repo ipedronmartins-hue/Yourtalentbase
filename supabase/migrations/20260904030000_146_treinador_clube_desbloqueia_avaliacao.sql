@@ -1,0 +1,3 @@
+-- 146: ytb_is_treinador() reconhece treinador so-do-clube, usada por
+-- 9 funcoes incluindo ytb_treinador_avaliar. Corpo integral no
+-- historico Supabase (146).

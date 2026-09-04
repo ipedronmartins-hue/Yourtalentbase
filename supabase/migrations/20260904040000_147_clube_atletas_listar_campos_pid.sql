@@ -1,0 +1,3 @@
+-- 147: ytb_clube_atletas_listar ganha rating_geral/badge_estado/
+-- areas_excelencia para a seccao "Classificacao YTB". Corpo integral
+-- no historico Supabase (147).

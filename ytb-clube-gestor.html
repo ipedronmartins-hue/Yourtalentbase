@@ -240,6 +240,7 @@ body.pr-cheio #pr-sair{display:block}
         </div>
       </div>
     </div>
+    <div class="sec" id="sec-avaliar"></div>
   </div>
 </div>
 <div class="toast" id="toast"></div>
@@ -1512,8 +1513,662 @@ function pintarTreinos(){
   pintarRecentesLista();
 }
 
+/* ══════ avaliação, copiada do Pro Treinador (migração 145-147) ══════ */
+const CRIT_DEB={
+  '1x1 Defensivo':'tatica','1x1 Ofensivo':'tecnica','Recepção':'tecnica','Passe':'tecnica','Condução':'tecnica','Finalização':'tecnica','Jogo Aéreo':'fisico','Velocidade de Execução':'tecnica',
+  'Inteligência Táctica':'tatica','Tomada de Decisão':'decisao','Reacção à Perda':'tatica','Dinâmica Ofensiva':'tatica','Dinâmica Defensiva':'tatica',
+  'Velocidade':'fisico','Força':'fisico','Resistência':'fisico','Intensidade':'fisico',
+  'Liderança':'mental','Reacção à Adversidade':'mental','Carácter':'mental','Ambição':'mental','Agressividade':'mental','Espírito Colectivo':'mental','Compromisso':'mental','Dinâmica de Grupo':'mental'
+};
+
+/* ── avaliação em 2 níveis (Constituição: campo ≤30s/atleta) ──
+   Nível 1: os 5 buckets do produto — é SÓ isto que o plano, o Objetivo da
+   família e a Missão de Decisão consomem (os 25 critérios colapsavam aqui).
+   Nível 2 (opcional): detalhar um bucket abre os critérios de sempre desse
+   bucket. Os 25 completos continuam a ser o instrumento do scout report —
+   momento diferente, profundidade diferente. */
+const BUCKETS=[
+  ['tecnica','⚽','Técnica','receção, passe, condução, finalização'],
+  ['decisao','🧠','Decisão','escolhas com bola, velocidade a decidir'],
+  ['tatica','🧭','Tática','posicionamento, leitura, jogo sem bola'],
+  ['fisico','⚡','Físico','velocidade, força, resistência'],
+  ['mental','🔥','Mental','atitude, foco, reação à adversidade']
+];
+const BUCKET_LBL={tecnica:'Técnica',decisao:'Decisão',tatica:'Tática',fisico:'Físico',mental:'Mental'};
+const BUCKET_CRITS={};
+Object.entries(CRIT_DEB).forEach(([crit,b])=>{ (BUCKET_CRITS[b]=BUCKET_CRITS[b]||[]).push(crit); });
+
+/* ════════ EXERCÍCIOS CASEIROS (espaço curto, sem grandes remates) ════════ */
+// Biblioteca de exercícios. Cada um tem:
+//  idadeMin   — idade mínima do atleta (anos). BARREIRA DE SEGURANÇA: gerarPlano
+//               NUNCA inclui um exercício cujo idadeMin > idade do atleta.
+//               Pliometria de impacto, força pesada, sprints em rampa e tabata
+//               de alta intensidade só a partir de 13-16 anos (risco físico real
+//               em corpos ainda em maturação — ver secção Morfologia/Maturação).
+//  intensidade— 1 baixa · 2 média · 3 alta. Usado para progressão: as primeiras
+//               semanas ficam-se por intensidade mais baixa, as últimas sobem
+//               (sempre dentro do que a idade permite).
+//  equip      — equipamento necessário (para a família saber o que precisa).
+const EXERCICIOS={
+  tecnica:[
+    {id:'te1',nome:'Pé fraco · passe à parede',obj:'30 toques limpos',desc:'A 3m de uma parede, passa só com o pé não-dominante e recebe. Espaço de corredor chega.',tempo:8,idadeMin:6,intensidade:1,equip:'bola + parede',espaco:1},
+    {id:'te2',nome:'Toques alternados (juggling)',obj:'50 sem cair',desc:'Toques direito/esquerdo sem deixar cair. Começa a apanhar à mão a cada 2 toques.',tempo:6,idadeMin:5,intensidade:1,equip:'bola',espaco:1},
+    {id:'te3',nome:'Domínio orientado curto',obj:'15 limpos',desc:'Lança contra a parede, recebe e orienta para o lado com o primeiro toque. Sem chutar forte.',tempo:7,idadeMin:8,intensidade:1,equip:'bola + parede',espaco:1},
+    {id:'te4',nome:'Condução entre cones',obj:'10 idas e voltas',desc:'4 garrafas a 1m. Conduz a bola em ziguezague, toques curtos, cabeça levantada.',tempo:8,idadeMin:7,intensidade:2,equip:'bola + 4 cones',espaco:2,alt1:{nome:'Condução em corredor curto',obj:'15 idas e voltas',desc:'2 garrafas a 50cm, num corredor. Toques bem curtos, sem deixar a bola fugir.',tempo:7,equip:'bola + 2 cones'}},
+    {id:'te5',nome:'Rolinhos com a sola',obj:'3×20',desc:'Rola a bola para a frente e para trás com a sola, alternando os pés. Controlo fino.',tempo:5,idadeMin:5,intensidade:1,equip:'bola',espaco:1},
+    {id:'te6',nome:'Fintas no lugar (tesoura)',obj:'3×10 por pé',desc:'Passa o pé por cima da bola (tesoura) e sai para o lado contrário. Sem correr, só o gesto.',tempo:7,idadeMin:8,intensidade:2,equip:'bola',espaco:1},
+    {id:'te7',nome:'Passe de precisão ao alvo',obj:'20 acertos',desc:'Marca um alvo na parede (fita). Acerta com passe raso, alternando os pés.',tempo:8,idadeMin:8,intensidade:1,equip:'bola + parede + fita',espaco:1},
+    {id:'te8',nome:'Receção de bola alta',obj:'15 controlos',desc:'Lança a bola ao ar e amortece com o peito/coxa/pé, deixando-a morrer perto. Controlo de trajetória.',tempo:8,idadeMin:9,intensidade:2,equip:'bola',espaco:2,alt1:{nome:'Receção contra a parede',obj:'15 controlos',desc:'Atira a bola contra a parede com alguma força e amortece ao receber, deixando-a morrer perto.',tempo:8,equip:'bola + parede'}},
+    {id:'te9',nome:'Condução com mudança de ritmo',obj:'6×20m',desc:'Conduz lento e, ao sinal, acelera 3 toques rápidos e volta a controlar. Bola sempre perto.',tempo:9,idadeMin:10,intensidade:2,equip:'bola + espaço 20m',espaco:2,alt1:{nome:'Mudança de ritmo no lugar',obj:'8×20 seg',desc:'Toques lentos e controlados; ao sinal, 5 toques bem rápidos sem sair do lugar. Volta ao ritmo lento.',tempo:7,equip:'bola'}},
+    {id:'te10',nome:'Remate colocado (baixo)',obj:'20 remates',desc:'A 8-10m, remate raso e colocado a um alvo. Técnica, não potência. Alterna os pés.',tempo:10,idadeMin:10,intensidade:2,equip:'bola + baliza/alvo',espaco:3,alt1:{nome:'Passe colocado à parede',obj:'20 passes',desc:'A 3-4m da parede, passe raso e colocado a um alvo marcado (fita). Mesma técnica do remate, sem força.',tempo:8,equip:'bola + parede + fita'},alt2:{nome:'Remate colocado a alvo improvisado',obj:'15 remates',desc:'A 6-8m, remate raso a um alvo pequeno (2 garrafas, casaco no chão). Técnica, não potência.',tempo:9,equip:'bola + alvo improvisado'}},
+    {id:'te11',nome:'Primeiro toque em movimento',obj:'4×2 min',desc:'Recebe da parede em corrida leve e orienta para conduzir. Liga receção e condução.',tempo:9,idadeMin:11,intensidade:2,equip:'bola + parede',espaco:1},
+    {id:'te12',nome:'Cabeceamento de segurança',obj:'3×8',desc:'Auto-lançamento suave e cabeceia com a testa para baixo. Volume muito baixo (a cabeça é sensível em formação).',tempo:6,idadeMin:12,intensidade:2,equip:'bola macia',espaco:1}
+  ],
+  fisico:[
+    // — mobilidade / alongamentos (seguros para todas as idades; aquecimento e recuperação) —
+    {id:'fi1',nome:'Mobilidade dinâmica de aquecimento',obj:'6 min',desc:'Rotações de anca, balanços de perna, tornozelos, ombros. Prepara o corpo antes de tudo.',tempo:6,idadeMin:5,sub:'mobilidade',intensidade:1,equip:'nenhum',espaco:1},
+    {id:'fi2',nome:'Alongamento de recuperação',obj:'8 min',desc:'Isquiotibiais, quadricípite, gémeos, anca — 30s cada, sem molas. No fim da sessão.',tempo:8,idadeMin:6,sub:'mobilidade',intensidade:1,equip:'tapete',espaco:1},
+    {id:'fi3',nome:'Mobilidade de tornozelo e anca',obj:'3×10',desc:'Agachamento profundo assistido + círculos de tornozelo. Amplitude para conduzir e rematar.',tempo:6,idadeMin:8,sub:'mobilidade',intensidade:1,equip:'nenhum',espaco:1},
+    // — coordenação / core (base, baixo impacto) —
+    {id:'fi4',nome:'Skipping no lugar',obj:'4×30s',desc:'Joelhos à cintura, no mesmo sítio, contacto leve no solo. Coordenação e cadência.',tempo:6,idadeMin:8,sub:'velocidade',intensidade:2,equip:'nenhum',espaco:1},
+    {id:'fi5',nome:'Prancha',obj:'3×30s',desc:'Core estável, corpo em linha, sem descair a anca. No tapete.',tempo:5,idadeMin:9,sub:'forca',intensidade:2,equip:'tapete',espaco:1},
+    {id:'fi6',nome:'Prancha lateral',obj:'3×20s por lado',desc:'Apoio no antebraço e no pé, anca no ar. Estabilidade lateral do tronco.',tempo:5,idadeMin:10,sub:'forca',intensidade:2,equip:'tapete',espaco:1},
+    {id:'fi7',nome:'Ponte de glúteos',obj:'3×15',desc:'De costas, sobe a anca apertando o rabo. Força posterior sem carga na coluna.',tempo:5,idadeMin:9,sub:'forca',intensidade:1,equip:'tapete',espaco:1},
+    {id:'fi8',nome:'Escada de coordenação (linha)',obj:'5×15m',desc:'Passos rápidos sobre uma linha/escada desenhada: dentro-dentro-fora. Pés rápidos.',tempo:7,idadeMin:9,sub:'velocidade',intensidade:2,equip:'fita/giz',espaco:1},
+    // — força com peso corporal (moderada) —
+    {id:'fi9',nome:'Agachamentos',obj:'3×15',desc:'Costas direitas, desce devagar até coxa paralela, sobe controlado. Só peso do corpo.',tempo:6,idadeMin:10,sub:'forca',intensidade:2,equip:'nenhum',espaco:1},
+    {id:'fi10',nome:'Afundos (lunges)',obj:'3×10 por perna',desc:'Passo à frente, joelho de trás quase ao chão, sobe. Força unilateral e equilíbrio.',tempo:7,idadeMin:11,sub:'forca',intensidade:2,equip:'nenhum',espaco:1},
+    {id:'fi11',nome:'Flexões (adaptadas)',obj:'3×máx',desc:'Flexões de braços; apoiar os joelhos se necessário. Empurrar controlado.',tempo:6,idadeMin:11,sub:'forca',intensidade:2,equip:'tapete',espaco:1},
+    {id:'fi12',nome:'Elevação de gémeos',obj:'3×20',desc:'Em pé, sobe nas pontas dos pés e desce devagar. Tornozelo forte para acelerar e saltar.',tempo:5,idadeMin:10,sub:'forca',intensidade:2,equip:'nenhum',espaco:1},
+    {id:'fi13',nome:'Agachamento com salto suave',obj:'4×10',desc:'Agacha e sobe com pequeno salto, aterrando com joelhos macios. Introdução leve à explosão.',tempo:6,idadeMin:12,sub:'forca',intensidade:2,equip:'nenhum',espaco:1},
+    // — resistência aeróbica —
+    {id:'fi14',nome:'Corrida contínua leve',obj:'12-15 min',desc:'Ritmo confortável em que consegue falar. Base aeróbica, sem picos.',tempo:14,idadeMin:9,sub:'resistencia',intensidade:2,equip:'espaço/rua',espaco:2,alt1:{nome:'Subir e descer escadas',obj:'12-15 min',desc:'Ritmo confortável, subindo e descendo escadas (ou o mesmo corredor várias vezes). Base aeróbica, sem picos.',tempo:14,equip:'escadas ou corredor'}},
+    {id:'fi15',nome:'Corrida com bola em ritmo',obj:'6×1 min',desc:'Conduz a bola a trote constante 1 min, 30s a andar. Junta técnica e fôlego.',tempo:10,idadeMin:10,sub:'resistencia',intensidade:2,equip:'bola + espaço',espaco:2,alt1:{nome:'Toques em ritmo, no lugar',obj:'6×1 min',desc:'Toques rápidos e constantes no lugar durante 1 min, 30s a descansar. Junta técnica e fôlego.',tempo:10,equip:'bola'}},
+    {id:'fi16',nome:'Circuito contínuo (base)',obj:'3 voltas',desc:'Skipping 30s → agachamentos 10 → prancha 20s → trote 1 min, sem parar. Resistência geral.',tempo:12,idadeMin:11,sub:'resistencia',intensidade:2,equip:'nenhum',espaco:1},
+    // — alta intensidade (só a partir de 13; NUNCA para os mais novos) —
+    {id:'fi17',nome:'Saltos laterais explosivos',obj:'4×20',desc:'Salta de lado sobre uma linha, rápido e reativo, aterragem macia. Pliometria ligeira.',tempo:6,idadeMin:13,sub:'velocidade',intensidade:3,equip:'nenhum',espaco:1},
+    {id:'fi18',nome:'Tabata (cardio HIIT)',obj:'8×20s/10s',desc:'20s no máximo (polichinelos/skipping alto/burpees) + 10s descanso, 8 rondas. Muito exigente.',tempo:8,idadeMin:13,sub:'resistencia',intensidade:3,equip:'nenhum',espaco:1},
+    {id:'fi19',nome:'Acelerações em rampa',obj:'6×20m',desc:'Sprints curtos a subir uma rampa/ladeira suave, caminhar a descer a recuperar. Potência e mecânica.',tempo:12,idadeMin:13,sub:'velocidade',intensidade:3,equip:'rampa/ladeira',espaco:2,alt1:{nome:'Saltos explosivos no lugar',obj:'6×10 saltos',desc:'Agachamento e salto vertical explosivo, 10 repetições, descansa entre séries. Potência de pernas.',tempo:10,equip:'nenhum'}},
+    {id:'fi20',nome:'Sprints com mudança de direção',obj:'8×15m',desc:'Sprint, trava, muda 90° e volta a acelerar. Agilidade a alta velocidade.',tempo:10,idadeMin:13,sub:'velocidade',intensidade:3,equip:'2 cones + espaço',espaco:2,alt1:{nome:'Mudanças de direção no lugar',obj:'8×20 seg',desc:'Passos laterais rápidos, muda de direção ao sinal, sem sair de um raio de 1 passo. Agilidade dos pés.',tempo:9,equip:'nenhum'}},
+    {id:'fi21',nome:'Pliometria: saltos ao caixote',obj:'4×8',desc:'Salto a dois pés para um caixote baixo (20-30cm), desce a andar. Aterragem controlada.',tempo:8,idadeMin:14,sub:'velocidade',intensidade:3,equip:'caixote/degrau firme',espaco:1},
+    {id:'fi22',nome:'Circuito de força sénior',obj:'4 rondas',desc:'Agachamento com salto 12 → flexões 12 → afundos com salto 10 → prancha 45s. Volume e intensidade altos.',tempo:16,idadeMin:16,sub:'forca',intensidade:3,equip:'tapete',espaco:1},
+    {id:'fi23',nome:'Sprints de resistência (repetidos)',obj:'10×40m',desc:'40m a ~90%, 40m a andar. Capacidade de repetir esforços — muito exigente, só corpos maduros.',tempo:14,idadeMin:16,sub:'resistencia',intensidade:3,equip:'espaço 40m',espaco:2,alt1:{nome:'Burpees em séries repetidas',obj:'10×8',desc:'8 burpees rápidos, 30s a descansar. Capacidade de repetir esforço intenso — muito exigente, só corpos maduros.',tempo:12,equip:'nenhum'}}
+  ],
+  decisao:[
+    {id:'de1',nome:'Cores ao sinal',obj:'3 séries',desc:'Alguém diz uma cor; tocas nesse objeto com a sola na bola. Decisão rápida sob estímulo.',tempo:7,idadeMin:5,intensidade:1,equip:'bola + objetos coloridos',espaco:1},
+    {id:'de2',nome:'Espelho com bola',obj:'5 min',desc:'Imita os movimentos de quem está à tua frente, bola nos pés. Reação e leitura.',tempo:6,idadeMin:8,intensidade:2,equip:'bola',espaco:1},
+    {id:'de3',nome:'Números ao sinal',obj:'3×2 min',desc:'Cada cone tem um número; ao ouvir o número, conduz a bola até esse cone. Processar + executar.',tempo:8,idadeMin:9,intensidade:2,equip:'bola + cones numerados',espaco:2,alt1:{nome:'Números ao sinal, em mesa',obj:'3×2 min',desc:'4 objetos numerados numa mesa/chão pequeno; ao ouvir o número, toca nesse objeto o mais rápido possível.',tempo:7,equip:'4 objetos numerados'}},
+    {id:'de4',nome:'Passe à cor certa',obj:'20 decisões',desc:'Dois alvos de cores; quem ajuda grita a cor no momento do passe. Decidir tarde, executar bem.',tempo:8,idadeMin:10,intensidade:2,equip:'bola + 2 alvos',espaco:1},
+    {id:'de5',nome:'1v1 ao sinal',obj:'8 duelos',desc:'Parte ao sinal para um 1v1 curto com um familiar como obstáculo passivo. Escolher o lado livre.',tempo:9,idadeMin:11,intensidade:2,equip:'bola + espaço',espaco:2,alt1:{nome:'Escolha rápida ao sinal',obj:'12 escolhas',desc:'Um familiar aponta para a esquerda ou direita ao acaso — decide e toca nesse lado o mais rápido possível.',tempo:7,equip:'nenhum'}},
+    {id:'de6',nome:'Scan: olhar antes de receber',obj:'4×2 min',desc:'Antes de cada receção da parede, olha por cima do ombro e diz um objeto que viu. Cria o hábito de ver.',tempo:8,idadeMin:11,intensidade:2,equip:'bola + parede',espaco:1},
+    {id:'de7',nome:'Passe ou finta?',obj:'12 decisões',desc:'Perante um obstáculo (cone ou familiar parado), decide na hora entre passar a um alvo ou driblar. Sem pensar antes de chegar lá.',tempo:8,idadeMin:9,intensidade:2,equip:'bola + cone',espaco:1},
+    {id:'de8',nome:'Reagir ao sinal',obj:'10 reps',desc:'Alguém bate palmas sem aviso; tens de tocar na bola de uma forma diferente consoante o número de palmas. Tempo de reação com decisão.',tempo:6,idadeMin:8,intensidade:2,equip:'bola',espaco:1},
+    {id:'de9',nome:'Encontrar o espaço livre',obj:'8 rondas',desc:'Entre 4 cones espalhados, corre sempre para o que está mais "livre" (mais longe de ti). Ler o espaço rápido, sem hesitar.',tempo:7,idadeMin:9,intensidade:2,equip:'4 cones',espaco:2,alt1:{nome:'Encontrar o espaço livre, reduzido',obj:'8 rondas',desc:'4 objetos pequenos espalhados perto de ti; aponta sempre para o mais "livre" (mais longe). Ler o espaço rápido.',tempo:6,equip:'4 objetos pequenos'}},
+    {id:'de10',nome:'Remate ou passe final',obj:'10 decisões',desc:'A 12m da baliza/alvo, decide em 1 segundo entre rematar ou passar a um segundo alvo mais perto. Pressão de tempo na decisão final.',tempo:9,idadeMin:11,intensidade:2,equip:'bola + baliza/alvo',espaco:3,alt1:{nome:'Passe curto ou longo, decisão rápida',obj:'12 decisões',desc:'A 3m da parede, decide em 1 segundo entre passe curto e forte ou mais suave a um alvo mais distante marcado. Pressão de tempo.',tempo:8,equip:'bola + parede'},alt2:{nome:'Remate ou passe a alvo improvisado',obj:'10 decisões',desc:'A 8m, decide em 1 segundo entre rematar a um alvo pequeno ou passar a outro mais perto. Pressão de tempo na decisão final.',tempo:9,equip:'bola + alvo improvisado'}}
+  ],
+  tatica:[
+    {id:'ta1',nome:'Vídeo + 3 perguntas',obj:'1 clip',desc:'Vê 5 min de um jogo. Responde a "porquê este passe?", "para onde ias?", "e o adversário?".',tempo:10,idadeMin:8,intensidade:1,equip:'ecrã',espaco:1},
+    {id:'ta2',nome:'Sombra posicional',obj:'5 min',desc:'Sem bola, ocupa a posição certa conforme uma bola imaginária que alguém aponta. Posicionamento.',tempo:6,idadeMin:9,intensidade:1,equip:'nenhum',espaco:1},
+    {id:'ta3',nome:'Mapa da posição',obj:'desenhar',desc:'Desenha o campo e marca onde deve estar na tua posição em 3 situações (ataque/defesa/transição).',tempo:8,idadeMin:10,intensidade:1,equip:'papel',espaco:1},
+    {id:'ta4',nome:'Apoio e ângulo',obj:'4×2 min',desc:'Com um familiar com bola, desloca-te sempre para criar linha de passe (ângulo aberto). Oferecer-se.',tempo:9,idadeMin:11,intensidade:2,equip:'bola',espaco:1},
+    {id:'ta5',nome:'Basculação (defesa)',obj:'5 min',desc:'Desloca-te lado a lado conforme a bola imaginária, mantendo distância e orientação. Trabalho defensivo.',tempo:7,idadeMin:12,intensidade:2,equip:'nenhum',espaco:1},
+    {id:'ta6',nome:'Ler o passe seguinte',obj:'1 clip',desc:'Vê um lance e pausa antes do passe. Diz em voz alta para onde achas que vai a bola — depois confirma.',tempo:8,idadeMin:9,intensidade:1,equip:'ecrã',espaco:1},
+    {id:'ta7',nome:'Zonas de perigo',obj:'desenhar',desc:'Desenha o campo e marca as 3 zonas onde achas que a tua equipa cria mais perigo. Explica porquê a alguém.',tempo:7,idadeMin:10,intensidade:1,equip:'papel',espaco:1},
+    {id:'ta8',nome:'Transição rápida',obj:'6×1 min',desc:'Perde a bola de propósito e recupera-a em corrida nos primeiros 3 segundos. O primeiro instante depois de perder.',tempo:8,idadeMin:10,intensidade:2,equip:'bola',espaco:2,alt1:{nome:'Transição rápida, no lugar',obj:'8×30 seg',desc:'Deixa a bola escapar de propósito (empurra-a 1 passo) e recupera-a imediatamente. O primeiro instante depois de perder.',tempo:7,equip:'bola'}},
+    {id:'ta9',nome:'Superioridade 2x1',obj:'8 jogadas',desc:'Com dois familiares (ou 1 familiar + 1 cone-obstáculo), decide entre passar ou conduzir consoante o espaço livre.',tempo:9,idadeMin:11,intensidade:2,equip:'bola + espaço',espaco:2,alt1:{nome:'Superioridade 2x1, reduzida',obj:'10 jogadas',desc:'Com um familiar a 3m, decide entre passar-lhe a bola ou guardá-la, consoante ele se aproxima ou não.',tempo:7,equip:'bola'}},
+    {id:'ta10',nome:'Comunicação em campo',obj:'5 min',desc:'Durante um exercício simples com bola, grita instruções curtas e claras ("vira", "aqui", "atrás"). Falar sob esforço.',tempo:6,idadeMin:9,intensidade:1,equip:'bola',espaco:1}
+  ],
+  mental:[
+    {id:'me1',nome:'Diário de 1 objetivo',obj:'escrever',desc:'Antes do treino escreve 1 objetivo simples. No fim avalia se cumpriu. Foco e compromisso.',tempo:4,idadeMin:6,intensidade:1,equip:'papel',espaco:1},
+    {id:'me2',nome:'Repetir após erro',obj:'10 reps',desc:'Faz um gesto técnico; se falhar, repete calmo, sem frustração. Resiliência.',tempo:7,idadeMin:6,intensidade:1,equip:'bola',espaco:1},
+    {id:'me3',nome:'Respiração antes de rematar',obj:'10 remates',desc:'Uma respiração lenta antes de cada remate ao alvo. Controlo do impulso, rotina pré-ação.',tempo:6,idadeMin:9,intensidade:1,equip:'bola + alvo',espaco:1},
+    {id:'me4',nome:'3 coisas boas',obj:'escrever',desc:'Depois do treino, escreve 3 coisas que correram bem. Constrói confiança realista.',tempo:4,idadeMin:9,intensidade:1,equip:'papel',espaco:1},
+    {id:'me5',nome:'Foco 5-4-3-2-1',obj:'2 min',desc:'Antes de treinar, nomeia 5 coisas que vês, 4 que ouves, etc. Traz a cabeça para o presente.',tempo:3,idadeMin:11,intensidade:1,equip:'nenhum',espaco:1},
+    {id:'me6',nome:'Rotina antes de jogar',obj:'3 passos',desc:'Cria uma sequência fixa (ex: respirar, olhar o campo, apertar as botas) e repete-a sempre antes de jogar. A cabeça aprende o sinal.',tempo:4,idadeMin:9,intensidade:1,equip:'nenhum',espaco:1},
+    {id:'me7',nome:'Fala contigo mesmo',obj:'10 reps',desc:'Depois de cada erro no treino, diz uma frase curta de incentivo em vez de te criticares. Muda o hábito interno.',tempo:6,idadeMin:8,intensidade:1,equip:'bola',espaco:1},
+    {id:'me8',nome:'Visualizar antes de dormir',obj:'2 min',desc:'À noite, imagina com detalhe uma jogada tua bem-sucedida — o toque, o resultado. Sem ecrã, só a imaginar.',tempo:2,idadeMin:9,intensidade:1,equip:'nenhum',espaco:1},
+    {id:'me9',nome:'Escala de esforço',obj:'escrever',desc:'No fim do treino, dá-te uma nota de 1 a 5 ao esforço e escreve porquê. Aprender a sentir o próprio corpo.',tempo:3,idadeMin:8,intensidade:1,equip:'papel',espaco:1},
+    {id:'me10',nome:'Contar até 5 e recomeçar',obj:'5 séries',desc:'Simula um erro (falha um remate de propósito), conta até 5 devagar, e repete o gesto calmo. Treinar a recuperação, não só a técnica.',tempo:7,idadeMin:10,intensidade:1,equip:'bola',espaco:1}
+  ]
+};
+
+function idade(ano){return ano?(2026-ano):null;}
+function idadeDoAtleta(a){
+  if(!a) return null;
+  var i=idade(a.ano_nascimento);
+  if(i && i>0) return i;
+  var m=String(a.escalao||'').match(/(\d{1,2})/);
+  if(m){ var n=parseInt(m[1],10); if(n>0) return Math.max(6, n-2); }
+  return null;
+}
+
+const CAT_DE_EXERCICIO={};
+Object.entries(EXERCICIOS).forEach(([cat,lista])=>lista.forEach(e=>{ CAT_DE_EXERCICIO[e.id]=cat; }));
+const CICLOS=[
+  {nome:'Fundação',emoji:'🔧',desc:'Técnica base e hábito'},
+  {nome:'Construção',emoji:'🏗️',desc:'Intensidade e decisão'},
+  {nome:'Aplicação',emoji:'⚡',desc:'Tática e jogo'},
+  {nome:'Consolidação',emoji:'🏆',desc:'Tudo junto'}
+];
+
+
+let avNivel1={};
+let avNivel1Tocado={};
+async function renderAvaliar(){
+  const area=document.getElementById('avaliar-area');
+  const sub=document.getElementById('avaliar-sub');
+  if(!atletaSel){
+    sub.textContent='Seleciona um atleta na aba Atletas primeiro.';
+    area.innerHTML='<div class="empty-state"><div class="empty-emoji">📋</div>Nenhum atleta selecionado.</div>';
+    return;
+  }
+  sub.textContent='A avaliar: '+esc(atletaSel.primeiro_nome||atletaSel.nome)+' · um toque por área · 1 (prioridade) a 5 (forte)';
+  avNivel1={tecnica:3,decisao:3,tatica:3,fisico:3,mental:3};
+  avNivel1Tocado={};   // um "3" que ninguém tocou não é uma avaliação — é só o ponto de partida do botão
+
+  // busca a avaliação anterior — sem isto, cada avaliação é uma fotografia
+  // isolada; com isto, o treinador vê logo se subiu ou desceu desde a última vez
+  let anterior=null;
+  try{
+    const {data:h}=await supa.rpc('ytb_treinador_avaliacoes_historico',{p_atleta:atletaSel.id,p_limite:1});
+    if(h&&h.ok&&h.lista&&h.lista[0]) anterior=h.lista[0].criterios||{};
+  }catch(e){ /* sem histórico anterior — segue como primeira avaliação, sem comparação */ }
+
+  let html='<div id="jornada-treinador"></div>';
+  BUCKETS.forEach(function(b){
+    const k=b[0];
+    const valorAntes = anterior ? anterior[BUCKET_LBL[k]] : null;
+    html+='<div class="bk-row" id="bk-'+k+'">'
+      +'<div class="bk-head"><span>'+b[1]+'</span><span class="bk-nome">'+b[2]+'</span>'
+      +(valorAntes?' <span style="font-weight:400;color:var(--muted);font-size:var(--fs-legenda)">· antes: '+valorAntes+'</span>':'')+'</div>'
+      +'<div class="bk-sub">'+b[3]+'</div>'
+      +'<div class="bk-dots">'+[1,2,3,4,5].map(function(n){
+        return '<button type="button" id="bk-'+k+'-'+n+'" class="'+(n===3?'on':'')+'" onclick="avTocar(\''+k+'\','+n+')">'+n+'</button>';
+      }).join('')+'</div>'
+      +'<div class="bk-esc"><span>prioridade</span><span>forte</span></div>'
+      +'<button type="button" class="bk-det" onclick="avDetalhar(\''+k+'\')" id="bk-det-btn-'+k+'">Detalhar '+b[2].toLowerCase()+' ▸</button>'
+      +'<div class="bk-det-body" id="bk-det-'+k+'">'
+      +(BUCKET_CRITS[k]||[]).map(function(name){
+        const id='av_'+name.replace(/[^a-z]/gi,'_').toLowerCase();
+        return '<div class="slider-row"><div class="slider-label"><span class="slider-name">'+name+'</span><span class="slider-val" id="v_'+id+'">3</span></div>'
+          +'<input class="slider" type="range" id="'+id+'" min="1" max="5" step="1" value="3" oninput="this.dataset.touched=1;document.getElementById(\'v_'+id+'\').textContent=this.value">'
+          +'</div>';
+      }).join('')
+      +'</div></div>';
+  });
+  html+='<div style="font-size:var(--fs-micro);font-weight:800;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin:14px 0 6px">Período</div>';
+  html+='<div id="av-periodo-chips" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px">'+avPeriodoChipsHTML()+'</div>';
+  html+='<div style="font-size:var(--fs-micro);color:var(--muted);line-height:1.5;margin-bottom:12px">A barreira de idade e o teto de intensidade continuam sempre ativos nos dois — o período muda volume, nunca segurança.</div>';
+  html+='<div style="font-size:var(--fs-micro);font-weight:800;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin:14px 0 6px">Dirigir o plano gerado</div>';
+  html+='<div id="av-foco-chips" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">'+avFocoChipsHTML()+'</div>';
+  html+='<button class="btn btn-primary" onclick="gerarAvaliacao()">Concluir avaliação e gerar treino →</button>';
+  html+='<div id="aval-result"></div>';
+  html+=avYtbHTML(atletaSel);
+  area.innerHTML=html;
+  montarJornadaTreinador();
+  avYtbPreencher();
+}
+/* ── Classificação YTB (rating/badge/excelências + avaliação contextual IA) ──
+   Secção opcional, colapsada por omissão: não é o gesto de 30s por atleta,
+   é ajuste ocasional. Fica restrita aos teus atletas (fonte_email) no RPC. */
+const AV_YTB_RATINGS=['','A+','A','B+','B','C+','C','D'];
+const AV_YTB_BADGES=[['', '— sem estatuto —'],['observado','👀 Observado'],['em-crescimento','📈 Em Crescimento'],['hidden-gem','💎 Hidden Gem'],['destaque','★ YTB Acompanhado']];
+const AV_YTB_AREAS=[['','—'],['tecnico','Técnico'],['tactico','Tático'],['fisico','Físico'],['mental','Mental']];
+function avYtbHTML(a){
+  const opt=(v,label,sel)=>'<option value="'+v+'"'+(String(sel==null?'':sel)===String(v)?' selected':'')+'>'+label+'</option>';
+  const val=k=>esc((a&&a[k]!=null&&a[k]!=='')?String(a[k]):'');
+  return '<details style="margin-top:18px;border-top:1px solid var(--border2,#2A322B);padding-top:12px">'
+    +'<summary style="cursor:pointer;font-size:var(--fs-legenda);font-weight:800;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase">\u2b50 Classifica\u00e7\u00e3o YTB e contexto (opcional)</summary>'
+    +'<div style="font-size:var(--fs-legenda);color:var(--slate);line-height:1.55;margin:12px 0 14px">'
+      +'O contexto competitivo \u00e9 o que faz a avalia\u00e7\u00e3o por IA valer alguma coisa \u2014 sem divis\u00e3o e sem os n\u00fameros da equipa, ela s\u00f3 pode dizer que lhe faltam dados.</div>'
+    +'<div class="field"><label class="label">\u00c9poca</label><input class="input" id="ytb-epoca" type="text" placeholder="ex: 2026/27" value="'+val('epoca_ref')+'"></div>'
+    +'<div class="field"><label class="label">Divis\u00e3o / n\u00edvel</label><input class="input" id="ytb-div" type="text" placeholder="ex: Sub-13 1\u00aa divis\u00e3o distrital" value="'+val('divisao')+'"></div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">'
+      +'<div class="field"><label class="label">Golos</label><input class="input" id="ytb-gol" type="number" inputmode="numeric" value="'+val('golos_epoca')+'"></div>'
+      +'<div class="field"><label class="label">Jogos</label><input class="input" id="ytb-jog" type="number" inputmode="numeric" value="'+val('jogos_epoca')+'"></div>'
+      +'<div class="field"><label class="label">Assist.</label><input class="input" id="ytb-ass" type="number" inputmode="numeric" value="'+val('assist_epoca')+'"></div>'
+    +'</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'
+      +'<div class="field"><label class="label">Golos da equipa</label><input class="input" id="ytb-goleq" type="number" inputmode="numeric" placeholder="total" value="'+val('golos_equipa_epoca')+'"></div>'
+      +'<div class="field"><label class="label">Classifica\u00e7\u00e3o</label><input class="input" id="ytb-class" type="text" placeholder="ex: 3\u00ba de 12" value="'+val('classificacao_equipa')+'"></div>'
+    +'</div>'
+    +'<div class="field"><label class="label">Rating geral</label><select class="input" id="ytb-rating">'+AV_YTB_RATINGS.map(r=>opt(r,r||'\u2014',a&&a.rating_geral)).join('')+'</select></div>'
+    +'<div class="field"><label class="label">Estatuto</label><select class="input" id="ytb-badge">'+AV_YTB_BADGES.map(b=>opt(b[0],b[1],a&&a.badge_estado)).join('')+'</select></div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">'
+      +[['ytb-ex1','area_excelencia_1'],['ytb-ex2','area_excelencia_2'],['ytb-ex3','area_excelencia_3']].map((x,i)=>
+        '<div class="field"><label class="label">Excel\u00eancia '+(i+1)+'</label><select class="input" id="'+x[0]+'">'+AV_YTB_AREAS.map(y=>opt(y[0],y[1],a&&a[x[1]])).join('')+'</select></div>').join('')
+    +'</div>'
+    +'<button type="button" class="btn btn-secondary" style="width:100%;margin-bottom:8px" onclick="avYtbGravar()">Guardar classifica\u00e7\u00e3o e contexto</button>'
+    +'<button type="button" class="btn btn-secondary" style="width:100%" id="btn-ia-ctx" onclick="avYtbGerarIA()">\ud83e\udde0 Gerar avalia\u00e7\u00e3o contextual (IA)</button>'
+    +'<div id="ytb-ia-out" style="font-size:var(--fs-legenda);color:var(--slate);line-height:1.55;margin-top:10px"></div>'
+    +'</details>';
+}
+function avYtbPreencher(){
+  if(!atletaSel) return;
+  const set=(id,v)=>{ const el=document.getElementById(id); if(el) el.value=v||''; };
+  set('ytb-rating', atletaSel.rating_geral);
+  set('ytb-badge', atletaSel.badge_estado);
+  set('ytb-ex1', atletaSel.area_excelencia_1);
+  set('ytb-ex2', atletaSel.area_excelencia_2);
+  set('ytb-ex3', atletaSel.area_excelencia_3);
+}
+async function avYtbGravar(){
+  if(!atletaSel) return;
+  const g=id=>{ const el=document.getElementById(id); return el?(el.value||null):null; };
+  const btn=event&&event.currentTarget;
+  if(btn){ btn.disabled=true; btn.textContent='A guardar…'; }
+  try{
+    const n=id=>{ const el=document.getElementById(id); const v=el?parseInt(el.value,10):NaN; return isNaN(v)?null:v; };
+    const {data,error}=await supa.rpc('ytb_treinador_atleta_classificar',{
+      p_atleta:atletaSel.id, p_rating_geral:g('ytb-rating'), p_badge_estado:g('ytb-badge'),
+      p_area_excelencia_1:g('ytb-ex1'), p_area_excelencia_2:g('ytb-ex2'), p_area_excelencia_3:g('ytb-ex3'),
+      p_epoca_ref:g('ytb-epoca'), p_divisao:g('ytb-div'),
+      p_golos_epoca:n('ytb-gol'), p_jogos_epoca:n('ytb-jog'), p_assist_epoca:n('ytb-ass'),
+      p_golos_equipa_epoca:n('ytb-goleq'), p_classificacao_equipa:g('ytb-class')
+    });
+    if(error||!data||!data.ok){ showToast('Não foi possível guardar: '+((data&&data.motivo)||(error&&error.message)||'erro')); return; }
+    // atualizar o objeto em memória: a IA lê de atletaSel, e carregarAtletas()
+    // substitui o array sem mexer nesta referência — sem isto, a avaliação
+    // contextual continuava a ler os valores anteriores.
+    Object.assign(atletaSel,{
+      rating_geral:g('ytb-rating'), badge_estado:g('ytb-badge'),
+      area_excelencia_1:g('ytb-ex1'), area_excelencia_2:g('ytb-ex2'), area_excelencia_3:g('ytb-ex3'),
+      epoca_ref:g('ytb-epoca'), divisao:g('ytb-div'),
+      golos_epoca:n('ytb-gol'), jogos_epoca:n('ytb-jog'), assist_epoca:n('ytb-ass'),
+      golos_equipa_epoca:n('ytb-goleq'), classificacao_equipa:g('ytb-class')
+    });
+    showToast('Classificação e contexto guardados ✓');
+    carregarAtletas();
+  }catch(e){ showToast('Sem ligação'); }
+  finally{ if(btn){ btn.disabled=false; btn.textContent='Guardar classificação e contexto'; } }
+}
+async function avYtbGerarIA(){
+  if(!atletaSel) return;
+  const a=atletaSel;
+  const btn=document.getElementById('btn-ia-ctx');
+  if(btn){ btn.disabled=true; btn.textContent='A gerar...'; }
+  const out=document.getElementById('ytb-ia-out');
+  try{
+    const idade=a.ano_nascimento?(new Date().getFullYear()-a.ano_nascimento):null;
+    const ctx={ posicao:a.posicao_principal||null, escalao:a.escalao||null, idade, clube:a.clube_actual||null,
+      associacao:a.associacao||null, divisao:a.divisao||null, epoca:a.epoca_ref||null,
+      golos:(a.golos_epoca??null), jogos:(a.jogos_epoca??null), assist:(a.assist_epoca??null),
+      golos_equipa:(a.golos_equipa_epoca??null), classificacao:a.classificacao_equipa||null };
+    let calc=[];
+    if(ctx.golos!=null && ctx.jogos){ calc.push('rácio golos/jogo: '+(ctx.golos/ctx.jogos).toFixed(2)); }
+    if(ctx.golos!=null && ctx.golos_equipa){ calc.push('peso nos golos da equipa: '+Math.round(ctx.golos/ctx.golos_equipa*100)+'%'); }
+    const linhas=[];
+    linhas.push('Posição: '+(ctx.posicao||'n/d')+' · Escalão: '+(ctx.escalao||'n/d')+(ctx.idade?(' · '+ctx.idade+' anos'):''));
+    linhas.push('Clube: '+(ctx.clube||'n/d')+' · Associação: '+(ctx.associacao||'n/d'));
+    linhas.push('Divisão/nível: '+(ctx.divisao||'NÃO INFORMADO'));
+    linhas.push('Época: '+(ctx.epoca||'n/d'));
+    linhas.push('Golos do atleta: '+(ctx.golos!=null?ctx.golos:'NÃO INFORMADO')+' · Jogos: '+(ctx.jogos!=null?ctx.jogos:'NÃO INFORMADO')+' · Assist: '+(ctx.assist!=null?ctx.assist:'n/d'));
+    linhas.push('Golos da equipa (total): '+(ctx.golos_equipa!=null?ctx.golos_equipa:'NÃO INFORMADO'));
+    linhas.push('Classificação da equipa: '+(ctx.classificacao||'NÃO INFORMADO'));
+    if(calc.length) linhas.push('Rácios já calculados (factuais): '+calc.join(' · '));
+
+    const prompt=`És o motor de avaliação contextual da YourTalentBase (futebol jovem, Portugal). A tua função é interpretar o desempenho de um jovem atleta TENDO EM CONTA O CONTEXTO onde joga — porque os números nus enganam: 30 golos numa equipa que marca 250 não valem o mesmo que 30 numa equipa que marca 60; a 1ª divisão não é a 2ª.
+
+DADOS DO ATLETA (sem nome):
+${linhas.join('\n')}
+
+REGRAS ABSOLUTAS DE HONESTIDADE:
+- Usa APENAS os dados fornecidos. NUNCA inventes números que não estão acima.
+- Onde diz "NÃO INFORMADO", NÃO inventes — ou omites, ou dizes explicitamente que falta esse dado para uma leitura completa.
+- Se tens os golos do atleta mas NÃO os da equipa, fala do rácio golos/jogo (que sabes), mas NÃO afirmes o peso na equipa (que não sabes).
+- Distingue sempre o que é FACTO (os números) do que é LEITURA (a tua interpretação).
+
+COMO CONTEXTUALIZAR:
+- Pondera o nível competitivo (divisão) e a posição na tabela da equipa.
+- Um avançado numa equipa fraca que marca muito carrega a equipa; numa equipa forte, partilha o mérito.
+- Sê conservador e profissional. Sem hype. Linguagem de scout sério, não de marketing.
+
+FORMATO DA RESPOSTA:
+- Texto corrido, PT-PT, 3ª pessoa, SEM nome do atleta.
+- 80 a 120 palavras.
+- Começa pela leitura contextual mais relevante. Termina com o que falta saber para uma avaliação mais completa (se aplicável).
+- Devolve APENAS o texto da análise. Sem JSON, sem markdown, sem aspas, sem preâmbulo.`;
+
+    const r=await fetch('/api/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt,max_tokens:600})});
+    if(!r.ok) throw new Error('API '+r.status);
+    const j=await r.json();
+    let txt=''; (j.content||[]).forEach(c=>{ if(c.type==='text') txt+=c.text; });
+    txt=(txt||'').trim();
+    if(txt.length<40) throw new Error('IA devolveu texto vazio ou curto demais');
+
+    const {error:insErr}=await supa.rpc('ytb_admin_aval_contextual',{ p_atleta:a.id, p_texto:txt, p_snapshot:ctx });
+    if(insErr) throw insErr;
+    if(out) out.textContent='✓ Gravada no histórico: “'+txt+'”';
+  }catch(e){
+    if(out) out.textContent='⚠ Não foi possível gerar: '+((e&&e.message)||'erro');
+  }
+  if(btn){ btn.disabled=false; btn.textContent='🧠 Gerar avaliação contextual (IA)'; }
+}
+/* Período do treino: 'epoca' (missão caseira curta, ~12min, o formato de sempre)
+   vs 'pre-epoca' (sessão mais longa e densa — pedido real do Mister Nuno para um
+   Sub-17 em pré-época: 5-6 exercícios em vez de 3, sem cortar aos 12min). */
+let avPeriodo='epoca';
+const AV_PERIODOS=[['epoca','Época'],['pre-epoca','Pré-época']];
+function avPeriodoChipsHTML(){
+  const desc={epoca:'3 exercícios · ~12min','pre-epoca':'5-6 exercícios · sem corte'};
+  return AV_PERIODOS.map(function(x){
+    var on=(avPeriodo===x[0]);
+    return '<button type="button" onclick="avPeriodoSet(\''+x[0]+'\')" style="font-family:inherit;cursor:pointer;text-align:center;border-radius:10px;width:100%;padding:12px 8px 10px;line-height:1.25;'+
+      (on?'background:var(--text);color:var(--bg);border:1px solid var(--text)'
+         :'background:transparent;color:var(--slate);border:1px solid var(--border2)')+
+      '"><div style="font-size:var(--fs-legenda);font-weight:800;letter-spacing:.5px;text-transform:uppercase">'+x[1]+'</div>'
+      +'<div style="font-size:var(--fs-micro);font-weight:600;margin-top:3px;opacity:.75">'+(desc[x[0]]||'')+'</div>'
+      +'</button>';
+  }).join('');
+}
+function avPeriodoSet(p){
+  avPeriodo=p;
+  const el=document.getElementById('av-periodo-chips');
+  if(el) el.innerHTML=avPeriodoChipsHTML();
+}
+/* Foco do plano escolhido pelo treinador: 'auto' segue as debilidades avaliadas;
+   um foco explícito faz a maioria dos exercícios vir desse domínio (a escolha do
+   profissional manda sobre o automatismo). Escolhe-se ANTES de concluir, porque
+   concluir grava o plano e envia o convite à família. */
+let avFoco='auto';
+const AV_FOCOS=[['auto','Automático'],['forca','Força'],['resistencia','Resistência'],['velocidade','Velocidade'],['tecnica','Técnica individual'],['tatico','Tático / decisão']];
+function avFocoChipsHTML(){
+  return AV_FOCOS.map(function(x){
+    var on=(avFoco===x[0]);
+    return '<button type="button" onclick="avFocoSet(\''+x[0]+'\')" style="font-family:inherit;font-size:var(--fs-legenda);font-weight:800;letter-spacing:.5px;padding:14px 10px;cursor:pointer;text-transform:uppercase;border-radius:10px;width:100%;text-align:center;line-height:1.2;'+
+      (on?'background:var(--text);color:var(--bg);border:1px solid var(--text)'
+         :'background:transparent;color:var(--slate);border:1px solid var(--border2)')+
+      '">'+x[1]+'</button>';
+  }).join('');
+}
+function avFocoSet(f){
+  avFoco=f;
+  const el=document.getElementById('av-foco-chips');
+  if(el) el.innerHTML=avFocoChipsHTML();
+}
+function avTocar(k,n){
+  avNivel1[k]=n;
+  avNivel1Tocado[k]=true;
+  for(let i=1;i<=5;i++){
+    const el=document.getElementById('bk-'+k+'-'+i);
+    if(el) el.className=(i===n?('on'+(n<=2?' fraco':'')):'');
+  }
+}
+function avDetalhar(k){
+  const body=document.getElementById('bk-det-'+k);
+  const btn=document.getElementById('bk-det-btn-'+k);
+  if(!body) return;
+  const on=body.classList.toggle('on');
+  if(btn) btn.textContent=btn.textContent.replace(on?'▸':'▾', on?'▾':'▸');
+}
+
+/* ════════ MAPA VIVO DA JORNADA (por atleta, via digest já existente) ════════ */
+let digestCache=null;
+async function montarJornadaTreinador(){
+  const mount=document.getElementById('jornada-treinador');
+  if(!mount||!atletaSel||!window.YTBVivo)return;
+  if(USING_SB&&!digestCache){
+    try{const{data}=await supa.rpc('ytb_treinador_digest');digestCache=data||[];}catch(e){digestCache=[];}
+  }
+  if(!document.getElementById('jornada-treinador'))return; // tab mudou durante o fetch
+  const d=(digestCache||[]).find(x=>x.atleta_id===atletaSel.id)||{};
+  const avaliado=d.dias_desde_avaliacao!=null;
+  const plano=!!d.plano_prescrito_em;
+  const exec=(d.execucoes_desde_plano||0)>0;
+  const retorno=!!d.ultimo_feedback||d.confianca_media!=null;
+  const precisaReav=avaliado&&d.dias_desde_avaliacao>45;
+  const flags=[true,avaliado,plano,exec,retorno,false];
+  let atualIdx=flags.findIndex(f=>!f); if(atualIdx===-1)atualIdx=flags.length-1;
+  const nomes=['Inscrito','Avaliado','Plano','Família a treinar','Retorno','Reavaliação'];
+  const etapas=nomes.map((nm,i)=>({nome:nm,estado:flags[i]?'done':(i===atualIdx?'atual':'futuro')}));
+  if(precisaReav){etapas[5].estado='atual';}
+  etapas[3].dica=exec?((d.execucoes_desde_plano)+' treinos da família desde o último plano'):'A família ainda não treinou este plano';
+  etapas[4].dica=retorno?'Há feedback no tab Retorno':'Feedback e confiança chegam quando a família treinar';
+  etapas[5].dica=precisaReav?('Já passaram '+d.dias_desde_avaliacao+' dias — reavalia'):'Reavaliar a cada ~45 dias';
+  etapas[4].click=()=>{ setTab('retorno'); };
+  YTBVivo.jornada(mount,etapas,{aria:'Jornada de '+(atletaSel.primeiro_nome||atletaSel.nome)});
+}
+
+function recolherScores(){
+  // nível 1: só entra o que foi mesmo tocado — um "3" nunca visto pelo
+  // treinador não é uma avaliação, é só onde o botão começa. Antes disto,
+  // quase todas as avaliações reais tinham "Mental":3,"Físico":3,"Decisão":3
+  // repetidos — os defaults a poluir a média que decide o rating público.
+  const scores={};
+  BUCKETS.forEach(function(b){ if(avNivel1Tocado[b[0]]) scores[BUCKET_LBL[b[0]]]=avNivel1[b[0]]; });
+  Object.keys(CRIT_DEB).forEach(function(name){
+    const el=document.getElementById('av_'+name.replace(/[^a-z]/gi,'_').toLowerCase());
+    if(el&&el.dataset.touched) scores[name]=parseInt(el.value);
+  });
+  return scores;
+}
+
+function detectarDebilidades(scores){
+  const debs=new Set();
+  BUCKETS.forEach(function(b){ if((avNivel1[b[0]]||3)<=2) debs.add(b[0]); });
+  // um detalhe fraco acende o bucket mesmo que a nota geral dele seja ≥3
+  Object.entries(scores).forEach(([crit,val])=>{ if(val<=2 && CRIT_DEB[crit]) debs.add(CRIT_DEB[crit]); });
+  if(debs.size===0){
+    // ninguém ≤2: pega no bucket mais fraco
+    let minV=99,minK='tecnica';
+    BUCKETS.forEach(function(b){ const v=avNivel1[b[0]]||3; if(v<minV){minV=v;minK=b[0];} });
+    debs.add(minK);
+  }
+  return Array.from(debs);
+}
+
+function mediasPorCat(scores){
+  // só os buckets REALMENTE tocados entram na média mostrada -- mesma
+  // correção já aplicada à gravação real (recolherScores/avNivel1Tocado);
+  // esta função ficou por corrigir no Pro Treinador original, e a "Média
+  // geral" no ecrã continuava a incluir os defaults nunca tocados
+  const m={};let geral=0,n=0;
+  BUCKETS.forEach(function(b){ if(avNivel1Tocado[b[0]]){ m[b[0]]=avNivel1[b[0]]; geral+=m[b[0]]; n++; } });
+  m.geral = n ? Math.round((geral/n)*10)/10 : null;
+  return m;
+}
+
+async function gerarAvaliacao(){
+  if(!atletaSel)return;
+  const scores=recolherScores();
+  if(Object.keys(scores).length===0){
+    toast('Toca em pelo menos uma área antes de concluir — sem isso não há nada para avaliar.');
+    return;
+  }
+  const debs=detectarDebilidades(scores);
+  const medias=mediasPorCat(scores);
+  const plano=gerarPlano(debs, idadeDoAtleta(atletaSel));
+  avalSel={atleta_id:atletaSel.id,nome:atletaSel.primeiro_nome||atletaSel.nome,scores:scores,medias:medias,debilidades:debs,plano:plano,created_at:new Date().toISOString()};
+  let gravado=false, motivoFalha='';
+  if(USING_SB){
+    try{
+      const{data,error}=await supa.rpc('ytb_treinador_avaliar',{p_atleta:atletaSel.id,p_criterios:scores,p_debilidades:debs,p_plano:plano});
+      if(error)throw error;
+      if(data&&data.ok)gravado=true; else motivoFalha=(data&&data.motivo)||'erro';
+    }catch(e){motivoFalha=e.message||'sem ligação';}
+  }
+  if(gravado)digestCache=null; // plano novo → jornada re-deriva no próximo render
+  // no Clube o atleta ja esta inscrito e provavelmente ja tem acesso ao
+  // Passaporte -- nao reenvia convite a cada avaliacao (diferente do Pro
+  // Treinador avulso, onde a avaliacao costuma ser o primeiro contacto)
+  let linkEstado='';
+  const debLabels={tecnica:'Técnica individual',fisico:'Físico',decisao:'Tomada de decisão',tatica:'Tática / posicionamento',mental:'Mental / atitude'};
+  document.getElementById('aval-result').innerHTML=
+    '<div class="result-card"><div style="text-align:center;font-size:var(--fs-micro);font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:5px">Média geral</div>'+
+    '<div class="score-big">'+(medias.geral!=null?medias.geral.toFixed(1):'—')+'</div><div style="text-align:center;font-size:var(--fs-micro);color:var(--slate);margin-top:4px">/ 5</div>'+
+    '<div style="font-size:var(--fs-micro);font-weight:800;letter-spacing:2px;color:var(--red);text-transform:uppercase;margin:16px 0 8px">Debilidades detetadas</div>'+
+    debs.map(d=>'<div class="deb-item">⚠️ '+(debLabels[d]||d)+'</div>').join('')+
+    (avFoco!=='auto'?'<div style="font-size:var(--fs-legenda);color:var(--slate);margin-top:10px;line-height:1.5">🎯 Plano dirigido por ti: maioria em <strong style="color:var(--text)">'+((AV_FOCOS.find(x=>x[0]===avFoco)||[])[1]||avFoco)+'</strong>, com as debilidades avaliadas em manutenção.</div>':'')+
+    (avPeriodo==='pre-epoca'?'<div style="font-size:var(--fs-legenda);color:var(--slate);margin-top:6px;line-height:1.5">🏋️ Pré-época: sessões mais densas, 5-6 exercícios cada, sem corte de tempo.</div>':'')+
+    (gravado?'':'<div style="background:rgba(255,80,80,.08);border:1px solid rgba(255,80,80,.35);border-radius:9px;padding:10px 12px;margin-top:11px;font-size:var(--fs-legenda);line-height:1.5"><strong style="color:var(--red)">⚠ Não ficou gravado</strong> · '+esc(motivoFalha)+'. O plano abaixo é local — volta a concluir a avaliação com sessão ativa.</div>')+
+    (linkEstado==='enviado'?'<div style="background:rgba(80,200,120,.08);border:1px solid rgba(80,200,120,.35);border-radius:9px;padding:10px 12px;margin-top:11px;font-size:var(--fs-legenda);line-height:1.5"><strong style="color:var(--green)">📧 Convite enviado à família</strong> · '+esc(atletaSel.encarregado_email)+' recebe um link mágico e entra direto neste plano.</div>':'')+
+    (linkEstado==='falhou'?'<div style="background:rgba(255,165,0,.08);border:1px solid rgba(255,165,0,.3);border-radius:9px;padding:10px 12px;margin-top:11px;font-size:var(--fs-legenda);line-height:1.5"><strong style="color:var(--orange)">⚠ O plano ficou gravado, mas o email à família falhou.</strong> Reenvia com o botão ✉️ na lista de atletas.</div>':'')+
+    (linkEstado==='sem_email'?'<div style="background:rgba(255,165,0,.08);border:1px solid rgba(255,165,0,.3);border-radius:9px;padding:10px 12px;margin-top:11px;font-size:var(--fs-legenda);line-height:1.5"><strong style="color:var(--orange)">Este atleta não tem email do encarregado.</strong> Sem email, a família não recebe o plano.</div>':'')+
+    '<button class="btn btn-primary" style="margin-top:14px" onclick="setTabProgram(\'treino\')">Ver objetivo e missões →</button></div>';
+  showToast(gravado?(linkEstado==='enviado'?'Avaliação guardada ✓ Link enviado à família 📧':'Avaliação guardada ✓ Treino gerado'):'⚠ Avaliação NÃO gravada',gravado?2600:3500);
+  if(gravado&&window.YTBVivo){
+    // plano prescrito é um marco: flash dourado + linha causa-efeito jornada → resultado
+    YTBVivo.marco(document.getElementById('aval-result'));
+    YTBVivo.ligar(document.getElementById('tab-avaliar'),[['#jornada-treinador','#aval-result']]);
+    montarJornadaTreinador(); // re-deriva com o plano novo (digestCache foi invalidada)
+  }
+}
+
+/* ════════ TREINO ════════ */
+// idade em anos; se desconhecida, assume-se 12 (conservador — não liberta alta intensidade).
+// 2 missões técnicas/semana (~10-15 min cada), não 3 sessões de 3: os miúdos já
+// treinam 3-4× no clube — a YTB ocupa os dias livres com pouco, não compete por
+// tempo que a família não tem. A carga cognitiva da semana é a Missão de Decisão
+// (cenário Elite Coach), que não sai deste gerador — é zero carga física.
+function gerarPlano(debs, idadeAtleta){
+  const idade = (idadeAtleta && idadeAtleta>0) ? idadeAtleta : 12;
+  const seguro = e => (e.idadeMin||0) <= idade;            // BARREIRA DE SEGURANÇA por idade
+  // teto de intensidade por maturação: <13 nunca passa de média; 13-15 até alta; 16+ tudo
+  const tetoIdade = idade>=16 ? 3 : (idade>=13 ? 3 : 2);
+  const plano=[];
+  // memória PARA O PLANO INTEIRO (não só da sessão) — sem isto, um pool pequeno
+  // para a combinação debilidade+idade+intensidade repete os mesmos 3-4
+  // exercícios em todos os 4 ciclos, mesmo com dezenas de exercícios no banco
+  // total. historicoOrdem regista quando cada exercício foi usado pela última
+  // vez (índice crescente), para saber quais "descansaram" mais quando é
+  // preciso repetir por o pool ter esgotado.
+  const usadosPlanoTodo=new Set();
+  const historicoOrdem={};
+  let ordemGlobal=0;
+  CICLOS.forEach((ciclo,ci)=>{
+    // progressão: a intensidade-alvo sobe ao longo dos 4 ciclos, limitada pela idade
+    const intAlvo = Math.min(1 + ci, tetoIdade);
+    const sessoes=[];
+    for(let s=0;s<2;s++){
+      // pool: com foco explícito do treinador, a maioria vem do domínio escolhido
+      // (barreira de idade sempre aplicada); sem foco, segue as debilidades.
+      let pool=[];
+      // mobilidade é manutenção, não uma fraqueza que se "corrige" — entra sempre
+      // na pool, seja qual for o foco escolhido, e é sempre o exercício aquecimento
+      const poolMobilidade = (EXERCICIOS.fisico||[]).filter(e=>e.sub==='mobilidade' && seguro(e));
+      if(avFoco && avFoco!=='auto'){
+        const subFisico = ['forca','resistencia','velocidade'].includes(avFoco);
+        const cats = avFoco==='tatico' ? ['tatica','decisao'] : (subFisico ? [] : [avFoco]);
+        if(subFisico){
+          (EXERCICIOS.fisico||[]).forEach(e=>{ if(e.sub===avFoco && seguro(e)) pool.push(e); });
+        }
+        cats.forEach(c=>(EXERCICIOS[c]||[]).forEach(e=>{ if(seguro(e)) pool.push(e); }));
+        // mantém a debilidade avaliada mais relevante fora do foco (minoria, não some do radar)
+        const focoComoDeb = subFisico ? 'fisico' : avFoco;
+        debs.filter(d=>d!==focoComoDeb && !cats.includes(d)).slice(0,1).forEach(d=>{ (EXERCICIOS[d]||[]).forEach(e=>{ if(seguro(e)) pool.push(e); }); });
+        if(!pool.length){ debs.forEach(d=>{ (EXERCICIOS[d]||[]).forEach(e=>{ if(seguro(e)) pool.push(e); }); }); }
+      } else {
+      debs.forEach(d=>{ (EXERCICIOS[d]||[]).forEach(e=>{ if(seguro(e)) pool.push(e); }); });
+      // completa sempre com base segura de técnica + físico (garante variedade e volume)
+      ['tecnica','fisico'].forEach(c=>EXERCICIOS[c].forEach(e=>{ if(seguro(e)) pool.push(e); }));
+      }
+      // preferir exercícios até à intensidade-alvo do ciclo (progressão); se poucos, alarga
+      let pref=pool.filter(e=>(e.intensidade||1)<=intAlvo);
+      const base=(pref.length>=3?pref:pool);
+      const ehPreEpoca = (avPeriodo==='pre-epoca');
+      const alvoExerc = ehPreEpoca ? 6 : 3;
+      const tetoMinutos = ehPreEpoca ? 999 : 12; // pré-época: sessão de treino a sério, sem corte por tempo
+      const sessao=[];const usados=new Set();let g=0;
+      // mobilidade entra sempre, seja qual for o foco — é manutenção, não uma
+      // fraqueza a corrigir. Roda entre os disponíveis (índice pelo ciclo+sessão)
+      // para não repetir sempre o mesmo exercício em todas as sessões do plano.
+      if(poolMobilidade.length){
+        const mob = poolMobilidade[(ci*2+s)%poolMobilidade.length];
+        if(!usadosPlanoTodo.has(mob.id) || poolMobilidade.length===1){
+          sessao.push(mob); usados.add(mob.id); usadosPlanoTodo.add(mob.id); historicoOrdem[mob.id]=++ordemGlobal;
+        }
+      }
+      // 1ª passagem: só exercícios que o PLANO INTEIRO ainda não usou —
+      // esgota a variedade do pool antes de sequer pensar em repetir.
+      const poolNovos = base.filter(e=>!usadosPlanoTodo.has(e.id));
+      const alvoParcial = poolNovos.length ? base : base; // mantém 'base' para o índice cíclico, mas prioriza poolNovos abaixo
+      while(sessao.length<alvoExerc && base.length && g<200){
+        g++;
+        let ex;
+        const candidatosNovos = poolNovos.filter(e=>!usados.has(e.id));
+        if(candidatosNovos.length){
+          // entre os ainda-não-usados no plano todo, mantém alguma variação
+          // determinística (não aleatória) em vez de pegar sempre no primeiro
+          ex = candidatosNovos[(sessao.length+g)%candidatosNovos.length];
+        } else {
+          // pool esgotado: repete, mas prefere quem descansou há mais tempo
+          const candidatosRepetir = base.filter(e=>!usados.has(e.id))
+            .sort((a,b)=>(historicoOrdem[a.id]||0)-(historicoOrdem[b.id]||0));
+          ex = candidatosRepetir[0] || base[(s*alvoExerc+sessao.length+ci*2+g-1)%base.length];
+        }
+        if(ex && !usados.has(ex.id)){
+          sessao.push(ex); usados.add(ex.id);
+          usadosPlanoTodo.add(ex.id); historicoOrdem[ex.id]=++ordemGlobal;
+        }
+        if(usados.size>=base.length) break;
+        // missão curta (só em época): para com 2 exercícios se já leva >= 12 min
+        if(!ehPreEpoca && sessao.length>=2 && sessao.reduce((a,e)=>a+(e.tempo||0),0)>=tetoMinutos) break;
+      }
+      // Alternativas por espaço: o miúdo pode estar em casa, à chuva, sem campo.
+      // Guardamos aqui (e não no cliente da família) porque as barreiras de idade e
+      // o teto de intensidade já foram aplicados a este pool — a alternativa nasce
+      // tão segura quanto o exercício principal. A troca fica dentro da MESMA
+      // categoria (físico→físico, técnica→técnica) — sem isto, "base" mistura
+      // categorias (a sessão sem foco leva sempre técnica+físico juntos) e a
+      // "alternativa" podia trocar um exercício de físico por um de técnica só
+      // por caber no espaço, mudando o que a sessão treina, não só onde treina.
+      // Entre candidatos válidos, prefere-se a intensidade mais parecida à
+      // do exercício original.
+      const comAlt = sessao.map(ex=>{
+        const nivel = ex.espaco||1;
+        if(nivel<=1) return ex;
+        const catEx = CAT_DE_EXERCICIO[ex.id];
+        const candidatos = c => base
+          .filter(a=>(a.espaco||1)<=c && a.id!==ex.id && !usados.has(a.id) && CAT_DE_EXERCICIO[a.id]===catEx)
+          .sort((a,b)=>Math.abs((a.intensidade||1)-(ex.intensidade||1))-Math.abs((b.intensidade||1)-(ex.intensidade||1)));
+        const o = Object.assign({}, ex);
+        const a1 = candidatos(1)[0]; if(a1) o.alt1 = a1;
+        if(nivel>2){ const a2 = candidatos(2)[0]; if(a2) o.alt2 = a2; }
+        return o;
+      });
+      sessoes.push(comAlt);
+    }
+    plano.push({ciclo:ciclo,sessoes:sessoes});
+  });
+  return plano;
+}
+
+
+/* ══════ AVALIAR (Pro Treinador, PID — copiado e adaptado) ══════ */
+var atletaSel=null, avalSel=null;
+function pintarAvaliar(){
+  const box=document.getElementById('sec-avaliar');
+  if(!equipaAtiva){ box.innerHTML='<div class="card"><div class="s">Escolhe uma equipa na aba Equipas primeiro.</div></div>'; return; }
+  if(!atletaSel){
+    var atletasEquipa = plantelDaEquipa.map(function(p){
+      return atletasDoClube.find(function(a){return a.id===p.atleta_id;}) || {id:p.atleta_id, nome:p.nome};
+    });
+    var html = '<div class="card"><div class="h">Avaliar <span>atleta</span></div>'
+      +'<div class="s">Escolhe um atleta do plantel de '+esc(equipaAtiva.nome)+'.</div>';
+    html += atletasEquipa.length ? atletasEquipa.map(function(a){
+      return '<div class="chip" style="display:block;margin-bottom:8px;text-align:left" onclick="selecionarAtletaAvaliar(\''+a.id+'\')">'+esc(a.primeiro_nome||a.nome)+'</div>';
+    }).join('') : '<div class="s">Ainda sem atletas no plantel desta equipa.</div>';
+    html += '</div>';
+    box.innerHTML = html;
+    return;
+  }
+  box.innerHTML='<div class="card"><button class="btn btn-sec" style="margin-bottom:12px" onclick="atletaSel=null;pintarAvaliar();">← Escolher outro atleta</button>'
+    +'<div class="h">Avaliação <span>técnica</span></div>'
+    +'<div class="s" id="avaliar-sub"></div>'
+    +'<div id="avaliar-area"></div></div>';
+  renderAvaliar();
+}
+window.selecionarAtletaAvaliar=function(id){
+  var atletasEquipa = plantelDaEquipa.map(function(p){
+    return atletasDoClube.find(function(a){return a.id===p.atleta_id;}) || {id:p.atleta_id, nome:p.nome};
+  });
+  atletaSel = atletasEquipa.find(function(a){return a.id===id;});
+  avalSel=null;
+  pintarAvaliar();
+};
+
 /* ══════ NAVEGAÇÃO ══════ */
-var TABS=[['equipas','Equipas'],['plantel','Plantel'],['jogos','Jogos'],['treinos','Treinos'],['prancheta','Prancheta']];
+var TABS=[['equipas','Equipas'],['plantel','Plantel'],['jogos','Jogos'],['treinos','Treinos'],['prancheta','Prancheta'],['avaliar','Avaliar']];
 function montarTabsTopo(){
   var tabs=TABS.slice();
   if(meuClube && meuClube.papel==='admin') tabs.push(['membros','Membros']);
@@ -1527,6 +2182,7 @@ window.tab=function(t){
   if(t==='membros') carregarMembros();
   if(t==='treinos') pintarTreinos();
   if(t==='prancheta'){ montarSeletores(); if(window.PR){ PR.reformatar(); PR.carregarJogadas(); } }
+  if(t==='avaliar') pintarAvaliar();
 };
 verificarSessao();
 </script></body>
