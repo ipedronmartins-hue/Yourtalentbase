@@ -436,7 +436,7 @@ async function verificarSessao(){
   if(!USING_SB){ document.getElementById('login-msg').textContent='Sem ligação ao servidor.'; return; }
   const {data:{session}} = await supa.auth.getSession();
   if(session){ window.meuEmailAtual=session.user&&session.user.email; mostrarMain(); return; }
-  var slug=new URLSearchParams(location.search).get('clube');
+  var slug=new URLSearchParams(location.search).get('clube') || location.pathname.replace(/^\/+|\/+$/g,'');
   if(slug && CLUBES_LANDING[slug]){
     document.getElementById('landing-nome-clube').innerHTML=CLUBES_LANDING[slug];
     document.getElementById('landing-view').style.display='block';
