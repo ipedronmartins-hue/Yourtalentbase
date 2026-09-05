@@ -115,6 +115,11 @@ body{padding-bottom:60px}
   .conv-zonas{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;align-items:start}
   .conv-zonas>*{margin-bottom:0}
 }
+/* ══════ TREINOS (formulário + resultado lado a lado em desktop) ══════ */
+.treino-zonas{display:block}
+@media (min-width:1024px){
+  .treino-zonas{display:grid;grid-template-columns:380px 1fr;gap:16px;align-items:start}
+}
 /* trazidas do coachbase.html para o gerador de treino do Clube */
 .err{color:var(--red);font-size:12px;text-align:center;margin-top:8px;display:none}
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
@@ -1885,7 +1890,9 @@ function guardarMicro(){
 function pintarTreinos(){
   const box=document.getElementById('sec-treinos');
   if(!equipaAtiva){ box.innerHTML='<div class="card"><div class="s">Escolhe uma equipa na aba Equipas primeiro.</div></div>'; return; }
-  box.innerHTML='<div class="card">'
+  box.innerHTML='<div class="treino-zonas">'
+    +'<div>'
+    +'<div class="card">'
     +'<div class="h">Gerar <span style="color:var(--gold)">sessão de treino</span></div>'
     +'<div class="s">A sessão sai do banco de 95 exercícios do CoachBase, filtrado por escalão competitivo, material e (em fut11) pela tática da equipa.</div>'
     +'<label class="label">Escalão</label><div class="chips" id="c-esc"></div>'
@@ -1899,16 +1906,17 @@ function pintarTreinos(){
     +'<label class="label">Foco da sessão</label><div class="chips" id="c-foco"></div>'
     +'<button class="btn" id="btn-gerar" onclick="gerarSessao()">📚 Gerar sessão do banco</button>'
     +'<div class="err" id="serr"></div></div>'
-    +'<div id="sessao-out"></div>'
     +'<div class="card"><div class="h">Microciclo <span style="color:var(--gold)">da semana</span></div>'
     +'<div class="s">Três sessões que se complementam até ao jogo: MD-4 constrói, MD-2 aperta, MD-1 afina. Usa os mesmos seletores de cima.</div>'
     +'<button class="btn" id="btn-micro" onclick="gerarMicro()">📚 Gerar microciclo (3 sessões)</button></div>'
-    +'<div id="micro-out"></div>'
     +'<div class="card"><div class="h">★ <span style="color:var(--gold)">Favoritos</span></div>'
     +'<div class="s">Marca uma estrela em qualquer exercício de uma sessão gerada — fica aqui, para não teres de o procurar outra vez.</div>'
     +'<div id="favoritos-lista"><div class="s">A carregar…</div></div></div>'
     +'<div class="card"><div class="h">🕘 Usados <span style="color:var(--gold)">recentemente</span></div>'
-    +'<div id="recentes-lista"><div class="s">A carregar…</div></div></div>';
+    +'<div id="recentes-lista"><div class="s">A carregar…</div></div></div>'
+    +'</div>'
+    +'<div><div id="sessao-out"></div><div id="micro-out"></div></div>'
+    +'</div>';
   montarSeletores();
   carregarFavoritosExercicios();
   pintarRecentesLista();
