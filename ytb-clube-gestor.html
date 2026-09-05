@@ -1860,9 +1860,40 @@ function gerarSessao(){
 function guardarSessao(){
   if(!ultimaSessao){toast('Gera primeiro uma sessão');return;}
   if(!equipaAtiva){toast('Escolhe uma equipa primeiro');return;}
-  supa.rpc('ytb_clube_sessao_criar',{p_equipa_id:equipaAtiva.id,p_titulo:ultimaSessao.titulo||'Sessão',p_escalao:SEL.escalao,p_formato:SEL.formato,p_n_atletas:SEL.n,p_duracao:SEL.dur,p_material:SEL.material,p_foco:SEL.foco,p_plano:ultimaSessao})
-    .then(function(r){var d=r.data;if(r.error||!d||!d.ok){toast('⚠ Não guardado ('+((d&&d.motivo)||'erro')+')');return;}toast('✓ Sessão guardada na equipa');});
+  supa.rpc('ytb_clube_sessao_criar_v2',{p_equipa_id:equipaAtiva.id,p_titulo:ultimaSessao.titulo||'Sessão',p_escalao:SEL.escalao,p_formato:SEL.formato,p_n_atletas:SEL.n,p_duracao:SEL.dur,p_material:SEL.material,p_foco:SEL.foco,p_plano:ultimaSessao,p_objetivos:null})
+    .then(function(r){var d=r.data;if(r.error||!d||!d.ok){toast('⚠ Não guardado ('+((d&&d.motivo)||'erro')+')');return;}
+      toast('✓ Sessão guardada — fica no histórico da equipa');
+      window.__ultimaSessaoGuardadaId=d.id;
+      mostrarFecharSessao(d.id);
+      carregarHistoricoSessoes();
+    });
 }
+function mostrarFecharSessao(sessaoId){
+  var box=document.getElementById('fechar-sessao-area');
+  if(!box){ var out=document.getElementById('sessao-out'); if(!out) return; out.insertAdjacentHTML('beforeend','<div id="fechar-sessao-area"></div>'); box=document.getElementById('fechar-sessao-area'); }
+  box.innerHTML='<div class="card"><div class="h">Sessão <span style="color:var(--gold)">realizada?</span></div>'
+    +'<div class="s">Quando o treino já tiver acontecido, marca presenças e deixa uma observação — isto fica no histórico da equipa.</div>'
+    +'<div id="fs-presencas">'+plantelDaEquipa.map(function(p){
+      return '<label style="display:flex;align-items:center;gap:8px;padding:6px 0"><input type="checkbox" checked value="'+p.atleta_id+'" data-nome="'+esc(p.nome)+'"> '+esc(p.nome)+'</label>';
+    }).join('')+'</div>'
+    +'<label class="label">Objetivo atingido?</label><div class="chips" id="fs-objetivo">'
+    +[['sim','Sim'],['parcial','Parcial'],['nao','Não']].map(function(o,i){return '<button class="chip'+(i===1?' on':'')+'" data-v="'+o[0]+'" onclick="document.querySelectorAll(\'#fs-objetivo .chip\').forEach(function(b){b.classList.remove(\'on\')});this.classList.add(\'on\')">'+o[1]+'</button>';}).join('')
+    +'</div>'
+    +'<label class="label">Observações da equipa</label><textarea class="input" id="fs-obs" rows="3"></textarea>'
+    +'<label class="label">Próximo objetivo recomendado</label><input class="input" id="fs-proximo">'
+    +'<button class="btn" onclick="fecharSessaoAgora(\''+sessaoId+'\')">Fechar sessão →</button></div>';
+}
+window.fecharSessaoAgora=async function(sessaoId){
+  var presencas=Array.prototype.slice.call(document.querySelectorAll('#fs-presencas input')).map(function(i){return {atleta_id:i.value, presente:i.checked};});
+  var objetivo=(document.querySelector('#fs-objetivo .chip.on')||{}).getAttribute?document.querySelector('#fs-objetivo .chip.on').getAttribute('data-v'):'parcial';
+  var obs=(document.getElementById('fs-obs').value||'').trim();
+  var proximo=(document.getElementById('fs-proximo').value||'').trim();
+  const {data:r}=await supa.rpc('ytb_clube_sessao_fechar',{p_sessao_id:sessaoId,p_presencas:presencas,p_objetivo_atingido:objetivo,p_observacoes_equipa:obs||null,p_atletas_atencao:null,p_proximo_objetivo:proximo||null});
+  if(!r||!r.ok){ toast('⚠ Não foi possível: '+((r&&r.motivo)||'erro')); return; }
+  toast('✓ Sessão fechada — fica no histórico');
+  document.getElementById('fechar-sessao-area').innerHTML='<div class="card"><div class="s">✓ Sessão registada no histórico da equipa.</div></div>';
+  carregarHistoricoSessoes();
+};
 
 /* ══════ microciclo, copiado do CoachBase (migração 144) ══════ */
 function gerarMicro(){
@@ -1920,12 +1951,29 @@ function pintarTreinos(){
     +'<div id="favoritos-lista"><div class="s">A carregar…</div></div></div>'
     +'<div class="card"><div class="h">🕘 Usados <span style="color:var(--gold)">recentemente</span></div>'
     +'<div id="recentes-lista"><div class="s">A carregar…</div></div></div>'
+    +'<div class="card"><div class="h">Histórico <span style="color:var(--gold)">de sessões</span></div>'
+    +'<div class="s">Toda a sessão gerada aqui fica guardada, com data e estado — nunca desaparece.</div>'
+    +'<div id="historico-sessoes-lista"><div class="s">A carregar…</div></div></div>'
     +'</div>'
     +'<div><div id="sessao-out"></div><div id="micro-out"></div></div>'
     +'</div>';
   montarSeletores();
   carregarFavoritosExercicios();
   pintarRecentesLista();
+  carregarHistoricoSessoes();
+}
+async function carregarHistoricoSessoes(){
+  if(!equipaAtiva) return;
+  const {data:r}=await supa.rpc('ytb_clube_sessoes_listar',{p_equipa_id:equipaAtiva.id,p_limite:15});
+  var box=document.getElementById('historico-sessoes-lista');
+  if(!box) return;
+  var lista=(r&&r.ok&&r.lista)||[];
+  var ROTULO_ESTADO={gerada:['Gerada','pill-laranja'],editada:['Editada','pill-laranja'],realizada:['Realizada','pill-verde'],fechada:['Fechada','pill-verde']};
+  box.innerHTML=lista.length ? lista.map(function(s){
+    var re=ROTULO_ESTADO[s.estado]||['—','pill-laranja'];
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px">'
+      +'<span>'+esc(s.titulo)+' · '+esc(s.data_sessao)+'</span><span class="pill '+re[1]+'">'+re[0]+'</span></div>';
+  }).join('') : '<div class="s">Ainda sem sessões guardadas.</div>';
 }
 
 /* ══════ avaliação, copiada do Pro Treinador (migração 145-147) ══════ */

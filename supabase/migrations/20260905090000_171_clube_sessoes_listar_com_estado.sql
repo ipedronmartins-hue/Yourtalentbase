@@ -1,0 +1,2 @@
+-- 171: ytb_clube_sessoes_listar devolve tambem o estado. Corpo
+-- integral no historico Supabase (171).

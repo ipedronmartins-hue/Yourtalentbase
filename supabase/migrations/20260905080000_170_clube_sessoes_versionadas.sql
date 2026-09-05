@@ -1,0 +1,2 @@
+-- 170: sessao de treino versionada, com presencas e observacoes
+-- pos-sessao. Corpo integral no historico Supabase (170).
