@@ -3573,7 +3573,15 @@ async function pintarPatrocinios(){
   const {data:r}=await supa.rpc('ytb_clube_patrocinios_listar',{p_clube_id:meuClube.clube_id});
   var lista=(r&&r.ok&&r.lista)||[];
   var ROTULO_ESTADO={ativo:['Ativo','pill-verde'],terminado:['Terminado','pill-vermelho'],proposta:['Proposta','pill-laranja']};
+  var ativos=lista.filter(function(p){return p.estado==='ativo';});
+  var valorAtivo=ativos.reduce(function(s,p){return s+Number(p.valor||0);},0);
+  var resumoHtml=lista.length ? '<div class="dash-kpis" style="margin-bottom:12px">'
+    +'<div class="card" style="text-align:center;margin-bottom:0"><div style="font-family:\'Barlow Condensed\';font-weight:900;font-size:24px;color:var(--gold)">'+valorAtivo.toFixed(0)+'€</div><div class="s" style="margin:0">Valor ativo/ano</div></div>'
+    +'<div class="card" style="text-align:center;margin-bottom:0"><div style="font-family:\'Barlow Condensed\';font-weight:900;font-size:24px;color:var(--up)">'+ativos.length+'</div><div class="s" style="margin:0">Ativos</div></div>'
+    +'<div class="card" style="text-align:center;margin-bottom:0"><div style="font-family:\'Barlow Condensed\';font-weight:900;font-size:24px">'+lista.length+'</div><div class="s" style="margin:0">Total</div></div>'
+    +'</div>' : '';
   box.innerHTML='<div class="card"><div class="h">Patrocínios <span style="color:var(--gold)">do clube</span></div>'
+    +resumoHtml
     +(lista.length ? lista.map(function(p){
         var re=ROTULO_ESTADO[p.estado]||['—','pill-laranja'];
         return '<div style="padding:8px 0;border-bottom:1px solid var(--border)">'
