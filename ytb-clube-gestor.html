@@ -485,6 +485,7 @@ body.pr-cheio #pr-sair{display:block}
     <div class="sec" id="sec-socios"></div>
     <div class="sec" id="sec-patrocinios"></div>
     <div class="sec" id="sec-recibos"></div>
+    <div class="sec" id="sec-fpf"></div>
     <div class="sec" id="sec-painel"></div>
     <div class="sec" id="sec-ficha"></div>
   </div>
@@ -3795,12 +3796,91 @@ window.abrirFichaAtleta=async function(atletaId){
     +'</div>';
 };
 
+/* ══════ FPF — Centro de Preparação para Certificação ══════ */
+async function pintarFPF(){
+  const box=document.getElementById('sec-fpf');
+  box.innerHTML='<div class="card"><div class="s">A carregar…</div></div>';
+  const {data:r}=await supa.rpc('ytb_clube_fpf_dashboard',{p_clube_id:meuClube.clube_id});
+  if(!r||!r.ok){ box.innerHTML='<div class="card"><div class="s">⚠ Não foi possível carregar.</div></div>'; return; }
+  if(!r.iniciada){
+    box.innerHTML='<div class="card"><div class="h">Certificação <span style="color:var(--gold)">FPF</span></div>'
+      +'<div class="s">Um centro de preparação para a certificação FPF — liga o que o clube já faz no YTB (treinos, planeamento, avaliações) à evidência que a certificação pede. O YTB prepara e organiza; a decisão é sempre da FPF.</div>'
+      +'<button class="btn" onclick="iniciarFPF()">Iniciar preparação FPF →</button></div>';
+    return;
+  }
+  var pct=Math.round((r.pontuacao_estimada_total/100)*100);
+  box.innerHTML='<div class="card"><div class="h">Certificação <span style="color:var(--gold)">FPF</span></div>'
+    +'<div class="s">Referencial: '+esc(r.framework.nome)+' · Época '+esc(r.framework.epoca)+' · Em preparação</div>'
+    +'<div style="font-family:\'Barlow Condensed\';font-weight:900;font-size:40px;color:var(--gold);margin:8px 0">'+r.pontuacao_estimada_total+'/100</div>'
+    +'<div class="s" style="color:var(--muted)">Estimativa interna YTB — não é uma pontuação oficial da FPF. A certificação e a decisão final são sempre da Federação.</div>'
+    +'<div class="s">Requisitos pendentes: <b style="color:var(--white)">'+r.requisitos_pendentes+'</b></div></div>'
+    +'<div class="dash-kpis" style="grid-template-columns:1fr">'
+    +r.criterios.map(function(c){
+      var pct2=c.pontuacao_estimada!=null?Math.round((c.pontuacao_estimada/c.pontos_maximos)*100):null;
+      return '<div class="card" style="cursor:pointer;margin-bottom:0" onclick="abrirCriterioFPF(\''+r.avaliacao_id+'\',\''+c.criterio_id+'\',\''+esc(c.nome)+'\')">'
+        +'<div style="display:flex;justify-content:space-between;align-items:center">'
+        +'<span>'+c.numero+'. '+esc(c.nome)+'</span>'
+        +'<span style="color:var(--gold);font-weight:800">'+(c.pontuacao_estimada!=null?c.pontuacao_estimada:'—')+'/'+c.pontos_maximos+'</span></div>'
+        +(c.n_requisitos===0 ? '<div class="s" style="margin:4px 0 0">Ainda sem requisitos definidos</div>'
+          : '<div style="background:var(--bg3);border-radius:6px;height:6px;margin-top:8px;overflow:hidden"><div style="background:var(--gold);height:100%;width:'+(pct2||0)+'%"></div></div>')
+        +'</div>';
+    }).join('')
+    +'</div>';
+}
+window.iniciarFPF=async function(){
+  const {data:r}=await supa.rpc('ytb_clube_fpf_iniciar',{p_clube_id:meuClube.clube_id});
+  if(!r||!r.ok){ toast('⚠ Não foi possível: '+((r&&r.motivo)||'erro')); return; }
+  toast('✓ Preparação FPF iniciada');
+  pintarFPF();
+};
+window.abrirCriterioFPF=async function(avaliacaoId, criterioId, nomeCriterio){
+  const box=document.getElementById('sec-fpf');
+  box.innerHTML='<div class="card"><div class="s">A carregar…</div></div>';
+  const {data:r}=await supa.rpc('ytb_clube_fpf_criterio_detalhe',{p_avaliacao_id:avaliacaoId,p_criterio_id:criterioId});
+  if(!r||!r.ok){ box.innerHTML='<div class="card"><div class="s">⚠ Não foi possível carregar.</div></div>'; return; }
+  var ROTULO_ESTADO={cumpre:['Cumpre','pill-verde'],parcial:['Parcial','pill-laranja'],em_falta:['Em falta','pill-vermelho'],nao_aplicavel:['N/A','pill-laranja']};
+  var ROTULO_ORIGEM={documento:'Documento',treino:'Treino',microciclo:'Microciclo',plano_anual:'Plano anual',jogo:'Jogo',avaliacao:'Avaliação',pdi:'PDI',registo_medico:'Registo médico',registo_escolar:'Registo escolar',recurso_humano:'Recurso humano',instalacao:'Instalação',fotografia:'Fotografia',ata:'Ata',outro:'Outro'};
+  box.innerHTML='<button class="btn btn-sec" style="margin-bottom:12px" onclick="pintarFPF()">← Voltar ao FPF</button>'
+    +'<div class="h" style="margin-bottom:12px">'+esc(nomeCriterio)+'</div>'
+    +'<div class="ficha-paineis">'
+    +'<div class="card"><div class="h">Requisitos</div>'
+    +(r.requisitos.length ? r.requisitos.map(function(req){
+        var re=ROTULO_ESTADO[req.estado]||['—','pill-laranja'];
+        return '<div style="padding:8px 0;border-bottom:1px solid var(--border)">'
+          +'<div style="display:flex;justify-content:space-between"><span style="font-size:13px">'+esc(req.nome)+'</span><span class="pill '+re[1]+'">'+re[0]+'</span></div>'
+          +'<div style="display:flex;gap:6px;margin-top:6px">'+['cumpre','parcial','em_falta','nao_aplicavel'].map(function(e){
+            return '<button class="btn btn-sec" style="width:auto;padding:4px 8px;margin-top:0;font-size:11px" onclick="definirEstadoRequisitoFPF(\''+avaliacaoId+'\',\''+req.id+'\',\''+e+'\',\''+avaliacaoId+'\',\''+criterioId+'\',\''+esc(nomeCriterio).replace(/'/g,"\\'")+'\')">'+ROTULO_ESTADO[e][0]+'</button>';
+          }).join('')+'</div></div>';
+      }).join('') : '<div class="s">Ainda sem requisitos. Adiciona os que o manual real da FPF exigir.</div>')
+    +'<label class="label" style="margin-top:12px">Novo requisito</label><input class="input" id="fpf-req-nome" placeholder="Ex: Plano anual por escalão">'
+    +'<button class="btn btn-sec" onclick="criarRequisitoFPF(\''+criterioId+'\',\''+avaliacaoId+'\',\''+esc(nomeCriterio).replace(/'/g,"\\'")+'\')">Adicionar requisito →</button></div>'
+    +'<div class="card"><div class="h">Evidências</div>'
+    +(r.evidencias.length ? r.evidencias.map(function(ev){
+        return '<div class="s" style="margin-bottom:6px">'+(ROTULO_ORIGEM[ev.source_type]||ev.source_type)+' — '+esc(ev.notas||'sem notas')+'</div>';
+      }).join('') : '<div class="s">Ainda sem evidências ligadas a este critério.</div>')
+    +'</div></div>';
+};
+window.criarRequisitoFPF=async function(criterioId, avaliacaoId, nomeCriterio){
+  var nome=(document.getElementById('fpf-req-nome').value||'').trim();
+  if(!nome){ toast('Escreve o requisito'); return; }
+  const {data:r}=await supa.rpc('ytb_clube_fpf_requisito_criar',{p_criterio_id:criterioId,p_nome:nome});
+  if(!r||!r.ok){ toast('⚠ Não foi possível: '+((r&&r.motivo)||'erro')); return; }
+  toast('✓ Requisito adicionado');
+  abrirCriterioFPF(avaliacaoId,criterioId,nomeCriterio);
+};
+window.definirEstadoRequisitoFPF=async function(avaliacaoId, requisitoId, estado, avId2, critId2, nomeCriterio){
+  const {data:r}=await supa.rpc('ytb_clube_fpf_requisito_estado_definir',{p_avaliacao_id:avaliacaoId,p_requisito_id:requisitoId,p_estado:estado});
+  if(!r||!r.ok){ toast('⚠ Não foi possível: '+((r&&r.motivo)||'erro')); return; }
+  toast('✓ Estado atualizado');
+  abrirCriterioFPF(avId2,critId2,nomeCriterio);
+};
+
 /* ══════ NAVEGAÇÃO ══════ */
 var TABS=[['equipas','Equipas'],['plantel','Plantel'],['jogos','Jogos'],['treinos','Treinos'],['prancheta','Prancheta'],['avaliar','Avaliar'],['retorno','Retorno']];
 function montarTabsTopo(){
   var tabs=TABS.slice();
   if(meuClube && (meuClube.papel==='scout'||meuClube.papel==='admin')) tabs.push(['scout','Scout']);
-  if(meuClube && (meuClube.papel==='secretaria'||meuClube.papel==='admin')) { tabs.push(['secretaria','Secretaria']); tabs.push(['socios','Sócios']); tabs.push(['patrocinios','Patrocínios']); tabs.push(['recibos','Recibos']); }
+  if(meuClube && (meuClube.papel==='secretaria'||meuClube.papel==='admin')) { tabs.push(['secretaria','Secretaria']); tabs.push(['socios','Sócios']); tabs.push(['patrocinios','Patrocínios']); tabs.push(['recibos','Recibos']); tabs.push(['fpf','FPF']); }
   if(meuClube && meuClube.papel==='admin') { tabs.unshift(['painel','Painel']); tabs.push(['membros','Membros']); }
   document.getElementById('tabs-topo').innerHTML=tabs.map(function(t,i){
     return '<button class="tab'+(i===0?' on':'')+'" data-t="'+t[0]+'" onclick="tab(\''+t[0]+'\')">'+t[1]+'</button>';
@@ -3821,6 +3901,7 @@ window.tab=function(t){
   if(t==='socios') pintarSocios();
   if(t==='patrocinios') pintarPatrocinios();
   if(t==='recibos') pintarRecibos();
+  if(t==='fpf') pintarFPF();
 };
 verificarSessao();
 </script></body>

@@ -1,0 +1,2 @@
+-- 172: estrutura FPF versionada. Corpo integral no historico
+-- Supabase (172).

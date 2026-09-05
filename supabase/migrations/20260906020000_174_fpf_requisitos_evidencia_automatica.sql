@@ -1,0 +1,2 @@
+-- 174: gestao de requisitos e evidencia automatica de treino no
+-- Criterio 4. Corpo integral no historico Supabase (174).

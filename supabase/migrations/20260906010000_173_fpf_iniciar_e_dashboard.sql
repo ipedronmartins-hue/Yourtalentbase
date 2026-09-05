@@ -1,0 +1,2 @@
+-- 173: iniciar avaliacao FPF e dashboard. Corpo integral no
+-- historico Supabase (173).
