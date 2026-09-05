@@ -13,7 +13,12 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{background:var(--bg);color:var(--white);font-family:'Plus Jakarta Sans',sans-serif;min-height:100vh}
-body{max-width:560px;margin:0 auto;padding-bottom:60px}
+body{padding-bottom:60px}
+.hidden{display:none}
+/* ══════ sistema de breakpoints ══════
+   <480px mobile · 480-767px mobile grande · 768-1023px tablet
+   1024-1439px desktop · ≥1440px desktop largo
+   Regra: mesma app, mesmos dados, mesmas permissoes — so a composicao muda. */
 .nav{position:sticky;top:0;z-index:100;background:rgba(8,12,8,.97);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:13px 18px;display:flex;align-items:center;justify-content:space-between}
 .nav-title{font-family:'Barlow Condensed';font-weight:900;font-size:18px;letter-spacing:.3px}
 .nav-title span{color:var(--gold)}
@@ -23,8 +28,9 @@ body{max-width:560px;margin:0 auto;padding-bottom:60px}
 .login-title{font-family:'Barlow Condensed';font-weight:900;font-size:36px;line-height:1;letter-spacing:-1px;margin-bottom:6px}
 .login-title span{color:var(--gold)}
 .login-sub{font-size:13px;color:var(--slate);margin-bottom:24px}
-.input{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;color:var(--white);font-family:inherit;font-size:15px;margin-bottom:10px}
-.btn{width:100%;background:var(--gold);border:none;border-radius:10px;padding:14px;color:#0A0D0A;font-family:inherit;font-weight:800;font-size:14px;cursor:pointer}
+.input{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;color:var(--white);font-family:inherit;font-size:16px;min-height:44px;margin-bottom:10px}
+.input:focus{border-color:var(--gold);outline:none}
+.btn{width:100%;background:var(--gold);border:none;border-radius:10px;padding:14px;min-height:44px;color:#0A0D0A;font-family:inherit;font-weight:800;font-size:15px;cursor:pointer}
 .btn-sec{background:var(--bg2);color:var(--white);border:1px solid var(--border)}
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px}
 .h{font-family:'Barlow Condensed';font-weight:900;font-size:20px;margin-bottom:6px}
@@ -45,6 +51,23 @@ body{max-width:560px;margin:0 auto;padding-bottom:60px}
 .pill-vermelho{background:rgba(255,80,80,.15);color:var(--red)}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 20px;font-size:13px;opacity:0;pointer-events:none;transition:.25s;z-index:999;max-width:90%;text-align:center}
 .toast.show{opacity:1}
+
+/* ══════ APP SHELL RESPONSIVA ══════ */
+/* mobile (<480px) e mobile grande (480-767px): fluxo vertical, tabs no topo (comportamento já existente, preservado) */
+/* tablet (768-1023px): mais espaço de leitura, grids de 2 colunas já cabem confortavelmente */
+@media (min-width:768px){
+  .content{max-width:720px;margin:0 auto;padding:0 20px}
+}
+/* desktop (1024px+): sidebar fixa à esquerda + workspace à direita — a mudança estrutural pedida */
+@media (min-width:1024px){
+  #main{display:grid;grid-template-columns:240px 1fr;align-items:start;max-width:1600px;margin:0 auto}
+  .tabs{flex-direction:column;align-items:stretch;position:sticky;top:57px;height:calc(100vh - 57px);overflow-y:auto;padding:20px 12px;gap:6px;border-right:1px solid var(--border);margin:0;flex-wrap:nowrap}
+  .tab{width:100%;text-align:left}
+  .content{max-width:1000px;margin:0;padding:24px 32px}
+}
+@media (min-width:1440px){
+  .content{max-width:1180px;padding:32px 40px}
+}
 /* trazidas do coachbase.html para o gerador de treino do Clube */
 .err{color:var(--red);font-size:12px;text-align:center;margin-top:8px;display:none}
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
@@ -65,13 +88,9 @@ body{max-width:560px;margin:0 auto;padding-bottom:60px}
 .dash-card-eyebrow{font-size:11px;font-weight:800;letter-spacing:1.5px;color:var(--gold);text-transform:uppercase;margin-bottom:6px}
 /* trazido do scouts.html para o Scout Report do Clube */
 .req{color:var(--gold)}
-.input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:11px 13px;font-size:14px;color:#fff;font-family:inherit;outline:none}
-.input:focus{border-color:var(--gold)}
 .field{margin-bottom:12px}
-.btn{display:inline-block;width:100%;background:var(--gold);color:#000;text-align:center;padding:13px;border-radius:9px;font-size:13px;font-weight:800;letter-spacing:.5px;border:none;cursor:pointer;font-family:inherit}
 .btn-primary{background:var(--gold);color:#000}
 .btn-secondary{background:var(--bg3);color:#fff;border:1px solid var(--border)}
-.err{color:var(--red);font-size:12px;text-align:center;margin-top:8px;display:none}
 .contact-link{text-align:center;font-size:11px;color:var(--slate);margin-top:14px}
 .contact-link a{color:var(--gold);text-decoration:none}
 
@@ -346,7 +365,7 @@ body.pr-cheio #pr-sair{display:block}
   <button class="btn" id="btn-enviar-link">Entrar →</button>
   <div class="s" id="login-msg" style="margin-top:12px"></div>
 </div>
-<div id="main" style="display:none">
+<div id="main" class="hidden">
   <div class="tabs" id="tabs-topo"></div>
   <div class="content">
     <div class="sec on" id="sec-equipas"></div>
@@ -460,7 +479,7 @@ if(supa) supa.auth.onAuthStateChange(function(){ verificarSessao(); });
 
 async function mostrarMain(){
   document.getElementById('login-view').style.display='none';
-  document.getElementById('main').style.display='block';
+  document.getElementById('main').classList.remove('hidden');
   document.getElementById('btn-logout').style.display='block';
   await carregarMeusClubes();
 }
