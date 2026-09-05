@@ -1,0 +1,2 @@
+-- 162: resumo do clube, vista de raiz do admin. Corpo integral no
+-- historico Supabase (162).

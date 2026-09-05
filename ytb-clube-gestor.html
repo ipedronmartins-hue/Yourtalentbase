@@ -409,6 +409,7 @@ body.pr-cheio #pr-sair{display:block}
     <div class="sec" id="sec-socios"></div>
     <div class="sec" id="sec-patrocinios"></div>
     <div class="sec" id="sec-recibos"></div>
+    <div class="sec" id="sec-painel"></div>
   </div>
   <div class="report-modal" id="reportModal">
     <div class="report-toolbar">
@@ -3434,20 +3435,46 @@ window.verRecibo=function(id){
   document.getElementById('reportModal').classList.add('show');
 };
 
+/* ══════ PAINEL (visão de raiz do admin) ══════ */
+async function pintarPainel(){
+  const box=document.getElementById('sec-painel');
+  box.innerHTML='<div class="card"><div class="s">A carregar…</div></div>';
+  const {data:r}=await supa.rpc('ytb_clube_resumo',{p_clube_id:meuClube.clube_id});
+  if(!r||!r.ok){ box.innerHTML='<div class="card"><div class="s">⚠ Não foi possível carregar o painel.</div></div>'; return; }
+  var NUM=function(n){return '<div style="font-family:\'Barlow Condensed\';font-weight:900;font-size:32px;color:var(--gold)">'+n+'</div>';};
+  var CARTAO=function(titulo,valor,aba,alerta){
+    return '<div class="card" style="cursor:pointer;text-align:center" onclick="tab(\''+aba+'\')">'
+      +NUM(valor)+'<div class="s" style="margin-top:2px'+(alerta&&valor>0?';color:var(--red)':'')+'">'+titulo+'</div></div>';
+  };
+  box.innerHTML='<div class="h" style="margin:4px 0 12px">Painel <span style="color:var(--gold)">do clube</span></div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'
+    +CARTAO('Equipas',r.equipas,'equipas')
+    +CARTAO('Atletas',r.atletas,'secretaria')
+    +CARTAO('Membros da equipa técnica',r.membros,'membros')
+    +CARTAO('Sócios ativos',r.socios_ativos,'socios')
+    +CARTAO('Quotas em atraso',r.quotas_em_atraso,'socios',true)
+    +CARTAO('Mensalidades em atraso',r.mensalidades_em_atraso,'secretaria',true)
+    +CARTAO('Jogos por vir',r.jogos_proximos,'jogos')
+    +CARTAO('Patrocínios ativos',r.patrocinios_ativos,'patrocinios')
+    +'</div>';
+}
+
 /* ══════ NAVEGAÇÃO ══════ */
 var TABS=[['equipas','Equipas'],['plantel','Plantel'],['jogos','Jogos'],['treinos','Treinos'],['prancheta','Prancheta'],['avaliar','Avaliar'],['retorno','Retorno']];
 function montarTabsTopo(){
   var tabs=TABS.slice();
   if(meuClube && (meuClube.papel==='scout'||meuClube.papel==='admin')) tabs.push(['scout','Scout']);
   if(meuClube && (meuClube.papel==='secretaria'||meuClube.papel==='admin')) { tabs.push(['secretaria','Secretaria']); tabs.push(['socios','Sócios']); tabs.push(['patrocinios','Patrocínios']); tabs.push(['recibos','Recibos']); }
-  if(meuClube && meuClube.papel==='admin') tabs.push(['membros','Membros']);
+  if(meuClube && meuClube.papel==='admin') { tabs.unshift(['painel','Painel']); tabs.push(['membros','Membros']); }
   document.getElementById('tabs-topo').innerHTML=tabs.map(function(t,i){
     return '<button class="tab'+(i===0?' on':'')+'" data-t="'+t[0]+'" onclick="tab(\''+t[0]+'\')">'+t[1]+'</button>';
   }).join('');
+  if(meuClube && meuClube.papel==='admin') tab('painel');
 }
 window.tab=function(t){
   document.querySelectorAll('.tab').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-t')===t);});
   document.querySelectorAll('.sec').forEach(function(s){s.classList.toggle('on',s.id==='sec-'+t);});
+  if(t==='painel') pintarPainel();
   if(t==='membros') carregarMembros();
   if(t==='treinos') pintarTreinos();
   if(t==='prancheta'){ montarSeletores(); if(window.PR){ PR.reformatar(); PR.carregarJogadas(); } }
