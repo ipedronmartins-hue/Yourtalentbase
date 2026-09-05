@@ -1,0 +1,2 @@
+-- 163: dados institucionais do clube (nome legal, fundacao, endereco,
+-- telefone, email). Corpo integral no historico Supabase (163).

@@ -431,15 +431,15 @@ var meuClube=null, minhasEquipas=[], equipaAtiva=null, atletasDoClube=[], plante
 
 /* ══════ AUTENTICAÇÃO ══════ */
 var CLUBES_LANDING={
-  'pacos-de-ferreira':'Escolas Benfica <span>Paços de Ferreira</span>'
+  'pacos-de-ferreira':{titulo:'Escolas Benfica <span>Paços de Ferreira</span>', clubeNome:'Escola Benfica - Paços de Ferreira'}
 };
 async function verificarSessao(){
   if(!USING_SB){ document.getElementById('login-msg').textContent='Sem ligação ao servidor.'; return; }
+  window.slugAtual=new URLSearchParams(location.search).get('clube') || location.pathname.replace(/^\/+|\/+$/g,'');
   const {data:{session}} = await supa.auth.getSession();
   if(session){ window.meuEmailAtual=session.user&&session.user.email; mostrarMain(); return; }
-  var slug=new URLSearchParams(location.search).get('clube') || location.pathname.replace(/^\/+|\/+$/g,'');
-  if(slug && CLUBES_LANDING[slug]){
-    document.getElementById('landing-nome-clube').innerHTML=CLUBES_LANDING[slug];
+  if(window.slugAtual && CLUBES_LANDING[window.slugAtual]){
+    document.getElementById('landing-nome-clube').innerHTML=CLUBES_LANDING[window.slugAtual].titulo;
     document.getElementById('landing-view').style.display='block';
   } else {
     document.getElementById('login-view').style.display='block';
@@ -474,7 +474,9 @@ async function carregarMeusClubes(){
     montarTabsTopo();
     return;
   }
-  meuClube=lista[0]; // um só clube por agora — escolher entre vários fica para quando for preciso
+  meuClube = (window.slugAtual && CLUBES_LANDING[window.slugAtual]
+    && lista.find(function(c){return c.nome===CLUBES_LANDING[window.slugAtual].clubeNome;}))
+    || lista[0]; // sem slug reconhecido, ou só um clube: usa o primeiro (comportamento anterior)
   if(!meuClube.meu_nome){ pedirNomeMembro(); return; }
   await carregarEquipas();
 }
