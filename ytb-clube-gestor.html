@@ -3358,17 +3358,30 @@ window.gerarMensalidadesMes=async function(){
   toast(r.geradas>0 ? ('✓ '+r.geradas+' mensalidades geradas') : 'Já existiam mensalidades para este período');
   await carregarMensalidadesMes();
 };
+var mensalidadesFiltro='todas';
 window.carregarMensalidadesMes=async function(){
   var periodo=document.getElementById('mn-periodo').value;
   if(!periodo) return;
   const {data:r}=await supa.rpc('ytb_clube_mensalidades_listar',{p_clube_id:meuClube.clube_id,p_periodo:periodo});
   var lista=document.getElementById('mn-lista');
   var docs=(r&&r.ok&&r.lista)||[];
-  lista.innerHTML=docs.length ? docs.map(function(m){
+  var totalValor=docs.reduce(function(s,m){return s+Number(m.valor);},0);
+  var pagas=docs.filter(function(m){return m.pago;});
+  var pendentes=docs.filter(function(m){return !m.pago;});
+  var visiveis=mensalidadesFiltro==='pendentes'?pendentes:(mensalidadesFiltro==='pagas'?pagas:docs);
+  var resumoHtml=docs.length ? '<div class="dash-kpis" style="margin-bottom:12px">'
+    +'<div class="card" style="text-align:center;margin-bottom:0"><div style="font-family:\'Barlow Condensed\';font-weight:900;font-size:24px;color:var(--gold)">'+totalValor.toFixed(0)+'€</div><div class="s" style="margin:0">Total do mês</div></div>'
+    +'<div class="card" style="text-align:center;margin-bottom:0"><div style="font-family:\'Barlow Condensed\';font-weight:900;font-size:24px;color:var(--up)">'+pagas.length+'</div><div class="s" style="margin:0">Pagas</div></div>'
+    +'<div class="card" style="text-align:center;margin-bottom:0"><div style="font-family:\'Barlow Condensed\';font-weight:900;font-size:24px;color:var(--red)">'+pendentes.length+'</div><div class="s" style="margin:0">Pendentes</div></div>'
+    +'</div>' : '';
+  var filtroHtml=docs.length ? '<div class="chips" style="margin-bottom:12px">'
+    +[['todas','Todas'],['pendentes','Pendentes'],['pagas','Pagas']].map(function(o){return '<button class="chip'+(mensalidadesFiltro===o[0]?' on':'')+'" onclick="mensalidadesFiltro=\''+o[0]+'\';carregarMensalidadesMes()">'+o[1]+'</button>';}).join('')
+    +'</div>' : '';
+  lista.innerHTML=resumoHtml+filtroHtml+(visiveis.length ? visiveis.map(function(m){
     return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px">'
       +'<span>'+esc(m.nome)+' — '+m.valor+'€</span>'
       +'<button class="btn '+(m.pago?'btn-sec':'')+'" style="width:auto;padding:6px 12px;margin-top:0" onclick="marcarMensalidadePaga(\''+m.id+'\','+(!m.pago)+')">'+(m.pago?'✓ Pago':'Marcar pago')+'</button></div>';
-  }).join('') : '<div class="s">Ainda sem mensalidades geradas para este período.</div>';
+  }).join('') : '<div class="s">'+(docs.length?'Nenhuma mensalidade nesse filtro.':'Ainda sem mensalidades geradas para este período.')+'</div>');
 };
 window.marcarMensalidadePaga=async function(id, pago){
   const {data:r}=await supa.rpc('ytb_clube_mensalidade_marcar_paga',{p_id:id,p_pago:pago});
