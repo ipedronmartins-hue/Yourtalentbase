@@ -597,7 +597,7 @@ function pintarJogos(){
     var jaPassou = j.data_jogo && j.data_jogo < hoje;
     return '<div style="padding:10px 0;border-bottom:1px solid var(--border)">'
       +'<div style="font-weight:800">'+esc(j.adversario||'Adversário')+'</div>'
-      +'<div class="s" style="margin:2px 0">'+(j.data_jogo?esc(j.data_jogo):'sem data')+(j.casa_fora?(' · '+(j.casa_fora==='casa'?'em casa':'fora')):'')
+      +'<div class="s" style="margin:2px 0">'+(j.data_jogo?esc(j.data_jogo):'sem data')+(j.casa_fora?(' · '+(j.casa_fora==='casa'?'em casa':'fora')):'')+(j.competicao?(' · '+esc(j.competicao)):'')
       +(j.resultado?(' · <b style="color:var(--white)">'+esc(j.resultado)+'</b>'):'')+'</div>'
       +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">'
       +(j.convocatoria_id
@@ -612,26 +612,58 @@ function pintarJogos(){
   }).join('') : '<div class="s">Ainda sem jogos.</div>';
   html += '</div>';
   if(podeGerir){
-    html += '<div class="card"><div class="h">Criar <span>jogo</span></div>'
+    html += '<div class="card"><div class="h">Competições <span>da equipa</span></div>'
+      +'<div id="competicoes-lista"><div class="s">A carregar…</div></div>'
+      +'<label class="label">Nova competição</label><input class="input" id="cp-nome" placeholder="Ex: Distrital de Sub-13">'
+      +'<div class="grid2"><div><label class="label">Época</label><input class="input" id="cp-epoca" placeholder="2026/27"></div>'
+      +'<div><label class="label">Tipo</label><select class="input" id="cp-tipo">'
+      +[['liga','Liga'],['taca','Taça'],['torneio','Torneio'],['amigavel','Amigável']].map(function(t){return '<option value="'+t[0]+'">'+t[1]+'</option>';}).join('')
+      +'</select></div></div>'
+      +'<button class="btn btn-sec" onclick="criarCompeticao()">Adicionar competição →</button></div>'
+      +'<div class="card"><div class="h">Criar <span>jogo</span></div>'
       +'<label class="label">Adversário</label><input class="input" id="jg-adversario" placeholder="Ex: Rio Tinto">'
       +'<label class="label">Data</label><input class="input" id="jg-data" type="date">'
-      +'<label class="label">Competição <span style="font-weight:400;color:var(--muted)">(opcional)</span></label><input class="input" id="jg-competicao" placeholder="Ex: Distrital">'
+      +'<label class="label">Competição <span style="font-weight:400;color:var(--muted)">(opcional)</span></label>'
+      +'<select class="input" id="jg-competicao-id"><option value="">— sem competição associada —</option></select>'
       +'<div class="chips" id="jg-casa-fora" style="display:flex;margin-bottom:10px"><button class="chip on" data-v="casa" onclick="chipCasaFora(this)">Em casa</button><button class="chip" data-v="fora" onclick="chipCasaFora(this)">Fora</button></div>'
       +'<button class="btn" onclick="criarJogo()">Criar jogo →</button></div>';
   }
   html += '<div id="convocatoria-area"></div>';
   box.innerHTML=html;
+  if(podeGerir) carregarCompeticoes();
 }
+async function carregarCompeticoes(){
+  const {data:r}=await supa.rpc('ytb_clube_competicoes_listar',{p_equipa_id:equipaAtiva.id});
+  var lista=(r&&r.ok&&r.lista)||[];
+  var divLista=document.getElementById('competicoes-lista');
+  if(divLista) divLista.innerHTML = lista.length ? lista.map(function(c){
+    return '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px">'
+      +'<span>'+esc(c.nome)+' · '+esc(c.epoca)+'</span><span class="pill '+(c.estado==='ativa'?'pill-verde':'pill-vermelho')+'">'+esc(c.estado)+'</span></div>';
+  }).join('') : '<div class="s">Ainda sem competições nesta equipa.</div>';
+  var sel=document.getElementById('jg-competicao-id');
+  if(sel) sel.innerHTML='<option value="">— sem competição associada —</option>'+lista.map(function(c){return '<option value="'+c.id+'">'+esc(c.nome)+' ('+esc(c.epoca)+')</option>';}).join('');
+}
+window.criarCompeticao=async function(){
+  var nome=(document.getElementById('cp-nome').value||'').trim();
+  var epoca=(document.getElementById('cp-epoca').value||'').trim();
+  var tipo=document.getElementById('cp-tipo').value;
+  if(!nome||!epoca){ toast('Falta o nome ou a época'); return; }
+  const {data:r}=await supa.rpc('ytb_clube_competicao_criar',{p_equipa_id:equipaAtiva.id,p_nome:nome,p_epoca:epoca,p_tipo:tipo});
+  if(!r||!r.ok){ toast('⚠ Não foi possível: '+((r&&r.motivo)||'erro')); return; }
+  toast('✓ Competição adicionada');
+  document.getElementById('cp-nome').value='';document.getElementById('cp-epoca').value='';
+  await carregarCompeticoes();
+};
 window.chipCasaFora=function(btn){
   document.querySelectorAll('#jg-casa-fora .chip').forEach(function(b){b.classList.toggle('on',b===btn);});
 };
 window.criarJogo=async function(){
   var adversario=(document.getElementById('jg-adversario').value||'').trim();
   var data=document.getElementById('jg-data').value||null;
-  var competicao=(document.getElementById('jg-competicao').value||'').trim()||null;
+  var competicaoId=document.getElementById('jg-competicao-id').value||null;
   var casaFora=(document.querySelector('#jg-casa-fora .chip.on')||{}).dataset ? document.querySelector('#jg-casa-fora .chip.on').getAttribute('data-v') : 'casa';
   if(!adversario){ toast('Falta o adversário'); return; }
-  const {data:r}=await supa.rpc('ytb_clube_jogo_criar',{p_equipa_id:equipaAtiva.id,p_adversario:adversario,p_data:data,p_competicao:competicao,p_casa_fora:casaFora});
+  const {data:r}=await supa.rpc('ytb_clube_jogo_criar',{p_equipa_id:equipaAtiva.id,p_adversario:adversario,p_data:data,p_competicao:null,p_casa_fora:casaFora,p_competicao_id:competicaoId});
   if(!r||!r.ok){ toast('⚠ Não foi possível: '+((r&&r.motivo)||'erro')); return; }
   toast('✓ Jogo criado'); await carregarJogos();
 };

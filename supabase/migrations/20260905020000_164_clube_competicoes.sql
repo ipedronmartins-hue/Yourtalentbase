@@ -1,0 +1,2 @@
+-- 164: competicoes como entidade propria, ligada opcionalmente aos
+-- jogos. Corpo integral no historico Supabase (164).
