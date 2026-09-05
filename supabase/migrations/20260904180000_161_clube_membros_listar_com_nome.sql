@@ -1,0 +1,2 @@
+-- 161: ytb_clube_membros_listar devolve tambem o nome. Corpo
+-- integral no historico Supabase (161).

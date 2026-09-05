@@ -1,0 +1,3 @@
+-- 160: marca do clube (logo/cor) e nome proprio de cada membro,
+-- definido no primeiro login. Corpo integral no historico Supabase
+-- (160).

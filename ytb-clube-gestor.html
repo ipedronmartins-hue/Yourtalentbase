@@ -332,7 +332,13 @@ body.pr-cheio #pr-sair{display:block}
   <div class="nav-title">YTB <span>Clube</span></div>
   <button class="nav-logout" id="btn-logout">Sair</button>
 </div>
-<div id="login-view" class="login-wrap">
+<div id="landing-view" class="login-wrap" style="display:none">
+  <div class="login-icon">🏟️</div>
+  <div class="login-title" id="landing-nome-clube">YTB <span>Clube</span></div>
+  <div class="login-sub">A plataforma de gestão do teu clube — equipas, treinos, avaliações e muito mais, tudo num só sítio.</div>
+  <button class="btn" onclick="document.getElementById('landing-view').style.display='none';document.getElementById('login-view').style.display='block';">Entrar →</button>
+</div>
+<div id="login-view" class="login-wrap" style="display:none">
   <div class="login-icon">🏟️</div>
   <div class="login-title">YTB <span>Clube</span></div>
   <div class="login-sub">Equipas, plantel, jogos e convocatórias — tudo num só sítio.</div>
@@ -423,10 +429,20 @@ function toast(msg){var t=document.getElementById('toast');if(!t)return;t.textCo
 var meuClube=null, minhasEquipas=[], equipaAtiva=null, atletasDoClube=[], plantelDaEquipa=[], jogosDaEquipa=[];
 
 /* ══════ AUTENTICAÇÃO ══════ */
+var CLUBES_LANDING={
+  'pacos-de-ferreira':'Escolas Benfica <span>Paços de Ferreira</span>'
+};
 async function verificarSessao(){
   if(!USING_SB){ document.getElementById('login-msg').textContent='Sem ligação ao servidor.'; return; }
   const {data:{session}} = await supa.auth.getSession();
-  if(session){ window.meuEmailAtual=session.user&&session.user.email; mostrarMain(); } else { document.getElementById('login-view').style.display='block'; }
+  if(session){ window.meuEmailAtual=session.user&&session.user.email; mostrarMain(); return; }
+  var slug=new URLSearchParams(location.search).get('clube');
+  if(slug && CLUBES_LANDING[slug]){
+    document.getElementById('landing-nome-clube').innerHTML=CLUBES_LANDING[slug];
+    document.getElementById('landing-view').style.display='block';
+  } else {
+    document.getElementById('login-view').style.display='block';
+  }
 }
 document.getElementById('btn-enviar-link').onclick=async function(){
   var email=(document.getElementById('login-email').value||'').trim();
@@ -458,7 +474,23 @@ async function carregarMeusClubes(){
     return;
   }
   meuClube=lista[0]; // um só clube por agora — escolher entre vários fica para quando for preciso
+  if(!meuClube.meu_nome){ pedirNomeMembro(); return; }
   await carregarEquipas();
+}
+function pedirNomeMembro(){
+  document.getElementById('main').innerHTML='<div class="login-wrap" style="padding-top:60px">'
+    +'<div class="login-title">Como te <span>chamas?</span></div>'
+    +'<div class="login-sub">É a primeira vez que entras — o teu nome vai aparecer em vez do email para o resto do clube.</div>'
+    +'<input class="input" id="primeiro-nome-input" placeholder="O teu nome completo">'
+    +'<button class="btn" onclick="confirmarPrimeiroNome()">Continuar →</button></div>';
+}
+window.confirmarPrimeiroNome=async function(){
+  var nome=(document.getElementById('primeiro-nome-input').value||'').trim();
+  if(!nome){ toast('Escreve o teu nome'); return; }
+  const {data:r}=await supa.rpc('ytb_clube_meu_nome_definir',{p_clube_id:meuClube.clube_id,p_nome:nome});
+  if(!r||!r.ok){ toast('⚠ Não foi possível: '+((r&&r.motivo)||'erro')); return; }
+  meuClube.meu_nome=nome;
+  location.reload();
 }
 async function carregarEquipas(){
   const {data:r}=await supa.rpc('ytb_clube_equipas_listar',{p_clube_id:meuClube.clube_id});
@@ -678,7 +710,7 @@ function pintarMembros(){
   html += membrosDoClube.length ? membrosDoClube.map(function(m){
     var rotulo=(PAPEIS_CLUBE.find(function(p){return p[0]===m.papel;})||[,m.papel])[1];
     return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">'
-      +'<span>'+esc(m.email)+(m.equipa_nome?(' <span style="color:var(--muted);font-size:12px">· '+esc(m.equipa_nome)+'</span>'):'')+'</span>'
+      +'<span>'+(m.nome?esc(m.nome)+' <span style="color:var(--muted);font-size:12px">('+esc(m.email)+')</span>':esc(m.email))+(m.equipa_nome?(' <span style="color:var(--muted);font-size:12px">· '+esc(m.equipa_nome)+'</span>'):'')+'</span>'
       +'<span style="display:flex;align-items:center;gap:8px"><span class="pill pill-verde">'+esc(rotulo)+'</span>'
       +'<button style="background:none;border:none;color:var(--red);cursor:pointer;font-size:16px" onclick="removerMembro(\''+esc(m.email)+'\',\''+m.papel+'\')" title="Remover">✕</button></span>'
       +'</div>';
@@ -690,9 +722,28 @@ function pintarMembros(){
     +PAPEIS_CLUBE.map(function(p){return '<option value="'+p[0]+'">'+p[1]+'</option>';}).join('')
     +'</select>'
     +'<div class="s">Não precisa de ter conta ainda — o papel fica reservado a este email assim que entrar na YTB.</div>'
-    +'<button class="btn" onclick="adicionarMembro()">Adicionar →</button></div>';
+    +'<button class="btn" onclick="adicionarMembro()">Adicionar →</button></div>'
+    +'<div class="card"><div class="h">Marca <span style="color:var(--gold)">do clube</span></div>'
+    +'<div class="s">O logo e a cor aparecem no teu painel e no passaporte dos atletas.</div>'
+    +'<label class="label">URL do logo</label><input class="input" id="marca-logo" type="url" placeholder="https://...">'
+    +'<label class="label">Cor principal</label>'
+    +'<div style="display:flex;gap:8px;align-items:center">'
+    +'<input type="color" id="marca-cor-picker" value="'+(meuClube.cor_primaria||'#D4AF37')+'" style="width:44px;height:38px;border:1px solid var(--border);border-radius:8px;background:none;cursor:pointer;padding:2px" oninput="document.getElementById(\'marca-cor\').value=this.value">'
+    +'<input class="input" id="marca-cor" type="text" value="'+(meuClube.cor_primaria||'')+'" placeholder="#D4AF37" style="flex:1" oninput="if(/^#[0-9A-Fa-f]{6}$/.test(this.value))document.getElementById(\'marca-cor-picker\').value=this.value">'
+    +'</div>'
+    +'<button class="btn" onclick="guardarMarcaClube()">Guardar marca →</button></div>';
   box.innerHTML=html;
 }
+window.guardarMarcaClube=async function(){
+  var logo=(document.getElementById('marca-logo').value||'').trim();
+  var cor=(document.getElementById('marca-cor').value||'').trim();
+  if(cor && !/^#[0-9A-Fa-f]{6}$/.test(cor)){ toast('A cor tem de ser um código hex, ex: #D4AF37'); return; }
+  if(logo && !/^https?:\/\//i.test(logo)){ toast('O logo tem de ser um link http(s) válido'); return; }
+  const {data:r}=await supa.rpc('ytb_clube_atualizar_marca_secretaria',{p_clube_id:meuClube.clube_id,p_logo_url:logo||null,p_cor:cor||null});
+  if(!r||!r.ok){ toast('⚠ Não foi possível: '+((r&&r.motivo)||'erro')); return; }
+  if(cor) meuClube.cor_primaria=cor;
+  toast('✓ Marca atualizada');
+};
 window.adicionarMembro=async function(){
   var email=(document.getElementById('mb-email').value||'').trim();
   var papel=document.getElementById('mb-papel').value;
