@@ -1,0 +1,2 @@
+-- 156: socios e quotas, primeira peca do bloco financeiro da
+-- Secretaria. Corpo integral no historico Supabase (156).

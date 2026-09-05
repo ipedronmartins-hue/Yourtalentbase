@@ -400,6 +400,7 @@ body.pr-cheio #pr-sair{display:block}
     <div class="sec" id="sec-retorno"><div class="card"><div class="h">O teu <span>retorno</span></div><div class="s">O que aconteceu depois de avaliares e prescreveres: quem treinou, como correu, quem precisa de nova avaliação.</div><div id="retorno-area"></div></div></div>
     <div class="sec" id="sec-scout"></div>
     <div class="sec" id="sec-secretaria"></div>
+    <div class="sec" id="sec-socios"></div>
   </div>
   <div class="report-modal" id="reportModal">
     <div class="report-toolbar">
@@ -3203,12 +3204,76 @@ window.criarAtletaSecretaria=async function(forcarNovo){
   await carregarAtletasDoClube();
 };
 
+/* ══════ SÓCIOS E QUOTAS ══════ */
+var listaSocios=[];
+async function pintarSocios(){
+  const box=document.getElementById('sec-socios');
+  box.innerHTML='<div class="card"><div class="s">A carregar…</div></div>';
+  const {data:r}=await supa.rpc('ytb_clube_socios_listar',{p_clube_id:meuClube.clube_id});
+  listaSocios=(r&&r.ok&&r.lista)||[];
+  var hoje=new Date(); var periodoDefeito=hoje.getFullYear()+'-'+String(hoje.getMonth()+1).padStart(2,'0');
+  box.innerHTML='<div class="card"><div class="h">Sócios <span style="color:var(--gold)">do clube</span></div>'
+    +(listaSocios.length ? listaSocios.map(function(s){
+        return '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">'
+          +'<span>#'+s.numero_socio+' — '+esc(s.nome)+(s.telefone?(' · '+esc(s.telefone)):'')+'</span>'
+          +'<span class="pill '+(s.estado==='ativo'?'pill-verde':'pill-vermelho')+'">'+esc(s.estado)+'</span></div>';
+      }).join('') : '<div class="s">Ainda sem sócios registados.</div>')
+    +'</div>'
+    +'<div class="card"><div class="h">Novo <span style="color:var(--gold)">sócio</span></div>'
+    +'<label class="label">Nome</label><input class="input" id="soc-nome">'
+    +'<label class="label">Email <span style="font-weight:400;color:var(--muted)">(opcional)</span></label><input class="input" id="soc-email" type="email">'
+    +'<label class="label">Telefone <span style="font-weight:400;color:var(--muted)">(opcional)</span></label><input class="input" id="soc-tel">'
+    +'<button class="btn" onclick="criarSocio()">Adicionar sócio →</button></div>'
+    +'<div class="card"><div class="h">Quotas <span style="color:var(--gold)">mensais</span></div>'
+    +'<label class="label">Período</label><input class="input" id="qt-periodo" type="month" value="'+periodoDefeito+'" onchange="carregarQuotasMes()">'
+    +'<label class="label">Valor por sócio</label><input class="input" id="qt-valor" type="number" step="0.5" placeholder="Ex: 15">'
+    +'<button class="btn btn-sec" onclick="gerarQuotasMes()">Gerar quotas deste mês para todos os sócios ativos</button>'
+    +'<div id="qt-lista" style="margin-top:12px"></div></div>';
+  await carregarQuotasMes();
+}
+window.criarSocio=async function(){
+  var nome=(document.getElementById('soc-nome').value||'').trim();
+  var email=(document.getElementById('soc-email').value||'').trim();
+  var tel=(document.getElementById('soc-tel').value||'').trim();
+  if(!nome){ toast('Falta o nome'); return; }
+  const {data:r}=await supa.rpc('ytb_clube_socio_criar',{p_clube_id:meuClube.clube_id,p_nome:nome,p_email:email||null,p_telefone:tel||null});
+  if(!r||!r.ok){ toast('⚠ Não foi possível: '+((r&&r.motivo)||'erro')); return; }
+  toast('✓ Sócio #'+r.numero_socio+' adicionado');
+  document.getElementById('soc-nome').value='';document.getElementById('soc-email').value='';document.getElementById('soc-tel').value='';
+  await pintarSocios();
+};
+window.gerarQuotasMes=async function(){
+  var periodo=document.getElementById('qt-periodo').value;
+  var valor=parseFloat(document.getElementById('qt-valor').value);
+  if(!periodo||!valor){ toast('Escolhe o período e o valor'); return; }
+  const {data:r}=await supa.rpc('ytb_clube_quota_gerar_mes',{p_clube_id:meuClube.clube_id,p_periodo:periodo,p_valor:valor});
+  if(!r||!r.ok){ toast('⚠ Não foi possível: '+((r&&r.motivo)||'erro')); return; }
+  toast(r.geradas>0 ? ('✓ '+r.geradas+' quotas geradas') : 'Já existiam quotas geradas para este mês');
+  await carregarQuotasMes();
+};
+window.carregarQuotasMes=async function(){
+  var periodo=document.getElementById('qt-periodo').value;
+  const {data:r}=await supa.rpc('ytb_clube_quotas_listar',{p_clube_id:meuClube.clube_id,p_periodo:periodo});
+  var lista=document.getElementById('qt-lista');
+  var docs=(r&&r.ok&&r.lista)||[];
+  lista.innerHTML=docs.length ? docs.map(function(q){
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px">'
+      +'<span>#'+q.numero_socio+' '+esc(q.nome)+' — '+q.valor+'€</span>'
+      +'<button class="btn '+(q.pago?'btn-sec':'')+'" style="width:auto;padding:6px 12px;margin-top:0" onclick="marcarQuotaPaga(\''+q.id+'\','+(!q.pago)+')">'+(q.pago?'✓ Pago':'Marcar pago')+'</button></div>';
+  }).join('') : '<div class="s">Ainda sem quotas geradas para este período.</div>';
+};
+window.marcarQuotaPaga=async function(quotaId, pago){
+  const {data:r}=await supa.rpc('ytb_clube_quota_marcar_paga',{p_quota_id:quotaId,p_pago:pago});
+  if(!r||!r.ok){ toast('⚠ Não foi possível: '+((r&&r.motivo)||'erro')); return; }
+  await carregarQuotasMes();
+};
+
 /* ══════ NAVEGAÇÃO ══════ */
 var TABS=[['equipas','Equipas'],['plantel','Plantel'],['jogos','Jogos'],['treinos','Treinos'],['prancheta','Prancheta'],['avaliar','Avaliar'],['retorno','Retorno']];
 function montarTabsTopo(){
   var tabs=TABS.slice();
   if(meuClube && (meuClube.papel==='scout'||meuClube.papel==='admin')) tabs.push(['scout','Scout']);
-  if(meuClube && (meuClube.papel==='secretaria'||meuClube.papel==='admin')) tabs.push(['secretaria','Secretaria']);
+  if(meuClube && (meuClube.papel==='secretaria'||meuClube.papel==='admin')) { tabs.push(['secretaria','Secretaria']); tabs.push(['socios','Sócios']); }
   if(meuClube && meuClube.papel==='admin') tabs.push(['membros','Membros']);
   document.getElementById('tabs-topo').innerHTML=tabs.map(function(t,i){
     return '<button class="tab'+(i===0?' on':'')+'" data-t="'+t[0]+'" onclick="tab(\''+t[0]+'\')">'+t[1]+'</button>';
@@ -3224,6 +3289,7 @@ window.tab=function(t){
   if(t==='retorno') renderRetorno();
   if(t==='scout') pintarScout();
   if(t==='secretaria') pintarSecretaria();
+  if(t==='socios') pintarSocios();
 };
 verificarSessao();
 </script></body>
