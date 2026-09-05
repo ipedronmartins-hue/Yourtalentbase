@@ -1,4 +1,10 @@
 {
+  "rewrites": [
+    {
+      "source": "/pacos-de-ferreira",
+      "destination": "/ytb-clube-gestor.html?clube=pacos-de-ferreira"
+    }
+  ],
   "headers": [
     {
       "source": "/treinos/(.*).json",
