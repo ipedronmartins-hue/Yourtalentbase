@@ -68,6 +68,21 @@ body{padding-bottom:60px}
 @media (min-width:1440px){
   .content{max-width:1180px;padding:32px 40px}
 }
+/* ══════ DASHBOARD ADAPTATIVO ══════ */
+.dash-kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.dash-secundario{display:block}
+.dash-secundario>*{margin-bottom:16px}
+.dash-acoes{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.dash-acoes button{flex:1;min-width:140px}
+@media (min-width:768px){
+  .dash-kpis{grid-template-columns:repeat(2,1fr)}
+  .dash-secundario{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+  .dash-secundario>*{margin-bottom:0}
+}
+@media (min-width:1024px){
+  .dash-kpis{grid-template-columns:repeat(4,1fr)}
+  .dash-secundario{grid-template-columns:1fr 1fr}
+}
 /* trazidas do coachbase.html para o gerador de treino do Clube */
 .err{color:var(--red);font-size:12px;text-align:center;margin-top:8px;display:none}
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
@@ -3496,19 +3511,43 @@ async function pintarPainel(){
   if(!r||!r.ok){ box.innerHTML='<div class="card"><div class="s">⚠ Não foi possível carregar o painel.</div></div>'; return; }
   var NUM=function(n){return '<div style="font-family:\'Barlow Condensed\';font-weight:900;font-size:32px;color:var(--gold)">'+n+'</div>';};
   var CARTAO=function(titulo,valor,aba,alerta){
-    return '<div class="card" style="cursor:pointer;text-align:center" onclick="tab(\''+aba+'\')">'
-      +NUM(valor)+'<div class="s" style="margin-top:2px'+(alerta&&valor>0?';color:var(--red)':'')+'">'+titulo+'</div></div>';
+    return '<div class="card" style="cursor:pointer;text-align:center;margin-bottom:0" onclick="tab(\''+aba+'\')">'
+      +NUM(valor)+'<div class="s" style="margin-top:2px;margin-bottom:0'+(alerta&&valor>0?';color:var(--red)':'')+'">'+titulo+'</div></div>';
   };
+  var alertas=[];
+  if(r.quotas_em_atraso>0) alertas.push({texto:r.quotas_em_atraso+' quota'+(r.quotas_em_atraso===1?'':'s')+' em atraso',aba:'socios'});
+  if(r.mensalidades_em_atraso>0) alertas.push({texto:r.mensalidades_em_atraso+' mensalidade'+(r.mensalidades_em_atraso===1?'':'s')+' em atraso',aba:'secretaria'});
+  var ROTULO_ATIV={equipa:'🏆',atleta:'👤',jogo:'⚽'};
+
   box.innerHTML='<div class="h" style="margin:4px 0 12px">Painel <span style="color:var(--gold)">do clube</span></div>'
-    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'
-    +CARTAO('Equipas',r.equipas,'equipas')
-    +CARTAO('Atletas',r.atletas,'secretaria')
-    +CARTAO('Membros da equipa técnica',r.membros,'membros')
-    +CARTAO('Sócios ativos',r.socios_ativos,'socios')
-    +CARTAO('Quotas em atraso',r.quotas_em_atraso,'socios',true)
-    +CARTAO('Mensalidades em atraso',r.mensalidades_em_atraso,'secretaria',true)
-    +CARTAO('Jogos por vir',r.jogos_proximos,'jogos')
-    +CARTAO('Patrocínios ativos',r.patrocinios_ativos,'patrocinios')
+    +'<div class="dash-kpis">'
+    +CARTAO('Equipas',r.equipas,'equipas')+CARTAO('Atletas',r.atletas,'secretaria')
+    +CARTAO('Membros da equipa técnica',r.membros,'membros')+CARTAO('Sócios ativos',r.socios_ativos,'socios')
+    +CARTAO('Quotas em atraso',r.quotas_em_atraso,'socios',true)+CARTAO('Mensalidades em atraso',r.mensalidades_em_atraso,'secretaria',true)
+    +CARTAO('Jogos por vir',r.jogos_proximos,'jogos')+CARTAO('Patrocínios ativos',r.patrocinios_ativos,'patrocinios')
+    +'</div>'
+    +'<div class="dash-acoes">'
+    +'<button class="btn btn-sec" onclick="tab(\'secretaria\')">＋ Criar atleta</button>'
+    +'<button class="btn btn-sec" onclick="tab(\'jogos\')">＋ Criar jogo</button>'
+    +'<button class="btn btn-sec" onclick="tab(\'equipas\')">＋ Criar equipa</button>'
+    +'</div>'
+    +'<div class="dash-secundario">'
+    +'<div class="card"><div class="h">Agenda</div>'
+    +(r.agenda.length ? r.agenda.map(function(j){
+        return '<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:13px">'
+          +'<b>'+esc(j.adversario)+'</b> · '+esc(j.equipa_nome)+'<div class="s" style="margin:0">'+esc(j.data_jogo)+(j.casa_fora?(' · '+(j.casa_fora==='casa'?'em casa':'fora')):'')+'</div></div>';
+      }).join('') : '<div class="s">Sem jogos agendados.</div>')
+    +'</div>'
+    +'<div class="card"><div class="h">Alertas</div>'
+    +(alertas.length ? alertas.map(function(a){
+        return '<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--red);cursor:pointer" onclick="tab(\''+a.aba+'\')">⚠ '+esc(a.texto)+'</div>';
+      }).join('') : '<div class="s">Sem alertas — tudo em dia.</div>')
+    +'</div>'
+    +'</div>'
+    +'<div class="card"><div class="h">Atividade <span style="color:var(--gold)">recente</span></div>'
+    +(r.atividade_recente.length ? r.atividade_recente.map(function(a){
+        return '<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:13px">'+(ROTULO_ATIV[a.tipo]||'·')+' '+esc(a.texto)+'</div>';
+      }).join('') : '<div class="s">Ainda sem atividade registada.</div>')
     +'</div>';
 }
 

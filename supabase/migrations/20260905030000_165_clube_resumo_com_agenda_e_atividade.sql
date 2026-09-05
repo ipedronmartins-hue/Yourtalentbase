@@ -1,0 +1,2 @@
+-- 165: dashboard enriquecido com agenda e atividade recente reais.
+-- Corpo integral no historico Supabase (165).
