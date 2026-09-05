@@ -544,8 +544,26 @@ async function carregarMeusClubes(){
   meuClube = (window.slugAtual && CLUBES_LANDING[window.slugAtual]
     && lista.find(function(c){return c.nome===CLUBES_LANDING[window.slugAtual].clubeNome;}))
     || lista[0]; // sem slug reconhecido, ou só um clube: usa o primeiro (comportamento anterior)
+  aplicarMarcaClube(meuClube);
   if(!meuClube.meu_nome){ pedirNomeMembro(); return; }
   await carregarEquipas();
+}
+function hexParaRgb(hex){
+  var m=/^#([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})$/.exec(hex||'');
+  if(!m) return null;
+  return parseInt(m[1],16)+','+parseInt(m[2],16)+','+parseInt(m[3],16);
+}
+function aplicarMarcaClube(clube){
+  if(!clube||!clube.cor_primaria) return; // sem marca definida: mantém as cores YTB por defeito
+  var raiz=document.documentElement.style;
+  var rgb=hexParaRgb(clube.cor_primaria);
+  raiz.setProperty('--gold', clube.cor_primaria);
+  raiz.setProperty('--gold-bright', clube.cor_primaria);
+  if(rgb){
+    raiz.setProperty('--gold-soft', 'rgba('+rgb+',.14)');
+    raiz.setProperty('--gold-border', 'rgba('+rgb+',.32)');
+  }
+  if(clube.cor_secundaria) raiz.setProperty('--gold-secundario', clube.cor_secundaria);
 }
 function pedirNomeMembro(){
   document.getElementById('main').innerHTML='<div class="login-wrap" style="padding-top:60px">'
@@ -881,9 +899,14 @@ function pintarMembros(){
     +'<div class="s">O logo e a cor aparecem no teu painel e no passaporte dos atletas.</div>'
     +'<label class="label">URL do logo</label><input class="input" id="marca-logo" type="url" placeholder="https://...">'
     +'<label class="label">Cor principal</label>'
-    +'<div style="display:flex;gap:8px;align-items:center">'
+    +'<div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">'
     +'<input type="color" id="marca-cor-picker" value="'+(meuClube.cor_primaria||'#D4AF37')+'" style="width:44px;height:38px;border:1px solid var(--border);border-radius:8px;background:none;cursor:pointer;padding:2px" oninput="document.getElementById(\'marca-cor\').value=this.value">'
-    +'<input class="input" id="marca-cor" type="text" value="'+(meuClube.cor_primaria||'')+'" placeholder="#D4AF37" style="flex:1" oninput="if(/^#[0-9A-Fa-f]{6}$/.test(this.value))document.getElementById(\'marca-cor-picker\').value=this.value">'
+    +'<input class="input" id="marca-cor" type="text" value="'+(meuClube.cor_primaria||'')+'" placeholder="#D4AF37" style="flex:1;margin-bottom:0" oninput="if(/^#[0-9A-Fa-f]{6}$/.test(this.value))document.getElementById(\'marca-cor-picker\').value=this.value">'
+    +'</div>'
+    +'<label class="label">Cor secundária <span style="font-weight:400;color:var(--muted)">(opcional)</span></label>'
+    +'<div style="display:flex;gap:8px;align-items:center">'
+    +'<input type="color" id="marca-cor2-picker" value="'+(meuClube.cor_secundaria||'#D4AF37')+'" style="width:44px;height:38px;border:1px solid var(--border);border-radius:8px;background:none;cursor:pointer;padding:2px" oninput="document.getElementById(\'marca-cor2\').value=this.value">'
+    +'<input class="input" id="marca-cor2" type="text" value="'+(meuClube.cor_secundaria||'')+'" placeholder="#D4AF37" style="flex:1;margin-bottom:0" oninput="if(/^#[0-9A-Fa-f]{6}$/.test(this.value))document.getElementById(\'marca-cor2-picker\').value=this.value">'
     +'</div>'
     +'<button class="btn" onclick="guardarMarcaClube()">Guardar marca →</button></div>';
   box.innerHTML=html;
@@ -891,11 +914,15 @@ function pintarMembros(){
 window.guardarMarcaClube=async function(){
   var logo=(document.getElementById('marca-logo').value||'').trim();
   var cor=(document.getElementById('marca-cor').value||'').trim();
+  var cor2=(document.getElementById('marca-cor2').value||'').trim();
   if(cor && !/^#[0-9A-Fa-f]{6}$/.test(cor)){ toast('A cor tem de ser um código hex, ex: #D4AF37'); return; }
+  if(cor2 && !/^#[0-9A-Fa-f]{6}$/.test(cor2)){ toast('A cor secundária tem de ser um código hex'); return; }
   if(logo && !/^https?:\/\//i.test(logo)){ toast('O logo tem de ser um link http(s) válido'); return; }
-  const {data:r}=await supa.rpc('ytb_clube_atualizar_marca_secretaria',{p_clube_id:meuClube.clube_id,p_logo_url:logo||null,p_cor:cor||null});
+  const {data:r}=await supa.rpc('ytb_clube_atualizar_marca_secretaria',{p_clube_id:meuClube.clube_id,p_logo_url:logo||null,p_cor:cor||null,p_cor_secundaria:cor2||null});
   if(!r||!r.ok){ toast('⚠ Não foi possível: '+((r&&r.motivo)||'erro')); return; }
   if(cor) meuClube.cor_primaria=cor;
+  if(cor2) meuClube.cor_secundaria=cor2;
+  aplicarMarcaClube(meuClube);
   toast('✓ Marca atualizada');
 };
 window.adicionarMembro=async function(){

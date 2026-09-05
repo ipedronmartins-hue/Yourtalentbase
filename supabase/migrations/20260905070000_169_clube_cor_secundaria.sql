@@ -1,0 +1,2 @@
+-- 169: cor secundaria do clube, para esquemas de duas cores. Corpo
+-- integral no historico Supabase (169).
