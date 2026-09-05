@@ -3496,16 +3496,29 @@ window.gerarQuotasMes=async function(){
   toast(r.geradas>0 ? ('✓ '+r.geradas+' quotas geradas') : 'Já existiam quotas geradas para este mês');
   await carregarQuotasMes();
 };
+var quotasFiltro='todas';
 window.carregarQuotasMes=async function(){
   var periodo=document.getElementById('qt-periodo').value;
   const {data:r}=await supa.rpc('ytb_clube_quotas_listar',{p_clube_id:meuClube.clube_id,p_periodo:periodo});
   var lista=document.getElementById('qt-lista');
   var docs=(r&&r.ok&&r.lista)||[];
-  lista.innerHTML=docs.length ? docs.map(function(q){
+  var totalValor=docs.reduce(function(s,q){return s+Number(q.valor);},0);
+  var pagas=docs.filter(function(q){return q.pago;});
+  var pendentes=docs.filter(function(q){return !q.pago;});
+  var visiveis=quotasFiltro==='pendentes'?pendentes:(quotasFiltro==='pagas'?pagas:docs);
+  var resumoHtml=docs.length ? '<div class="dash-kpis" style="margin-bottom:12px">'
+    +'<div class="card" style="text-align:center;margin-bottom:0"><div style="font-family:\'Barlow Condensed\';font-weight:900;font-size:24px;color:var(--gold)">'+totalValor.toFixed(0)+'€</div><div class="s" style="margin:0">Total do mês</div></div>'
+    +'<div class="card" style="text-align:center;margin-bottom:0"><div style="font-family:\'Barlow Condensed\';font-weight:900;font-size:24px;color:var(--up)">'+pagas.length+'</div><div class="s" style="margin:0">Pagas</div></div>'
+    +'<div class="card" style="text-align:center;margin-bottom:0"><div style="font-family:\'Barlow Condensed\';font-weight:900;font-size:24px;color:var(--red)">'+pendentes.length+'</div><div class="s" style="margin:0">Pendentes</div></div>'
+    +'</div>' : '';
+  var filtroHtml=docs.length ? '<div class="chips" style="margin-bottom:12px">'
+    +[['todas','Todas'],['pendentes','Pendentes'],['pagas','Pagas']].map(function(o){return '<button class="chip'+(quotasFiltro===o[0]?' on':'')+'" onclick="quotasFiltro=\''+o[0]+'\';carregarQuotasMes()">'+o[1]+'</button>';}).join('')
+    +'</div>' : '';
+  lista.innerHTML=resumoHtml+filtroHtml+(visiveis.length ? visiveis.map(function(q){
     return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px">'
       +'<span>#'+q.numero_socio+' '+esc(q.nome)+' — '+q.valor+'€</span>'
       +'<button class="btn '+(q.pago?'btn-sec':'')+'" style="width:auto;padding:6px 12px;margin-top:0" onclick="marcarQuotaPaga(\''+q.id+'\','+(!q.pago)+')">'+(q.pago?'✓ Pago':'Marcar pago')+'</button></div>';
-  }).join('') : '<div class="s">Ainda sem quotas geradas para este período.</div>';
+  }).join('') : '<div class="s">'+(docs.length?'Nenhuma quota nesse filtro.':'Ainda sem quotas geradas para este período.')+'</div>');
 };
 window.marcarQuotaPaga=async function(quotaId, pago){
   const {data:r}=await supa.rpc('ytb_clube_quota_marcar_paga',{p_quota_id:quotaId,p_pago:pago});
