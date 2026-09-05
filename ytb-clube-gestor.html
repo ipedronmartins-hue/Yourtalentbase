@@ -401,6 +401,7 @@ body.pr-cheio #pr-sair{display:block}
     <div class="sec" id="sec-scout"></div>
     <div class="sec" id="sec-secretaria"></div>
     <div class="sec" id="sec-socios"></div>
+    <div class="sec" id="sec-patrocinios"></div>
   </div>
   <div class="report-modal" id="reportModal">
     <div class="report-toolbar">
@@ -3306,12 +3307,55 @@ window.marcarQuotaPaga=async function(quotaId, pago){
   await carregarQuotasMes();
 };
 
+/* ══════ PATROCÍNIOS ══════ */
+async function pintarPatrocinios(){
+  const box=document.getElementById('sec-patrocinios');
+  box.innerHTML='<div class="card"><div class="s">A carregar…</div></div>';
+  const {data:r}=await supa.rpc('ytb_clube_patrocinios_listar',{p_clube_id:meuClube.clube_id});
+  var lista=(r&&r.ok&&r.lista)||[];
+  var ROTULO_ESTADO={ativo:['Ativo','pill-verde'],terminado:['Terminado','pill-vermelho'],proposta:['Proposta','pill-laranja']};
+  box.innerHTML='<div class="card"><div class="h">Patrocínios <span style="color:var(--gold)">do clube</span></div>'
+    +(lista.length ? lista.map(function(p){
+        var re=ROTULO_ESTADO[p.estado]||['—','pill-laranja'];
+        return '<div style="padding:8px 0;border-bottom:1px solid var(--border)">'
+          +'<div style="display:flex;justify-content:space-between;align-items:center"><span>'+esc(p.nome_patrocinador)+(p.valor?(' — '+p.valor+'€'):'')+'</span><span class="pill '+re[1]+'">'+re[0]+'</span></div>'
+          +'<div style="display:flex;gap:8px;margin-top:6px">'
+          +['proposta','ativo','terminado'].map(function(e){
+              return '<button class="btn btn-sec" style="width:auto;padding:6px 10px;margin-top:0;font-size:12px" onclick="mudarEstadoPatrocinio(\''+p.id+'\',\''+e+'\')">'+ROTULO_ESTADO[e][0]+'</button>';
+            }).join('')
+          +'</div></div>';
+      }).join('') : '<div class="s">Ainda sem patrocínios registados.</div>')
+    +'</div>'
+    +'<div class="card"><div class="h">Novo <span style="color:var(--gold)">patrocínio</span></div>'
+    +'<label class="label">Nome do patrocinador</label><input class="input" id="pt-nome">'
+    +'<label class="label">Email de contacto <span style="font-weight:400;color:var(--muted)">(opcional)</span></label><input class="input" id="pt-email" type="email">'
+    +'<div class="grid2"><div><label class="label">Valor <span style="font-weight:400;color:var(--muted)">(opcional)</span></label><input class="input" id="pt-valor" type="number" step="0.5"></div>'
+    +'<div><label class="label">Início do acordo</label><input class="input" id="pt-inicio" type="date"></div></div>'
+    +'<button class="btn" onclick="criarPatrocinio()">Adicionar →</button></div>';
+}
+window.criarPatrocinio=async function(){
+  var nome=(document.getElementById('pt-nome').value||'').trim();
+  var email=(document.getElementById('pt-email').value||'').trim();
+  var valor=document.getElementById('pt-valor').value;
+  var inicio=document.getElementById('pt-inicio').value;
+  if(!nome){ toast('Falta o nome do patrocinador'); return; }
+  const {data:r}=await supa.rpc('ytb_clube_patrocinio_criar',{p_clube_id:meuClube.clube_id,p_nome:nome,p_email:email||null,p_valor:valor?parseFloat(valor):null,p_inicio:inicio||null});
+  if(!r||!r.ok){ toast('⚠ Não foi possível: '+((r&&r.motivo)||'erro')); return; }
+  toast('✓ Patrocínio adicionado');
+  await pintarPatrocinios();
+};
+window.mudarEstadoPatrocinio=async function(id, estado){
+  const {data:r}=await supa.rpc('ytb_clube_patrocinio_estado',{p_id:id,p_estado:estado});
+  if(!r||!r.ok){ toast('⚠ Não foi possível: '+((r&&r.motivo)||'erro')); return; }
+  await pintarPatrocinios();
+};
+
 /* ══════ NAVEGAÇÃO ══════ */
 var TABS=[['equipas','Equipas'],['plantel','Plantel'],['jogos','Jogos'],['treinos','Treinos'],['prancheta','Prancheta'],['avaliar','Avaliar'],['retorno','Retorno']];
 function montarTabsTopo(){
   var tabs=TABS.slice();
   if(meuClube && (meuClube.papel==='scout'||meuClube.papel==='admin')) tabs.push(['scout','Scout']);
-  if(meuClube && (meuClube.papel==='secretaria'||meuClube.papel==='admin')) { tabs.push(['secretaria','Secretaria']); tabs.push(['socios','Sócios']); }
+  if(meuClube && (meuClube.papel==='secretaria'||meuClube.papel==='admin')) { tabs.push(['secretaria','Secretaria']); tabs.push(['socios','Sócios']); tabs.push(['patrocinios','Patrocínios']); }
   if(meuClube && meuClube.papel==='admin') tabs.push(['membros','Membros']);
   document.getElementById('tabs-topo').innerHTML=tabs.map(function(t,i){
     return '<button class="tab'+(i===0?' on':'')+'" data-t="'+t[0]+'" onclick="tab(\''+t[0]+'\')">'+t[1]+'</button>';
@@ -3328,6 +3372,7 @@ window.tab=function(t){
   if(t==='scout') pintarScout();
   if(t==='secretaria') pintarSecretaria();
   if(t==='socios') pintarSocios();
+  if(t==='patrocinios') pintarPatrocinios();
 };
 verificarSessao();
 </script></body>

@@ -1,0 +1,2 @@
+-- 158: patrocinios, terceira peca do bloco financeiro. Corpo
+-- integral no historico Supabase (158).
