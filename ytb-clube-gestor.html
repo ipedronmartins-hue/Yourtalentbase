@@ -3100,9 +3100,47 @@ function pintarSecretaria(){
     +'<label class="label">Ficheiro</label><input class="input" id="doc-ficheiro" type="file" accept="image/*,.pdf">'
     +'<button class="btn" onclick="enviarDocumento()">Enviar →</button>'
     +'<div id="doc-lista" style="margin-top:12px"></div></div>'
+    +'<div class="card"><div class="h">Mensalidades <span style="color:var(--gold)">dos atletas</span></div>'
+    +'<div class="s">Gera para todos os atletas do clube, ou só para uma equipa se a mensalidade variar por escalão.</div>'
+    +'<label class="label">Período</label><input class="input" id="mn-periodo" type="month" onchange="carregarMensalidadesMes()">'
+    +'<label class="label">Equipa <span style="font-weight:400;color:var(--muted)">(opcional)</span></label>'
+    +'<select class="input" id="mn-equipa"><option value="">— todas as equipas —</option>'
+    +minhasEquipas.map(function(e){return '<option value="'+e.id+'">'+esc(e.nome)+'</option>';}).join('')+'</select>'
+    +'<label class="label">Valor por atleta</label><input class="input" id="mn-valor" type="number" step="0.5" placeholder="Ex: 25">'
+    +'<button class="btn btn-sec" onclick="gerarMensalidadesMes()">Gerar mensalidades deste mês</button>'
+    +'<div id="mn-lista" style="margin-top:12px"></div></div>'
     +'<div id="atribuicao-treinadores-area"><div class="card"><div class="s">A carregar…</div></div></div>';
+  var hojeMn=new Date(); document.getElementById('mn-periodo').value=hojeMn.getFullYear()+'-'+String(hojeMn.getMonth()+1).padStart(2,'0');
   carregarEPintarAtribuicaoTreinadores();
+  carregarMensalidadesMes();
 }
+window.gerarMensalidadesMes=async function(){
+  var periodo=document.getElementById('mn-periodo').value;
+  var equipa=document.getElementById('mn-equipa').value||null;
+  var valor=parseFloat(document.getElementById('mn-valor').value);
+  if(!periodo||!valor){ toast('Escolhe o período e o valor'); return; }
+  const {data:r}=await supa.rpc('ytb_clube_mensalidade_gerar_mes',{p_clube_id:meuClube.clube_id,p_periodo:periodo,p_valor:valor,p_equipa_id:equipa});
+  if(!r||!r.ok){ toast('⚠ Não foi possível: '+((r&&r.motivo)||'erro')); return; }
+  toast(r.geradas>0 ? ('✓ '+r.geradas+' mensalidades geradas') : 'Já existiam mensalidades para este período');
+  await carregarMensalidadesMes();
+};
+window.carregarMensalidadesMes=async function(){
+  var periodo=document.getElementById('mn-periodo').value;
+  if(!periodo) return;
+  const {data:r}=await supa.rpc('ytb_clube_mensalidades_listar',{p_clube_id:meuClube.clube_id,p_periodo:periodo});
+  var lista=document.getElementById('mn-lista');
+  var docs=(r&&r.ok&&r.lista)||[];
+  lista.innerHTML=docs.length ? docs.map(function(m){
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px">'
+      +'<span>'+esc(m.nome)+' — '+m.valor+'€</span>'
+      +'<button class="btn '+(m.pago?'btn-sec':'')+'" style="width:auto;padding:6px 12px;margin-top:0" onclick="marcarMensalidadePaga(\''+m.id+'\','+(!m.pago)+')">'+(m.pago?'✓ Pago':'Marcar pago')+'</button></div>';
+  }).join('') : '<div class="s">Ainda sem mensalidades geradas para este período.</div>';
+};
+window.marcarMensalidadePaga=async function(id, pago){
+  const {data:r}=await supa.rpc('ytb_clube_mensalidade_marcar_paga',{p_id:id,p_pago:pago});
+  if(!r||!r.ok){ toast('⚠ Não foi possível: '+((r&&r.motivo)||'erro')); return; }
+  await carregarMensalidadesMes();
+};
 window.enviarDocumento=async function(){
   var atletaId=document.getElementById('doc-atleta').value;
   var tipo=document.getElementById('doc-tipo').value;

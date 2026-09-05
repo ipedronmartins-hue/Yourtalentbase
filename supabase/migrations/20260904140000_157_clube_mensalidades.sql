@@ -1,0 +1,2 @@
+-- 157: mensalidades dos atletas, segunda peca do bloco financeiro.
+-- Corpo integral no historico Supabase (157).
