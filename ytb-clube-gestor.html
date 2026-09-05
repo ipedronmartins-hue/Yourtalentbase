@@ -402,6 +402,7 @@ body.pr-cheio #pr-sair{display:block}
     <div class="sec" id="sec-secretaria"></div>
     <div class="sec" id="sec-socios"></div>
     <div class="sec" id="sec-patrocinios"></div>
+    <div class="sec" id="sec-recibos"></div>
   </div>
   <div class="report-modal" id="reportModal">
     <div class="report-toolbar">
@@ -3350,12 +3351,44 @@ window.mudarEstadoPatrocinio=async function(id, estado){
   await pintarPatrocinios();
 };
 
+/* ══════ RECIBOS (indicativos, sem valor fiscal) ══════ */
+var listaRecibosCache=[];
+async function pintarRecibos(){
+  const box=document.getElementById('sec-recibos');
+  box.innerHTML='<div class="card"><div class="s">A carregar…</div></div>';
+  const {data:r}=await supa.rpc('ytb_clube_recibos_listar',{p_clube_id:meuClube.clube_id});
+  listaRecibosCache=(r&&r.ok&&r.lista)||[];
+  box.innerHTML='<div class="card"><div class="h">Recibos <span style="color:var(--gold)">emitidos</span></div>'
+    +'<div class="s">Gerados automaticamente ao marcar uma quota ou mensalidade como paga. São um comprovativo indicativo do pagamento, sem valor fiscal.</div>'
+    +(listaRecibosCache.length ? listaRecibosCache.map(function(rb){
+        return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">'
+          +'<span>#'+rb.numero_recibo+' — '+esc(rb.nome_pagador)+' · '+esc(rb.descricao)+' · '+rb.valor+'€</span>'
+          +'<button class="btn btn-sec" style="width:auto;padding:6px 12px;margin-top:0" onclick="verRecibo(\''+rb.id+'\')">Ver</button></div>';
+      }).join('') : '<div class="s">Ainda sem recibos emitidos.</div>')
+    +'</div>';
+}
+window.verRecibo=function(id){
+  var rb=listaRecibosCache.find(function(x){return x.id===id;});
+  if(!rb) return;
+  document.getElementById('report-canvas').innerHTML=
+    '<div style="max-width:480px;margin:40px auto;padding:32px;background:#fff;color:#111;border-radius:12px;font-family:sans-serif">'
+    +'<div style="text-align:center;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#999;margin-bottom:4px">Recibo Nº '+rb.numero_recibo+'</div>'
+    +'<h2 style="text-align:center;margin:0 0 24px">'+esc(meuClube.nome||'Clube')+'</h2>'
+    +'<p><b>Pago por:</b> '+esc(rb.nome_pagador)+'</p>'
+    +'<p><b>Referente a:</b> '+esc(rb.descricao)+'</p>'
+    +'<p><b>Valor:</b> '+rb.valor+' €</p>'
+    +'<p><b>Data:</b> '+new Date(rb.data_pagamento).toLocaleDateString('pt-PT')+'</p>'
+    +'<div style="margin-top:32px;padding-top:16px;border-top:1px solid #ddd;font-size:11px;color:#999;text-align:center">Documento indicativo do pagamento — sem valor fiscal.</div>'
+    +'</div>';
+  document.getElementById('reportModal').classList.add('show');
+};
+
 /* ══════ NAVEGAÇÃO ══════ */
 var TABS=[['equipas','Equipas'],['plantel','Plantel'],['jogos','Jogos'],['treinos','Treinos'],['prancheta','Prancheta'],['avaliar','Avaliar'],['retorno','Retorno']];
 function montarTabsTopo(){
   var tabs=TABS.slice();
   if(meuClube && (meuClube.papel==='scout'||meuClube.papel==='admin')) tabs.push(['scout','Scout']);
-  if(meuClube && (meuClube.papel==='secretaria'||meuClube.papel==='admin')) { tabs.push(['secretaria','Secretaria']); tabs.push(['socios','Sócios']); tabs.push(['patrocinios','Patrocínios']); }
+  if(meuClube && (meuClube.papel==='secretaria'||meuClube.papel==='admin')) { tabs.push(['secretaria','Secretaria']); tabs.push(['socios','Sócios']); tabs.push(['patrocinios','Patrocínios']); tabs.push(['recibos','Recibos']); }
   if(meuClube && meuClube.papel==='admin') tabs.push(['membros','Membros']);
   document.getElementById('tabs-topo').innerHTML=tabs.map(function(t,i){
     return '<button class="tab'+(i===0?' on':'')+'" data-t="'+t[0]+'" onclick="tab(\''+t[0]+'\')">'+t[1]+'</button>';
@@ -3373,6 +3406,7 @@ window.tab=function(t){
   if(t==='secretaria') pintarSecretaria();
   if(t==='socios') pintarSocios();
   if(t==='patrocinios') pintarPatrocinios();
+  if(t==='recibos') pintarRecibos();
 };
 verificarSessao();
 </script></body>

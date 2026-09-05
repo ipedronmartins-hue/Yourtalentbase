@@ -1,0 +1,3 @@
+-- 159: recibos indicativos, sem valor fiscal, gerados automaticamente
+-- ao marcar quota/mensalidade como paga. Corpo integral no historico
+-- Supabase (159).
