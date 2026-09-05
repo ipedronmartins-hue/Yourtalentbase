@@ -108,6 +108,13 @@ body{padding-bottom:60px}
   .ficha-paineis>*{margin-bottom:0}
   .ficha-full{grid-column:1/-1}
 }
+/* ══════ CONVOCATÓRIA EM ZONAS (desktop) ══════ */
+.conv-zonas{display:block}
+.conv-zonas>*{margin-bottom:12px}
+@media (min-width:1024px){
+  .conv-zonas{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;align-items:start}
+  .conv-zonas>*{margin-bottom:0}
+}
 /* trazidas do coachbase.html para o gerador de treino do Clube */
 .err{color:var(--red);font-size:12px;text-align:center;margin-top:8px;display:none}
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
@@ -759,12 +766,24 @@ window.criarJogo=async function(){
 window.abrirCriarConvocatoria=function(jogoId){
   var area=document.getElementById('convocatoria-area');
   if(!plantelDaEquipa.length){ toast('A equipa ainda não tem plantel'); return; }
-  area.innerHTML='<div class="card"><div class="h">Convocar <span>plantel</span></div>'
+  area.innerHTML='<div class="conv-zonas">'
+    +'<div class="card"><div class="h">Plantel</div>'
     +'<div id="conv-checks">'+plantelDaEquipa.map(function(p){
-      return '<label style="display:flex;align-items:center;gap:8px;padding:6px 0"><input type="checkbox" checked value="'+p.atleta_id+'"> '+(p.numero?'#'+p.numero+' ':'')+esc(p.nome)+'</label>';
-    }).join('')+'</div>'
-    +'<button class="btn" onclick="confirmarConvocatoria(\''+jogoId+'\')">Confirmar convocatória →</button></div>';
+      return '<label style="display:flex;align-items:center;gap:8px;padding:6px 0"><input type="checkbox" checked value="'+p.atleta_id+'" data-nome="'+esc(p.nome)+'" onchange="atualizarPreviewConvocados()"> '+(p.numero?'#'+p.numero+' ':'')+esc(p.nome)+'</label>';
+    }).join('')+'</div></div>'
+    +'<div class="card"><div class="h">Convocados <span id="conv-count" style="color:var(--gold)"></span></div>'
+    +'<div id="conv-preview"></div>'
+    +'<button class="btn" style="margin-top:12px" onclick="confirmarConvocatoria(\''+jogoId+'\')">Confirmar convocatória →</button></div>'
+    +'</div>';
+  atualizarPreviewConvocados();
   area.scrollIntoView({behavior:'smooth'});
+};
+window.atualizarPreviewConvocados=function(){
+  var marcados=Array.prototype.slice.call(document.querySelectorAll('#conv-checks input:checked'));
+  document.getElementById('conv-count').textContent='('+marcados.length+')';
+  document.getElementById('conv-preview').innerHTML=marcados.length ? marcados.map(function(i){
+    return '<div class="s" style="margin-bottom:4px">✓ '+esc(i.getAttribute('data-nome'))+'</div>';
+  }).join('') : '<div class="s">Nenhum atleta escolhido.</div>';
 };
 window.confirmarConvocatoria=async function(jogoId){
   var ids=Array.prototype.slice.call(document.querySelectorAll('#conv-checks input:checked')).map(function(i){return i.value;});
@@ -781,17 +800,28 @@ window.verConvocatoria=async function(convId){
   if(!r||!r.ok){ area.innerHTML='<div class="card"><div class="s">⚠ Não foi possível carregar.</div></div>'; return; }
   var lista=r.lista||[];
   var rotulo={convocado:['A aguardar','pill-laranja'],pendente:['A aguardar','pill-laranja'],aceite:['Confirmado','pill-verde'],recusado:['Não vai','pill-vermelho']};
-  area.innerHTML='<div class="card"><div class="h">Estado da <span>convocatória</span></div>'
+  var idsConvocados={}; lista.forEach(function(x){idsConvocados[x.atleta_id]=true;});
+  area.innerHTML='<div class="conv-zonas">'
+    +'<div class="card"><div class="h">Plantel</div>'
+    +plantelDaEquipa.map(function(p){
+      return '<div class="s" style="margin-bottom:4px">'+(idsConvocados[p.atleta_id]?'✓ ':'· ')+esc(p.nome)+(idsConvocados[p.atleta_id]?'':' <span style="color:var(--muted)">(não convocado)</span>')+'</div>';
+    }).join('')+'</div>'
+    +'<div class="card"><div class="h">Convocados <span style="color:var(--gold)">('+lista.length+')</span></div>'
     +lista.map(function(x){
       var r2=rotulo[x.resposta]||['—','pill-laranja'];
+      return '<div style="display:flex;justify-content:space-between;padding:4px 0"><span class="s" style="margin:0">'+esc(x.nome)+'</span><span class="pill '+r2[1]+'">'+r2[0]+'</span></div>';
+    }).join('')+'</div>'
+    +'<div class="card"><div class="h">Respostas <span>e presença</span></div>'
+    +lista.map(function(x){
       return '<div style="padding:8px 0;border-bottom:1px solid var(--border)">'
-        +'<div style="display:flex;justify-content:space-between;align-items:center"><span>'+esc(x.nome)+'</span><span class="pill '+r2[1]+'">'+r2[0]+'</span></div>'
+        +'<div style="font-size:13px">'+esc(x.nome)+'</div>'
         +'<div style="display:flex;align-items:center;gap:8px;margin-top:6px">'
-        +'<label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--slate)"><input type="checkbox" id="pres-'+x.atleta_id+'" '+(x.presente?'checked':'')+' onchange="window.__togglePresenca(\''+x.atleta_id+'\')"> Esteve presente</label>'
+        +'<label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--slate)"><input type="checkbox" id="pres-'+x.atleta_id+'" '+(x.presente?'checked':'')+' onchange="window.__togglePresenca(\''+x.atleta_id+'\')"> Presente</label>'
         +'<input class="input" id="min-'+x.atleta_id+'" type="number" min="0" max="150" placeholder="min" value="'+(x.minutos||'')+'" style="width:70px;margin-bottom:0;display:'+(x.presente?'block':'none')+'">'
         +'<button class="btn btn-sec" style="width:auto;padding:8px 12px;margin-top:0" onclick="window.__guardarPresenca(\''+convId+'\',\''+x.atleta_id+'\')">Guardar</button>'
         +'</div></div>';
-    }).join('')+'</div>';
+    }).join('')+'</div>'
+    +'</div>';
   area.scrollIntoView({behavior:'smooth'});
 };
 window.__togglePresenca=function(atletaId){
