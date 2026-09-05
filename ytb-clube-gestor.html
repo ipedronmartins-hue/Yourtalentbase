@@ -120,6 +120,11 @@ body{padding-bottom:60px}
 @media (min-width:1024px){
   .treino-zonas{display:grid;grid-template-columns:380px 1fr;gap:16px;align-items:start}
 }
+/* ══════ SECRETARIA (cartões em 2 colunas equilibradas, desktop) ══════ */
+@media (min-width:1024px){
+  .secretaria-grid{column-count:2;column-gap:16px}
+  .secretaria-grid>.card{break-inside:avoid;margin-bottom:16px}
+}
 /* trazidas do coachbase.html para o gerador de treino do Clube */
 .err{color:var(--red);font-size:12px;text-align:center;margin-top:8px;display:none}
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
@@ -3311,7 +3316,7 @@ window.preencherDeAtletaSelecionadoClube=function(){
 /* ══════ SECRETARIA (admin/secretaria) ══════ */
 function pintarSecretaria(){
   const box=document.getElementById('sec-secretaria');
-  box.innerHTML='<div class="card"><div class="h">Criar <span style="color:var(--gold)">atleta</span></div>'
+  box.innerHTML='<div class="secretaria-grid"><div class="card"><div class="h">Criar <span style="color:var(--gold)">atleta</span></div>'
     +'<div class="s">O atleta fica logo ligado a este clube. Se já existir um atleta parecido (nome + ano), a YTB avisa antes de duplicar.</div>'
     +'<label class="label">Nome completo</label><input class="input" id="sec-nome">'
     +'<div class="grid2"><div><label class="label">Ano de nascimento</label><input class="input" id="sec-ano" type="number" placeholder="Ex: 2014"></div>'
@@ -3351,7 +3356,8 @@ function pintarSecretaria(){
     +'<label class="label">Valor por atleta</label><input class="input" id="mn-valor" type="number" step="0.5" placeholder="Ex: 25">'
     +'<button class="btn btn-sec" onclick="gerarMensalidadesMes()">Gerar mensalidades deste mês</button>'
     +'<div id="mn-lista" style="margin-top:12px"></div></div>'
-    +'<div id="atribuicao-treinadores-area"><div class="card"><div class="s">A carregar…</div></div></div>';
+    +'<div id="atribuicao-treinadores-area"><div class="card"><div class="s">A carregar…</div></div></div>'
+    +'</div>';
   var hojeMn=new Date(); document.getElementById('mn-periodo').value=hojeMn.getFullYear()+'-'+String(hojeMn.getMonth()+1).padStart(2,'0');
   carregarEPintarAtribuicaoTreinadores();
   carregarMensalidadesMes();
