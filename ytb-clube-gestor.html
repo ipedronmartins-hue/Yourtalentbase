@@ -961,7 +961,7 @@ var PR=(function(){
     fut11:[[0.5,.94],[0.16,.8],[0.38,.82],[0.62,.82],[0.84,.8],[0.5,.68],[0.28,.58],[0.72,.58],[0.14,.44],[0.5,.42],[0.86,.44]]
   };
   var E={tokens:[],setas:[],tracos:[],frames:[],frameAtual:-1};
-  var modo='desenhar',undoStack=[],redoStack=[],drag=null,dragOrigem=null,setaTmp=null,tracoTmp=null,seq=1,aReproduzir=false;
+  var modo='desenhar',undoStack=[],redoStack=[],drag=null,dragOrigem=null,setaTmp=null,tracoTmp=null,seq=1,aReproduzir=false,jaLigou=false;
 
   function svg(){return document.getElementById('prancheta-svg');}
   function snap(){undoStack.push(JSON.stringify({tokens:E.tokens,setas:E.setas,tracos:E.tracos}));if(undoStack.length>40)undoStack.shift();redoStack.length=0;}
@@ -1234,7 +1234,7 @@ var PR=(function(){
     var f=JSON.parse(r);E.tokens=f.tokens;E.setas=f.setas;E.tracos=f.tracos;render();
   }
   function limpar(){snap();E.setas=[];E.tracos=[];E.tokens=E.tokens.filter(function(t){return t.tipo==='A';});E.frames=[];E.frameAtual=-1;render();}
-  function reformatar(){snap();E.tokens=E.tokens.filter(function(t){return t.tipo!=='A'&&t.tipo!=='B';});formar();render();}
+  function reformatar(){snap();E.tokens=E.tokens.filter(function(t){return t.tipo!=='A'&&t.tipo!=='B';});formar();render();if(!jaLigou){ligar();jaLigou=true;}}
 
   function exportarPNG(){
     var xml=new XMLSerializer().serializeToString(svg());
@@ -1739,6 +1739,7 @@ function montarSessao(diaTag){
 
 function chips(id,itens,get,set,multi){
   var box=document.getElementById(id);
+  if(!box) return; // esta secção pode não estar montada ainda (ex: Prancheta sem Treinos ter sido visitada primeiro)
   box.innerHTML=itens.map(function(it){var v=Array.isArray(it)?it[0]:it,l=Array.isArray(it)?it[1]:it;
     var on=multi?get().indexOf(v)>=0:get()===v;
     return '<button class="chip'+(on?' on':'')+'" data-v="'+esc(v)+'">'+esc(l)+'</button>';}).join('');
