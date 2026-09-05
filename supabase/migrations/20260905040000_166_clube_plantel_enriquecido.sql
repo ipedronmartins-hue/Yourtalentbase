@@ -1,0 +1,2 @@
+-- 166: plantel enriquecido com idade/estado/jogos/presencas/minutos
+-- reais. Corpo integral no historico Supabase (166).

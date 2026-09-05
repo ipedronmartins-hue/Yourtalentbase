@@ -1,0 +1,2 @@
+-- 167: ficha do atleta agregada. Corpo integral no historico
+-- Supabase (167).

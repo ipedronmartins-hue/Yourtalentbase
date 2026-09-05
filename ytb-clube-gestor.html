@@ -83,6 +83,31 @@ body{padding-bottom:60px}
   .dash-kpis{grid-template-columns:repeat(4,1fr)}
   .dash-secundario{grid-template-columns:1fr 1fr}
 }
+/* ══════ PLANTEL ADAPTATIVO ══════ */
+.plantel-cartoes{display:block}
+.plantel-tabela-wrap{display:none;overflow-x:auto}
+.plantel-tabela{width:100%;border-collapse:collapse;font-size:13px}
+.plantel-tabela th{text-align:left;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.5px;padding:8px;border-bottom:1px solid var(--border)}
+.plantel-tabela td{padding:10px 8px;border-bottom:1px solid var(--border)}
+.plantel-tabela tr{cursor:pointer}
+.plantel-tabela tr:hover{background:var(--bg3)}
+.col-desktop{display:none}
+.plantel-cartao{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer}
+@media (min-width:768px){
+  .plantel-cartoes{display:none}
+  .plantel-tabela-wrap{display:block}
+}
+@media (min-width:1024px){
+  .col-desktop{display:table-cell}
+}
+/* ══════ FICHA DO ATLETA ══════ */
+.ficha-paineis{display:block}
+.ficha-paineis>*{margin-bottom:12px}
+@media (min-width:768px){
+  .ficha-paineis{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .ficha-paineis>*{margin-bottom:0}
+  .ficha-full{grid-column:1/-1}
+}
 /* trazidas do coachbase.html para o gerador de treino do Clube */
 .err{color:var(--red);font-size:12px;text-align:center;margin-top:8px;display:none}
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
@@ -444,6 +469,7 @@ body.pr-cheio #pr-sair{display:block}
     <div class="sec" id="sec-patrocinios"></div>
     <div class="sec" id="sec-recibos"></div>
     <div class="sec" id="sec-painel"></div>
+    <div class="sec" id="sec-ficha"></div>
   </div>
   <div class="report-modal" id="reportModal">
     <div class="report-toolbar">
@@ -578,6 +604,7 @@ async function carregarAtletasDoClube(){
   const {data:r}=await supa.rpc('ytb_clube_atletas_listar',{p_clube_id:meuClube.clube_id});
   atletasDoClube=(r&&r.ok&&r.lista)||[];
 }
+var plantelFiltro=''; var plantelOrdem='numero';
 async function carregarPlantel(){
   if(!equipaAtiva) return;
   const {data:r}=await supa.rpc('ytb_clube_plantel_listar',{p_equipa_id:equipaAtiva.id});
@@ -587,11 +614,39 @@ async function carregarPlantel(){
 function pintarPlantel(){
   const box=document.getElementById('sec-plantel');
   if(!equipaAtiva){ box.innerHTML='<div class="card"><div class="s">Escolhe uma equipa na aba Equipas primeiro.</div></div>'; return; }
-  var html='<div class="card"><div class="h">Plantel <span>'+esc(equipaAtiva.nome)+'</span></div>';
-  html += plantelDaEquipa.length ? plantelDaEquipa.map(function(p){
-    return '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span>'+(p.numero?'<b style="color:var(--gold)">#'+p.numero+'</b> ':'')+esc(p.nome)+'</span><span style="color:var(--muted);font-size:12px">'+esc(p.posicao||'')+'</span></div>';
-  }).join('') : '<div class="s">Ainda sem atletas nesta equipa.</div>';
-  html += '</div>';
+  var lista=plantelDaEquipa.filter(function(p){
+    return !plantelFiltro || esc(p.nome).toLowerCase().indexOf(plantelFiltro.toLowerCase())>=0;
+  }).slice().sort(function(a,b){
+    if(plantelOrdem==='nome') return esc(a.nome).localeCompare(esc(b.nome));
+    if(plantelOrdem==='idade') return (a.idade||0)-(b.idade||0);
+    return (a.numero||99)-(b.numero||99);
+  });
+  var html='<div class="card"><div class="h">Plantel <span>'+esc(equipaAtiva.nome)+'</span></div>'
+    +'<input class="input" id="pl-pesquisa" placeholder="Pesquisar atleta…" value="'+esc(plantelFiltro)+'" oninput="plantelFiltro=this.value;pintarPlantel();document.getElementById(\'pl-pesquisa\').focus();document.getElementById(\'pl-pesquisa\').setSelectionRange(999,999);">'
+    +'<div class="chips" style="margin-bottom:12px">'
+    +[['numero','Nº'],['nome','Nome'],['idade','Idade']].map(function(o){return '<button class="chip'+(plantelOrdem===o[0]?' on':'')+'" onclick="plantelOrdem=\''+o[0]+'\';pintarPlantel()">'+o[1]+'</button>';}).join('')
+    +'</div>';
+  if(!lista.length){
+    html += '<div class="s">'+(plantelFiltro?'Nenhum atleta encontrado.':'Ainda sem atletas nesta equipa.')+'</div></div>';
+  } else {
+    // mobile: cartões
+    html += '<div class="plantel-cartoes">'+lista.map(function(p){
+      return '<div class="plantel-cartao" onclick="abrirFichaAtleta(\''+p.atleta_id+'\')">'
+        +'<span>'+(p.numero?'<b style="color:var(--gold)">#'+p.numero+'</b> ':'')+esc(p.nome)+'</span>'
+        +'<span style="color:var(--muted);font-size:12px">'+esc(p.posicao||'')+'</span></div>';
+    }).join('')+'</div>';
+    // tablet/desktop: tabela, colunas extra só a partir de desktop
+    html += '<div class="plantel-tabela-wrap"><table class="plantel-tabela"><thead><tr>'
+      +'<th>Nº</th><th>Atleta</th><th class="col-desktop">Idade</th><th>Posição</th>'
+      +'<th class="col-desktop">Presenças</th><th class="col-desktop">Jogos</th><th class="col-desktop">Minutos</th><th>Estado</th>'
+      +'</tr></thead><tbody>'
+      +lista.map(function(p){
+        return '<tr onclick="abrirFichaAtleta(\''+p.atleta_id+'\')">'
+          +'<td>'+(p.numero||'—')+'</td><td>'+esc(p.nome)+'</td><td class="col-desktop">'+(p.idade||'—')+'</td><td>'+esc(p.posicao||'—')+'</td>'
+          +'<td class="col-desktop">'+p.presencas+'/'+p.convocatorias_total+'</td><td class="col-desktop">'+p.jogos+'</td><td class="col-desktop">'+p.minutos+'</td>'
+          +'<td><span class="pill '+(p.estado==='aprovado'?'pill-verde':'pill-laranja')+'">'+esc(p.estado)+'</span></td></tr>';
+      }).join('')+'</tbody></table></div></div>';
+  }
   var jaNoPlantel={}; plantelDaEquipa.forEach(function(p){jaNoPlantel[p.atleta_id]=true;});
   var disponiveis=atletasDoClube.filter(function(a){return !jaNoPlantel[a.id];});
   if(disponiveis.length && ['admin','secretaria','team_manager'].indexOf(meuClube.papel)>=0){
@@ -3550,6 +3605,41 @@ async function pintarPainel(){
       }).join('') : '<div class="s">Ainda sem atividade registada.</div>')
     +'</div>';
 }
+
+/* ══════ FICHA DO ATLETA ══════ */
+window.abrirFichaAtleta=async function(atletaId){
+  tab('ficha');
+  const box=document.getElementById('sec-ficha');
+  box.innerHTML='<div class="card"><div class="s">A carregar…</div></div>';
+  const {data:r}=await supa.rpc('ytb_clube_ficha_atleta',{p_atleta_id:atletaId});
+  if(!r||!r.ok){ box.innerHTML='<div class="card"><div class="s">⚠ Não foi possível carregar ('+((r&&r.motivo)||'erro')+').</div></div>'; return; }
+  var d=r.dados;
+  var ROTULO_DOC={cc:'CC do atleta',cc_encarregado:'CC do encarregado',foto:'Foto',modelo2:'Modelo 2',exame_medico:'Exame médico'};
+  box.innerHTML='<button class="btn btn-sec" style="margin-bottom:12px" onclick="tab(\'plantel\')">← Voltar ao plantel</button>'
+    +'<div class="h" style="margin-bottom:12px">'+esc(d.nome)+' <span style="color:var(--gold)">'+esc(d.escalao||'')+'</span></div>'
+    +'<div class="ficha-paineis">'
+    +'<div class="card"><div class="h">Dados <span style="color:var(--gold)">pessoais</span></div>'
+      +'<div class="s">Idade: '+(d.idade||'—')+' anos</div>'
+      +'<div class="s">Posição: '+esc(d.posicao||'—')+'</div>'
+      +'<div class="s">Estado: '+esc(d.estado)+'</div>'
+      +(d.rating_geral?('<div class="s">Rating YTB: '+esc(d.rating_geral)+'</div>'):'')+'</div>'
+    +'<div class="card"><div class="h">Contacto <span style="color:var(--gold)">da família</span></div>'
+      +(r.pode_ver_documentos
+        ? (d.encarregado_email?('<div class="s">'+esc(d.encarregado_email)+'</div>') : '<div class="s">Sem email de encarregado registado.</div>')
+        : '<div class="s">Só visível para admin e secretaria.</div>')+'</div>'
+    +'<div class="card ficha-full"><div class="h">Equipas <span style="color:var(--gold)">e época</span></div>'
+      +(r.equipas&&r.equipas.length ? r.equipas.map(function(e){
+          return '<div class="s">'+esc(e.equipa_nome)+' · '+esc(e.epoca)+(e.numero?(' · #'+e.numero):'')+(e.posicao?(' · '+esc(e.posicao)):'')+'</div>';
+        }).join('') : '<div class="s">Sem equipa atribuída.</div>')+'</div>'
+    +'<div class="card"><div class="h">Histórico <span style="color:var(--gold)">desportivo</span></div>'
+      +'<div class="s">Jogos: '+r.jogos+'</div><div class="s">Minutos: '+r.minutos+'</div></div>'
+    +'<div class="card"><div class="h">Documentos</div>'
+      +(!r.pode_ver_documentos ? '<div class="s">Só visível para admin e secretaria.</div>'
+        : (r.documentos&&r.documentos.length ? r.documentos.map(function(doc){
+            return '<div class="s">'+(ROTULO_DOC[doc.tipo]||doc.tipo)+' — '+esc(doc.nome_ficheiro)+'</div>';
+          }).join('') : '<div class="s">Ainda sem documentos.</div>'))+'</div>'
+    +'</div>';
+};
 
 /* ══════ NAVEGAÇÃO ══════ */
 var TABS=[['equipas','Equipas'],['plantel','Plantel'],['jogos','Jogos'],['treinos','Treinos'],['prancheta','Prancheta'],['avaliar','Avaliar'],['retorno','Retorno']];

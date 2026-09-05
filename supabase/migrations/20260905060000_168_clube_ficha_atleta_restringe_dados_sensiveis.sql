@@ -1,0 +1,3 @@
+-- 168: documentos e contacto do encarregado restritos a admin/
+-- secretaria na ficha do atleta. Corpo integral no historico
+-- Supabase (168).
