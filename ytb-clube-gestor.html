@@ -1875,7 +1875,10 @@ function mostrarFecharSessao(sessaoId){
   box.innerHTML='<div class="card"><div class="h">Sessão <span style="color:var(--gold)">realizada?</span></div>'
     +'<div class="s">Quando o treino já tiver acontecido, marca presenças e deixa uma observação — isto fica no histórico da equipa.</div>'
     +'<div id="fs-presencas">'+plantelDaEquipa.map(function(p){
-      return '<label style="display:flex;align-items:center;gap:8px;padding:6px 0"><input type="checkbox" checked value="'+p.atleta_id+'" data-nome="'+esc(p.nome)+'"> '+esc(p.nome)+'</label>';
+      return '<div style="padding:6px 0;border-bottom:1px solid var(--border)">'
+        +'<label style="display:flex;align-items:center;gap:8px"><input type="checkbox" checked class="fs-presenca" value="'+p.atleta_id+'" data-nome="'+esc(p.nome)+'"> '+esc(p.nome)+'</label>'
+        +'<input class="input" data-nota-atleta="'+p.atleta_id+'" placeholder="Nota individual (opcional) — fica no histórico de evolução do atleta" style="margin:6px 0 0;font-size:13px">'
+        +'</div>';
     }).join('')+'</div>'
     +'<label class="label">Objetivo atingido?</label><div class="chips" id="fs-objetivo">'
     +[['sim','Sim'],['parcial','Parcial'],['nao','Não']].map(function(o,i){return '<button class="chip'+(i===1?' on':'')+'" data-v="'+o[0]+'" onclick="document.querySelectorAll(\'#fs-objetivo .chip\').forEach(function(b){b.classList.remove(\'on\')});this.classList.add(\'on\')">'+o[1]+'</button>';}).join('')
@@ -1885,11 +1888,12 @@ function mostrarFecharSessao(sessaoId){
     +'<button class="btn" onclick="fecharSessaoAgora(\''+sessaoId+'\')">Fechar sessão →</button></div>';
 }
 window.fecharSessaoAgora=async function(sessaoId){
-  var presencas=Array.prototype.slice.call(document.querySelectorAll('#fs-presencas input')).map(function(i){return {atleta_id:i.value, presente:i.checked};});
+  var presencas=Array.prototype.slice.call(document.querySelectorAll('.fs-presenca')).map(function(i){return {atleta_id:i.value, presente:i.checked};});
+  var notasIndividuais=Array.prototype.slice.call(document.querySelectorAll('[data-nota-atleta]')).map(function(i){return {atleta_id:i.getAttribute('data-nota-atleta'), nota:i.value};}).filter(function(n){return n.nota.trim();});
   var objetivo=(document.querySelector('#fs-objetivo .chip.on')||{}).getAttribute?document.querySelector('#fs-objetivo .chip.on').getAttribute('data-v'):'parcial';
   var obs=(document.getElementById('fs-obs').value||'').trim();
   var proximo=(document.getElementById('fs-proximo').value||'').trim();
-  const {data:r}=await supa.rpc('ytb_clube_sessao_fechar',{p_sessao_id:sessaoId,p_presencas:presencas,p_objetivo_atingido:objetivo,p_observacoes_equipa:obs||null,p_atletas_atencao:null,p_proximo_objetivo:proximo||null});
+  const {data:r}=await supa.rpc('ytb_clube_sessao_fechar',{p_sessao_id:sessaoId,p_presencas:presencas,p_objetivo_atingido:objetivo,p_observacoes_equipa:obs||null,p_atletas_atencao:null,p_proximo_objetivo:proximo||null,p_notas_individuais:notasIndividuais.length?notasIndividuais:null});
   if(!r||!r.ok){ toast('⚠ Não foi possível: '+((r&&r.motivo)||'erro')); return; }
   toast('✓ Sessão fechada — fica no histórico');
   document.getElementById('fechar-sessao-area').innerHTML='<div class="card"><div class="s">✓ Sessão registada no histórico da equipa.</div></div>';
@@ -3766,8 +3770,12 @@ window.abrirFichaAtleta=async function(atletaId){
   tab('ficha');
   const box=document.getElementById('sec-ficha');
   box.innerHTML='<div class="card"><div class="s">A carregar…</div></div>';
-  const {data:r}=await supa.rpc('ytb_clube_ficha_atleta',{p_atleta_id:atletaId});
+  const [{data:r},{data:rDev}]=await Promise.all([
+    supa.rpc('ytb_clube_ficha_atleta',{p_atleta_id:atletaId}),
+    supa.rpc('ytb_clube_atleta_desenvolvimento',{p_atleta_id:atletaId})
+  ]);
   if(!r||!r.ok){ box.innerHTML='<div class="card"><div class="s">⚠ Não foi possível carregar ('+((r&&r.motivo)||'erro')+').</div></div>'; return; }
+  var historicoDev=(rDev&&rDev.ok&&rDev.historico)||[];
   var d=r.dados;
   var ROTULO_DOC={cc:'CC do atleta',cc_encarregado:'CC do encarregado',foto:'Foto',modelo2:'Modelo 2',exame_medico:'Exame médico'};
   box.innerHTML='<button class="btn btn-sec" style="margin-bottom:12px" onclick="tab(\'plantel\')">← Voltar ao plantel</button>'
@@ -3788,6 +3796,11 @@ window.abrirFichaAtleta=async function(atletaId){
         }).join('') : '<div class="s">Sem equipa atribuída.</div>')+'</div>'
     +'<div class="card"><div class="h">Histórico <span style="color:var(--gold)">desportivo</span></div>'
       +'<div class="s">Jogos: '+r.jogos+'</div><div class="s">Minutos: '+r.minutos+'</div></div>'
+    +'<div class="card ficha-full"><div class="h">Evolução <span style="color:var(--gold)">ao longo do tempo</span></div>'
+      +'<div class="s">Notas do treinador em cada treino fechado — a história de desenvolvimento do atleta.</div>'
+      +(historicoDev.length ? historicoDev.map(function(h){
+          return '<div style="padding:8px 0;border-bottom:1px solid var(--border)"><div class="s" style="margin:0;color:var(--muted)">'+esc(h.data_sessao)+' · '+esc(h.foco||'')+'</div><div style="font-size:13px;margin-top:2px">'+esc(h.nota)+'</div></div>';
+        }).join('') : '<div class="s">Ainda sem notas de evolução — aparecem aqui quando um treino com este atleta for fechado com uma observação individual.</div>')+'</div>'
     +'<div class="card"><div class="h">Documentos</div>'
       +(!r.pode_ver_documentos ? '<div class="s">Só visível para admin e secretaria.</div>'
         : (r.documentos&&r.documentos.length ? r.documentos.map(function(doc){

@@ -1,0 +1,2 @@
+-- 175: notas individuais por atleta em cada sessao, e historico de
+-- desenvolvimento. Corpo integral no historico Supabase (175).
