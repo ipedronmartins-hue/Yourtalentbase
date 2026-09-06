@@ -21,7 +21,7 @@ body{padding-bottom:60px}
    Regra: mesma app, mesmos dados, mesmas permissoes — so a composicao muda. */
 .nav{position:sticky;top:0;z-index:100;background:rgba(8,12,8,.97);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:13px 18px;display:flex;align-items:center;justify-content:space-between}
 .nav-title{font-family:'Barlow Condensed';font-weight:900;font-size:18px;letter-spacing:.3px}
-.nav-title span{color:var(--gold)}
+.nav-title span{color:var(--acento-marca,var(--gold))}
 .nav-logout{font-size:11px;color:var(--red);cursor:pointer;background:none;border:none;font-family:inherit;display:none}
 .login-wrap{padding:50px 22px 0;text-align:center}
 .login-icon{font-size:56px;margin-bottom:14px}
@@ -38,7 +38,7 @@ body{padding-bottom:60px}
 .s{font-size:13px;color:var(--slate);line-height:1.5;margin-bottom:10px}
 .tabs{display:flex;gap:6px;margin:14px 0;overflow-x:auto;padding:0 14px 2px}
 .tab{flex:0 0 auto;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px 16px;color:var(--slate);font-family:'Barlow Condensed';font-weight:900;font-size:14px;letter-spacing:.3px;cursor:pointer;white-space:nowrap}
-.tab.on{border-color:var(--gold);color:var(--gold);background:var(--gold-soft)}
+.tab.on{border-color:var(--acento-marca,var(--gold));color:var(--acento-marca,var(--gold));background:var(--gold-soft)}
 .content{padding:0 14px}
 .sec{display:none}
 .sec.on{display:block}
@@ -567,14 +567,10 @@ function hexParaRgb(hex){
 function aplicarMarcaClube(clube){
   if(!clube||!clube.cor_primaria) return; // sem marca definida: mantém as cores YTB por defeito
   var raiz=document.documentElement.style;
-  var rgb=hexParaRgb(clube.cor_primaria);
-  raiz.setProperty('--gold', clube.cor_primaria);
-  raiz.setProperty('--gold-bright', clube.cor_primaria);
-  if(rgb){
-    raiz.setProperty('--gold-soft', 'rgba('+rgb+',.14)');
-    raiz.setProperty('--gold-border', 'rgba('+rgb+',.32)');
-  }
-  if(clube.cor_secundaria) raiz.setProperty('--gold-secundario', clube.cor_secundaria);
+  // a cor do clube fica contida a um único ponto de identidade (aba ativa + nome no
+  // cabeçalho) — o resto da interface mantém-se no dourado neutro, testado e estável.
+  // Espalhar a cor do clube por todos os botões/abas/títulos fica pesado e cansa a vista.
+  raiz.setProperty('--acento-marca', clube.cor_primaria);
 }
 function pedirNomeMembro(){
   document.getElementById('main').innerHTML='<div class="login-wrap" style="padding-top:60px">'
