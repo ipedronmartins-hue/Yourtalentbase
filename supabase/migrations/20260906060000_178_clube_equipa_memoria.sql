@@ -1,0 +1,2 @@
+-- 178: memoria da equipa -- ultimo objetivo recomendado e atletas
+-- recorrentes em atencao. Corpo integral no historico Supabase (178).

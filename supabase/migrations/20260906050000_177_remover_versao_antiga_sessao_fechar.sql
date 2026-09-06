@@ -1,0 +1,2 @@
+-- 177: remove a versao antiga duplicada de ytb_clube_sessao_fechar.
+-- Corpo integral no historico Supabase (177).

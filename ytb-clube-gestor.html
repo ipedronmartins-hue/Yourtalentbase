@@ -1933,6 +1933,7 @@ function pintarTreinos(){
   const box=document.getElementById('sec-treinos');
   if(!equipaAtiva){ box.innerHTML='<div class="card"><div class="s">Escolhe uma equipa na aba Equipas primeiro.</div></div>'; return; }
   box.innerHTML='<div id="planeamento-area"><div class="card"><div class="s">A carregar planeamento…</div></div></div>'
+    +'<div id="memoria-equipa-area"></div>'
     +'<div class="treino-zonas">'
     +'<div>'
     +'<div class="card">'
@@ -1968,6 +1969,26 @@ function pintarTreinos(){
   pintarRecentesLista();
   carregarHistoricoSessoes();
   carregarPlaneamento();
+  carregarMemoriaEquipa();
+}
+async function carregarMemoriaEquipa(){
+  const {data:r}=await supa.rpc('ytb_clube_equipa_memoria',{p_equipa_id:equipaAtiva.id});
+  var box=document.getElementById('memoria-equipa-area');
+  if(!box) return;
+  if(!r||!r.ok||(!r.ultimo_objetivo&&!r.atletas_recorrentes.length)){ box.innerHTML=''; return; }
+  var html='<div class="card" style="border-color:var(--gold-border,var(--gold))">';
+  if(r.ultimo_objetivo){
+    html+='<div class="h" style="margin-bottom:4px">📋 Da última sessão fechada</div>'
+      +'<div class="s" style="margin-bottom:0">"'+esc(r.ultimo_objetivo.titulo)+'" ('+esc(r.ultimo_objetivo.data_sessao)+') recomendou: <b style="color:var(--white)">'+esc(r.ultimo_objetivo.proximo_objetivo)+'</b></div>';
+  }
+  if(r.atletas_recorrentes.length){
+    html+='<div class="h" style="margin:'+(r.ultimo_objetivo?'12px':'0')+' 0 4px">⚠ Padrão a acompanhar</div>'
+      +r.atletas_recorrentes.map(function(a){
+        return '<div class="s" style="margin-bottom:0">'+esc(a.nome)+' apareceu em atenção em <b style="color:var(--white)">'+a.n_vezes+'</b> sessões — vale a pena olhar com mais cuidado.</div>';
+      }).join('');
+  }
+  html+='</div>';
+  box.innerHTML=html;
 }
 async function carregarPlaneamento(){
   var epoca=equipaAtiva.epoca||'2026/27';
