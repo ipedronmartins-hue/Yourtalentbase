@@ -1444,6 +1444,25 @@ function guardarTaticaEscolhida(v){SEL.tatica=v;try{localStorage.setItem(LS_TATI
 var ESCALOES=['Sub-10','Sub-11','Sub-12','Sub-13','Sub-15','Sub-17','Sub-19','Seniores'];
 var MATERIAIS=[['bolas','⚽ Bolas'],['coletes','🎽 Coletes'],['cones','🔺 Cones'],['balizas','🥅 Balizas pequenas'],['escada','🪜 Escada'],['barreiras','🚧 Barreiras']];
 var FOCOS=[['posse','Posse'],['finalizacao','Finalização'],['transicao','Transições'],['defesa','Defesa'],['fisico','Físico'],['jogo','Jogo']];
+// correspondência por palavras-chave (determinística, não é IA) entre o texto livre do
+// "próximo objetivo" recomendado e uma das categorias reais de foco -- sempre visível
+// e sempre alterável pelo treinador, nunca aplicada às escondidas.
+var PALAVRAS_FOCO={
+  posse:['posse','circula','receç','passe curto','manter a bola'],
+  finalizacao:['finaliza','remate','golo','acabar a jogada'],
+  transicao:['transiç','contra-ataque','recuperar a bola','perder a posse'],
+  defesa:['defes','marcaç','sair da pressão','sob pressão'],
+  fisico:['trabalho físico','condição física','resistência física','velocidade de'],
+  jogo:['situação de jogo','competitiv','jogo reduzido']
+};
+function sugerirFocoDeObjetivo(texto){
+  if(!texto) return null;
+  var t=texto.toLowerCase();
+  for(var foco in PALAVRAS_FOCO){
+    if(PALAVRAS_FOCO[foco].some(function(p){return t.indexOf(p)>=0;})) return foco;
+  }
+  return null;
+}
 
 /* ══════════════════════════════════════════════════════════════════
    BANCO DE EXERCÍCIOS DE EQUIPA — 85 exercícios reais, por escalão
@@ -2025,10 +2044,16 @@ async function carregarMemoriaEquipa(){
   var box=document.getElementById('memoria-equipa-area');
   if(!box) return;
   if(!r||!r.ok||(!r.ultimo_objetivo&&!(r.atletas_recorrentes||[]).length)){ box.innerHTML=''; return; }
+  var focoSugerido=r.ultimo_objetivo?sugerirFocoDeObjetivo(r.ultimo_objetivo.proximo_objetivo):null;
+  if(focoSugerido && focoSugerido!==SEL.foco){
+    SEL.foco=focoSugerido;
+    chips('c-foco',FOCOS,function(){return SEL.foco},function(v){SEL.foco=v}); // re-desenha os chips já com a sugestão pré-selecionada
+  }
   var html='<div class="card" style="border-color:var(--gold-border,var(--gold))">';
   if(r.ultimo_objetivo){
     html+='<div class="h" style="margin-bottom:4px">📋 Da última sessão fechada</div>'
-      +'<div class="s" style="margin-bottom:0">"'+esc(r.ultimo_objetivo.titulo)+'" ('+esc(r.ultimo_objetivo.data_sessao)+') recomendou: <b style="color:var(--white)">'+esc(r.ultimo_objetivo.proximo_objetivo)+'</b></div>';
+      +'<div class="s" style="margin-bottom:0">"'+esc(r.ultimo_objetivo.titulo)+'" ('+esc(r.ultimo_objetivo.data_sessao)+') recomendou: <b style="color:var(--white)">'+esc(r.ultimo_objetivo.proximo_objetivo)+'</b></div>'
+      +(focoSugerido?'<div class="s" style="margin:4px 0 0;color:var(--gold)">✓ Foco "'+esc((FOCOS.find(function(f){return f[0]===focoSugerido;})||[,focoSugerido])[1])+'" pré-selecionado a partir disto — muda se preferires outro.</div>':'');
   }
   if((r.atletas_recorrentes||[]).length){
     html+='<div class="h" style="margin:'+(r.ultimo_objetivo?'12px':'0')+' 0 4px">⚠ Padrão a acompanhar</div>'
