@@ -2786,6 +2786,7 @@ function pintarAvaliar(){
     return;
   }
   box.innerHTML='<div class="card"><button class="btn btn-sec" style="margin-bottom:12px" onclick="atletaSel=null;pintarAvaliar();">← Escolher outro atleta</button>'
+    +'<div class="s" style="color:var(--muted);margin-bottom:2px">'+esc(meuClube.nome||'')+'</div>'
     +'<div class="h">Avaliação <span>técnica</span></div>'
     +'<div class="s" id="avaliar-sub"></div>'
     +'<div id="avaliar-area"></div></div>';
@@ -3220,7 +3221,7 @@ function renderReport(){
     <div class="r-header-badge">YT</div>
     <div>
       <div class="r-header-name">YOUR<span>TALENT</span>BASE</div>
-      <div class="r-header-sub">Scouting · Porto · Portugal</div>
+      <div class="r-header-sub">${(window.meuClube&&meuClube.nome)?esc(meuClube.nome):'Scouting · Porto · Portugal'}</div>
     </div>
   </div>
   <div class="r-header-right">
@@ -3633,6 +3634,7 @@ async function pintarSocios(){
           +'<span>#'+s.numero_socio+' — '+esc(s.nome)+(s.telefone?(' · '+esc(s.telefone)):'')+'</span>'
           +'<span class="pill '+(s.estado==='ativo'?'pill-verde':'pill-vermelho')+'">'+esc(s.estado)+'</span></div>';
       }).join('') : '<div class="s">Ainda sem sócios registados.</div>')
+    +(listaSocios.length?'<button class="btn btn-sec" style="margin-top:12px" onclick="exportarListaSocios()">📄 Exportar lista de sócios</button>':'')
     +'</div>'
     +'<div class="card"><div class="h">Novo <span style="color:var(--gold)">sócio</span></div>'
     +'<label class="label">Nome</label><input class="input" id="soc-nome">'
@@ -3646,6 +3648,36 @@ async function pintarSocios(){
     +'<div id="qt-lista" style="margin-top:12px"></div></div>';
   await carregarQuotasMes();
 }
+window.exportarListaQuotas=function(){
+  var c=window.__quotasCache; if(!c||!c.docs.length) return;
+  var totalValor=c.docs.reduce(function(s,q){return s+Number(q.valor);},0);
+  var pagas=c.docs.filter(function(q){return q.pago;}).length;
+  document.getElementById('report-canvas').innerHTML=
+    '<div style="max-width:600px;margin:40px auto;padding:32px;background:#fff;color:#111;border-radius:12px;font-family:sans-serif">'
+    +cabecalhoInstitucional('Quotas — '+c.periodo, totalValor.toFixed(2)+'€ no total · '+pagas+'/'+c.docs.length+' pagas')
+    +'<table style="width:100%;border-collapse:collapse;font-size:13px">'
+    +'<thead><tr style="border-bottom:2px solid #ddd;text-align:left"><th style="padding:6px 4px">Nº</th><th style="padding:6px 4px">Sócio</th><th style="padding:6px 4px">Valor</th><th style="padding:6px 4px">Estado</th></tr></thead>'
+    +'<tbody>'+c.docs.map(function(q){
+      return '<tr style="border-bottom:1px solid #eee"><td style="padding:6px 4px">'+q.numero_socio+'</td><td style="padding:6px 4px">'+esc(q.nome)+'</td>'
+        +'<td style="padding:6px 4px">'+q.valor+'€</td><td style="padding:6px 4px">'+(q.pago?'Pago':'Pendente')+'</td></tr>';
+    }).join('')+'</tbody></table>'
+    +'</div>';
+  document.getElementById('reportModal').classList.add('show');
+};
+window.exportarListaSocios=function(){
+  var ativos=listaSocios.filter(function(s){return s.estado==='ativo';}).length;
+  document.getElementById('report-canvas').innerHTML=
+    '<div style="max-width:600px;margin:40px auto;padding:32px;background:#fff;color:#111;border-radius:12px;font-family:sans-serif">'
+    +cabecalhoInstitucional('Lista de Sócios', listaSocios.length+' sócios · '+ativos+' ativos · '+new Date().toLocaleDateString('pt-PT'))
+    +'<table style="width:100%;border-collapse:collapse;font-size:13px">'
+    +'<thead><tr style="border-bottom:2px solid #ddd;text-align:left"><th style="padding:6px 4px">Nº</th><th style="padding:6px 4px">Nome</th><th style="padding:6px 4px">Contacto</th><th style="padding:6px 4px">Estado</th></tr></thead>'
+    +'<tbody>'+listaSocios.map(function(s){
+      return '<tr style="border-bottom:1px solid #eee"><td style="padding:6px 4px">'+s.numero_socio+'</td><td style="padding:6px 4px">'+esc(s.nome)+'</td>'
+        +'<td style="padding:6px 4px">'+esc(s.telefone||s.email||'—')+'</td><td style="padding:6px 4px">'+esc(s.estado)+'</td></tr>';
+    }).join('')+'</tbody></table>'
+    +'</div>';
+  document.getElementById('reportModal').classList.add('show');
+};
 window.criarSocio=async function(){
   var nome=(document.getElementById('soc-nome').value||'').trim();
   var email=(document.getElementById('soc-email').value||'').trim();
@@ -3672,6 +3704,7 @@ window.carregarQuotasMes=async function(){
   const {data:r}=await supa.rpc('ytb_clube_quotas_listar',{p_clube_id:meuClube.clube_id,p_periodo:periodo});
   var lista=document.getElementById('qt-lista');
   var docs=(r&&r.ok&&r.lista)||[];
+  window.__quotasCache={docs:docs, periodo:periodo};
   var totalValor=docs.reduce(function(s,q){return s+Number(q.valor);},0);
   var pagas=docs.filter(function(q){return q.pago;});
   var pendentes=docs.filter(function(q){return !q.pago;});
@@ -3683,6 +3716,7 @@ window.carregarQuotasMes=async function(){
     +'</div>' : '';
   var filtroHtml=docs.length ? '<div class="chips" style="margin-bottom:12px">'
     +[['todas','Todas'],['pendentes','Pendentes'],['pagas','Pagas']].map(function(o){return '<button class="chip'+(quotasFiltro===o[0]?' on':'')+'" onclick="quotasFiltro=\''+o[0]+'\';carregarQuotasMes()">'+o[1]+'</button>';}).join('')
+    +(docs.length?'<button class="chip" onclick="exportarListaQuotas()">📄 Exportar</button>':'')
     +'</div>' : '';
   lista.innerHTML=resumoHtml+filtroHtml+(visiveis.length ? visiveis.map(function(q){
     return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px">'
@@ -3768,8 +3802,8 @@ window.verRecibo=function(id){
   if(!rb) return;
   document.getElementById('report-canvas').innerHTML=
     '<div style="max-width:480px;margin:40px auto;padding:32px;background:#fff;color:#111;border-radius:12px;font-family:sans-serif">'
-    +'<div style="text-align:center;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#999;margin-bottom:4px">Recibo Nº '+rb.numero_recibo+'</div>'
-    +'<h2 style="text-align:center;margin:0 0 24px">'+esc(meuClube.nome||'Clube')+'</h2>'
+    +'<div style="text-align:center;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#999;margin-bottom:12px">Recibo Nº '+rb.numero_recibo+'</div>'
+    +cabecalhoInstitucional('Recibo')
     +'<p><b>Pago por:</b> '+esc(rb.nome_pagador)+'</p>'
     +'<p><b>Referente a:</b> '+esc(rb.descricao)+'</p>'
     +'<p><b>Valor:</b> '+rb.valor+' €</p>'
@@ -3949,6 +3983,18 @@ window.definirEstadoRequisitoFPF=async function(avaliacaoId, requisitoId, estado
   toast('✓ Estado atualizado');
   abrirCriterioFPF(avId2,critId2,nomeCriterio);
 };
+
+/* ══════ CABEÇALHO INSTITUCIONAL (reutilizado em relatórios/exportações) ══════ */
+function cabecalhoInstitucional(titulo, subtitulo){
+  var nomeLegal = meuClube.nome_legal && meuClube.nome_legal!==meuClube.nome ? esc(meuClube.nome_legal) : '';
+  return '<div style="text-align:center;margin-bottom:20px;padding-bottom:16px;border-bottom:2px solid #eee">'
+    +'<div style="font-size:18px;font-weight:800">'+esc(meuClube.nome||'Clube')+'</div>'
+    +(nomeLegal?('<div style="font-size:11px;color:#888;margin-top:2px">'+nomeLegal+'</div>'):'')
+    +(meuClube.endereco?('<div style="font-size:10px;color:#aaa;margin-top:2px">'+esc(meuClube.endereco)+'</div>'):'')
+    +'<div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-top:10px">'+esc(titulo)+'</div>'
+    +(subtitulo?('<div style="font-size:11px;color:#888;margin-top:2px">'+esc(subtitulo)+'</div>'):'')
+    +'</div>';
+}
 
 /* ══════ NAVEGAÇÃO ══════ */
 var TABS=[['equipas','Equipas'],['plantel','Plantel'],['jogos','Jogos'],['treinos','Treinos'],['prancheta','Prancheta'],['avaliar','Avaliar'],['retorno','Retorno']];
