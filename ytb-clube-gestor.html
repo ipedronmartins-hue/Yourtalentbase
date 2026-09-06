@@ -1932,7 +1932,8 @@ function guardarMicro(){
 function pintarTreinos(){
   const box=document.getElementById('sec-treinos');
   if(!equipaAtiva){ box.innerHTML='<div class="card"><div class="s">Escolhe uma equipa na aba Equipas primeiro.</div></div>'; return; }
-  box.innerHTML='<div class="treino-zonas">'
+  box.innerHTML='<div id="planeamento-area"><div class="card"><div class="s">A carregar planeamento…</div></div></div>'
+    +'<div class="treino-zonas">'
     +'<div>'
     +'<div class="card">'
     +'<div class="h">Gerar <span style="color:var(--gold)">sessão de treino</span></div>'
@@ -1966,7 +1967,51 @@ function pintarTreinos(){
   carregarFavoritosExercicios();
   pintarRecentesLista();
   carregarHistoricoSessoes();
+  carregarPlaneamento();
 }
+async function carregarPlaneamento(){
+  var epoca=equipaAtiva.epoca||'2026/27';
+  const {data:r}=await supa.rpc('ytb_clube_planeamento_obter',{p_equipa_id:equipaAtiva.id,p_epoca:epoca});
+  var box=document.getElementById('planeamento-area');
+  if(!box) return;
+  if(!r||!r.ok){ box.innerHTML='<div class="card"><div class="s">⚠ Não foi possível carregar o planeamento.</div></div>'; return; }
+  if(!r.existe){
+    box.innerHTML='<div class="card"><div class="h">Planeamento <span style="color:var(--gold)">anual</span></div>'
+      +'<div class="s">O plano da época inteira, dividido em fases — distinto do microciclo (semanal). Fica como referência ao longo do ano.</div>'
+      +'<label class="label">Objetivos gerais da época</label><textarea class="input" id="pa-objetivos" rows="2" placeholder="Ex: Consolidar a posse de bola e a saída organizada"></textarea>'
+      +'<button class="btn btn-sec" onclick="criarPlaneamento(\''+esc(epoca)+'\')">Criar plano da época →</button></div>';
+    return;
+  }
+  box.innerHTML='<div class="card"><div class="h">Planeamento <span style="color:var(--gold)">anual · '+esc(epoca)+'</span></div>'
+    +(r.plano.objetivos_gerais?('<div class="s">'+esc(r.plano.objetivos_gerais)+'</div>'):'')
+    +(r.periodos.length ? r.periodos.map(function(p){
+        return '<div style="padding:8px 0;border-bottom:1px solid var(--border)"><b style="font-size:13px">'+esc(p.nome)+'</b>'
+          +'<div class="s" style="margin:2px 0 0">'+esc(p.data_inicio)+' a '+esc(p.data_fim)+(p.foco?(' · '+esc(p.foco)):'')+'</div></div>';
+      }).join('') : '<div class="s">Ainda sem fases definidas.</div>')
+    +'<label class="label" style="margin-top:10px">Nova fase</label>'
+    +'<input class="input" id="pa-nome" placeholder="Ex: Pré-época">'
+    +'<div class="grid2"><div><label class="label">Início</label><input class="input" id="pa-inicio" type="date"></div><div><label class="label">Fim</label><input class="input" id="pa-fim" type="date"></div></div>'
+    +'<input class="input" id="pa-foco" placeholder="Foco desta fase (opcional)">'
+    +'<button class="btn btn-sec" onclick="adicionarPeriodoPlaneamento(\''+r.plano.id+'\',\''+esc(epoca)+'\')">Adicionar fase →</button></div>';
+}
+window.criarPlaneamento=async function(epoca){
+  var objetivos=(document.getElementById('pa-objetivos').value||'').trim();
+  const {data:r}=await supa.rpc('ytb_clube_planeamento_criar',{p_equipa_id:equipaAtiva.id,p_epoca:epoca,p_objetivos_gerais:objetivos||null});
+  if(!r||!r.ok){ toast('⚠ Não foi possível: '+((r&&r.motivo)||'erro')); return; }
+  toast('✓ Plano da época criado');
+  carregarPlaneamento();
+};
+window.adicionarPeriodoPlaneamento=async function(planeamentoId, epoca){
+  var nome=(document.getElementById('pa-nome').value||'').trim();
+  var inicio=document.getElementById('pa-inicio').value;
+  var fim=document.getElementById('pa-fim').value;
+  var foco=(document.getElementById('pa-foco').value||'').trim();
+  if(!nome||!inicio||!fim){ toast('Falta o nome ou as datas'); return; }
+  const {data:r}=await supa.rpc('ytb_clube_planeamento_periodo_adicionar',{p_planeamento_id:planeamentoId,p_nome:nome,p_inicio:inicio,p_fim:fim,p_foco:foco||null});
+  if(!r||!r.ok){ toast('⚠ Não foi possível: '+((r&&r.motivo)||'erro')); return; }
+  toast('✓ Fase adicionada');
+  carregarPlaneamento();
+};
 async function carregarHistoricoSessoes(){
   if(!equipaAtiva) return;
   const {data:r}=await supa.rpc('ytb_clube_sessoes_listar',{p_equipa_id:equipaAtiva.id,p_limite:15});
