@@ -1646,7 +1646,41 @@ function escolher(lista,n){
   pont.sort(function(a,b){return a.score-b.score;});
   return pont.slice(0,Math.max(0,n)).map(function(p){return p.d;});
 }
-function drillParaBloco(d){return {id:d.id,nome:d.nome,organizacao:d.org||'',instrucoes:(d.foco?d.foco+'. ':'')+(d.obs||''),tempo:d.min};}
+/* ══════ CAMADA METODOLÓGICA ══════
+   Estrutura própria da YTB, inspirada nos princípios publicamente
+   documentados sobre desenvolvimento centrado no jogador (perceção →
+   decisão → execução → feedback → progressão). NUNCA afirma ser
+   "metodologia oficial" de nenhum clube -- deriva os campos a partir
+   de regras gerais e dos dados reais de cada exercício (foco,
+   intensidade, organização), nunca inventando conteúdo específico
+   por exercício que não exista já no banco. */
+function derivarMomentoDecisao(d){
+  var obs=d.obs||'';
+  if(/decis|decide|escolh/i.test(obs)) return obs; // o exercício já descreve o momento de decisão real
+  return 'Antes de agir, o atleta tem de ler o espaço/adversário e escolher a melhor opção — não repetir o gesto sempre da mesma forma.';
+}
+function derivarPontoIntervencao(d){
+  var foco=d.foco||'a ação técnica';
+  return 'Interrompe só quando a decisão for visivelmente errada, não quando a execução falhar — o objetivo é '+foco+', não a perfeição do gesto.';
+}
+function derivarProgressaoRegressao(d){
+  var intAtual=d.int||d.intensidade||1;
+  var progressao, regressao;
+  if(intAtual>=3){ progressao='Reduzir o tempo de decisão ou acrescentar mais um jogador em oposição.'; }
+  else { progressao='Aumentar a pressão do adversário ou reduzir o espaço disponível.'; }
+  regressao='Alargar o espaço, reduzir a oposição, ou dar mais tempo antes da decisão.';
+  return {progressao:progressao, regressao:regressao};
+}
+function derivarCriterioSucesso(d){
+  var foco=d.foco||'o objetivo do exercício';
+  return 'Cumpre quando consegue '+foco+' de forma consistente sob pressão real, não só quando o exercício corre sem oposição.';
+}
+function drillParaBloco(d){
+  var pr=derivarProgressaoRegressao(d);
+  return {id:d.id,nome:d.nome,organizacao:d.org||'',instrucoes:(d.foco?d.foco+'. ':'')+(d.obs||''),tempo:d.min,
+    momento_decisao:derivarMomentoDecisao(d), ponto_intervencao:derivarPontoIntervencao(d),
+    progressao:pr.progressao, regressao:pr.regressao, criterio_sucesso:derivarCriterioSucesso(d)};
+}
 
 /* — plano semanal: cada dia cobre áreas de conteúdo diferentes e
    complementares (nunca tudo espremido numa sessão só) — */
@@ -1838,7 +1872,16 @@ function renderSessao(plano,mount){
         +(e.id?' <span onclick="toggleFavoritoExercicio(\''+e.id+'\')" style="cursor:pointer;color:'+(fav?'var(--gold)':'var(--muted)')+';font-size:14px">'+(fav?'★':'☆')+'</span>':'')
         +'</div>'
         +(e.organizacao?'<div class="eo">📐 '+esc(e.organizacao)+'</div>':'')
-        +(e.instrucoes?'<div class="ed">'+esc(e.instrucoes)+'</div>':'')+'</div>';
+        +(e.instrucoes?'<div class="ed">'+esc(e.instrucoes)+'</div>':'')
+        +(e.momento_decisao?('<details style="margin-top:6px"><summary style="cursor:pointer;color:var(--muted);font-size:12px">▸ Metodologia</summary>'
+          +'<div style="font-size:12px;color:var(--slate);margin-top:6px;line-height:1.5">'
+          +'<div><b style="color:var(--white)">Momento de decisão:</b> '+esc(e.momento_decisao)+'</div>'
+          +'<div style="margin-top:4px"><b style="color:var(--white)">Intervenção:</b> '+esc(e.ponto_intervencao)+'</div>'
+          +'<div style="margin-top:4px"><b style="color:var(--white)">Progressão:</b> '+esc(e.progressao)+'</div>'
+          +'<div style="margin-top:4px"><b style="color:var(--white)">Regressão:</b> '+esc(e.regressao)+'</div>'
+          +'<div style="margin-top:4px"><b style="color:var(--white)">Critério de sucesso:</b> '+esc(e.criterio_sucesso)+'</div>'
+          +'</div></details>'):'')
+        +'</div>';
     });
     h+='</div>';
   });
@@ -1904,7 +1947,17 @@ function gerarMicro(){
     var out=dias.map(function(d){return {plano:montarSessao(d),dia:d};});
     var h='';out.forEach(function(o){var tot=(o.plano.blocos||[]).reduce(function(s,x){return s+(x.min||0);},0);
       h+='<div class="card"><div class="h">'+esc(o.dia)+' · '+esc(o.plano.titulo||'')+'</div><div class="s">'+tot+' min · 📚 banco CoachBase</div>';
-      (o.plano.blocos||[]).forEach(function(bl){h+='<div class="bloco"><div class="bt">'+esc(bl.nome)+' · '+(bl.min||0)+'′</div>';(bl.exercicios||[]).forEach(function(e){h+='<div class="ex"><div class="en">'+esc(e.nome)+'</div>'+(e.instrucoes?'<div class="ed">'+esc(e.instrucoes)+'</div>':'')+'</div>';});h+='</div>';});
+      (o.plano.blocos||[]).forEach(function(bl){h+='<div class="bloco"><div class="bt">'+esc(bl.nome)+' · '+(bl.min||0)+'′</div>';(bl.exercicios||[]).forEach(function(e){
+        h+='<div class="ex"><div class="en">'+esc(e.nome)+'</div>'+(e.instrucoes?'<div class="ed">'+esc(e.instrucoes)+'</div>':'')
+          +(e.momento_decisao?('<details style="margin-top:6px"><summary style="cursor:pointer;color:var(--muted);font-size:12px">▸ Metodologia</summary>'
+            +'<div style="font-size:12px;color:var(--slate);margin-top:6px;line-height:1.5">'
+            +'<div><b style="color:var(--white)">Momento de decisão:</b> '+esc(e.momento_decisao)+'</div>'
+            +'<div style="margin-top:4px"><b style="color:var(--white)">Intervenção:</b> '+esc(e.ponto_intervencao)+'</div>'
+            +'<div style="margin-top:4px"><b style="color:var(--white)">Progressão:</b> '+esc(e.progressao)+'</div>'
+            +'<div style="margin-top:4px"><b style="color:var(--white)">Regressão:</b> '+esc(e.regressao)+'</div>'
+            +'<div style="margin-top:4px"><b style="color:var(--white)">Critério de sucesso:</b> '+esc(e.criterio_sucesso)+'</div>'
+            +'</div></details>'):'')
+          +'</div>';});h+='</div>';});
       h+='</div>';});
     h+='<div class="card"><div class="s">As 3 sessões complementam-se: MD-4 constrói (físico + saída de bola + secção), MD-2 aperta (linha defensiva, reação à perda, movimentação), MD-1 afina (bolas paradas ≤10 min, revisão leve). O mesmo exercício não se repete duas semanas seguidas.</div><button class="btn" onclick="guardarMicro()">💾 Guardar as 3 sessões</button></div>';
     document.getElementById('micro-out').innerHTML=h;window.__micro=out;
@@ -1917,7 +1970,7 @@ function guardarMicro(){
   var i=0;
   function um(){
     if(i>=out.length){toast('Microciclo guardado na equipa ✓ ('+out.length+' sessões)');return;}
-    supa.rpc('ytb_clube_sessao_criar',{p_equipa_id:equipaAtiva.id,p_titulo:out[i].dia+' · '+(out[i].plano.titulo||'Sessão'),p_escalao:SEL.escalao,p_formato:SEL.formato,p_n_atletas:SEL.n,p_duracao:SEL.dur,p_material:SEL.material,p_foco:SEL.foco,p_plano:out[i].plano})
+    supa.rpc('ytb_clube_sessao_criar_v2',{p_equipa_id:equipaAtiva.id,p_titulo:out[i].dia+' · '+(out[i].plano.titulo||'Sessão'),p_escalao:SEL.escalao,p_formato:SEL.formato,p_n_atletas:SEL.n,p_duracao:SEL.dur,p_material:SEL.material,p_foco:SEL.foco,p_plano:out[i].plano,p_objetivos:null})
       .then(function(){i++;um();});
   }
   um();
@@ -1971,13 +2024,13 @@ async function carregarMemoriaEquipa(){
   const {data:r}=await supa.rpc('ytb_clube_equipa_memoria',{p_equipa_id:equipaAtiva.id});
   var box=document.getElementById('memoria-equipa-area');
   if(!box) return;
-  if(!r||!r.ok||(!r.ultimo_objetivo&&!r.atletas_recorrentes.length)){ box.innerHTML=''; return; }
+  if(!r||!r.ok||(!r.ultimo_objetivo&&!(r.atletas_recorrentes||[]).length)){ box.innerHTML=''; return; }
   var html='<div class="card" style="border-color:var(--gold-border,var(--gold))">';
   if(r.ultimo_objetivo){
     html+='<div class="h" style="margin-bottom:4px">📋 Da última sessão fechada</div>'
       +'<div class="s" style="margin-bottom:0">"'+esc(r.ultimo_objetivo.titulo)+'" ('+esc(r.ultimo_objetivo.data_sessao)+') recomendou: <b style="color:var(--white)">'+esc(r.ultimo_objetivo.proximo_objetivo)+'</b></div>';
   }
-  if(r.atletas_recorrentes.length){
+  if((r.atletas_recorrentes||[]).length){
     html+='<div class="h" style="margin:'+(r.ultimo_objetivo?'12px':'0')+' 0 4px">⚠ Padrão a acompanhar</div>'
       +r.atletas_recorrentes.map(function(a){
         return '<div class="s" style="margin-bottom:0">'+esc(a.nome)+' apareceu em atenção em <b style="color:var(--white)">'+a.n_vezes+'</b> sessões — vale a pena olhar com mais cuidado.</div>';
