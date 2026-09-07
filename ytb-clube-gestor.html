@@ -4128,17 +4128,23 @@ window.marcarLesaoRecuperada=async function(id){
 };
 
 /* ══════ AVISO DE PAGAMENTO EM ATRASO ══════
-   O pedido fica registado de imediato. O envio real do email ainda
-   depende de uma peça de infraestrutura (Edge Function) que não
-   estava disponível quando isto foi construído -- por isso o botão
-   diz "pedido registado", nunca "email enviado", enquanto essa peça
-   não estiver ligada. */
+   Sem infraestrutura de servidor (nada de Edge Function nem chave de
+   API a gerir) -- o email sai do PRÓPRIO cliente de email de quem
+   está a usar a app (Gmail, Outlook, o que tiver por defeito no
+   dispositivo), com a mensagem já escrita. A pessoa só precisa de
+   confirmar o envio no seu email. */
 window.pedirAvisoPagamento=async function(tipo, id, email, nome, descricao, valor, botao){
-  if(!confirm('Registar um aviso de atraso para '+nome+' ('+email+')?')) return;
   const {data:r}=await supa.rpc('ytb_clube_aviso_pagamento_pedir',{p_tipo:tipo,p_referencia_id:id,p_email:email,p_nome:nome,p_descricao:descricao,p_valor:valor});
   if(!r||!r.ok){ toast('⚠ Não foi possível: '+((r&&r.motivo)||'erro')); return; }
-  toast('✓ Pedido de aviso registado — envio automático ainda por ligar');
-  if(botao){ botao.textContent='✓'; botao.disabled=true; }
+  var nomeClube=meuClube.nome||'o clube';
+  var assunto='Pagamento em atraso — '+descricao;
+  var corpo='Olá '+nome+',\n\n'
+    +'Vimos lembrar que o pagamento referente a "'+descricao+'" ('+valor+'€) ainda não está regularizado.\n\n'
+    +'Se já tiver sido feito entretanto, pode ignorar esta mensagem.\n\n'
+    +'Obrigado,\n'+nomeClube;
+  window.location.href='mailto:'+encodeURIComponent(email)+'?subject='+encodeURIComponent(assunto)+'&body='+encodeURIComponent(corpo);
+  toast('✉ A abrir o teu email — confirma o envio lá');
+  if(botao){ botao.textContent='✓'; }
 };
 
 /* ══════ NAVEGAÇÃO ══════ */
