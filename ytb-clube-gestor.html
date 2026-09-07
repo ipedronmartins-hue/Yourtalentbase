@@ -487,6 +487,7 @@ body.pr-cheio #pr-sair{display:block}
     <div class="sec" id="sec-patrocinios"></div>
     <div class="sec" id="sec-recibos"></div>
     <div class="sec" id="sec-fpf"></div>
+    <div class="sec" id="sec-medico"></div>
     <div class="sec" id="sec-painel"></div>
     <div class="sec" id="sec-ficha"></div>
   </div>
@@ -4075,12 +4076,61 @@ function cabecalhoInstitucional(titulo, subtitulo){
     +'</div>';
 }
 
+/* ══════ DEPARTAMENTO MÉDICO ══════ */
+async function pintarMedico(){
+  const box=document.getElementById('sec-medico');
+  box.innerHTML='<div class="card"><div class="s">A carregar…</div></div>';
+  const {data:r}=await supa.rpc('ytb_clube_departamento_medico',{p_clube_id:meuClube.clube_id});
+  if(!r||!r.ok){ box.innerHTML='<div class="card"><div class="s">⚠ Não foi possível carregar.</div></div>'; return; }
+  var lesoes=r.lesoes_ativas||[]; var exames=r.exames_pendentes||[];
+  box.innerHTML='<div class="ficha-paineis">'
+    +'<div class="card"><div class="h">Lesões <span style="color:var(--gold)">ativas</span></div>'
+    +(lesoes.length ? lesoes.map(function(l){
+        return '<div style="padding:8px 0;border-bottom:1px solid var(--border)">'
+          +'<b style="font-size:13px">'+esc(l.nome)+'</b><div class="s" style="margin:2px 0 6px">'+esc(l.descricao)+' · desde '+esc(l.data_inicio)+(l.data_prevista_retorno?(' · previsão '+esc(l.data_prevista_retorno)):'')+'</div>'
+          +'<button class="btn btn-sec" style="width:auto;padding:6px 12px;margin-top:0;font-size:12px" onclick="marcarLesaoRecuperada(\''+l.id+'\')">✓ Marcar recuperado</button></div>';
+      }).join('') : '<div class="s">Sem lesões ativas registadas.</div>')
+    +'</div>'
+    +'<div class="card"><div class="h">Exames <span style="color:var(--gold)">médicos</span></div>'
+    +'<div class="s">Validade de 1 ano desde o envio do documento na Secretaria.</div>'
+    +(exames.length ? exames.map(function(e){
+        return '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px">'
+          +'<span>'+esc(e.nome)+'</span><span class="pill '+(e.estado==='em_falta'?'pill-vermelho':'pill-laranja')+'">'+(e.estado==='em_falta'?'Em falta':'Vencido')+'</span></div>';
+      }).join('') : '<div class="s">Todos os exames em dia.</div>')
+    +'</div>'
+    +'<div class="card ficha-full"><div class="h">Registar <span style="color:var(--gold)">lesão</span></div>'
+    +'<label class="label">Atleta</label><select class="input" id="ml-atleta"><option value="">— escolhe um atleta —</option>'
+    +atletasDoClube.map(function(a){return '<option value="'+a.id+'">'+esc(a.nome)+'</option>';}).join('')+'</select>'
+    +'<label class="label">Descrição</label><input class="input" id="ml-desc" placeholder="Ex: Entorse no tornozelo direito">'
+    +'<div class="grid2"><div><label class="label">Data de início</label><input class="input" id="ml-inicio" type="date"></div>'
+    +'<div><label class="label">Previsão de retorno</label><input class="input" id="ml-previsao" type="date"></div></div>'
+    +'<button class="btn" onclick="registarLesao()">Registar lesão →</button></div>'
+    +'</div>';
+}
+window.registarLesao=async function(){
+  var atleta=document.getElementById('ml-atleta').value;
+  var desc=(document.getElementById('ml-desc').value||'').trim();
+  var inicio=document.getElementById('ml-inicio').value;
+  var previsao=document.getElementById('ml-previsao').value;
+  if(!atleta||!desc||!inicio){ toast('Falta o atleta, a descrição ou a data'); return; }
+  const {data:r}=await supa.rpc('ytb_clube_lesao_criar',{p_atleta_id:atleta,p_descricao:desc,p_data_inicio:inicio,p_data_prevista_retorno:previsao||null});
+  if(!r||!r.ok){ toast('⚠ Não foi possível: '+((r&&r.motivo)||'erro')); return; }
+  toast('✓ Lesão registada');
+  pintarMedico();
+};
+window.marcarLesaoRecuperada=async function(id){
+  const {data:r}=await supa.rpc('ytb_clube_lesao_marcar_recuperado',{p_lesao_id:id,p_data_retorno:new Date().toISOString().slice(0,10)});
+  if(!r||!r.ok){ toast('⚠ Não foi possível: '+((r&&r.motivo)||'erro')); return; }
+  toast('✓ Atleta marcado como recuperado');
+  pintarMedico();
+};
+
 /* ══════ NAVEGAÇÃO ══════ */
 var TABS=[['equipas','Equipas'],['plantel','Plantel'],['jogos','Jogos'],['treinos','Treinos'],['prancheta','Prancheta'],['avaliar','Avaliar'],['retorno','Retorno']];
 function montarTabsTopo(){
   var tabs=TABS.slice();
   if(meuClube && (meuClube.papel==='scout'||meuClube.papel==='admin')) tabs.push(['scout','Scout']);
-  if(meuClube && (meuClube.papel==='secretaria'||meuClube.papel==='admin')) { tabs.push(['secretaria','Secretaria']); tabs.push(['socios','Sócios']); tabs.push(['patrocinios','Patrocínios']); tabs.push(['recibos','Recibos']); tabs.push(['fpf','FPF']); }
+  if(meuClube && (meuClube.papel==='secretaria'||meuClube.papel==='admin')) { tabs.push(['secretaria','Secretaria']); tabs.push(['socios','Sócios']); tabs.push(['patrocinios','Patrocínios']); tabs.push(['recibos','Recibos']); tabs.push(['fpf','FPF']); tabs.push(['medico','Médico']); }
   if(meuClube && meuClube.papel==='admin') { tabs.unshift(['painel','Painel']); tabs.push(['membros','Membros']); }
   document.getElementById('tabs-topo').innerHTML=tabs.map(function(t,i){
     return '<button class="tab'+(i===0?' on':'')+'" data-t="'+t[0]+'" onclick="tab(\''+t[0]+'\')">'+t[1]+'</button>';
@@ -4102,6 +4152,7 @@ window.tab=function(t){
   if(t==='patrocinios') pintarPatrocinios();
   if(t==='recibos') pintarRecibos();
   if(t==='fpf') pintarFPF();
+  if(t==='medico') pintarMedico();
 };
 verificarSessao();
 </script></body>
