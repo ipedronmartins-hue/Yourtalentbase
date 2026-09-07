@@ -1,0 +1,2 @@
+-- 180: registo de pedidos de aviso de pagamento em atraso. Corpo
+-- integral no historico Supabase (180).

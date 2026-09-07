@@ -1,0 +1,2 @@
+-- 181: quotas/mensalidades passam a devolver o email de contacto.
+-- Corpo integral no historico Supabase (181).
