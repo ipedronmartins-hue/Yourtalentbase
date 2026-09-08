@@ -1,0 +1,2 @@
+-- 186: Agenda Semanal -- horarios fixos de treino + jogos da semana.
+-- Corpo integral no historico Supabase (186).

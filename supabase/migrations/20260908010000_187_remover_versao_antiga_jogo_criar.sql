@@ -1,0 +1,2 @@
+-- 187: remove versao antiga duplicada de ytb_clube_jogo_criar.
+-- Corpo integral no historico Supabase (187).

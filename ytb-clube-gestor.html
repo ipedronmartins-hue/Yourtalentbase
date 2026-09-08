@@ -488,6 +488,7 @@ body.pr-cheio #pr-sair{display:block}
     <div class="sec" id="sec-recibos"></div>
     <div class="sec" id="sec-fpf"></div>
     <div class="sec" id="sec-medico"></div>
+    <div class="sec" id="sec-agenda"></div>
     <div class="sec" id="sec-painel"></div>
     <div class="sec" id="sec-ficha"></div>
   </div>
@@ -4319,8 +4320,71 @@ window.carregarMapaPagamentos=async function(){
     +'</tbody></table>';
 };
 
+/* ══════ AGENDA SEMANAL (horários fixos de treino + jogos da semana) ══════ */
+var agendaSemanaOffset=0;
+var NOMES_DIA=['','Segunda','Terça','Quarta','Quinta','Sexta','Sábado','Domingo'];
+function segundaFeiraDaSemana(offsetSemanas){
+  var hoje=new Date();
+  var diaSemanaJs=hoje.getDay(); // 0=domingo...6=sábado
+  var diffParaSegunda=diaSemanaJs===0?-6:1-diaSemanaJs;
+  var segunda=new Date(hoje.getFullYear(),hoje.getMonth(),hoje.getDate()+diffParaSegunda+offsetSemanas*7);
+  return segunda;
+}
+function dataISO(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+async function pintarAgenda(){
+  const box=document.getElementById('sec-agenda');
+  box.innerHTML='<div class="card"><div class="s">A carregar…</div></div>';
+  var segunda=segundaFeiraDaSemana(agendaSemanaOffset);
+  const {data:r}=await supa.rpc('ytb_clube_agenda_semanal',{p_clube_id:meuClube.clube_id,p_data_inicio_semana:dataISO(segunda)});
+  if(!r||!r.ok){ box.innerHTML='<div class="card"><div class="s">⚠ Não foi possível carregar.</div></div>'; return; }
+  var treinos=r.treinos||[]; var jogos=r.jogos||[];
+  var htmlDias='';
+  for(var i=1;i<=7;i++){
+    var dataDoDia=new Date(segunda); dataDoDia.setDate(segunda.getDate()+(i-1));
+    var isoDoDia=dataISO(dataDoDia);
+    var treinosDoDia=treinos.filter(function(t){return t.dia_semana===i;});
+    var jogosDoDia=jogos.filter(function(j){return j.data_jogo===isoDoDia;});
+    htmlDias+='<div class="card" style="margin-bottom:0"><div class="h" style="font-size:16px">'+NOMES_DIA[i]+' <span style="color:var(--gold);font-weight:400;font-size:13px">'+dataDoDia.getDate()+'/'+(dataDoDia.getMonth()+1)+'</span></div>'
+      +(treinosDoDia.length?treinosDoDia.map(function(t){
+          return '<div class="s" style="margin-bottom:4px">🏃 '+t.hora_inicio.slice(0,5)+'-'+t.hora_fim.slice(0,5)+' · '+esc(t.equipa_nome)+(t.local?(' · '+esc(t.local)):'')+'</div>';
+        }).join(''):'')
+      +(jogosDoDia.length?jogosDoDia.map(function(j){
+          return '<div class="s" style="margin-bottom:4px;color:var(--gold)">⚽ '+(j.hora_jogo?j.hora_jogo.slice(0,5)+' · ':'')+esc(j.equipa_nome)+' vs '+esc(j.adversario)+' ('+(j.casa_fora==='casa'?'casa':'fora')+')</div>';
+        }).join(''):'')
+      +(!treinosDoDia.length && !jogosDoDia.length ? '<div class="s" style="color:var(--muted)">Sem agenda</div>' : '')
+      +'</div>';
+  }
+  var ultimoDia=new Date(segunda); ultimoDia.setDate(segunda.getDate()+6);
+  box.innerHTML='<div class="card"><div style="display:flex;justify-content:space-between;align-items:center">'
+    +'<button class="btn btn-sec" style="width:auto;padding:8px 16px;margin-top:0" onclick="agendaSemanaOffset--;pintarAgenda()">← Semana anterior</button>'
+    +'<div class="h" style="margin:0">'+segunda.getDate()+'/'+(segunda.getMonth()+1)+' a '+ultimoDia.getDate()+'/'+(ultimoDia.getMonth()+1)+'</div>'
+    +'<button class="btn btn-sec" style="width:auto;padding:8px 16px;margin-top:0" onclick="agendaSemanaOffset++;pintarAgenda()">Semana seguinte →</button>'
+    +'</div></div>'
+    +'<div class="dash-kpis" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr))">'+htmlDias+'</div>'
+    +'<div class="card"><div class="h">Definir <span style="color:var(--gold)">horário fixo de treino</span></div>'
+    +'<div class="s">Aplica-se todas as semanas, até seres tu a mudar.</div>'
+    +'<label class="label">Equipa</label><select class="input" id="ag-equipa"><option value="">— escolhe uma equipa —</option>'
+    +minhasEquipas.map(function(e){return '<option value="'+e.id+'">'+esc(e.nome)+'</option>';}).join('')+'</select>'
+    +'<label class="label">Dia da semana</label><select class="input" id="ag-dia">'+[1,2,3,4,5,6,7].map(function(d){return '<option value="'+d+'">'+NOMES_DIA[d]+'</option>';}).join('')+'</select>'
+    +'<div class="grid2"><div><label class="label">Início</label><input class="input" id="ag-inicio" type="time" value="19:00"></div><div><label class="label">Fim</label><input class="input" id="ag-fim" type="time" value="20:30"></div></div>'
+    +'<label class="label">Local (opcional)</label><input class="input" id="ag-local" placeholder="Ex: Campo Sintético">'
+    +'<button class="btn" onclick="definirHorarioTreino()">Adicionar horário →</button></div>';
+}
+window.definirHorarioTreino=async function(){
+  var equipaId=document.getElementById('ag-equipa').value;
+  var dia=parseInt(document.getElementById('ag-dia').value,10);
+  var inicio=document.getElementById('ag-inicio').value;
+  var fim=document.getElementById('ag-fim').value;
+  var local=(document.getElementById('ag-local').value||'').trim();
+  if(!equipaId||!inicio||!fim){ toast('Falta a equipa ou as horas'); return; }
+  const {data:r}=await supa.rpc('ytb_clube_horario_treino_definir',{p_equipa_id:equipaId,p_dia_semana:dia,p_hora_inicio:inicio,p_hora_fim:fim,p_local:local||null});
+  if(!r||!r.ok){ toast('⚠ Não foi possível: '+((r&&r.motivo)||'erro')); return; }
+  toast('✓ Horário adicionado');
+  pintarAgenda();
+};
+
 /* ══════ NAVEGAÇÃO ══════ */
-var TABS=[['equipas','Equipas'],['plantel','Plantel'],['jogos','Jogos'],['treinos','Treinos'],['prancheta','Prancheta'],['avaliar','Avaliar'],['retorno','Retorno']];
+var TABS=[['agenda','Agenda'],['equipas','Equipas'],['plantel','Plantel'],['jogos','Jogos'],['treinos','Treinos'],['prancheta','Prancheta'],['avaliar','Avaliar'],['retorno','Retorno']];
 function montarTabsTopo(){
   var tabs=TABS.slice();
   if(meuClube && (meuClube.papel==='scout'||meuClube.papel==='admin')) tabs.push(['scout','Scout']);
@@ -4335,6 +4399,7 @@ window.tab=function(t){
   document.querySelectorAll('.tab').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-t')===t);});
   document.querySelectorAll('.sec').forEach(function(s){s.classList.toggle('on',s.id==='sec-'+t);});
   if(t==='painel') pintarPainel();
+  if(t==='agenda') pintarAgenda();
   if(t==='membros') carregarMembros();
   if(t==='treinos') pintarTreinos();
   if(t==='prancheta'){ montarSeletores(); if(window.PR){ PR.reformatar(); PR.carregarJogadas(); } }
