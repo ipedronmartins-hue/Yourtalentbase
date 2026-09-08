@@ -2033,7 +2033,11 @@ function pintarTreinos(){
     +'<div id="historico-sessoes-lista"><div class="s">A carregar…</div></div></div>'
     +'</div>'
     +'<div><div id="sessao-out"></div><div id="micro-out"></div></div>'
-    +'</div>';
+    +'</div>'
+    +'<div class="card"><div class="h">Mapa de <span style="color:var(--gold)">presenças</span></div>'
+    +'<div class="s">A época inteira, de agosto a junho — quantas sessões teve e a quantas esteve presente, mês a mês.</div>'
+    +'<div id="mpres-tabela" style="overflow-x:auto"></div></div>';
+  carregarMapaPresencas();
   montarSeletores();
   carregarFavoritosExercicios();
   pintarRecentesLista();
@@ -4204,6 +4208,33 @@ window.gerarKitAgosto=async function(){
   const {data:r}=await supa.rpc('ytb_clube_mensalidade_kit_gerar',{p_equipa_id:equipaId,p_periodo:periodo,p_escolhas:escolhas});
   if(!r||!r.ok){ toast('⚠ Não foi possível: '+((r&&r.motivo)||'erro')); return; }
   toast('✓ '+r.geradas+' mensalidades de agosto geradas');
+};
+
+/* ══════ MAPA DE PRESENÇAS (matriz atleta × mês, taxa de presença em treinos) ══════ */
+window.carregarMapaPresencas=async function(){
+  var box=document.getElementById('mpres-tabela');
+  if(!box||!equipaAtiva) return;
+  box.innerHTML='<div class="s">A carregar…</div>';
+  var meses=mesesDaEpoca();
+  const {data:r}=await supa.rpc('ytb_clube_mapa_presencas',{p_equipa_id:equipaAtiva.id,p_meses:meses});
+  if(!r||!r.ok){ box.innerHTML='<div class="s">⚠ Não foi possível: '+((r&&r.motivo)||'erro')+'</div>'; return; }
+  var linhas=r.linhas||[];
+  if(!linhas.length){ box.innerHTML='<div class="s">Esta equipa ainda não tem plantel.</div>'; return; }
+  box.innerHTML='<table class="plantel-tabela"><thead><tr><th>Atleta</th>'
+    +meses.map(function(m){return '<th style="text-align:center">'+nomeMesCurto(m)+'</th>';}).join('')
+    +'</tr></thead><tbody>'
+    +linhas.map(function(l){
+      return '<tr><td>'+esc(l.nome)+'</td>'
+        +meses.map(function(m){
+          var cel=l.meses[m];
+          if(!cel||cel.total===0) return '<td style="text-align:center;color:var(--muted)">—</td>';
+          var pct=cel.presentes/cel.total;
+          var cor=pct>=0.8?'pill-verde':(pct>=0.5?'pill-laranja':'pill-vermelho');
+          return '<td style="text-align:center"><span class="pill '+cor+'">'+cel.presentes+'/'+cel.total+'</span></td>';
+        }).join('')
+        +'</tr>';
+    }).join('')
+    +'</tbody></table>';
 };
 
 /* ══════ MAPA DE PAGAMENTOS (matriz atleta × mês) ══════ */

@@ -1,0 +1,3 @@
+-- 184: Mapa de Presencas -- paralelo ao Mapa de Mensalidades, taxa
+-- de presenca nos treinos por mes. Corpo integral no historico
+-- Supabase (184).
