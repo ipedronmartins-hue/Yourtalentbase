@@ -3554,7 +3554,12 @@ function pintarSecretaria(){
     +'<button class="btn btn-sec" onclick="gerarMensalidadesMes()">Gerar mensalidades deste mês</button>'
     +'<div id="mn-lista" style="margin-top:12px"></div></div>'
     +'<div id="atribuicao-treinadores-area"><div class="card"><div class="s">A carregar…</div></div></div>'
-    +'</div>';
+    +'</div>'
+    +'<div class="card"><div class="h">Mapa de <span style="color:var(--gold)">pagamentos</span></div>'
+    +'<div class="s">Últimos 6 meses, por equipa — vê de imediato quem está em atraso há vários meses seguidos.</div>'
+    +'<label class="label">Equipa</label><select class="input" id="mp-equipa" onchange="carregarMapaPagamentos()"><option value="">— escolhe uma equipa —</option>'
+    +minhasEquipas.map(function(e){return '<option value="'+e.id+'">'+esc(e.nome)+'</option>';}).join('')+'</select>'
+    +'<div id="mp-tabela" style="overflow-x:auto"></div></div>';
   var hojeMn=new Date(); document.getElementById('mn-periodo').value=hojeMn.getFullYear()+'-'+String(hojeMn.getMonth()+1).padStart(2,'0');
   carregarEPintarAtribuicaoTreinadores();
   carregarMensalidadesMes();
@@ -4145,6 +4150,47 @@ window.pedirAvisoPagamento=async function(tipo, id, email, nome, descricao, valo
   window.location.href='mailto:'+encodeURIComponent(email)+'?subject='+encodeURIComponent(assunto)+'&body='+encodeURIComponent(corpo);
   toast('✉ A abrir o teu email — confirma o envio lá');
   if(botao){ botao.textContent='✓'; }
+};
+
+/* ══════ MAPA DE PAGAMENTOS (matriz atleta × mês) ══════ */
+function ultimosMeses(n){
+  var meses=[]; var hoje=new Date();
+  for(var i=n-1;i>=0;i--){
+    var d=new Date(hoje.getFullYear(), hoje.getMonth()-i, 1);
+    meses.push(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'));
+  }
+  return meses;
+}
+function nomeMesCurto(periodo){
+  var NOMES=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  var partes=periodo.split('-');
+  return NOMES[parseInt(partes[1],10)-1]+' '+partes[0];
+}
+window.carregarMapaPagamentos=async function(){
+  var equipaId=document.getElementById('mp-equipa').value;
+  var box=document.getElementById('mp-tabela');
+  if(!equipaId){ box.innerHTML=''; return; }
+  box.innerHTML='<div class="s">A carregar…</div>';
+  var meses=ultimosMeses(6);
+  const {data:r}=await supa.rpc('ytb_clube_mapa_mensalidades',{p_equipa_id:equipaId,p_meses:meses});
+  if(!r||!r.ok){ box.innerHTML='<div class="s">⚠ Não foi possível: '+((r&&r.motivo)||'erro')+'</div>'; return; }
+  var linhas=r.linhas||[];
+  if(!linhas.length){ box.innerHTML='<div class="s">Esta equipa ainda não tem plantel.</div>'; return; }
+  box.innerHTML='<table class="plantel-tabela"><thead><tr><th>Atleta</th>'
+    +meses.map(function(m){return '<th style="text-align:center">'+nomeMesCurto(m)+'</th>';}).join('')
+    +'</tr></thead><tbody>'
+    +linhas.map(function(l){
+      return '<tr><td>'+esc(l.nome)+'</td>'
+        +meses.map(function(m){
+          var cel=l.meses[m];
+          if(!cel||!cel.estado) return '<td style="text-align:center;color:var(--muted)">—</td>';
+          var cor=cel.estado==='pago'?'pill-verde':'pill-vermelho';
+          var texto=cel.estado==='pago'?'Pago':'Pendente';
+          return '<td style="text-align:center"><span class="pill '+cor+'" title="'+cel.valor+'€">'+texto+'</span></td>';
+        }).join('')
+        +'</tr>';
+    }).join('')
+    +'</tbody></table>';
 };
 
 /* ══════ NAVEGAÇÃO ══════ */
