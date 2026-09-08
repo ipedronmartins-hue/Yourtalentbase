@@ -1,0 +1,2 @@
+-- 185: informacao escolar por atleta -- Criterio 6 FPF. Corpo
+-- integral no historico Supabase (185).

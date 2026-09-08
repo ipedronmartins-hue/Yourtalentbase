@@ -3559,6 +3559,9 @@ function pintarSecretaria(){
     +'<div id="mn-lista" style="margin-top:12px"></div></div>'
     +'<div id="atribuicao-treinadores-area"><div class="card"><div class="s">A carregar…</div></div></div>'
     +'</div>'
+    +'<div class="card"><div class="h">Informação <span style="color:var(--gold)">escolar</span></div>'
+    +'<div class="s">Escola, ano e autorização por atleta — liga-se à preparação FPF (Acompanhamento Escolar).</div>'
+    +'<div id="info-escolar-lista"><div class="s">A carregar…</div></div></div>'
     +'<div class="card"><div class="h">Kit de <span style="color:var(--gold)">agosto</span></div>'
     +'<div class="s">O primeiro mês da época costuma ter um valor diferente conforme o atleta precisa do kit completo (novo) ou só de renovação (já tem o essencial).</div>'
     +'<label class="label">Equipa</label><select class="input" id="mk-equipa" onchange="carregarPlantelParaKit()"><option value="">— escolhe uma equipa —</option>'
@@ -3575,6 +3578,7 @@ function pintarSecretaria(){
   var hojeMn=new Date(); document.getElementById('mn-periodo').value=hojeMn.getFullYear()+'-'+String(hojeMn.getMonth()+1).padStart(2,'0');
   carregarEPintarAtribuicaoTreinadores();
   carregarMensalidadesMes();
+  carregarInfoEscolar();
 }
 window.gerarMensalidadesMes=async function(){
   var periodo=document.getElementById('mn-periodo').value;
@@ -4162,6 +4166,42 @@ window.pedirAvisoPagamento=async function(tipo, id, email, nome, descricao, valo
   window.location.href='mailto:'+encodeURIComponent(email)+'?subject='+encodeURIComponent(assunto)+'&body='+encodeURIComponent(corpo);
   toast('✉ A abrir o teu email — confirma o envio lá');
   if(botao){ botao.textContent='✓'; }
+};
+
+/* ══════ INFORMAÇÃO ESCOLAR ══════ */
+var infoEscolarCache=[];
+window.carregarInfoEscolar=async function(){
+  var box=document.getElementById('info-escolar-lista');
+  if(!box) return;
+  const {data:r}=await supa.rpc('ytb_clube_info_escolar_listar',{p_clube_id:meuClube.clube_id});
+  infoEscolarCache=(r&&r.ok&&r.lista)||[];
+  var ROTULO={completa:['Completa','pill-verde'],incompleta:['Incompleta','pill-laranja'],sem_info:['Sem info','pill-vermelho']};
+  box.innerHTML=infoEscolarCache.length ? infoEscolarCache.map(function(a){
+    var re=ROTULO[a.estado]||['—','pill-laranja'];
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;cursor:pointer" onclick="abrirEdicaoEscolar(\''+a.atleta_id+'\')">'
+      +'<span>'+esc(a.nome)+(a.escola?(' — '+esc(a.escola)+(a.ano_escolar?(' · '+esc(a.ano_escolar)):'')):'')+'</span>'
+      +'<span class="pill '+re[1]+'">'+re[0]+'</span></div>';
+  }).join('') : '<div class="s">Ainda sem atletas.</div>';
+};
+window.abrirEdicaoEscolar=function(atletaId){
+  var a=infoEscolarCache.find(function(x){return x.atleta_id===atletaId;});
+  if(!a) return;
+  var box=document.getElementById('info-escolar-lista');
+  box.innerHTML='<div class="s">A editar: '+esc(a.nome)+'</div>'
+    +'<label class="label">Escola</label><input class="input" id="ie-escola" value="'+esc(a.escola||'')+'">'
+    +'<label class="label">Ano escolar</label><input class="input" id="ie-ano" value="'+esc(a.ano_escolar||'')+'" placeholder="Ex: 7º ano">'
+    +'<label style="display:flex;align-items:center;gap:8px;margin:10px 0"><input type="checkbox" id="ie-autorizacao" '+(a.autorizacao?'checked':'')+'> Autorização dos encarregados</label>'
+    +'<div style="display:flex;gap:8px"><button class="btn" onclick="guardarInfoEscolar(\''+atletaId+'\')">Guardar →</button>'
+    +'<button class="btn btn-sec" onclick="carregarInfoEscolar()">Cancelar</button></div>';
+};
+window.guardarInfoEscolar=async function(atletaId){
+  var escola=(document.getElementById('ie-escola').value||'').trim();
+  var ano=(document.getElementById('ie-ano').value||'').trim();
+  var autorizacao=document.getElementById('ie-autorizacao').checked;
+  const {data:r}=await supa.rpc('ytb_clube_info_escolar_definir',{p_atleta_id:atletaId,p_escola:escola||null,p_ano_escolar:ano||null,p_autorizacao:autorizacao});
+  if(!r||!r.ok){ toast('⚠ Não foi possível: '+((r&&r.motivo)||'erro')); return; }
+  toast('✓ Informação escolar atualizada');
+  carregarInfoEscolar();
 };
 
 /* ══════ KIT DE AGOSTO (renovação vs completo, por atleta) ══════ */
