@@ -3564,7 +3564,7 @@ function pintarSecretaria(){
     +'<div id="mk-plantel"><div class="s">Escolhe uma equipa para ver o plantel.</div></div>'
     +'<button class="btn" id="mk-botao" style="display:none" onclick="gerarKitAgosto()">Gerar kit de agosto →</button></div>'
     +'<div class="card"><div class="h">Mapa de <span style="color:var(--gold)">pagamentos</span></div>'
-    +'<div class="s">Últimos 6 meses, por equipa — vê de imediato quem está em atraso há vários meses seguidos.</div>'
+    +'<div class="s">A época inteira, de agosto a junho, por equipa — vê de imediato quem está em atraso há vários meses seguidos.</div>'
     +'<label class="label">Equipa</label><select class="input" id="mp-equipa" onchange="carregarMapaPagamentos()"><option value="">— escolhe uma equipa —</option>'
     +minhasEquipas.map(function(e){return '<option value="'+e.id+'">'+esc(e.nome)+'</option>';}).join('')+'</select>'
     +'<div id="mp-tabela" style="overflow-x:auto"></div></div>';
@@ -4207,10 +4207,11 @@ window.gerarKitAgosto=async function(){
 };
 
 /* ══════ MAPA DE PAGAMENTOS (matriz atleta × mês) ══════ */
-function ultimosMeses(n){
-  var meses=[]; var hoje=new Date();
-  for(var i=n-1;i>=0;i--){
-    var d=new Date(hoje.getFullYear(), hoje.getMonth()-i, 1);
+function mesesDaEpoca(){
+  var hoje=new Date(); var anoAgosto=hoje.getMonth()>=7?hoje.getFullYear():hoje.getFullYear()-1;
+  var meses=[];
+  for(var i=0;i<11;i++){ // agosto a junho, 11 meses
+    var d=new Date(anoAgosto, 7+i, 1); // mês 7 = agosto (0-indexado)
     meses.push(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'));
   }
   return meses;
@@ -4225,7 +4226,7 @@ window.carregarMapaPagamentos=async function(){
   var box=document.getElementById('mp-tabela');
   if(!equipaId){ box.innerHTML=''; return; }
   box.innerHTML='<div class="s">A carregar…</div>';
-  var meses=ultimosMeses(6);
+  var meses=mesesDaEpoca();
   const {data:r}=await supa.rpc('ytb_clube_mapa_mensalidades',{p_equipa_id:equipaId,p_meses:meses});
   if(!r||!r.ok){ box.innerHTML='<div class="s">⚠ Não foi possível: '+((r&&r.motivo)||'erro')+'</div>'; return; }
   var linhas=r.linhas||[];
