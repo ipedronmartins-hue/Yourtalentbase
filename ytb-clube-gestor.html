@@ -3555,6 +3555,14 @@ function pintarSecretaria(){
     +'<div id="mn-lista" style="margin-top:12px"></div></div>'
     +'<div id="atribuicao-treinadores-area"><div class="card"><div class="s">A carregar…</div></div></div>'
     +'</div>'
+    +'<div class="card"><div class="h">Kit de <span style="color:var(--gold)">agosto</span></div>'
+    +'<div class="s">O primeiro mês da época costuma ter um valor diferente conforme o atleta precisa do kit completo (novo) ou só de renovação (já tem o essencial).</div>'
+    +'<label class="label">Equipa</label><select class="input" id="mk-equipa" onchange="carregarPlantelParaKit()"><option value="">— escolhe uma equipa —</option>'
+    +minhasEquipas.map(function(e){return '<option value="'+e.id+'">'+esc(e.nome)+'</option>';}).join('')+'</select>'
+    +'<div class="grid2"><div><label class="label">Preço renovação</label><input class="input" id="mk-preco-renovacao" type="number" step="0.5" placeholder="Ex: 45"></div>'
+    +'<div><label class="label">Preço completo</label><input class="input" id="mk-preco-completo" type="number" step="0.5" placeholder="Ex: 85"></div></div>'
+    +'<div id="mk-plantel"><div class="s">Escolhe uma equipa para ver o plantel.</div></div>'
+    +'<button class="btn" id="mk-botao" style="display:none" onclick="gerarKitAgosto()">Gerar kit de agosto →</button></div>'
     +'<div class="card"><div class="h">Mapa de <span style="color:var(--gold)">pagamentos</span></div>'
     +'<div class="s">Últimos 6 meses, por equipa — vê de imediato quem está em atraso há vários meses seguidos.</div>'
     +'<label class="label">Equipa</label><select class="input" id="mp-equipa" onchange="carregarMapaPagamentos()"><option value="">— escolhe uma equipa —</option>'
@@ -4150,6 +4158,52 @@ window.pedirAvisoPagamento=async function(tipo, id, email, nome, descricao, valo
   window.location.href='mailto:'+encodeURIComponent(email)+'?subject='+encodeURIComponent(assunto)+'&body='+encodeURIComponent(corpo);
   toast('✉ A abrir o teu email — confirma o envio lá');
   if(botao){ botao.textContent='✓'; }
+};
+
+/* ══════ KIT DE AGOSTO (renovação vs completo, por atleta) ══════ */
+window.carregarPlantelParaKit=async function(){
+  var equipaId=document.getElementById('mk-equipa').value;
+  var box=document.getElementById('mk-plantel');
+  var botao=document.getElementById('mk-botao');
+  if(!equipaId){ box.innerHTML='<div class="s">Escolhe uma equipa para ver o plantel.</div>'; botao.style.display='none'; return; }
+  box.innerHTML='<div class="s">A carregar…</div>';
+  const {data:r}=await supa.rpc('ytb_clube_plantel_listar',{p_equipa_id:equipaId});
+  var lista=(r&&r.ok&&r.lista)||[];
+  if(!lista.length){ box.innerHTML='<div class="s">Esta equipa ainda não tem plantel.</div>'; botao.style.display='none'; return; }
+  box.innerHTML=lista.map(function(a){
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px">'
+      +'<span>'+esc(a.nome)+'</span>'
+      +'<div class="chips" style="margin:0" data-atleta="'+a.atleta_id+'">'
+      +'<button class="chip on" data-v="renovacao" onclick="escolherKit(this)">Renovação</button>'
+      +'<button class="chip" data-v="completo" onclick="escolherKit(this)">Completo</button>'
+      +'<button class="chip" data-v="nenhum" onclick="escolherKit(this)">Nenhum</button>'
+      +'</div></div>';
+  }).join('');
+  botao.style.display='block';
+};
+window.escolherKit=function(btn){
+  Array.prototype.slice.call(btn.parentElement.children).forEach(function(b){b.classList.remove('on');});
+  btn.classList.add('on');
+};
+window.gerarKitAgosto=async function(){
+  var equipaId=document.getElementById('mk-equipa').value;
+  var precoRenovacao=parseFloat(document.getElementById('mk-preco-renovacao').value);
+  var precoCompleto=parseFloat(document.getElementById('mk-preco-completo').value);
+  if(!precoRenovacao && !precoCompleto){ toast('Define pelo menos um dos dois preços'); return; }
+  var escolhas=[];
+  Array.prototype.slice.call(document.querySelectorAll('#mk-plantel [data-atleta]')).forEach(function(div){
+    var tipo=div.querySelector('.chip.on').getAttribute('data-v');
+    if(tipo==='nenhum') return;
+    var valor=tipo==='renovacao'?precoRenovacao:precoCompleto;
+    if(!valor) return;
+    escolhas.push({atleta_id:div.getAttribute('data-atleta'), tipo_kit:tipo, valor:valor});
+  });
+  if(!escolhas.length){ toast('Nenhum atleta selecionado para o kit'); return; }
+  var hoje=new Date(); var anoAgosto=hoje.getMonth()>=7?hoje.getFullYear():hoje.getFullYear()-1; // se já passou agosto este ano civil, assume-se a época em curso
+  var periodo=anoAgosto+'-08';
+  const {data:r}=await supa.rpc('ytb_clube_mensalidade_kit_gerar',{p_equipa_id:equipaId,p_periodo:periodo,p_escolhas:escolhas});
+  if(!r||!r.ok){ toast('⚠ Não foi possível: '+((r&&r.motivo)||'erro')); return; }
+  toast('✓ '+r.geradas+' mensalidades de agosto geradas');
 };
 
 /* ══════ MAPA DE PAGAMENTOS (matriz atleta × mês) ══════ */

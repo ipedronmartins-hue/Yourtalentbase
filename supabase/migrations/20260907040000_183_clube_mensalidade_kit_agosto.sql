@@ -1,0 +1,2 @@
+-- 183: kit de agosto -- renovacao vs completo, por atleta. Corpo
+-- integral no historico Supabase (183).
