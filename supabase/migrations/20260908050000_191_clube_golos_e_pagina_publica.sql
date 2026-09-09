@@ -1,0 +1,3 @@
+-- 191: golos/marcadores por jogo, e a primeira RPC publica do
+-- sistema (sem exigir sessao). Corpo integral no historico
+-- Supabase (191).

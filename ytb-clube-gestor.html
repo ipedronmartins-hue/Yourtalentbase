@@ -730,8 +730,12 @@ function pintarJogos(){
       +(podeGerir && jaPassou
         ? '<button class="btn btn-sec" style="flex:1;min-width:140px" onclick="abrirRegistarResultado(\''+j.id+'\',\''+esc(j.resultado||'')+'\')">'+(j.resultado?'Corrigir resultado':'Registar resultado')+' →</button>'
         : '')
+      +(podeGerir
+        ? '<button class="btn btn-sec" style="flex:1;min-width:140px" onclick="abrirGolos(\''+j.id+'\')">🥅 Golos</button>'
+        : '')
       +'</div>'
       +'<div id="resultado-form-'+j.id+'"></div>'
+      +'<div id="golos-form-'+j.id+'"></div>'
       +'</div>';
   }).join('') : '<div class="s">Ainda sem jogos.</div>';
   html += '</div>';
@@ -876,6 +880,24 @@ window.confirmarResultado=async function(jogoId){
   const {data:r}=await supa.rpc('ytb_clube_jogo_resultado',{p_jogo_id:jogoId,p_resultado:resultado});
   if(!r||!r.ok){ toast('⚠ Não foi possível: '+((r&&r.motivo)||'erro')); return; }
   toast('✓ Resultado guardado'); await carregarJogos();
+};
+
+/* ══════ GOLOS (para a página pública em tempo real) ══════ */
+window.abrirGolos=function(jogoId){
+  var area=document.getElementById('golos-form-'+jogoId);
+  area.innerHTML='<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">'
+    +'<div class="s">Cada golo registado aqui atualiza a página pública do clube na hora.</div>'
+    +'<div style="display:flex;gap:8px;margin-top:6px">'
+    +'<button class="btn" style="width:auto;padding:8px 14px" onclick="adicionarGoloRapido(\''+jogoId+'\',\'nos\')">⚽ Golo nosso</button>'
+    +'<button class="btn btn-sec" style="width:auto;padding:8px 14px" onclick="adicionarGoloRapido(\''+jogoId+'\',\'adversario\')">⚽ Golo adversário</button>'
+    +'</div></div>';
+};
+window.adicionarGoloRapido=async function(jogoId, equipaDoGolo){
+  var nomeMarcador=null;
+  if(equipaDoGolo==='adversario'){ nomeMarcador=prompt('Quem marcou (opcional)?')||null; }
+  const {data:r}=await supa.rpc('ytb_clube_jogo_golo_adicionar',{p_jogo_id:jogoId,p_equipa_do_golo:equipaDoGolo,p_nome_marcador:nomeMarcador});
+  if(!r||!r.ok){ toast('⚠ Não foi possível: '+((r&&r.motivo)||'erro')); return; }
+  toast('✓ Golo registado — a página pública já reflete isto');
 };
 
 /* ══════ MEMBROS (só admin do clube) ══════ */

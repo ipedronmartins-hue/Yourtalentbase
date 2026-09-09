@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jogos da semana · YTB Clube</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="ytb-tokens.css">
+<script src="assets/js/ytb-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--white);margin:0;padding:0}
+  .wrap{max-width:720px;margin:0 auto;padding:24px 20px 60px}
+  .topo{text-align:center;margin-bottom:20px}
+  .topo h1{font-family:'Barlow Condensed';font-weight:900;font-size:32px;margin:0 0 4px}
+  .semana-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+  .semana-nav button{background:var(--bg2);border:1px solid var(--border);color:var(--white);border-radius:10px;padding:10px 16px;font-family:'Barlow Condensed';font-weight:900;text-transform:uppercase;font-size:13px;cursor:pointer}
+  .card{background:var(--bg2);border:1px solid var(--border);border-top-color:var(--border2);border-radius:18px;padding:20px;margin-bottom:12px}
+  .jogo-equipa{font-family:'Barlow Condensed';font-weight:900;font-size:14px;color:var(--gold);text-transform:uppercase;letter-spacing:.5px}
+  .jogo-confronto{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+  .jogo-nome{font-size:18px;font-weight:700}
+  .jogo-resultado{font-family:'Barlow Condensed';font-weight:900;font-size:32px;color:var(--white)}
+  .jogo-meta{color:var(--muted);font-size:13px;margin-top:6px}
+  .vazio{text-align:center;padding:40px 20px;color:var(--muted)}
+  .ao-vivo{display:inline-block;width:8px;height:8px;background:#ff3b30;border-radius:50%;margin-right:6px;animation:pulso 1.4s infinite}
+  @keyframes pulso{0%,100%{opacity:1}50%{opacity:.3}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topo"><h1 id="nome-clube">A carregar…</h1><div style="color:var(--muted);font-size:13px">Jogos da semana</div></div>
+  <div class="semana-nav">
+    <button onclick="mudarSemana(-1)">← Anterior</button>
+    <div id="intervalo-semana" style="color:var(--muted);font-size:13px"></div>
+    <button onclick="mudarSemana(1)">Seguinte →</button>
+  </div>
+  <div id="lista-jogos"><div class="vazio">A carregar…</div></div>
+  <div style="text-align:center;margin-top:20px;color:var(--muted);font-size:12px"><span class="ao-vivo"></span>Atualiza automaticamente</div>
+</div>
+<script>
+const CFG = window.YTB_CONFIG || {};
+const supa = window.supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_KEY);
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+
+var slug = new URLSearchParams(location.search).get('clube') || '';
+var semanaOffset = 0;
+
+function segundaFeiraDaSemana(offset){
+  var hoje=new Date();
+  var diaSemanaJs=hoje.getDay();
+  var diffParaSegunda=diaSemanaJs===0?-6:1-diaSemanaJs;
+  return new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate()+diffParaSegunda+offset*7);
+}
+function dataISO(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function nomeMesCurto(d){ var M=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez']; return d.getDate()+' '+M[d.getMonth()]; }
+
+window.mudarSemana=function(delta){ semanaOffset+=delta; carregar(); };
+
+async function carregar(){
+  if(!slug){ document.getElementById('lista-jogos').innerHTML='<div class="vazio">Endereço de clube em falta.</div>'; return; }
+  var segunda=segundaFeiraDaSemana(semanaOffset);
+  var ultimoDia=new Date(segunda); ultimoDia.setDate(segunda.getDate()+6);
+  document.getElementById('intervalo-semana').textContent=nomeMesCurto(segunda)+' a '+nomeMesCurto(ultimoDia);
+
+  const {data:r} = await supa.rpc('ytb_publico_jogos_semana', {p_slug:slug, p_data_inicio_semana:dataISO(segunda)});
+  if(!r || !r.ok){
+    document.getElementById('nome-clube').textContent='Clube não encontrado';
+    document.getElementById('lista-jogos').innerHTML='<div class="vazio">Não encontrámos este clube.</div>';
+    return;
+  }
+  document.getElementById('nome-clube').textContent=r.clube_nome;
+  var jogos=r.jogos||[];
+  document.getElementById('lista-jogos').innerHTML = jogos.length ? jogos.map(function(j){
+    var temResultado = (j.golos_nos>0 || j.golos_adversario>0);
+    var dataFmt = j.data_jogo ? new Date(j.data_jogo+'T00:00:00').toLocaleDateString('pt-PT',{weekday:'long',day:'numeric',month:'short'}) : '';
+    return '<div class="card">'
+      +'<div class="jogo-equipa">'+esc(j.equipa_nome)+(j.competicao?(' · '+esc(j.competicao)):'')+'</div>'
+      +'<div class="jogo-confronto"><div class="jogo-nome">'+(j.casa_fora==='casa'?'Nós':esc(j.adversario))+' vs '+(j.casa_fora==='casa'?esc(j.adversario):'Nós')+'</div>'
+      +(temResultado ? '<div class="jogo-resultado">'+(j.casa_fora==='casa'?j.golos_nos:j.golos_adversario)+' - '+(j.casa_fora==='casa'?j.golos_adversario:j.golos_nos)+'</div>' : '')
+      +'</div>'
+      +'<div class="jogo-meta">'+esc(dataFmt)+(j.hora_jogo?(' · '+j.hora_jogo.slice(0,5)):'')+' · '+(j.casa_fora==='casa'?'Em casa':'Fora')+'</div>'
+      +'</div>';
+  }).join('') : '<div class="vazio">Sem jogos agendados esta semana.</div>';
+}
+
+carregar();
+setInterval(carregar, 20000); // atualização automática a cada 20s -- aproxima "tempo real" sem precisar de infraestrutura extra
+</script>
+</body>
+</html>

@@ -3,6 +3,10 @@
     {
       "source": "/pacos-de-ferreira",
       "destination": "/ytb-clube-gestor.html?clube=pacos-de-ferreira"
+    },
+    {
+      "source": "/pacos-de-ferreira/jogos",
+      "destination": "/clube-publico.html?clube=pacos-de-ferreira"
     }
   ],
   "headers": [
