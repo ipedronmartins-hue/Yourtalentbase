@@ -534,6 +534,7 @@
         '<div class="evosemanal-legenda">'+esc(d.evolucaoSemanalAreas.legenda||'')+'</div>'+
         '</div></details>';
     }
+    html+='<div id="evolucao-clube-area"></div>';
     html+='<div id="fam-tools-slot"></div>';
     html+='</section>';
     // ===== PASSAPORTE (evidência profunda — épocas, marcos, avaliações, timeline) =====
@@ -963,6 +964,28 @@
             +'<div style="font-size:var(--fs-micro);font-weight:600;opacity:.75;margin-top:1px">'+e[3]+'</div></button>';
         }).join('')
       +'</div></div>';
+  }
+  function carregarEvolucaoClube(atletaId){
+    if(!USING_SB || !atletaId) return;
+    // liga o Passaporte aos dados reais que o treinador regista no YTB Clube
+    // (fecho de sessão de treino) -- NUNCA existiu esta ligação antes; sem
+    // ela, o que o treinador escreve fica preso no sistema do clube e nunca
+    // chega à família. Aditivo por natureza: se não houver histórico, não
+    // mostra nada -- não duplica o "vazio explicado" já usado para as áreas
+    // de desenvolvimento do sistema antigo.
+    supa.rpc('ytb_clube_atleta_desenvolvimento',{p_atleta_id:atletaId}).then(function(res){
+      var box=document.getElementById('evolucao-clube-area');
+      if(!box) return;
+      var hist=(res&&res.data&&res.data.ok&&res.data.historico)||[];
+      if(!hist.length) return;
+      var html='<div class="shead">Notas do treinador (clube)</div>'
+        +hist.map(function(h){
+          var data=h.data_sessao?new Date(h.data_sessao).toLocaleDateString('pt-PT',{day:'numeric',month:'short'}):'';
+          return '<div class="pcard" style="margin-top:8px"><div class="sub" style="margin:0;color:var(--muted)">'+esc(data)+(h.foco?(' · '+esc(h.foco)):'')+'</div>'
+            +'<div style="margin-top:4px">'+esc(h.nota)+'</div></div>';
+        }).join('');
+      box.innerHTML=html;
+    }).catch(function(e){ console.warn('ytb_clube_atleta_desenvolvimento falhou', e); });
   }
   function carregarTreino(atletaId){
     if(!USING_SB || !atletaId) return;
@@ -2108,7 +2131,7 @@
     supa.rpc('ytb_passaporte_admin',{ p_atleta: adminAtleta }).then(function(res){
       if(res.error){ adminErro('Só administradores podem abrir passaportes por aqui.'); return; }
       if(!res.data){ adminErro('Sem acesso, ou este atleta não existe.'); return; }
-      try{ var nm=(res.data.identidade&&res.data.identidade.nome)||'atleta'; show(mapFromRPC(res.data)); adminBanner(nm); carregarTreino(adminAtleta); carregarSemanaFogo(adminAtleta); carregarConvocatoriasPendentes(adminAtleta); }
+      try{ var nm=(res.data.identidade&&res.data.identidade.nome)||'atleta'; show(mapFromRPC(res.data)); adminBanner(nm); carregarTreino(adminAtleta); carregarSemanaFogo(adminAtleta); carregarConvocatoriasPendentes(adminAtleta); carregarEvolucaoClube(adminAtleta); }
       catch(e){ adminErro('Não foi possível ler o passaporte deste atleta.'); }
     }).catch(function(){ adminErro('Falha de ligação. Tenta novamente.'); });
   } else if(USING_SB && scoutAtleta){
@@ -2116,7 +2139,7 @@
     supa.rpc('ytb_passaporte_scout',{ p_atleta: scoutAtleta }).then(function(res){
       if(res.error){ adminErro('Só scouts podem abrir passaportes por aqui.'); return; }
       if(!res.data){ adminErro('Sem acesso, ou este atleta não existe, ou não foi criado por ti.'); return; }
-      try{ var nm=(res.data.identidade&&res.data.identidade.nome)||'atleta'; show(mapFromRPC(res.data)); scoutBanner(nm, scoutAtleta); carregarSemanaFogo(scoutAtleta); carregarConvocatoriasPendentes(scoutAtleta); }
+      try{ var nm=(res.data.identidade&&res.data.identidade.nome)||'atleta'; show(mapFromRPC(res.data)); scoutBanner(nm, scoutAtleta); carregarSemanaFogo(scoutAtleta); carregarConvocatoriasPendentes(scoutAtleta); carregarEvolucaoClube(scoutAtleta); }
       catch(e){ adminErro('Não foi possível ler o passaporte deste atleta.'); }
     }).catch(function(){ adminErro('Falha de ligação. Tenta novamente.'); });
   } else if(USING_SB && clubeAtleta){
@@ -2124,7 +2147,7 @@
     supa.rpc('ytb_passaporte_clube',{ p_atleta: clubeAtleta }).then(function(res){
       if(res.error){ adminErro('Só clubes podem abrir passaportes por aqui.'); return; }
       if(!res.data){ adminErro('Sem acesso, ou este atleta não existe, ou não é da tua organização.'); return; }
-      try{ var nm=(res.data.identidade&&res.data.identidade.nome)||'atleta'; show(mapFromRPC(res.data)); clubeBanner(nm); carregarSemanaFogo(clubeAtleta); carregarConvocatoriasPendentes(clubeAtleta); }
+      try{ var nm=(res.data.identidade&&res.data.identidade.nome)||'atleta'; show(mapFromRPC(res.data)); clubeBanner(nm); carregarSemanaFogo(clubeAtleta); carregarConvocatoriasPendentes(clubeAtleta); carregarEvolucaoClube(clubeAtleta); }
       catch(e){ adminErro('Não foi possível ler o passaporte deste atleta.'); }
     }).catch(function(){ adminErro('Falha de ligação. Tenta novamente.'); });
   } else if(USING_SB && treinadorAtleta){
@@ -2132,7 +2155,7 @@
     supa.rpc('ytb_passaporte_treinador',{ p_atleta: treinadorAtleta }).then(function(res){
       if(res.error){ adminErro('Só treinadores podem abrir passaportes por aqui.'); return; }
       if(!res.data){ adminErro('Sem acesso — entra primeiro no painel do treinador, ou este atleta não é teu.'); return; }
-      try{ var nm=(res.data.identidade&&res.data.identidade.nome)||'atleta'; show(mapFromRPC(res.data)); treinadorBanner(nm); carregarTreino(treinadorAtleta); carregarSemanaFogo(treinadorAtleta); carregarConvocatoriasPendentes(treinadorAtleta); }
+      try{ var nm=(res.data.identidade&&res.data.identidade.nome)||'atleta'; show(mapFromRPC(res.data)); treinadorBanner(nm); carregarTreino(treinadorAtleta); carregarSemanaFogo(treinadorAtleta); carregarConvocatoriasPendentes(treinadorAtleta); carregarEvolucaoClube(treinadorAtleta); }
       catch(e){ adminErro('Não foi possível ler o passaporte deste atleta.'); }
     }).catch(function(){ adminErro('Falha de ligação. Tenta novamente.'); });
   } else if(USING_SB && familiaAtleta){
@@ -2147,6 +2170,7 @@
         carregarSemanaFogo(familiaAtleta); carregarConvocatoriasPendentes(familiaAtleta);
         carregarPrivacidade(familiaAtleta);
         carregarMentoria(familiaAtleta);
+        carregarEvolucaoClube(familiaAtleta);
       }catch(e){
         // NUNCA cair em dados de exemplo com sessão real — um erro de render
         // não pode vestir dados falsos de dados verdadeiros.
