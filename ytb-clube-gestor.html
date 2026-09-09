@@ -126,7 +126,7 @@ body{padding-bottom:60px}
   .secretaria-grid{column-count:2;column-gap:16px}
   .secretaria-grid>.card{break-inside:avoid;margin-bottom:16px}
 }
-/* trazidas do coachbase.html para o gerador de treino do Clube */
+/* trazidas da Oficina do Treinador (coachbase.html) para o gerador de treino do Clube */
 .err{color:var(--red);font-size:12px;text-align:center;margin-top:8px;display:none}
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -291,7 +291,7 @@ body{padding-bottom:60px}
 .r-footer-info{margin-bottom:5px;font-size:9.5px}
 .r-footer-conf{margin-top:8px;font-size:8px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;font-weight:700}
 
-/* trazido do coachbase.html para a prancheta do Clube */
+/* trazido da Oficina do Treinador (coachbase.html) para a prancheta do Clube */
 .pr-tools{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
 .pr-tools .tl{min-width:64px;min-height:52px;border-radius:11px;border:1px solid var(--border);background:var(--bg3);color:var(--slate);font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 10px}
 .pr-tools .tl .ic{font-size:18px}
@@ -974,7 +974,7 @@ window.removerMembro=async function(email,papel){
   toast('✓ Removido'); await carregarMembros();
 };
 
-/* ══════ prancheta, copiada do CoachBase (migração 144) ══════ */
+/* ══════ prancheta, copiada da Oficina do Treinador (migração 144) ══════ */
 var PR=(function(){
   var W=340,H=520;
   var FORMACOES={
@@ -1448,7 +1448,7 @@ var PR=(function(){
   function init(){
     formar();ligar();render();pintarJogadas();
     // no Clube não há jogadas antigas em localStorage a migrar (mecanismo do
-    // CoachBase avulso) -- o carregamento real acontece quando a aba
+    // Oficina do Treinador avulsa) -- o carregamento real acontece quando a aba
     // Prancheta é aberta, via PR.carregarJogadas() (equipaAtiva só existe
     // depois do login, nunca no arranque desta IIFE)
     medirCampo();
@@ -1461,7 +1461,7 @@ var PR=(function(){
 })();
 
 
-/* ══════ config e banco de exercícios, copiados do CoachBase (migração 142) ══════ */
+/* ══════ config e banco de exercícios, copiados da Oficina do Treinador (migração 142) ══════ */
 var SEL={escalao:'Sub-11',formato:'fut7',n:12,dur:75,material:['bolas','coletes','cones'],foco:'posse',tatica:'4-4-2'};
 var LS_TATICA='ytbCoachTatica';
 (function(){try{var t=localStorage.getItem(LS_TATICA);if(t)SEL.tatica=t;}catch(e){}})();
@@ -1508,7 +1508,7 @@ function tierDeEscalao(esc){
   return 3;
 }
 // Linguagem comum de desenvolvimento (mesma dos 5 domínios do pentagrama
-// em passaporte.html: Técnica/Decisão/Tática/Físico/Mental). O CoachBase
+// em passaporte.html: Técnica/Decisão/Tática/Físico/Mental). A Oficina do Treinador
 // continua com as suas próprias 9 categorias (mais úteis para planear
 // sessões de equipa), mas cada uma mapeia para um domínio -- para que,
 // no futuro, uma sessão de equipa possa contar como evidência no mesmo
@@ -1847,7 +1847,7 @@ function montarSeletores(){
   chips('c-dur',[[60,'60′'],[75,'75′'],[90,'90′']].map(function(x){return [String(x[0]),x[1]]}),function(){return String(SEL.dur)},function(v){SEL.dur=parseInt(v)});
   chips('c-mat',MATERIAIS,function(){return SEL.material},function(a){SEL.material=a},true);
   chips('c-foco',FOCOS,function(){return SEL.foco},function(v){SEL.foco=v});
-  // cv-fmt e pr-fmt pertencem à Convocatória e à Prancheta do CoachBase
+  // cv-fmt e pr-fmt pertencem à Convocatória e à Prancheta da Oficina do Treinador
   // original — não fazem parte desta fatia (só o gerador de treino),
   // por isso removidas aqui (chamá-las com elementos inexistentes
   // interrompia toda a execução seguinte com "Cannot set properties of null")
@@ -1907,7 +1907,7 @@ function toggleFavoritoExercicio(id){
 function renderSessao(plano,mount){
   var total=(plano.blocos||[]).reduce(function(s,b){return s+(b.min||0);},0);
   var h='<div class="card"><div class="h">'+esc(plano.titulo||'Sessão')+'</div>'
-    +'<div class="s">'+SEL.escalao+' · '+SEL.formato+' · '+SEL.n+' atletas · '+total+' min · 📚 banco CoachBase</div>';
+    +'<div class="s">'+SEL.escalao+' · '+SEL.formato+' · '+SEL.n+' atletas · '+total+' min · 📚 banco Oficina do Treinador</div>';
   (plano.blocos||[]).forEach(function(b){
     h+='<div class="bloco"><div class="bt">'+esc(b.nome)+' <span style="color:var(--slate);font-size:12px">· '+(b.min||0)+' min</span></div>';
     (b.exercicios||[]).forEach(function(e){
@@ -1983,14 +1983,14 @@ window.fecharSessaoAgora=async function(sessaoId){
   carregarHistoricoSessoes();
 };
 
-/* ══════ microciclo, copiado do CoachBase (migração 144) ══════ */
+/* ══════ microciclo, copiado da Oficina do Treinador (migração 144) ══════ */
 function gerarMicro(){
   var b=document.getElementById('btn-micro');b.disabled=true;b.innerHTML='<span class="spinner"></span> A montar a semana…';
   setTimeout(function(){
     var dias=['MD-4','MD-2','MD-1'];
     var out=dias.map(function(d){return {plano:montarSessao(d),dia:d};});
     var h='';out.forEach(function(o){var tot=(o.plano.blocos||[]).reduce(function(s,x){return s+(x.min||0);},0);
-      h+='<div class="card"><div class="h">'+esc(o.dia)+' · '+esc(o.plano.titulo||'')+'</div><div class="s">'+tot+' min · 📚 banco CoachBase</div>';
+      h+='<div class="card"><div class="h">'+esc(o.dia)+' · '+esc(o.plano.titulo||'')+'</div><div class="s">'+tot+' min · 📚 banco Oficina do Treinador</div>';
       (o.plano.blocos||[]).forEach(function(bl){h+='<div class="bloco"><div class="bt">'+esc(bl.nome)+' · '+(bl.min||0)+'′</div>';(bl.exercicios||[]).forEach(function(e){
         h+='<div class="ex"><div class="en">'+esc(e.nome)+'</div>'+(e.instrucoes?'<div class="ed">'+esc(e.instrucoes)+'</div>':'')
           +(e.momento_decisao?('<details style="margin-top:6px"><summary style="cursor:pointer;color:var(--muted);font-size:12px">▸ Metodologia</summary>'
@@ -2021,7 +2021,7 @@ function guardarMicro(){
 }
 
 
-/* ══════ TREINOS (gerador de sessão — cópia adaptada do CoachBase) ══════ */
+/* ══════ TREINOS (gerador de sessão — cópia adaptada da Oficina do Treinador) ══════ */
 function pintarTreinos(){
   const box=document.getElementById('sec-treinos');
   if(!equipaAtiva){ box.innerHTML='<div class="card"><div class="s">Escolhe uma equipa na aba Equipas primeiro.</div></div>'; return; }
@@ -2031,7 +2031,7 @@ function pintarTreinos(){
     +'<div>'
     +'<div class="card">'
     +'<div class="h">Gerar <span style="color:var(--gold)">sessão de treino</span></div>'
-    +'<div class="s">A sessão sai do banco de 95 exercícios do CoachBase, filtrado por escalão competitivo, material e (em fut11) pela tática da equipa.</div>'
+    +'<div class="s">A sessão sai do banco de 95 exercícios da Oficina do Treinador, filtrado por escalão competitivo, material e (em fut11) pela tática da equipa.</div>'
     +'<label class="label">Escalão</label><div class="chips" id="c-esc"></div>'
     +'<label class="label">Formato</label><div class="chips" id="c-fmt"></div>'
     +'<div id="tatica-wrap" hidden><label class="label">A nossa tática</label><div class="chips" id="c-tatica"></div><div id="tatica-info" style="margin:0 0 12px"></div></div>'
@@ -2150,7 +2150,7 @@ async function carregarHistoricoSessoes(){
   }).join('') : '<div class="s">Ainda sem sessões guardadas.</div>';
 }
 
-/* ══════ avaliação, copiada do Pro Treinador (migração 145-147) ══════ */
+/* ══════ avaliação, copiada do Plano de Desenvolvimento Individual (migração 145-147) ══════ */
 const CRIT_DEB={
   '1x1 Defensivo':'tatica','1x1 Ofensivo':'tecnica','Recepção':'tecnica','Passe':'tecnica','Condução':'tecnica','Finalização':'tecnica','Jogo Aéreo':'fisico','Velocidade de Execução':'tecnica',
   'Inteligência Táctica':'tatica','Tomada de Decisão':'decisao','Reacção à Perda':'tatica','Dinâmica Ofensiva':'tatica','Dinâmica Defensiva':'tatica',
@@ -2597,7 +2597,7 @@ function detectarDebilidades(scores){
 function mediasPorCat(scores){
   // só os buckets REALMENTE tocados entram na média mostrada -- mesma
   // correção já aplicada à gravação real (recolherScores/avNivel1Tocado);
-  // esta função ficou por corrigir no Pro Treinador original, e a "Média
+  // esta função ficou por corrigir no Plano de Desenvolvimento Individual original, e a "Média
   // geral" no ecrã continuava a incluir os defaults nunca tocados
   const m={};let geral=0,n=0;
   BUCKETS.forEach(function(b){ if(avNivel1Tocado[b[0]]){ m[b[0]]=avNivel1[b[0]]; geral+=m[b[0]]; n++; } });
@@ -2771,7 +2771,7 @@ function gerarPlano(debs, idadeAtleta){
 }
 
 
-/* ══════ retorno, copiado do Pro Treinador (migração 148) ══════ */
+/* ══════ retorno, copiado do Plano de Desenvolvimento Individual (migração 148) ══════ */
 function pintarGlowRetorno(){
   const t=document.querySelector('.tab[data-t="retorno"]');
   if(!t||!digestCache)return;
@@ -2874,7 +2874,7 @@ async function renderRetorno(){
 }
 
 
-/* ══════ AVALIAR (Pro Treinador, PID — copiado e adaptado) ══════ */
+/* ══════ AVALIAR (Plano de Desenvolvimento Individual — copiado e adaptado) ══════ */
 var atletaSel=null, avalSel=null;
 function pintarAvaliar(){
   const box=document.getElementById('sec-avaliar');

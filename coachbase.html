@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>CoachBase · A casa do treinador</title>
+<title>Oficina do Treinador · YTB</title>
 <meta name="theme-color" content="#080C08">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="CoachBase">
+<meta name="apple-mobile-web-app-title" content="Oficina do Treinador">
 <link rel="manifest" href="manifest-coachbase.json">
 <link rel="apple-touch-icon" href="/icons/coachbase-192.svg">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -210,7 +210,7 @@ body.pr-cheio #pr-sair{display:block}
 </head>
 <body>
 <nav class="nav">
-  <a href="/" class="ytb-logo"><b>YTB</b><span>CoachBase</span></a>
+  <a href="/" class="ytb-logo"><b>YTB</b><span>Oficina do Treinador</span></a>
   <a href="ytb-pro-treinador.html" class="app-switch" title="Outra ferramenta: gerir atletas e faturação">💼 Painel do treinador →</a>
 </nav>
 
@@ -231,7 +231,7 @@ body.pr-cheio #pr-sair{display:block}
     <div class="err" id="lerr">Não foi possível enviar o link.</div>
     <div id="lok" style="display:none;color:var(--green);font-size:13px;margin:10px 0"></div>
     <button class="btn" id="lbtn" onclick="login()" style="margin-top:12px">Receber link de acesso →</button>
-    <div style="text-align:center;font-size:12px;color:var(--slate);margin-top:12px">Ainda não tens subscrição? <a href="https://wa.me/351913695846?text=Ol%C3%A1%21%20%F0%9F%91%8B%20Sou%20treinador%20e%20quero%20aceder%20ao%20CoachBase%20%2820%E2%82%AC%2F%C3%A9poca%29.%20Como%20come%C3%A7o%3F" target="_blank" rel="noopener" style="color:var(--gold);font-weight:700;text-decoration:none">Pedir acesso via WhatsApp →</a></div>
+    <div style="text-align:center;font-size:12px;color:var(--slate);margin-top:12px">Ainda não tens subscrição? <a href="https://wa.me/351913695846?text=Ol%C3%A1%21%20%F0%9F%91%8B%20Sou%20treinador%20e%20quero%20aceder%20%C3%A0%20Oficina%20do%20Treinador%20%2820%E2%82%AC%2F%C3%A9poca%29.%20Como%20come%C3%A7o%3F" target="_blank" rel="noopener" style="color:var(--gold);font-weight:700;text-decoration:none">Pedir acesso via WhatsApp →</a></div>
   </div>
   <button class="btn btn-sec" onclick="experimentarSemEntrar()" style="max-width:440px;margin:0 auto;display:block">🔍 Experimentar sem entrar</button>
   <div style="max-width:440px;margin:8px auto 0;text-align:center;font-size:12px;color:var(--muted);line-height:1.5">
@@ -329,7 +329,7 @@ body.pr-cheio #pr-sair{display:block}
   <div class="sec" id="sec-sessao">
     <div class="card">
       <div class="h">Gerar <span style="color:var(--gold)">sessão de treino</span></div>
-      <div class="s">Escolhe o contexto — a sessão sai do banco de 95 exercícios do CoachBase, filtrado por escalão competitivo, material e (em fut11) pela tua tática.</div>
+      <div class="s">Escolhe o contexto — a sessão sai do banco de 95 exercícios da Oficina do Treinador, filtrado por escalão competitivo, material e (em fut11) pela tua tática.</div>
       <label class="label">Ligar a um jogo <span style="font-weight:400;color:var(--muted)">(opcional — fica registado que este treino foi a preparar esse jogo)</span></label>
       <select class="input" id="sessao-jogo-sel" style="margin-bottom:12px">
         <option value="">— sem ligação —</option>
@@ -637,7 +637,7 @@ function tierDeEscalao(esc){
   return 3;
 }
 // Linguagem comum de desenvolvimento (mesma dos 5 domínios do pentagrama
-// em passaporte.html: Técnica/Decisão/Tática/Físico/Mental). O CoachBase
+// em passaporte.html: Técnica/Decisão/Tática/Físico/Mental). A Oficina do Treinador
 // continua com as suas próprias 9 categorias (mais úteis para planear
 // sessões de equipa), mas cada uma mapeia para um domínio -- para que,
 // no futuro, uma sessão de equipa possa contar como evidência no mesmo
@@ -997,7 +997,7 @@ function toggleFavoritoExercicio(id){
 function renderSessao(plano,mount){
   var total=(plano.blocos||[]).reduce(function(s,b){return s+(b.min||0);},0);
   var h='<div class="card"><div class="h">'+esc(plano.titulo||'Sessão')+'</div>'
-    +'<div class="s">'+SEL.escalao+' · '+SEL.formato+' · '+SEL.n+' atletas · '+total+' min · 📚 banco CoachBase</div>';
+    +'<div class="s">'+SEL.escalao+' · '+SEL.formato+' · '+SEL.n+' atletas · '+total+' min · 📚 banco Oficina do Treinador</div>';
   (plano.blocos||[]).forEach(function(b){
     h+='<div class="bloco"><div class="bt">'+esc(b.nome)+' <span style="color:var(--slate);font-size:12px">· '+(b.min||0)+' min</span></div>';
     (b.exercicios||[]).forEach(function(e){
@@ -1034,7 +1034,7 @@ function gerarMicro(){
     var dias=['MD-4','MD-2','MD-1'];
     var out=dias.map(function(d){return {plano:montarSessao(d),dia:d};});
     var h='';out.forEach(function(o){var tot=(o.plano.blocos||[]).reduce(function(s,x){return s+(x.min||0);},0);
-      h+='<div class="card"><div class="h">'+esc(o.dia)+' · '+esc(o.plano.titulo||'')+'</div><div class="s">'+tot+' min · 📚 banco CoachBase</div>';
+      h+='<div class="card"><div class="h">'+esc(o.dia)+' · '+esc(o.plano.titulo||'')+'</div><div class="s">'+tot+' min · 📚 banco Oficina do Treinador</div>';
       (o.plano.blocos||[]).forEach(function(bl){h+='<div class="bloco"><div class="bt">'+esc(bl.nome)+' · '+(bl.min||0)+'′</div>';(bl.exercicios||[]).forEach(function(e){h+='<div class="ex"><div class="en">'+esc(e.nome)+'</div>'+(e.instrucoes?'<div class="ed">'+esc(e.instrucoes)+'</div>':'')+'</div>';});h+='</div>';});
       h+='</div>';});
     h+='<div class="card"><div class="s">As 3 sessões complementam-se: MD-4 constrói (físico + saída de bola + secção), MD-2 aperta (linha defensiva, reação à perda, movimentação), MD-1 afina (bolas paradas ≤10 min, revisão leve). O mesmo exercício não se repete duas semanas seguidas.</div><button class="btn" onclick="guardarMicro()">💾 Guardar as 3 sessões</button></div>';
@@ -1078,7 +1078,7 @@ function carregarPlantel(){
 function ligarJogador(jogadorId){
   supa.rpc('ytb_coach_meus_atletas_disponiveis').then(function(r){
     var atletas=r.data||[];
-    if(!atletas.length){toast('Sem atletas disponíveis — precisas de já ter atletas geridos noutro sítio (Pro Treinador ou academia) para ligar.');return;}
+    if(!atletas.length){toast('Sem atletas disponíveis — precisas de já ter atletas geridos noutro sítio (Plano de Desenvolvimento Individual ou academia) para ligar.');return;}
     var texto='A que atleta queres ligar este jogador?\n\n'+atletas.map(function(a,i){return (i+1)+'. '+a.nome+' ('+(a.escalao||'—')+')';}).join('\n')+'\n\nEscreve o número:';
     var escolha=prompt(texto);
     var idx=parseInt(escolha,10)-1;
@@ -2281,7 +2281,7 @@ function processarSessao(s){
   if(!USING_SB){
     // O Supabase vem de um CDN externo: pode ser bloqueado por ad-blocker,
     // estar lento, ou falhar. Antes, isto abria a app SEM LOGIN e sem sequer
-    // avisar que era demonstração — qualquer pessoa via o CoachBase inteiro.
+    // avisar que era demonstração — qualquer pessoa via a Oficina do Treinador inteira.
     var sub=document.querySelector('.login-sub');
     if(sub) sub.innerHTML='Não foi possível ligar ao servidor — verifica a ligação ou desativa o bloqueador de anúncios para este site.'
       +'<br><br><a href="?demo=1" style="color:var(--gold);text-decoration:underline">Ver em modo demonstração →</a>';

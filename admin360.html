@@ -191,8 +191,8 @@ tr:last-child td{border-bottom:none}
 </nav>
 <div style="display:flex;gap:8px;flex-wrap:wrap;padding:10px 18px;background:var(--bg);border-bottom:1px solid var(--border);font-size:var(--fs-legenda)">
   <span style="color:var(--muted);align-self:center">Entrar como →</span>
-  <a href="ytb-pro-treinador.html" style="color:var(--gold);text-decoration:none;border:1px solid var(--border2);border-radius:7px;padding:5px 11px">🎓 Pro Treinador</a>
-  <a href="coachbase.html" style="color:var(--gold);text-decoration:none;border:1px solid var(--border2);border-radius:7px;padding:5px 11px">⚡ CoachBase</a>
+  <a href="ytb-pro-treinador.html" style="color:var(--gold);text-decoration:none;border:1px solid var(--border2);border-radius:7px;padding:5px 11px">🎓 Plano de Desenvolvimento Individual</a>
+  <a href="coachbase.html" style="color:var(--gold);text-decoration:none;border:1px solid var(--border2);border-radius:7px;padding:5px 11px">⚡ Oficina do Treinador</a>
   <a href="acesso.html" style="color:var(--gold);text-decoration:none;border:1px solid var(--border2);border-radius:7px;padding:5px 11px">👨‍👧 Pro Família</a>
   <a href="scouts.html" style="color:var(--gold);text-decoration:none;border:1px solid var(--border2);border-radius:7px;padding:5px 11px">📋 Área Scout</a>
   <a href="scouting360.html" style="color:var(--gold);text-decoration:none;border:1px solid var(--border2);border-radius:7px;padding:5px 11px">🔎 Dashboard B2B</a>
@@ -233,7 +233,7 @@ tr:last-child td{border-bottom:none}
   <div class="tabs">
     <button class="tab active" onclick="showZona('decidir',event)">🔔 Decidir <span class="badge badge-red" id="zona-bg-decidir">0</span></button>
     <button class="tab" onclick="showZona('pessoas',event)">👥 Pessoas</button>
-    <button class="tab" onclick="showZona('coachbase',event)">🧠 CoachBase</button>
+    <button class="tab" onclick="showZona('coachbase',event)">🧠 Oficina do Treinador</button>
     <button class="tab" onclick="showZona('negocio',event)">💼 Negócio</button>
   </div>
   <!-- contadores por secção mantidos (ocultos) para compatibilidade com load() -->
@@ -308,8 +308,8 @@ tr:last-child td{border-bottom:none}
           <label style="display:block;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Tipo de cobrança</label>
           <select class="f-select" id="cob-tipo" style="width:100%">
             <option value="avaliacao">Avaliação (39,90€ · 19,90€ tr.)</option>
-            <option value="mensalidade">Mensalidade Pro Treinador (9,90€ · 4,90€ tr.)</option>
-            <option value="coachbase">CoachBase avulso (20€/época)</option>
+            <option value="mensalidade">Mensalidade Plano de Desenvolvimento Individual (9,90€ · 4,90€ tr.)</option>
+            <option value="coachbase">Oficina do Treinador avulsa (20€/época)</option>
             <option value="scout">Scout Report (39,90€)</option>
             <option value="academia_atleta">Academia — mensal (50€ até 50 atletas)</option>
           </select>
@@ -449,7 +449,7 @@ tr:last-child td{border-bottom:none}
     </div>
   </div>
 
-  <!-- COACHBASE -->
+  <!-- OFICINA DO TREINADOR (antigo CoachBase) -->
   <div class="section" id="section-coachbase">
     <div id="cb-resumo" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px">
       <div class="loading"><div class="spinner"></div></div>
@@ -692,7 +692,7 @@ const ZONAS = {
 };
 const SEC_TITULO = {
   atletas:'📋 Atletas', pendentes:'⏳ Atletas por aprovar', pedidos:'📞 Pedidos de contacto',
-  coachbase:'🧠 CoachBase', academias:'🏟️ Academias',
+  coachbase:'🧠 Oficina do Treinador', academias:'🏟️ Academias',
   treinadores:'📝 Novos Registos (treinador · scout · família)', relatorios:'📄 Relatórios',
   atletastreinador:'⚽ Atletas de treinador · pagamentos', clubes:'🏢 Clubes',
   contas:'👤 Contas', comissoes:'💶 Comissões', portreinador:'📁 Atletas por treinador',
@@ -2107,7 +2107,7 @@ async function eliminarConta(email){
   } catch(e){ toast('Erro: ' + (e && e.message || ''), 'error'); }
 }
 
-// ═══ CoachBase: resumo real de treinadores ativos, nao "aprovados" em geral ═══
+// ═══ Oficina do Treinador (antigo CoachBase): resumo real de treinadores ativos, nao "aprovados" em geral ═══
 async function carregarCoachBase(){
   const box = document.getElementById('cb-resumo');
   const tb = document.getElementById('tbody-coachbase');
@@ -2118,11 +2118,11 @@ async function carregarCoachBase(){
       <div class="fin-card"><div class="fin-card-n">${r.treinadores_ativos}</div><div class="fin-card-l">Treinadores ativos</div></div>
       <div class="fin-card"><div class="fin-card-n">${r.sessoes_geradas}</div><div class="fin-card-l">Sessões geradas</div></div>
       <div class="fin-card"><div class="fin-card-n">${r.jogos_registados}</div><div class="fin-card-l">Jogos registados</div></div>
-      <div class="fin-card"><div class="fin-card-n">${r.jogadores_registados}</div><div class="fin-card-l">Jogadores CoachBase</div></div>
+      <div class="fin-card"><div class="fin-card-n">${r.jogadores_registados}</div><div class="fin-card-l">Jogadores da Oficina do Treinador</div></div>
       <div class="fin-card"><div class="fin-card-n" style="color:${r.pagamentos_registados>0?'var(--green)':'var(--orange)'}">${r.pagamentos_registados}</div><div class="fin-card-l">Pagamentos registados</div></div>
     `;
     const lista = r.lista || [];
-    if(!lista.length){ tb.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-icon">🧠</div>Ainda sem treinadores com atividade real no CoachBase</td></tr>'; return; }
+    if(!lista.length){ tb.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-icon">🧠</div>Ainda sem treinadores com atividade real na Oficina do Treinador</td></tr>'; return; }
     tb.innerHTML = lista.map(t => `
       <tr>
         <td class="td-name"><strong>${escapeHtml(t.nome)}</strong><div class="td-mute">${escapeHtml(t.email)}</div></td>
