@@ -107,6 +107,8 @@
   <header class="top"><div class="wrap"><a class="mono" href="/" title="Início" aria-label="Início" style="text-decoration:none">YTB</a><span class="ttl">Scouting360</span></div></header>
   <main class="wrap">
     <div class="lead"><div class="h">Base de talento longitudinal</div><div class="s">Descoberta por trajetória — não por popularidade.</div></div>
+    <div class="sorts" id="filtros-posicao"></div>
+    <div id="filtros-clube" style="margin:8px 0"></div>
     <div class="sorts" id="sorts"></div>
     <div id="list"></div>
     <div class="foot" id="foot"></div>
@@ -142,7 +144,7 @@
     densidade:{label:"Densidade de dados", get:function(a){return a.eventos;}}
   };
   var ORDER=["evolucao","treinabilidade","compromisso","consistencia","observados","verificados","densidade"];
-  var sortBy="evolucao", data=DEMO;
+  var sortBy="evolucao", data=DEMO, filtroClube="", filtroPosicao="";
 
   function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
   function spark(serie){
@@ -160,16 +162,34 @@
   function initials(nm){var p=String(nm||'').trim().split(/\s+/);var s=((p[0]||'')[0]||'')+((p[1]||'')[0]||'');return s.toUpperCase()||'–';}
   function sealLbl(v){v=String(v||'').toLowerCase();if(/trein/.test(v))return 'Scout + Treinador';if(/scout/.test(v))return 'Scout';return 'Por verificar';}
 
+  function renderFiltros(){
+    var clubes=Array.from(new Set(data.map(function(a){return a.clube;}).filter(Boolean))).sort();
+    var posicoes=Array.from(new Set(data.map(function(a){return a.posicao;}).filter(Boolean))).sort();
+    var boxPos=document.getElementById('filtros-posicao'), boxClube=document.getElementById('filtros-clube');
+    boxPos.innerHTML = posicoes.length ? '<button class="chip'+(!filtroPosicao?' on':'')+'" data-posicao="">Todas as posições</button>'
+      +posicoes.map(function(p){return '<button class="chip'+(p===filtroPosicao?' on':'')+'" data-posicao="'+esc(p)+'">'+esc(p)+'</button>';}).join('') : '';
+    boxClube.innerHTML = clubes.length ? '<select class="chip" id="filtro-clube-select" style="cursor:pointer;width:100%;max-width:320px"><option value="">Todos os clubes</option>'
+      +clubes.map(function(c){return '<option value="'+esc(c)+'"'+(c===filtroClube?' selected':'')+'>'+esc(c)+'</option>';}).join('')+'</select>' : '';
+    boxPos.querySelectorAll('[data-posicao]').forEach(function(b){
+      b.addEventListener('click',function(){ filtroPosicao=b.getAttribute('data-posicao'); render(); });
+    });
+    var sel=document.getElementById('filtro-clube-select');
+    if(sel) sel.addEventListener('change',function(){ filtroClube=sel.value; render(); });
+  }
   function render(){
+    renderFiltros();
     document.getElementById('sorts').innerHTML=ORDER.map(function(k){
       return '<button class="chip'+(k===sortBy?' on':'')+'" data-k="'+k+'">'+esc(METRICS[k].label)+'</button>';
     }).join('');
     document.querySelectorAll('.chip').forEach(function(b){b.addEventListener('click',function(){sortBy=b.dataset.k;load();});});
 
-    var list=data.slice().sort(function(x,y){return (METRICS[sortBy].get(y)||-1e9)-(METRICS[sortBy].get(x)||-1e9);});
+    var filtrada=data.filter(function(a){
+      return (!filtroPosicao || a.posicao===filtroPosicao) && (!filtroClube || a.clube===filtroClube);
+    });
+    var list=filtrada.slice().sort(function(x,y){return (METRICS[sortBy].get(y)||-1e9)-(METRICS[sortBy].get(x)||-1e9);});
     var tiles=[["evolucao","Evolução"],["treinabilidade","Treinab"],["compromisso","Compromisso"],["consistencia","Consist"]];
 
-    document.getElementById('list').innerHTML=list.map(function(a,i){
+    document.getElementById('list').innerHTML= !list.length ? '<div class="s" style="padding:24px 0;text-align:center">Nenhum atleta encontrado com estes filtros.</div>' : list.map(function(a,i){
       var lbl=sealLbl(a.nivel_verificacao), unv=(lbl==='Por verificar');
       var mx=tiles.map(function(t){
         var key=t[0], on=(key===sortBy), val=a[key==='evolucao'?'evolucao_pct':key];
