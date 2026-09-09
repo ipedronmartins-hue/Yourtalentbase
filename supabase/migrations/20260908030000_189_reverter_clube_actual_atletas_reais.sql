@@ -1,0 +1,2 @@
+-- 189: reverte clube_actual de atletas reais para os seus clubes
+-- verdadeiros. Corpo integral no historico Supabase (189).

@@ -1,0 +1,2 @@
+-- 190: limpeza de dados de teste ligados a atletas reais do
+-- Gondomar SC. Corpo integral no historico Supabase (190).
