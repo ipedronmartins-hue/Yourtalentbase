@@ -1,0 +1,3 @@
+-- 188: corrige clube_actual nunca ser atualizado ao associar um
+-- atleta existente a um clube institucional. Corpo integral no
+-- historico Supabase (188).
