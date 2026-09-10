@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Console · Scouting 360 YTB</title>
+<title>Admin Console · Base 360 YTB</title>
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="var(--bg)">
 <meta name="mobile-web-app-capable" content="yes">
@@ -203,7 +203,7 @@ tr:last-child td{border-bottom:none}
 
   <div class="head">
     <div class="eyebrow">Console Administração</div>
-    <h1 class="h1">Gestão <em>Scouting 360</em></h1>
+    <h1 class="h1">Gestão <em>Base 360</em></h1>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
       <button class="action-btn success" onclick="creditarScout()" style="padding:8px 14px;font-size:var(--fs-legenda)">+ Créditos Scout (39,90€ = 3 PDF)</button>
       <button class="action-btn" id="btn-push" onclick="ativarNotificacoesPush()" style="padding:8px 14px;font-size:var(--fs-legenda)">🔔 Ativar notificações</button>
@@ -310,7 +310,7 @@ tr:last-child td{border-bottom:none}
             <option value="avaliacao">Avaliação (39,90€ · 19,90€ tr.)</option>
             <option value="mensalidade">Mensalidade Plano de Desenvolvimento Individual (9,90€ · 4,90€ tr.)</option>
             <option value="coachbase">Oficina do Treinador avulsa (20€/época)</option>
-            <option value="scout">Scout Report (39,90€)</option>
+            <option value="scout">Relatório do Olheiro (39,90€)</option>
             <option value="academia_atleta">Academia — mensal (50€ até 50 atletas)</option>
           </select>
         </div>
@@ -425,7 +425,7 @@ tr:last-child td{border-bottom:none}
     </div>
   </div>
 
-  <!-- RELATÓRIOS (scout reports) -->
+  <!-- RELATÓRIOS (relatórios do olheiro) -->
   <div class="section" id="section-relatorios">
     <div class="table-wrap">
       <table>
@@ -1147,7 +1147,7 @@ async function confirmarPagAtleta(atletaId, tipo){
   }
 }
 
-// ════════════════ RELATÓRIOS (admin vê todos os scout reports) ════════════════
+// ════════════════ RELATÓRIOS (admin vê todos os relatórios do olheiro) ════════════════
 function renderRelatorios(){
   const tbody = document.getElementById('tbody-relatorios');
   if(!tbody) return;
@@ -1176,7 +1176,7 @@ const SERVICO_INFO = {
   treinador_mensal:  { label:'Treinador · Mensal', emoji:'🎓' },
   familia_entrada:   { label:'Família · Entrada', emoji:'👨‍👩‍👦' },
   familia_mensal:    { label:'Família · Mensal', emoji:'👨‍👩‍👦' },
-  scout_report:      { label:'Scout Report', emoji:'🔍' },
+  scout_report:      { label:'Relatório do Olheiro', emoji:'🔍' },
   miudo_treinador_entrada: { label:'Atleta Treinador · Entrada', emoji:'⚽' },
   miudo_treinador_mensal:  { label:'Atleta Treinador · Mensal', emoji:'⚽' }
 };
@@ -1289,7 +1289,7 @@ function cobrarTreinador(id){
   const papel = t.papel || 'treinador';
   let intro, plano;
   if(papel === 'scout'){
-    intro = 'Recebemos o teu registo como scout. Para ativar o acesso ao Scout Report (3 relatórios profissionais), o valor é:';
+    intro = 'Recebemos o teu registo como scout. Para ativar o acesso ao Relatório do Olheiro (3 relatórios profissionais), o valor é:';
     plano = '• 39,90€ por 3 relatórios';
   } else if(papel === 'familia'){
     intro = 'Recebemos o teu registo. Para ativar o acompanhamento do teu atleta (avaliação + treino IA personalizado), o plano é:';
@@ -1932,7 +1932,7 @@ document.getElementById('s-clubes').addEventListener('input', renderClubes);
 
 // load() e chamado por verificarAdmin() apos confirmar o admin
 
-// ═══ Avaliação contextual retroativa (admin) · junta dimensões + Scout Report ═══
+// ═══ Avaliação contextual retroativa (admin) · junta dimensões + Relatório do Olheiro ═══
 async function gerarNarrativaAdmin(atletaId){
   const btn = document.getElementById('btn-narrativa-' + atletaId);
   if(btn){ btn.disabled = true; btn.textContent = 'A gerar...'; }

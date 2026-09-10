@@ -1431,7 +1431,7 @@
     var temInteresse=(den.interesses||0)>0;
     var flags=[true,temAval,temPlano,temTreinos,true,evol,temScout,temInteresse];
     var atual=flags.indexOf(false); if(atual===-1)atual=flags.length-1;
-    var nomes=['Inscrição','Avaliação','Plano','Treinos','Passaporte','Evolução','Scout Report','Oportunidades'];
+    var nomes=['Inscrição','Avaliação','Plano','Treinos','Passaporte','Evolução','Relatório do Olheiro','Oportunidades'];
     var etapas=nomes.map(function(nm,i){ return {nome:nm,estado:flags[i]?'done':(i===atual?'atual':'futuro')}; });
     etapas[2].dica=temPlano?'Plano do treinador ativo':'Chega quando o treinador prescrever';
     etapas[6].dica=temScout?'Observação profissional no passaporte':'Quando um scout observar o atleta';
@@ -2026,7 +2026,7 @@
     var b=document.createElement('div');
     b.style.cssText='position:sticky;top:0;z-index:99;background:#1A241A;border-bottom:1px solid #2A322B;color:#D4AF37;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:var(--fs-corpo);letter-spacing:.4px;text-align:center;padding:10px 14px;display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap';
     b.innerHTML='<span>🔍 MODO SCOUT · atleta criado por ti · '+esc(nome||'atleta')+'</span>'
-      +'<a href="scouts.html?atleta='+encodeURIComponent(atletaId)+'" style="background:#D4AF37;color:#0A0D0A;border-radius:8px;padding:6px 14px;text-decoration:none;font-weight:800;letter-spacing:.3px">📝 Novo Scout Report</a>';
+      +'<a href="scouts.html?atleta='+encodeURIComponent(atletaId)+'" style="background:#D4AF37;color:#0A0D0A;border-radius:8px;padding:6px 14px;text-decoration:none;font-weight:800;letter-spacing:.3px">📝 Novo Relatório do Olheiro</a>';
     document.body.insertBefore(b, document.body.firstChild);
     esconderPartilha();
   }
@@ -2064,7 +2064,7 @@
     supa.rpc('ytb_consentimentos',{p_atleta:atletaId}).then(function(res){
       if(res.error||!res.data) return;
       var c=res.data;
-      var amb=[['visibilidade_b2b','Visível para clubes e scouts','O percurso aparece na área profissional (Scouting360).'],
+      var amb=[['visibilidade_b2b','Visível para clubes e scouts','O percurso aparece na área profissional (Base 360).'],
                ['montra_publica','Montra pública','Nome, posição, escalão e clube na página pública. Sem notas, nunca.'],
                ['foto','Fotografia','Autorizas o uso da foto no passaporte.'],
                ['video','Vídeo','Autorizas vídeos associados ao passaporte.']];

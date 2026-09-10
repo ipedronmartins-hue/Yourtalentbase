@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#080C08">
-<title>Scouting360 · Descoberta</title>
+<title>Base 360 · Descoberta</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -94,7 +94,7 @@
     <div class="gate-card">
       <div class="gate-brand"><a class="mono" href="/" title="Início" aria-label="Início" style="text-decoration:none">YTB</a> · Área reservada</div>
       <div id="gate-form">
-        <div class="gate-h">Scouting360</div>
+        <div class="gate-h">Base 360</div>
         <div class="gate-s">Acesso a scouts e admin. Entras por link no email — sem password. O acesso abre quando confirmarmos o teu pagamento.</div>
         <input id="gate-email" class="gate-input" type="email" placeholder="o.teu@email.com" autocomplete="email">
         <div class="gate-err" id="gate-err"></div>
@@ -104,7 +104,7 @@
       <div id="gate-status"></div>
     </div>
   </div>
-  <header class="top"><div class="wrap"><a class="mono" href="/" title="Início" aria-label="Início" style="text-decoration:none">YTB</a><span class="ttl">Scouting360</span></div></header>
+  <header class="top"><div class="wrap"><a class="mono" href="/" title="Início" aria-label="Início" style="text-decoration:none">YTB</a><span class="ttl">Base 360</span></div></header>
   <main class="wrap">
     <div class="lead"><div class="h">Base de talento longitudinal</div><div class="s">Descoberta por trajetória — não por popularidade.</div></div>
     <div class="sorts" id="filtros-posicao"></div>
@@ -210,7 +210,7 @@
         ((a.atleta_id&&(myRole==='clube'||myRole==='admin'))?('<button class="contact-btn" onclick="pedirContacto(\''+a.atleta_id+'\',this)">📞 Pedir contacto</button>'):'')+
         '</div>';
     }).join('');
-    document.getElementById('foot').innerHTML=USING_SB?'YourTalentBase · Scouting360':'<span class="demo-tag">Demonstração</span> · 6 atletas de exemplo';
+    document.getElementById('foot').innerHTML=USING_SB?'YourTalentBase · Base 360':'<span class="demo-tag">Demonstração</span> · 6 atletas de exemplo';
   }
 
   function load(){
@@ -283,7 +283,7 @@
 
   if(!USING_SB){ myRole='clube'; showApp(); }
   else {
-    var wa=gq('wa-clube'); if(wa) wa.href='https://wa.me/351913695846?text='+encodeURIComponent('Olá! 👋 Represento um clube e quero acesso ao Scouting360 para descobrir atletas com dados. Podemos falar?');
+    var wa=gq('wa-clube'); if(wa) wa.href='https://wa.me/351913695846?text='+encodeURIComponent('Olá! 👋 Represento um clube e quero acesso à Base 360 para descobrir atletas com dados. Podemos falar?');
     gq('gate-btn').addEventListener('click',gateLogin);
     gq('gate-email').addEventListener('keypress',function(e){if(e.key==='Enter')gateLogin();});
     gateProcess();

@@ -571,7 +571,7 @@ async function carregarDados(){
     }
   }catch(e){console.warn('Load aval:',e)}
 
-  // Scout Report — tem prioridade sobre questionário parental
+  // Relatório do Olheiro — tem prioridade sobre questionário parental
   try{
     const{data:scouts}=await supa.from('relatorios')
       .select('*').eq('nome_atleta',nomeAtleta).eq('tipo','scout')
@@ -580,10 +580,10 @@ async function carregarDados(){
       const sr=scouts[0];
       const scoutScores=sr.report_data?.scores||sr.scores||{};
       const debsScout=debsFromScout(scoutScores);
-      // Scout Report gera um plano mais preciso — substitui ou cria
+      // Relatório do Olheiro gera um plano mais preciso — substitui ou cria
       const planoScout=gerarPlano(debsScout,sr.report_data?.posicao||'MED');
       if(!resultadoFinal){
-        // Sem questionário mas tem Scout Report → cria resultadoFinal parcial
+        // Sem questionário mas tem Relatório do Olheiro → cria resultadoFinal parcial
         resultadoFinal={
           nome:nomeAtleta,
           posicao:sr.report_data?.posicao||'MED',
@@ -595,7 +595,7 @@ async function carregarDados(){
           created_at:sr.created_at
         };
       }else{
-        // Tem questionário E Scout Report → Scout Report atualiza o plano (mais preciso)
+        // Tem questionário E Relatório do Olheiro → Relatório do Olheiro atualiza o plano (mais preciso)
         resultadoFinal.plano=planoScout;
         resultadoFinal.debilidades=debsScout;
         resultadoFinal.fonte='scout';
@@ -1081,7 +1081,7 @@ function renderTreino(){
   if(!semana){c.innerHTML='<div class="empty-state">A gerar plano...</div>';return}
 
   // Badge da fonte do plano
-  const fonteLabel={scout:'🔍 Baseado no Scout Report',familia:'📋 Baseado na avaliação parental',base:'📊 Plano base geral'}[resultadoFinal.fonte||'base'];
+  const fonteLabel={scout:'🔍 Baseado no Relatório do Olheiro',familia:'📋 Baseado na avaliação parental',base:'📊 Plano base geral'}[resultadoFinal.fonte||'base'];
 
   let html=`<div class="ciclo-info">
     <div style="font-size:9px;font-weight:700;color:var(--muted);margin-bottom:4px">${fonteLabel}</div>
@@ -1407,7 +1407,7 @@ function showToast(msg,duration){
 }
 
 // ═══════════════════════════════════════════════════════
-// SCOUT REPORT → DEBILIDADES (25 critérios)
+// RELATÓRIO DO OLHEIRO → DEBILIDADES (25 critérios)
 // ═══════════════════════════════════════════════════════
 const SCOUT_CRITERIOS_MAP={
   // TÉCNICOS
@@ -1446,7 +1446,7 @@ function debsFromScout(scores){
 }
 
 function planoFallback(){
-  // Plano base para quando não há avaliação nem scout report
+  // Plano base para quando não há avaliação nem relatório do olheiro
   // Distribui equitativamente — garante sempre um plano
   const debs=['tecnica','fisico','decisao','mental']; // todos os blocos
   return gerarPlano(debs,'MED');

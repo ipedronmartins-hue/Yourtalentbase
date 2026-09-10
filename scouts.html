@@ -221,7 +221,7 @@ body{max-width:520px;margin:0 auto;padding-bottom:60px}
     </div>
   </div>
 
-  <a href="scouting360.html" style="display:block;text-align:center;background:var(--bg2);border:1px solid var(--gold-border);color:var(--gold);border-radius:9px;padding:9px;font-size:12px;font-weight:700;text-decoration:none;margin-bottom:14px">🔎 Descobrir talento noutros clubes → Scouting360</a>
+  <a href="scouting360.html" style="display:block;text-align:center;background:var(--bg2);border:1px solid var(--gold-border);color:var(--gold);border-radius:9px;padding:9px;font-size:12px;font-weight:700;text-decoration:none;margin-bottom:14px">🔎 Descobrir talento noutros clubes → Base 360</a>
 
   <div class="section-title">Os meus <span style="color:var(--gold)">atletas</span></div>
   <div class="section-sub">Atletas que criaste. O Passaporte Digital nasce automaticamente quando inscreves um novo.</div>
@@ -293,7 +293,7 @@ body{max-width:520px;margin:0 auto;padding-bottom:60px}
   </div>
 
   <div id="area-com-creditos">
-    <div class="section-title">Novo <span style="color:var(--gold)">Scout Report</span></div>
+    <div class="section-title">Novo <span style="color:var(--gold)">Relatório do Olheiro</span></div>
     <div class="section-sub">Avaliação profissional · 25 critérios · Análise IA · PDF</div>
 
     <div class="form-card">
@@ -389,7 +389,7 @@ body{max-width:520px;margin:0 auto;padding-bottom:60px}
       <div id="sl-mentais"></div>
     </div>
 
-    <button class="btn btn-primary" id="gerar-btn" onclick="gerarReport()">⚡ Gerar Scout Report</button>
+    <button class="btn btn-primary" id="gerar-btn" onclick="gerarReport()">⚡ Gerar Relatório do Olheiro</button>
     <div id="gerar-status" style="text-align:center;font-size:12px;color:var(--slate);margin-top:10px;display:none"></div>
   </div>
 
@@ -530,7 +530,7 @@ function mostrarMain(){
   carregarHistorico();
   carregarMeusAtletas();
   document.getElementById('sr_data').value=new Date().toISOString().split('T')[0];
-  // vindo do Passaporte (modo scout) com "Novo Scout Report" → pré-seleciona o atleta
+  // vindo do Passaporte (modo scout) com "Novo Relatório do Olheiro" → pré-seleciona o atleta
   const params=new URLSearchParams(location.search);
   const atletaUrl=params.get('atleta');
   if(atletaUrl) setTimeout(()=>preSelecionarAtletaPorId(atletaUrl), 400);
@@ -588,7 +588,7 @@ function pintarMiniJornadas(){
     const temRep=reps.some(r=>(r.atleta||'').toLowerCase()===(a.nome||'').toLowerCase());
     const etapas=[
       {nome:'Criado',estado:'done'},
-      {nome:'Report',estado:temRep?'done':'atual',click:()=>usarAtletaNoReport(a.id),dica:temRep?'Report anexado ao passaporte':'Faz o primeiro scout report'},
+      {nome:'Report',estado:temRep?'done':'atual',click:()=>usarAtletaNoReport(a.id),dica:temRep?'Relatório anexado ao passaporte':'Faz o primeiro relatório do olheiro'},
       {nome:'Passaporte',estado:'done',href:'passaporte.html?scout='+a.id},
       {nome:'Oportunidades',estado:'futuro',dica:'A visibilidade para clubes nasce do consentimento da família'}
     ];
@@ -939,7 +939,7 @@ async function gerarReport(){
   }
 
   reportAtual=dados;
-  btn.disabled=false;btn.textContent='⚡ Gerar Scout Report';
+  btn.disabled=false;btn.textContent='⚡ Gerar Relatório do Olheiro';
   if(avisos.length){ stat.style.display='block'; stat.textContent='⚠ '+avisos.join(' '); }
   else{ stat.style.display='none'; }
 
@@ -1182,7 +1182,7 @@ function renderReport(){
     </div>
   </div>
   <div class="r-header-right">
-    <div class="r-h-title">SCOUT REPORT</div>
+    <div class="r-h-title">RELATÓRIO DO OLHEIRO</div>
     <div class="r-h-num">Nº ${d.numero}</div>
     <div>Época ${d.epoca}</div>
     <div class="r-h-data">${dataF}</div>

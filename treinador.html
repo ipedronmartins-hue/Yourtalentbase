@@ -166,7 +166,7 @@ body{max-width:520px;margin:0 auto;padding-bottom:60px}
   <!-- TAB: ATLETAS -->
   <div class="tab-panel active" id="tab-atletas">
     <div class="section-title">Os teus <span style="color:var(--gold)">atletas</span></div>
-    <div class="section-sub">Selecciona um atleta para ver o perfil ou fazer Scout Report</div>
+    <div class="section-sub">Selecciona um atleta para ver o perfil ou fazer o Relatório do Olheiro</div>
     <div id="atletas-lista">
       <div style="text-align:center;padding:30px;color:var(--muted)"><div class="spinner"></div></div>
     </div>
@@ -175,7 +175,7 @@ body{max-width:520px;margin:0 auto;padding-bottom:60px}
     </div>
   </div>
 
-  <!-- TAB: SCOUT REPORT -->
+  <!-- TAB: RELATÓRIO DO OLHEIRO -->
   <div class="tab-panel" id="tab-scout">
     <div class="section-title">Scout <span style="color:var(--gold)">Report</span></div>
     <div class="section-sub">Avalia o atleta em 4 categorias. O sistema gera perfil e plano automático.</div>
@@ -240,7 +240,7 @@ body{max-width:520px;margin:0 auto;padding-bottom:60px}
       </div>
 
       <button class="btn btn-primary" onclick="gerarScoutReport()">
-        ⚡ Gerar Scout Report
+        ⚡ Gerar Relatório do Olheiro
       </button>
     </div>
 
@@ -250,7 +250,7 @@ body{max-width:520px;margin:0 auto;padding-bottom:60px}
   <!-- TAB: TREINO -->
   <div class="tab-panel" id="tab-treino">
     <div class="section-title">Treino <span style="color:var(--gold)">Prescrito</span></div>
-    <div class="section-sub" id="treino-intro-text">Faz primeiro o Scout Report para ver treinos personalizados</div>
+    <div class="section-sub" id="treino-intro-text">Faz primeiro o Relatório do Olheiro para ver treinos personalizados</div>
     <div id="treino-cards-area"></div>
   </div>
 
@@ -262,14 +262,14 @@ body{max-width:520px;margin:0 auto;padding-bottom:60px}
     <div id="cenarios-recomendados" style="margin-bottom:14px">
       <div style="background:var(--bg2);border:1px dashed var(--border);border-radius:12px;padding:30px 18px;text-align:center;color:var(--muted);font-size:13px;line-height:1.55">
         🎯<br><br>
-        Faz primeiro o <strong style="color:var(--gold)">Scout Report</strong>.<br>
+        Faz primeiro o <strong style="color:var(--gold)">Relatório do Olheiro</strong>.<br>
         Vais ver aqui os cenários mais importantes para trabalhar com este atleta — ligados directamente às fraquezas detectadas.
       </div>
     </div>
 
     <div style="background:var(--bg2);border:1px solid var(--gold-border);border-radius:10px;padding:14px;margin-bottom:12px">
       <div id="tactics-context" style="font-size:12px;color:var(--slate);line-height:1.6">
-        Faz o Scout Report primeiro. Aqui vais ver os padrões táticos mais importantes para o atleta com base nas fraquezas detectadas.
+        Faz o Relatório do Olheiro primeiro. Aqui vais ver os padrões táticos mais importantes para o atleta com base nas fraquezas detectadas.
       </div>
     </div>
 
@@ -396,7 +396,7 @@ function selecionarAtleta(nome, pos, esc) {
   setTab('scout');
 }
 
-// GERAR SCOUT REPORT
+// GERAR RELATÓRIO DO OLHEIRO
 function gerarScoutReport() {
   const nome = document.getElementById('sr_nome').value.trim();
   if (!nome) { alert('Insere o nome do atleta'); return; }
@@ -761,7 +761,7 @@ function prescreverTreino(r, foco) {
 }
 
 
-// MAPA: fraqueza do Scout Report → cenários do Elite Coach
+// MAPA: fraqueza do Relatório do Olheiro → cenários do Elite Coach
 const MAPA_FRAQUEZA_CENARIO = {
   'Decisão sob pressão': [1, 7],
   'Decisão': [1, 7],
@@ -819,7 +819,7 @@ function atualizarTactics(r) {
 
   ctx.innerHTML = sugestoes.length
     ? `<div style="font-size:11px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:10px">Padrões táticos para ${r.nome}</div>${sugestoes.join('')}`
-    : 'Faz o Scout Report primeiro para ver padrões táticos personalizados.';
+    : 'Faz o Relatório do Olheiro primeiro para ver padrões táticos personalizados.';
 
   // GERAR CENÁRIOS RECOMENDADOS
   const cenariosArea = document.getElementById('cenarios-recomendados');

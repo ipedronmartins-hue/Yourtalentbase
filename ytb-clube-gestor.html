@@ -144,7 +144,7 @@ body{padding-bottom:60px}
 .empty-emoji{font-size:32px;margin-bottom:10px}
 .dash-card{background:var(--bg2);border:1px solid var(--border);border-radius:11px;padding:14px;margin-bottom:10px}
 .dash-card-eyebrow{font-size:11px;font-weight:800;letter-spacing:1.5px;color:var(--gold);text-transform:uppercase;margin-bottom:6px}
-/* trazido do scouts.html para o Scout Report do Clube */
+/* trazido do scouts.html para o Relatório do Olheiro do Clube */
 .req{color:var(--gold)}
 .field{margin-bottom:12px}
 .btn-primary{background:var(--gold);color:#000}
@@ -2162,7 +2162,7 @@ const CRIT_DEB={
    Nível 1: os 5 buckets do produto — é SÓ isto que o plano, o Objetivo da
    família e a Missão de Decisão consomem (os 25 critérios colapsavam aqui).
    Nível 2 (opcional): detalhar um bucket abre os critérios de sempre desse
-   bucket. Os 25 completos continuam a ser o instrumento do scout report —
+   bucket. Os 25 completos continuam a ser o instrumento do relatório do olheiro —
    momento diferente, profundidade diferente. */
 const BUCKETS=[
   ['tecnica','⚽','Técnica','receção, passe, condução, finalização'],
@@ -2908,7 +2908,7 @@ window.selecionarAtletaAvaliar=function(id){
   pintarAvaliar();
 };
 
-/* ══════ scout report, lógica copiada do scouts.html (migração 149) ══════ */
+/* ══════ relatório do olheiro, lógica copiada do scouts.html (migração 149) ══════ */
 const CRITERIOS={
   tecnicos:['1x1 Defensivo','1x1 Ofensivo','Recepção','Passe','Condução','Finalização','Jogo Aéreo','Velocidade de Execução'],
   tacticos:['Inteligência Táctica','Tomada de Decisão','Reacção à Perda','Dinâmica Ofensiva','Dinâmica Defensiva'],
@@ -3096,7 +3096,7 @@ async function gerarReport(){
   }
 
   reportAtual=dados;
-  btn.disabled=false;btn.textContent='⚡ Gerar Scout Report';
+  btn.disabled=false;btn.textContent='⚡ Gerar Relatório do Olheiro';
   if(avisos.length){ stat.style.display='block'; stat.textContent='⚠ '+avisos.join(' '); }
   else{ stat.style.display='none'; }
 
@@ -3332,7 +3332,7 @@ function renderReport(){
     </div>
   </div>
   <div class="r-header-right">
-    <div class="r-h-title">SCOUT REPORT</div>
+    <div class="r-h-title">RELATÓRIO DO OLHEIRO</div>
     <div class="r-h-num">Nº ${d.numero}</div>
     <div>Época ${d.epoca}</div>
     <div class="r-h-data">${dataF}</div>
@@ -3417,14 +3417,14 @@ function fecharReport(){
 }
 
 
-/* ══════ SCOUT REPORT (copiado e adaptado, análise determinística) ══════ */
+/* ══════ RELATÓRIO DO OLHEIRO (copiado e adaptado, análise determinística) ══════ */
 function pintarScout(){
   const box=document.getElementById('sec-scout');
   if(!equipaAtiva){ box.innerHTML='<div class="card"><div class="s">Escolhe uma equipa na aba Equipas primeiro.</div></div>'; return; }
   var atletasEquipa = plantelDaEquipa.map(function(p){
     return atletasDoClube.find(function(a){return a.id===p.atleta_id;}) || {id:p.atleta_id, nome:p.nome};
   });
-  box.innerHTML='<div class="section-title">Novo <span style="color:var(--gold)">Scout Report</span></div>'
+  box.innerHTML='<div class="section-title">Novo <span style="color:var(--gold)">Relatório do Olheiro</span></div>'
     +'<div class="section-sub">Avaliação profissional · 25 critérios · Análise instantânea</div>'
     +'<div class="form-card">'
     +'<div class="field"><label class="label">Atleta do plantel</label>'
@@ -3521,7 +3521,7 @@ function pintarScout(){
       <div id="sl-mentais"></div>
     </div>
 
-    <button class="btn btn-primary" id="gerar-btn" onclick="gerarReport()">⚡ Gerar Scout Report</button>
+    <button class="btn btn-primary" id="gerar-btn" onclick="gerarReport()">⚡ Gerar Relatório do Olheiro</button>
     <div id="gerar-status" style="text-align:center;font-size:12px;color:var(--slate);margin-top:10px;display:none"></div>`;
   buildSliders();
 }

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard · Scouting 360 YTB</title>
+<title>Dashboard · Base 360 YTB</title>
 <meta name="robots" content="noindex,nofollow">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,700;0,800;0,900;1,900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -687,7 +687,7 @@ function renderHistorico(hist){
 function renderReports(reps){
   return `
     <div class="body-section">
-      <div class="body-sec-title">📋 Scout Reports <span class="prov prov-declarado">avaliação de scout</span></div>
+      <div class="body-sec-title">📋 Relatórios do Olheiro <span class="prov prov-declarado">avaliação de scout</span></div>
       ${reps.map(r => {
         const num = r.numero || r.numero_relatorio || r.ref || ('#' + String(r.id).slice(0,8));
         const scout = r.scout_nome || r.scout || r.avaliador || r.scout_email || '—';
