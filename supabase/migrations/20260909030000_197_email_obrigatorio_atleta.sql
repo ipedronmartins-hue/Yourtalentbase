@@ -1,0 +1,2 @@
+-- 197: email obrigatorio ao criar atleta. Corpo integral no
+-- historico Supabase (197).

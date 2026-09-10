@@ -512,7 +512,7 @@ const supa = USING_SB ? window.supabase.createClient(CFG.SUPABASE_URL, CFG.SUPAB
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 function toast(msg){var t=document.getElementById('toast');if(!t)return;t.textContent=msg;t.classList.add('show');clearTimeout(t.__tm);t.__tm=setTimeout(function(){t.classList.remove('show');},2800);}
 
-var meuClube=null, minhasEquipas=[], equipaAtiva=null, atletasDoClube=[], plantelDaEquipa=[], jogosDaEquipa=[];
+var meuClube=null, minhasEquipas=[], equipaAtiva=null, atletasDoClube=[], plantelDaEquipa=[], jogosDaEquipa=[], convocatoriaListaCache=[];
 
 /* ══════ AUTENTICAÇÃO ══════ */
 var CLUBES_LANDING={
@@ -867,10 +867,12 @@ window.verConvocatoria=async function(convId){
   var area=document.getElementById('convocatoria-area');
   if(!r||!r.ok){ area.innerHTML='<div class="card"><div class="s">⚠ Não foi possível carregar.</div></div>'; return; }
   var lista=r.lista||[];
+  convocatoriaListaCache=lista;
   var rotulo={convocado:['A aguardar','pill-laranja'],pendente:['A aguardar','pill-laranja'],aceite:['Confirmado','pill-verde'],recusado:['Não vai','pill-vermelho']};
   var idsConvocados={}; lista.forEach(function(x){idsConvocados[x.atleta_id]=true;});
   area.innerHTML='<div class="conv-zonas">'
     +'<div class="card"><div class="h">Plantel</div>'
+    +'<button class="btn btn-sec" style="margin-bottom:12px" onclick="imprimirConvocatoria(\''+convId+'\')">🖨️ Imprimir convocatória</button>'
     +plantelDaEquipa.map(function(p){
       return '<div class="s" style="margin-bottom:4px">'+(idsConvocados[p.atleta_id]?'✓ ':'· ')+esc(p.nome)+(idsConvocados[p.atleta_id]?'':' <span style="color:var(--muted)">(não convocado)</span>')+'</div>';
     }).join('')+'</div>'
@@ -891,6 +893,23 @@ window.verConvocatoria=async function(convId){
     }).join('')+'</div>'
     +'</div>';
   area.scrollIntoView({behavior:'smooth'});
+};
+window.imprimirConvocatoria=function(convId){
+  var jogo=jogosDaEquipa.find(function(j){return j.convocatoria_id===convId;});
+  var lista=convocatoriaListaCache||[];
+  var dataFmt=jogo&&jogo.data_jogo?new Date(jogo.data_jogo+'T12:00').toLocaleDateString('pt-PT',{weekday:'long',day:'numeric',month:'long',year:'numeric'}):'';
+  document.getElementById('report-canvas').innerHTML=
+    '<div style="max-width:600px;margin:40px auto;padding:32px;background:#fff;color:#111;border-radius:12px;font-family:sans-serif">'
+    +cabecalhoInstitucional('Convocatória', (equipaAtiva?esc(equipaAtiva.nome)+' · ':'')+esc(jogo?jogo.adversario:'')+(jogo&&jogo.casa_fora?(' ('+(jogo.casa_fora==='casa'?'em casa':'fora')+')'):''))
+    +(dataFmt?('<div style="text-align:center;color:#666;font-size:13px;margin-bottom:16px">'+esc(dataFmt)+(jogo&&jogo.competicao?(' · '+esc(jogo.competicao)):'')+'</div>'):'')
+    +'<table style="width:100%;border-collapse:collapse;font-size:14px">'
+    +'<thead><tr style="border-bottom:2px solid #ddd;text-align:left"><th style="padding:8px 4px">Atleta</th><th style="padding:8px 4px">Assinatura</th></tr></thead>'
+    +'<tbody>'+lista.map(function(x){
+      return '<tr style="border-bottom:1px solid #eee"><td style="padding:14px 4px">'+esc(x.nome)+'</td><td style="padding:14px 4px;border-bottom:1px solid #ccc;width:220px"></td></tr>';
+    }).join('')+'</tbody></table>'
+    +'<div style="margin-top:24px;font-size:11px;color:#999;text-align:center">A resposta de cada atleta já chegou aos encarregados através do Passaporte.</div>'
+    +'</div>';
+  document.getElementById('reportModal').classList.add('show');
 };
 window.__togglePresenca=function(atletaId){
   var box=document.getElementById('pres-'+atletaId), min=document.getElementById('min-'+atletaId);
@@ -946,7 +965,9 @@ async function carregarMembros(){
 }
 function pintarMembros(){
   const box=document.getElementById('sec-membros');
-  var html='<div class="card"><div class="h">Membros <span>do clube</span></div>';
+  var souAdmin=meuClube.papel==='admin';
+  var papeisDisponiveis=souAdmin?PAPEIS_CLUBE:PAPEIS_CLUBE.filter(function(p){return p[0]==='treinador'||p[0]==='team_manager';});
+  var html='<div class="card"><div class="h">'+(souAdmin?'Membros':'Equipa técnica')+' <span>do clube</span></div>';
   html += membrosDoClube.length ? membrosDoClube.map(function(m){
     var rotulo=(PAPEIS_CLUBE.find(function(p){return p[0]===m.papel;})||[,m.papel])[1];
     return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">'
@@ -956,28 +977,42 @@ function pintarMembros(){
       +'</div>';
   }).join('') : '<div class="s">Ainda sem outros membros — és o único a gerir este clube.</div>';
   html += '</div>';
-  html += '<div class="card"><div class="h">Adicionar <span>membro</span></div>'
+  html += '<div class="card"><div class="h">'+(souAdmin?'Adicionar membro':'Nomear treinador ou team manager')+'</div>'
     +'<label class="label">Email</label><input class="input" id="mb-email" type="email" placeholder="email@exemplo.com">'
-    +'<label class="label">Papel</label><select class="input" id="mb-papel">'
-    +PAPEIS_CLUBE.map(function(p){return '<option value="'+p[0]+'">'+p[1]+'</option>';}).join('')
+    +'<label class="label">Papel</label><select class="input" id="mb-papel" onchange="atualizarCampoEquipaMembro()">'
+    +papeisDisponiveis.map(function(p){return '<option value="'+p[0]+'">'+p[1]+'</option>';}).join('')
     +'</select>'
+    +'<div id="mb-equipa-area"></div>'
     +'<div class="s">Não precisa de ter conta ainda — o papel fica reservado a este email assim que entrar na YTB.</div>'
-    +'<button class="btn" onclick="adicionarMembro()">Adicionar →</button></div>'
-    +'<div class="card"><div class="h">Marca <span style="color:var(--gold)">do clube</span></div>'
-    +'<div class="s">O logo e a cor aparecem no teu painel e no passaporte dos atletas.</div>'
-    +'<label class="label">URL do logo</label><input class="input" id="marca-logo" type="url" placeholder="https://...">'
-    +'<label class="label">Cor principal</label>'
-    +'<div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">'
-    +'<input type="color" id="marca-cor-picker" value="'+(meuClube.cor_primaria||'#D4AF37')+'" style="width:44px;height:38px;border:1px solid var(--border);border-radius:8px;background:none;cursor:pointer;padding:2px" oninput="document.getElementById(\'marca-cor\').value=this.value">'
-    +'<input class="input" id="marca-cor" type="text" value="'+(meuClube.cor_primaria||'')+'" placeholder="#D4AF37" style="flex:1;margin-bottom:0" oninput="if(/^#[0-9A-Fa-f]{6}$/.test(this.value))document.getElementById(\'marca-cor-picker\').value=this.value">'
-    +'</div>'
-    +'<label class="label">Cor secundária <span style="font-weight:400;color:var(--muted)">(opcional)</span></label>'
-    +'<div style="display:flex;gap:8px;align-items:center">'
-    +'<input type="color" id="marca-cor2-picker" value="'+(meuClube.cor_secundaria||'#D4AF37')+'" style="width:44px;height:38px;border:1px solid var(--border);border-radius:8px;background:none;cursor:pointer;padding:2px" oninput="document.getElementById(\'marca-cor2\').value=this.value">'
-    +'<input class="input" id="marca-cor2" type="text" value="'+(meuClube.cor_secundaria||'')+'" placeholder="#D4AF37" style="flex:1;margin-bottom:0" oninput="if(/^#[0-9A-Fa-f]{6}$/.test(this.value))document.getElementById(\'marca-cor2-picker\').value=this.value">'
-    +'</div>'
-    +'<button class="btn" onclick="guardarMarcaClube()">Guardar marca →</button></div>';
+    +'<button class="btn" onclick="adicionarMembro()">'+(souAdmin?'Adicionar':'Nomear')+' →</button></div>';
+  if(souAdmin){
+    html += '<div class="card"><div class="h">Marca <span style="color:var(--gold)">do clube</span></div>'
+      +'<div class="s">O logo e a cor aparecem no teu painel e no passaporte dos atletas.</div>'
+      +'<label class="label">URL do logo</label><input class="input" id="marca-logo" type="url" placeholder="https://...">'
+      +'<label class="label">Cor principal</label>'
+      +'<div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">'
+      +'<input type="color" id="marca-cor-picker" value="'+(meuClube.cor_primaria||'#D4AF37')+'" style="width:44px;height:38px;border:1px solid var(--border);border-radius:8px;background:none;cursor:pointer;padding:2px" oninput="document.getElementById(\'marca-cor\').value=this.value">'
+      +'<input class="input" id="marca-cor" type="text" value="'+(meuClube.cor_primaria||'')+'" placeholder="#D4AF37" style="flex:1;margin-bottom:0" oninput="if(/^#[0-9A-Fa-f]{6}$/.test(this.value))document.getElementById(\'marca-cor-picker\').value=this.value">'
+      +'</div>'
+      +'<label class="label">Cor secundária <span style="font-weight:400;color:var(--muted)">(opcional)</span></label>'
+      +'<div style="display:flex;gap:8px;align-items:center">'
+      +'<input type="color" id="marca-cor2-picker" value="'+(meuClube.cor_secundaria||'#D4AF37')+'" style="width:44px;height:38px;border:1px solid var(--border);border-radius:8px;background:none;cursor:pointer;padding:2px" oninput="document.getElementById(\'marca-cor2\').value=this.value">'
+      +'<input class="input" id="marca-cor2" type="text" value="'+(meuClube.cor_secundaria||'')+'" placeholder="#D4AF37" style="flex:1;margin-bottom:0" oninput="if(/^#[0-9A-Fa-f]{6}$/.test(this.value))document.getElementById(\'marca-cor2-picker\').value=this.value">'
+      +'</div>'
+      +'<button class="btn" onclick="guardarMarcaClube()">Guardar marca →</button></div>';
+  }
   box.innerHTML=html;
+  atualizarCampoEquipaMembro();
+}
+function atualizarCampoEquipaMembro(){
+  var papelSel=document.getElementById('mb-papel');
+  var area=document.getElementById('mb-equipa-area');
+  if(!papelSel||!area) return;
+  var precisaEquipa=(papelSel.value==='treinador'||papelSel.value==='team_manager');
+  area.innerHTML=precisaEquipa
+    ? '<label class="label">Equipa</label><select class="input" id="mb-equipa"><option value="">— escolhe uma equipa —</option>'
+      +minhasEquipas.map(function(e){return '<option value="'+e.id+'">'+esc(e.nome)+'</option>';}).join('')+'</select>'
+    : '';
 }
 window.guardarMarcaClube=async function(){
   var logo=(document.getElementById('marca-logo').value||'').trim();
@@ -997,7 +1032,10 @@ window.adicionarMembro=async function(){
   var email=(document.getElementById('mb-email').value||'').trim();
   var papel=document.getElementById('mb-papel').value;
   if(!email){ toast('Falta o email'); return; }
-  const {data:r}=await supa.rpc('ytb_clube_membro_adicionar',{p_clube_id:meuClube.clube_id,p_email:email,p_papel:papel});
+  var equipaSel=document.getElementById('mb-equipa');
+  var equipaId=equipaSel?equipaSel.value:null;
+  if((papel==='treinador'||papel==='team_manager') && !equipaId){ toast('Escolhe a equipa'); return; }
+  const {data:r}=await supa.rpc('ytb_clube_membro_adicionar',{p_clube_id:meuClube.clube_id,p_email:email,p_papel:papel,p_equipa_id:equipaId||null});
   if(!r||!r.ok){ toast('⚠ Não foi possível: '+((r&&r.motivo)||'erro')); return; }
   toast('✓ Membro adicionado'); document.getElementById('mb-email').value=''; await carregarMembros();
 };
@@ -3590,7 +3628,7 @@ function pintarSecretaria(){
     +'<option value="">— nenhuma por agora —</option>'
     +minhasEquipas.map(function(e){return '<option value="'+e.id+'">'+esc(e.nome)+' · '+esc(e.epoca)+'</option>';}).join('')
     +'</select>'
-    +'<label class="label">Email do encarregado <span style="font-weight:400;color:var(--muted)">(para aceder ao Passaporte)</span></label>'
+    +'<label class="label">Email do atleta ou do encarregado <span style="color:var(--red)">*</span> <span style="font-weight:400;color:var(--muted)">(para aceder ao Passaporte)</span></label>'
     +'<input class="input" id="sec-email-enc" type="email">'
     +'<button class="btn" onclick="criarAtletaSecretaria()">Criar atleta →</button>'
     +'<div id="sec-duplicados"></div></div>'
@@ -3753,6 +3791,7 @@ window.criarAtletaSecretaria=async function(forcarNovo){
   var pos=document.getElementById('sec-pos').value;
   var emailEnc=(document.getElementById('sec-email-enc').value||'').trim();
   if(!nome||!ano){ toast('Falta o nome ou o ano de nascimento'); return; }
+  if(!emailEnc){ toast('Falta o email — é obrigatório para o acesso ao Passaporte'); return; }
   const {data:r}=await supa.rpc('ytb_clube_secretaria_atleta_criar',{
     p_clube_id:meuClube.clube_id, p_nome:nome, p_ano:ano, p_pos:pos,
     p_email_enc:emailEnc||null, p_confirmar_novo:!!forcarNovo
@@ -4449,14 +4488,18 @@ window.definirHorarioTreino=async function(){
 // como antes -- nada foi tocado nas funcoes pintarX() nem nas divs sec-*.
 function gruposDisponiveis(){
   var g=[];
+  var souScoutPuro=(meuClube && meuClube.papel==='scout');
   if(meuClube && meuClube.papel==='admin') g.push({id:'painel',nome:'Painel',solo:true});
-  g.push({id:'agenda',nome:'Agenda',solo:true});
-  g.push({id:'equipa',nome:'Equipa',filhos:[['equipas','Equipas'],['plantel','Plantel'],['jogos','Jogos'],['treinos','Treinos'],['prancheta','Prancheta'],['avaliar','Avaliar'],['retorno','Retorno']]});
+  if(!souScoutPuro){
+    g.push({id:'agenda',nome:'Agenda',solo:true});
+    g.push({id:'equipa',nome:'Equipa',filhos:[['equipas','Equipas'],['plantel','Plantel'],['jogos','Jogos'],['treinos','Treinos'],['prancheta','Prancheta'],['avaliar','Avaliar'],['retorno','Retorno']]});
+  }
   if(meuClube && (meuClube.papel==='scout'||meuClube.papel==='admin')) g.push({id:'scout','nome':'Scout',solo:true,tabReal:'scout'});
   if(meuClube && (meuClube.papel==='secretaria'||meuClube.papel==='admin')){
     g.push({id:'secretaria',nome:'Secretaria',filhos:[['secretaria','Geral'],['socios','Sócios'],['patrocinios','Patrocínios'],['recibos','Recibos'],['fpf','FPF'],['medico','Médico']]});
   }
   if(meuClube && meuClube.papel==='admin') g.push({id:'membros','nome':'Membros',solo:true,tabReal:'membros'});
+  else if(meuClube && meuClube.papel==='secretaria') g.push({id:'membros','nome':'Equipa técnica',solo:true,tabReal:'membros'});
   return g;
 }
 var grupoAtivo=null;

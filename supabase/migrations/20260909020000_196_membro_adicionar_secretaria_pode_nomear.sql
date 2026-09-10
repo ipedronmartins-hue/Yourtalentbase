@@ -1,0 +1,2 @@
+-- 196: secretaria pode nomear treinador/team_manager escopado a
+-- equipa. Corpo integral no historico Supabase (196).
