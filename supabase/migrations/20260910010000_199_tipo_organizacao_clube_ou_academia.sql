@@ -1,0 +1,2 @@
+-- 199: seletor Clube/Academia, por filtro de abas. Corpo integral
+-- no historico Supabase (199).

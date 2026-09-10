@@ -1,0 +1,2 @@
+-- 200: consolida marca do clube numa so funcao, remove duplicadas.
+-- Corpo integral no historico Supabase (200).

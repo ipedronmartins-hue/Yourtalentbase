@@ -606,20 +606,33 @@ window.confirmarPrimeiroNome=async function(){
 function pedirPersonalizacaoClube(){
   document.getElementById('main').innerHTML='<div class="login-wrap" style="padding-top:40px;max-width:420px">'
     +'<div class="login-title">Personaliza o <span>'+esc(meuClube.nome)+'</span></div>'
-    +'<div class="login-sub">Escolhe as cores do clube — ficam num único ponto de destaque (aba ativa e nome no cabeçalho), o resto mantém-se neutro. Podes mudar isto sempre que quiseres.</div>'
+    +'<div class="login-sub">Isto muda o que vês nas próximas telas — não implica reescrever nada mais tarde.</div>'
+    +'<label class="label">És um clube ou uma academia?</label>'
+    +'<div style="display:flex;gap:8px;margin-bottom:16px">'
+    +'<button type="button" class="btn btn-sec" id="pc-tipo-clube" style="flex:1;margin-top:0;border-color:var(--gold)" onclick="escolherTipoOrganizacao(\'clube\')">Clube <span style="display:block;font-size:11px;font-weight:400;color:var(--muted);margin-top:2px">Sócios, quotas, patrocínios</span></button>'
+    +'<button type="button" class="btn btn-sec" id="pc-tipo-academia" style="flex:1;margin-top:0" onclick="escolherTipoOrganizacao(\'academia\')">Academia <span style="display:block;font-size:11px;font-weight:400;color:var(--muted);margin-top:2px">Sem sócios nem quotas</span></button>'
+    +'</div>'
+    +'<div class="login-sub" style="margin-top:0">Escolhe as cores — ficam num único ponto de destaque (aba ativa e nome no cabeçalho), o resto mantém-se neutro. Podes mudar isto sempre que quiseres.</div>'
     +'<label class="label">Cor principal</label><input class="input" id="pc-cor-primaria" type="color" value="#743438" style="height:44px;padding:4px">'
     +'<label class="label">Cor secundária (opcional)</label><input class="input" id="pc-cor-secundaria" type="color" value="#C9A34E" style="height:44px;padding:4px">'
     +'<label class="label">Logótipo (opcional)</label><input class="input" id="pc-logo-url" placeholder="Link para a imagem do logótipo">'
     +'<button class="btn" onclick="confirmarPersonalizacaoClube()">Continuar →</button>'
     +'<button class="btn btn-sec" onclick="saltarPersonalizacaoClube()">Deixar para depois</button></div>';
+  window.__tipoOrganizacaoEscolhido='clube';
 }
+window.escolherTipoOrganizacao=function(tipo){
+  window.__tipoOrganizacaoEscolhido=tipo;
+  document.getElementById('pc-tipo-clube').style.borderColor=tipo==='clube'?'var(--gold)':'var(--border)';
+  document.getElementById('pc-tipo-academia').style.borderColor=tipo==='academia'?'var(--gold)':'var(--border)';
+};
 window.confirmarPersonalizacaoClube=async function(){
   var corPrimaria=document.getElementById('pc-cor-primaria').value;
   var corSecundaria=document.getElementById('pc-cor-secundaria').value;
   var logoUrl=(document.getElementById('pc-logo-url').value||'').trim();
-  const {data:r}=await supa.rpc('ytb_clube_personalizar',{p_clube_id:meuClube.clube_id,p_cor_primaria:corPrimaria,p_cor_secundaria:corSecundaria,p_logo_url:logoUrl||null});
+  var tipo=window.__tipoOrganizacaoEscolhido||'clube';
+  const {data:r}=await supa.rpc('ytb_clube_personalizar',{p_clube_id:meuClube.clube_id,p_cor_primaria:corPrimaria,p_cor_secundaria:corSecundaria,p_logo_url:logoUrl||null,p_tipo_organizacao:tipo});
   if(!r||!r.ok){ toast('⚠ Não foi possível: '+((r&&r.motivo)||'erro')); return; }
-  toast('✓ Clube personalizado');
+  toast('✓ Personalizado');
   location.reload();
 };
 window.saltarPersonalizacaoClube=function(){
@@ -988,6 +1001,11 @@ function pintarMembros(){
   if(souAdmin){
     html += '<div class="card"><div class="h">Marca <span style="color:var(--gold)">do clube</span></div>'
       +'<div class="s">O logo e a cor aparecem no teu painel e no passaporte dos atletas.</div>'
+      +'<label class="label">Tipo de organização</label>'
+      +'<select class="input" id="marca-tipo">'
+      +'<option value="clube"'+(meuClube.tipo_organizacao!=='academia'?' selected':'')+'>Clube (sócios, quotas, patrocínios)</option>'
+      +'<option value="academia"'+(meuClube.tipo_organizacao==='academia'?' selected':'')+'>Academia (sem sócios nem quotas)</option>'
+      +'</select>'
       +'<label class="label">URL do logo</label><input class="input" id="marca-logo" type="url" placeholder="https://...">'
       +'<label class="label">Cor principal</label>'
       +'<div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">'
@@ -1018,13 +1036,15 @@ window.guardarMarcaClube=async function(){
   var logo=(document.getElementById('marca-logo').value||'').trim();
   var cor=(document.getElementById('marca-cor').value||'').trim();
   var cor2=(document.getElementById('marca-cor2').value||'').trim();
+  var tipo=document.getElementById('marca-tipo').value;
   if(cor && !/^#[0-9A-Fa-f]{6}$/.test(cor)){ toast('A cor tem de ser um código hex, ex: #D4AF37'); return; }
   if(cor2 && !/^#[0-9A-Fa-f]{6}$/.test(cor2)){ toast('A cor secundária tem de ser um código hex'); return; }
   if(logo && !/^https?:\/\//i.test(logo)){ toast('O logo tem de ser um link http(s) válido'); return; }
-  const {data:r}=await supa.rpc('ytb_clube_atualizar_marca_secretaria',{p_clube_id:meuClube.clube_id,p_logo_url:logo||null,p_cor:cor||null,p_cor_secundaria:cor2||null});
+  const {data:r}=await supa.rpc('ytb_clube_personalizar',{p_clube_id:meuClube.clube_id,p_logo_url:logo||null,p_cor_primaria:cor||null,p_cor_secundaria:cor2||null,p_tipo_organizacao:tipo});
   if(!r||!r.ok){ toast('⚠ Não foi possível: '+((r&&r.motivo)||'erro')); return; }
   if(cor) meuClube.cor_primaria=cor;
   if(cor2) meuClube.cor_secundaria=cor2;
+  meuClube.tipo_organizacao=tipo;
   aplicarMarcaClube(meuClube);
   toast('✓ Marca atualizada');
 };
@@ -4496,7 +4516,13 @@ function gruposDisponiveis(){
   }
   if(meuClube && (meuClube.papel==='scout'||meuClube.papel==='admin')) g.push({id:'scout','nome':'Scout',solo:true,tabReal:'scout'});
   if(meuClube && (meuClube.papel==='secretaria'||meuClube.papel==='admin')){
-    g.push({id:'secretaria',nome:'Secretaria',filhos:[['secretaria','Geral'],['socios','Sócios'],['patrocinios','Patrocínios'],['recibos','Recibos'],['fpf','FPF'],['medico','Médico']]});
+    var souAcademia=(meuClube.tipo_organizacao==='academia');
+    var filhosSecretaria=[['secretaria','Geral']];
+    if(!souAcademia){ filhosSecretaria.push(['socios','Sócios']); filhosSecretaria.push(['patrocinios','Patrocínios']); }
+    filhosSecretaria.push(['recibos','Recibos']);
+    if(!souAcademia) filhosSecretaria.push(['fpf','FPF']);
+    filhosSecretaria.push(['medico','Médico']);
+    g.push({id:'secretaria',nome:'Secretaria',filhos:filhosSecretaria});
   }
   if(meuClube && meuClube.papel==='admin') g.push({id:'membros','nome':'Membros',solo:true,tabReal:'membros'});
   else if(meuClube && meuClube.papel==='secretaria') g.push({id:'membros','nome':'Equipa técnica',solo:true,tabReal:'membros'});
