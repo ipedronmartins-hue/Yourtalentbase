@@ -558,8 +558,17 @@ async function carregarMeusClubes(){
   meuClube = (window.slugAtual && CLUBES_LANDING[window.slugAtual]
     && lista.find(function(c){return c.nome===CLUBES_LANDING[window.slugAtual].clubeNome;}))
     || lista[0]; // sem slug reconhecido, ou só um clube: usa o primeiro (comportamento anterior)
+  if(meuClube.acesso_liberado===false){
+    var MOTIVO={pendente:'A subscrição ainda está a ser confirmada.',suspensa:'A subscrição está suspensa — contacta a YTB para regularizar.',cancelada:'A subscrição deste clube foi cancelada.'};
+    document.getElementById('main').innerHTML='<div class="login-wrap" style="padding-top:60px">'
+      +'<div class="login-title">Acesso <span style="color:var(--red)">por confirmar</span></div>'
+      +'<div class="login-sub">'+esc(MOTIVO[meuClube.estado_subscricao]||'O acesso a este clube ainda não está ativo.')+'</div>'
+      +'<div class="login-sub">Se achas que isto é um engano, fala com a YTB.</div></div>';
+    return;
+  }
   aplicarMarcaClube(meuClube);
   if(!meuClube.meu_nome){ pedirNomeMembro(); return; }
+  if(meuClube.papel==='admin' && !meuClube.cor_primaria){ pedirPersonalizacaoClube(); return; }
   await carregarEquipas();
 }
 function hexParaRgb(hex){
@@ -590,6 +599,29 @@ window.confirmarPrimeiroNome=async function(){
   meuClube.meu_nome=nome;
   location.reload();
 }
+function pedirPersonalizacaoClube(){
+  document.getElementById('main').innerHTML='<div class="login-wrap" style="padding-top:40px;max-width:420px">'
+    +'<div class="login-title">Personaliza o <span>'+esc(meuClube.nome)+'</span></div>'
+    +'<div class="login-sub">Escolhe as cores do clube — ficam num único ponto de destaque (aba ativa e nome no cabeçalho), o resto mantém-se neutro. Podes mudar isto sempre que quiseres.</div>'
+    +'<label class="label">Cor principal</label><input class="input" id="pc-cor-primaria" type="color" value="#743438" style="height:44px;padding:4px">'
+    +'<label class="label">Cor secundária (opcional)</label><input class="input" id="pc-cor-secundaria" type="color" value="#C9A34E" style="height:44px;padding:4px">'
+    +'<label class="label">Logótipo (opcional)</label><input class="input" id="pc-logo-url" placeholder="Link para a imagem do logótipo">'
+    +'<button class="btn" onclick="confirmarPersonalizacaoClube()">Continuar →</button>'
+    +'<button class="btn btn-sec" onclick="saltarPersonalizacaoClube()">Deixar para depois</button></div>';
+}
+window.confirmarPersonalizacaoClube=async function(){
+  var corPrimaria=document.getElementById('pc-cor-primaria').value;
+  var corSecundaria=document.getElementById('pc-cor-secundaria').value;
+  var logoUrl=(document.getElementById('pc-logo-url').value||'').trim();
+  const {data:r}=await supa.rpc('ytb_clube_personalizar',{p_clube_id:meuClube.clube_id,p_cor_primaria:corPrimaria,p_cor_secundaria:corSecundaria,p_logo_url:logoUrl||null});
+  if(!r||!r.ok){ toast('⚠ Não foi possível: '+((r&&r.motivo)||'erro')); return; }
+  toast('✓ Clube personalizado');
+  location.reload();
+};
+window.saltarPersonalizacaoClube=function(){
+  meuClube.cor_primaria='#D4AF37'; // valor sentinela para não voltar a perguntar nesta sessão; fica neutro
+  carregarEquipas();
+};
 async function carregarEquipas(){
   const {data:r}=await supa.rpc('ytb_clube_equipas_listar',{p_clube_id:meuClube.clube_id});
   minhasEquipas=(r&&r.ok&&r.lista)||[];

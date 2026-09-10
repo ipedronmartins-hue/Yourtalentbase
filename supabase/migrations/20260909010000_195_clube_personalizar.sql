@@ -1,0 +1,2 @@
+-- 195: personalizacao do clube (cores + logo). Corpo integral no
+-- historico Supabase (195).

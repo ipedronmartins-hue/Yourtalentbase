@@ -1,0 +1,2 @@
+-- 194: controlo de acesso ao Clube consoante pagamento. Corpo
+-- integral no historico Supabase (194).
