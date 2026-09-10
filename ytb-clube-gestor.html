@@ -37,6 +37,9 @@ body{padding-bottom:60px}
 .h span{color:var(--gold)}
 .s{font-size:13px;color:var(--slate);line-height:1.5;margin-bottom:10px}
 .tabs{display:flex;gap:6px;margin:14px 0;overflow-x:auto;padding:0 14px 2px}
+#tabs-sub{flex-direction:row!important;padding:0 0 2px;margin:0 0 16px;height:auto!important;position:static!important;align-items:center!important;top:auto!important;overflow-y:visible!important}
+#tabs-sub .tab{font-size:14px;padding:9px 14px;width:auto!important;text-align:center!important;flex:0 0 auto!important;border-left:1px solid var(--border)!important}
+#tabs-sub .tab.on{background:var(--gold-soft)!important;border-color:var(--acento-marca,var(--gold))!important;color:var(--acento-marca,var(--gold))!important}
 .tab{flex:0 0 auto;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px 18px;color:var(--slate);font-family:'Barlow Condensed';font-weight:900;font-size:16px;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;white-space:nowrap}
 .tab.on{border-color:var(--acento-marca,var(--gold));color:var(--acento-marca,var(--gold));background:var(--gold-soft)}
 .content{padding:0 14px}
@@ -426,6 +429,7 @@ body.pr-cheio #pr-sair{display:block}
 <div id="main" class="hidden">
   <div class="tabs" id="tabs-topo"></div>
   <div class="content">
+    <div class="tabs" id="tabs-sub" style="display:none;margin-bottom:16px"></div>
     <div class="sec on" id="sec-equipas"></div>
     <div class="sec" id="sec-plantel"></div>
     <div class="sec" id="sec-jogos"></div>
@@ -4438,17 +4442,54 @@ window.definirHorarioTreino=async function(){
 };
 
 /* ══════ NAVEGAÇÃO ══════ */
-var TABS=[['agenda','Agenda'],['equipas','Equipas'],['plantel','Plantel'],['jogos','Jogos'],['treinos','Treinos'],['prancheta','Prancheta'],['avaliar','Avaliar'],['retorno','Retorno']];
-function montarTabsTopo(){
-  var tabs=TABS.slice();
-  if(meuClube && (meuClube.papel==='scout'||meuClube.papel==='admin')) tabs.push(['scout','Scout']);
-  if(meuClube && (meuClube.papel==='secretaria'||meuClube.papel==='admin')) { tabs.push(['secretaria','Secretaria']); tabs.push(['socios','Sócios']); tabs.push(['patrocinios','Patrocínios']); tabs.push(['recibos','Recibos']); tabs.push(['fpf','FPF']); tabs.push(['medico','Médico']); }
-  if(meuClube && meuClube.papel==='admin') { tabs.unshift(['painel','Painel']); tabs.push(['membros','Membros']); }
-  document.getElementById('tabs-topo').innerHTML=tabs.map(function(t,i){
-    return '<button class="tab'+(i===0?' on':'')+'" data-t="'+t[0]+'" onclick="tab(\''+t[0]+'\')">'+t[1]+'</button>';
-  }).join('');
-  if(meuClube && meuClube.papel==='admin') tab('painel');
+// grupos por papel -- reduz o numero de abas no nivel de topo (era ~15 para
+// admin, causando scroll excessivo em telemovel/tablet). Cada grupo pode ter
+// filhos (sub-abas, mostradas numa segunda linha) ou ser "solo" (abre
+// diretamente, sem segunda linha). tab(id) continua a funcionar exatamente
+// como antes -- nada foi tocado nas funcoes pintarX() nem nas divs sec-*.
+function gruposDisponiveis(){
+  var g=[];
+  if(meuClube && meuClube.papel==='admin') g.push({id:'painel',nome:'Painel',solo:true});
+  g.push({id:'agenda',nome:'Agenda',solo:true});
+  g.push({id:'equipa',nome:'Equipa',filhos:[['equipas','Equipas'],['plantel','Plantel'],['jogos','Jogos'],['treinos','Treinos'],['prancheta','Prancheta'],['avaliar','Avaliar'],['retorno','Retorno']]});
+  if(meuClube && (meuClube.papel==='scout'||meuClube.papel==='admin')) g.push({id:'scout','nome':'Scout',solo:true,tabReal:'scout'});
+  if(meuClube && (meuClube.papel==='secretaria'||meuClube.papel==='admin')){
+    g.push({id:'secretaria',nome:'Secretaria',filhos:[['secretaria','Geral'],['socios','Sócios'],['patrocinios','Patrocínios'],['recibos','Recibos'],['fpf','FPF'],['medico','Médico']]});
+  }
+  if(meuClube && meuClube.papel==='admin') g.push({id:'membros','nome':'Membros',solo:true,tabReal:'membros'});
+  return g;
 }
+var grupoAtivo=null;
+function montarTabsTopo(){
+  if(!meuClube){ document.getElementById('tabs-topo').innerHTML=''; document.getElementById('tabs-sub').style.display='none'; return; }
+  var grupos=gruposDisponiveis();
+  document.getElementById('tabs-topo').innerHTML=grupos.map(function(g,i){
+    return '<button class="tab'+(i===0?' on':'')+'" data-g="'+g.id+'" onclick="abrirGrupo(\''+g.id+'\')">'+g.nome+'</button>';
+  }).join('');
+  if(grupos.length) abrirGrupo(grupos[0].id);
+}
+window.abrirGrupo=function(grupoId){
+  var grupos=gruposDisponiveis();
+  var g=grupos.find(function(x){return x.id===grupoId;});
+  if(!g) return;
+  grupoAtivo=grupoId;
+  document.querySelectorAll('#tabs-topo .tab').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-g')===grupoId);});
+  var subBox=document.getElementById('tabs-sub');
+  if(g.solo){
+    subBox.style.display='none'; subBox.innerHTML='';
+    tab(g.tabReal||g.id);
+    return;
+  }
+  subBox.style.display='flex';
+  subBox.innerHTML=g.filhos.map(function(f,i){
+    return '<button class="tab sub'+(i===0?' on':'')+'" data-t="'+f[0]+'" onclick="abrirSubAba(\''+f[0]+'\')">'+f[1]+'</button>';
+  }).join('');
+  tab(g.filhos[0][0]);
+};
+window.abrirSubAba=function(t){
+  document.querySelectorAll('#tabs-sub .tab').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-t')===t);});
+  tab(t);
+};
 window.tab=function(t){
   document.querySelectorAll('.tab').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-t')===t);});
   document.querySelectorAll('.sec').forEach(function(s){s.classList.toggle('on',s.id==='sec-'+t);});
