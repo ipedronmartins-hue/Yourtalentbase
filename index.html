@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>YourTalentBase — O sistema digital de acompanhamento para a tua academia</title>
-<meta name="description" content="A tua academia já desenvolve jogadores. A YTB transforma esse trabalho num sistema digital que fica com cada atleta: Oficina do Treinador para os treinadores, Passaporte Digital vitalício para cada família. Organização, acompanhamento e retenção, sem construir nada de raiz.">
+<title>YourTalentBase — O sistema digital de acompanhamento para clubes, academias e treinadores</title>
+<meta name="description" content="O teu clube ou academia já forma jogadores. A YTB junta isso a um sistema digital: gestão de clubes e academias, Oficina do Treinador, Passaporte Digital vitalício para cada família. Organização, acompanhamento e retenção, sem construir nada de raiz.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -218,7 +218,7 @@ footer .logo b{font-size:17px}
   <div class="wide">
     <a class="logo" href="#top"><b>YTB</b><span>YourTalentBase</span></a>
     <div style="display:flex;align-items:center;gap:8px">
-      <a class="btn btn-ghost nav-sec" href="#personas" onclick="abrirPainel('academia');return false;">Para academias</a>
+      <a class="btn btn-ghost nav-sec" href="#personas" onclick="abrirPainel('erp');return false;">Para clubes e academias</a>
       <a class="btn btn-ghost nav-sec" href="sobre.html">Sobre</a>
       <a class="btn btn-ghost nav-sec" href="como-funciona.html">Como funciona</a>
       <a class="btn btn-primary" href="acesso.html">Entrar <span class="arr">→</span></a>
@@ -231,16 +231,16 @@ footer .logo b{font-size:17px}
   <div class="narrow">
     <div class="hero-copy">
       <div class="persona-chips" role="tablist" aria-label="Escolhe o teu perfil">
-        <button class="pchip on" data-p="clube" role="tab">Academia</button>
+        <button class="pchip on" data-p="clube" role="tab">Clube</button>
         <button class="pchip" data-p="treinador" role="tab">Treinador</button>
         <button class="pchip" data-p="familia" role="tab">Família</button>
         <button class="pchip" data-p="scout" role="tab">Scout</button>
       </div>
       <span class="eyebrow" style="display:block;margin-bottom:14px">⚽ Futebol de formação</span>
-      <h1 id="ph-h1">A tua academia já<br>desenvolve jogadores.<br><span class="fade">Isso agora fica registado.</span></h1>
-      <p class="sub" id="ph-sub">A YTB transforma o trabalho que já fazes num sistema digital de acompanhamento — a Oficina do Treinador para os teus treinadores, o Passaporte Digital para cada família. Sem construíres nada de raiz.</p>
+      <h1 id="ph-h1">O teu clube já<br>forma jogadores.<br><span class="fade">Isso agora fica registado.</span></h1>
+      <p class="sub" id="ph-sub">A YTB junta a gestão do clube ou academia — equipas, secretaria, mensalidades, convocatórias — ao Passaporte Digital de cada atleta. Sem construíres nada de raiz.</p>
       <div class="hero-cta">
-        <a class="btn btn-primary btn-lg" id="ph-cta" href="#personas" onclick="abrirPainel('academia');return false;">Ver para a minha academia <span class="arr">→</span></a>
+        <a class="btn btn-primary btn-lg" id="ph-cta" href="#personas" onclick="abrirPainel('erp');return false;">Ver para o meu clube ou academia <span class="arr">→</span></a>
         <a class="btn btn-ghost btn-lg" href="montra.html">Ver os percursos</a>
       </div>
     </div>
@@ -363,6 +363,8 @@ footer .logo b{font-size:17px}
   /* ── as duas portas ── */
   .doors{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px}
   .doors-3{grid-template-columns:repeat(3,1fr)}
+  .doors-4{grid-template-columns:repeat(4,1fr)}
+  @media(max-width:1080px){.doors-4{grid-template-columns:repeat(2,1fr)}}
   @media(max-width:900px){.doors-3{grid-template-columns:1fr}}
   @media(max-width:680px){.doors{grid-template-columns:1fr}}
   .door{position:relative;display:flex;flex-direction:column;background:var(--bg2);border:1px solid var(--border);
@@ -458,33 +460,38 @@ footer .logo b{font-size:17px}
     <h2 class="reveal" style="text-align:center;margin-bottom:10px">Onde entras?</h2>
     <p class="sub reveal" style="text-align:center;max-width:460px;margin:0 auto 34px">Escolhe o teu lugar. O detalhe abre aqui mesmo — sem sair da página.</p>
 
-    <div class="doors doors-3">
+    <div class="doors doors-4">
       <button class="door reveal" onclick="abrirPainel('passaporte')">
         <svg class="door-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7l3.5 2.5-1.3 4.1h-4.4L8.5 9.5z"/></svg>
-        <span class="door-k">Sou pai ou mãe</span>
+        <span class="door-k">Família</span>
         <span class="door-d">O percurso do teu filho num só lugar — épocas, clubes, títulos. É dele, e vai com ele para onde for.</span>
         <span class="door-p">Grátis, sempre</span>
         <span class="door-more">Ver como funciona →</span>
       </button>
-      <button class="door reveal" onclick="abrirPainel('academia')">
+      <button class="door reveal" onclick="abrirPainel('erp')">
         <svg class="door-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-5h6v5"/></svg>
-        <span class="door-k">Tenho uma academia</span>
-        <span class="door-d">Os teus treinadores trabalham melhor e cada atleta leva o percurso consigo. Acompanha e aconselha os melhores.</span>
-        <span class="door-p">A partir de 50€/mês</span>
+        <span class="door-k">Gestão de Clubes e Academias</span>
+        <span class="door-d">Equipas, plantel, mensalidades, convocatórias, secretaria — o clube inteiro, num só sítio.</span>
+        <span class="door-p">Sob consulta</span>
         <span class="door-more">Ver como funciona →</span>
       </button>
       <button class="door reveal" onclick="abrirPainel('coachbase')">
         <svg class="door-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 4v16"/></svg>
-        <span class="door-k">Sou treinador</span>
-        <span class="door-d">Prancheta, sessões geradas, convocatórias, presenças e o Balneário. A ferramenta do dia a dia.</span>
+        <span class="door-k">Treinador avulso</span>
+        <span class="door-d">Oficina do Treinador + Plano de Desenvolvimento Individual. Prancheta, sessões, convocatórias e o acompanhamento de cada atleta.</span>
         <span class="door-p">20€ por época</span>
         <span class="door-more">Ver o que inclui →</span>
+      </button>
+      <button class="door reveal" onclick="abrirPainel('scout')">
+        <svg class="door-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
+        <span class="door-k">Scout</span>
+        <span class="door-d">Observa, avalia e regista — o Relatório do Olheiro e a Base 360, para descobrir e acompanhar talento.</span>
+        <span class="door-p">Desde 39,90€</span>
+        <span class="door-more">Ver como funciona →</span>
       </button>
     </div>
 
     <div class="mini-row">
-      <button class="mini reveal" onclick="abrirPainel('pro')"><svg class="mini-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.9 3.1-7 7-7s7 3.1 7 7"/></svg><span>Quero acompanhamento individual — <b>Plano de Desenvolvimento Individual</b></span></button>
-      <button class="mini reveal" onclick="abrirPainel('scout')"><svg class="mini-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><span>Sou scout ou clube — <b>Observar e descobrir</b></span></button>
       <a class="mini reveal" href="/gondomar-youth-cup.html" style="text-decoration:none"><svg class="mini-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/></svg><span>Torneio em preparação — <b>Gondomar Youth Cup 2026</b></span></a>
     </div>
   </div>
@@ -505,56 +512,55 @@ footer .logo b{font-size:17px}
 <!-- ── PAINÉIS ── -->
 <div class="sheet-bg" id="sheet-bg" onclick="fecharPainel()"></div>
 
-<div class="sheet" id="sh-academia">
+<div class="sheet" id="sh-erp">
   <div class="sheet-grab"></div><button class="sheet-x" onclick="fecharPainel()">✕</button>
-  <h3>Para a tua <span style="color:var(--gold)">academia</span></h3>
-  <div class="sh-sub">Organiza equipas, treinadores e atletas. Dá às famílias uma forma simples de acompanhar — e acompanha tu os melhores atletas, como a YTB faz.</div>
-<!-- ── MOCKUP: painel da academia ── -->
-<svg class="mock" viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Painel de gestão de uma academia">
+  <h3>Gestão de <span style="color:var(--gold)">Clubes e Academias</span></h3>
+  <div class="sh-sub">O clube inteiro, num só sítio — equipas, secretaria, treino e o Passaporte de cada atleta ligados entre si, não em ferramentas separadas.</div>
+<!-- ── MOCKUP: painel do Clube ── -->
+<svg class="mock" viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Painel de gestão de um clube">
   <rect width="400" height="220" fill="#0B120C"/>
   <g font-family="Plus Jakarta Sans, sans-serif">
-    <!-- cabeçalho com a marca da academia -->
     <rect x="12" y="12" width="376" height="44" rx="9" fill="#141C15"/>
     <circle cx="36" cy="34" r="13" fill="#D4AF37" fill-opacity=".2" stroke="#D4AF37" stroke-width="1"/>
-    <text x="36" y="39" fill="#D4AF37" font-size="12" font-weight="800" text-anchor="middle" font-family="Barlow Condensed, sans-serif">AF</text>
-    <text x="58" y="30" fill="#ECEFEA" font-size="12" font-weight="700">Academia Exemplo</text>
-    <text x="58" y="44" fill="#6B756C" font-size="9">Plano Academia · ativa</text>
+    <text x="36" y="39" fill="#D4AF37" font-size="12" font-weight="800" text-anchor="middle" font-family="Barlow Condensed, sans-serif">GD</text>
+    <text x="58" y="30" fill="#ECEFEA" font-size="12" font-weight="700">Clube Exemplo</text>
+    <text x="58" y="44" fill="#6B756C" font-size="9">8 equipas · 2026/27</text>
 
-    <!-- capacidade -->
-    <rect x="12" y="64" width="376" height="52" rx="9" fill="#141C15"/>
-    <text x="24" y="82" fill="#6B756C" font-size="8.5" letter-spacing="1">ATLETAS</text>
-    <text x="376" y="82" fill="#ECEFEA" font-size="12" font-weight="800" text-anchor="end">43 / 50</text>
-    <rect x="24" y="90" width="352" height="7" rx="3.5" fill="#1F2520"/>
-    <rect x="24" y="90" width="303" height="7" rx="3.5" fill="#D4AF37"/>
-    <text x="24" y="110" fill="#6B756C" font-size="9">7 vagas disponíveis</text>
+    <rect x="12" y="64" width="180" height="70" rx="9" fill="#141C15"/>
+    <text x="24" y="82" fill="#6B756C" font-size="8.5" letter-spacing="1">MENSALIDADES</text>
+    <text x="24" y="106" fill="#ECEFEA" font-size="22" font-weight="800" font-family="Barlow Condensed, sans-serif">96%</text>
+    <text x="24" y="120" fill="#6B756C" font-size="9">em dia este mês</text>
 
-    <!-- atletas com estatuto -->
+    <rect x="200" y="64" width="188" height="70" rx="9" fill="#141C15"/>
+    <text x="212" y="82" fill="#6B756C" font-size="8.5" letter-spacing="1">PRÓXIMO JOGO</text>
+    <text x="212" y="104" fill="#ECEFEA" font-size="13" font-weight="700">Sub-13 vs Boavista</text>
+    <text x="212" y="120" fill="#D4AF37" font-size="9">Sábado · 15:00 · Convocados: 15</text>
+
     <g>
-      <rect x="12" y="126" width="376" height="40" rx="8" fill="#141C15"/>
-      <text x="24" y="144" fill="#ECEFEA" font-size="11.5" font-weight="700">Rodrigo Almeida</text>
-      <text x="24" y="157" fill="#6B756C" font-size="9">2013 · MC · Sub-13</text>
-      <rect x="268" y="136" width="110" height="19" rx="9.5" fill="#D4AF37"/>
-      <text x="323" y="149" fill="#0A0F0A" font-size="8.5" font-weight="800" text-anchor="middle" font-family="Barlow Condensed, sans-serif">★ YTB ACOMPANHADO</text>
+      <rect x="12" y="142" width="376" height="34" rx="8" fill="#141C15"/>
+      <text x="24" y="163" fill="#ECEFEA" font-size="11" font-weight="700">Secretaria</text>
+      <rect x="292" y="150" width="84" height="18" rx="9" fill="#D4AF37" fill-opacity=".16"/>
+      <text x="334" y="163" fill="#D4AF37" font-size="9" font-weight="700" text-anchor="middle">2 pendentes</text>
     </g>
     <g>
-      <rect x="12" y="172" width="376" height="40" rx="8" fill="#141C15"/>
-      <text x="24" y="190" fill="#ECEFEA" font-size="11.5" font-weight="700">Miguel Sousa</text>
-      <text x="24" y="203" fill="#6B756C" font-size="9">2014 · AV · Sub-12</text>
-      <rect x="286" y="182" width="92" height="19" rx="9.5" fill="#D4AF37" fill-opacity=".14" stroke="#D4AF37" stroke-opacity=".35"/>
-      <text x="332" y="195" fill="#D4AF37" font-size="8.5" font-weight="800" text-anchor="middle" font-family="Barlow Condensed, sans-serif">📈 EM CRESCIMENTO</text>
+      <rect x="12" y="180" width="376" height="34" rx="8" fill="#141C15"/>
+      <text x="24" y="201" fill="#ECEFEA" font-size="11" font-weight="700">Convocatória enviada</text>
+      <rect x="292" y="188" width="84" height="18" rx="9" fill="#00D46A" fill-opacity=".16"/>
+      <text x="334" y="201" fill="#00D46A" font-size="9" font-weight="700" text-anchor="middle">✔ No Passaporte</text>
     </g>
   </g>
 </svg>
-<div class="mock-leg">Painel da academia · capacidade e acompanhamento</div>
+<div class="mock-leg">Painel do clube · secretaria, treino e jogos ligados</div>
 
   <ul>
-    <li><span class="mk">◇</span> Oficina do Treinador incluída para toda a equipa técnica</li>
-    <li><span class="mk">◇</span> A tua marca no passaporte de cada atleta</li>
-    <li><span class="mk">◇</span> Inscrição do plantel em bloco</li>
-    <li><span class="mk">◇</span> Acompanha e classifica os teus melhores</li>
+    <li><span class="mk">◇</span> Equipas, plantel, jogos e convocatórias — com assinatura e resposta da família no Passaporte</li>
+    <li><span class="mk">◇</span> Mensalidades, kit de época e mapa de pagamentos — para clube ou para academia</li>
+    <li><span class="mk">◇</span> Sessões de treino com histórico, presenças e evolução de cada atleta</li>
+    <li><span class="mk">◇</span> Papéis próprios para secretaria, treinador, team manager e scout — cada um vê só o que é seu</li>
+    <li><span class="mk">◇</span> Preparação para a certificação FPF, para clubes que a procuram</li>
   </ul>
-  <a class="sh-cta" href="criar-academia.html">Criar a minha academia →</a>
-  <a class="sh-alt" href="https://wa.me/351913695846?text=Ol%C3%A1%21%20%F0%9F%91%8B%20Represento%20uma%20academia%20e%20quero%20saber%20mais%20sobre%20a%20YTB." target="_blank" rel="noopener">ou fala connosco primeiro</a>
+  <a class="sh-cta" href="https://wa.me/351913695846?text=Ol%C3%A1%21%20%F0%9F%91%8B%20Represento%20um%20clube%2Facademia%20e%20quero%20saber%20mais%20sobre%20a%20Gest%C3%A3o%20de%20Clubes%20e%20Academias%20da%20YTB." target="_blank" rel="noopener">Pedir acesso →</a>
+  <div class="sh-per" style="text-align:center;margin-top:8px">Ainda sem criação de conta automática — falamos contigo primeiro.</div>
 </div>
 
 <div class="sheet" id="sh-coachbase">
@@ -671,7 +677,7 @@ footer .logo b{font-size:17px}
 
 <div class="sheet" id="sh-pro">
   <div class="sheet-grab"></div><button class="sheet-x" onclick="fecharPainel()">✕</button>
-  <h3>Pro <span style="color:var(--gold)">Treinador</span></h3>
+  <h3>Plano de <span style="color:var(--gold)">Desenvolvimento Individual</span></h3>
   <div class="sh-sub">Acompanhamento individual, com avaliação a sério de um treinador que conhece o contexto onde ele joga.</div>
   <div class="sh-price">9,90€<span style="font-size:20px"> /mês</span></div>
   <div class="sh-per">+ 39,90€ por avaliação, de 3 em 3 meses</div>
@@ -1024,9 +1030,9 @@ function _montraArranca(){
   "use strict";
   var reduce=false; try{reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(e){}
   var PERSONAS={
-    clube:{h1:'A tua academia já<br>desenvolve jogadores.<br><span class="fade">Isso agora fica registado.</span>',
-      sub:'A YTB transforma o trabalho que já fazes num sistema digital de acompanhamento — a Oficina do Treinador para os teus treinadores, o Passaporte Digital para cada família. Sem construíres nada de raiz.',
-      cta:'Ver para a minha academia', href:'criar-academia.html'},
+    clube:{h1:'O teu clube já<br>forma jogadores.<br><span class="fade">Isso agora fica registado.</span>',
+      sub:'A YTB junta a gestão do clube ou academia — equipas, secretaria, mensalidades, convocatórias — ao Passaporte Digital de cada atleta. Sem construíres nada de raiz.',
+      cta:'Ver para o meu clube ou academia', abrePainel:'erp'},
     treinador:{h1:'Vês o talento.<br>Agora <span class="fade">fica registado</span>.',
       sub:'Avalia, prescreve e prepara cada treino e jogo com a Oficina do Treinador — o retorno da família chega semana a semana.',
       cta:'Entrar na Oficina do Treinador', href:'coachbase.html'},
@@ -1045,7 +1051,13 @@ function _montraArranca(){
     h1.innerHTML=p.h1;
     sub.textContent=p.sub;
     cta.innerHTML=p.cta+' <span class="arr">→</span>';
-    cta.setAttribute('href',p.href);
+    if(p.abrePainel){
+      cta.setAttribute('href','#personas');
+      cta.onclick=function(){ abrirPainel(p.abrePainel); return false; };
+    } else {
+      cta.setAttribute('href',p.href);
+      cta.onclick=null;
+    }
   }
   function setPersona(k,anim){
     var p=PERSONAS[k]; if(!p) return;
