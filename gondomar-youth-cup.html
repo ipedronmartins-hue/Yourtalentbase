@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gondomar Youth Cup 2026</title>
+<meta name="description" content="Torneio internacional de formação em Gondomar — powered by YourTalentBase, organizado pelo FC Ramalde e pela Câmara Municipal de Gondomar.">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{--gold:#C9A84C;--gold-dim:#8B6F2E;--black:#0A0A0A;--dark:#111;--dark2:#181818;--dark3:#222;--white:#F5F5F0;--grey:#888;--gl:#BBBBBB;--green:#2ECC71;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--black);color:var(--white);font-family:'Barlow',sans-serif;font-size:16px;line-height:1.6;}
+  .hero{background:var(--dark);padding:64px 24px 56px;text-align:center;border-bottom:3px solid var(--gold);position:relative;overflow:hidden;}
+  .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center top,rgba(201,168,76,0.14) 0%,transparent 70%);pointer-events:none;}
+  .hero-badge{display:inline-block;border:1px solid var(--gold-dim);color:var(--gold);font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:4px;text-transform:uppercase;padding:6px 20px;margin-bottom:26px;position:relative}
+  .hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(46px,9vw,92px);letter-spacing:3px;color:var(--white);line-height:0.95;margin-bottom:10px;position:relative}
+  .hero h1 span{color:var(--gold);}
+  .hero-sub{font-family:'Barlow Condensed',sans-serif;font-size:18px;letter-spacing:4px;color:var(--grey);text-transform:uppercase;margin-bottom:34px;position:relative}
+  .powered{display:flex;justify-content:center;align-items:center;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--gl);position:relative}
+  .powered b{color:var(--gold);font-weight:700}
+  .powered .sep{color:var(--dark3)}
+
+  .container{max-width:1000px;margin:0 auto;padding:0 24px;}
+  .section{padding:48px 0 36px;border-bottom:1px solid #1e1e1e;}
+  .sh{display:flex;align-items:baseline;gap:16px;margin-bottom:28px;}
+  .sn{font-family:'Bebas Neue',sans-serif;font-size:56px;color:var(--dark3);line-height:1;flex-shrink:0;}
+  .st{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:2px;color:var(--white);line-height:1.1;}
+  .st span{color:var(--gold);}
+
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin:20px 0;}
+  .card{background:var(--dark2);border:1px solid #2a2a2a;border-radius:6px;padding:22px;}
+  .card-lbl{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold-dim);margin-bottom:6px;}
+  .card-val{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:700;color:var(--white);}
+  .card-val.g{color:var(--gold);}
+  .card-sub{font-size:13px;color:var(--grey);margin-top:4px;}
+
+  .opcoes{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0;}
+  @media(max-width:640px){.opcoes{grid-template-columns:1fr}}
+  .opcao{background:var(--dark2);border:1px solid #2a2a2a;border-top:3px solid var(--gold-dim);border-radius:6px;padding:22px;}
+  .opcao .ot{font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+  .opcao .ov{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--white);margin-bottom:6px}
+  .opcao .os{font-size:13px;color:var(--grey)}
+  .por-confirmar{display:inline-block;margin-top:10px;font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--dark3);background:rgba(201,168,76,0.08);border:1px solid var(--gold-dim);color:var(--gold-dim);padding:3px 10px;border-radius:3px}
+
+  .escaloes{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:20px 0}
+  @media(max-width:640px){.escaloes{grid-template-columns:1fr}}
+  .esc{background:var(--dark2);border:1px solid #2a2a2a;border-radius:6px;padding:24px;text-align:center}
+  .esc .en{font-family:'Bebas Neue',sans-serif;font-size:40px;color:var(--gold);line-height:1}
+  .esc .ed{font-size:13px;color:var(--grey);margin-top:8px}
+
+  .footer{background:var(--dark2);padding:32px 24px;text-align:center;font-size:12px;color:var(--grey);letter-spacing:1px;border-top:1px solid #222}
+  .footer strong{color:var(--gold)}
+  .voltar{display:inline-block;margin-top:14px;color:var(--grey);text-decoration:none;font-size:13px}
+  .voltar:hover{color:var(--gold)}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-badge">Em preparação · Formação · Gondomar</div>
+  <h1>GONDOMAR<br><span>YOUTH CUP</span> 2026</h1>
+  <div class="hero-sub">Sub-10 · Sub-11 · Sub-12</div>
+  <div class="powered">Powered by <b>YourTalentBase</b><span class="sep">·</span>Organização: <b>FC Ramalde</b><span class="sep">·</span><b>Câmara Municipal de Gondomar</b></div>
+</div>
+
+<div class="section"><div class="container">
+  <div class="sh"><div class="sn">01</div><div class="st">O <span>TORNEIO</span></div></div>
+  <div class="cards">
+    <div class="card"><div class="card-lbl">Escalões</div><div class="card-val g">3</div><div class="card-sub">Sub-10 · Sub-11 · Sub-12</div></div>
+    <div class="card"><div class="card-lbl">Equipas por escalão</div><div class="card-val">16</div><div class="card-sub">48 equipas no total</div></div>
+    <div class="card"><div class="card-lbl">Atletas por equipa</div><div class="card-val">15</div><div class="card-sub">~720 atletas estimados</div></div>
+    <div class="card"><div class="card-lbl">Duração</div><div class="card-val g">4 dias</div><div class="card-sub">Fim de semana alargado</div></div>
+  </div>
+
+  <div class="escaloes">
+    <div class="esc"><div class="en">SUB-10</div><div class="ed">16 equipas</div></div>
+    <div class="esc"><div class="en">SUB-11</div><div class="ed">16 equipas</div></div>
+    <div class="esc"><div class="en">SUB-12</div><div class="ed">16 equipas</div></div>
+  </div>
+</div></div>
+
+<div class="section"><div class="container">
+  <div class="sh"><div class="sn">02</div><div class="st">DATA <span>— duas opções em avaliação</span></div></div>
+  <div class="opcoes">
+    <div class="opcao">
+      <div class="ot">Opção A</div>
+      <div class="ov">24 – 27 Junho</div>
+      <div class="os">Quarta a sábado · 2026</div>
+      <span class="por-confirmar">Por confirmar</span>
+    </div>
+    <div class="opcao">
+      <div class="ot">Opção B</div>
+      <div class="ov">1 – 4 Julho</div>
+      <div class="os">Quarta a sábado · 2026</div>
+      <span class="por-confirmar">Por confirmar</span>
+    </div>
+  </div>
+</div></div>
+
+<div class="section" style="border-bottom:none"><div class="container">
+  <div class="sh"><div class="sn">03</div><div class="st">LOCAL <span>— duas opções em avaliação</span></div></div>
+  <div class="opcoes">
+    <div class="opcao">
+      <div class="ot">Opção A</div>
+      <div class="ov">Estádio São Miguel</div>
+      <div class="os">Gondomar</div>
+      <span class="por-confirmar">Por confirmar</span>
+    </div>
+    <div class="opcao">
+      <div class="ot">Opção B</div>
+      <div class="ov">Complexo Municipal</div>
+      <div class="os">Valbom, Gondomar</div>
+      <span class="por-confirmar">Por confirmar</span>
+    </div>
+  </div>
+</div></div>
+
+<div class="footer">
+  <strong>GONDOMAR YOUTH CUP 2026</strong> · Powered by YourTalentBase<br>
+  FC Ramalde · Câmara Municipal de Gondomar<br>
+  Documento de apresentação — datas e local por confirmar
+  <br><a class="voltar" href="/">← YourTalentBase</a>
+</div>
+
+</body>
+</html>
