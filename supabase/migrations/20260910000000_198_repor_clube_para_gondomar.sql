@@ -1,0 +1,2 @@
+-- 198: reposto o clube de teste para Gondomar SC (nome, slug, cores,
+-- dados institucionais). Corpo integral no historico Supabase (198).

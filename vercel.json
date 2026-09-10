@@ -1,12 +1,12 @@
 {
   "rewrites": [
     {
-      "source": "/pacos-de-ferreira",
-      "destination": "/ytb-clube-gestor.html?clube=pacos-de-ferreira"
+      "source": "/gondomar",
+      "destination": "/ytb-clube-gestor.html?clube=gondomar"
     },
     {
-      "source": "/pacos-de-ferreira/jogos",
-      "destination": "/clube-publico.html?clube=pacos-de-ferreira"
+      "source": "/gondomar/jogos",
+      "destination": "/clube-publico.html?clube=gondomar"
     }
   ],
   "headers": [
