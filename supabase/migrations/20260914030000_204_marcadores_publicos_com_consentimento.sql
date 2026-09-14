@@ -1,0 +1,2 @@
+-- 204: nomes de marcadores na pagina publica, condicionados a
+-- consentimento explicito. Corpo integral no historico Supabase (204).

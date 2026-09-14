@@ -22,6 +22,7 @@
   .jogo-nome{font-size:18px;font-weight:700}
   .jogo-resultado{font-family:'Barlow Condensed';font-weight:900;font-size:32px;color:var(--white)}
   .jogo-meta{color:var(--muted);font-size:13px;margin-top:6px}
+  .jogo-marcadores{color:var(--gl);font-size:13px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);line-height:1.7}
   .vazio{text-align:center;padding:40px 20px;color:var(--muted)}
   .ao-vivo{display:inline-block;width:8px;height:8px;background:#ff3b30;border-radius:50%;margin-right:6px;animation:pulso 1.4s infinite}
   @keyframes pulso{0%,100%{opacity:1}50%{opacity:.3}}
@@ -74,12 +75,16 @@ async function carregar(){
   document.getElementById('lista-jogos').innerHTML = jogos.length ? jogos.map(function(j){
     var temResultado = (j.golos_nos>0 || j.golos_adversario>0);
     var dataFmt = j.data_jogo ? new Date(j.data_jogo+'T00:00:00').toLocaleDateString('pt-PT',{weekday:'long',day:'numeric',month:'short'}) : '';
+    var marcadores = (j.marcadores_nos||[]).concat(j.marcadores_adversario||[]).sort(function(a,b){return (a.minuto||999)-(b.minuto||999);});
     return '<div class="card">'
       +'<div class="jogo-equipa">'+esc(j.equipa_nome)+(j.competicao?(' · '+esc(j.competicao)):'')+'</div>'
       +'<div class="jogo-confronto"><div class="jogo-nome">'+(j.casa_fora==='casa'?'Nós':esc(j.adversario))+' vs '+(j.casa_fora==='casa'?esc(j.adversario):'Nós')+'</div>'
       +(temResultado ? '<div class="jogo-resultado">'+(j.casa_fora==='casa'?j.golos_nos:j.golos_adversario)+' - '+(j.casa_fora==='casa'?j.golos_adversario:j.golos_nos)+'</div>' : '')
       +'</div>'
       +'<div class="jogo-meta">'+esc(dataFmt)+(j.hora_jogo?(' · '+j.hora_jogo.slice(0,5)):'')+' · '+(j.casa_fora==='casa'?'Em casa':'Fora')+'</div>'
+      +(marcadores.length ? '<div class="jogo-marcadores">'+marcadores.map(function(m){
+          return '⚽ '+(m.minuto?m.minuto+"' · ":'')+esc(m.nome);
+        }).join('<br>')+'</div>' : '')
       +'</div>';
   }).join('') : '<div class="vazio">Sem jogos agendados esta semana.</div>';
 }
