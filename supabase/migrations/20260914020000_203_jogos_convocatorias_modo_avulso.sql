@@ -1,0 +1,3 @@
+-- 203: jogos e convocatorias passam a funcionar em modo avulso
+-- (treinador sem clube institucional). Corpo integral no historico
+-- Supabase (203).
