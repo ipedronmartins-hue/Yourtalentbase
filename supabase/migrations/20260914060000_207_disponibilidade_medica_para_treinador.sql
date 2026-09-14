@@ -1,0 +1,3 @@
+-- 207: privacidade por perfil no medico -- treinador ve so
+-- disponivel/indisponivel, nunca o diagnostico. Corpo integral no
+-- historico Supabase (207).

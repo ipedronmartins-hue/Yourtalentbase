@@ -689,10 +689,14 @@ async function carregarAtletasDoClube(){
   atletasDoClube=(r&&r.ok&&r.lista)||[];
 }
 var plantelFiltro=''; var plantelOrdem='numero';
+var disponibilidadeCache={};
 async function carregarPlantel(){
   if(!equipaAtiva) return;
   const {data:r}=await supa.rpc('ytb_clube_plantel_listar',{p_equipa_id:equipaAtiva.id});
   plantelDaEquipa=(r&&r.ok&&r.lista)||[];
+  const {data:rd}=await supa.rpc('ytb_clube_disponibilidade_equipa',{p_equipa_id:equipaAtiva.id});
+  disponibilidadeCache={};
+  ((rd&&rd.ok&&rd.lista)||[]).forEach(function(x){ disponibilidadeCache[x.atleta_id]=x.disponivel; });
   pintarPlantel();
 }
 function pintarPlantel(){
@@ -715,19 +719,22 @@ function pintarPlantel(){
   } else {
     // mobile: cartões
     html += '<div class="plantel-cartoes">'+lista.map(function(p){
+      var apto=disponibilidadeCache[p.atleta_id];
       return '<div class="plantel-cartao" onclick="abrirFichaAtleta(\''+p.atleta_id+'\')">'
-        +'<span>'+(p.numero?'<b style="color:var(--gold)">#'+p.numero+'</b> ':'')+esc(p.nome)+'</span>'
+        +'<span>'+(p.numero?'<b style="color:var(--gold)">#'+p.numero+'</b> ':'')+esc(p.nome)+(apto===false?' <span class="pill pill-vermelho" style="font-size:10px">🩹 Lesionado</span>':'')+'</span>'
         +'<span style="color:var(--muted);font-size:12px">'+esc(p.posicao||'')+'</span></div>';
     }).join('')+'</div>';
     // tablet/desktop: tabela, colunas extra só a partir de desktop
     html += '<div class="plantel-tabela-wrap"><table class="plantel-tabela"><thead><tr>'
       +'<th>Nº</th><th>Atleta</th><th class="col-desktop">Idade</th><th>Posição</th>'
-      +'<th class="col-desktop">Presenças</th><th class="col-desktop">Jogos</th><th class="col-desktop">Minutos</th><th>Estado</th>'
+      +'<th class="col-desktop">Presenças</th><th class="col-desktop">Jogos</th><th class="col-desktop">Minutos</th><th>Apto</th><th>Estado</th>'
       +'</tr></thead><tbody>'
       +lista.map(function(p){
+        var apto=disponibilidadeCache[p.atleta_id];
         return '<tr onclick="abrirFichaAtleta(\''+p.atleta_id+'\')">'
           +'<td>'+(p.numero||'—')+'</td><td>'+esc(p.nome)+'</td><td class="col-desktop">'+(p.idade||'—')+'</td><td>'+esc(p.posicao||'—')+'</td>'
           +'<td class="col-desktop">'+p.presencas+'/'+p.convocatorias_total+'</td><td class="col-desktop">'+p.jogos+'</td><td class="col-desktop">'+p.minutos+'</td>'
+          +'<td>'+(apto===false?'<span class="pill pill-vermelho">🩹 Não</span>':'<span class="pill pill-verde">✓ Sim</span>')+'</td>'
           +'<td><span class="pill '+(p.estado==='aprovado'?'pill-verde':'pill-laranja')+'">'+esc(p.estado)+'</span></td></tr>';
       }).join('')+'</tbody></table></div></div>';
   }
