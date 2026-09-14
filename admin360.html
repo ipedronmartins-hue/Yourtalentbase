@@ -1390,7 +1390,16 @@ function renderClubes(){
       <td>${escapeHtml(c.responsavel_nome)}<div class="td-mute">${escapeHtml(c.responsavel_email)}</div></td>
       <td><span class="pill pill-admin">${c.plano || 'sem plano'}</span><div class="td-mute">${c.valor_mensal ? c.valor_mensal + '€/mês' : '—'}</div></td>
       <td><span class="pill pill-${pillEstado}">${est}</span>${acoesEstado}</td>
-      <td class="td-mute">${c.estado_subscricao || '—'}</td>
+      <td>
+        <span class="pill pill-${c.estado_subscricao==='ativa'?'aprovado':(c.estado_subscricao==='suspensa'||c.estado_subscricao==='cancelada'?'rejeitado':'pendente')}">${c.estado_subscricao || 'pendente'}</span>
+        <select class="action-btn" style="margin-top:4px;font-size:11px;padding:3px 4px" onchange="mudarSubscricaoClube('${c.id}',this.value)">
+          <option value="">Mudar para…</option>
+          <option value="ativa">Ativa</option>
+          <option value="pendente">Pendente</option>
+          <option value="suspensa">Suspensa</option>
+          <option value="cancelada">Cancelada</option>
+        </select>
+      </td>
       <td class="td-mute">${c.limite_atletas ? usados+' / '+c.limite_atletas : usados+' · sem limite'}</td>
       <td style="white-space:nowrap">
         <button class="action-btn" onclick="editarClube('${c.id}')">✏️</button>
@@ -1410,6 +1419,17 @@ async function mudarEstadoAcademia(id, novoEstado){
     toast('Erro: ' + (data && data.motivo || error?.message || 'desconhecido'), 'red'); return;
   }
   toast(novoEstado==='aprovada' ? 'Academia aprovada ✅' : 'Pedido rejeitado', 'green');
+  load();
+}
+
+async function mudarSubscricaoClube(id, novoEstado){
+  if(!novoEstado) return;
+  if(!confirm(`Confirmas que queres mudar a subscrição deste clube para "${novoEstado}"?`)) return;
+  const { data, error } = await supa.rpc('ytb_admin_clube_definir_estado', { p_clube_id:id, p_estado_subscricao:novoEstado });
+  if(error || !data || !data.ok){
+    toast('Erro: ' + (data && data.motivo || error?.message || 'desconhecido'), 'red'); return;
+  }
+  toast('Subscrição atualizada para "'+novoEstado+'"', 'green');
   load();
 }
 
