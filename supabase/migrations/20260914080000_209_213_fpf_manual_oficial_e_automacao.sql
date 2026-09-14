@@ -1,0 +1,6 @@
+-- 209-213: FPF lido do Manual de Certificacao 2025-2026 (Futebol
+-- Masculino) na integra. Pesos corrigidos, 66 requisitos reais
+-- populados, automacao para 2 requisitos genuinamente verificaveis
+-- (6.1.1 Info Escolar, 4.2 parcial via Planeamento+sessoes), calculo
+-- de pontuacao corrigido para pesos reais por requisito. Corpo
+-- integral no historico Supabase (209 a 213).

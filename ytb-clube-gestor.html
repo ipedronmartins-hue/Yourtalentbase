@@ -4270,7 +4270,8 @@ window.abrirCriterioFPF=async function(avaliacaoId, criterioId, nomeCriterio){
     +(r.requisitos.length ? r.requisitos.map(function(req){
         var re=ROTULO_ESTADO[req.estado]||['—','pill-laranja'];
         return '<div style="padding:8px 0;border-bottom:1px solid var(--border)">'
-          +'<div style="display:flex;justify-content:space-between"><span style="font-size:13px">'+esc(req.nome)+'</span><span class="pill '+re[1]+'">'+re[0]+'</span></div>'
+          +'<div style="display:flex;justify-content:space-between;gap:8px"><span style="font-size:13px">'+esc(req.nome)+' — '+esc(req.descricao)+(req.pontos_maximos?' <span style="color:var(--muted)">('+req.pontos_maximos+' pts)</span>':'')+'</span><span class="pill '+re[1]+'">'+re[0]+'</span></div>'
+          +(req.fonte==='automatico'?'<div class="s" style="margin:2px 0 0;color:var(--gold)">🤖 Sugerido automaticamente'+(req.notas?(' — '+esc(req.notas)):'')+'</div>':'')
           +'<div style="display:flex;gap:6px;margin-top:6px">'+['cumpre','parcial','em_falta','nao_aplicavel'].map(function(e){
             return '<button class="btn btn-sec" style="width:auto;padding:4px 8px;margin-top:0;font-size:11px" onclick="definirEstadoRequisitoFPF(\''+avaliacaoId+'\',\''+req.id+'\',\''+e+'\',\''+avaliacaoId+'\',\''+criterioId+'\',\''+esc(nomeCriterio).replace(/'/g,"\\'")+'\')">'+ROTULO_ESTADO[e][0]+'</button>';
           }).join('')+'</div></div>';
