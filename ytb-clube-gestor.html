@@ -3702,6 +3702,11 @@ function pintarSecretaria(){
     +'<div id="sec-duplicados"></div></div>'
     +'<div class="card"><div class="h">Adicionar <span style="color:var(--gold)">em lote</span></div>'
     +'<div class="s">Para inscrever vários atletas de uma vez — útil ao trazer um plantel já existente para a plataforma.</div>'
+    +'<label class="label">Equipa <span style="font-weight:400;color:var(--muted)">(opcional — junta todos ao plantel desta equipa)</span></label>'
+    +'<select class="input" id="lote-equipa">'
+    +'<option value="">— nenhuma por agora —</option>'
+    +minhasEquipas.map(function(e){return '<option value="'+e.id+'">'+esc(e.nome)+' · '+esc(e.epoca)+'</option>';}).join('')
+    +'</select>'
     +'<div id="lote-linhas"></div>'
     +'<button class="btn btn-sec" style="margin-bottom:10px" onclick="loteAdicionarLinha()">+ Adicionar linha</button>'
     +'<button class="btn" onclick="submeterLoteAtletas()">Inscrever todos →</button>'
@@ -3882,6 +3887,7 @@ window.loteAdicionarLinha=function(){
 var LOTE_MOTIVOS={nome:'nome em falta',ano_invalido:'ano de nascimento inválido',posicao_obrigatoria:'posição em falta',capacidade_atingida:'capacidade do clube atingida'};
 window.submeterLoteAtletas=async function(){
   var resArea=document.getElementById('lote-resultados');
+  var equipaId=document.getElementById('lote-equipa').value||null;
   var linhas=Array.prototype.map.call(document.querySelectorAll('.lote-row'),function(row){
     return {nome:row.querySelector('[data-f="nome"]').value.trim(), ano:parseInt(row.querySelector('[data-f="ano"]').value)||null, pos:row.querySelector('[data-f="pos"]').value||null};
   }).filter(function(l){return l.nome;});
@@ -3889,12 +3895,16 @@ window.submeterLoteAtletas=async function(){
   const {data:r}=await supa.rpc('ytb_clube_secretaria_atletas_lote',{p_clube_id:meuClube.clube_id,p_lista:linhas});
   if(!r||!r.ok){ toast('⚠ Não foi possível: '+((r&&r.motivo)||'erro')); return; }
   var res=r.resultados||[];
+  var criadosIds=res.filter(function(x){return x.status==='criado';}).map(function(x){return x.id;});
+  if(equipaId && criadosIds.length){
+    await Promise.all(criadosIds.map(function(id){ return supa.rpc('ytb_clube_plantel_adicionar',{p_equipa_id:equipaId,p_atleta_id:id}); }));
+  }
   resArea.innerHTML=res.map(function(x){
-    if(x.status==='criado') return '<div class="s" style="color:var(--up)">✓ '+esc(x.nome)+' — criado</div>';
+    if(x.status==='criado') return '<div class="s" style="color:var(--up)">✓ '+esc(x.nome)+' — criado'+(equipaId?' e adicionado ao plantel':'')+'</div>';
     if(x.status==='duplicado_possivel') return '<div class="s" style="color:var(--orange)">⚠ '+esc(x.nome)+' — parecido com um atleta existente, não foi criado. Usa "Criar atleta" acima para decidir.</div>';
     return '<div class="s" style="color:var(--red)">✗ '+esc(x.nome)+' — '+(LOTE_MOTIVOS[x.motivo]||x.motivo||'erro')+'</div>';
   }).join('');
-  var criados=res.filter(function(x){return x.status==='criado';}).length;
+  var criados=criadosIds.length;
   document.getElementById('lote-linhas').innerHTML='';
   for(var i=0;i<3;i++) loteAdicionarLinha();
   if(criados>0){ toast('✓ '+criados+' atleta(s) criado(s)'); await carregarAtletasDoClube(); }
