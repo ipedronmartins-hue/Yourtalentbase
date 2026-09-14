@@ -1,0 +1,2 @@
+-- 214: corrige a ordem de validacao que impedia associar um atleta
+-- duplicado ao clube. Corpo integral no historico Supabase (214).

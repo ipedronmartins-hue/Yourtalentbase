@@ -3909,22 +3909,26 @@ window.submeterLoteAtletas=async function(){
   for(var i=0;i<3;i++) loteAdicionarLinha();
   if(criados>0){ toast('✓ '+criados+' atleta(s) criado(s)'); await carregarAtletasDoClube(); }
 };
-window.criarAtletaSecretaria=async function(forcarNovo){
+window.criarAtletaSecretaria=async function(forcarNovo, associarId){
   var nome=(document.getElementById('sec-nome').value||'').trim();
   var ano=parseInt(document.getElementById('sec-ano').value,10);
   var pos=document.getElementById('sec-pos').value;
   var emailEnc=(document.getElementById('sec-email-enc').value||'').trim();
-  if(!nome||!ano){ toast('Falta o nome ou o ano de nascimento'); return; }
+  if(!associarId && (!nome||!ano)){ toast('Falta o nome ou o ano de nascimento'); return; }
   const {data:r}=await supa.rpc('ytb_clube_secretaria_atleta_criar',{
     p_clube_id:meuClube.clube_id, p_nome:nome, p_ano:ano, p_pos:pos,
-    p_email_enc:emailEnc||null, p_confirmar_novo:!!forcarNovo
+    p_email_enc:emailEnc||null, p_confirmar_novo:!!forcarNovo, p_associar_a:associarId||null
   });
   var dupArea=document.getElementById('sec-duplicados');
   if(!r||!r.ok){
     if(r&&r.motivo==='duplicado_possivel'){
       dupArea.innerHTML='<div class="panel" style="border-color:var(--gold-border);margin-top:12px">'
-        +'<div class="s" style="color:var(--white)">Já existe um atleta parecido — confirma que não é a mesma pessoa:</div>'
-        +(r.candidatos||[]).map(function(c){return '<div class="s">· '+esc(c.nome)+' ('+esc(c.ano)+') — '+esc(c.clube||'')+'</div>';}).join('')
+        +'<div class="s" style="color:var(--white)">Já existe um atleta parecido — é esta a mesma pessoa?</div>'
+        +(r.candidatos||[]).map(function(c){
+          return '<div class="s" style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin:6px 0">'
+            +'<span>'+esc(c.nome)+' ('+esc(c.ano)+') — '+esc(c.clube||'')+'</span>'
+            +'<button class="btn btn-sec" style="width:auto;padding:5px 10px;margin-top:0;font-size:12px" onclick="criarAtletaSecretaria(false,\''+c.id+'\')">É este →</button></div>';
+        }).join('')
         +'<button class="btn" style="margin-top:8px" onclick="criarAtletaSecretaria(true)">Não é a mesma pessoa — criar assim mesmo →</button></div>';
       return;
     }
@@ -3935,9 +3939,9 @@ window.criarAtletaSecretaria=async function(forcarNovo){
   if(equipaEscolhida){
     var rp=await supa.rpc('ytb_clube_plantel_adicionar',{p_equipa_id:equipaEscolhida,p_atleta_id:r.id});
     if(!rp.data||!rp.data.ok){ toast('Atleta criado, mas não foi possível juntar à equipa ('+((rp.data&&rp.data.motivo)||'erro')+')'); }
-    else { toast('✓ Atleta criado e já na equipa'); }
+    else { toast(associarId?'✓ Atleta associado e já na equipa':'✓ Atleta criado e já na equipa'); }
   } else {
-    toast('✓ Atleta criado');
+    toast(associarId?'✓ Atleta associado ao clube':'✓ Atleta criado');
   }
   document.getElementById('sec-nome').value='';document.getElementById('sec-ano').value='';document.getElementById('sec-email-enc').value='';
   await carregarAtletasDoClube();
