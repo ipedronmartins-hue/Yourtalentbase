@@ -1,6 +1,6 @@
 {
-  "name": "YTB Pro Treinador",
-  "short_name": "Pro Treinador",
+  "name": "YTB Plano de Desenvolvimento Individual",
+  "short_name": "Plano PDI",
   "description": "Avalia atletas, prescreve planos de treino individuais e acompanha o impacto semana a semana",
   "start_url": "/ytb-pro-treinador.html",
   "display": "standalone",

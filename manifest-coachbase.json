@@ -1,6 +1,6 @@
 {
-  "name": "YTB CoachBase",
-  "short_name": "CoachBase",
+  "name": "YTB Oficina do Treinador",
+  "short_name": "Oficina",
   "description": "Prancheta tática, sessões por IA, presenças, convocatória e o Balneário — a bancada de trabalho do treinador",
   "start_url": "/coachbase.html",
   "display": "standalone",
