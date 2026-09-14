@@ -1,0 +1,2 @@
+-- 202: ytb_clube_jogos_listar passa a devolver hora_jogo. Corpo
+-- integral no historico Supabase (202).

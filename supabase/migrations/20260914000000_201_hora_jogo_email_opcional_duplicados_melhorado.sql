@@ -1,0 +1,3 @@
+-- 201: hora nos jogos, email volta a opcional, deteccao de
+-- duplicados melhorada (primeiro+ultimo nome). Corpo integral no
+-- historico Supabase (201).

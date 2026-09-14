@@ -770,7 +770,7 @@ function pintarJogos(){
     var jaPassou = j.data_jogo && j.data_jogo < hoje;
     return '<div style="padding:10px 0;border-bottom:1px solid var(--border)">'
       +'<div style="font-weight:800">'+esc(j.adversario||'Adversário')+'</div>'
-      +'<div class="s" style="margin:2px 0">'+(j.data_jogo?esc(j.data_jogo):'sem data')+(j.casa_fora?(' · '+(j.casa_fora==='casa'?'em casa':'fora')):'')+(j.competicao?(' · '+esc(j.competicao)):'')
+      +'<div class="s" style="margin:2px 0">'+(j.data_jogo?esc(j.data_jogo):'sem data')+(j.hora_jogo?(' · '+esc(j.hora_jogo.slice(0,5))):'')+(j.casa_fora?(' · '+(j.casa_fora==='casa'?'em casa':'fora')):'')+(j.competicao?(' · '+esc(j.competicao)):'')
       +(j.resultado?(' · <b style="color:var(--white)">'+esc(j.resultado)+'</b>'):'')+'</div>'
       +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">'
       +(j.convocatoria_id
@@ -799,7 +799,8 @@ function pintarJogos(){
       +'<button class="btn btn-sec" onclick="criarCompeticao()">Adicionar competição →</button></div>'
       +'<div class="card"><div class="h">Criar <span>jogo</span></div>'
       +'<label class="label">Adversário</label><input class="input" id="jg-adversario" placeholder="Ex: Rio Tinto">'
-      +'<label class="label">Data</label><input class="input" id="jg-data" type="date">'
+      +'<div class="grid2"><div><label class="label">Data</label><input class="input" id="jg-data" type="date"></div>'
+      +'<div><label class="label">Hora <span style="font-weight:400;color:var(--muted)">(opcional)</span></label><input class="input" id="jg-hora" type="time"></div></div>'
       +'<label class="label">Competição <span style="font-weight:400;color:var(--muted)">(opcional)</span></label>'
       +'<select class="input" id="jg-competicao-id"><option value="">— sem competição associada —</option></select>'
       +'<div class="chips" id="jg-casa-fora" style="display:flex;margin-bottom:10px"><button class="chip on" data-v="casa" onclick="chipCasaFora(this)">Em casa</button><button class="chip" data-v="fora" onclick="chipCasaFora(this)">Fora</button></div>'
@@ -837,10 +838,11 @@ window.chipCasaFora=function(btn){
 window.criarJogo=async function(){
   var adversario=(document.getElementById('jg-adversario').value||'').trim();
   var data=document.getElementById('jg-data').value||null;
+  var hora=document.getElementById('jg-hora').value||null;
   var competicaoId=document.getElementById('jg-competicao-id').value||null;
   var casaFora=(document.querySelector('#jg-casa-fora .chip.on')||{}).dataset ? document.querySelector('#jg-casa-fora .chip.on').getAttribute('data-v') : 'casa';
   if(!adversario){ toast('Falta o adversário'); return; }
-  const {data:r}=await supa.rpc('ytb_clube_jogo_criar',{p_equipa_id:equipaAtiva.id,p_adversario:adversario,p_data:data,p_competicao:null,p_casa_fora:casaFora,p_competicao_id:competicaoId});
+  const {data:r}=await supa.rpc('ytb_clube_jogo_criar',{p_equipa_id:equipaAtiva.id,p_adversario:adversario,p_data:data,p_competicao:null,p_casa_fora:casaFora,p_competicao_id:competicaoId,p_hora_jogo:hora});
   if(!r||!r.ok){ toast('⚠ Não foi possível: '+((r&&r.motivo)||'erro')); return; }
   toast('✓ Jogo criado'); await carregarJogos();
 };
@@ -3648,7 +3650,7 @@ function pintarSecretaria(){
     +'<option value="">— nenhuma por agora —</option>'
     +minhasEquipas.map(function(e){return '<option value="'+e.id+'">'+esc(e.nome)+' · '+esc(e.epoca)+'</option>';}).join('')
     +'</select>'
-    +'<label class="label">Email do atleta ou do encarregado <span style="color:var(--red)">*</span> <span style="font-weight:400;color:var(--muted)">(para aceder ao Passaporte)</span></label>'
+    +'<label class="label">Email do atleta ou do encarregado <span style="font-weight:400;color:var(--muted)">(opcional — sem ele, o atleta fica sem acesso ao Passaporte até adicionares depois)</span></label>'
     +'<input class="input" id="sec-email-enc" type="email">'
     +'<button class="btn" onclick="criarAtletaSecretaria()">Criar atleta →</button>'
     +'<div id="sec-duplicados"></div></div>'
@@ -3811,7 +3813,6 @@ window.criarAtletaSecretaria=async function(forcarNovo){
   var pos=document.getElementById('sec-pos').value;
   var emailEnc=(document.getElementById('sec-email-enc').value||'').trim();
   if(!nome||!ano){ toast('Falta o nome ou o ano de nascimento'); return; }
-  if(!emailEnc){ toast('Falta o email — é obrigatório para o acesso ao Passaporte'); return; }
   const {data:r}=await supa.rpc('ytb_clube_secretaria_atleta_criar',{
     p_clube_id:meuClube.clube_id, p_nome:nome, p_ano:ano, p_pos:pos,
     p_email_enc:emailEnc||null, p_confirmar_novo:!!forcarNovo
