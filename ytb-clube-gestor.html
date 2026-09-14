@@ -2129,6 +2129,7 @@ function pintarTreinos(){
   const box=document.getElementById('sec-treinos');
   if(!equipaAtiva){ box.innerHTML='<div class="card"><div class="s">Escolhe uma equipa na aba Equipas primeiro.</div></div>'; return; }
   box.innerHTML='<div id="planeamento-area"><div class="card"><div class="s">A carregar planeamento…</div></div></div>'
+    +'<div id="modelo-jogo-area"></div>'
     +'<div id="memoria-equipa-area"></div>'
     +'<div class="treino-zonas">'
     +'<div>'
@@ -2169,6 +2170,7 @@ function pintarTreinos(){
   pintarRecentesLista();
   carregarHistoricoSessoes();
   carregarPlaneamento();
+  carregarModeloJogo();
   carregarMemoriaEquipa();
 }
 async function carregarMemoriaEquipa(){
@@ -2196,6 +2198,43 @@ async function carregarMemoriaEquipa(){
   html+='</div>';
   box.innerHTML=html;
 }
+/* ══════ MODELO DE JOGO (princípios por momento) ══════ */
+var MOMENTOS_JOGO=[['organizacao_ofensiva','Organização Ofensiva'],['transicao_defensiva','Transição Ofensiva → Defensiva'],['organizacao_defensiva','Organização Defensiva'],['transicao_ofensiva','Transição Defensiva → Ofensiva']];
+async function carregarModeloJogo(){
+  var box=document.getElementById('modelo-jogo-area');
+  if(!box||!equipaAtiva) return;
+  const {data:r}=await supa.rpc('ytb_clube_modelo_jogo_obter',{p_equipa_id:equipaAtiva.id});
+  var momentos=(r&&r.ok&&r.momentos)||{};
+  box.innerHTML='<div class="card"><div class="h">Modelo de <span style="color:var(--gold)">jogo</span></div>'
+    +'<div class="s">Os princípios e sub-princípios da equipa em cada momento — a identidade tática, escrita, não só na tua cabeça.</div>'
+    +MOMENTOS_JOGO.map(function(m){
+      var dados=momentos[m[0]];
+      return '<div style="padding:10px 0;border-bottom:1px solid var(--border)">'
+        +'<div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:13px">'+m[1]+'</b>'
+        +'<button class="btn btn-sec" style="width:auto;padding:5px 10px;margin-top:0;font-size:12px" onclick="editarMomentoModeloJogo(\''+m[0]+'\')">'+(dados?'Editar':'Definir')+'</button></div>'
+        +(dados&&dados.principios?('<div class="s" style="margin:4px 0 0">'+esc(dados.principios)+'</div>'):'<div class="s" style="margin:4px 0 0;color:var(--muted)">Ainda por definir.</div>')
+        +(dados&&dados.sub_principios?('<div class="s" style="margin:2px 0 0;color:var(--muted)">↳ '+esc(dados.sub_principios)+'</div>'):'')
+        +'<div id="mj-form-'+m[0]+'"></div>'
+        +'</div>';
+    }).join('')
+    +'</div>';
+  window.__modeloJogoCache=momentos;
+}
+window.editarMomentoModeloJogo=function(momento){
+  var dados=(window.__modeloJogoCache||{})[momento]||{};
+  var area=document.getElementById('mj-form-'+momento);
+  area.innerHTML='<label class="label" style="margin-top:8px">Princípios</label><textarea class="input" id="mj-principios-'+momento+'" rows="2">'+esc(dados.principios||'')+'</textarea>'
+    +'<label class="label">Sub-princípios <span style="font-weight:400;color:var(--muted)">(opcional)</span></label><textarea class="input" id="mj-sub-'+momento+'" rows="2">'+esc(dados.sub_principios||'')+'</textarea>'
+    +'<button class="btn" style="margin-top:0" onclick="guardarMomentoModeloJogo(\''+momento+'\')">Guardar →</button>';
+};
+window.guardarMomentoModeloJogo=async function(momento){
+  var principios=document.getElementById('mj-principios-'+momento).value;
+  var sub=document.getElementById('mj-sub-'+momento).value;
+  const {data:r}=await supa.rpc('ytb_clube_modelo_jogo_definir',{p_equipa_id:equipaAtiva.id,p_momento:momento,p_principios:principios,p_sub_principios:sub||null});
+  if(!r||!r.ok){ toast('⚠ Não foi possível: '+((r&&r.motivo)||'erro')); return; }
+  toast('✓ Modelo de jogo atualizado');
+  carregarModeloJogo();
+};
 async function carregarPlaneamento(){
   var epoca=equipaAtiva.epoca||'2026/27';
   const {data:r}=await supa.rpc('ytb_clube_planeamento_obter',{p_equipa_id:equipaAtiva.id,p_epoca:epoca});

@@ -1,0 +1,2 @@
+-- 208: Modelo de Jogo documentado, por equipa, 4 momentos classicos.
+-- Corpo integral no historico Supabase (208).
