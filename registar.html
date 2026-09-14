@@ -98,19 +98,9 @@ function escolherPapel(btn){
   if(d)d.innerHTML=PAPEL_DESC[papelEscolhido]||'';
 }
 document.addEventListener('DOMContentLoaded',()=>{
-  // papel via URL (ex: registar.html?papel=scout vindo do Relatório do Olheiro)
-  const params=new URLSearchParams(window.location.search);
-  const pUrl=params.get('papel');
-  if(pUrl==='scout'){
-    papelEscolhido='scout';
-    const grid=document.getElementById('papelGrid');
-    if(grid)grid.style.display='none'; // scout vem direto, sem seletor
-    const h1=document.querySelector('h1'); if(h1)h1.innerHTML='Conta de <span>Scout</span>';
-    const d=document.getElementById('papelDesc');
-    if(d)d.innerHTML='<span class="preco">39,90€ · 3 relatórios</span>Cria a conta e, após confirmarmos o pagamento, geras 3 Relatórios do Olheiro profissionais imprimíveis.';
-  } else {
-    const d=document.getElementById('papelDesc');if(d)d.innerHTML=PAPEL_DESC[papelEscolhido];
-  }
+  // registo publico de scout removido -- scout so entra convidado dentro
+  // de um clube no YTB Clube, nao como conta independente
+  const d=document.getElementById('papelDesc');if(d)d.innerHTML=PAPEL_DESC[papelEscolhido];
 });
 
 function showMsg(txt,tipo){const m=document.getElementById('msg');m.textContent=txt;m.className='msg '+tipo;}
