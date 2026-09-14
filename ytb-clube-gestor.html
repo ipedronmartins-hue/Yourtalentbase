@@ -3654,6 +3654,12 @@ function pintarSecretaria(){
     +'<input class="input" id="sec-email-enc" type="email">'
     +'<button class="btn" onclick="criarAtletaSecretaria()">Criar atleta →</button>'
     +'<div id="sec-duplicados"></div></div>'
+    +'<div class="card"><div class="h">Adicionar <span style="color:var(--gold)">em lote</span></div>'
+    +'<div class="s">Para inscrever vários atletas de uma vez — útil ao trazer um plantel já existente para a plataforma.</div>'
+    +'<div id="lote-linhas"></div>'
+    +'<button class="btn btn-sec" style="margin-bottom:10px" onclick="loteAdicionarLinha()">+ Adicionar linha</button>'
+    +'<button class="btn" onclick="submeterLoteAtletas()">Inscrever todos →</button>'
+    +'<div id="lote-resultados"></div></div>'
     +'<div class="card"><div class="h">Documentos <span style="color:var(--gold)">do atleta</span></div>'
     +'<div class="s">CC, foto, Modelo 2, exame médico — ficam guardados de forma privada, só visíveis à secretaria, ao admin e ao encarregado do próprio atleta.</div>'
     +'<label class="label">Atleta</label><select class="input" id="doc-atleta" onchange="carregarDocumentosAtleta()">'
@@ -3698,6 +3704,7 @@ function pintarSecretaria(){
   carregarEPintarAtribuicaoTreinadores();
   carregarMensalidadesMes();
   carregarInfoEscolar();
+  for(var __i=0;__i<3;__i++) loteAdicionarLinha();
 }
 window.gerarMensalidadesMes=async function(){
   var periodo=document.getElementById('mn-periodo').value;
@@ -3806,6 +3813,45 @@ window.atribuirTreinadorEquipa=async function(equipaId){
   if(!r||!r.ok){ toast('⚠ Não foi possível: '+((r&&r.motivo)||'erro')); return; }
   toast('✓ Treinador atribuído a esta equipa');
   await carregarEPintarAtribuicaoTreinadores();
+};
+/* ══════ ADICIONAR ATLETAS EM LOTE ══════ */
+var POSICOES_LOTE=[['GR','Guarda-Redes'],['DC','Defesa Central'],['LD','Lateral Direito'],['LE','Lateral Esquerdo'],['MD','Médio Defensivo'],
+  ['MC','Médio Centro'],['MO','Médio Ofensivo'],['ED','Extremo Direito'],['EE','Extremo Esquerdo'],['PL','Ponta de Lança'],['AV','Avançado']];
+var loteSeq=0;
+window.loteAdicionarLinha=function(){
+  var box=document.getElementById('lote-linhas');
+  if(!box) return;
+  loteSeq++;
+  var id='lr'+loteSeq;
+  var div=document.createElement('div');
+  div.className='lote-row';
+  div.id=id;
+  div.style.cssText='display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:6px;margin-bottom:6px;align-items:center';
+  div.innerHTML='<input class="input" style="margin-bottom:0" placeholder="Nome completo" data-f="nome">'
+    +'<input class="input" style="margin-bottom:0" type="number" placeholder="Ano" data-f="ano">'
+    +'<select class="input" style="margin-bottom:0" data-f="pos"><option value="">Posição</option>'+POSICOES_LOTE.map(function(p){return '<option value="'+p[0]+'">'+p[1]+'</option>';}).join('')+'</select>'
+    +'<button type="button" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:16px" onclick="document.getElementById(\''+id+'\').remove()">✕</button>';
+  box.appendChild(div);
+};
+var LOTE_MOTIVOS={nome:'nome em falta',ano_invalido:'ano de nascimento inválido',posicao_obrigatoria:'posição em falta',capacidade_atingida:'capacidade do clube atingida'};
+window.submeterLoteAtletas=async function(){
+  var resArea=document.getElementById('lote-resultados');
+  var linhas=Array.prototype.map.call(document.querySelectorAll('.lote-row'),function(row){
+    return {nome:row.querySelector('[data-f="nome"]').value.trim(), ano:parseInt(row.querySelector('[data-f="ano"]').value)||null, pos:row.querySelector('[data-f="pos"]').value||null};
+  }).filter(function(l){return l.nome;});
+  if(!linhas.length){ toast('Preenche pelo menos uma linha com nome'); return; }
+  const {data:r}=await supa.rpc('ytb_clube_secretaria_atletas_lote',{p_clube_id:meuClube.clube_id,p_lista:linhas});
+  if(!r||!r.ok){ toast('⚠ Não foi possível: '+((r&&r.motivo)||'erro')); return; }
+  var res=r.resultados||[];
+  resArea.innerHTML=res.map(function(x){
+    if(x.status==='criado') return '<div class="s" style="color:var(--up)">✓ '+esc(x.nome)+' — criado</div>';
+    if(x.status==='duplicado_possivel') return '<div class="s" style="color:var(--orange)">⚠ '+esc(x.nome)+' — parecido com um atleta existente, não foi criado. Usa "Criar atleta" acima para decidir.</div>';
+    return '<div class="s" style="color:var(--red)">✗ '+esc(x.nome)+' — '+(LOTE_MOTIVOS[x.motivo]||x.motivo||'erro')+'</div>';
+  }).join('');
+  var criados=res.filter(function(x){return x.status==='criado';}).length;
+  document.getElementById('lote-linhas').innerHTML='';
+  for(var i=0;i<3;i++) loteAdicionarLinha();
+  if(criados>0){ toast('✓ '+criados+' atleta(s) criado(s)'); await carregarAtletasDoClube(); }
 };
 window.criarAtletaSecretaria=async function(forcarNovo){
   var nome=(document.getElementById('sec-nome').value||'').trim();

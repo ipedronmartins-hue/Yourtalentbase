@@ -1,0 +1,2 @@
+-- 205: criacao de atletas em lote no YTB Clube. Corpo integral no
+-- historico Supabase (205).
