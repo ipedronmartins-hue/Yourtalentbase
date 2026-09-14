@@ -4553,22 +4553,28 @@ window.definirHorarioTreino=async function(){
 // filhos (sub-abas, mostradas numa segunda linha) ou ser "solo" (abre
 // diretamente, sem segunda linha). tab(id) continua a funcionar exatamente
 // como antes -- nada foi tocado nas funcoes pintarX() nem nas divs sec-*.
+function moduloAtivo(nome){
+  return !(meuClube && meuClube.modulos_desativados && meuClube.modulos_desativados.indexOf(nome)!==-1);
+}
 function gruposDisponiveis(){
   var g=[];
   var souScoutPuro=(meuClube && meuClube.papel==='scout');
   if(meuClube && meuClube.papel==='admin') g.push({id:'painel',nome:'Painel',solo:true});
-  if(!souScoutPuro){
+  if(!souScoutPuro && moduloAtivo('agenda')){
     g.push({id:'agenda',nome:'Agenda',solo:true});
+  }
+  if(!souScoutPuro && moduloAtivo('equipa')){
     g.push({id:'equipa',nome:'Equipa',filhos:[['equipas','Equipas'],['plantel','Plantel'],['jogos','Jogos'],['treinos','Treinos'],['prancheta','Prancheta'],['avaliar','Avaliar'],['retorno','Retorno']]});
   }
-  if(meuClube && (meuClube.papel==='scout'||meuClube.papel==='admin')) g.push({id:'scout','nome':'Scout',solo:true,tabReal:'scout'});
-  if(meuClube && (meuClube.papel==='secretaria'||meuClube.papel==='admin')){
+  if(meuClube && (meuClube.papel==='scout'||meuClube.papel==='admin') && moduloAtivo('scout')) g.push({id:'scout','nome':'Scout',solo:true,tabReal:'scout'});
+  if(meuClube && (meuClube.papel==='secretaria'||meuClube.papel==='admin') && moduloAtivo('secretaria')){
     var souAcademia=(meuClube.tipo_organizacao==='academia');
     var filhosSecretaria=[['secretaria','Geral']];
-    if(!souAcademia){ filhosSecretaria.push(['socios','Sócios']); filhosSecretaria.push(['patrocinios','Patrocínios']); }
-    filhosSecretaria.push(['recibos','Recibos']);
-    if(!souAcademia) filhosSecretaria.push(['fpf','FPF']);
-    filhosSecretaria.push(['medico','Médico']);
+    if(!souAcademia && moduloAtivo('socios')) filhosSecretaria.push(['socios','Sócios']);
+    if(!souAcademia && moduloAtivo('patrocinios')) filhosSecretaria.push(['patrocinios','Patrocínios']);
+    if(moduloAtivo('recibos')) filhosSecretaria.push(['recibos','Recibos']);
+    if(!souAcademia && moduloAtivo('fpf')) filhosSecretaria.push(['fpf','FPF']);
+    if(moduloAtivo('medico')) filhosSecretaria.push(['medico','Médico']);
     g.push({id:'secretaria',nome:'Secretaria',filhos:filhosSecretaria});
   }
   if(meuClube && meuClube.papel==='admin') g.push({id:'membros','nome':'Membros',solo:true,tabReal:'membros'});

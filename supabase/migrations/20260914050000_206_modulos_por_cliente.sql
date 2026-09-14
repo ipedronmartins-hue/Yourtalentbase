@@ -1,0 +1,2 @@
+-- 206: controlo de modulos por cliente, generalizando o seletor
+-- Clube/Academia. Corpo integral no historico Supabase (206).

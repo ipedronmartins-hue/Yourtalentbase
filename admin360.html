@@ -565,6 +565,18 @@ tr:last-child td{border-bottom:none}
   </div>
 </div>
 
+<div class="modal-overlay" id="modal-modulos" onclick="if(event.target.id==='modal-modulos')closeModal('modulos')">
+  <div class="modal">
+    <div class="modal-title">🧩 Módulos ativos</div>
+    <div class="modal-sub" id="modulos-clube-nome"></div>
+    <div class="edit-grid" id="modulos-checkboxes"></div>
+    <div class="modal-btns">
+      <button class="modal-btn modal-btn-secondary" onclick="closeModal('modulos')">Cancelar</button>
+      <button class="modal-btn modal-btn-primary" onclick="salvarModulosClube()">💾 Guardar</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -1921,7 +1933,32 @@ async function saveClube(){
   } catch(e){ toast('Erro', 'error'); }
 }
 
-function editarClube(id){ toast('Edição de clubes em breve · use Supabase directo por agora', 'green'); }
+var MODULOS_CLUBE=[['agenda','Agenda'],['equipa','Equipa (treino, jogos, prancheta)'],['scout','Scout'],['secretaria','Secretaria (geral)'],['socios','Sócios'],['patrocinios','Patrocínios'],['recibos','Recibos'],['fpf','FPF'],['medico','Médico']];
+function editarClube(id){
+  var c=allClubes.find(function(x){return x.id===id;});
+  if(!c){ toast('Clube não encontrado', 'red'); return; }
+  document.getElementById('modulos-clube-nome').textContent=c.clube_nome+' · desativa aqui o que este cliente não paga';
+  var desativados=c.modulos_desativados||[];
+  document.getElementById('modulos-checkboxes').innerHTML=MODULOS_CLUBE.map(function(m){
+    var marcado=desativados.indexOf(m[0])===-1;
+    return '<div class="edit-field full"><label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" data-modulo="'+m[0]+'" '+(marcado?'checked':'')+'> '+m[1]+'</label></div>';
+  }).join('');
+  window.__clubeModulosId=id;
+  document.getElementById('modal-modulos').classList.add('show');
+  document.body.style.overflow='hidden';
+}
+async function salvarModulosClube(){
+  var checkboxes=document.querySelectorAll('#modulos-checkboxes input[type="checkbox"]');
+  var desativados=[];
+  checkboxes.forEach(function(cb){ if(!cb.checked) desativados.push(cb.getAttribute('data-modulo')); });
+  const { data, error } = await supa.rpc('ytb_admin_clube_definir_modulos', { p_clube_id: window.__clubeModulosId, p_modulos_desativados: desativados });
+  if(error || !data || !data.ok){
+    toast('Erro: ' + (data && data.motivo || error?.message || 'desconhecido'), 'red'); return;
+  }
+  toast('Módulos atualizados', 'green');
+  closeModal('modulos');
+  load();
+}
 async function apagarClube(id, nome){
   if(!confirm(`Apagar clube "${nome}"?`)) return;
   await supa.rpc('ytb_admin_clube_remover', { p_id:id });
